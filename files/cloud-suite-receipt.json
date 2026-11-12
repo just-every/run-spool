@@ -1,0 +1,14 @@
+[
+  {
+    "suite": "tests/dev-credentials.mjs",
+    "cloudCommand": "cloud_run node tests/.fleet-dev-credentials.mjs",
+    "onlyChange": "queue-only import and admission call omitted for the dedicated cloud VM; all suite assertions retained",
+    "body_sha256": "7d8472f48842a0429168a786553f87b2b45ab86ddee1caccc55c494f2482072b"
+  },
+  {
+    "suite": "tests/owner-erasure.mjs",
+    "cloudCommand": "cloud_run node tests/.fleet-owner-erasure.mjs",
+    "onlyChange": "queue-only import and admission call omitted for the dedicated cloud VM; all suite assertions retained",
+    "body_sha256": "ed1a30e040b1c63970cd439b532fff95e26feb126d97f9c2a1a1ea5fcc9cb950"
+  }
+]

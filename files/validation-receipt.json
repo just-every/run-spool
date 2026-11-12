@@ -1,0 +1,119 @@
+{
+  "repository": "just-every/run-spool",
+  "branch": "cloud/main-spool-local-mail-steps-1",
+  "head": "3f7be95596669e14d77f1ee317d1622bfdd14e93",
+  "base": "26d13d4f574298851f25778818c1af0b9b2a2386",
+  "committed_working_tree_clean": true,
+  "tests_collected_against": "same product source committed as the candidate; source lock regenerated last",
+  "checks": [
+    {
+      "name": "build",
+      "command": "cloud_run npx -y @runeditrun/rer build",
+      "exit": 0,
+      "actual_log": "build.log"
+    },
+    {
+      "name": "typecheck",
+      "command": "pnpm typecheck",
+      "exit": 0,
+      "actual_log": "typecheck.log"
+    },
+    {
+      "name": "membership",
+      "command": "cloud_run node .artifacts/team-run.mjs",
+      "exit": 0,
+      "actual_log": "team-check.log"
+    },
+    {
+      "name": "dev-credentials",
+      "command": "cloud_run node tests/.fleet-dev-credentials.mjs",
+      "exit": 0,
+      "actual_log": "dev-credentials-check.log"
+    },
+    {
+      "name": "native-ownership-transfer",
+      "command": "cloud_run node .artifacts/governance-run.mjs",
+      "exit": 0,
+      "actual_log": "governance-check.log"
+    },
+    {
+      "name": "source-lock",
+      "command": "node scripts/edition-authoring/cli.mjs lock",
+      "exit": 0,
+      "actual_log": "source-lock.log"
+    },
+    {
+      "name": "source-check",
+      "command": "pnpm source:check",
+      "exit": 0,
+      "actual_log": "source-check.log"
+    },
+    {
+      "name": "contract-documents",
+      "command": "node src/base/contract-docs.mjs check",
+      "exit": 0,
+      "actual_log": "contract-check.log"
+    },
+    {
+      "name": "exact-candidate-local-browser-proof",
+      "command": "cloud_run node .artifacts/proof-run.mjs",
+      "exit": 0,
+      "actual_log": "local-proof-check.log",
+      "head": "3f7be95596669e14d77f1ee317d1622bfdd14e93"
+    },
+    {
+      "name": "owner-erasure",
+      "command": "cloud_run node tests/.fleet-owner-erasure.mjs",
+      "exit": 0,
+      "actual_log": "owner-erasure-check.log",
+      "actual_results": "owner-erasure-results.json"
+    },
+    {
+      "name": "final-integration-sync",
+      "command": "pnpm integration:sync",
+      "exit": 0,
+      "actual_log": "integration-sync.log"
+    },
+    {
+      "name": "final-integration-check",
+      "command": "pnpm integration:check",
+      "exit": 0,
+      "actual_log": "integration-check.log"
+    },
+    {
+      "name": "final-typecheck",
+      "command": "pnpm typecheck",
+      "exit": 0,
+      "actual_log": "final-typecheck.log"
+    },
+    {
+      "name": "final-source-check",
+      "command": "pnpm source:check",
+      "exit": 0,
+      "actual_log": "final-source-check.log"
+    }
+  ],
+  "owner_erasure_full_suite": "passed; 3 groups including archive fences, authority races, interrupted erasure/finalization and delayed writes",
+  "proofs": [
+    {
+      "path": "local-members-1440.png",
+      "viewport": 1440,
+      "invitation_token_masked": true
+    },
+    {
+      "path": "local-members-390.png",
+      "viewport": 390,
+      "invitation_token_masked": true
+    }
+  ],
+  "product_push": "both initial and final heads succeeded on attempt 1; final-push-receipt.log",
+  "publication_scan": "not available in this cloud; fleet performs its required scan before landing",
+  "contract_cells_changed": false,
+  "pr": null,
+  "browser_proof_receipt": "browser-proof-receipt.json",
+  "initial_head": "0dbe21d053763fc999e869eb65a377f8b09dfa84",
+  "published_heads": [
+    "0dbe21d053763fc999e869eb65a377f8b09dfa84",
+    "3f7be95596669e14d77f1ee317d1622bfdd14e93"
+  ]
+}

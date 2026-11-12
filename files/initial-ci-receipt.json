@@ -1,0 +1,29 @@
+{
+  "repository": "just-every/run-spool",
+  "head_sha": "0dbe21d053763fc999e869eb65a377f8b09dfa84",
+  "run_id": 43182938809,
+  "history": [
+    {
+      "read": 1,
+      "at": 1794472006.2782526,
+      "conclusion": null,
+      "event": "push",
+      "head_branch": "cloud/main-spool-local-mail-steps-1",
+      "head_sha": "0dbe21d053763fc999e869eb65a377f8b09dfa84",
+      "html_url": "https://github.com/just-every/run-spool/actions/runs/43182938809",
+      "id": 43182938809,
+      "status": "in_progress"
+    },
+    {
+      "read": 2,
+      "at": 1794472306.16862,
+      "conclusion": "failure",
+      "head_sha": "0dbe21d053763fc999e869eb65a377f8b09dfa84",
+      "html_url": "https://github.com/just-every/run-spool/actions/runs/43182938809",
+      "status": "completed"
+    }
+  ],
+  "status": "completed",
+  "conclusion": "failure",
+  "html_url": "https://github.com/just-every/run-spool/actions/runs/43182938809"
+}

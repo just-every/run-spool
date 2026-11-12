@@ -1,0 +1,7 @@
+{
+  "path": "/home/agent/rer-consolidation/work/main-spool-local-mail-steps-1/product-3f7be9559666.bundle",
+  "sha256": "874022f1480e1dc60aa897ffa268e3a01ae71ba6e5a6f37217cf17d36d4d69be",
+  "head": "3f7be95596669e14d77f1ee317d1622bfdd14e93",
+  "verified": true,
+  "purpose": "Recovery data outside the clone. Not a landing or READY signal."
+}

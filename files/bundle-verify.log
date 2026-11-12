@@ -1,0 +1,9 @@
+/home/agent/rer-consolidation/work/main-spool-local-mail-steps-1/product-3f7be9559666.bundle is okay
+The bundle contains these 5 refs:
+3f7be95596669e14d77f1ee317d1622bfdd14e93 refs/heads/cloud/main-spool-local-mail-steps-1
+26d13d4f574298851f25778818c1af0b9b2a2386 refs/heads/main
+26d13d4f574298851f25778818c1af0b9b2a2386 refs/remotes/origin/HEAD
+26d13d4f574298851f25778818c1af0b9b2a2386 refs/remotes/origin/main
+3f7be95596669e14d77f1ee317d1622bfdd14e93 HEAD
+The bundle records a complete history.
+The bundle uses this hash algorithm: sha1

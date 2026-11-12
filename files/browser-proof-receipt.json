@@ -1,0 +1,21 @@
+{
+  "head": "3f7be95596669e14d77f1ee317d1622bfdd14e93",
+  "productCheckoutClean": true,
+  "command": "cloud_run node .artifacts/proof-run.mjs",
+  "files": [
+    {
+      "path": "local-members-1440.png",
+      "viewport": 1440,
+      "pngWidth": 1440,
+      "pngHeight": 895,
+      "invitationTokenMasked": true
+    },
+    {
+      "path": "local-members-390.png",
+      "viewport": 390,
+      "pngWidth": 390,
+      "pngHeight": 1056,
+      "invitationTokenMasked": true
+    }
+  ]
+}

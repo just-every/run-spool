@@ -1,0 +1,11 @@
+[33m▲ [43;33m[[43;30mWARNING[43;33m][0m [1mProxy environment variables detected. We'll use your proxy for fetch requests.[0m
+
+
+Local mail journey: starting emitted app
+Local mail journey: emitted app ready
+Local mail journey: owner and project created
+Local mail journey: pending native link available after reload
+Local mail journey: copy and verification complete
+PROBE TEAM-001 local invitation: suppressed mail; copy after reload; same native expiring token; second browser acceptance once; roles, expiry, read-only denial and archive exclusion preserved.
+PROBE GOV-001 local verification: request produces no completed proof and native transfer still refuses without email confirmation.
+Exact-candidate local proof passed at 1440 and 390; invitation tokens masked.

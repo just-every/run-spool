@@ -1,0 +1,17 @@
+{
+  "testInventoryBefore": 122,
+  "testInventoryAfter": 122,
+  "newRegistrations": 0,
+  "newSuiteCommands": 0,
+  "cap": 200,
+  "contractStatusChanges": 0,
+  "contractGapChanges": 0,
+  "contractEvidenceChanges": 0,
+  "countBoundary": "Existing top-level test file inventory is unchanged; this round extends the existing membership/browser journey and introduces no test/it/contract registrations or CI suite commands.",
+  "misleadingLocalNoticesBefore": 2,
+  "misleadingLocalNoticesAfter": 0,
+  "localInvitationCopyControlsBefore": 0,
+  "localInvitationCopyControlsAfter": 1,
+  "remainingNamedGaps": 1,
+  "beforeSourceHead": "26d13d4f574298851f25778818c1af0b9b2a2386"
+}

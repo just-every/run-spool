@@ -1,0 +1,86 @@
+[
+  {
+    "time": 1794472005.214345,
+    "command": [
+      "gh",
+      "api",
+      "repos/just-every/run-spool/actions/runs?head_sha=0dbe21d053763fc999e869eb65a377f8b09dfa84&per_page=100",
+      "--jq",
+      "[.workflow_runs[] | select(.name == \"Verify\" and .event == \"push\") | {id,status,conclusion,head_sha,html_url,head_branch,event}]"
+    ]
+  },
+  {
+    "time": 1794472305.242383,
+    "command": [
+      "gh",
+      "api",
+      "repos/just-every/run-spool/actions/runs/43182938809",
+      "--jq",
+      "{status,conclusion,head_sha,html_url}"
+    ]
+  },
+  {
+    "time": 1794472348.0095367,
+    "command": [
+      "gh",
+      "api",
+      "repos/just-every/run-spool/actions/runs/43182938809/jobs?per_page=100",
+      "--jq",
+      "[.jobs[] | select(.conclusion == \"failure\") | {id,name,conclusion,failed_steps:[.steps[] | select(.conclusion == \"failure\") | {name,number,conclusion}]}]"
+    ]
+  },
+  {
+    "time": 1794472361.433033,
+    "command": [
+      "gh",
+      "run",
+      "view",
+      "43182938809",
+      "--repo",
+      "just-every/run-spool",
+      "--job",
+      "131063177943",
+      "--log-failed"
+    ]
+  },
+  {
+    "time": 1794472476.728647,
+    "command": [
+      "gh",
+      "api",
+      "repos/just-every/run-spool/actions/runs?head_sha=3f7be95596669e14d77f1ee317d1622bfdd14e93&per_page=100",
+      "--jq",
+      "[.workflow_runs[] | select(.name == \"Verify\" and .event == \"push\") | {id,status,conclusion,head_sha,html_url,head_branch,event}]"
+    ]
+  },
+  {
+    "time": 1794472777.291942,
+    "command": [
+      "gh",
+      "api",
+      "repos/just-every/run-spool/actions/runs/43184015205",
+      "--jq",
+      "{status,conclusion,head_sha,html_url}"
+    ]
+  },
+  {
+    "time": 1794473076.7011573,
+    "command": [
+      "gh",
+      "api",
+      "repos/just-every/run-spool/actions/runs/43184015205",
+      "--jq",
+      "{status,conclusion,head_sha,html_url}"
+    ]
+  },
+  {
+    "time": 1794473376.7259595,
+    "command": [
+      "gh",
+      "api",
+      "repos/just-every/run-spool/actions/runs/43184015205",
+      "--jq",
+      "{status,conclusion,head_sha,html_url}"
+    ]
+  }
+]

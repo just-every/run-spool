@@ -1,0 +1,19 @@
+build	Check integration and types	﻿2026-11-12T08:27:16.1420582Z ##[group]Run pnpm integration:check
+build	Check integration and types	2026-11-12T08:27:16.1420882Z [36;1mpnpm integration:check[0m
+build	Check integration and types	2026-11-12T08:27:16.1421115Z [36;1mpnpm typecheck[0m
+build	Check integration and types	2026-11-12T08:27:16.1438396Z shell: /usr/bin/bash -e {0}
+build	Check integration and types	2026-11-12T08:27:16.3583073Z 
+build	Check integration and types	2026-11-12T08:27:16.3583762Z > @errors/errors-workbench@0.7.7 integration:check /home/runner/work/run-spool/run-spool
+build	Check integration and types	2026-11-12T08:27:16.3584278Z > node scripts/sync-integration.mjs --check
+build	Check integration and types	2026-11-12T08:27:16.3584472Z 
+build	Check integration and types	2026-11-12T08:27:16.4516468Z file:///home/runner/work/run-spool/run-spool/scripts/sync-integration.mjs:68
+build	Check integration and types	2026-11-12T08:27:16.4517508Z       throw Error(`Stale integration ${name}; build the application and regenerate with pnpm integration:sync`);
+build	Check integration and types	2026-11-12T08:27:16.4517956Z             ^
+build	Check integration and types	2026-11-12T08:27:16.4518072Z 
+build	Check integration and types	2026-11-12T08:27:16.4518613Z Error: Stale integration management/integration/deployment-spec.json; build the application and regenerate with pnpm integration:sync
+build	Check integration and types	2026-11-12T08:27:16.4520112Z     at integrationRecipe (file:///home/runner/work/run-spool/run-spool/scripts/sync-integration.mjs:68:13)
+build	Check integration and types	2026-11-12T08:27:16.4520785Z     at async file:///home/runner/work/run-spool/run-spool/scripts/sync-integration.mjs:76:3
+build	Check integration and types	2026-11-12T08:27:16.4521073Z 
+build	Check integration and types	2026-11-12T08:27:16.4521155Z Node.js v22.20.0
+build	Check integration and types	2026-11-12T08:27:16.4648446Z  ELIFECYCLE  Command failed with exit code 1.
+build	Check integration and types	2026-11-12T08:27:16.6514393Z ##[error]Process completed with exit code 1.
