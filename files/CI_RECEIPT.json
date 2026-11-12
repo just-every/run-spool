@@ -14,6 +14,27 @@
       "head_sha": "537706bc5836fbae9982cac5b587031e2858f18b",
       "html_url": "https://github.com/just-every/run-spool/actions/runs/43181663936",
       "at": 1794471725.3922496
+    },
+    {
+      "status": "in_progress",
+      "conclusion": null,
+      "head_sha": "537706bc5836fbae9982cac5b587031e2858f18b",
+      "html_url": "https://github.com/just-every/run-spool/actions/runs/43181663936",
+      "at": 1794472025.9552019
+    },
+    {
+      "status": "in_progress",
+      "conclusion": null,
+      "head_sha": "537706bc5836fbae9982cac5b587031e2858f18b",
+      "html_url": "https://github.com/just-every/run-spool/actions/runs/43181663936",
+      "at": 1794472326.4987614
+    },
+    {
+      "status": "completed",
+      "conclusion": "success",
+      "head_sha": "537706bc5836fbae9982cac5b587031e2858f18b",
+      "html_url": "https://github.com/just-every/run-spool/actions/runs/43181663936",
+      "at": 1794472627.0173059
     }
   ],
   "run_id": 43181663936

@@ -16,5 +16,32 @@
       "api",
       "repos/just-every/run-spool/actions/runs/43181663936"
     ]
+  },
+  {
+    "call": 3,
+    "time": 1794472025.4287033,
+    "command": [
+      "gh",
+      "api",
+      "repos/just-every/run-spool/actions/runs/43181663936"
+    ]
+  },
+  {
+    "call": 4,
+    "time": 1794472325.9794629,
+    "command": [
+      "gh",
+      "api",
+      "repos/just-every/run-spool/actions/runs/43181663936"
+    ]
+  },
+  {
+    "call": 5,
+    "time": 1794472626.5332892,
+    "command": [
+      "gh",
+      "api",
+      "repos/just-every/run-spool/actions/runs/43181663936"
+    ]
   }
 ]
