@@ -19,7 +19,7 @@ export async function handoffPanel(browser,app,directory,issue){
  try{
   await traceStep("openGate",async()=> (openGate(context,app.origin)));
   const pairs=app.cookie.split('; ').filter(Boolean);await traceStep("context.addCookies",async()=> (context.addCookies(pairs.map(pair=>({name:pair.slice(0,pair.indexOf('=')),value:pair.slice(pair.indexOf('=')+1),url:app.origin})))));
-  const page=await traceStep("context.newPage",async()=> (context.newPage()));await traceStep("page.goto",async()=> (page.goto(app.origin+'/projects/a/settings')));await traceStep("page.waitForLoadState",async()=> (page.waitForLoadState('networkidle')));
+  const page=await traceStep("context.newPage",async()=> (context.newPage()));await traceStep("page.goto",async()=> (page.goto(app.origin+'/projects/a/settings#settings-projects')));await traceStep("page.waitForLoadState",async()=> (page.waitForLoadState('networkidle')));
   const minted=page.waitForResponse(r=>new URL(r.url()).pathname==='/api/projects/a/keys'&&r.request().method()==='POST');
   await traceStep("page.getByRole(button,{name:Create agent key,exact:true}).click",async()=> (page.getByRole('button',{name:'Create agent key',exact:true}).click()));const grant=await traceStep("(await minted).json",async()=> ((await traceStep("minted",async()=> (minted))).json()));
   const panel=page.locator('.agent-handoff');await traceStep("panel.locator([data-agent-command]).waitFor",async()=> (panel.locator('[data-agent-command]').waitFor()));

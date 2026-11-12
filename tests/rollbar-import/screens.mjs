@@ -18,7 +18,7 @@ export async function rollbarScreens(origin,cookie,project,issue) {
    assert.equal(await page.locator('.missing-map').count(),0,'history never becomes a fresh source lookup after event selection');
    await page.screenshot({path:`.artifacts/rollbar-import/issue-${width}.png`,fullPage:true});
    assert.ok(await page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth+1),'imported issue fits the viewport');
-   await page.goto(`${origin}/projects/${project}/settings`);
+   await page.goto(`${origin}/projects/${project}/settings#settings-data`);
    await page.getByText('Business imports',{exact:true}).first().waitFor();
    await page.getByRole('button',{name:'Details: Business imports',exact:true}).click();
    await page.getByText('rollbar-project:71',{exact:true}).waitFor();
