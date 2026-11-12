@@ -1,0 +1,57 @@
+[
+  {
+    "file": "tests/reports-flow.mjs",
+    "main": {
+      "assertions": 84,
+      "registrations": 0
+    },
+    "candidate": {
+      "assertions": 88,
+      "registrations": 0
+    }
+  },
+  {
+    "file": "tests/operator-ui.mjs",
+    "main": {
+      "assertions": 42,
+      "registrations": 0
+    },
+    "candidate": {
+      "assertions": 53,
+      "registrations": 0
+    }
+  },
+  {
+    "file": "tests/deployment-history.mjs",
+    "main": {
+      "assertions": 44,
+      "registrations": 0
+    },
+    "candidate": {
+      "assertions": 49,
+      "registrations": 0
+    }
+  },
+  {
+    "file": "tests/release-order-flow.mjs",
+    "main": {
+      "assertions": 70,
+      "registrations": 0
+    },
+    "candidate": {
+      "assertions": 70,
+      "registrations": 0
+    }
+  },
+  {
+    "file": "tests/alerts-ui.mjs",
+    "main": {
+      "assertions": 22,
+      "registrations": 0
+    },
+    "candidate": {
+      "assertions": 26,
+      "registrations": 0
+    }
+  }
+]

@@ -1,0 +1,66 @@
+{
+  "head": "c4492f61203d0e9af9184a2339252b78e0330978",
+  "calls": [
+    {
+      "at": 1794485402.4339666,
+      "path": "repos/just-every/run-spool/actions/runs?head_sha=c4492f61203d0e9af9184a2339252b78e0330978&per_page=100",
+      "exit_code": 0
+    },
+    {
+      "at": 1794485703.033147,
+      "path": "repos/just-every/run-spool/actions/runs/43215398526",
+      "exit_code": 0
+    },
+    {
+      "at": 1794486003.6243417,
+      "path": "repos/just-every/run-spool/actions/runs/43215398526",
+      "exit_code": 0
+    },
+    {
+      "at": 1794486304.361066,
+      "path": "repos/just-every/run-spool/actions/runs/43215398526",
+      "exit_code": 0
+    },
+    {
+      "at": 1794486604.9630744,
+      "path": "repos/just-every/run-spool/actions/runs/43215398526",
+      "exit_code": 0
+    },
+    {
+      "at": 1794486957.9877663,
+      "path": "repos/just-every/run-spool/actions/runs/43215398526",
+      "exit_code": 1,
+      "observed_http_status": 401,
+      "error": "gh: Bad credentials (HTTP 401)",
+      "timestamp_basis": "failure receipt recorded after observed response"
+    },
+    {
+      "at": 1794487008.9092743,
+      "path": "repos/just-every/run-spool",
+      "purpose": "after-refresh declared-repository authentication probe, not a CI poll",
+      "exit_code": 1,
+      "observed_http_status": 401
+    },
+    {
+      "at": 1794487125.5277255,
+      "path": "repos/just-every/run-spool",
+      "purpose": "bounded after-refresh authentication recovery",
+      "exit_code": 0
+    },
+    {
+      "at": 1794487258.5545905,
+      "path": "repos/just-every/run-spool/actions/runs/43215398526",
+      "exit_code": 0
+    }
+  ],
+  "state": "completed",
+  "run": {
+    "id": 43215398526,
+    "name": "Verify",
+    "status": "completed",
+    "conclusion": "success",
+    "head_sha": "c4492f61203d0e9af9184a2339252b78e0330978",
+    "html_url": "https://github.com/just-every/run-spool/actions/runs/43215398526",
+    "run_attempt": 1
+  }
+}

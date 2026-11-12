@@ -1,0 +1,17 @@
+{
+  "repository": "just-every/run-spool",
+  "branch": "cloud/main-spool-readable-ids-1-c1",
+  "head": "c4492f61203d0e9af9184a2339252b78e0330978",
+  "remote_tracking_head": "c4492f61203d0e9af9184a2339252b78e0330978",
+  "push_attempts": 1,
+  "push_status": "success",
+  "product_commits": 1,
+  "merge_commits": 0,
+  "pr": null,
+  "blockers": [],
+  "ci_run_id": 43215398526,
+  "ci_url": "https://github.com/just-every/run-spool/actions/runs/43215398526",
+  "ci_status": "completed",
+  "ci_conclusion": "success",
+  "custody": "READY"
+}

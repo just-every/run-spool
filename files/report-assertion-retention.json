@@ -1,0 +1,8 @@
+{
+  "file": "tests/reports-flow.mjs",
+  "main_assertion_calls": 84,
+  "candidate_assertion_calls": 88,
+  "selector_adaptation": "tbody code text -> tbody tr data-event-id; exact sorted event identities remain equal to expected.ids",
+  "main_assertions_missing": [],
+  "new_assertion_calls": 4
+}

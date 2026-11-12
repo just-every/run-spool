@@ -1,0 +1,42 @@
+{
+  "head": "c4492f61203d0e9af9184a2339252b78e0330978",
+  "statuses_unchanged": true,
+  "target_clauses": {
+    "GROUP-001": {
+      "before": "done",
+      "after": "done"
+    },
+    "FIND-003": {
+      "before": "done",
+      "after": "done"
+    },
+    "REL-001": {
+      "before": "done",
+      "after": "done"
+    },
+    "ALERT-003": {
+      "before": "partial",
+      "after": "partial"
+    }
+  },
+  "progress_before_and_after": {
+    "Core": {
+      "done": 23,
+      "partial": 45,
+      "missing": 19,
+      "total": 87
+    },
+    "Agent surface": {
+      "done": 0,
+      "partial": 9,
+      "missing": 9,
+      "total": 18
+    },
+    "Full target": {
+      "done": 23,
+      "partial": 54,
+      "missing": 28,
+      "total": 105
+    }
+  }
+}

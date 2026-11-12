@@ -1,0 +1,6 @@
+{
+  "check": "alerts",
+  "exit_code": 0,
+  "head": "c4492f61203d0e9af9184a2339252b78e0330978",
+  "log": "/tmp/spool-alerts.log"
+}

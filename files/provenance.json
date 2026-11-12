@@ -1,0 +1,30 @@
+{
+  "head": "c4492f61203d0e9af9184a2339252b78e0330978",
+  "parent": "ae07f7a47522ac43a5894fdfed3918ae49f763ea",
+  "main": "ae07f7a47522ac43a5894fdfed3918ae49f763ea",
+  "commits_ahead": 1,
+  "merge_commits": 0,
+  "preserved_files": {
+    "CONTRACT.md": {
+      "equal_to_main": true,
+      "sha256": "ee9c871bfa25a110d3f3e61924164c75cc17ea412cb775f2e0621f114ab3594b"
+    },
+    "ACCEPTANCE.md": {
+      "equal_to_main": true,
+      "sha256": "09f4bb713a3cf9acdde84ba680630f9e9356198966ea70f2ac502520909a9ab1"
+    },
+    "docs/CLAIMS.md": {
+      "equal_to_main": true,
+      "sha256": "dea371100eb9ee81aee20dfc3264506a9885383e15a197f813f044a335555aba"
+    }
+  },
+  "build": {
+    "command": "cloud_run npx -y @runeditrun/rer build",
+    "exit_code": 0
+  },
+  "typecheck": {
+    "command": "pnpm typecheck",
+    "exit_code": 0
+  },
+  "new_test_registrations": 0
+}

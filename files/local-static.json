@@ -1,0 +1,19 @@
+{
+  "head": "c4492f61203d0e9af9184a2339252b78e0330978",
+  "check": "source and contract generation checks",
+  "commands": [
+    {
+      "command": "node scripts/edition-authoring/cli.mjs lock",
+      "exit_code": 0
+    },
+    {
+      "command": "pnpm source:check",
+      "exit_code": 0
+    },
+    {
+      "command": "node src/base/contract-docs.mjs check",
+      "exit_code": 0
+    }
+  ],
+  "note": "No contract source change; generator check is current. Source lock regenerated last before the one product commit. Generated screenshot files restored after proof capture."
+}

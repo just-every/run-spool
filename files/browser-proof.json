@@ -1,0 +1,87 @@
+{
+  "head": "c4492f61203d0e9af9184a2339252b78e0330978",
+  "widths": [
+    1440,
+    390
+  ],
+  "reviewed": true,
+  "notes": [
+    "Readable event receipt, issue short ID and title in report rows; navigation and exact occurrence identity asserted.",
+    "Grouping picker shows local time, release and message; history names person and exact move; raw record copied by the one Copy details control.",
+    "Deployment records and outcome steps show Deploy key or native owner identity.",
+    "Resumption reference shows the snoozed rule and its actual created/until period.",
+    "Existing Held alerts identifiers remain outside this round's resumption-reference scope."
+  ],
+  "files": [
+    {
+      "path": "deploy-key-1440.png",
+      "sha256": "c446a9013d8cc0226fd072b79aa0fe346c7bb55af4c96d6798e185ee84f179cf",
+      "bytes": 62443
+    },
+    {
+      "path": "deploy-key-390.png",
+      "sha256": "e4567057bafe32736dbaa920fc790800c5e74a09b9ad48d47585f8ba84f23b83",
+      "bytes": 57651
+    },
+    {
+      "path": "deployments-1440.png",
+      "sha256": "297c4f4535252ca30a006878d0919fdf0f9451af9e8aefe8914d07214d00ce9e",
+      "bytes": 352681
+    },
+    {
+      "path": "deployments-390.png",
+      "sha256": "f9bc2620d0a57985d9a3b6c16a8eca35cc42545299a3c24b8374c3b6c2cabb88",
+      "bytes": 333684
+    },
+    {
+      "path": "grouping-history-1440.jpg",
+      "sha256": "f858c4770e26e9987bba40a3dce2a490158bf92ed77e9f19b6c2a159ab2704e1",
+      "bytes": 112270
+    },
+    {
+      "path": "grouping-history-390.jpg",
+      "sha256": "c1b6a5d04b04ef82f2010f5e2c24659e2f2131e2307d7da35a76cc45dfba902c",
+      "bytes": 73657
+    },
+    {
+      "path": "grouping-merge-1440.jpg",
+      "sha256": "72f4b73875098aaf3d8be10f5f77875a1882bd8e6234a3372d84d367b4df2611",
+      "bytes": 129512
+    },
+    {
+      "path": "grouping-merge-390.jpg",
+      "sha256": "a16bb050ded0d7a7ad93d7ab8a28d0a6c225a6082d11f18164f570736af66599",
+      "bytes": 64676
+    },
+    {
+      "path": "grouping-preview-1440.jpg",
+      "sha256": "687334e7584d017e434604c946f0c0d14f5e6bfc203c33c6549b294711b449d4",
+      "bytes": 129455
+    },
+    {
+      "path": "grouping-preview-390.jpg",
+      "sha256": "e4f791adb17621f04a60a022c96d7d365437f2aa4e957752a4f82702727a6f39",
+      "bytes": 66191
+    },
+    {
+      "path": "reports-1440.png",
+      "sha256": "4f492d160f154cdc0c3d964424cf7e9d38dd1e5579fcb2679261f02948207102",
+      "bytes": 132796
+    },
+    {
+      "path": "reports-390.png",
+      "sha256": "a9e7310e33fff7dce296d0643be1c4b9936079303cd4ac8a10c463529442c327",
+      "bytes": 137623
+    },
+    {
+      "path": "resumption-1440.png",
+      "sha256": "ddc84e48eb6301525cbc6fa268fc9401eb27e498bd0a0b9328330e6a0b743e43",
+      "bytes": 225975
+    },
+    {
+      "path": "resumption-390.png",
+      "sha256": "03d6eb4fc63f9f81d1eac522e44949c4fce540da6cde8dac417c654ed088b360",
+      "bytes": 185655
+    }
+  ]
+}
