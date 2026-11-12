@@ -37,7 +37,12 @@
     "no-dist-history-1440.png",
     "no-dist-history-390.png",
     "no-dist-deployment-1440.png",
-    "no-dist-deployment-390.png"
+    "no-dist-deployment-390.png",
+    "EVIDENCE-TRANSFER-CHECK.json",
+    "CI-FINAL.json",
+    "CI-POLL-2.json",
+    "CI-POLL-3.json",
+    "CI-POLL-4.json"
   ],
   "policy": "Explicit public-safe actual report, receipts, check logs and synthetic proof/runners; no symlinks, environment dumps, injected credentials or private held-out gate material."
 }

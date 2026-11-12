@@ -50,19 +50,20 @@
   },
   "claims": [
     "CLAIM SDK-009 PARTIAL points=3 tests=tests/release-identity-flow.mjs#releaseIdentityFlow",
-    "CLAIM ALERT-003 PARTIAL points=1,4,5 tests=tests/alerts-ui.mjs#destination tests, delivery states, timezone digests and snoozing"
+    "CLAIM ALERT-003 PARTIAL points=none tests=tests/alerts-ui.mjs#destination tests, delivery states, timezone digests and snoozing"
   ],
   "limitations": [
     "Local suppressed-mail qualification only; no live provider receipt claimed.",
-    "Full publication scan and landing are owned by the fleet Mac.",
-    "Exact-SHA Verify pending at receipt creation."
+    "Full publication scan and landing are owned by the fleet Mac."
   ],
   "ci": {
-    "workflow": "Verify",
-    "id": 43180512757,
+    "conclusion": "success",
     "head_sha": "32e75542b7d75b44cb55508056a7bd63a655c824",
-    "status": "in_progress",
-    "github_api_calls": 2
+    "html_url": "https://github.com/just-every/run-spool/actions/runs/43180512757",
+    "status": "completed",
+    "id": 43180512757,
+    "workflow": "Verify",
+    "github_api_calls": 5
   },
   "runtime": {
     "node": "24.19.0",
@@ -77,5 +78,11 @@
     "after": "AFTER.json",
     "screens": "selected release/build, delivery and digest/resumption screens at 1440 and 390",
     "notes": "Screenshots use synthetic records and contain no private dev entry link or project credentials."
-  }
+  },
+  "evidence_transfer_check": {
+    "head": "bc38414b8cc95da6d1922ee9a7b23f0f0b4d05d9",
+    "status": "restored",
+    "checks": "Manifest identity, all file sizes/hashes/blobs, regular-only tree and exact product head verified by cloud_evidence.py fetch."
+  },
+  "custody": "READY"
 }

@@ -24,14 +24,16 @@ Validation
 - Product tree is clean. Only the named product branch was pushed. No screenshots, proof or fleet reports were committed to it.
 
 CLAIM SDK-009 PARTIAL points=3 tests=tests/release-identity-flow.mjs#releaseIdentityFlow
-CLAIM ALERT-003 PARTIAL points=1,4,5 tests=tests/alerts-ui.mjs#destination tests, delivery states, timezone digests and snoozing
+CLAIM ALERT-003 PARTIAL points=none tests=tests/alerts-ui.mjs#destination tests, delivery states, timezone digests and snoozing
 
-These are partial clause claims for this round's display and local suppression obligations. No actual digest/resumption provider send, whole-clause acceptance, live-account qualification or landing is claimed. Existing broader clause gaps remain in CONTRACT.md.
+SDK-009 point 3 is supported by the release-less public journey. ALERT-003's assertions improve the local display portions of points 1, 4 and 5; no full acceptance point or provider-send qualification is claimed for that clause. No actual digest/resumption provider send, whole-clause acceptance, live-account qualification or landing is claimed. Existing broader clause gaps remain in CONTRACT.md.
 
 Defaults: the shipped polish essentials govern this label correction; no unprovided ruling was needed. No layout or icon controls were added. The readable-ids round's resumption identifier text was left intact.
 
-CI: Verify 43180512757, https://github.com/just-every/run-spool/actions/runs/43180512757, exact head 32e75542b7d75b44cb55508056a7bd63a655c824. In progress at report creation; CI-FINAL.json and RECEIPT.json will record terminal custody.
+CI: Verify 43180512757, https://github.com/just-every/run-spool/actions/runs/43180512757, exact head 32e75542b7d75b44cb55508056a7bd63a655c824. Completed successfully on the exact product SHA. CI-FINAL.json and RECEIPT.json record terminal custody: READY.
 
 Publication scan: delegated to the fleet Mac per cloud instructions; not run or claimed here. Scoped diff credential-pattern check and every candidate author/committer/trailer check passed. No blockers discovered locally.
 
 RELEASE-HARNESS.mjs and PROOF-HARNESS.mjs retain the actual runners (run from .artifacts/ in a prepared checkout; their imports resolve to that checkout). PLAN.md contains the complete execution plan. Actual checks and browser proof are selected explicitly in the evidence packet. Evidence publication is separate from product readiness and landing.
+
+Evidence transfer: the initial report-only ref was fetched independently; its manifest, complete regular-file tree, hashes and exact product provenance verified successfully (EVIDENCE-TRANSFER-CHECK.json). The final publication adds this terminal CI receipt without changing product history.
