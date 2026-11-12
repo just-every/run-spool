@@ -1,0 +1,23 @@
+{
+  "head": "f7aa07dfc20cbe6f77cccc4244f3ac35f053ac47",
+  "passing_full_journey": {
+    "completed_at": "2026-11-12T06:29:58Z",
+    "conclusion": "success",
+    "head_sha": "f7aa07dfc20cbe6f77cccc4244f3ac35f053ac47",
+    "html_url": "https://github.com/just-every/run-spool/actions/runs/43167189331/job/131012128725",
+    "id": 131012128725,
+    "name": "verify (agent-handoff)",
+    "started_at": "2026-11-12T06:19:26Z",
+    "status": "completed"
+  },
+  "local": {
+    "exit_code": 1,
+    "stage": "caps/setup",
+    "stall_guard_seconds": 90,
+    "popup_reload_seconds": 0.089,
+    "popup_close_seconds": 0.014,
+    "cleanup": "all six owned resources stopped; temporary checkout removed",
+    "target_ui_subflow": "passed all assertions; returned before STAGE second-origin"
+  },
+  "product_changes_after_push": 0
+}

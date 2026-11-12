@@ -1,0 +1,575 @@
+{
+  "schema": 1,
+  "repository": "just-every/run-spool",
+  "branch": "cloud/main-spool-settings-split-1-c3",
+  "head": "f7aa07dfc20cbe6f77cccc4244f3ac35f053ac47",
+  "parent": "e667b41342aff156be084e5f0291cf1e42198f15",
+  "commit_count_above_main": 1,
+  "product_tree_clean": true,
+  "product_push": "succeeded once; see product-push.log",
+  "ci_run_id": 43167189331,
+  "ci": {
+    "call": 5,
+    "observed_at": "2026-11-12T06:38:48.623458+00:00",
+    "exit_code": 0,
+    "conclusion": "success",
+    "head_sha": "f7aa07dfc20cbe6f77cccc4244f3ac35f053ac47",
+    "html_url": "https://github.com/just-every/run-spool/actions/runs/43167189331",
+    "status": "completed"
+  },
+  "ci_agent_handoff_job": {
+    "completed_at": "2026-11-12T06:29:58Z",
+    "conclusion": "success",
+    "head_sha": "f7aa07dfc20cbe6f77cccc4244f3ac35f053ac47",
+    "html_url": "https://github.com/just-every/run-spool/actions/runs/43167189331/job/131012128725",
+    "id": 131012128725,
+    "name": "verify (agent-handoff)",
+    "started_at": "2026-11-12T06:19:26Z",
+    "status": "completed"
+  },
+  "ci_project_erasure_job": {
+    "completed_at": "2026-11-12T06:28:21Z",
+    "conclusion": "success",
+    "head_sha": "f7aa07dfc20cbe6f77cccc4244f3ac35f053ac47",
+    "html_url": "https://github.com/just-every/run-spool/actions/runs/43167189331/job/131012128701",
+    "id": 131012128701,
+    "name": "verify (project-erasure)",
+    "started_at": "2026-11-12T06:19:26Z",
+    "status": "completed"
+  },
+  "github_rest_calls": 6,
+  "required_local_checks": [
+    {
+      "label": "triage-qualified-1",
+      "command": [
+        "node",
+        "tests/triage-journey.mjs"
+      ],
+      "head": "f7aa07dfc20cbe6f77cccc4244f3ac35f053ac47",
+      "started": "2026-11-12T06:23:26.901986+00:00",
+      "finished": "2026-11-12T06:30:07.304507+00:00",
+      "exit_code": 0,
+      "log": "triage-qualified-1.log"
+    },
+    {
+      "label": "triage-qualified-2",
+      "command": [
+        "node",
+        "tests/triage-journey.mjs"
+      ],
+      "head": "f7aa07dfc20cbe6f77cccc4244f3ac35f053ac47",
+      "started": "2026-11-12T06:30:07.404703+00:00",
+      "finished": "2026-11-12T06:36:52.783678+00:00",
+      "exit_code": 0,
+      "log": "triage-qualified-2.log"
+    },
+    {
+      "label": "triage-qualified-3",
+      "command": [
+        "node",
+        "tests/triage-journey.mjs"
+      ],
+      "head": "f7aa07dfc20cbe6f77cccc4244f3ac35f053ac47",
+      "started": "2026-11-12T06:36:52.945341+00:00",
+      "finished": "2026-11-12T06:46:32.475472+00:00",
+      "exit_code": 0,
+      "log": "triage-qualified-3.log"
+    },
+    {
+      "label": "audit-history",
+      "command": [
+        "node",
+        "tests/audit-history.mjs"
+      ],
+      "head": "f7aa07dfc20cbe6f77cccc4244f3ac35f053ac47",
+      "started": "2026-11-12T06:54:35.221482+00:00",
+      "finished": "2026-11-12T06:55:20.665430+00:00",
+      "exit_code": 0,
+      "log": "audit-history.log"
+    },
+    {
+      "label": "owner-claim-qualified",
+      "command": [
+        "node",
+        "tests/owner-claim.mjs"
+      ],
+      "head": "f7aa07dfc20cbe6f77cccc4244f3ac35f053ac47",
+      "started": "2026-11-12T07:43:38.924634+00:00",
+      "finished": "2026-11-12T07:50:21.541871+00:00",
+      "exit_code": 0,
+      "log": "owner-claim-qualified.log"
+    },
+    {
+      "label": "sentry-http",
+      "command": [
+        "node",
+        "tests/sentry-http.mjs"
+      ],
+      "head": "f7aa07dfc20cbe6f77cccc4244f3ac35f053ac47",
+      "started": "2026-11-12T06:57:34.347872+00:00",
+      "finished": "2026-11-12T07:15:20.939778+00:00",
+      "exit_code": 0,
+      "log": "sentry-http.log"
+    },
+    {
+      "label": "sentry-sdk",
+      "command": [
+        "node",
+        "tests/sentry-sdk.mjs"
+      ],
+      "head": "f7aa07dfc20cbe6f77cccc4244f3ac35f053ac47",
+      "started": "2026-11-12T07:15:21.099271+00:00",
+      "finished": "2026-11-12T07:23:37.453654+00:00",
+      "exit_code": 0,
+      "log": "sentry-sdk.log"
+    },
+    {
+      "label": "alerts-ui",
+      "command": [
+        "node",
+        "tests/alerts-ui.mjs"
+      ],
+      "head": "f7aa07dfc20cbe6f77cccc4244f3ac35f053ac47",
+      "started": "2026-11-12T07:23:37.587362+00:00",
+      "finished": "2026-11-12T07:25:45.592306+00:00",
+      "exit_code": 0,
+      "log": "alerts-ui.log"
+    },
+    {
+      "label": "rollbar-settings-proof",
+      "command": [
+        "node",
+        "--import",
+        "/tmp/spool-fresh-http.mjs",
+        "/tmp/spool-rollbar-settings-proof.mjs"
+      ],
+      "head": "f7aa07dfc20cbe6f77cccc4244f3ac35f053ac47",
+      "started": "2026-11-12T07:55:14.766851+00:00",
+      "finished": "2026-11-12T07:55:45.029217+00:00",
+      "exit_code": 0,
+      "log": "rollbar-settings-proof.log"
+    },
+    {
+      "label": "typecheck-exact",
+      "command": [
+        "pnpm",
+        "typecheck"
+      ],
+      "head": "f7aa07dfc20cbe6f77cccc4244f3ac35f053ac47",
+      "started": "2026-11-12T06:19:17.599973+00:00",
+      "finished": "2026-11-12T06:19:33.590586+00:00",
+      "exit_code": 0,
+      "log": "typecheck-exact.log"
+    },
+    {
+      "label": "source-check-exact",
+      "command": [
+        "pnpm",
+        "source:check"
+      ],
+      "head": "f7aa07dfc20cbe6f77cccc4244f3ac35f053ac47",
+      "started": "2026-11-12T06:19:33.667249+00:00",
+      "finished": "2026-11-12T06:19:34.623038+00:00",
+      "exit_code": 0,
+      "log": "source-check-exact.log"
+    },
+    {
+      "label": "source-check-final",
+      "command": [
+        "pnpm",
+        "source:check"
+      ],
+      "head": "f7aa07dfc20cbe6f77cccc4244f3ac35f053ac47",
+      "started": "2026-11-12T07:51:36.855847+00:00",
+      "finished": "2026-11-12T07:51:40.508873+00:00",
+      "exit_code": 0,
+      "log": "source-check-final.log"
+    },
+    {
+      "label": "contract-check-exact",
+      "command": [
+        "node",
+        "src/base/contract-docs.mjs",
+        "check"
+      ],
+      "head": "f7aa07dfc20cbe6f77cccc4244f3ac35f053ac47",
+      "started": "2026-11-12T06:19:34.734375+00:00",
+      "finished": "2026-11-12T06:19:35.033259+00:00",
+      "exit_code": 0,
+      "log": "contract-check-exact.log"
+    },
+    {
+      "label": "settings-browser-proof",
+      "command": [
+        "node",
+        "/tmp/spool-settings-proof.mjs"
+      ],
+      "head": "f7aa07dfc20cbe6f77cccc4244f3ac35f053ac47",
+      "started": "2026-11-12T06:22:15.889472+00:00",
+      "finished": "2026-11-12T06:22:53.200635+00:00",
+      "exit_code": 0,
+      "log": "settings-browser-proof.log"
+    }
+  ],
+  "all_command_invocations": [
+    {
+      "label": "build",
+      "command": [
+        "npx",
+        "-y",
+        "@runeditrun/rer",
+        "build"
+      ],
+      "head": "e667b41342aff156be084e5f0291cf1e42198f15",
+      "started": "2026-11-12T06:17:42.150564+00:00",
+      "finished": "2026-11-12T06:18:00.455465+00:00",
+      "exit_code": 0,
+      "log": "build.log"
+    },
+    {
+      "label": "typecheck-exact",
+      "command": [
+        "pnpm",
+        "typecheck"
+      ],
+      "head": "f7aa07dfc20cbe6f77cccc4244f3ac35f053ac47",
+      "started": "2026-11-12T06:19:17.599973+00:00",
+      "finished": "2026-11-12T06:19:33.590586+00:00",
+      "exit_code": 0,
+      "log": "typecheck-exact.log"
+    },
+    {
+      "label": "source-check-exact",
+      "command": [
+        "pnpm",
+        "source:check"
+      ],
+      "head": "f7aa07dfc20cbe6f77cccc4244f3ac35f053ac47",
+      "started": "2026-11-12T06:19:33.667249+00:00",
+      "finished": "2026-11-12T06:19:34.623038+00:00",
+      "exit_code": 0,
+      "log": "source-check-exact.log"
+    },
+    {
+      "label": "contract-check-exact",
+      "command": [
+        "node",
+        "src/base/contract-docs.mjs",
+        "check"
+      ],
+      "head": "f7aa07dfc20cbe6f77cccc4244f3ac35f053ac47",
+      "started": "2026-11-12T06:19:34.734375+00:00",
+      "finished": "2026-11-12T06:19:35.033259+00:00",
+      "exit_code": 0,
+      "log": "contract-check-exact.log"
+    },
+    {
+      "label": "triage-1",
+      "command": [
+        "node",
+        "tests/triage-journey.mjs"
+      ],
+      "head": "f7aa07dfc20cbe6f77cccc4244f3ac35f053ac47",
+      "started": "2026-11-12T06:18:37.284547+00:00",
+      "finished": "2026-11-12T06:22:51.283825+00:00",
+      "exit_code": 1,
+      "log": "triage-1.log"
+    },
+    {
+      "label": "settings-browser-proof",
+      "command": [
+        "node",
+        "/tmp/spool-settings-proof.mjs"
+      ],
+      "head": "f7aa07dfc20cbe6f77cccc4244f3ac35f053ac47",
+      "started": "2026-11-12T06:22:15.889472+00:00",
+      "finished": "2026-11-12T06:22:53.200635+00:00",
+      "exit_code": 0,
+      "log": "settings-browser-proof.log"
+    },
+    {
+      "label": "triage-qualified-1",
+      "command": [
+        "node",
+        "tests/triage-journey.mjs"
+      ],
+      "head": "f7aa07dfc20cbe6f77cccc4244f3ac35f053ac47",
+      "started": "2026-11-12T06:23:26.901986+00:00",
+      "finished": "2026-11-12T06:30:07.304507+00:00",
+      "exit_code": 0,
+      "log": "triage-qualified-1.log"
+    },
+    {
+      "label": "triage-qualified-2",
+      "command": [
+        "node",
+        "tests/triage-journey.mjs"
+      ],
+      "head": "f7aa07dfc20cbe6f77cccc4244f3ac35f053ac47",
+      "started": "2026-11-12T06:30:07.404703+00:00",
+      "finished": "2026-11-12T06:36:52.783678+00:00",
+      "exit_code": 0,
+      "log": "triage-qualified-2.log"
+    },
+    {
+      "label": "triage-qualified-3",
+      "command": [
+        "node",
+        "tests/triage-journey.mjs"
+      ],
+      "head": "f7aa07dfc20cbe6f77cccc4244f3ac35f053ac47",
+      "started": "2026-11-12T06:36:52.945341+00:00",
+      "finished": "2026-11-12T06:46:32.475472+00:00",
+      "exit_code": 0,
+      "log": "triage-qualified-3.log"
+    },
+    {
+      "label": "agent-handoff",
+      "command": [
+        "node",
+        "tests/agent-handoff.mjs"
+      ],
+      "head": "f7aa07dfc20cbe6f77cccc4244f3ac35f053ac47",
+      "started": "2026-11-12T06:46:32.646515+00:00",
+      "finished": "2026-11-12T06:54:34.963327+00:00",
+      "exit_code": 1,
+      "log": "agent-handoff.log"
+    },
+    {
+      "label": "audit-history",
+      "command": [
+        "node",
+        "tests/audit-history.mjs"
+      ],
+      "head": "f7aa07dfc20cbe6f77cccc4244f3ac35f053ac47",
+      "started": "2026-11-12T06:54:35.221482+00:00",
+      "finished": "2026-11-12T06:55:20.665430+00:00",
+      "exit_code": 0,
+      "log": "audit-history.log"
+    },
+    {
+      "label": "owner-claim",
+      "command": [
+        "node",
+        "tests/owner-claim.mjs"
+      ],
+      "head": "f7aa07dfc20cbe6f77cccc4244f3ac35f053ac47",
+      "started": "2026-11-12T06:55:20.767832+00:00",
+      "finished": "2026-11-12T06:57:34.242270+00:00",
+      "exit_code": 1,
+      "log": "owner-claim.log"
+    },
+    {
+      "label": "sentry-http",
+      "command": [
+        "node",
+        "tests/sentry-http.mjs"
+      ],
+      "head": "f7aa07dfc20cbe6f77cccc4244f3ac35f053ac47",
+      "started": "2026-11-12T06:57:34.347872+00:00",
+      "finished": "2026-11-12T07:15:20.939778+00:00",
+      "exit_code": 0,
+      "log": "sentry-http.log"
+    },
+    {
+      "label": "sentry-sdk",
+      "command": [
+        "node",
+        "tests/sentry-sdk.mjs"
+      ],
+      "head": "f7aa07dfc20cbe6f77cccc4244f3ac35f053ac47",
+      "started": "2026-11-12T07:15:21.099271+00:00",
+      "finished": "2026-11-12T07:23:37.453654+00:00",
+      "exit_code": 0,
+      "log": "sentry-sdk.log"
+    },
+    {
+      "label": "alerts-ui",
+      "command": [
+        "node",
+        "tests/alerts-ui.mjs"
+      ],
+      "head": "f7aa07dfc20cbe6f77cccc4244f3ac35f053ac47",
+      "started": "2026-11-12T07:23:37.587362+00:00",
+      "finished": "2026-11-12T07:25:45.592306+00:00",
+      "exit_code": 0,
+      "log": "alerts-ui.log"
+    },
+    {
+      "label": "project-erasure",
+      "command": [
+        "node",
+        "tests/project-erasure.mjs"
+      ],
+      "head": "f7aa07dfc20cbe6f77cccc4244f3ac35f053ac47",
+      "started": "2026-11-12T07:25:45.725813+00:00",
+      "finished": "2026-11-12T07:41:27.849377+00:00",
+      "exit_code": 1,
+      "log": "project-erasure.log"
+    },
+    {
+      "label": "rollbar-import",
+      "command": [
+        "node",
+        "tests/rollbar-import.mjs"
+      ],
+      "head": "f7aa07dfc20cbe6f77cccc4244f3ac35f053ac47",
+      "started": "2026-11-12T07:41:28.365457+00:00",
+      "finished": "2026-11-12T07:42:59.685367+00:00",
+      "exit_code": 1,
+      "log": "rollbar-import.log"
+    },
+    {
+      "label": "owner-claim-qualified",
+      "command": [
+        "node",
+        "tests/owner-claim.mjs"
+      ],
+      "head": "f7aa07dfc20cbe6f77cccc4244f3ac35f053ac47",
+      "started": "2026-11-12T07:43:38.924634+00:00",
+      "finished": "2026-11-12T07:50:21.541871+00:00",
+      "exit_code": 0,
+      "log": "owner-claim-qualified.log"
+    },
+    {
+      "label": "source-check-final",
+      "command": [
+        "pnpm",
+        "source:check"
+      ],
+      "head": "f7aa07dfc20cbe6f77cccc4244f3ac35f053ac47",
+      "started": "2026-11-12T07:51:36.855847+00:00",
+      "finished": "2026-11-12T07:51:40.508873+00:00",
+      "exit_code": 0,
+      "log": "source-check-final.log"
+    },
+    {
+      "label": "rollbar-import-qualified",
+      "command": [
+        "node",
+        "--import",
+        "/tmp/spool-fresh-http.mjs",
+        "tests/rollbar-import.mjs"
+      ],
+      "head": "f7aa07dfc20cbe6f77cccc4244f3ac35f053ac47",
+      "started": "2026-11-12T07:50:51.496702+00:00",
+      "finished": "2026-11-12T07:52:09.205042+00:00",
+      "exit_code": 1,
+      "log": "rollbar-import-qualified.log"
+    },
+    {
+      "label": "rollbar-settings-proof",
+      "command": [
+        "node",
+        "--import",
+        "/tmp/spool-fresh-http.mjs",
+        "/tmp/spool-rollbar-settings-proof.mjs"
+      ],
+      "head": "f7aa07dfc20cbe6f77cccc4244f3ac35f053ac47",
+      "started": "2026-11-12T07:55:14.766851+00:00",
+      "finished": "2026-11-12T07:55:45.029217+00:00",
+      "exit_code": 0,
+      "log": "rollbar-settings-proof.log"
+    }
+  ],
+  "local_failures_preserved": [
+    {
+      "label": "triage-1",
+      "command": [
+        "node",
+        "tests/triage-journey.mjs"
+      ],
+      "head": "f7aa07dfc20cbe6f77cccc4244f3ac35f053ac47",
+      "started": "2026-11-12T06:18:37.284547+00:00",
+      "finished": "2026-11-12T06:22:51.283825+00:00",
+      "exit_code": 1,
+      "log": "triage-1.log"
+    },
+    {
+      "label": "agent-handoff",
+      "command": [
+        "node",
+        "tests/agent-handoff.mjs"
+      ],
+      "head": "f7aa07dfc20cbe6f77cccc4244f3ac35f053ac47",
+      "started": "2026-11-12T06:46:32.646515+00:00",
+      "finished": "2026-11-12T06:54:34.963327+00:00",
+      "exit_code": 1,
+      "log": "agent-handoff.log"
+    },
+    {
+      "label": "owner-claim",
+      "command": [
+        "node",
+        "tests/owner-claim.mjs"
+      ],
+      "head": "f7aa07dfc20cbe6f77cccc4244f3ac35f053ac47",
+      "started": "2026-11-12T06:55:20.767832+00:00",
+      "finished": "2026-11-12T06:57:34.242270+00:00",
+      "exit_code": 1,
+      "log": "owner-claim.log"
+    },
+    {
+      "label": "project-erasure",
+      "command": [
+        "node",
+        "tests/project-erasure.mjs"
+      ],
+      "head": "f7aa07dfc20cbe6f77cccc4244f3ac35f053ac47",
+      "started": "2026-11-12T07:25:45.725813+00:00",
+      "finished": "2026-11-12T07:41:27.849377+00:00",
+      "exit_code": 1,
+      "log": "project-erasure.log"
+    },
+    {
+      "label": "rollbar-import",
+      "command": [
+        "node",
+        "tests/rollbar-import.mjs"
+      ],
+      "head": "f7aa07dfc20cbe6f77cccc4244f3ac35f053ac47",
+      "started": "2026-11-12T07:41:28.365457+00:00",
+      "finished": "2026-11-12T07:42:59.685367+00:00",
+      "exit_code": 1,
+      "log": "rollbar-import.log"
+    },
+    {
+      "label": "rollbar-import-qualified",
+      "command": [
+        "node",
+        "--import",
+        "/tmp/spool-fresh-http.mjs",
+        "tests/rollbar-import.mjs"
+      ],
+      "head": "f7aa07dfc20cbe6f77cccc4244f3ac35f053ac47",
+      "started": "2026-11-12T07:50:51.496702+00:00",
+      "finished": "2026-11-12T07:52:09.205042+00:00",
+      "exit_code": 1,
+      "log": "rollbar-import-qualified.log"
+    }
+  ],
+  "claim": "CLAIM UX-001 PARTIAL points=none tests=tests/triage-journey.mjs#journey",
+  "clause_status_changes": [],
+  "counts_before": {
+    "done": 23,
+    "partial": 54,
+    "missing": 28
+  },
+  "counts_after": {
+    "done": 23,
+    "partial": 54,
+    "missing": 28
+  },
+  "test_registration_delta": 0,
+  "settings_sections_before": 1,
+  "settings_sections_after": 7,
+  "blockers": [],
+  "limitations": [
+    "Local agent-handoff caps/setup hit its existing 90-second stall guard after the changed UI passed; complete agent-handoff passed in exact-head CI.",
+    "Initial Node 24 triage screenshot timeout preceded the three consecutive Node 22 passes.",
+    "Initial owner-claim lacked the default Playwright browser; task-only system-Chromium cache mapping repaired it before the qualified run.",
+    "Local project-erasure reached its unchanged fence helper, then returned archive_operation_failed instead of erasure_epoch; full exact-head CI project-erasure passed.",
+    "The standalone Rollbar suite retains a pre-existing main selector for 1 matching events while the UI uses singular event; it is not claimed passing and the moved Settings route is proven separately.",
+    "The fleet Mac still owns publication scan and guarded landing."
+  ]
+}

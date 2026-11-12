@@ -1,0 +1,29 @@
+{
+  "head": "f7aa07dfc20cbe6f77cccc4244f3ac35f053ac47",
+  "passing_full_journey": {
+    "completed_at": "2026-11-12T06:28:21Z",
+    "conclusion": "success",
+    "head_sha": "f7aa07dfc20cbe6f77cccc4244f3ac35f053ac47",
+    "html_url": "https://github.com/just-every/run-spool/actions/runs/43167189331/job/131012128701",
+    "id": 131012128701,
+    "name": "verify (project-erasure)",
+    "started_at": "2026-11-12T06:19:26Z",
+    "status": "completed"
+  },
+  "local": {
+    "exit_code": 1,
+    "stage": "fences",
+    "path": "tests/project-erasure/fences.mjs:52",
+    "expected": {
+      "exit": 4,
+      "reason": "erasure_epoch"
+    },
+    "actual": {
+      "exit": 1,
+      "reason": "archive_operation_failed"
+    },
+    "changed_settings_ui_completed": true,
+    "cleanup": "browser and checkout stopped"
+  },
+  "product_changes_after_push": 0
+}

@@ -1,0 +1,118 @@
+{
+  "head": "f7aa07dfc20cbe6f77cccc4244f3ac35f053ac47",
+  "purpose": "Browser proof only; no new test",
+  "screens": [
+    {
+      "section": "organization",
+      "width": 1440,
+      "file": "screens/settings-organization-1440.png",
+      "fragment": "#settings-organization",
+      "current": "Organization",
+      "pageWidth": 1440
+    },
+    {
+      "section": "projects",
+      "width": 1440,
+      "file": "screens/settings-projects-1440.png",
+      "fragment": "#settings-projects",
+      "current": "Projects & keys",
+      "pageWidth": 1440
+    },
+    {
+      "section": "processing",
+      "width": 1440,
+      "file": "screens/settings-processing-1440.png",
+      "fragment": "#settings-processing",
+      "current": "Issue processing",
+      "pageWidth": 1440
+    },
+    {
+      "section": "alerts",
+      "width": 1440,
+      "file": "screens/settings-alerts-1440.png",
+      "fragment": "#settings-alerts",
+      "current": "Alerts & integrations",
+      "pageWidth": 1440
+    },
+    {
+      "section": "privacy",
+      "width": 1440,
+      "file": "screens/settings-privacy-1440.png",
+      "fragment": "#settings-privacy",
+      "current": "Privacy & filtering",
+      "pageWidth": 1440
+    },
+    {
+      "section": "data",
+      "width": 1440,
+      "file": "screens/settings-data-1440.png",
+      "fragment": "#settings-data",
+      "current": "Data & archive",
+      "pageWidth": 1440
+    },
+    {
+      "section": "audit",
+      "width": 1440,
+      "file": "screens/settings-audit-1440.png",
+      "fragment": "#settings-audit",
+      "current": "Audit",
+      "pageWidth": 1440
+    },
+    {
+      "section": "organization",
+      "width": 390,
+      "file": "screens/settings-organization-390.png",
+      "fragment": "#settings-organization",
+      "current": "Organization",
+      "pageWidth": 390
+    },
+    {
+      "section": "projects",
+      "width": 390,
+      "file": "screens/settings-projects-390.png",
+      "fragment": "#settings-projects",
+      "current": "Projects & keys",
+      "pageWidth": 390
+    },
+    {
+      "section": "processing",
+      "width": 390,
+      "file": "screens/settings-processing-390.png",
+      "fragment": "#settings-processing",
+      "current": "Issue processing",
+      "pageWidth": 390
+    },
+    {
+      "section": "alerts",
+      "width": 390,
+      "file": "screens/settings-alerts-390.png",
+      "fragment": "#settings-alerts",
+      "current": "Alerts & integrations",
+      "pageWidth": 390
+    },
+    {
+      "section": "privacy",
+      "width": 390,
+      "file": "screens/settings-privacy-390.png",
+      "fragment": "#settings-privacy",
+      "current": "Privacy & filtering",
+      "pageWidth": 390
+    },
+    {
+      "section": "data",
+      "width": 390,
+      "file": "screens/settings-data-390.png",
+      "fragment": "#settings-data",
+      "current": "Data & archive",
+      "pageWidth": 390
+    },
+    {
+      "section": "audit",
+      "width": 390,
+      "file": "screens/settings-audit-390.png",
+      "fragment": "#settings-audit",
+      "current": "Audit",
+      "pageWidth": 390
+    }
+  ]
+}

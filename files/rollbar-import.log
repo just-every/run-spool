@@ -1,0 +1,25 @@
+[33m▲ [43;33m[[43;30mWARNING[43;33m][0m [1mProxy environment variables detected. We'll use your proxy for fetch requests.[0m
+
+
+(node:21781) ExperimentalWarning: SQLite is an experimental feature and might change at any time
+(Use `node --trace-warnings ...` to show where the warning was created)
+node:internal/modules/run_main:123
+    triggerUncaughtException(
+    ^
+
+TypeError: fetch failed
+    at Object.processResponse (/home/agent/rer-consolidation/work/main-spool-settings-split-1-c3/run-spool/node_modules/.pnpm/undici@7.29.1/node_modules/undici/lib/web/fetch/index.js:237:16)
+    at /home/agent/rer-consolidation/work/main-spool-settings-split-1-c3/run-spool/node_modules/.pnpm/undici@7.29.1/node_modules/undici/lib/web/fetch/index.js:1081:19
+    at node:internal/process/task_queues:151:7
+    at AsyncResource.runInAsyncScope (node:async_hooks:214:14)
+    at AsyncResource.runMicrotask (node:internal/process/task_queues:148:8)
+    at /home/agent/rer-consolidation/work/main-spool-settings-split-1-c3/run-spool/node_modules/.pnpm/undici@7.29.1/node_modules/undici/index.js:157:7
+    at async MessagePort.<anonymous> ([worker eval]:32:22) {
+  [cause]: SocketError: other side closed
+      at Socket.onHttpSocketEnd (/home/agent/rer-consolidation/work/main-spool-settings-split-1-c3/run-spool/node_modules/.pnpm/undici@7.29.1/node_modules/undici/lib/dispatcher/client-h1.js:959:22)
+      at Socket.emit (node:events:531:35)
+      at endReadableNT (node:internal/streams/readable:1698:12)
+      at process.processTicksAndRejections (node:internal/process/task_queues:90:21)
+}
+
+Node.js v22.20.0

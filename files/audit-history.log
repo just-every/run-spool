@@ -1,0 +1,6 @@
+(node:8501) ExperimentalWarning: SQLite is an experimental feature and might change at any time
+(Use `node --trace-warnings ...` to show where the warning was created)
+[33m▲ [43;33m[[43;30mWARNING[43;33m][0m [1mProxy environment variables detected. We'll use your proxy for fetch requests.[0m
+
+
+AUDIT-001 passed: atomic owner/deploy/ingest transaction facts, denied/stale request outcomes, agent and notification facts, fixed snapshot cursor/JSON/CSV, restart, archive payload append restore, previous-format legacy facts, project erasure and 1440/390 history/export/error/denied/empty.

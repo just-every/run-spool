@@ -1,0 +1,21 @@
+(node:17956) ExperimentalWarning: SQLite is an experimental feature and might change at any time
+(Use `node --trace-warnings ...` to show where the warning was created)
+verify
+Heavy job admitted: Spool verify:suite [12d78c4c4aa8]
+(node:17978) ExperimentalWarning: SQLite is an experimental feature and might change at any time
+(Use `node --trace-warnings ...` to show where the warning was created)
+STEP setup/startDev
+STEP setup/dev-ready
+END setup/dev-ready seconds=53.098
+END setup/startDev seconds=53.182
+STEP setup/dev-stop
+END setup/dev-stop seconds=0.185
+STEP setup/dev-ready
+END setup/dev-ready seconds=61.603
+STEP setup/dev-stop
+END setup/dev-stop seconds=0.207
+{"journey":"project-erasure","stage":"fences","type":"AssertionError","message":"Expected values to be strictly deep-equal:\n+ actual - expected\n\n  {\n+   exit: 1,\n+   reason: 'archive_operation_failed'\n-   exit: 4,\n-   reason: 'erasure_epoch'\n  }\n","stack":["    at fenceProof (file://[REDACTED]/tests/project-erasure/fences.mjs:52:217)","    at async file://[REDACTED]/tests/project-erasure.mjs:75:33"]}
+STEP setup/stopDev
+END setup/stopDev seconds=0.003
+(node:17978) [RER_PROCESS_INSPECTION_SLOW] Warning: Process inspection is taking longer than 5000 ms on a busy machine; waiting up to 25000 ms more.
+Project erasure cleanup: [{"name":"browser","outcome":"stopped"},{"name":"checkout","outcome":"stopped"}]

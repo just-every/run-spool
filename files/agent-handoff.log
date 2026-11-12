@@ -1,0 +1,297 @@
+(node:5592) ExperimentalWarning: SQLite is an experimental feature and might change at any time
+(Use `node --trace-warnings ...` to show where the warning was created)
+verify
+Heavy job admitted: Spool verify:suite [12d78c4c4aa8]
+(node:5614) ExperimentalWarning: SQLite is an experimental feature and might change at any time
+(Use `node --trace-warnings ...` to show where the warning was created)
+STAGE setup
+STEP setup/startDev
+STEP setup/dev-ready
+END setup/dev-ready seconds=42.823
+END setup/startDev seconds=42.852
+STAGE ui
+STEP ui/launchBrowser
+END ui/launchBrowser seconds=0.375
+STEP ui/browser.newContext
+END ui/browser.newContext seconds=0.026
+STEP ui/openGate
+END ui/openGate seconds=0.040
+STEP ui/context.addCookies
+END ui/context.addCookies seconds=0.005
+STEP ui/context.newPage
+END ui/context.newPage seconds=0.236
+STEP ui/page.goto
+END ui/page.goto seconds=3.415
+STEP ui/page.waitForLoadState
+END ui/page.waitForLoadState seconds=4.531
+STEP ui/page.getByRole(button,{name:Create agent key,exact:true}).click
+END ui/page.getByRole(button,{name:Create agent key,exact:true}).click seconds=0.287
+STEP ui/(await minted).json
+STEP ui/minted
+END ui/minted seconds=0.000
+END ui/(await minted).json seconds=0.046
+STEP ui/panel.locator([data-agent-command]).waitFor
+END ui/panel.locator([data-agent-command]).waitFor seconds=0.318
+STEP ui/panel.locator([data-agent-command]).innerText
+END ui/panel.locator([data-agent-command]).innerText seconds=0.007
+STEP ui/panel.locator([data-[REDACTED]]).innerText
+END ui/panel.locator([data-[REDACTED]]).innerText seconds=0.004
+STEP ui/app.json
+END ui/app.json seconds=0.022
+STEP ui/access
+END ui/access seconds=0.000
+STEP ui/access
+END ui/access seconds=0.001
+STEP ui/app.request
+END ui/app.request seconds=0.009
+STEP ui/denied.text
+END ui/denied.text seconds=0.001
+STEP ui/app.request
+END ui/app.request seconds=0.008
+STEP ui/denied.text
+END ui/denied.text seconds=0.000
+STEP ui/app.request
+END ui/app.request seconds=0.011
+STEP ui/denied.text
+END ui/denied.text seconds=0.000
+STEP ui/notice.evaluate
+END ui/notice.evaluate seconds=0.030
+STEP ui/app.json
+END ui/app.json seconds=0.023
+STEP ui/accessible
+STEP ui/page.evaluate
+END ui/page.evaluate seconds=0.002
+STEP ui/new AxeBuilder({page}).withTags([wcag2a,wcag2aa,wcag21aa]).analyze
+END ui/new AxeBuilder({page}).withTags([wcag2a,wcag2aa,wcag21aa]).analyze seconds=1.306
+END ui/accessible seconds=1.309
+STEP ui/capture
+STEP ui/page.setViewportSize
+END ui/page.setViewportSize seconds=0.003
+STEP ui/locator.scrollIntoViewIfNeeded
+END ui/locator.scrollIntoViewIfNeeded seconds=0.034
+STEP ui/locator.screenshot
+END ui/locator.screenshot seconds=0.178
+STEP ui/page.setViewportSize
+END ui/page.setViewportSize seconds=0.019
+STEP ui/locator.scrollIntoViewIfNeeded
+END ui/locator.scrollIntoViewIfNeeded seconds=0.048
+STEP ui/locator.screenshot
+END ui/locator.screenshot seconds=0.158
+STEP ui/page.setViewportSize
+END ui/page.setViewportSize seconds=0.020
+END ui/capture seconds=0.463
+STEP ui/context.grantPermissions
+END ui/context.grantPermissions seconds=0.003
+STEP ui/panel.getByRole(button,{name:Copy setup lines,exact:true}).click
+END ui/panel.getByRole(button,{name:Copy setup lines,exact:true}).click seconds=0.062
+STEP ui/page.evaluate
+END ui/page.evaluate seconds=0.016
+STEP ui/panel.getByRole(button,{name:Copy agent key,exact:true}).click
+END ui/panel.getByRole(button,{name:Copy agent key,exact:true}).click seconds=0.059
+STEP ui/page.evaluate
+END ui/page.evaluate seconds=0.009
+STEP ui/page.evaluate
+END ui/page.evaluate seconds=0.002
+STEP ui/notice.getByRole(link).click
+END ui/notice.getByRole(link).click seconds=0.090
+STEP ui/opened
+END ui/opened seconds=0.047
+STEP ui/form.waitFor
+END ui/form.waitFor seconds=0.115
+STEP ui/policyPage.waitForLoadState
+END ui/policyPage.waitForLoadState seconds=0.426
+STEP ui/form.locator([data-policy-class]).all
+END ui/form.locator([data-policy-class]).all seconds=0.009
+STEP ui/select.selectOption
+END ui/select.selectOption seconds=0.012
+STEP ui/select.selectOption
+END ui/select.selectOption seconds=0.011
+STEP ui/select.selectOption
+END ui/select.selectOption seconds=0.011
+STEP ui/select.selectOption
+END ui/select.selectOption seconds=0.011
+STEP ui/select.selectOption
+END ui/select.selectOption seconds=0.012
+STEP ui/select.selectOption
+END ui/select.selectOption seconds=0.014
+STEP ui/form.locator(input[name="paidAI"][value="no"]).check
+END ui/form.locator(input[name="paidAI"][value="no"]).check seconds=0.053
+STEP ui/form.getByRole(button,{name:Save policy,exact:true}).click
+END ui/form.getByRole(button,{name:Save policy,exact:true}).click seconds=0.047
+STEP ui/saved
+END ui/saved seconds=0.032
+STEP ui/policy-saved-reload
+END ui/policy-saved-reload seconds=0.089
+STEP ui/app.json
+END ui/app.json seconds=0.037
+STEP ui/policy-popup-close
+END ui/policy-popup-close seconds=0.014
+STEP ui/page.bringToFront
+END ui/page.bringToFront seconds=0.004
+STEP ui/panel.locator([data-[REDACTED]]).innerText
+END ui/panel.locator([data-[REDACTED]]).innerText seconds=0.007
+STEP ui/app.json
+END ui/app.json seconds=0.055
+STEP ui/runCopiedSetup
+STEP ui/done
+END ui/done seconds=0.332
+END ui/runCopiedSetup seconds=0.336
+STEP ui/page.reload
+END ui/page.reload seconds=0.254
+STEP ui/page.getByRole(button,{name:Create agent key,exact:true}).waitFor
+END ui/page.getByRole(button,{name:Create agent key,exact:true}).waitFor seconds=1.988
+STEP ui/page.locator(.agent-handoff).count
+END ui/page.locator(.agent-handoff).count seconds=0.007
+STEP ui/page.locator(body).innerText
+END ui/page.locator(body).innerText seconds=0.005
+STEP ui/page.goto
+END ui/page.goto seconds=0.291
+STEP ui/page.locator(.short-id).waitFor
+END ui/page.locator(.short-id).waitFor seconds=1.961
+STEP ui/page.locator(.short-id).innerText
+END ui/page.locator(.short-id).innerText seconds=0.013
+STEP ui/downloadButton.click
+END ui/downloadButton.click seconds=0.089
+STEP ui/downloaded
+END ui/downloaded seconds=0.000
+STEP ui/readFile
+STEP ui/download.path
+END ui/download.path seconds=0.001
+END ui/readFile seconds=0.013
+STEP ui/app.json
+END ui/app.json seconds=0.076
+STEP ui/page.getByRole(button,{name:Details: Hand this issue to your agent,exact:true}).click
+END ui/page.getByRole(button,{name:Details: Hand this issue to your agent,exact:true}).click seconds=0.256
+STEP ui/dialog.locator([data-agent-command]).waitFor
+END ui/dialog.locator([data-agent-command]).waitFor seconds=0.106
+STEP ui/dialog.locator([data-agent-command]).innerText
+END ui/dialog.locator([data-agent-command]).innerText seconds=0.004
+STEP ui/dialog.getByRole(button,{name:Copy setup lines,exact:true}).click
+END ui/dialog.getByRole(button,{name:Copy setup lines,exact:true}).click seconds=0.039
+STEP ui/page.evaluate
+END ui/page.evaluate seconds=0.008
+STEP ui/runCopiedSetup
+STEP ui/done
+END ui/done seconds=0.299
+END ui/runCopiedSetup seconds=0.304
+STEP ui/accessible
+STEP ui/page.evaluate
+END ui/page.evaluate seconds=0.002
+STEP ui/new AxeBuilder({page}).withTags([wcag2a,wcag2aa,wcag21aa]).analyze
+END ui/new AxeBuilder({page}).withTags([wcag2a,wcag2aa,wcag21aa]).analyze seconds=0.629
+END ui/accessible seconds=0.631
+STEP ui/capture
+STEP ui/page.setViewportSize
+END ui/page.setViewportSize seconds=0.001
+STEP ui/locator.scrollIntoViewIfNeeded
+END ui/locator.scrollIntoViewIfNeeded seconds=0.063
+STEP ui/locator.screenshot
+END ui/locator.screenshot seconds=0.134
+STEP ui/page.setViewportSize
+END ui/page.setViewportSize seconds=0.024
+STEP ui/locator.scrollIntoViewIfNeeded
+END ui/locator.scrollIntoViewIfNeeded seconds=0.056
+STEP ui/locator.screenshot
+END ui/locator.screenshot seconds=0.111
+STEP ui/page.setViewportSize
+END ui/page.setViewportSize seconds=0.024
+END ui/capture seconds=0.412
+STEP ui/dialog.getByRole(button,{name:Close details,exact:true}).click
+END ui/dialog.getByRole(button,{name:Close details,exact:true}).click seconds=0.124
+STEP ui/capture
+STEP ui/page.setViewportSize
+END ui/page.setViewportSize seconds=0.000
+STEP ui/locator.scrollIntoViewIfNeeded
+END ui/locator.scrollIntoViewIfNeeded seconds=0.023
+STEP ui/locator.screenshot
+END ui/locator.screenshot seconds=0.796
+STEP ui/page.setViewportSize
+END ui/page.setViewportSize seconds=0.025
+STEP ui/locator.scrollIntoViewIfNeeded
+END ui/locator.scrollIntoViewIfNeeded seconds=0.047
+STEP ui/locator.screenshot
+END ui/locator.screenshot seconds=0.317
+STEP ui/page.setViewportSize
+END ui/page.setViewportSize seconds=0.032
+END ui/capture seconds=1.241
+STEP ui/context.close
+END ui/context.close seconds=0.057
+STAGE second-origin
+STEP second-origin/startDispatchApp
+END second-origin/startDispatchApp seconds=0.023
+STEP second-origin/browser.newPage
+END second-origin/browser.newPage seconds=0.141
+STEP second-origin/throwPage.goto
+END second-origin/throwPage.goto seconds=0.097
+STEP second-origin/throwPage.getByRole(button,{name:Prepare delivery}).click
+END second-origin/throwPage.getByRole(button,{name:Prepare delivery}).click seconds=0.157
+STEP second-origin/throwPage.waitForFunction
+END second-origin/throwPage.waitForFunction seconds=0.154
+STEP second-origin/throwPage.evaluate
+END second-origin/throwPage.evaluate seconds=0.003
+STEP second-origin/throwPage.evaluate
+END second-origin/throwPage.evaluate seconds=0.011
+STEP second-origin/throwPage.goto
+END second-origin/throwPage.goto seconds=0.069
+STEP second-origin/throwPage.getByRole(button,{name:Prepare delivery}).click
+END second-origin/throwPage.getByRole(button,{name:Prepare delivery}).click seconds=0.078
+STEP second-origin/throwPage.waitForFunction
+END second-origin/throwPage.waitForFunction seconds=0.108
+STEP second-origin/throwPage.evaluate
+END second-origin/throwPage.evaluate seconds=0.003
+STEP second-origin/throwPage.goto
+END second-origin/throwPage.goto seconds=0.060
+STEP second-origin/throwPage.getByRole(button,{name:Prepare delivery}).click
+END second-origin/throwPage.getByRole(button,{name:Prepare delivery}).click seconds=0.072
+STEP second-origin/throwPage.waitForFunction
+END second-origin/throwPage.waitForFunction seconds=0.064
+STEP second-origin/throwPage.evaluate
+END second-origin/throwPage.evaluate seconds=0.002
+STEP second-origin/throwPage.goto
+END second-origin/throwPage.goto seconds=0.044
+STEP second-origin/throwPage.getByRole(button,{name:Prepare delivery}).click
+END second-origin/throwPage.getByRole(button,{name:Prepare delivery}).click seconds=0.109
+STEP second-origin/throwPage.waitForFunction
+END second-origin/throwPage.waitForFunction seconds=0.081
+STEP second-origin/throwPage.evaluate
+END second-origin/throwPage.evaluate seconds=0.003
+STEP second-origin/throwPage.goto
+END second-origin/throwPage.goto seconds=0.051
+STEP second-origin/throwPage.getByRole(button,{name:Prepare delivery}).click
+END second-origin/throwPage.getByRole(button,{name:Prepare delivery}).click seconds=0.073
+STEP second-origin/throwPage.waitForFunction
+END second-origin/throwPage.waitForFunction seconds=0.065
+STEP second-origin/throwPage.evaluate
+END second-origin/throwPage.evaluate seconds=0.002
+STEP second-origin/throwPage.close
+END second-origin/throwPage.close seconds=0.015
+STAGE scope
+STAGE clients
+STAGE selector-refusals
+AI-001 packet-selector refusals passed: HTTP 403, CLI 3 and official MCP 3 for traversal, command and instruction; packet, product rows and authority preserved.
+STAGE grouping-proposals
+PROBE SURFACE-001 4: official MCP over settled project a -> all five legacy operations match the three canonical names; complete reads, validated inert proposals, safe summaries, invalid arguments, forbidden writes, foreign projects and next-call revocation checked
+STAGE retention-ui
+▲ [WARNING] Proxy environment variables detected. We'll use your proxy for fetch requests.
+
+
+[GOV-002] windows, preview, typed confirmation, legal hold, release, packet note, archive round trip and held erasure passed; 1440/390 captures
+STEP retention-ui/browser.close
+END retention-ui/browser.close seconds=0.112
+STAGE gaps
+STAGE scheduled-retention
+[GOV-003] restored 60 aged and 2 recent events: same-project fresh intake survives 50-row expiry and 10-row resume; exact search, issue counts, gap quantities, held project, service audit and same-day no-op passed
+STAGE caps
+STEP caps/stopDev
+STEP caps/dev-stop
+END caps/dev-stop seconds=0.441
+END caps/stopDev seconds=0.452
+STEP caps/reset
+END caps/reset seconds=2.310
+STEP caps/setup
+STALL caps/setup {"pages":[],"server":"{\"version\":1,\"verb\":\"dev\",\"event\":\"progress\",\"phase\":\"check\",\"message\":\"checking the server limit\",\"elapsedSeconds\":2}\n\u001b[33m▲ \u001b[43;33m[\u001b[43;30mWARNING\u001b[43;33m]\u001b[0m \u001b[1mProxy environment variables detected. We'll use your proxy for fetch requests.\u001b[0m\n\n\nChecking pinned pnpm\n10.12.4\nApplying database migrations\nApplying database migrations\n▲ [WARNING] Proxy environment variables detected. We'll use your proxy for fetch requests.\n\n\nStarting your application on this computer\nStarting your application on this computer\n▲ [WARNING] Proxy environment variables detected. We'll use your proxy for fetch requests.\n\n\n(!) Your Vite config uses features that are unsupported by `configLoader: 'native'`, which is planned to become the default in a future major version of Vite:\n  - import \"./vite/document-boundary\" without a file extension (vite.config.ts:6:34). Add the file extension\n  - import \"./vite/docs-site\" without a file extension (vite.config.ts:8:26). Add the file extension\n  - import \"./docs/site\" without a file extension (vite/docs-site.ts:2:27). Add the file extension\n  - import \"../src/auth/document-path\" without a file extension (vite/document-boundary.ts:4:50). Add the file extension\n  - import \"./markdown\" without a file extension (vite/docs/site.ts:3:43). Add the file extension\n  - import \"../../src/base/run-site\" without a file extension (vite/docs/site.ts:4:34). Add the file extension\n  - import \"../../src/site/run\" without a file extension (vite/docs/site.ts:5:21). Add the file extension\n  - import \"./markdown\" without a file extension (vite/docs/site.ts:6:30). Add the file extension\n  - import \"./icon-head\" without a file extension (src/base/run-site.ts:1:26). Add the file extension\n  - import \"../base/run-site\" without a file extension (src/site/run.ts:1:30). Add the file extension\n  - import \"./run-chooser-style\" without a file extension (src/base/run-site.ts:2:29). Add the file extension\n  - import \"../base/run-pricing\" without a file extension (src/site/run.ts:2:28). Add the file extension\n  - import \"./identity\" without a file extension (src/base/run-site.ts:11:53). Add the file extension\n  - import \"./theme-frame\" without a file extension (src/base/run-site.ts:12:21). Add the file extension\n  - import \"./hosting-page\" without a file extension (src/base/run-site.ts:13:34). Add the file extension\nSet `VITE_CONFIG_NATIVE_IGNORE_WARNING=true` to suppress this warning.\n(node:6723) ExperimentalWarning: SQLite is an experimental feature and might change at any time\n(Use `node --trace-warnings ...` to show where the warning was created)\nUsing secrets defined in .dev.vars\n6:49:25 AM [vite] (ssr) warning: \n/tmp/spool-commands-ldgLuY/checkout/src/modules/portability/library-history.mjs\n8  |  // only its single declared D1 migration directory, never an archive-supplied path.\n9  |  // Variable imports keep Node builtins out of a Worker's module graph.\n10 |  const nodeModule = name => import(name);\n   |                                    ^^^^\n11 |  export async function libraryMigrations(db,config,root) {\n12 |    try{return await checkoutMigrations(db,config,root);}\nThe above dynamic import cannot be analyzed by Vite.\nSee https://vite.dev/guide/features#dynamic-import for supported dynamic import formats. If this is intended to be left as-is, you can use the /* @vite-ignore */ comment inside the import() call to suppress this warning.\n\n  Plugin: vite:import-analysis\n  File: /tmp/spool-commands-ldgLuY/checkout/src/modules/portability/library-history.mjs\n6:49:25 AM [vite] (ssr) warning: \n/tmp/spool-commands-ldgLuY/checkout/src/modules/portability/migration-history.mjs\n9  |    const config=policy(input),sqlite='node:sqlite';\n10 |    return {names:plan.map(migration=>migration.name),dataOnly,aliases:name=>plan.find(m=>m.name===name).aliases,statem...\n11 |      const {DatabaseSync}=await import(sqlite);\n   |                                        ^^^^^^\n12 |      const scratch=new DatabaseSync(':memory:');\n13 |      const db={prepare:sql=>{const query=scratch.prepare(sql);let values=[];return {bind(...args){values=args;return t...\nThe above dynamic import cannot be analyzed by Vite.\nSee https://vite.dev/guide/features#dynamic-import for supported dynamic import formats. If this is intended to be left as-is, you can use the /* @vite-ignore */ comment inside the import() call to suppress this warning.\n\n  Plugin: vite:import-analysis\n  File: /tmp/spool-commands-ldgLuY/checkout/src/modules/portability/migration-history.mjs\n6:49:25 AM [vite] (ssr) warning: \n/tmp/spool-commands-ldgLuY/checkout/src/modules/portability/migration-history.mjs\n20 |    // A table the replay lacks, or one holding more than `limit` rows, has no entry.\n21 |    async rowImages(requests,limit) {\n22 |      const {DatabaseSync}=await import(sqlite);\n   |                                        ^^^^^^\n23 |      const scratch=new DatabaseSync(':memory:'),found=new Map();\n24 |      try {\nThe above dynamic import cannot be analyzed by Vite.\nSee https://vite.dev/guide/features#dynamic-import for supported dynamic import formats. If this is intended to be left as-is, you can use the /* @vite-ignore */ comment inside the import() call to suppress this warning.\n\n  Plugin: vite:import-analysis\n  File: /tmp/spool-commands-ldgLuY/checkout/src/modules/portability/migration-history.mjs\n  ➜  Local:   http://127.0.0.1:35955/\nOpening your application\nOpening your application\nYour application is running locally\nBuilding the run site\n{\"pages\":13,\"assets\":4,\"styles\":1}\n{\"version\":1,\"verb\":\"dev\",\"event\":\"ready\",\"url\":\"[redacted]\",\"signedInAs\":\"[redacted]\",\"openUrl\":\"[redacted]/__dev/key[redacted]\",\"siteUrl\":\"http://127.0.0.1:15544\"}\nRunning the scheduled trigger locally: * * * * *\n{\"version\":1,\"verb\":\"dev\",\"event\":\"scheduled\",\"at\":\"2026-11-12T06:50:00Z\",\"cron\":\"* * * * *\",\"ok\":true,\"skipped\":false,\"status\":200,\"ms\":104}\n6:50:05 AM [vite] (client) [console.error] Encountered two children with the same key, `a:39902d718f4054df1eb0c94d44192fa47d44220cffdf578f37e08d69860af793`. Keys should be unique so that components maintain their identity across updates. Non-unique keys may cause children to be duplicated and/or omitted — the behavior is unsupported and could change in a future version.\n6:50:05 AM [vite] (client) [console.error] Encountered two children with the same key, `a:39902d718f4054df1eb0c94d44192fa47d44220cffdf578f37e08d69860af793`. Keys should be unique so that components maintain their identity across updates. Non-unique keys may cause children to be duplicated and/or omitted — the behavior is unsupported and could change in a future version.\n6:50:06 AM [vite] (client) [console.error] Encountered two children with the same key, `a:39902d718f4054df1eb0c94d44192fa47d44220cffdf578f37e08d69860af793`. Keys should be unique so that components maintain their identity across updates. Non-unique keys may cause children to be duplicated and/or omitted — the behavior is unsupported and could change in a future version.\n6:50:06 AM [vite] (client) [console.error] Encountered two children with the same key, `a:39902d718f4054df1eb0c94d44192fa47d44220cffdf578f37e08d69860af793`. Keys should be unique so that components maintain their identity across updates. Non-unique keys may cause children to be duplicated and/or omitted — the behavior is unsupported and could change in a future version.\n6:50:06 AM [vite] (client) [console.error] Encountered two children with the same key, `a:39902d718f4054df1eb0c94d44192fa47d44220cffdf578f37e08d69860af793`. Keys should be unique so that components maintain their identity across updates. Non-unique keys may cause children to be duplicated and/or omitted — the behavior is unsupported and could change in a future version.\n6:50:06 AM [vite] (client) [console.error] Encountered two children with the same key, `a:39902d718f4054df1eb0c94d44192fa47d44220cffdf578f37e08d69860af793`. Keys should be unique so that components maintain their identity across updates. Non-unique keys may cause children to be duplicated and/or omitted — the behavior is unsupported and could change in a future version.\n6:50:06 AM [vite] (client) [console.error] Encountered two children with the same key, `a:39902d718f4054df1eb0c94d44192fa47d44220cffdf578f37e08d69860af793`. Keys should be unique so that components maintain their identity across updates. Non-unique keys may cause children to be duplicated and/or omitted — the behavior is unsupported and could change in a future version.\n6:50:06 AM [vite] (client) [console.error] Encountered two children with the same key, `a:39902d718f4054df1eb0c94d44192fa47d44220cffdf578f37e08d69860af793`. Keys should be unique so that components maintain their identity across updates. Non-unique keys may cause children to be duplicated and/or omitted — the behavior is unsupported and could change in a future version.\n6:50:06 AM [vite] (client) [console.error] Encountered two children with the same key, `a:39902d718f4054df1eb0c94d44192fa47d44220cffdf578f37e08d69860af793`. Keys should be unique so that components maintain their identity across updates. Non-unique keys may cause children to be duplicated and/or omitted — the behavior is unsupported and could change in a future version.\n6:50:06 AM [vite] (client) [console.error] Encountered two children with the same key, `a:39902d718f4054df1eb0c94d44192fa47d44220cffdf578f37e08d69860af793`. Keys should be unique so that components maintain their identity across updates. Non-unique keys may cause children to be duplicated and/or omitted — the behavior is unsupported and could change in a future version.\n{\"version\":1,\"verb\":\"dev\",\"event\":\"scheduled\",\"at\":\"2026-11-12T06:51:00Z\",\"cron\":\"* * * * *\",\"ok\":true,\"skipped\":false,\"status\":200,\"ms\":182}\n{\"version\":1,\"verb\":\"dev\",\"event\":\"scheduled\",\"at\":\"2026-11-12T06:52:00Z\",\"cron\":\"* * * * *\",\"ok\":true,\"skipped\":false,\"status\":200,\"ms\":233}\n{\"version\":1,\"verb\":\"dev\",\"event\":\"error\",\"code\":\"cancelled\",\"message\":\"Stopped by SIGINT after owned children were stopped.\",\"exitCode\":130}\n{\"version\":1,\"verb\":\"dev\",\"event\":\"result\",\"ok\":false,\"exitCode\":130}\n"}
+{"journey":"agent-handoff","stage":"caps","type":"Error","message":"assertion failed","stack":["    at Timeout.<anonymous> (file://[REDACTED]/tests/agent-handoff/trace.mjs:41:12)"]}
+END caps/setup seconds=90.011
+STEP caps/stopDev
+END caps/stopDev seconds=0.000
+Agent handoff cleanup: [{"name":"mcp","outcome":"stopped"},{"name":"browser","outcome":"stopped"},{"name":"second-origin","outcome":"stopped"},{"name":"redirect-edge","outcome":"stopped"},{"name":"receiving-edge","outcome":"stopped"},{"name":"checkout","outcome":"stopped","children":"stopped","directory":"removed"}]

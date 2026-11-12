@@ -1,0 +1,159 @@
+{
+  "main": "e667b41342aff156be084e5f0291cf1e42198f15",
+  "c2": "33c29d204f27d85ac3320b49c206eef99177efb0",
+  "files": [
+    {
+      "path": "public/theme/spool.css",
+      "equals_c2": true
+    },
+    {
+      "path": "src/ui/workbench/SettingsView.tsx",
+      "equals_c2": true
+    },
+    {
+      "path": "tests/audit-history.mjs",
+      "equals_c2": true
+    },
+    {
+      "path": "tests/checkin-flow.mjs",
+      "equals_c2": true
+    },
+    {
+      "path": "tests/end-user-erasure-preview.mjs",
+      "equals_c2": true
+    },
+    {
+      "path": "tests/grouping-rules-flow.mjs",
+      "equals_c2": true
+    },
+    {
+      "path": "tests/identity-flow.mjs",
+      "equals_c2": true
+    },
+    {
+      "path": "tests/inbound-filter-flow.mjs",
+      "equals_c2": true
+    },
+    {
+      "path": "tests/key-rate-limit-flow.mjs",
+      "equals_c2": true
+    },
+    {
+      "path": "tests/loader-flow.mjs",
+      "equals_c2": true
+    },
+    {
+      "path": "tests/notification-preferences.mjs",
+      "equals_c2": true
+    },
+    {
+      "path": "tests/operator-ui.mjs",
+      "equals_c2": true
+    },
+    {
+      "path": "tests/project-erasure/ui.mjs",
+      "equals_c2": true
+    },
+    {
+      "path": "tests/release-identity-flow.mjs",
+      "equals_c2": true
+    },
+    {
+      "path": "tests/reports-flow.mjs",
+      "equals_c2": true
+    },
+    {
+      "path": "tests/retention-flow.mjs",
+      "equals_c2": true
+    },
+    {
+      "path": "tests/retention-schedule-flow.mjs",
+      "equals_c2": true
+    },
+    {
+      "path": "tests/rollbar-import/screens.mjs",
+      "equals_c2": true
+    },
+    {
+      "path": "tests/scrubbing-flow.mjs",
+      "equals_c2": true
+    },
+    {
+      "path": "tests/slack-ui.mjs",
+      "equals_c2": true
+    },
+    {
+      "path": "tests/triage-journey.mjs",
+      "equals_c2": true
+    },
+    {
+      "path": "tests/agent-handoff/ui.mjs",
+      "equals_main_with_one_settings_fragment": true,
+      "preserves_popup_reload_and_trace_diagnostics": true
+    }
+  ],
+  "contracts": {
+    "CONTRACT.md": {
+      "equals_main": true,
+      "sha256": "ee9c871bfa25a110d3f3e61924164c75cc17ea412cb775f2e0621f114ab3594b"
+    },
+    "ACCEPTANCE.md": {
+      "equals_main": true,
+      "sha256": "09f4bb713a3cf9acdde84ba680630f9e9356198966ea70f2ac502520909a9ab1"
+    },
+    "docs/CLAIMS.md": {
+      "equals_main": true,
+      "sha256": "dea371100eb9ee81aee20dfc3264506a9885383e15a197f813f044a335555aba"
+    }
+  },
+  "status_counts_before": {
+    "done": 23,
+    "partial": 54,
+    "missing": 28
+  },
+  "status_counts_after": {
+    "done": 23,
+    "partial": 54,
+    "missing": 28
+  },
+  "test_registrations_added": 0,
+  "test_registrations_removed": 0,
+  "settings_sections_before": 1,
+  "settings_sections_after": 7,
+  "product_head": "f7aa07dfc20cbe6f77cccc4244f3ac35f053ac47",
+  "preserved_setting_components": {
+    "Members": 1,
+    "PersonalNotifications": 1,
+    "ProjectForm": 1,
+    "Details": 1,
+    "ProjectKeyFacts": 1,
+    "LoaderSettings": 1,
+    "KeyRateLimit": 1,
+    "ReportsConfiguration": 1,
+    "SdkSetup": 1,
+    "OriginStep": 1,
+    "SentryIntake": 1,
+    "CheckInRoutes": 1,
+    "GroupingRules": 1,
+    "GroupingProposals": 1,
+    "SlackDestinationForm": 1,
+    "ScrubbingRules": 1,
+    "IdentityPolicy": 1,
+    "RecurrencePolicy": 1,
+    "ReleasePolicy": 1,
+    "CommitSharing": 1,
+    "SchedulerStatus": 1,
+    "FeedbackPanel": 1,
+    "InboundFilters": 1,
+    "BusinessImports": 1,
+    "AuditHistory": 1,
+    "ArchiveSettings": 1,
+    "RetentionSettings": 1,
+    "ProjectErasure": 1
+  },
+  "exactly_one_commit": true,
+  "product_tree_clean": true,
+  "source_lock_sha256": "0ba347c53bec9a6c8bbde0f80d3d9dcd245cdd829c95d138a3a9a596c68f30bc",
+  "commit_count": 1,
+  "parent": "e667b41342aff156be084e5f0291cf1e42198f15"
+}

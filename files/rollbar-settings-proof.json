@@ -1,0 +1,21 @@
+{
+  "head": "f7aa07dfc20cbe6f77cccc4244f3ac35f053ac47",
+  "purpose": "Report-only proof of the changed Settings history route; no test modification or bypass claim",
+  "screens": [
+    {
+      "width": 1440,
+      "file": "screens/settings-rollbar-history-1440.png",
+      "fragment": "#settings-data",
+      "historyVisible": true,
+      "pageWidth": 1440
+    },
+    {
+      "width": 390,
+      "file": "screens/settings-rollbar-history-390.png",
+      "fragment": "#settings-data",
+      "historyVisible": true,
+      "pageWidth": 390
+    }
+  ],
+  "importReconciled": true
+}
