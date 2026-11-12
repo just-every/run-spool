@@ -1,5 +1,8 @@
 import { AuthError } from '../../modules/operator-auth/index.mjs';
 import { normalizeEmail } from '../../modules/operator-auth/policy.mjs';
+import type { MailMessage } from '../../modules/operator-auth/index.mjs';
+import { operatorMail } from '../../auth/mail.server.mjs';
+import { localInvitation } from './local-invitations';
 import { operatorAuth } from '../../auth/session.server';
 import { ownerBatch } from '../owner-authority';
 import { auditCommit } from '../audit/context';
@@ -21,7 +24,17 @@ export async function invite(request: Request, env: Bindings, session: NativeAut
   // again. The cancellation witness never revives an old session or key.
   await ownerBatch(env.DB,session,[s(env.DB,'INSERT OR REPLACE INTO oa_invitation_cancellations(operator_id,operator_version) SELECT id,version FROM oa_operators WHERE id=? AND status=\'inactive\'',native.id)]);
  }
- if (native?.status!=='active') await operatorAuth(env,true).invite(request,{email,displayName,role:'member',returnTo:'/'});
+ const inviteId=crypto.randomUUID();
+ const captured: { local: Awaited<ReturnType<typeof localInvitation>> } = { local: null };
+ if (native?.status!=='active') {
+  const sender=operatorMail(env);
+  await operatorAuth(env,true,sender && {async send(message: MailMessage) {
+   const result=await sender.send(message);
+   if(result.status==='development')captured.local=await localInvitation(env,session,inviteId,message);
+   return result;
+  }}).invite(request,{email,displayName,role:'member',returnTo:'/'});
+ }
+ const { local }=captured;
  const person=await s(env.DB,'SELECT id,status FROM oa_operators WHERE email=?',email).first<any>();
  if (!person) throw new AuthError('Invitation not confirmed',503);
  const id=existing?.id??crypto.randomUUID(), time=Date.now();
@@ -31,7 +44,8 @@ export async function invite(request: Request, env: Bindings, session: NativeAut
    ON CONFLICT(id) DO UPDATE SET operator_id=excluded.operator_id,name=excluded.name,role=excluded.role,state='active',version=spool_members.version+1`,id,organization,person.id,email,displayName,memberRole,time),
   s(env.DB,'DELETE FROM spool_project_grants WHERE member=?',id),
   ...access.map(g=>s(env.DB,'INSERT INTO spool_project_grants VALUES(?,?,?,?)',id,g.project,g.role,time)),
-  s(env.DB,'INSERT INTO spool_member_invites VALUES(?,?,?,?)',crypto.randomUUID(),id,time,person.status==='active'?'accepted':'invited'),auditCommit(env.DB),
+  s(env.DB,'INSERT INTO spool_member_invites VALUES(?,?,?,?)',inviteId,id,time,person.status==='active'?'accepted':'invited'),
+  ...(local ? [s(env.DB,'INSERT INTO spool_local_invite_links VALUES(?,?,?,?)',inviteId,local.tokenId,session.operator.id,local.envelope)] : []),auditCommit(env.DB),
  ]);
  return {id,status:person.status==='active'?'accepted':'invited'};
 }

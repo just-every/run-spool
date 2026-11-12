@@ -6,6 +6,8 @@ import AxeBuilder from '@axe-core/playwright';
 import {launchBrowser} from './browser-launch.mjs';
 import {startDispatchApp} from './triage-app.mjs';
 import {workbenchLink} from './navigation.mjs';
+import {admissionRuntime} from './admission-runtime.mjs';
+import {testSetupToken} from './auth.mjs';
 import {teamViewportProof,teamKeyboardDetails} from './team-viewport.mjs';
 
 const organization='/api/organization';
@@ -30,6 +32,10 @@ export async function browserMembers(owner,projects) {
   const invited=page.waitForResponse(r=>new URL(r.url()).pathname===organization+'/invites'&&r.request().method()==='POST'&&r.status()===202);
   await form.getByRole('button',{name:'Send invitation',exact:true}).click();await invited;
   await members.getByText('synthetic-spool-6',{exact:true}).first().waitFor();
+  assert.equal((await owner.json(organization+'/me')).mailSuppressed,false);
+  assert.ok((await owner.json(organization)).invites.every(row=>!row.localLink),'mail-sending runtime returns no local invitation links');
+  await members.locator('summary').filter({hasText:/^Invitations$/}).click();
+  await expect(members.getByRole('button',{name:'Copy invitation link',exact:true})).toHaveCount(0);
   // Stored grants contain member and created metadata; writes must send only the input shape.
   await members.getByRole('button',{name:'Details: synthetic-spool-6 access',exact:true}).click();
   const dialog=page.getByRole('dialog'),role=dialog.getByLabel(/^Organization role/),secondProject=dialog.getByLabel(new RegExp('^'+projects[1].name));
@@ -238,4 +244,86 @@ export async function teamTriage(owner,member,project,width) {
   assert.deepEqual(errors,[],'the team path has no browser errors');
   console.log('[UX-001] '+width+' native team independently registered, captured, mapped, searched, operator-label assigned without duplicate writes, commented, followed alert by touch and recorded repair approval; keyboard, Axe and reflow passed');
  }finally{await browser.close();await application?.stop();}
+}
+
+// Extends the existing TEAM-001 journey: actual mail suppression, pending
+// invitation custody and unchanged native confirmation, with no provider fake.
+export async function localMailFlow() {
+ console.log('Local mail journey: starting emitted app');
+ const app=await admissionRuntime();let browser;
+ console.log('Local mail journey: emitted app ready');
+ try {
+  const bootstrap=await app.call('/auth/bootstrap',{token:testSetupToken,displayName:'Synthetic local owner'});
+  assert.equal(bootstrap.status,303);const cookie=bootstrap.headers.get('set-cookie').split(';')[0];await bootstrap.arrayBuffer();
+  const request=(path,value,headers={},method)=>app.call(path,value,{Cookie:cookie,...headers},method);
+  const json=async(path,value)=>{const response=await request(path,value);assert.ok(response.ok,path+' '+response.status);return response.json()};
+  await json('/api/organization',{id:'synthetic-spool-local',name:'Synthetic local team'});
+  const project=await json('/api/projects',{id:'synthetic-spool-local',name:'Synthetic local project'});
+  assert.equal((await json('/api/organization/me')).mailSuppressed,true);
+  console.log('Local mail journey: owner and project created');
+  browser=await launchBrowser();const context=await browser.newContext({viewport:{width:1440,height:1000},permissions:['clipboard-read','clipboard-write']});
+  const split=cookie.indexOf('=');await context.addCookies([{name:cookie.slice(0,split),value:cookie.slice(split+1),url:app.origin}]);
+  const page=await context.newPage();page.setDefaultTimeout(20000);
+  const settings=app.origin+'/projects/'+project.id+'/settings';await page.goto(settings);
+  const members=page.getByRole('region',{name:'Members',exact:true});
+  await members.locator('summary').filter({hasText:/^Invite a member$/}).click();
+  await members.getByLabel('Email',{exact:true}).fill('synthetic-spool-local@example.test');
+  await members.getByLabel('Name',{exact:true}).fill('Synthetic local invitee');
+  await members.getByLabel(/^Organization role/).selectOption('read-only');
+  await members.locator('form').filter({has:page.getByLabel('Email',{exact:true})}).getByLabel(new RegExp('^'+project.name)).selectOption('read-only');
+  const pending=page.waitForResponse(r=>new URL(r.url()).pathname==='/api/organization/invites'&&r.request().method()==='POST');
+  await members.getByRole('button',{name:'Create invitation',exact:true}).click();assert.equal((await pending).status(),202);
+  await expect(members.getByRole('status')).toBeVisible();
+  // A reload proves the pending link survives navigation without minting a new token.
+  await page.reload();await members.locator('summary').filter({hasText:/^Invitations$/}).click();
+  const input=members.getByLabel('Invitation link for synthetic-spool-local@example.test',{exact:true});await input.waitFor();
+  const link=await input.inputValue(),token=new URL(link).searchParams.get('token');assert.ok(token);
+  assert.equal(new URL(link).origin,app.origin);
+  const native=await app.DB.prepare("SELECT t.id,t.expires_at,t.consumed_at,t.revoked_at,l.envelope FROM oa_tokens t JOIN spool_local_invite_links l ON l.token_id=t.id").first();
+  assert.ok(native.expires_at>Date.now());assert.equal(native.consumed_at,null);assert.equal(native.revoked_at,null);
+  assert.ok(!native.envelope.includes(token),'the stored copy is encrypted');
+  console.log('Local mail journey: pending native link available after reload');
+  const beforeTokens=(await app.DB.prepare('SELECT COUNT(*) n FROM oa_tokens').first()).n;
+  await members.getByRole('button',{name:'Copy invitation link',exact:true}).click();
+  assert.ok(await page.evaluate(async value=>(await navigator.clipboard.readText())===value,link),'clipboard contains the pending native link');
+  assert.equal((await app.DB.prepare('SELECT COUNT(*) n FROM oa_tokens').first()).n,beforeTokens,'copy creates no second token');
+  await members.locator('summary').filter({hasText:/^Verify identity for ownership transfer$/}).click();
+  const stepUp=page.waitForResponse(r=>new URL(r.url()).pathname==='/auth/step-up'&&r.request().method()==='POST');
+  await members.getByRole('button',{name:'Verify your identity',exact:true}).click();assert.equal((await stepUp).status(),202);
+  const challenge=await app.DB.prepare('SELECT consumed_at FROM oa_step_up_challenges ORDER BY created_at DESC LIMIT 1').first();
+  assert.equal(challenge.consumed_at,null,'requesting suppressed mail creates no step-up proof');
+  assert.equal((await app.DB.prepare('SELECT COUNT(*) n FROM rer_mail_development_outbox').first()).n,0,'local mail is neither sent nor retained as a mailbox');
+  const folder=process.env.SPOOL_LOCAL_MAIL_EVIDENCE;
+  if(folder){
+   await mkdir(folder,{recursive:true});
+   await members.screenshot({path:resolve(folder,'local-members-1440.png'),mask:[input]});
+   await page.setViewportSize({width:390,height:1000});
+   await members.screenshot({path:resolve(folder,'local-members-390.png'),mask:[input]});
+   await page.setViewportSize({width:1440,height:1000});
+  }
+  console.log('Local mail journey: copy and verification complete');
+  const inviteeContext=await browser.newContext({viewport:{width:1440,height:1000}}),invitee=await inviteeContext.newPage();invitee.setDefaultTimeout(20000);
+  await invitee.goto(link);const confirmed=invitee.waitForResponse(r=>new URL(r.url()).pathname==='/auth/confirm'&&r.request().method()==='POST');
+  await invitee.getByRole('button',{name:'Confirm',exact:true}).click();assert.equal((await confirmed).status(),303);
+  const session=await inviteeContext.request.get(app.origin+'/auth/session');assert.equal(session.status(),200);
+  assert.equal((await session.json()).operator.role,'member');
+  const access=await (await inviteeContext.request.get(app.origin+'/api/organization/me')).json();assert.equal(access.role,'read-only');assert.deepEqual(access.projects.map(row=>row.id),[project.id]);
+  const refused=await inviteeContext.request.post(app.origin+'/auth/confirm',{headers:{Origin:app.origin},data:{token}});assert.equal(refused.status(),400,'the very same link cannot be accepted twice');
+  assert.equal((await refused.json()).error,'invalid_or_expired');
+  const after=(await json('/api/organization')).invites;assert.ok(after.every(row=>!row.localLink),'accepted links are no longer exposed');
+  const member=(await json('/api/organization')).members.find(row=>row.name==='Synthetic local invitee');
+  const transfer=await request('/api/organization/transfer',{member:member.id,version:member.version});assert.equal(transfer.status,403);assert.equal((await transfer.json()).error,'step_up_required','local messaging does not bypass native ownership proof');
+  assert.equal((await inviteeContext.request.get(app.origin+'/api/organization')).status(),404,'read-only invitee cannot read invitation custody');
+  const archive=await request('/api/archive');assert.equal(archive.status,200);const archiveText=await archive.text();
+  const archivedItems=archiveText.trim().split('\n').flatMap(line=>JSON.parse(line).items??[]);
+  assert.ok(!archivedItems.some(item=>item.kind==='row'&&item.table==='spool_local_invite_links')&&!archiveText.includes(token)&&!archiveText.includes(native.envelope),'private archives contain no local token custody');
+  await json('/api/organization/invites',{email:'synthetic-spool-expiry@example.test',name:'Synthetic expiry invitee',role:'read-only',grants:[]});
+  const expiryData=await json('/api/organization'),expiryLink=expiryData.invites.find(row=>row.localLink)?.localLink;assert.ok(expiryLink);
+  const expiryToken=new URL(expiryLink).searchParams.get('token');
+  await app.DB.prepare('UPDATE oa_tokens SET expires_at=? WHERE id IN (SELECT token_id FROM spool_local_invite_links WHERE invite=?)').bind(Date.now()-1,expiryData.invites.find(row=>row.localLink).id).run();
+  assert.ok((await json('/api/organization')).invites.every(row=>!row.localLink),'expired native links are no longer exposed');
+  const expired=await app.call('/auth/confirm',{token:expiryToken});assert.equal(expired.status,400);await expired.arrayBuffer();
+  console.log('PROBE TEAM-001 local invitation: suppressed mail; copy after reload; same native expiring token; second browser acceptance once; roles, expiry, read-only denial and archive exclusion preserved.');
+  console.log('PROBE GOV-001 local verification: request produces no completed proof and native transfer still refuses without email confirmation.');
+ }finally{await browser?.close();await app.close()}
 }

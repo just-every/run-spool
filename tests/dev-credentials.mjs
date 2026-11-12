@@ -47,7 +47,7 @@ try{
  }
  const deployed=await mf.getWorker('deployed');
  // key: the header the rer harness sends; without it a request looks as one through a forwarding proxy does.
- const call=(target,path,{method='GET',cookie,body,key=false,bearer}={})=>target(origin+path,{method,redirect:'manual',headers:{Origin:origin,...body?{'Content-Type':'application/json'}:{},...cookie?{Cookie:cookie}:{},...bearer?{Authorization:'Bearer '+bearer}:{},...key?{'x-rer-dev-key':testDevKey}:{}},...body?{body:JSON.stringify(body)}:{}});
+ const call=(target,path,{method='GET',cookie,body,key=false,bearer}={})=>target(origin+path,{method,redirect:'manual',headers:{Origin:origin,'CF-Connecting-IP':'127.0.0.1',...body?{'Content-Type':'application/json'}:{},...cookie?{Cookie:cookie}:{},...bearer?{Authorization:'Bearer '+bearer}:{},...key?{'x-rer-dev-key':testDevKey}:{}},...body?{body:JSON.stringify(body)}:{}});
  const local=(path,options)=>call(fetch,path,options),remote=(path,options)=>call((url,init)=>deployed.fetch(url,init),path,options);
  const status=async response=>{await response.body?.cancel();return response.status};
  const event=id=>({version:1,eventId:id,release:'r1',build:'b1',environment:'production',type:'TypeError',message:'failed',frames:[{file:'https://app.test/bundle.js',line:1,column:0,function:'run',debugId:'d1'}],breadcrumbs:[]});
@@ -71,6 +71,24 @@ try{
  assert.ok(agent&&deploy&&ingest);
  assert.equal(await status(await local('/api/projects/minted/releases',{method:'POST',cookie:dev,key:true,body:{name:'r1',build:'b1'}})),201);
  assert.equal((await db.prepare("SELECT COUNT(*) n FROM oa_dev_credentials WHERE credential='credentials'").first()).n,4,'every mint path in the dev session is recorded; the ordinary ones are not');
+
+ // The local invitation carries the same native token and retains dev admission.
+ assert.equal(await status(await local('/api/organization',{method:'POST',cookie:dev,key:true,body:{id:'synthetic-spool-dev',name:'Synthetic dev team'}})),201);
+ const invitation={email:'synthetic-spool-dev@example.test',name:'Synthetic dev invitee',role:'admin',grants:[]};
+ assert.equal(await status(await local('/api/organization/invites',{method:'POST',cookie:dev,key:true,body:invitation})),202);
+ const inviteData=await (await local('/api/organization',{cookie:dev,key:true})).json();
+ const inviteLink=inviteData.invites.find(row=>row.localLink)?.localLink;assert.ok(inviteLink);
+ const inviteToken=new URL(inviteLink).searchParams.get('token');
+ assert.equal(await status(await local('/auth/confirm',{method:'POST',body:{token:inviteToken}})),400,'dev invitation acceptance retains the local gate');
+ assert.equal(await status(await remote('/auth/confirm',{method:'POST',key:true,body:{token:inviteToken}})),400,'deployed entry never accepts the dev invitation');
+ const accepted=await local('/auth/confirm',{method:'POST',key:true,body:{token:inviteToken}});assert.equal(accepted.status,303);await accepted.body?.cancel();
+ const invitedCookie=accepted.headers.getSetCookie().map(line=>line.split(';')[0]).join('; ');
+ assert.equal((await (await local('/auth/session',{cookie:invitedCookie,key:true})).json()).kind,'dev');
+ assert.equal(await status(await local('/auth/confirm',{method:'POST',key:true,body:{token:inviteToken}})),400,'dev invitation is single-use');
+ assert.equal(await status(await local('/api/organization/invites',{method:'POST',cookie:dev,key:true,body:{...invitation,email:'synthetic-spool-pending@example.test',name:'Synthetic pending invitee',role:'read-only'}})),202);
+ assert.ok((await (await local('/api/organization',{cookie:dev,key:true})).json()).invites.some(row=>row.localLink));
+ assert.ok((await (await local('/api/organization',{cookie:invitedCookie,key:true})).json()).invites.every(row=>!row.localLink),'local admins cannot read the inviting owner’s links');
+ console.log('PROBE TEAM-001 rer dev invitation: same native token; existing key gate required; deployed refusal; single use; admin link denial.');
 
  // Dev-minted capture/build credentials need no owner gate locally. Agent reads
  // still need it, and production refuses every dev-minted credential.
