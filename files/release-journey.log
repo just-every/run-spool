@@ -1,0 +1,40 @@
+[33m▲ [43;33m[[43;30mWARNING[43;33m][0m [1mProxy environment variables detected. We'll use your proxy for fetch requests.[0m
+
+
+PROBE SDK-011 invalid-only: framed JSON and conversion failures -> typed event invalid_item; no identity, scrubbing, release, issue or alert writes; exact refusal usage
+PROBE SDK-011 order and accounting: each invalid kind before and after two valid companions -> accepted=25, invalid_item=21; one retained occurrence and accepted unit per valid error
+PROBE SDK-011 refusal boundaries: malformed framing and store -> whole request refused; refusal-accounting and event-storage faults -> 503 with no partial product writes
+PROBE SDK-011 authority: invalid, foreign and revoked grants and denied origin -> no companions admitted or conversion refusals attributed
+OTLP HTTP flow passed: located log/JS exception, resource association, privacy/deduplication, full/partial rejection accounting, framing/limits, project CORS/grant revocation and shared native budget.
+PROBE FIND-001 priority filtering and ordering: 90 captured issues, four cursor pages, three two-page priority filters, combined predicates, exact JSON and CSV identities and priorities, and changed-query cursor refusals passed.
+[FIND-003] persisted metric widgets, same-occurrence queries, SDK008 counts, sessions, no-release, saved review tables, report definitions, revisions, sharing, bounded safe exports and capacity refusals passed
+[API-001] occurrence and feedback pages reconcile with owner UI reads; scope refusals, withdrawal and erasure passed
+[FIND-003] exact retained totals, saved-query read-back and widget equality, DST calendar buckets, history exclusions, acknowledgement and resolution quantiles, ownership, SDK-008 identity policy, SDK-005 health, no-release, discards and JSON and CSV public report doors passed
+SDK-009 an explicit dist 'sentry-no-dist' stays distinct from no dist, and next/named-release resolution regresses only on a later release (bulk; two auto semvers and two SHA releases).
+[TEAM-003] server deadlines, additional occurrences, shared affected-user definition, shown forecast, snooze, one follow-up and bulk suppression preview passed
+[FIND-001] pending count, one/selection review, atomic preview, unchanged issue data, regression, owner views, query validation, 25-view cap, stranger links, archive/restore/erasure and 1440/390 UI passed
+Bulk triage public flow passed: preview, atomic stale refusal, action binding, project/owner/origin scope, apply, revision and query export.
+Full-corpus search, query-wide facets, cursor pages, authorized JSON/CSV exports and scope passed.
+PROBE ERR-005 issue view: independent exception paging, occurrence selection reset, keyboard recovery and Axe passed at 1440; mapped screens captured at 1440 and 390
+PROBE ERR-005 retained pages: public Sentry envelope and current mapped-frame route -> 1,000 unique stored indices, originals through frame 1,000, explicit missing and mismatch reasons
+PROBE ERR-005 late maps: public artifact upload and event reads -> every admission snapshot and occurrence unchanged; new captures mapped; replay unchanged
+PROBE ERR-005 authority: malformed and cross-stack cursors, foreign selectors, project grants and removed native member -> refused without changing evidence
+PROBE ERR-005 legacy privacy: owner and agent packets -> 30 diagnostic frames, no source content or frame locals
+FIND-002 issue impact: all retained events, shared SDK-008 users, release exclusions, rate, project session denominators and query-scoped recommendation passed at 1440 and 390; explicit session association and truthful missing or foreign link coverage passed.
+SDK-010 request query strings are kept scrubbed and every exclusion is named; GROUP-001 fidelity flow passed: chains/groups/message events, root-cause alerts, retained selection/pagination/tags, privacy and agent scope, 1,000-frame retention and Java chain.
+GROUP-001 grouping rules public flow passed: exact-project authority, preview/no mutation, future routing, revision conflicts, immutable explanations, archive policy and responsive save/detail.
+[TEAM-003] next-release regression, same/old/no-release accounting, previewed revision-fenced policy and unchanged plain resolution passed
+SDK-009 an explicit dist 'sentry-no-dist' stays distinct from no dist, and next/named-release resolution regresses only on a later release (owner; two auto semvers and two SHA releases).
+Release identity public flow passed: optional release, automatic/dists, enrichment, semantic regression, plain resolution, counted strict/pattern/name outcomes, archive restore and 1440/390 settings/history/triage.
+TEAM-004 S1 / G1 passed: later SHA-release association, earlier resolution and revision kept, older-release protection, one SHA-release regression.
+TEAM-004 S2 / G2 passed: reviewed email/signed-webhook regression rules; default SHA/release/citation and shared author/message bodies; nonempty fixture outbox; owner cutoff removes shared mail/outbox text and webhook copies, cancels pending deliveries retention_removed; clean archive, shared exports and scrub canary.
+TEAM-004 short IDs, commit citations, resolution and unknown-ID link log passed: short IDs in lists, search, exports, packets and alerts; deploy-key and deployment citations; resolution, regression and older-release protection; SHA release association; merge alias; default-off and owner-shared author/message; inert restore, retention, erasure and retired prefixes; 1440/390 screens.
+SDK-006 inbound-filter public flow passed: every filter, full retained preview, stale/authority denial, pre-group/alert/usage exclusion, IPv4/IPv6, wildcard Origin/Referer, counters and disabling.
+Sentry HTTP public flows passed: shared admission, privacy and dedupe; distinct statsd and unknown counts with independent restore and erasure; SDK-011 deflate, counted 415s and item isolation; strict framing, binary, zero and gzip; CORS, credential agreement, revocation and project isolation; deploy scope and idempotent artifacts.
+PROBE BILL-001 5 minute: public envelope, two key grants -> accepted=3, duplicate=1, filtered=1, key_rate_limited=1; second key accepted
+PROBE BILL-001 5 hour and concurrency: six public envelopes at one remaining slot -> one accepted, five key-limited; restart and lower or higher limits preserve spend
+PROBE BILL-001 5 deadline and configuration: public envelope after expired persisted buckets -> accepted; disabling and re-enabling retain spend; mixed refusal count=2 and SDK discard count=7
+PROBE BILL-001 5 SDK: installed unmodified Node clients with two DSNs -> first key honors backoff; second key stores its error
+PROBE BILL-001 5 custody: private archive and fresh restore -> no key authority or quota state; owner project erasure -> both tables removed and replay refused
+PROBE BILL-001 5 loss: native capture refused by key limit -> repair verdict becomes inconclusive; reports and widgets reconcile server refusals
+PROBE BILL-001 5 UI 1440: Settings save -> one event per hour; Capture receipts -> accepted=1 and capture-key-limited=1; keyboard, Axe and reflow passed

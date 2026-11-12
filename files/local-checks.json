@@ -1,0 +1,74 @@
+{
+  "phase": "all touched checks passed",
+  "checks": [
+    {
+      "command": "npx -y @runeditrun/rer setup --owner-email fleet@runeditrun.com --non-interactive",
+      "exit_code": 0,
+      "observed_from": "completed tool process"
+    },
+    {
+      "command": "node scripts/edition-authoring/cli.mjs lock",
+      "exit_code": 0,
+      "observed_from": "completed tool process"
+    },
+    {
+      "command": "pnpm source:check",
+      "exit_code": 0,
+      "observed_from": "completed tool process",
+      "log_file": "source-check.log"
+    },
+    {
+      "command": "node src/base/contract-docs.mjs check",
+      "exit_code": 0,
+      "observed_from": "completed tool process",
+      "log_file": "contract-check.log"
+    },
+    {
+      "command": "npx -y @runeditrun/rer build",
+      "exit_code": 0,
+      "observed_from": "completed tool process",
+      "log_file": "build.log"
+    },
+    {
+      "command": "pnpm typecheck",
+      "exit_code": 0,
+      "observed_from": "completed tool process",
+      "log_file": "typecheck.log"
+    },
+    {
+      "command": "npx -y @runeditrun/rer check --profile first-party",
+      "exit_code": 0,
+      "observed_from": "completed tool process",
+      "log_file": "rer-check.log"
+    },
+    {
+      "command": "node tests/sentry-http.mjs",
+      "exit_code": 0,
+      "observed_from": "completed tool process",
+      "log_file": "release-journey.log",
+      "browser_widths": [
+        1440,
+        390
+      ]
+    },
+    {
+      "command": "node tests/alerts-ui.mjs",
+      "exit_code": 0,
+      "observed_from": "completed tool process",
+      "log_file": "alerts-journey.log",
+      "browser_widths": [
+        1440,
+        390
+      ]
+    },
+    {
+      "command": "pnpm source:check (after proof restoration and final lock regeneration)",
+      "exit_code": 0,
+      "log_file": "final-source-check.log",
+      "observed_from": "completed tool process"
+    }
+  ],
+  "head": "9c72951a312031aa10c5ac26e5bd57c2ddf5bb05",
+  "checked_source_head": "9c72951a312031aa10c5ac26e5bd57c2ddf5bb05",
+  "source_binding": "All changed product and test bytes are identical to the tested tree; product-receipt.json records SHA-256 for each committed changed file. Screenshot outputs restored before commit and lock regenerated last."
+}

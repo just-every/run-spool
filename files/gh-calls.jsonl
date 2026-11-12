@@ -1,0 +1,5 @@
+{"ordinal": 1, "utc": "2026-11-12T12:15:53.901693+00:00", "args": ["api", "repos/just-every/run-spool/actions/runs?head_sha=9c72951a312031aa10c5ac26e5bd57c2ddf5bb05&per_page=100", "--jq", "{total_count,workflow_runs:[.workflow_runs[]|{id,name,status,conclusion,head_sha,html_url}]}"]}
+{"ordinal": 2, "utc": "2026-11-12T12:20:53.913285+00:00", "args": ["api", "repos/just-every/run-spool/actions/runs/43216253294", "--jq", "{id,name,status,conclusion,head_sha,html_url}"]}
+{"ordinal": 3, "utc": "2026-11-12T12:25:53.890611+00:00", "args": ["api", "repos/just-every/run-spool/actions/runs/43216253294", "--jq", "{id,name,status,conclusion,head_sha,html_url}"]}
+{"ordinal": 4, "utc": "2026-11-12T12:30:53.895955+00:00", "args": ["api", "repos/just-every/run-spool/actions/runs/43216253294", "--jq", "{id,name,status,conclusion,head_sha,html_url}"]}
+{"ordinal": 5, "utc": "2026-11-12T12:35:53.892141+00:00", "args": ["api", "repos/just-every/run-spool/actions/runs/43216253294", "--jq", "{id,name,status,conclusion,head_sha,html_url}"]}

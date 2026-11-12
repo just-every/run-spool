@@ -1,0 +1,38 @@
+{
+  "recorded_utc": "2026-11-12T12:14:59.836178+00:00",
+  "baseline": "ae07f7a47522ac43a5894fdfed3918ae49f763ea",
+  "contracts": {
+    "CONTRACT.md": {
+      "matches_origin_main": true,
+      "sha256": "ee9c871bfa25a110d3f3e61924164c75cc17ea412cb775f2e0621f114ab3594b"
+    },
+    "ACCEPTANCE.md": {
+      "matches_origin_main": true,
+      "sha256": "09f4bb713a3cf9acdde84ba680630f9e9356198966ea70f2ac502520909a9ab1"
+    },
+    "docs/CLAIMS.md": {
+      "matches_origin_main": true,
+      "sha256": "dea371100eb9ee81aee20dfc3264506a9885383e15a197f813f044a335555aba"
+    }
+  },
+  "focused_counts": {
+    "tests/release-identity-flow.mjs": {
+      "assertion_calls_before": 228,
+      "assertion_calls_after": 238,
+      "all_main_lines_retained_in_order": true
+    },
+    "tests/alerts-ui.mjs": {
+      "assertion_calls_before": 22,
+      "assertion_calls_after": 28
+    }
+  },
+  "test_registrations_added": 0,
+  "generated_progress_before_after": {
+    "done": 23,
+    "partial": 54,
+    "missing": 28,
+    "total": 105
+  },
+  "credential_shape_diff_scan": "passed; no matched values emitted",
+  "publication_scan": "Fleet-only full publication scan deferred to landing, per cloud adaptation."
+}

@@ -1,0 +1,9 @@
+CI_OBSERVED {"conclusion": null, "head_sha": "9c72951a312031aa10c5ac26e5bd57c2ddf5bb05", "html_url": "https://github.com/just-every/run-spool/actions/runs/43216253294", "id": 43216253294, "name": "Verify", "status": "in_progress"}
+CI_WAIT next call in 300 seconds
+CI_OBSERVED {"conclusion": null, "head_sha": "9c72951a312031aa10c5ac26e5bd57c2ddf5bb05", "html_url": "https://github.com/just-every/run-spool/actions/runs/43216253294", "id": 43216253294, "name": "Verify", "status": "in_progress"}
+CI_WAIT next call in 300 seconds
+CI_OBSERVED {"conclusion": null, "head_sha": "9c72951a312031aa10c5ac26e5bd57c2ddf5bb05", "html_url": "https://github.com/just-every/run-spool/actions/runs/43216253294", "id": 43216253294, "name": "Verify", "status": "in_progress"}
+CI_WAIT next call in 300 seconds
+CI_OBSERVED {"conclusion": null, "head_sha": "9c72951a312031aa10c5ac26e5bd57c2ddf5bb05", "html_url": "https://github.com/just-every/run-spool/actions/runs/43216253294", "id": 43216253294, "name": "Verify", "status": "in_progress"}
+CI_WAIT next call in 300 seconds
+CI_OBSERVED {"conclusion": "success", "head_sha": "9c72951a312031aa10c5ac26e5bd57c2ddf5bb05", "html_url": "https://github.com/just-every/run-spool/actions/runs/43216253294", "id": 43216253294, "name": "Verify", "status": "completed"}

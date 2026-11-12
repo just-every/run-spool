@@ -1,0 +1,29 @@
+{
+  "phase": "complete; changed screens inspected at both widths",
+  "widths": [
+    1440,
+    390
+  ],
+  "release": [
+    "screens/no-release-filter-1440.png",
+    "screens/no-release-filter-390.png",
+    "screens/no-release-issue-1440.png",
+    "screens/no-release-issue-390.png",
+    "screens/no-release-observed-1440.png",
+    "screens/no-release-observed-390.png",
+    "screens/no-dist-history-1440.png",
+    "screens/no-dist-history-390.png",
+    "screens/no-dist-deployment-1440.png",
+    "screens/no-dist-deployment-390.png"
+  ],
+  "review": "No release and No build supplied visible on occurrence/deployment/history screens; no storage marker shown. Filter absence label checked at 1440. Synthetic data only; no credentials.",
+  "alerts": [
+    "screens/alerts-snoozed-delivery-1440.png",
+    "screens/alerts-snoozed-delivery-390.png",
+    "screens/alerts-expired-1440.png",
+    "screens/alerts-expired-390.png",
+    "screens/alerts-digest-1440.png",
+    "screens/alerts-digest-390.png"
+  ],
+  "alerts_review": "Suppressed rows have labelled attempt counts and no stray numeric text. Daily/weekly digests and personal resumption show suppressed locally and No email sent. Synthetic fixture data only."
+}
