@@ -46,5 +46,7 @@
   "commits": [
     "28bd1e7857c63015aaef5f23f9dd8f7ff2e43cb3 Preserve imported issue history when excluding empty native work",
     "958ff23cd5acbd7190a52fbebcb3a2209cf64ad8 Keep successful capture and undone splits out of loss work"
-  ]
+  ],
+  "custody": "BLOCKED",
+  "blocker": "Final exact-SHA Verify 43184017655 completed/failure; GitHub diagnostic budget exhausted"
 }

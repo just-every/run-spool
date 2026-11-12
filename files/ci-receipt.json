@@ -1,7 +1,7 @@
 {
   "repository": "just-every/run-spool",
   "head_sha": "28bd1e7857c63015aaef5f23f9dd8f7ff2e43cb3",
-  "calls": 2,
+  "calls": 3,
   "prior_candidate_github_calls": 7,
   "observations": [
     {
@@ -21,11 +21,22 @@
       "html_url": "https://github.com/just-every/run-spool/actions/runs/43184017655",
       "run_attempt": 1,
       "at": 1794473377.7989454
+    },
+    {
+      "id": 43184017655,
+      "status": "completed",
+      "conclusion": "failure",
+      "head_sha": "28bd1e7857c63015aaef5f23f9dd8f7ff2e43cb3",
+      "html_url": "https://github.com/just-every/run-spool/actions/runs/43184017655",
+      "run_attempt": 1,
+      "at": 1794473977.6062195
     }
   ],
-  "status": "in_progress",
-  "last_call_at": 1794473377.0109923,
+  "status": "completed",
+  "last_call_at": 1794473977.0132658,
   "run_id": 43184017655,
-  "conclusion": null,
-  "html_url": "https://github.com/just-every/run-spool/actions/runs/43184017655"
+  "conclusion": "failure",
+  "html_url": "https://github.com/just-every/run-spool/actions/runs/43184017655",
+  "github_calls_total": 10,
+  "diagnostics": "Final run completed/failure on exact candidate; ten-call GitHub budget exhausted, so final failed-job details were not fetched. First run job/log diagnostics are retained separately."
 }
