@@ -53,16 +53,20 @@ export function SourceMapSetup({ project, releases, request, run, busy, refresh 
     })}>Create source-map deploy key</button>}
     <p className="muted">Copy the environment line into your build terminal before running the commands below. In CI, save the key as <code>SPOOL_DEPLOY_KEY</code>. Local dev keys work only with this local installation; create a fresh key on hosted Spool.</p>
     <h3>3. Build, stamp and upload</h3>
+    <p>Use your application’s own Node.js and npm in its repository. Spool’s installer keeps its runtime private; it does not provide npm on your shell’s PATH.</p>
     <CodeBlock label="Source-map SDK install" code={installCommand} />
     {ready ? <>
       <CodeBlock label={instructions.label} code={instructions.config} />
       <CodeBlock label="Source-map build and upload" code={instructions.command} />
-      <p>On success, {bundler === 'vite' || bundler === 'rollup' ? 'the build plugin' : 'the CLI'} prints a summary for the number of maps uploaded, for example:</p>
-      <CodeBlock label="Source-map upload result" code="Uploaded 1 source map." />
+      {bundler === 'vite' || bundler === 'rollup' ? <p>The published SDK 0.1.0 plugin is silent on success; an upload failure fails the build. Confirm the upload with an original-source frame in step 4.</p> : <>
+        <p>With the published SDK 0.1.0, a successful CLI upload exits 0 and prints JSON for the number of maps uploaded, for example:</p>
+        <CodeBlock label="Source-map upload result" code={'{"uploaded":1}'} />
+        <p>This version does not accept <code>--json</code>; no extra flag is needed.</p>
+      </>}
     </> : <p role="status">Enter a valid application release and build above to fill in the commands for this project and endpoint. Use letters, numbers, dots or hyphens; release names also allow @ and +.</p>}
     <p>Merge the configuration into your existing config. For CLI builds, replace <code>src/index.js</code> and <code>dist/*.js</code> with your entry point and every emitted bundle, including nested chunks. Each bundle needs its adjacent <code>.map</code>. Deploy the <strong>stamped output</strong> after upload; rebuilding afterwards removes its matching ID. Keep maps private when publishing assets.</p>
     <h3>4. Confirm a mapped frame</h3>
-    <p>The CLI prints a readable upload summary. Add <code>--json</code> when a script needs the count as JSON. The published SDK 0.1.0 Vite/Rollup plugin is silent on success; an upload failure fails the build. Trigger a new error in your deployed application, open its issue in Spool, then look for <strong>Original source</strong> and a frame such as <code>src/checkout.js:7:12</code>. Spool’s own test exception checks capture only, not your app’s maps.</p>
+    <p>After a successful upload, trigger a new error in your deployed application, open its issue in Spool, then look for <strong>Original source</strong> and a frame such as <code>src/checkout.js:7:12</code>. Spool’s own test exception checks capture only, not your app’s maps.</p>
     <h3>If the frame is still unmapped</h3>
     <ul>
       <li>No event: allow the app’s exact scheme, host and port on Capture, and check its ingest key and registered release.</li>
