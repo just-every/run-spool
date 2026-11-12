@@ -64,3 +64,17 @@ Product and evidence refs are separate; evidence publication is not a product ac
 The last documentation correction uses an installation-owned `egress-deploy.json` copied from the shipped service declaration. This preserves the vendored source while configuring the real deployed service. The final SHA was rebuilt and the runtime/docs/typecheck/source checks passed again after that correction. The earlier Verify run 43179749770 was superseded; it is not evidence for this final SHA.
 
 At 08:13:09 UTC the exact final-SHA Verify was in progress, with no conclusion yet (CI-STATUS.json). Three core calls have been used: two head discoveries and one final-run status read. No other SHA supplies a green claim.
+
+The three task-side proof harness sources are preserved in the packet (first-project-harness.mjs, docs-proof-harness.mjs, final-ui-proof-harness.mjs), together with their non-secret result logs. They read only locally generated test admission state and do not contain credential values or copied profiles. Product tests remain in the branch; these temporary proof harnesses remain evidence only.
+
+## Terminal result
+
+Verify run 43180459370 completed **success** on exact product head `4c2aa83ca1b827d7c86e3b702e2cc5b2040af7ca`, observed at 2026-11-12T08:28:11.177500+00:00. CI-STATUS.json and CI-POLLS.jsonl preserve the actual REST receipts. Six GitHub core calls were used in total: two discoveries (one superseded candidate) and four status reads of the final run, each at least 300 seconds apart. No failed-job log reads or reruns were needed.
+
+The final candidate is READY under the cloud contract. No product blocker remains. No PR was created; the fleet owns publication scanning and landing on main, and the cloud neither pushed nor fast-forwarded a default branch. Provider support and qualification gaps described above remain explicit boundaries, not new claims or changes to clause judgments.
+
+The complete actual report packet is published through `refs/heads/evidence/main-spool-setup-links-1`. Its manifest names the product branch/head and each selected regular file with byte count, Git blob and SHA-256. The task's final EVIDENCE line names the exact evidence commit. A prior packet at abb99d01aa8884436932419a656ac0c6c5c3cab1 preserved the pending-CI state; it is superseded by the terminal packet.
+
+POST lanes/main/INBOX.md: main-spool-setup-links-1 READY cloud/main-spool-setup-links-1 head=4c2aa83ca1b827d7c86e3b702e2cc5b2040af7ca Verify=43180459370 success (superseded run 43179749770); setup policy and four prerequisite guides shipped; SDK-008 point 5 claimed PARTIAL; no clause judgment changes; docs 8→12, prerequisite guides 0→4, new test registrations 0. Fleet publication scan and landing remain on the Mac.
+
+READY branch=cloud/main-spool-setup-links-1 head=4c2aa83ca1b827d7c86e3b702e2cc5b2040af7ca

@@ -66,25 +66,26 @@
   "ci": {
     "run": 43180459370,
     "head": "4c2aa83ca1b827d7c86e3b702e2cc5b2040af7ca",
-    "status": "in_progress",
+    "status": "completed",
     "discovered": "2026-11-12T08:08:09Z",
-    "coreCallsUsed": 3,
+    "coreCallsUsed": 6,
     "supersededRun": 43179749770,
-    "conclusion": null,
+    "conclusion": "success",
     "head_sha": "4c2aa83ca1b827d7c86e3b702e2cc5b2040af7ca",
     "html_url": "https://github.com/just-every/run-spool/actions/runs/43180459370",
-    "observed": "2026-11-12T08:13:09.523904+00:00"
+    "observed": "2026-11-12T08:28:11.177500+00:00"
   },
   "publication": {
     "productPush": "success",
     "defaultBranchWritten": false,
     "fullPublicationScan": "Mac fleet only; cloud cannot run it",
-    "evidence": "pending",
+    "evidence": "Complete packet published by associated evidence ref/head; terminal EVIDENCE line and external transfer receipt identify the final packet.",
     "saveHeads": [
       "40ffe5e",
       "9fd3957"
     ],
-    "productHead": "4c2aa83ca1b827d7c86e3b702e2cc5b2040af7ca"
+    "productHead": "4c2aa83ca1b827d7c86e3b702e2cc5b2040af7ca",
+    "priorEvidenceHead": "abb99d01aa8884436932419a656ac0c6c5c3cab1"
   },
   "unpublishedFailures": [
     {
@@ -104,5 +105,7 @@
     "sourceCheck": 0,
     "workingTreeClean": true
   },
-  "browserReceipt": "BROWSER-RECEIPT.json"
+  "browserReceipt": "BROWSER-RECEIPT.json",
+  "terminalProductStatus": "READY",
+  "blockers": []
 }
