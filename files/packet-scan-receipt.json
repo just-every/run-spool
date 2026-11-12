@@ -1,7 +1,9 @@
 {
-  "checked_files": 35,
+  "checked_files": 36,
   "symlinks": 0,
   "injected_secret_matches": 0,
   "raw_invitation_tokens": 0,
-  "screenshots": "Actual 1440/390 Members images visually inspected; token fields masked."
+  "screenshots": "Actual 1440/390 Members images visually inspected; invitation values masked.",
+  "product_head": "3f7be95596669e14d77f1ee317d1622bfdd14e93",
+  "ci_run_id": 43184015205
 }

@@ -37,9 +37,17 @@
       "head_sha": "3f7be95596669e14d77f1ee317d1622bfdd14e93",
       "html_url": "https://github.com/just-every/run-spool/actions/runs/43184015205",
       "status": "in_progress"
+    },
+    {
+      "read": 5,
+      "at": 1794473677.5512033,
+      "conclusion": "success",
+      "head_sha": "3f7be95596669e14d77f1ee317d1622bfdd14e93",
+      "html_url": "https://github.com/just-every/run-spool/actions/runs/43184015205",
+      "status": "completed"
     }
   ],
-  "status": "in_progress",
-  "conclusion": null,
+  "status": "completed",
+  "conclusion": "success",
   "html_url": "https://github.com/just-every/run-spool/actions/runs/43184015205"
 }

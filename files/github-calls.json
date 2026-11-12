@@ -82,5 +82,15 @@
       "--jq",
       "{status,conclusion,head_sha,html_url}"
     ]
+  },
+  {
+    "time": 1794473676.7949414,
+    "command": [
+      "gh",
+      "api",
+      "repos/just-every/run-spool/actions/runs/43184015205",
+      "--jq",
+      "{status,conclusion,head_sha,html_url}"
+    ]
   }
 ]

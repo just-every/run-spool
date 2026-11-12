@@ -77,7 +77,7 @@ Root cause: build job 131063177943, “Check integration and types”, reported 
 
 The migration changes generated deployment metadata. The follow-up commit runs `pnpm integration:sync`, `pnpm integration:check`, typecheck, source lock regeneration last and source check. It changes generated integration/lock metadata only. Updated main was merged before that push; published history was preserved. No CI-skip marker is present.
 
-Final run: https://github.com/just-every/run-spool/actions/runs/43184015205 — **in_progress/pending**, exact head 3f7be95596669e14d77f1ee317d1622bfdd14e93. Run ID: 43184015205. ci-receipt.json is the authoritative actual REST receipt. No result from another SHA is substituted.
+Final run: https://github.com/just-every/run-spool/actions/runs/43184015205 — **completed/success**, exact head 3f7be95596669e14d77f1ee317d1622bfdd14e93. Run ID: 43184015205. ci-receipt.json is the authoritative actual REST receipt. No result from another SHA is substituted.
 
 ## Claims and remaining gap
 
@@ -98,3 +98,10 @@ Verified: true; see bundle-receipt.json and bundle-verify.log. A recovery bundle
 The complete relevant non-secret report packet is published only to `refs/heads/evidence/main-spool-local-mail-steps-1`, using the declared clone and the separate report-only entrypoint. Product checkout/head/index are untouched by that publication. The product clone is removed after the evidence transfer; this packet and the verified external bundle are retained.
 
 Packet screening found no injected secrets or raw invitation tokens; selected files are regular files with no symlinks. Screenshots expose no invitation values. That artifact screening is not the fleet’s publication scan. The full publication scan is unavailable in this cloud and remains the fleet’s independent required gate before landing. No main/default branch was pushed and no landing is claimed.
+
+Initial complete evidence transfer (CI explicitly pending at that time): EVIDENCE repo=just-every/run-spool ref=refs/heads/evidence/main-spool-local-mail-steps-1 head=cebc5320494b002f43c5ceb0de351cec34baec17
+The final evidence transfer appends to the same report-only ref; its exact ref/head is returned in the terminal message.
+
+Final exact-SHA Verify completed/success, run 43184015205. GitHub call budget used: 9/10. No unresolved landing blocker is reported. The named GOV-001 gap remains exactly as requested.
+
+READY branch=cloud/main-spool-local-mail-steps-1 head=3f7be95596669e14d77f1ee317d1622bfdd14e93

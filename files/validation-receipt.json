@@ -115,5 +115,13 @@
   "published_heads": [
     "0dbe21d053763fc999e869eb65a377f8b09dfa84",
     "3f7be95596669e14d77f1ee317d1622bfdd14e93"
-  ]
+  ],
+  "ci": {
+    "run_id": 43184015205,
+    "status": "completed",
+    "conclusion": "success",
+    "head_sha": "3f7be95596669e14d77f1ee317d1622bfdd14e93",
+    "url": "https://github.com/just-every/run-spool/actions/runs/43184015205"
+  },
+  "terminal_status": "READY"
 }
