@@ -10729,6 +10729,10 @@
       "sha256": "e865cf29d1f91f71805146a44a1cbb4571ec6c16b6de7c88a0cd6cb679424cba",
       "executable": false
     },
+    "tests/agent-handoff/trace.mjs": {
+      "sha256": "ea7992640749c5b5f92fb0738b91e91e5e1f74e18e367bd1f3815bbf316c1002",
+      "executable": false
+    },
     "tests/agent-handoff/ui.mjs": {
       "sha256": "195e206729e3030d85213f2fd7013fd0624fc38621c97de4653360ec7c621bc4",
       "executable": false
