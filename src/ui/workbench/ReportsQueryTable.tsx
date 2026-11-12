@@ -1,3 +1,4 @@
+import { issueReference } from './references';
 import { plural } from './readable';
 import { absentDist } from '../../domain/releases/build';
 import { useEffect, useState } from 'react';
@@ -9,7 +10,7 @@ import { initialReportsWindow, reportWindowNumbers, ReportsWindow } from './Repo
 export type ReportQuery = { q: string; status: string; release: string; sort: string };
 export const emptyReportQuery: ReportQuery = { q: '', status: 'all', release: 'all', sort: 'latest' };
 export function ReportsEventRows({ rows, project }: { rows: any[]; project?: string }) {
-  return <div className="table-region"><table className="data-table reports-table"><thead><tr><th scope="col">Received / event</th><th scope="col">Release / build</th><th scope="col">Environment</th><th scope="col">Type / message</th></tr></thead><tbody>{rows.map(row => <tr key={`${row.project ?? project}:${row.occurrence}`}><th scope="row"><a className="inline-link" href={`${hrefFor(row.project || project || '', 'issues', row.issue)}?${new URLSearchParams({ event: row.id, occurrence: row.occurrence })}`}>{date(row.received)}</a><p><code>{row.id}</code></p></th><td data-label="Release / build">{row.release || 'No release'}<p>{row.build && row.build !== absentDist ? row.build : 'No build'}</p></td><td data-label="Environment">{row.environment || 'No environment'}</td><td data-label="Type / message">{row.type}<p>{row.message}</p></td></tr>)}</tbody></table></div>;
+  return <div className="table-region"><table className="data-table reports-table"><thead><tr><th scope="col">Received / event</th><th scope="col">Release / build</th><th scope="col">Environment</th><th scope="col">Type / message</th></tr></thead><tbody>{rows.map(row => <tr data-event-id={row.id} key={`${row.project ?? project}:${row.occurrence}`}><th scope="row"><a className="inline-link" href={`${hrefFor(row.project || project || '', 'issues', row.issue)}?${new URLSearchParams({ event: row.id, occurrence: row.occurrence })}`}>{date(row.received)}</a><p>{issueReference(row.issueReference)}</p></th><td data-label="Release / build">{row.release || 'No release'}<p>{row.build && row.build !== absentDist ? row.build : 'No build'}</p></td><td data-label="Environment">{row.environment || 'No environment'}</td><td data-label="Type / message">{row.type}<p>{row.message}</p></td></tr>)}</tbody></table></div>;
 }
 export function ReportsQueryTable({ project, configure, onSaved }: { project: string; configure: boolean; onSaved?: () => void }) {
   const [draft, setDraft] = useState(emptyReportQuery), [query, setQuery] = useState(emptyReportQuery);
@@ -17,7 +18,7 @@ export function ReportsQueryTable({ project, configure, onSaved }: { project: st
   const [data, setData] = useState<any>(null), [error, setError] = useState(''), [notice, setNotice] = useState(''), [saving, setSaving] = useState(false), [loading, setLoading] = useState(true);
   const [views, setViews] = useState<any[]>([]), [selected, setSelected] = useState(''), [revision, setRevision] = useState(0);
   const root = `/api/projects/${encodeURIComponent(project)}`, params = JSON.stringify({ project, query, from: reportWindowNumbers(appliedWindow).from, to: reportWindowNumbers(appliedWindow).to });
-  useEffect(() => { let active = true; setLoading(true); setData(null); setError(''); api('/api/reporting/table-preview', 'POST', JSON.parse(params)).then(value => { if (active) setData(value); }).catch(failure => { if (active) setError(failure.message); }).finally(() => { if (active) setLoading(false); }); return () => { active = false; }; }, [root, params, revision]);
+  useEffect(() => { let active = true; setLoading(true); setData(null); setError(''); api('/api/reporting/table-preview?display=readable', 'POST', JSON.parse(params)).then(value => { if (active) setData(value); }).catch(failure => { if (active) setError(failure.message); }).finally(() => { if (active) setLoading(false); }); return () => { active = false; }; }, [root, params, revision]);
   useEffect(() => { let active = true; api(`${root}/review/views`).then(value => { if (active) setViews(value.views); }).catch(failure => { if (active) setError(failure.message); }); return () => { active = false; }; }, [root, revision]);
   function choose(value: ReportQuery) { setDraft(value); setQuery(value); setAppliedWindow(window); setNotice(''); }
   async function save() {
