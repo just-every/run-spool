@@ -9986,11 +9986,11 @@
       "executable": false
     },
     "src/ui/alerts/AlertControls.tsx": {
-      "sha256": "5cecd24b18acb034bf3374c9eb4c8912a4f5f93899c67d6c01d129dbc5d8c2b8",
+      "sha256": "4f7e918ad85aa058188c848e558cf1bca62e6d1f5f3ff572e9077b3527d52d55",
       "executable": false
     },
     "src/ui/alerts/AlertDeliveries.tsx": {
-      "sha256": "b1ab744b8f8fafb0033b381a1e45cf7a74da916b5de91d1e7ebee75282ed7979",
+      "sha256": "8a25f86ce83f4d1877014393a247d561e829cf6126a12b389cb8b39af4bdb641",
       "executable": false
     },
     "src/ui/alerts/AlertDestinations.tsx": {
@@ -10010,7 +10010,7 @@
       "executable": false
     },
     "src/ui/alerts/client.ts": {
-      "sha256": "7a3992462fe764da9ef4bcdd9e906a2404c5837195748956b9efc54f58aacd60",
+      "sha256": "749d4cc0d1add72c7ce3c3dec066d9e324e1b082d8ea29d9c5485c26d1b82b41",
       "executable": false
     },
     "src/ui/alerts/NeedsAttention.tsx": {
@@ -10226,7 +10226,7 @@
       "executable": false
     },
     "src/ui/workbench/DeploymentHistory.tsx": {
-      "sha256": "91b0f600b781073cda3b8500c06925c49c814c65af219ec4ff4db745568e5309",
+      "sha256": "234f0dc98c8ebe9ad884cf200e00e8b05f96899732c2bcd969984aa83b57f57f",
       "executable": false
     },
     "src/ui/workbench/Details.tsx": {
@@ -10258,7 +10258,7 @@
       "executable": false
     },
     "src/ui/workbench/EventExplorer.tsx": {
-      "sha256": "987bfaa3542cc45b3afec5ae3b6123643bd03a744835b23cbbb21527df40d387",
+      "sha256": "8c366fa47c4e17d571f343594ecc982d81c1361dcaeb273befe3ebb9d7b8ffad",
       "executable": false
     },
     "src/ui/workbench/EvidenceRail.tsx": {
@@ -10322,7 +10322,7 @@
       "executable": false
     },
     "src/ui/workbench/IssueList.tsx": {
-      "sha256": "4844b582581b4e6e24ef412fac47c8e7832c26832016800f360601f002e679ac",
+      "sha256": "2edff6e400cf4597a83f01caddcf0b4b6569034b2421b34878fa6ba0ddb251bf",
       "executable": false
     },
     "src/ui/workbench/issuePanels.ts": {
@@ -10330,7 +10330,7 @@
       "executable": false
     },
     "src/ui/workbench/IssueView.tsx": {
-      "sha256": "1d3fdbbe50fdf4b187f37e86bd0eb6342c8b98cb1dc74afb851da74b5d31aef2",
+      "sha256": "0facba1a6c9c2e53dc848eb17b6c6673653f662ee9d346337b2e6ed6933d620a",
       "executable": false
     },
     "src/ui/workbench/KeyRateLimit.tsx": {
@@ -10417,12 +10417,16 @@
       "sha256": "a5fb6f413a5d0be2cdc556681668dd9649c6bae330ebcb8de23eb0901cd6d1e3",
       "executable": false
     },
+    "src/ui/workbench/releaseLabels.ts": {
+      "sha256": "1f756ec1516b712ee49c781d8b37debf782cc6f9ff6f61a383627e3ffd24cf5f",
+      "executable": false
+    },
     "src/ui/workbench/ReleasePolicy.tsx": {
       "sha256": "fa2093461a5cff8a1f55dff3615a453dd68574aa9eea804fa3925c3185a55a41",
       "executable": false
     },
     "src/ui/workbench/ReleasesView.tsx": {
-      "sha256": "3a921b04d4b725d422c97dbc846be0ec5350ff659a8c6aae6a6573bfcceec342",
+      "sha256": "3890d920892514ded029b2964ef76bbc9423bcd1f68c3f8cbf3033db7313591b",
       "executable": false
     },
     "src/ui/workbench/RepairPanel.css": {
@@ -10546,7 +10550,7 @@
       "executable": false
     },
     "src/ui/workbench/SourceMapSetup.tsx": {
-      "sha256": "7a2f599f3f5fe8c3c470bd028aaafcf71c0c8caccabbe813955fad0f48120f7c",
+      "sha256": "a2c0d1d8e134ad2c5c803c8fe0df4e0bf9cce2c002dc0a4759398b63f57265c1",
       "executable": false
     },
     "src/ui/workbench/sourceMapSnippets.ts": {
@@ -10794,7 +10798,7 @@
       "executable": false
     },
     "tests/alerts-ui.mjs": {
-      "sha256": "ce72056fc07d0f25c71dc867bbedd122b9efb966d30ca9014b864e582104923c",
+      "sha256": "44ae9fe92c698a729d3e5fb02703eb8396298929e58a546f9d33fa819a01afa3",
       "executable": false
     },
     "tests/alerts/baseline-journey.mjs": {
@@ -11282,7 +11286,7 @@
       "executable": false
     },
     "tests/release-identity-flow.mjs": {
-      "sha256": "6bbbc080116b026eabe81b176e99475c7ff3672cf7d5b128f29ac938fd463eaa",
+      "sha256": "0063d99925e141f5f75151228cffe781432b12cbe59cfcf830355abe16c9f60a",
       "executable": false
     },
     "tests/release-order-flow.mjs": {
