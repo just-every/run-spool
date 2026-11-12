@@ -1,3 +1,4 @@
+import { releaseLabel, buildLabel } from './releaseLabels';
 import { plural } from './readable';
 import { useEffect, useState } from 'react';
 import { CodeBlock, installCommand } from './SdkSetup';
@@ -33,13 +34,13 @@ export function SourceMapSetup({ project, releases, request, run, busy, refresh 
     <p>Run these steps in your application’s repository before deploying its built files. The tool generates a <strong>debug ID</strong>, stamps that same ID into the bundle and its map, registers the release and uploads the map. You do not need to invent or enter an ID.</p>
     <h3>Artifact storage</h3>
     {storage ? <><p>{storage.count} {plural(storage.count, 'map')} {storage.count === 1 ? 'uses' : 'use'} {storage.bytes} stored bytes. An empty cap allows uploads without a project byte cap. Lowering the cap preserves stored maps and limits future uploads.</p><div className="form-grid"><Field label="Artifact storage cap (bytes, optional)" adornment={<SavedMark doc={cap} field="cap" />} type="number" min="0" step="1" value={cap.draft ?? ''} onChange={e=>{const text=e.target.value;cap.edit(text,{field:'cap',hold:text!==''&&(!Number.isSafeInteger(Number(text))||Number(text)<0)})}} onBlur={cap.flush} /></div><SaveFailure doc={cap} field="cap" /><SaveAnnouncer doc={cap} /></> : <p role="status">Artifact storage setting unavailable.</p>}
-    {uploads?.builds?.map((row:any)=><p key={`${row.release}:${row.build}`}><strong>{row.release} / {row.build}: {row.state}</strong>{row.missing.length>0&&<> · Missing: {row.missing.join(', ')}</>}</p>)}
-    {uploads&&<details><summary>Stored maps and upload failures</summary>{uploads.artifacts.length?<ul>{uploads.artifacts.map((row:any)=><li key={`${row.release}:${row.build}:${row.debug}`}><code>{row.release} / {row.build} / {row.debug}</code> · {row.bytes} bytes</li>)}</ul>:<p>No maps uploaded.</p>}{uploads.assemblies.filter((row:any)=>row.state==='error').map((row:any)=><p key={row.checksum} style={{overflowWrap:'anywhere',whiteSpace:'pre-wrap'}}>{row.detail}</p>)}</details>}
+    {uploads?.builds?.map((row:any)=><p key={`${row.release}:${row.build}`}><strong>{releaseLabel(row.release)} / {buildLabel(row.build)}: {row.state}</strong>{row.missing.length>0&&<> · Missing: {row.missing.join(', ')}</>}</p>)}
+    {uploads&&<details><summary>Stored maps and upload failures</summary>{uploads.artifacts.length?<ul>{uploads.artifacts.map((row:any)=><li key={`${row.release}:${row.build}:${row.debug}`}><code>{releaseLabel(row.release)} / {buildLabel(row.build)} / {row.debug}</code> · {row.bytes} bytes</li>)}</ul>:<p>No maps uploaded.</p>}{uploads.assemblies.filter((row:any)=>row.state==='error').map((row:any)=><p key={row.checksum} style={{overflowWrap:'anywhere',whiteSpace:'pre-wrap'}}>{row.detail}</p>)}</details>}
     <h3>1. Match your application’s release</h3>
     <p>Use exactly the <code>release</code> and <code>build</code> from your SDK’s <code>init</code>. A new release is registered automatically when the upload runs.</p>
     <div className="form-grid">
       <Field label="Application release" required pattern={String.raw`[a-zA-Z0-9._:@+\-]+`} value={release} placeholder="web@1.0.0" onChange={e => setRelease(e.target.value)} />
-      <Field label="Application build" required pattern={String.raw`[a-zA-Z0-9._:\-]+`} value={build} placeholder="build-1" onChange={e => setBuild(e.target.value)} />
+      <Field label="Application build" required pattern={String.raw`[a-zA-Z0-9._:\-]+`} value={buildLabel(build) === build ? build : ''} placeholder={buildLabel(build) === build ? 'build-1' : buildLabel(build)} onChange={e => setBuild(e.target.value)} />
       <label className="form-field">Your bundler<select value={bundler} onChange={e => setBundler(e.target.value as Bundler)}>{bundlers.map(row => <option key={row.value} value={row.value}>{row.label}</option>)}</select></label>
     </div>
     <h3>2. Create a build-only key</h3>
