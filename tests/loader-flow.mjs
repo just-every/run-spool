@@ -82,7 +82,7 @@ export async function loaderFlow({ browser, origin, request, cookie, application
    assert.equal(detail.event.release, releaseLess.has(event.id) ? '' : 'synthetic-spool-loader@1'); assert.equal(detail.event.build, releaseLess.has(event.id) ? absentDist : 'synthetic-spool-1');
   }
   // Maintainer changes the existing key settings through the actual dialog.
-  await owner.goto(`${origin}/projects/${project.id}/settings`);
+  await owner.goto(`${origin}/projects/${project.id}/settings#settings-projects`);
   await owner.getByRole('button', { name: 'Details: Project key', exact: true }).first().click();
   const dialog = owner.getByRole('dialog').filter({ has: owner.getByRole('heading', { name: 'Project key', exact: true }) });
   await dialog.getByLabel('Enable feedback widget', { exact: true }).check();
