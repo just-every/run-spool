@@ -14,3 +14,8 @@ export function decodeIssueAttention<T extends { attention: string | null }>(iss
 // Errors the SDK counted at an issue's location but did not send (its per-location cap or a repeat), as reported on the
 // retained events that carried the count.
 export const clientDroppedSql = `(SELECT COALESCE(SUM(json_extract(e.payload,'$.dropped')),0) FROM events e WHERE e.project=i.project AND e.issue=i.id) client_dropped`;
+
+// Native empty aggregates keep correction provenance but are not triage work.
+// Imported issue-only exports remain inspectable even without collected events.
+export const listedIssueSql = (alias='i') =>
+ `(${alias}.count>0 OR ${alias}.algorithm IN ('sentry-import-v1','rollbar-import-v1'))`;
