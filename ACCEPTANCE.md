@@ -9,9 +9,9 @@ The primary journey: a US development team points its existing error capture at 
 | Tier | Done | Partial | Missing | Total |
 | --- | ---: | ---: | ---: | ---: |
 | Core | 23 | 45 | 19 | 87 |
-| Agent surface | 0 | 8 | 10 | 18 |
+| Agent surface | 0 | 9 | 9 | 18 |
 | Later | 0 | 0 | 0 | 0 |
-| Full target | 23 | 53 | 29 | 105 |
+| Full target | 23 | 54 | 28 | 105 |
 
 Judged from the code and tests at commit `904529593333cdb8e65006b7554ece0aaf8c1d9b` (5 November 2026). Native MCP transport qualification: `tests/agent-door/protocol-contract.mjs` protocolContract, invoked by `tests/agent-door.mjs`, qualifies acceptance 1 to 6 of BASE-AGENT-001 at the implemented native transport boundary under independent autonomous and held policies. The first modern discovery and tool lists precede initialize; the legacy client reconciles the complete offered catalogue, capabilities, serverInfo and instructions. Repeated lists retain deterministic order and private cache fields. Unsupported versions refuse, while mismatched method headers and foreign Origin refuse both discovery and a valid native mutation; declared-length and streamed oversized mutation bodies preserve populated issues, events, releases and alerts, plus proposal rows and existing native attribution and replay custody; the held fixture also retains an already executed approval. A completed native MCP mutation seeds custody before the refusal snapshots. The bounded control executes once, after native sponsor approval under held policy. This is partial qualification only: resources and prompts remain undeclared and unserved, and broader registry conformance and hosted qualification remain unproved. Acceptance text, optional capabilities, unscoped lifecycle families, BASE-AGENT-012, existing account, device and ct holds, queue scopes and release prerequisites are unchanged. Exact-candidate Verify, generated-view landing, publication scanning, guarded landing and Run site remain fleet gates. Field proof register: 20 rows; 1 passed, 0 failed, 19 not run.
 
@@ -869,8 +869,8 @@ Core · target · **partial** · Rules D-1
 6. An auto-created SDK release registered through `sentry-cli releases new` and `set-commits` stays one release.
 7. Commits that `sentry-cli releases set-commits` registers pass TEAM-004's citation parser, link log and resolution.
 
-**Evidence.** `src/domain/sentry-cli/`; `src/domain/sentry/convert.ts`; `src/domain/artifacts.ts`; `migrations/core/0060_sentry_cli.sql`; `src/domain/audit/classify.ts`; `tests/sentry-cli-compat.mjs`; `tests/sentry-cli/`; `docs/SENTRY-CLI.md`; `docs/retained-verification/src003/`
-**Gap.** The released `sentry-cli` and the Vite, esbuild, Rollup and webpack plugins run unmodified against the emitted Worker under deploy-only authority: release new, set-commits (TEAM-004 citations, link log, resolution), finalize, deploys, debug-ID and release/dist source maps with original frames, `send-event`, per-file refusals in client output, interrupted-upload resume, denials storing nothing, archive, restore and erasure. Not done: native debug files (SDK-002), `--auto` and `--commit` through a connected repository (SRC-002), Android Gradle, Xcode, Dart, the GitHub Actions and GitLab CI matrix, and three production-sized Next.js and React Native releases (SRC-004 capacity; a local Next.js and Expo run was refused file by file).
+**Evidence.** `src/domain/sentry-cli/`; `src/domain/sentry/convert.ts`; `src/domain/artifacts.ts`; `migrations/core/0060_sentry_cli.sql`; `src/domain/audit/classify.ts`; `tests/sentry-cli-compat.mjs`; `tests/sentry-cli/`; `tests/sentry-cli/debug-flow.mjs` debugFlow (acceptance 4: literal unknown flag and command usage, nonzero exit, unchanged populated product and artifact state, valid-command positive control and named unsupported endpoints); `tests/sentry-cli/denials.mjs` denialFlow (acceptance 5: refused uploads store nothing); `tests/sentry-cli/release-flow.mjs` releaseFlow (acceptance 6 and 7: SDK release enrichment, commit citations, link log and resolution); `docs/SENTRY-CLI.md`; `docs/retained-verification/src003/`
+**Gap.** The released `sentry-cli` and the Vite, esbuild, Rollup and webpack plugins run unmodified against the emitted Worker under deploy-only authority: release new, set-commits (TEAM-004 citations, link log, resolution), finalize, deploys, debug-ID and release/dist source maps with original frames, `send-event`, per-file refusals in client output, interrupted-upload resume, denials storing nothing, archive, restore and erasure. Not done: native debug files (SDK-002), `--auto` and `--commit` through a connected repository (SRC-002), Android Gradle, Xcode, Dart, the GitHub Actions and GitLab CI matrix, and three production-sized Next.js and React Native releases (SRC-004 capacity; a local Next.js and Expo run was refused file by file). Acceptance 4 is qualified at the pinned released CLI boundary: an unknown flag names its literal argument and command usage, fails without changing populated product or artifact state, and the same command without the flag succeeds. The complete listed CI and build integration matrix, original-frame qualification across it and connected-provider receipts remain unproved; native-device qualification and BILL-001's pricing ruling remain held.
 
 #### SRC-004 — Published source map and debug-file capacity
 
@@ -1518,7 +1518,7 @@ Agent surface · target · **partial**
 
 #### BASE-AGENT-006 — Every action declares its risk class
 
-Agent surface · target · **missing**
+Agent surface · target · **partial**
 
 **Requirement.** Classes come from the fleet list in RISK-POLICY.md: standard, external, money, commitment, accounts, gated, access, security, destructive, sensitive and live. In the registry, each tool declares the classes it can carry and a server-side classifier that decides them per call from the arguments, current records and, for gated, the provider's answer. The classifier also supplies each class's facts: the measure (items, recipients, amount and currency, people or records), the counterparty (internal, known, new or public), the direction for access, the provider and step for gated, and the data kind for sensitive. A classifier never reads a flag, label or claim supplied by the agent or by record text. A seed cannot add a class; it proposes one for the fleet list.
 
@@ -1530,8 +1530,8 @@ Agent surface · target · **missing**
 5. No tool in `tools / list` declares a class outside the fleet list, and `rer check` fails on one.
 6. A refused call's audit row still records its computed classes.
 
-**Evidence.** None.
-**Gap.** Not yet judged through this seed's own doors.
+**Evidence.** `tests/agent-door/classification-audit-contract.mjs` classificationAuditContract, invoked by `tests/agent-door.mjs`: acceptance 6's native issue-suppression refusal under explicit live-blocked variants of both autonomous and held baseline policies. A populated issue at its current revision returns policy_blocked; the exact returned decision audit retains independently expected live class, measure 1, native project fact, policy revision, rule and refused outcome. Occurrence membership, issue state and revision, existing delivery jobs, native work and execution usage remain unchanged.
+**Gap.** Acceptance 1–5 remain unqualified: contract-table parity, every-tool and every-class fixtures, injection invariance, complete class facts and rer-check rejection of invented classes. Acceptance 6 beyond this native suppression policy-refusal boundary remains unqualified. SURFACE-001 remains held; all existing account, device and ct holds, queue scopes and release prerequisites remain unchanged.
 
 #### BASE-AGENT-007 — The company's policy decides, at one chokepoint
 
