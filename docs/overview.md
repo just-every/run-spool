@@ -24,3 +24,10 @@ Spool records JavaScript, Python and Go exception locations. JavaScript source m
 - [Hand it to your coding agent](agents.md) sets up an agent key for evidence and inert grouping proposals.
 
 See [supported languages](SUPPORTED-LANGUAGES.md) for the exact native/Sentry Python and Go grammars, limits, repository path mapping, privacy and unavailable symbolication.
+
+## Installation settings
+
+- [User identity policy](USER-IDENTITY.md): understand the default before capture and change it in Settings.
+- [GitHub connection](GITHUB-CONNECTION.md): connect local fix branches and understand the hosted limit.
+- [Integration egress service](INTEGRATION-EGRESS.md): install the shared prerequisite for Slack destinations and cron check-ins.
+- [Business import trust](BUSINESS-IMPORT-TRUST.md): configure the existing owner-claim trust or import as the owner.

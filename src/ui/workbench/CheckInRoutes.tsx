@@ -11,7 +11,7 @@ export function CheckInRoutes({ project, request, run, busy }: { project: string
  const change = (message: string, work: () => Promise<any>) => void run(async () => { setSnapshot(await work()); setSaved(message); });
  return <section aria-label="Cron check-ins"><h3>Cron check-ins</h3>
   <p>Spool accepts Sentry cron check-ins at your DSN and forwards each to an Uptime heartbeat you connect here: a start, a success or a failure receipt per check-in. Uptime, not Spool, evaluates schedules and missed runs. With no connection a check-in is counted as unrouted and nothing is sent.</p>
-  {!snapshot.egress && <p className="callout" role="status">This installation has no egress service installed, so connected check-ins are counted as not routed and nothing is sent.</p>}
+  {!snapshot.egress && <p className="callout" role="status">This installation has no integration egress service installed, so connected check-ins are counted as not routed and nothing is sent. <a href="/docs/integration-egress">Install or enable the integration egress service</a>.</p>}
   {snapshot.connections.length ? <ul>{snapshot.connections.map(row => <li key={row.slug}><code>{row.slug}</code> → {row.host} · capability URL saved, not shown{' '}
    <label><input type="checkbox" checked={row.enabled} disabled={busy} onChange={event => change(`Forwarding ${event.target.checked ? 'on' : 'off'} for ${row.slug}.`, () => request(item(row.slug), 'PUT', { enabled: event.target.checked }))} /> Forward</label>{' '}
    <button type="button" className="text-button" disabled={busy} onClick={() => change(`Removed ${row.slug}.`, () => request(item(row.slug), 'DELETE'))}>Remove {row.slug}</button></li>)}</ul> : <p>No monitor is connected. Forwarding is off.</p>}

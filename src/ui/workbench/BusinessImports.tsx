@@ -46,7 +46,7 @@ export function BusinessImports({ request, run, busy }: { request: Request; run:
       {problem && <p role="alert">{problem}</p>}
       {pending && <p role="status">Working…</p>}
       {state && <>
-        {!state.configured && <p>Owner-claim trust configuration is required before enabling business imports.</p>}
+        {!state.configured && <p>Owner-claim trust configuration is required before enabling business imports. <a href="/docs/business-import-trust">Configure Business import trust</a>.</p>}
         <button className="text-button" disabled={disabled || (!state.configured && !state.enabled)} onClick={() => void perform(async () => {
           setState(await request(path, 'POST', { enabled: !state.enabled }));
         })}>{state.enabled ? 'Disable business imports' : 'Enable business imports'}</button>
