@@ -25,7 +25,7 @@ export async function firstProjectJourney(browser, origin, width) {
    assert.equal(await page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth+1),true,'setup fits its viewport');
    const result=await new AxeBuilder({page}).analyze();assert.equal(result.violations.length,0,'setup accessibility');
    await page.screenshot({path:`${out}/${width}-${state}.png`,fullPage:true,mask:[page.locator('#setup-ingest-key'),page.getByLabel('SDK init',{exact:true}),page.getByLabel('Sentry DSN',{exact:true})]});
-   if(width===1440&&state==='sent'){await page.setViewportSize({width:390,height:900});await page.screenshot({path:`${out}/390-sent.png`,fullPage:true,mask:[page.locator('#setup-ingest-key'),page.getByLabel('SDK init',{exact:true}),page.getByLabel('Sentry DSN',{exact:true})]});await page.setViewportSize(viewport);}
+   if(width===1440&&['pending','sent'].includes(state)){await page.setViewportSize({width:390,height:900});await page.screenshot({path:`${out}/390-${state}.png`,fullPage:true,mask:[page.locator('#setup-ingest-key'),page.getByLabel('SDK init',{exact:true}),page.getByLabel('Sentry DSN',{exact:true})]});await page.setViewportSize(viewport);}
   }
   const policy=page.getByRole('note',{name:'New project user identity policy'});
   await policy.waitFor();
