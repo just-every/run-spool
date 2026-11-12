@@ -1,0 +1,23 @@
+{
+  "head": "537706bc5836fbae9982cac5b587031e2858f18b",
+  "checks": {
+    "reports": 0,
+    "deployments": 0,
+    "alerts": 0,
+    "triage": 0,
+    "typecheck": 0
+  },
+  "commands": {
+    "reports": "cloud_run node tests/reports-flow.mjs",
+    "deployments": "cloud_run node tests/deployment-history.mjs",
+    "alerts": "cloud_run node tests/alerts-ui.mjs",
+    "triage": "cloud_run node tests/triage-journey.mjs",
+    "typecheck": "pnpm typecheck"
+  },
+  "browser_executable": "/usr/bin/chromium",
+  "browser_args_include": [
+    "--no-sandbox"
+  ],
+  "build_command": "cloud_run npx -y @runeditrun/rer build",
+  "build_exit": 0
+}

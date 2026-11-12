@@ -1,0 +1,29 @@
+{
+  "head": "26d13d4f574298851f25778818c1af0b9b2a2386",
+  "findings": [
+    {
+      "screen": "grouping-picker",
+      "rawIdentifiers": true
+    },
+    {
+      "screen": "grouping-preview",
+      "rawIdentifiers": true
+    },
+    {
+      "screen": "grouping-history",
+      "jsonVisible": true
+    },
+    {
+      "screen": "reports",
+      "rawIdentifiers": true
+    },
+    {
+      "screen": "deployments",
+      "rawActor": true
+    },
+    {
+      "screen": "resumption",
+      "rawIdentifiers": true
+    }
+  ]
+}

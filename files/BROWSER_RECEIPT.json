@@ -1,0 +1,25 @@
+{
+  "head": "537706bc5836fbae9982cac5b587031e2858f18b",
+  "actor_probe_exit": 0,
+  "responsive_probe_exit": 0,
+  "supplemental_attempts": [
+    {
+      "fixture": "local-development-mail",
+      "exit": 1,
+      "reason": "native invitation confirmation unavailable under local mail suppression"
+    },
+    {
+      "fixture": "hosted-mail-edge",
+      "exit": 1,
+      "reason": "browser secure-cookie fields missing; reused the existing team-browser cookie setup"
+    },
+    {
+      "fixture": "hosted-mail-edge with native secure-cookie fields",
+      "exit": 0
+    }
+  ],
+  "widths": [
+    1440,
+    390
+  ]
+}

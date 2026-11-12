@@ -1,0 +1,48 @@
+{
+  "branch": "cloud/main-spool-readable-ids-1",
+  "base": "26d13d4f574298851f25778818c1af0b9b2a2386",
+  "save": "2350acef4704657935f7404cbaeef47c33724e9f",
+  "baseline_findings": 6,
+  "new_test_registrations": 0,
+  "contract_status_gap_evidence_edits": 0,
+  "publication_scan": "Fleet Mac responsibility under cloud adaptation; not available in cloud",
+  "head": "537706bc5836fbae9982cac5b587031e2858f18b",
+  "repository": "just-every/run-spool",
+  "raw_reference_defects_before": 6,
+  "raw_reference_defects_after": {
+    "1440": 0,
+    "390": 0
+  },
+  "clauses": [
+    "GROUP-001",
+    "FIND-003",
+    "REL-001",
+    "ALERT-003"
+  ],
+  "clauses_changed": [],
+  "pr": null,
+  "published_save": true,
+  "candidate_push": "passed",
+  "verify": {
+    "run_id": 43181663936,
+    "head": "537706bc5836fbae9982cac5b587031e2858f18b",
+    "status": "in_progress"
+  },
+  "default_api_export_formats": "unchanged",
+  "member_named_deploy_key_probe": "passed",
+  "touched_checks": {
+    "reports": 0,
+    "deployments": 0,
+    "alerts": 0,
+    "triage": 0,
+    "typecheck": 0
+  },
+  "source_check": {
+    "head": "537706bc5836fbae9982cac5b587031e2858f18b",
+    "source_lock_check": true,
+    "contract_docs_check_exit": 0,
+    "contract_docs_output": "Contract prose: 0 errors, 0 warnings.\nContract documents are current.\n",
+    "clean_product_checkout": true,
+    "contract_source_and_views_unchanged": true
+  }
+}
