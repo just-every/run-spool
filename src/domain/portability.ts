@@ -65,7 +65,7 @@ function stagedValidation(later: string[] = []) {
 const tombstoneTables=Object.keys(tombstoneArchiveTables);
 const custodyExcluded=[...projectAgentArtifacts.artifacts.map(item=>item.table),...rosterArtifacts.map(item=>item.table)].filter(table=>!tombstoneTables.includes(table));
 export const portabilityPolicy = {
- product: 'runeditrun/errors-workbench', excludeTables: [...keyRateTables,...custodyExcluded,'spool_agent_operations','spool_agent_custody','spool_native_approvals','spool_erasure_agents','spool_native_audit_actors','restored_work','scrubbing_previews','spool_follow_up_alternates','spool_service_credentials','retention_runs','credentials', 'sessions', 'login_budget', 'browser_origin_guards','spool_authority_guards','operator_guards',...safeAuditExcludedTables,...followUpExcludedTables,'deployment_actors','release_order_keys','checkin_routes','checkin_links','ik_%', ...alertExcludedTables, ...erasureExcludedTables, ...executionExcludedTables, ...sentryCliExcludedTables],
+ product: 'runeditrun/errors-workbench', excludeTables: [...keyRateTables,...custodyExcluded,'spool_agent_operations','spool_agent_custody','spool_native_approvals','spool_erasure_agents','spool_native_audit_actors','restored_work','scrubbing_previews','spool_follow_up_alternates','spool_service_credentials','spool_local_invite_links','retention_runs','credentials', 'sessions', 'login_budget', 'browser_origin_guards','spool_authority_guards','operator_guards',...safeAuditExcludedTables,...followUpExcludedTables,'deployment_actors','release_order_keys','checkin_routes','checkin_links','ik_%', ...alertExcludedTables, ...erasureExcludedTables, ...executionExcludedTables, ...sentryCliExcludedTables],
  exportRow: (table: string, row: any) => scrubExportRow(table, notificationPreferenceExportRow(table, reportingExportRow(table, suppressionExportRow(table, discussionExportRow(table, memberExportRow(table, proposalExportRow(table, deploymentExportRow(table, alertExportRow(table, row))))))))),
  requiredConfiguration: ['OWNER_EMAIL', 'SESSION_SECRET', 'AUTH_ORIGIN', 'AUTH_LOCAL', 'MAIL_PROVIDER', 'MAIL_FROM', 'ALERT_DESTINATIONS', 'ALERT_DESTINATION_HASH_KEY', 'ALERT_PUBLIC_ORIGIN', 'INTEGRATION_EGRESS'],
  validateStaged: stagedValidation(),
@@ -246,6 +246,8 @@ function beforeAgentAttribution(table:any,manifest:any){
  const declaration=field==='recorded_by'?", recorded_by TEXT NOT NULL DEFAULT 'owner'":', prepared_by TEXT';
  return {...table,sql:table.sql.replace(declaration,''),columns:table.columns.filter((column:any)=>column.name!==field)};
 }
+for(const later of laterTables)later.migrations.push('0105_local_invitation_links.sql');
+laterTables.unshift({tables:[],migrations:['0105_local_invitation_links.sql']});
 async function earlierManifest(db: D1Database, manifest: any) {
  const current = await catalogue(db, policy(portabilityPolicy));
  if (manifest?.kind !== 'manifest') return null;
