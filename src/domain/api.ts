@@ -250,11 +250,24 @@ api.get('/api/projects/:project/issues/:issue/packet',async c=>{
   return packet===null?c.json({error:'Issue not found'},404):c.body(packet,200,{'Content-Type':'application/json; charset=UTF-8'});
 });
 api.get('/api/archive',async c=>new Response(await auditedExport(c.env.DB,await archiveStream(await portability(c.env.DB))),{headers:{'Content-Type':'application/x-ndjson','Content-Disposition':'attachment; filename=errors-private-archive.jsonl','Cache-Control':'no-store'}}));
+// A refusal that leaves the upload unread makes the server reset the connection after its 400 (an HTTP/1.1 server cannot
+// answer past an unread body), and the owner's browser then reports a network error instead of the refusal. So whatever
+// the restore leaves unread is read and thrown away before the answer: chunk by chunk, never buffered, never past this cap.
+const restoreDrainLimit=256*1024*1024;
+async function discardUpload(reader:ReadableStreamDefaultReader<Uint8Array>){
+  let size=0;
+  try{for(;;){const next=await reader.read();if(next.done)return;size+=next.value.byteLength;if(size>restoreDrainLimit){await reader.cancel();return}}}catch{/* the client went away */}
+}
 api.post('/api/restore',async c=>{
- if(c.req.header('x-confirm-restore')!=='yes')return c.json({error:'Confirm restore explicitly'},400);
- if(!c.req.raw.body)throw new Error('Missing archive');
- await restoreStream(await portability(ownerDb(c)),c.req.raw.body);
- return c.json({restored:true,credentials:'excluded; create new project grants'});
+ const reader=c.req.raw.body?.getReader();
+ try{
+  if(c.req.header('x-confirm-restore')!=='yes')return c.json({error:'Confirm restore explicitly'},400);
+  if(!reader)throw new Error('Missing archive');
+  // The restore may stop early or cancel its stream; the reader stays here so the rest can still be discarded.
+  const archive=new ReadableStream<Uint8Array>({async pull(controller){const next=await reader.read();if(next.done)controller.close();else controller.enqueue(next.value)}});
+  await restoreStream(await portability(ownerDb(c)),archive);
+  return c.json({restored:true,credentials:'excluded; create new project grants'});
+ }finally{if(reader)await discardUpload(reader)}
 });
 api.post('/api/projects/:project/retention',async c=>{
  const p=c.req.param('project'),b=await body(c);if(!Number.isSafeInteger(b.cutoff)||b.cutoff<0||b.cutoff>now()||typeof b.apply!=='boolean')throw new Error('Invalid retention cutoff');
