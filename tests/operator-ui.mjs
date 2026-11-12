@@ -4,6 +4,7 @@ import assert from 'node:assert/strict';
 /** Runs inside the existing triage browser and uses actual IssueView/ReleasesView. */
 export async function operatorUi({page,api,origin,project,issue,capture}){
  const root='/api/projects/'+project;
+ const readable=async locator=>assert.doesNotMatch(await locator.innerText(),/\b[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}\b|\b[0-9a-f]{24,}\b|\{\s*"(?:id|plan|moves)"/i,'Readable grouping content excludes storage identities and JSON');
  const groupingSnapshot=async()=>{const {data}=await api('/api/archive');return Object.fromEntries(['events','issues','event_grouping'].map(table=>[table,data[table].filter(row=>row.project===project)]));};
  const assertMoves=(before,after,plan,undo=false)=>{
   assert.deepEqual(after.events,before.events.map(event=>{
@@ -60,7 +61,18 @@ export async function operatorUi({page,api,origin,project,issue,capture}){
  const splitPreview=await preview.json();
  assert.deepEqual(await groupingSnapshot(),beforeSplitPreview,'Issue-view split preview moves no occurrences and changes no aggregates or revisions');
 
- await page.getByRole('heading',{name:'Review exact moves',exact:true}).waitFor();const before=await api(`/api/projects/${project}/issues/${issue}/packet`);assert.ok(before.events.length);await capture('operator-preview');
+ await page.getByRole('heading',{name:'Review exact moves',exact:true}).waitFor();
+ if(page.viewportSize().width===1440){
+  await readable(page.getByRole('dialog',{name:'Correct grouping',exact:true}));
+  const current=await api(root+'/issues/'+issue+'/packet');
+  assert.ok((await page.locator('.correction-review').innerText()).includes(current.issue.short_id));
+  const selected=current.events.find(event=>event.id===splitPreview.plan.moves[0].event);
+  assert.ok((await page.locator('.correction-review').innerText()).includes(selected.event.release));
+  const href=await page.locator('.correction-review ol a').first().getAttribute('href');
+  assert.equal(new URL(href,origin).searchParams.get('occurrence'),selected.occurrence);
+  assert.equal(new URL(href,origin).searchParams.get('event'),selected.id);
+ }
+ const before=await api(`/api/projects/${project}/issues/${issue}/packet`);assert.ok(before.events.length);await capture('operator-preview');
  await Promise.all([page.waitForResponse(r=>/\/corrections\/[^/]+\/apply$/.test(r.url())&&r.status()===200),page.getByRole('button',{name:'Apply reviewed correction',exact:true}).click()]);
  assertMoves(beforeSplitPreview,await groupingSnapshot(),splitPreview.plan);
  await assertProvenance(beforeSplitPreview,{...splitPreview.plan,id:splitPreview.id});
@@ -68,6 +80,15 @@ export async function operatorUi({page,api,origin,project,issue,capture}){
  await page.getByRole('heading',{name:'Operator decisions',exact:true}).waitFor();await capture('operator-applied');
  assert.equal(await page.getByRole('dialog',{name:'Correct grouping',exact:true}).isVisible(),true,'Applying a correction keeps its review dialog open');
  await page.getByRole('button',{name:'Details: split · applied',exact:true}).click();
+ if(page.viewportSize().width===1440){
+  const history=page.getByRole('dialog',{name:'split · applied',exact:true});await readable(history);
+  assert.equal(await history.locator('pre').count(),0);
+  const native=(await api(root+'/operator-state')).audit.find(row=>row.kind==='grouping_applied'&&JSON.parse(row.detail).correction===splitPreview.id);
+  assert.ok((await history.innerText()).includes(native.personActor.person.name),'History names the actual person who applied this correction');
+  await history.getByRole('button',{name:'Copy details',exact:true}).click();
+  assert.equal(JSON.parse(await page.evaluate(()=>navigator.clipboard.readText())).id,splitPreview.id,'Copy details preserves the exact raw record');
+ }
+
  await Promise.all([page.waitForResponse(r=>/\/corrections\/[^/]+\/undo$/.test(r.url())&&r.status()===200),page.getByRole('button',{name:'Undo this correction',exact:true}).click()]);
  const undone=await api(`/api/projects/${project}/issues/${issue}/packet`);assert.equal(undone.issue.count,before.issue.count);await page.getByRole('heading',{name:'Operator decisions',exact:true}).waitFor();await capture('operator-undone');
  const splitUndone=await groupingSnapshot();
@@ -84,7 +105,7 @@ export async function operatorUi({page,api,origin,project,issue,capture}){
  assert.ok(mergeTarget,'A distinct captured failure is available as the merge target');
  const beforeMergePreview=await groupingSnapshot();
  await page.getByRole('button',{name:'Details: Correct grouping',exact:true}).click();
- await page.getByLabel('Merge into issue ID',{exact:true}).fill(mergeTarget.id);
+ await page.getByLabel('Merge into issue ID',{exact:true}).fill(mergeTarget.short_id);
  const [mergeResponse]=await Promise.all([page.waitForResponse(response=>response.url().endsWith('/corrections/preview')&&response.request().method()==='POST'),page.getByRole('button',{name:'Preview issue merge',exact:true}).click()]);
  assert.equal(mergeResponse.status(),201);
  const mergePreview=await mergeResponse.json();
@@ -92,7 +113,12 @@ export async function operatorUi({page,api,origin,project,issue,capture}){
  assert.deepEqual(await groupingSnapshot(),beforeMergePreview,'Issue-view merge preview moves no occurrences and changes no aggregates or revisions');
  await page.getByRole('heading',{name:'Review exact moves',exact:true}).waitFor();
  const reviewText=await page.locator('.correction-review').innerText();
- for(const move of mergePreview.plan.moves)for(const value of [move.event,move.occurrence,move.from,move.to])assert.ok(reviewText.includes(value),'The rendered review names the exact move');
+ if(page.viewportSize().width===1440){
+  await readable(page.locator('.correction-review'));
+  for(const planned of mergePreview.plan.issues){const packet=await api(root+'/issues/'+planned.id+'/packet');assert.ok(reviewText.includes(packet.issue.short_id),'The review identifies each real issue');}
+  const links=await page.locator('.correction-review ol a').evaluateAll(rows=>rows.map(row=>row.href));
+  for(const move of mergePreview.plan.moves)assert.ok(links.some(href=>{const url=new URL(href);return url.searchParams.get('event')===move.event&&url.searchParams.get('occurrence')===move.occurrence}),'Each readable move links the exact occurrence');
+ }
  await capture('operator-merge-preview');
  await Promise.all([page.waitForResponse(response=>response.url().endsWith('/corrections/'+mergePreview.id+'/apply')&&response.status()===200),page.getByRole('button',{name:'Apply reviewed correction',exact:true}).click()]);
  assertMoves(beforeMergePreview,await groupingSnapshot(),mergePreview.plan);

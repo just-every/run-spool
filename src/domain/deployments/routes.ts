@@ -1,3 +1,4 @@
+import { deploymentActorReferences } from './actors';
 import { resolveMembership } from '../members/resolver';
 import { Hono } from 'hono';
 import type { Bindings } from '../../auth/bindings';
@@ -20,6 +21,7 @@ routes.get('/:project/deployments',async c=>{
  if(!await ownerSession(c.req.raw,c.env,resolveMembership))return c.json({error:'Owner session required'},401);
  const rows=(await s(c.env.DB,'SELECT * FROM deployment_runs WHERE project=? ORDER BY created DESC,id',c.req.param('project')).all<any>()).results;
  for(const row of rows){row.includedCommits=JSON.parse(row.included_commits);row.steps=(await s(c.env.DB,'SELECT * FROM deployment_steps WHERE project=? AND deployment=? ORDER BY sequence',row.project,row.id).all()).results;row.notice=await s(c.env.DB,'SELECT state,created,updated FROM deployment_notices WHERE project=? AND deployment=?',row.project,row.id).first();delete row.destination;}
+ if(c.req.query('display')==='readable'){const references=await deploymentActorReferences(c.env.DB,c.req.param('project'));for(const row of rows){row.actorReference=references[row.actor]??null;for(const step of row.steps)step.actorReference=references[step.actor]??null;}}
  return c.json({rows,provenance:'Commit range, timing and exposure are owner or CI recorded; repository ancestry and provider success are not independently confirmed.'});
 });
 routes.post('/:project/deployments',async c=>{

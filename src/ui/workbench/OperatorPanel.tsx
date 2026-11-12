@@ -1,4 +1,5 @@
 import { plural } from './readable';
+import { correctionLabels, loadCorrectionReferences } from './correctionReferences';
 import { useEffect, useId, useRef, useState } from 'react';
 import { Details } from './Details';
 import { useLiveRead } from './useLiveRead';
@@ -13,7 +14,15 @@ export type CorrectionPreview = {
   newIssue: { id: string; before: number; after: number } | null;
 };
 
-export type CorrectionLabels = { issue: (id: string) => string; event: (id: string, occurrence?: string) => string };
+export type CorrectionLabels = { issue: (id: string) => string; event: (id: string, occurrence?: string) => string; issueHref?: (id: string) => string | undefined; eventHref?: (id: string, occurrence?: string) => string | undefined; actor?: (entry: any) => string };
+function IssueReference({ id, labels }: { id: string; labels?: CorrectionLabels }) {
+  const href = labels?.issueHref?.(id), text = labels?.issue(id) ?? 'Recorded issue';
+  return href ? <a className="inline-link" href={href}>{text}</a> : <span>{text}</span>;
+}
+function EventMove({ move, labels }: { move: any; labels?: CorrectionLabels }) {
+  const href = labels?.eventHref?.(move.event, move.occurrence), text = labels?.event(move.event, move.occurrence) ?? 'Recorded event';
+  return <>{href ? <a className="inline-link" href={href}>{text}</a> : text}: <IssueReference id={move.from} labels={labels} /> → <IssueReference id={move.to} labels={labels} /></>;
+}
 export function CorrectionReview({ preview, busy, onApply, onCancel, labels }: { preview: CorrectionPreview; busy: boolean; onApply: () => void; onCancel: () => void; labels?: CorrectionLabels }) {
   const moves = preview.plan.moves;
   return <div className="callout correction-review">
@@ -21,13 +30,13 @@ export function CorrectionReview({ preview, busy, onApply, onCancel, labels }: {
     <p>Nothing has moved yet. Apply this preview explicitly.</p>
     <strong>Issue counts before and after</strong>
     <ul>
-      {preview.plan.issues.map((issue: any) => <li key={issue.id}><code>{labels ? labels.issue(issue.id) : issue.id}</code>: {issue.count} → {issue.after} {plural(issue.after, 'event')}</li>)}
-      {preview.newIssue && <li><code>{labels ? labels.issue(preview.newIssue.id) : preview.newIssue.id}</code> (new issue): {preview.newIssue.before} → {preview.newIssue.after} {plural(preview.newIssue.after, 'event')}</li>}
+      {preview.plan.issues.map((issue: any) => <li key={issue.id}><IssueReference id={issue.id} labels={labels} />: {issue.count} → {issue.after} {plural(issue.after, 'event')}</li>)}
+      {preview.newIssue && <li><IssueReference id={preview.newIssue.id} labels={labels} /> (new issue): {preview.newIssue.before} → {preview.newIssue.after} {plural(preview.newIssue.after, 'event')}</li>}
     </ul>
     <strong>Exact event moves ({moves.length})</strong>
     <ol>
       {moves.map((move: any) => <li key={`${move.event}:${move.occurrence}`}>
-        {labels ? <>{labels.event(move.event, move.occurrence)}: {labels.issue(move.from)} → {labels.issue(move.to)}</> : <><code>{move.event}</code> (occurrence <code>{move.occurrence}</code>): <code>{move.from}</code> → <code>{move.to}</code></>}
+        <EventMove move={move} labels={labels} />
       </li>)}
     </ol>
     <button className="primary-button" disabled={busy} onClick={onApply}>Apply reviewed correction</button>
@@ -40,11 +49,10 @@ export function CorrectionHistory({ entries, issueId, busy, onUndo, labels }: { 
   return <>
     <h3>Correction history</h3>
     {relevant.map(entry => <Details key={entry.id} title={`${entry.kind} · ${entry.state}`} triggerLabel={`${entry.kind} · ${entry.state}`}>
-      {labels ? <>
-        <p>Created {date(entry.created)} · updated {date(entry.updated)}</p>
-        <ul>{entry.plan.issues.map((issue: any) => <li key={issue.id}>{labels.issue(issue.id)}: {issue.count} → {issue.after} {plural(issue.after, 'event')}</li>)}</ul>
-        <ol>{entry.plan.moves.map((move: any) => <li key={`${move.event}:${move.occurrence}`}>{labels.event(move.event, move.occurrence)}: {labels.issue(move.from)} → {labels.issue(move.to)}</li>)}</ol>
-      </> : <pre>{JSON.stringify(entry, null, 2)}</pre>}
+      <p>{labels?.actor?.(entry) ?? 'Recorded operator'} · Created {date(entry.created)} · updated {date(entry.updated)}</p>
+      <ul>{entry.plan.issues.map((issue: any) => <li key={issue.id}><IssueReference id={issue.id} labels={labels} />: {issue.count} → {issue.after} {plural(issue.after, 'event')}</li>)}</ul>
+      <ol>{entry.plan.moves.map((move: any) => <li key={`${move.event}:${move.occurrence}`}><EventMove move={move} labels={labels} /></li>)}</ol>
+      <button className="text-button" onClick={() => void navigator.clipboard.writeText(JSON.stringify(entry, null, 2))}>Copy details</button>
       {entry.state === 'applied' && <button className="text-button" disabled={busy} onClick={() => onUndo(entry.id)}>Undo this correction</button>}
     </Details>)}
     <p>Undo refuses after newer issue work, capture or retention; it never restores deleted occurrences. History is bounded to 50 records per project.</p>
@@ -55,6 +63,7 @@ export function OperatorPanel({ project, packet, busy, request, run, refresh, in
   const [state, setState] = useState<any>(null);
   const [assignmentRevision, setAssignmentRevision] = useState<number | null>(null);
   const [history, setHistory] = useState<any[]>([]);
+  const [references, setReferences] = useState<any>(null);
   const [label, setLabel] = useState('');
   const [assignmentError, setAssignmentError] = useState(''), [assignmentMessage, setAssignmentMessage] = useState('');
   const assignmentFeedback = useId();
@@ -80,7 +89,9 @@ export function OperatorPanel({ project, packet, busy, request, run, refresh, in
       consumedInitial.current = initial;
       const [operatorState, corrections] = await (prefetched ? initial : Promise.all([request(`${root}/operator-state`), request(`${root}/corrections`)]));
       if (signal.aborted) return;
-      setState(operatorState); setHistory(corrections); setFailure('');
+      const resolved = await loadCorrectionReferences(root, packet, corrections, request);
+      if (signal.aborted) return;
+      setReferences(resolved); setState(operatorState); setHistory(corrections); setFailure('');
       if (!labelEdited.current) setLabel(operatorState.assignments.find((assignment: any) => assignment.issue === issue.id)?.label ?? '');
       if (!state) setValue(packet.events?.[0]?.originalGrouping?.fingerprint ?? issue.fingerprint);
     } catch (error) { if (!signal.aborted) setFailure((error as Error).message); }
@@ -96,7 +107,7 @@ export function OperatorPanel({ project, packet, busy, request, run, refresh, in
       kind,
       source: issue.id,
       revision: issue.revision,
-      ...(kind === 'split' ? { events: selected } : { target, targetRevision: destination.revision })
+      ...(kind === 'split' ? { events: selected } : { target: destination.id, targetRevision: destination.revision })
     }));
   });
 
@@ -133,6 +144,7 @@ export function OperatorPanel({ project, packet, busy, request, run, refresh, in
     }
   });
 
+  const labels = correctionLabels(project, packet, references, preview, state?.audit ?? []);
   return <section className="evidence">
     <h2>Operator decisions</h2>
     {failure && <p role="alert">{failure}</p>}
@@ -157,14 +169,14 @@ export function OperatorPanel({ project, packet, busy, request, run, refresh, in
           <legend>Occurrences to split into a new issue</legend>
           {packet.events.filter((event: any) => !event.historical).map((event: any) => <label className="form-field" key={event.id}>
             <input type="checkbox" disabled={busy || !ready} checked={selected.includes(event.id)} onChange={change => setSelected(change.target.checked ? [...selected, event.id] : selected.filter(id => id !== event.id))} />
-            <code>{event.id}</code>
+            <span>{labels.event(event.id, event.occurrence)}</span><a className="inline-link" href={labels.eventHref?.(event.id, event.occurrence)}>Open event</a>
           </label>)}
         </fieldset>
         <button className="text-button" disabled={busy || !ready || !selected.length} onClick={() => void createPreview('split')}>Preview selected-event split</button>
         <Field label="Merge into issue ID" disabled={busy || !ready} value={target} onChange={event => setTarget(event.target.value)} />
         <button className="text-button" disabled={busy || !ready || !target} onClick={() => void createPreview('merge')}>Preview issue merge</button>
-        {preview && <CorrectionReview preview={preview} busy={busy} onApply={applyPreview} onCancel={() => setPreview(null)} />}
-        <CorrectionHistory entries={history} issueId={issue.id} busy={busy} onUndo={undoCorrection} />
+        {preview && <CorrectionReview preview={preview} labels={labels} busy={busy} onApply={applyPreview} onCancel={() => setPreview(null)} />}
+        <CorrectionHistory entries={history} labels={labels} issueId={issue.id} busy={busy} onUndo={undoCorrection} />
       </Details>
 
       <Details title="Suppression policies" triggerLabel="Suppression policies">
