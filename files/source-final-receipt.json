@@ -1,0 +1,12 @@
+{
+  "name": "source-final",
+  "command": "cloud_run pnpm source:check && node src/base/contract-docs.mjs check",
+  "head": "26d13d4f574298851f25778818c1af0b9b2a2386",
+  "tree": "4f84285f740c9bf4fde7c2471a06e56105915383",
+  "trackedDiffSha256": "6e031268316aadb2a54589180f29420ec012446fe5c9c55e9061c1f380f883e6",
+  "started": "2026-11-12T09:54:17.256190+00:00",
+  "ended": "2026-11-12T09:54:19.792442+00:00",
+  "exitCode": 0,
+  "log": "source-final.log",
+  "logSha256": "864abdb2207d31e7c1ce09476ae31c16ebe2dc8b6a43d5c334068ad5df4b010d"
+}

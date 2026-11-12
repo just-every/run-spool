@@ -1,0 +1,11 @@
+{
+  "name": "first-party",
+  "command": "cloud_run pnpm run check -- --profile first-party",
+  "head": "26d13d4f574298851f25778818c1af0b9b2a2386",
+  "trackedDiffSha256": "9650e05d5956e6e8da2a920805d1f680ccf5d8b2a922cf92d679d338d1477a66",
+  "started": "2026-11-12T09:45:03.238099+00:00",
+  "ended": "2026-11-12T09:45:06.684199+00:00",
+  "exitCode": 0,
+  "log": "first-party.log",
+  "logSha256": "9407b75fd569c2db011a8efcbe04c4d778634e90a05c55325269a48e1ecd1ce1"
+}

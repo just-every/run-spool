@@ -1,0 +1,11 @@
+{
+  "name": "proof-before",
+  "command": "cloud_run node /tmp/spool-truth-proof.mjs",
+  "head": "26d13d4f574298851f25778818c1af0b9b2a2386",
+  "trackedDiffSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+  "started": "2026-11-12T09:38:23.560894+00:00",
+  "ended": "2026-11-12T09:38:31.574189+00:00",
+  "exitCode": 0,
+  "log": "proof-before.log",
+  "logSha256": "fd951403789aa38a81eb7b40c603c4c27710475229b62f4f4dbadeb7e4ba90e5"
+}

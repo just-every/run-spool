@@ -1,0 +1,14 @@
+{
+  "observed": "2026-11-12T10:05:15Z",
+  "reason": "Environment context restarted and original exec sessions became unknown. Original test processes and their reapers were zombies; logs stopped at 10:03:55 and 10:04:03 with no completion receipts.",
+  "checks": [
+    "agent-main-update",
+    "sdk-main-update"
+  ],
+  "result": "interrupted, not passing; restart same staged tree",
+  "ownedOrphanDevPid": 21181,
+  "ownedDevCheckout": "/tmp/spool-commands-RNF6vI/checkout",
+  "productCommitCreated": false,
+  "worktreePreserved": true,
+  "orphanCleanup": "SIGINT then SIGTERM did not complete; SIGKILL sent to recorded owned dev PIDs 21181 and 21307; interrupted scratch directories removed"
+}

@@ -1,0 +1,12 @@
+{
+  "scope": "staged product diff only; full publication scan belongs to fleet host",
+  "tree": "4f84285f740c9bf4fde7c2471a06e56105915383",
+  "patchSha256": "6e031268316aadb2a54589180f29420ec012446fe5c9c55e9061c1f380f883e6",
+  "injectedValueMatches": 0,
+  "contractViewsIdentical": true,
+  "addedRegistrations": 0,
+  "newSourceRelativeToPreviousRound": [
+    "sources.lock.json",
+    "tests/agent-handoff/caps.mjs"
+  ]
+}

@@ -1,0 +1,311 @@
+rer toolchain: node v24.19.0 pnpm 10.12.4 (pins 22.20.0 / 10.12.4)
+verify
+Heavy job admitted: Spool verify:suite [6179c8701e00]
+STAGE setup
+STEP setup/startDev
+STEP setup/dev-ready
+END setup/dev-ready seconds=34.763
+END setup/startDev seconds=34.786
+STAGE ui
+STEP ui/launchBrowser
+END ui/launchBrowser seconds=0.215
+STEP ui/browser.newContext
+END ui/browser.newContext seconds=0.009
+STEP ui/openGate
+END ui/openGate seconds=0.022
+STEP ui/context.addCookies
+END ui/context.addCookies seconds=0.007
+STEP ui/context.newPage
+END ui/context.newPage seconds=0.168
+STEP ui/page.goto
+END ui/page.goto seconds=3.449
+STEP ui/page.waitForLoadState
+END ui/page.waitForLoadState seconds=4.561
+STEP ui/page.getByRole(button,{name:Create agent key,exact:true}).click
+END ui/page.getByRole(button,{name:Create agent key,exact:true}).click seconds=0.218
+STEP ui/(await minted).json
+STEP ui/minted
+END ui/minted seconds=0.000
+END ui/(await minted).json seconds=0.028
+STEP ui/panel.locator([data-agent-command]).waitFor
+END ui/panel.locator([data-agent-command]).waitFor seconds=0.259
+STEP ui/panel.locator([data-agent-command]).innerText
+END ui/panel.locator([data-agent-command]).innerText seconds=0.003
+STEP ui/panel.locator([data-[REDACTED]]).innerText
+END ui/panel.locator([data-[REDACTED]]).innerText seconds=0.005
+STEP ui/app.json
+END ui/app.json seconds=0.019
+STEP ui/access
+END ui/access seconds=0.000
+STEP ui/access
+END ui/access seconds=0.000
+STEP ui/app.request
+END ui/app.request seconds=0.008
+STEP ui/denied.text
+END ui/denied.text seconds=0.000
+STEP ui/app.request
+END ui/app.request seconds=0.009
+STEP ui/denied.text
+END ui/denied.text seconds=0.000
+STEP ui/app.request
+END ui/app.request seconds=0.006
+STEP ui/denied.text
+END ui/denied.text seconds=0.000
+STEP ui/notice.evaluate
+END ui/notice.evaluate seconds=0.034
+STEP ui/app.json
+END ui/app.json seconds=0.026
+STEP ui/accessible
+STEP ui/page.evaluate
+END ui/page.evaluate seconds=0.005
+STEP ui/new AxeBuilder({page}).withTags([wcag2a,wcag2aa,wcag21aa]).analyze
+END ui/new AxeBuilder({page}).withTags([wcag2a,wcag2aa,wcag21aa]).analyze seconds=2.350
+END ui/accessible seconds=2.364
+STEP ui/capture
+STEP ui/page.setViewportSize
+END ui/page.setViewportSize seconds=0.001
+STEP ui/locator.scrollIntoViewIfNeeded
+END ui/locator.scrollIntoViewIfNeeded seconds=0.032
+STEP ui/locator.screenshot
+END ui/locator.screenshot seconds=0.209
+STEP ui/page.setViewportSize
+END ui/page.setViewportSize seconds=0.033
+STEP ui/locator.scrollIntoViewIfNeeded
+END ui/locator.scrollIntoViewIfNeeded seconds=0.034
+STEP ui/locator.screenshot
+END ui/locator.screenshot seconds=0.159
+STEP ui/page.setViewportSize
+END ui/page.setViewportSize seconds=0.043
+END ui/capture seconds=0.513
+STEP ui/context.grantPermissions
+END ui/context.grantPermissions seconds=0.002
+STEP ui/panel.getByRole(button,{name:Copy setup lines,exact:true}).click
+END ui/panel.getByRole(button,{name:Copy setup lines,exact:true}).click seconds=0.036
+STEP ui/page.evaluate
+END ui/page.evaluate seconds=0.013
+STEP ui/panel.getByRole(button,{name:Copy agent key,exact:true}).click
+END ui/panel.getByRole(button,{name:Copy agent key,exact:true}).click seconds=0.038
+STEP ui/page.evaluate
+END ui/page.evaluate seconds=0.015
+STEP ui/page.evaluate
+END ui/page.evaluate seconds=0.002
+STEP ui/notice.getByRole(link).click
+END ui/notice.getByRole(link).click seconds=0.080
+STEP ui/opened
+END ui/opened seconds=0.047
+STEP ui/form.waitFor
+END ui/form.waitFor seconds=0.104
+STEP ui/policyPage.waitForLoadState
+END ui/policyPage.waitForLoadState seconds=0.445
+STEP ui/form.locator([data-policy-class]).all
+END ui/form.locator([data-policy-class]).all seconds=0.014
+STEP ui/select.selectOption
+END ui/select.selectOption seconds=0.014
+STEP ui/select.selectOption
+END ui/select.selectOption seconds=0.018
+STEP ui/select.selectOption
+END ui/select.selectOption seconds=0.009
+STEP ui/select.selectOption
+END ui/select.selectOption seconds=0.008
+STEP ui/select.selectOption
+END ui/select.selectOption seconds=0.010
+STEP ui/select.selectOption
+END ui/select.selectOption seconds=0.004
+STEP ui/form.locator(input[name="paidAI"][value="no"]).check
+END ui/form.locator(input[name="paidAI"][value="no"]).check seconds=0.055
+STEP ui/form.getByRole(button,{name:Save policy,exact:true}).click
+END ui/form.getByRole(button,{name:Save policy,exact:true}).click seconds=0.044
+STEP ui/saved
+END ui/saved seconds=0.028
+STEP ui/policy-saved-reload
+END ui/policy-saved-reload seconds=0.116
+STEP ui/app.json
+END ui/app.json seconds=0.027
+STEP ui/policy-popup-close
+END ui/policy-popup-close seconds=0.009
+STEP ui/page.bringToFront
+END ui/page.bringToFront seconds=0.001
+STEP ui/panel.locator([data-[REDACTED]]).innerText
+END ui/panel.locator([data-[REDACTED]]).innerText seconds=0.006
+STEP ui/app.json
+END ui/app.json seconds=0.053
+STEP ui/runCopiedSetup
+STEP ui/done
+END ui/done seconds=0.264
+END ui/runCopiedSetup seconds=0.267
+STEP ui/page.reload
+END ui/page.reload seconds=0.229
+STEP ui/page.getByRole(button,{name:Create agent key,exact:true}).waitFor
+END ui/page.getByRole(button,{name:Create agent key,exact:true}).waitFor seconds=1.500
+STEP ui/page.locator(.agent-handoff).count
+END ui/page.locator(.agent-handoff).count seconds=0.014
+STEP ui/page.locator(body).innerText
+END ui/page.locator(body).innerText seconds=0.006
+STEP ui/page.goto
+END ui/page.goto seconds=0.385
+STEP ui/page.locator(.short-id).waitFor
+END ui/page.locator(.short-id).waitFor seconds=1.504
+STEP ui/page.locator(.short-id).innerText
+END ui/page.locator(.short-id).innerText seconds=0.023
+STEP ui/downloadButton.click
+END ui/downloadButton.click seconds=0.049
+STEP ui/downloaded
+END ui/downloaded seconds=0.000
+STEP ui/readFile
+STEP ui/download.path
+END ui/download.path seconds=0.001
+END ui/readFile seconds=0.002
+STEP ui/app.json
+END ui/app.json seconds=0.097
+STEP ui/page.getByRole(button,{name:Details: Hand this issue to your agent,exact:true}).click
+END ui/page.getByRole(button,{name:Details: Hand this issue to your agent,exact:true}).click seconds=0.153
+STEP ui/dialog.locator([data-agent-command]).waitFor
+END ui/dialog.locator([data-agent-command]).waitFor seconds=0.038
+STEP ui/dialog.locator([data-agent-command]).innerText
+END ui/dialog.locator([data-agent-command]).innerText seconds=0.006
+STEP ui/dialog.getByRole(button,{name:Copy setup lines,exact:true}).click
+END ui/dialog.getByRole(button,{name:Copy setup lines,exact:true}).click seconds=0.126
+STEP ui/page.evaluate
+END ui/page.evaluate seconds=0.008
+STEP ui/runCopiedSetup
+STEP ui/done
+END ui/done seconds=0.197
+END ui/runCopiedSetup seconds=0.201
+STEP ui/accessible
+STEP ui/page.evaluate
+END ui/page.evaluate seconds=0.002
+STEP ui/new AxeBuilder({page}).withTags([wcag2a,wcag2aa,wcag21aa]).analyze
+END ui/new AxeBuilder({page}).withTags([wcag2a,wcag2aa,wcag21aa]).analyze seconds=0.570
+END ui/accessible seconds=0.572
+STEP ui/capture
+STEP ui/page.setViewportSize
+END ui/page.setViewportSize seconds=0.001
+STEP ui/locator.scrollIntoViewIfNeeded
+END ui/locator.scrollIntoViewIfNeeded seconds=0.043
+STEP ui/locator.screenshot
+END ui/locator.screenshot seconds=0.113
+STEP ui/page.setViewportSize
+END ui/page.setViewportSize seconds=0.019
+STEP ui/locator.scrollIntoViewIfNeeded
+END ui/locator.scrollIntoViewIfNeeded seconds=0.056
+STEP ui/locator.screenshot
+END ui/locator.screenshot seconds=0.094
+STEP ui/page.setViewportSize
+END ui/page.setViewportSize seconds=0.015
+END ui/capture seconds=0.341
+STEP ui/dialog.getByRole(button,{name:Close details,exact:true}).click
+END ui/dialog.getByRole(button,{name:Close details,exact:true}).click seconds=0.046
+STEP ui/capture
+STEP ui/page.setViewportSize
+END ui/page.setViewportSize seconds=0.001
+STEP ui/locator.scrollIntoViewIfNeeded
+END ui/locator.scrollIntoViewIfNeeded seconds=0.038
+STEP ui/locator.screenshot
+END ui/locator.screenshot seconds=0.523
+STEP ui/page.setViewportSize
+END ui/page.setViewportSize seconds=0.023
+STEP ui/locator.scrollIntoViewIfNeeded
+END ui/locator.scrollIntoViewIfNeeded seconds=0.036
+STEP ui/locator.screenshot
+END ui/locator.screenshot seconds=0.252
+STEP ui/page.setViewportSize
+END ui/page.setViewportSize seconds=0.025
+END ui/capture seconds=0.898
+STEP ui/context.close
+END ui/context.close seconds=0.029
+STAGE second-origin
+STEP second-origin/startDispatchApp
+END second-origin/startDispatchApp seconds=0.029
+STEP second-origin/browser.newPage
+END second-origin/browser.newPage seconds=0.113
+STEP second-origin/throwPage.goto
+END second-origin/throwPage.goto seconds=0.098
+STEP second-origin/throwPage.getByRole(button,{name:Prepare delivery}).click
+END second-origin/throwPage.getByRole(button,{name:Prepare delivery}).click seconds=0.288
+STEP second-origin/throwPage.waitForFunction
+END second-origin/throwPage.waitForFunction seconds=0.229
+STEP second-origin/throwPage.evaluate
+END second-origin/throwPage.evaluate seconds=0.005
+STEP second-origin/throwPage.evaluate
+END second-origin/throwPage.evaluate seconds=0.004
+STEP second-origin/throwPage.goto
+END second-origin/throwPage.goto seconds=0.062
+STEP second-origin/throwPage.getByRole(button,{name:Prepare delivery}).click
+END second-origin/throwPage.getByRole(button,{name:Prepare delivery}).click seconds=0.071
+STEP second-origin/throwPage.waitForFunction
+END second-origin/throwPage.waitForFunction seconds=0.069
+STEP second-origin/throwPage.evaluate
+END second-origin/throwPage.evaluate seconds=0.002
+STEP second-origin/throwPage.goto
+END second-origin/throwPage.goto seconds=0.039
+STEP second-origin/throwPage.getByRole(button,{name:Prepare delivery}).click
+END second-origin/throwPage.getByRole(button,{name:Prepare delivery}).click seconds=0.055
+STEP second-origin/throwPage.waitForFunction
+END second-origin/throwPage.waitForFunction seconds=0.055
+STEP second-origin/throwPage.evaluate
+END second-origin/throwPage.evaluate seconds=0.003
+STEP second-origin/throwPage.goto
+END second-origin/throwPage.goto seconds=0.040
+STEP second-origin/throwPage.getByRole(button,{name:Prepare delivery}).click
+END second-origin/throwPage.getByRole(button,{name:Prepare delivery}).click seconds=0.048
+STEP second-origin/throwPage.waitForFunction
+END second-origin/throwPage.waitForFunction seconds=0.056
+STEP second-origin/throwPage.evaluate
+END second-origin/throwPage.evaluate seconds=0.005
+STEP second-origin/throwPage.goto
+END second-origin/throwPage.goto seconds=0.043
+STEP second-origin/throwPage.getByRole(button,{name:Prepare delivery}).click
+END second-origin/throwPage.getByRole(button,{name:Prepare delivery}).click seconds=0.063
+STEP second-origin/throwPage.waitForFunction
+END second-origin/throwPage.waitForFunction seconds=0.050
+STEP second-origin/throwPage.evaluate
+END second-origin/throwPage.evaluate seconds=0.002
+STEP second-origin/throwPage.close
+END second-origin/throwPage.close seconds=0.009
+STAGE scope
+STAGE clients
+STAGE selector-refusals
+AI-001 packet-selector refusals passed: HTTP 403, CLI 3 and official MCP 3 for traversal, command and instruction; packet, product rows and authority preserved.
+STAGE grouping-proposals
+PROBE SURFACE-001 4: official MCP over settled project a -> all five legacy operations match the three canonical names; complete reads, validated inert proposals, safe summaries, invalid arguments, forbidden writes, foreign projects and next-call revocation checked
+STAGE retention-ui
+▲ [WARNING] Proxy environment variables detected. We'll use your proxy for fetch requests.
+
+
+[GOV-002] windows, preview, typed confirmation, legal hold, release, packet note, archive round trip and held erasure passed; 1440/390 captures
+STEP retention-ui/browser.close
+END retention-ui/browser.close seconds=0.039
+STAGE gaps
+STAGE scheduled-retention
+[GOV-003] restored 60 aged and 2 recent events: same-project fresh intake survives 50-row expiry and 10-row resume; exact search, issue counts, gap quantities, held project, service audit and same-day no-op passed
+STAGE caps
+STEP caps/stopDev
+STEP caps/dev-stop
+END caps/dev-stop seconds=0.193
+END caps/stopDev seconds=0.194
+STEP caps/reset
+END caps/reset seconds=2.126
+STEP caps/setup
+END caps/setup seconds=78.570
+STEP caps/startDev
+STEP caps/dev-ready
+END caps/dev-ready seconds=37.325
+END caps/startDev seconds=37.375
+STEP caps/stopDev
+STEP caps/dev-stop
+END caps/dev-stop seconds=0.170
+END caps/stopDev seconds=0.172
+STEP caps/reset
+END caps/reset seconds=2.395
+STEP caps/setup
+END caps/setup seconds=70.695
+STEP caps/startDev
+STEP caps/dev-ready
+END caps/dev-ready seconds=33.021
+END caps/startDev seconds=33.076
+Agent handoff public journey passed: 9 groups; 10 masked captures; complete packet 231566/262144 UTF-8 bytes.
+STEP caps/stopDev
+STEP caps/dev-stop
+END caps/dev-stop seconds=0.217
+END caps/stopDev seconds=0.218
+Agent handoff cleanup: [{"name":"mcp","outcome":"stopped"},{"name":"browser","outcome":"stopped"},{"name":"second-origin","outcome":"stopped"},{"name":"redirect-edge","outcome":"stopped"},{"name":"receiving-edge","outcome":"stopped"},{"name":"checkout","outcome":"stopped","children":"stopped","directory":"removed"}]

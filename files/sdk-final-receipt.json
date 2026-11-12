@@ -1,0 +1,12 @@
+{
+  "name": "sdk-final",
+  "command": "cloud_run node tests/sentry-sdk.mjs",
+  "head": "26d13d4f574298851f25778818c1af0b9b2a2386",
+  "tree": "4f84285f740c9bf4fde7c2471a06e56105915383",
+  "trackedDiffSha256": "6e031268316aadb2a54589180f29420ec012446fe5c9c55e9061c1f380f883e6",
+  "started": "2026-11-12T09:46:30.133412+00:00",
+  "ended": "2026-11-12T09:51:37.523708+00:00",
+  "exitCode": 0,
+  "log": "sdk-final.log",
+  "logSha256": "8a97b6683e29599f2190ca7a3cc6d654d271203ace5549ded7f3bc9c77ecf2fd"
+}

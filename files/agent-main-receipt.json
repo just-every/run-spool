@@ -1,0 +1,10 @@
+{
+  "command": "cloud_run node tests/agent-handoff.mjs",
+  "head": "26d13d4f574298851f25778818c1af0b9b2a2386",
+  "tree": "origin/main at clone, no tracked changes at launch; isolated command checkout overlaid these files before source squash",
+  "exitCode": 0,
+  "completed": "2026-11-12T09:44:29.955908+00:00",
+  "log": "agent-main.log",
+  "logSha256": "7831c75484f8d7072798e57083f17faec5d89926fd77b805fa452fc0eca4cb42",
+  "results": "agent-main-results.json"
+}

@@ -1,0 +1,12 @@
+{
+  "name": "product-main-update",
+  "command": "cloud_run node tests/product-runtime.mjs",
+  "head": "ddeed7780feda8bb85c9b3d9dc740387c63b18db",
+  "tree": "9913ba0ed9caf04015a4af7d180c75618bd298b0",
+  "trackedDiffSha256": "f8c5ad1df2a630842334ebc29164afb9864b6a05443406ad00a396e9feb9ba1c",
+  "started": "2026-11-12T10:17:49.555811+00:00",
+  "ended": "2026-11-12T10:20:32.299094+00:00",
+  "exitCode": 0,
+  "log": "product-main-update.log",
+  "logSha256": "c15699ae2c08cb561fa115988757e49d37e5e4f2575c0843a5b57430b3421e58"
+}

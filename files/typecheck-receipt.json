@@ -1,0 +1,11 @@
+{
+  "name": "typecheck",
+  "command": "cloud_run pnpm typecheck",
+  "head": "26d13d4f574298851f25778818c1af0b9b2a2386",
+  "trackedDiffSha256": "9650e05d5956e6e8da2a920805d1f680ccf5d8b2a922cf92d679d338d1477a66",
+  "started": "2026-11-12T09:44:01.849832+00:00",
+  "ended": "2026-11-12T09:44:18.239182+00:00",
+  "exitCode": 0,
+  "log": "typecheck.log",
+  "logSha256": "c041aff842b9a0eaba7c13660c2fabfa76e5dd7cf453d06a7bfeb55d4a67c379"
+}

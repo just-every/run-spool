@@ -1,0 +1,12 @@
+{
+  "name": "proof-after",
+  "command": "cloud_run node /tmp/spool-truth-proof.mjs",
+  "head": "3af8a3ca856777e2445d33c6d1e5227e624b8278",
+  "tree": "9913ba0ed9caf04015a4af7d180c75618bd298b0",
+  "trackedDiffSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+  "started": "2026-11-12T10:20:57.268572+00:00",
+  "ended": "2026-11-12T10:21:07.645826+00:00",
+  "exitCode": 0,
+  "log": "proof-after.log",
+  "logSha256": "d1fddefe9ff26ec44aa8bd54d7081aff6a2af8b5a0e5716cad1ecc5abe8a63fe"
+}

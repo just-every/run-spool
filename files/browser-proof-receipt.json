@@ -1,0 +1,34 @@
+{
+  "head": "3af8a3ca856777e2445d33c6d1e5227e624b8278",
+  "screens": [
+    {
+      "file": "after-issues-1440.png",
+      "width": 1440,
+      "height": 1230,
+      "sha256": "8b7fd41a4f8bce2a1fac59d30ef8560db3e25493e832bd80386813cce059304c",
+      "visuallyInspected": true
+    },
+    {
+      "file": "after-issues-390.png",
+      "width": 390,
+      "height": 1812,
+      "sha256": "4d35be389e1e89a6a66511ba929da366ce67936e241b8cc3f73340207e181c1f",
+      "visuallyInspected": true
+    },
+    {
+      "file": "after-attention-1440.png",
+      "width": 1440,
+      "height": 1000,
+      "sha256": "f8e7ceabd1c09fc4a4b145fd76cb8ed1422737cd85eb524075854a107033d31f",
+      "visuallyInspected": true
+    },
+    {
+      "file": "after-attention-390.png",
+      "width": 390,
+      "height": 1149,
+      "sha256": "28718c6058525e293c59e2b7d316d3a999c5046d2297c525e03e78c7be81410a",
+      "visuallyInspected": true
+    }
+  ],
+  "observations": "At 1440 and 390 the Issues screen shows one open issue with all three occurrences, and Needs attention shows no work after successful feedback/session intake. Layouts are readable without clipped content. API alias/history proof is retained in after-receipt.json."
+}

@@ -1,0 +1,95 @@
+rer toolchain: node v24.19.0 pnpm 10.12.4 (pins 22.20.0 / 10.12.4)
+[33m▲ [43;33m[[43;30mWARNING[43;33m][0m [1mProxy environment variables detected. We'll use your proxy for fetch requests.[0m
+
+
+{
+  "candidate": "26d13d4f574298851f25778818c1af0b9b2a2386",
+  "phase": "before",
+  "outcomes": [
+    {
+      "reason": "feedback_accepted",
+      "count": 1
+    },
+    {
+      "reason": "session_stored",
+      "count": 1
+    }
+  ],
+  "successAttention": [
+    {
+      "state": "overdue",
+      "reason": "capture_loss_session_stored",
+      "capture_loss": 1
+    },
+    {
+      "state": "overdue",
+      "reason": "capture_loss_feedback_accepted",
+      "capture_loss": 1
+    }
+  ],
+  "counts": {
+    "before": {
+      "total": 1,
+      "open": 1,
+      "unowned": 1,
+      "ids": [
+        "b39634d2fa3677cb2b6b54fdf2e06f04e559fc50a1008667853b767e9dbde3f5"
+      ],
+      "nativeIds": [
+        "b39634d2fa3677cb2b6b54fdf2e06f04e559fc50a1008667853b767e9dbde3f5"
+      ]
+    },
+    "after": {
+      "total": 2,
+      "open": 2,
+      "unowned": 2,
+      "ids": [
+        "b39634d2fa3677cb2b6b54fdf2e06f04e559fc50a1008667853b767e9dbde3f5",
+        "589b03b6f62a78868777a0c4981798872ec82c4b485c46d499d915c6f27a06a5"
+      ],
+      "nativeIds": [
+        "b39634d2fa3677cb2b6b54fdf2e06f04e559fc50a1008667853b767e9dbde3f5",
+        "589b03b6f62a78868777a0c4981798872ec82c4b485c46d499d915c6f27a06a5"
+      ]
+    }
+  },
+  "restoredCount": 3,
+  "alias": {
+    "shortId": "SYNTHETIC-SPOOL-TRUTH-2",
+    "resolves": "b39634d2fa3677cb2b6b54fdf2e06f04e559fc50a1008667853b767e9dbde3f5",
+    "original": "b39634d2fa3677cb2b6b54fdf2e06f04e559fc50a1008667853b767e9dbde3f5"
+  },
+  "correction": [
+    {
+      "id": "029d7905-3a24-4853-b8d1-03bfceb32f45",
+      "project": "synthetic-spool-truth",
+      "kind": "split",
+      "state": "undone",
+      "plan": {
+        "version": 1,
+        "project": "synthetic-spool-truth",
+        "kind": "split",
+        "moves": [
+          {
+            "event": "synthetic-spool-truth-2",
+            "occurrence": "f6ac5a0c-1180-465a-a726-77fe35221e03",
+            "from": "b39634d2fa3677cb2b6b54fdf2e06f04e559fc50a1008667853b767e9dbde3f5",
+            "to": "589b03b6f62a78868777a0c4981798872ec82c4b485c46d499d915c6f27a06a5"
+          }
+        ],
+        "issues": [
+          {
+            "id": "b39634d2fa3677cb2b6b54fdf2e06f04e559fc50a1008667853b767e9dbde3f5",
+            "revision": 3,
+            "count": 3,
+            "after": 2
+          }
+        ],
+        "target": "589b03b6f62a78868777a0c4981798872ec82c4b485c46d499d915c6f27a06a5",
+        "fingerprint": "d6ab562d7cbc158be3b35fd8d6e62f38069bef9914dc7dc55fa5d7506300e9ec"
+      },
+      "created": 1794476310693,
+      "updated": 1794476311112
+    }
+  ]
+}

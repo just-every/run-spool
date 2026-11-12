@@ -1,0 +1,11 @@
+{
+  "name": "source-main-update",
+  "command": "pnpm source:check && node src/base/contract-docs.mjs check",
+  "head": "ddeed7780feda8bb85c9b3d9dc740387c63b18db",
+  "tree": "9913ba0ed9caf04015a4af7d180c75618bd298b0",
+  "exitCode": 0,
+  "observation": "Both commands ran in a set -e shell before the recorded successful main-update-build step. The shell continued only after their zero exit status.",
+  "completed": "2026-11-12T10:01:13.946527+00:00",
+  "log": "source-final-main-update.log",
+  "logSha256": "0c6974e8d155d960ce25dc4c3de3098a23ac4ea59c8ef3247cb61031d2e4195b"
+}

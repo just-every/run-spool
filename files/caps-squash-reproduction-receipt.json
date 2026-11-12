@@ -1,0 +1,11 @@
+{
+  "name": "caps-squash-reproduction",
+  "command": "cloud_run node /tmp/spool-caps-repro.mjs",
+  "head": "26d13d4f574298851f25778818c1af0b9b2a2386",
+  "trackedDiffSha256": "9650e05d5956e6e8da2a920805d1f680ccf5d8b2a922cf92d679d338d1477a66",
+  "started": "2026-11-12T09:44:48.794381+00:00",
+  "ended": "2026-11-12T09:45:18.825375+00:00",
+  "exitCode": 1,
+  "log": "caps-squash-reproduction.log",
+  "logSha256": "6b1c3f1f13dae94b76505dc562b3e8699846075d33fcf2415e027d4f98807f36"
+}

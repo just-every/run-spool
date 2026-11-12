@@ -1,0 +1,7 @@
+# Caps cause, before changing the fixture
+
+The current main caps archive creates 10,000 retained native occurrences: 9,999 on the older open query witness and one oversized resolved issue. It then creates 101 newer resolved comparison issues with count=0 and a regression alert per issue. Their attention orders them ahead of the old open issue under the default 100-row issue bound.
+
+The capture-truth round correctly excludes count-zero native aggregates from ordinary issue lists, search, reports and digests. The synthetic 101 comparison rows consequently no longer occupy any place in the ordinary list. The older open issue becomes visible in the unfiltered list, failing capProof's first assertion. The open filter still finds it. No evidence points to incorrect filtering or ordering of actual retained issues.
+
+The fixture correction will redistribute 101 early existing occurrences to these resolved comparison issues, with matching normalized payload, fingerprint, digest and admission diagnostic. Total retained capacity remains exactly 10,000 (near-cap 9,999); the older open issue keeps 9,898 occurrences including all multibyte byte-bound witnesses, and its exact packet available/omitted counts must reflect that corpus. The assertions remain exact and preserve event order, byte cap, count cap, oversized zero-included packet, final-slot contention, refusal counters, unchanged prior rows and retry guidance. Official MCP legacy and canonical open-list assertions will additionally prove the same old issue is reachable with the filter.

@@ -1,0 +1,23 @@
+{
+  "base": "ddeed7780feda8bb85c9b3d9dc740387c63b18db",
+  "tree": "9913ba0ed9caf04015a4af7d180c75618bd298b0",
+  "files": {
+    "sources.lock.json": "4348b6e74c17cc7d9c1e9312b7c1e29e55551e29e42aacfc5007ca2dace3a2b7",
+    "src/domain/alerts/digests.ts": "17c7a04b36fc46c05f297801730bf0b4c6f495d209fdc83e7806712aeea1244c",
+    "src/domain/alerts/team-digests.ts": "e9ab551764f3baa0aae219403125ea0716188dc48bb77c47d5fb5e517e0c2632",
+    "src/domain/api.ts": "e0993ddeec42255a1f40387f00d54eebf6282482e79e211d792c39d863bdc016",
+    "src/domain/follow-up/routes.ts": "679191e21f6835e4b53caf85dac3a1235909b235d69ae1614172a5885e9643be",
+    "src/domain/follow-up/scan.ts": "2e8feba23fee84e88aa97c06ae2c46f08fc8ced764c74a49e29ff2bccb847cdb",
+    "src/domain/follow-up/types.ts": "93c8a028b5758e0a6233a905346a1e0e24612815a7beb91f94762f562b19db8b",
+    "src/domain/investigation/search.ts": "c6de2da34ac5530c7aaa0cf1fa5b9a6e8835a3b3eab421fee960707fa2ce8f64",
+    "src/domain/issue-attention.ts": "a1d223b4fb003776c8ebc6e235b28e09f6af599c750d6112f9043cc5b0a976db",
+    "src/domain/reports/read.ts": "2d4be45351fb010d0bc2344367caec50055926ebba420f618a14cd5b927a6ce6",
+    "tests/agent-handoff/caps.mjs": "19dcbacbdef0e1fbc044c210fc2f88ec187ed35d344b9802a30f44c62f4a4c62",
+    "tests/agent-handoff/packet.mjs": "350e5890725762d0f4813201a48c9f843b9c9b3b64da2537005fc30e59c1d35d",
+    "tests/operator-flow.mjs": "d24ace171e18de4e9e6e28146724ee24ba2b81d98322b1bd75571cb33bbc418f",
+    "tests/operator-ui.mjs": "8f29e50839294b040fc1bb7be9c0d5b1901ccdc7d06cb225757b66865021eed7",
+    "tests/sentry-sdk.mjs": "127e93e74cb4ba64d6222d093314158a1d45cc23c20ecf948410b5f81dcf160a"
+  },
+  "testRegistrationsAdded": 0,
+  "contractsIdenticalToMain": true
+}

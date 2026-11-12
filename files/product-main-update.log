@@ -1,0 +1,9 @@
+rer toolchain: node v24.19.0 pnpm 10.12.4 (pins 22.20.0 / 10.12.4)
+verify
+Heavy job admitted: Spool verify:suite [6179c8701e00]
+▲ [WARNING] Proxy environment variables detected. We'll use your proxy for fetch requests.
+
+
+AI-005 agent grouping proposals show counterexamples and rate, alert and repair effects, and stay reversible passed.
+Spool emitted Worker/D1 acceptance passed: atomic retry, pre-scrub conflict, privacy, minified capture, CSRF, delayed release/regression, archive independent restore, retention.
+Real Chromium automatic exception, stored-group browsing/selection and separate Worker waitUntil transport also passed.

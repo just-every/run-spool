@@ -1,0 +1,26 @@
+{
+  "head": "26d13d4f574298851f25778818c1af0b9b2a2386",
+  "counts": {
+    "done": 23,
+    "partial": 54,
+    "missing": 28,
+    "total": 105
+  },
+  "files": [
+    {
+      "file": "CONTRACT.md",
+      "sha256": "ee9c871bfa25a110d3f3e61924164c75cc17ea412cb775f2e0621f114ab3594b",
+      "identicalToMain": true
+    },
+    {
+      "file": "ACCEPTANCE.md",
+      "sha256": "09f4bb713a3cf9acdde84ba680630f9e9356198966ea70f2ac502520909a9ab1",
+      "identicalToMain": true
+    },
+    {
+      "file": "docs/CLAIMS.md",
+      "sha256": "dea371100eb9ee81aee20dfc3264506a9885383e15a197f813f044a335555aba",
+      "identicalToMain": true
+    }
+  ]
+}

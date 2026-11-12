@@ -1,0 +1,12 @@
+{
+  "name": "triage-main-update",
+  "command": "cloud_run node tests/triage-journey.mjs",
+  "head": "ddeed7780feda8bb85c9b3d9dc740387c63b18db",
+  "tree": "9913ba0ed9caf04015a4af7d180c75618bd298b0",
+  "trackedDiffSha256": "f8c5ad1df2a630842334ebc29164afb9864b6a05443406ad00a396e9feb9ba1c",
+  "started": "2026-11-12T10:11:39.825789+00:00",
+  "ended": "2026-11-12T10:17:49.522006+00:00",
+  "exitCode": 0,
+  "log": "triage-main-update.log",
+  "logSha256": "571e8352de683492c4846e68fc8e440fcd938d5ea04ef9dd8fce237de054b3e7"
+}

@@ -1,0 +1,62 @@
+import assert from 'node:assert/strict';
+import {writeFile} from 'node:fs/promises';
+import {spawn,execFileSync} from 'node:child_process';
+import {createRequire} from 'node:module';
+import {startTestWorker} from '/workspace/run-spool/tests/worker.mjs';
+import {signIn,browserSignIn} from '/workspace/run-spool/tests/auth.mjs';
+import {launchBrowser} from '/workspace/run-spool/tests/browser-launch.mjs';
+const require=createRequire('/workspace/run-spool/package.json');
+const packet=process.env.PROOF_PACKET,phase=process.env.PROOF_PHASE??'before';
+const worker=await startTestWorker(15537);let browser;
+try {
+ const {origin}=worker,cookie=await signIn(origin);
+ const request=(path,method='GET',body,headers={})=>fetch(origin+path,{method,headers:{Origin:origin,Cookie:cookie,...body?{'Content-Type':'application/json'}:{},...headers},...body?{body:typeof body==='string'?body:JSON.stringify(body)}:{}});
+ const json=async(...args)=>{const r=await request(...args);assert.ok(r.ok,args[0]+': '+r.status+' '+(!r.ok?await r.text():''));return r.json()};
+ const project=await json('/api/projects','POST',{id:'synthetic-spool-truth',name:'Capture truth'}),root='/api/projects/'+project.id;
+ const sdkPath=new URL('file:///tmp/spool-truth-sdk.mjs');
+ await writeFile(sdkPath,`import * as Sentry from ${JSON.stringify(require.resolve('@sentry/node'))};
+Sentry.init({dsn:process.env.PROOF_DSN,release:'synthetic-spool-truth@1',environment:'production'});
+Sentry.captureFeedback({message:'Synthetic successful feedback'});
+Sentry.endSession();await Sentry.flush(10000);await Sentry.close(10000);`);
+ await new Promise((resolve,reject)=>{const p=spawn(process.execPath,[sdkPath.pathname],{env:{...process.env,PROOF_DSN:project.dsn},stdio:'ignore'});p.on('exit',code=>code===0?resolve():reject(new Error('SDK exit '+code)));p.on('error',reject)});
+ await (await worker.scheduled(Date.now())).text();
+ const outcomes=await json(root+'/outcomes'),successAttention=await json(root+'/follow-up');
+ const native={version:1,release:'synthetic-spool-truth@1',build:'truth-build',environment:'production',type:'TypeError',message:'Synthetic checkout failure',frames:[{file:'checkout.js',line:2,column:1,function:'checkout'}],breadcrumbs:[]};
+ await json(root+'/releases','POST',{name:native.release,build:native.build});
+ const auth={Cookie:'',Authorization:'Bearer '+project.ingestKey};
+ let issue;for(let n=0;n<3;n++)issue=(await json('/api/ingest/'+project.id,'POST',{...native,eventId:'synthetic-spool-truth-'+n},auth)).issue;
+ const counts=async()=>{const list=await json(root+'/issue-search'),report=await json('/api/reports?projects='+project.id);return {total:list.total,open:list.facets.statuses.find(r=>r.value==='open')?.count??0,unowned:report.ownership.unowned,ids:list.rows.map(r=>r.id),nativeIds:(await json(root+'/issues')).map(r=>r.id)}};
+ const before=await counts(),original=await json(root+'/issues/'+issue+'/packet');
+ browser=await launchBrowser();
+ const context=await browser.newContext({viewport:{width:1440,height:1000}}),page=await context.newPage();await browserSignIn(page,origin);
+ await page.goto(origin+'/projects/'+project.id+'/issues/'+issue);
+ await page.getByRole('button',{name:'Details: Correct grouping',exact:true}).click();
+ await page.getByRole('dialog').getByRole('checkbox').first().check();
+ const [previewR]=await Promise.all([page.waitForResponse(r=>r.url().endsWith('/corrections/preview')&&r.request().method()==='POST'),page.getByRole('button',{name:'Preview selected-event split',exact:true}).click()]);
+ const preview=await previewR.json();assert.equal(previewR.status(),201);
+ await Promise.all([page.waitForResponse(r=>r.url().endsWith('/corrections/'+preview.id+'/apply')&&r.ok()),page.getByRole('button',{name:'Apply reviewed correction',exact:true}).click()]);
+ const split=await json(root+'/issues/'+preview.plan.target+'/packet');
+ await page.getByRole('button',{name:'Details: split · applied',exact:true}).click();
+ await Promise.all([page.waitForResponse(r=>r.url().endsWith('/corrections/'+preview.id+'/undo')&&r.ok()),page.getByRole('button',{name:'Undo this correction',exact:true}).click()]);
+ const after=await counts(),alias=await json(root+'/issues/'+split.issue.short_id+'/packet'),history=await json(root+'/corrections');
+ for(const width of (phase==='after'?[1440,390]:[])){
+  await page.setViewportSize({width,height:1000});
+  await page.goto(origin+'/projects/'+project.id+'/issues');
+  await page.getByRole('heading',{name:'Issues',level:1,exact:true}).waitFor();
+  await page.locator('.issue-open').first().waitFor();
+  await page.waitForFunction(()=>!document.querySelector('.issue-counts')?.textContent.includes('…'));
+  if(phase==='after'&&width===1440)assert.equal(await page.locator('.issue-open').count(),1);
+  if(width===1440)assert.equal(await page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth+1),true);
+  await page.screenshot({path:packet+'/'+phase+'-issues-'+width+'.png',fullPage:true});
+  await page.goto(origin+'/projects/'+project.id+'/alerts');
+  await page.getByRole('button',{name:'Needs attention',exact:true}).click();
+  await page.getByRole('heading',{name:'Needs attention',exact:true}).waitFor();
+  await page.getByRole('button',{name:'Save alternate',exact:true}).waitFor();
+  if(phase==='after')await page.getByText('No work needs attention.',{exact:true}).waitFor();
+  await page.screenshot({path:packet+'/'+phase+'-attention-'+width+'.png',fullPage:true});
+ }
+ if(phase==='after'){assert.deepEqual(successAttention.rows,[]);assert.deepEqual(after,before);assert.equal(alias.issue.id,issue);assert.ok(history.some(row=>row.id===preview.id&&row.state==='undone'));}
+ const result={candidate:execFileSync('git',['rev-parse','HEAD'],{encoding:'utf8'}).trim(),phase,outcomes:outcomes.rows,successAttention:successAttention.rows.map(r=>({state:r.state,reason:r.reason,capture_loss:r.capture_loss})),counts:{before,after},restoredCount:(await json(root+'/issues/'+issue+'/packet')).issue.count,alias:{shortId:split.issue.short_id,resolves:alias.issue.id,original:issue},correction:history};
+ await writeFile(packet+'/'+phase+'-receipt.json',JSON.stringify(result,null,2)+'\n');
+ console.log(JSON.stringify(result,null,2));
+} finally {await browser?.close();await worker.stop()}

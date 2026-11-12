@@ -1,0 +1,228 @@
+{
+  "repository": "just-every/run-spool",
+  "branch": "cloud/main-spool-capture-truth-1-c1",
+  "head": "3af8a3ca856777e2445d33c6d1e5227e624b8278",
+  "tree": "9913ba0ed9caf04015a4af7d180c75618bd298b0",
+  "base": "ddeed7780feda8bb85c9b3d9dc740387c63b18db",
+  "originMain": "ddeed7780feda8bb85c9b3d9dc740387c63b18db",
+  "productCommits": 1,
+  "mergeCommits": 0,
+  "skipCiMarker": false,
+  "files": [
+    {
+      "file": "sources.lock.json",
+      "expectedSha256": "4348b6e74c17cc7d9c1e9312b7c1e29e55551e29e42aacfc5007ca2dace3a2b7",
+      "actualSha256": "4348b6e74c17cc7d9c1e9312b7c1e29e55551e29e42aacfc5007ca2dace3a2b7",
+      "matches": true
+    },
+    {
+      "file": "src/domain/alerts/digests.ts",
+      "expectedSha256": "17c7a04b36fc46c05f297801730bf0b4c6f495d209fdc83e7806712aeea1244c",
+      "actualSha256": "17c7a04b36fc46c05f297801730bf0b4c6f495d209fdc83e7806712aeea1244c",
+      "matches": true
+    },
+    {
+      "file": "src/domain/alerts/team-digests.ts",
+      "expectedSha256": "e9ab551764f3baa0aae219403125ea0716188dc48bb77c47d5fb5e517e0c2632",
+      "actualSha256": "e9ab551764f3baa0aae219403125ea0716188dc48bb77c47d5fb5e517e0c2632",
+      "matches": true
+    },
+    {
+      "file": "src/domain/api.ts",
+      "expectedSha256": "e0993ddeec42255a1f40387f00d54eebf6282482e79e211d792c39d863bdc016",
+      "actualSha256": "e0993ddeec42255a1f40387f00d54eebf6282482e79e211d792c39d863bdc016",
+      "matches": true
+    },
+    {
+      "file": "src/domain/follow-up/routes.ts",
+      "expectedSha256": "679191e21f6835e4b53caf85dac3a1235909b235d69ae1614172a5885e9643be",
+      "actualSha256": "679191e21f6835e4b53caf85dac3a1235909b235d69ae1614172a5885e9643be",
+      "matches": true
+    },
+    {
+      "file": "src/domain/follow-up/scan.ts",
+      "expectedSha256": "2e8feba23fee84e88aa97c06ae2c46f08fc8ced764c74a49e29ff2bccb847cdb",
+      "actualSha256": "2e8feba23fee84e88aa97c06ae2c46f08fc8ced764c74a49e29ff2bccb847cdb",
+      "matches": true
+    },
+    {
+      "file": "src/domain/follow-up/types.ts",
+      "expectedSha256": "93c8a028b5758e0a6233a905346a1e0e24612815a7beb91f94762f562b19db8b",
+      "actualSha256": "93c8a028b5758e0a6233a905346a1e0e24612815a7beb91f94762f562b19db8b",
+      "matches": true
+    },
+    {
+      "file": "src/domain/investigation/search.ts",
+      "expectedSha256": "c6de2da34ac5530c7aaa0cf1fa5b9a6e8835a3b3eab421fee960707fa2ce8f64",
+      "actualSha256": "c6de2da34ac5530c7aaa0cf1fa5b9a6e8835a3b3eab421fee960707fa2ce8f64",
+      "matches": true
+    },
+    {
+      "file": "src/domain/issue-attention.ts",
+      "expectedSha256": "a1d223b4fb003776c8ebc6e235b28e09f6af599c750d6112f9043cc5b0a976db",
+      "actualSha256": "a1d223b4fb003776c8ebc6e235b28e09f6af599c750d6112f9043cc5b0a976db",
+      "matches": true
+    },
+    {
+      "file": "src/domain/reports/read.ts",
+      "expectedSha256": "2d4be45351fb010d0bc2344367caec50055926ebba420f618a14cd5b927a6ce6",
+      "actualSha256": "2d4be45351fb010d0bc2344367caec50055926ebba420f618a14cd5b927a6ce6",
+      "matches": true
+    },
+    {
+      "file": "tests/agent-handoff/caps.mjs",
+      "expectedSha256": "19dcbacbdef0e1fbc044c210fc2f88ec187ed35d344b9802a30f44c62f4a4c62",
+      "actualSha256": "19dcbacbdef0e1fbc044c210fc2f88ec187ed35d344b9802a30f44c62f4a4c62",
+      "matches": true
+    },
+    {
+      "file": "tests/agent-handoff/packet.mjs",
+      "expectedSha256": "350e5890725762d0f4813201a48c9f843b9c9b3b64da2537005fc30e59c1d35d",
+      "actualSha256": "350e5890725762d0f4813201a48c9f843b9c9b3b64da2537005fc30e59c1d35d",
+      "matches": true
+    },
+    {
+      "file": "tests/operator-flow.mjs",
+      "expectedSha256": "d24ace171e18de4e9e6e28146724ee24ba2b81d98322b1bd75571cb33bbc418f",
+      "actualSha256": "d24ace171e18de4e9e6e28146724ee24ba2b81d98322b1bd75571cb33bbc418f",
+      "matches": true
+    },
+    {
+      "file": "tests/operator-ui.mjs",
+      "expectedSha256": "8f29e50839294b040fc1bb7be9c0d5b1901ccdc7d06cb225757b66865021eed7",
+      "actualSha256": "8f29e50839294b040fc1bb7be9c0d5b1901ccdc7d06cb225757b66865021eed7",
+      "matches": true
+    },
+    {
+      "file": "tests/sentry-sdk.mjs",
+      "expectedSha256": "127e93e74cb4ba64d6222d093314158a1d45cc23c20ecf948410b5f81dcf160a",
+      "actualSha256": "127e93e74cb4ba64d6222d093314158a1d45cc23c20ecf948410b5f81dcf160a",
+      "matches": true
+    }
+  ],
+  "contracts": [
+    {
+      "file": "CONTRACT.md",
+      "sha256": "ee9c871bfa25a110d3f3e61924164c75cc17ea412cb775f2e0621f114ab3594b",
+      "identicalToMain": true
+    },
+    {
+      "file": "ACCEPTANCE.md",
+      "sha256": "09f4bb713a3cf9acdde84ba680630f9e9356198966ea70f2ac502520909a9ab1",
+      "identicalToMain": true
+    },
+    {
+      "file": "docs/CLAIMS.md",
+      "sha256": "dea371100eb9ee81aee20dfc3264506a9885383e15a197f813f044a335555aba",
+      "identicalToMain": true
+    }
+  ],
+  "localChecks": [
+    {
+      "name": "agent-main-update",
+      "command": "cloud_run node tests/agent-handoff.mjs",
+      "head": "ddeed7780feda8bb85c9b3d9dc740387c63b18db",
+      "tree": "9913ba0ed9caf04015a4af7d180c75618bd298b0",
+      "trackedDiffSha256": "f8c5ad1df2a630842334ebc29164afb9864b6a05443406ad00a396e9feb9ba1c",
+      "started": "2026-11-12T10:05:55.663384+00:00",
+      "ended": "2026-11-12T10:17:26.180297+00:00",
+      "exitCode": 0,
+      "log": "agent-main-update.log",
+      "logSha256": "f5bf74a74996e86c1f05ed24bd153f616538d4ea653d2198afaac5169ea2ac5a",
+      "matchesFinalTree": true
+    },
+    {
+      "name": "sdk-main-update",
+      "command": "cloud_run node tests/sentry-sdk.mjs",
+      "head": "ddeed7780feda8bb85c9b3d9dc740387c63b18db",
+      "tree": "9913ba0ed9caf04015a4af7d180c75618bd298b0",
+      "trackedDiffSha256": "f8c5ad1df2a630842334ebc29164afb9864b6a05443406ad00a396e9feb9ba1c",
+      "started": "2026-11-12T10:05:56.920064+00:00",
+      "ended": "2026-11-12T10:11:39.788833+00:00",
+      "exitCode": 0,
+      "log": "sdk-main-update.log",
+      "logSha256": "8a69bc8b56d4cd34fc1acd6640d75b820203903e002756ba3ba431002d88c917",
+      "matchesFinalTree": true
+    },
+    {
+      "name": "triage-main-update",
+      "command": "cloud_run node tests/triage-journey.mjs",
+      "head": "ddeed7780feda8bb85c9b3d9dc740387c63b18db",
+      "tree": "9913ba0ed9caf04015a4af7d180c75618bd298b0",
+      "trackedDiffSha256": "f8c5ad1df2a630842334ebc29164afb9864b6a05443406ad00a396e9feb9ba1c",
+      "started": "2026-11-12T10:11:39.825789+00:00",
+      "ended": "2026-11-12T10:17:49.522006+00:00",
+      "exitCode": 0,
+      "log": "triage-main-update.log",
+      "logSha256": "571e8352de683492c4846e68fc8e440fcd938d5ea04ef9dd8fce237de054b3e7",
+      "matchesFinalTree": true
+    },
+    {
+      "name": "product-main-update",
+      "command": "cloud_run node tests/product-runtime.mjs",
+      "head": "ddeed7780feda8bb85c9b3d9dc740387c63b18db",
+      "tree": "9913ba0ed9caf04015a4af7d180c75618bd298b0",
+      "trackedDiffSha256": "f8c5ad1df2a630842334ebc29164afb9864b6a05443406ad00a396e9feb9ba1c",
+      "started": "2026-11-12T10:17:49.555811+00:00",
+      "ended": "2026-11-12T10:20:32.299094+00:00",
+      "exitCode": 0,
+      "log": "product-main-update.log",
+      "logSha256": "c15699ae2c08cb561fa115988757e49d37e5e4f2575c0843a5b57430b3421e58",
+      "matchesFinalTree": true
+    },
+    {
+      "name": "main-update-typecheck",
+      "command": "cloud_run pnpm typecheck",
+      "head": "ddeed7780feda8bb85c9b3d9dc740387c63b18db",
+      "tree": "9913ba0ed9caf04015a4af7d180c75618bd298b0",
+      "trackedDiffSha256": "f8c5ad1df2a630842334ebc29164afb9864b6a05443406ad00a396e9feb9ba1c",
+      "started": "2026-11-12T10:01:29.401077+00:00",
+      "ended": "2026-11-12T10:01:43.661300+00:00",
+      "exitCode": 0,
+      "log": "main-update-typecheck.log",
+      "logSha256": "c041aff842b9a0eaba7c13660c2fabfa76e5dd7cf453d06a7bfeb55d4a67c379",
+      "matchesFinalTree": true
+    },
+    {
+      "name": "main-update-build",
+      "command": "cloud_run npx -y @runeditrun/rer build",
+      "head": "ddeed7780feda8bb85c9b3d9dc740387c63b18db",
+      "tree": "9913ba0ed9caf04015a4af7d180c75618bd298b0",
+      "trackedDiffSha256": "f8c5ad1df2a630842334ebc29164afb9864b6a05443406ad00a396e9feb9ba1c",
+      "started": "2026-11-12T10:01:14.014045+00:00",
+      "ended": "2026-11-12T10:01:29.338521+00:00",
+      "exitCode": 0,
+      "log": "main-update-build.log",
+      "logSha256": "b046c6f94b7af801eba351c4ac2f27a1a9dc96b64de05033e1fe0148620a5553",
+      "matchesFinalTree": true
+    },
+    {
+      "name": "source-main-update",
+      "command": "pnpm source:check && node src/base/contract-docs.mjs check",
+      "head": "ddeed7780feda8bb85c9b3d9dc740387c63b18db",
+      "tree": "9913ba0ed9caf04015a4af7d180c75618bd298b0",
+      "exitCode": 0,
+      "observation": "Both commands ran in a set -e shell before the recorded successful main-update-build step. The shell continued only after their zero exit status.",
+      "completed": "2026-11-12T10:01:13.946527+00:00",
+      "log": "source-final-main-update.log",
+      "logSha256": "0c6974e8d155d960ce25dc4c3de3098a23ac4ea59c8ef3247cb61031d2e4195b",
+      "matchesFinalTree": true
+    }
+  ],
+  "allFinalTreeChecks": true,
+  "created": "2026-11-12T10:20:42.434653+00:00",
+  "fullPublicationScan": "fleet-host gate, unavailable in this cloud task",
+  "fullHistory": true,
+  "cleanProductCheckout": true,
+  "pushReceipt": "product-push.log",
+  "productBranchPushed": true,
+  "verify": {
+    "runId": 43199529558,
+    "head": "3af8a3ca856777e2445d33c6d1e5227e624b8278",
+    "status": "completed",
+    "conclusion": "success",
+    "html_url": "https://github.com/just-every/run-spool/actions/runs/43199529558"
+  },
+  "ciWatcherCalls": 5,
+  "builderReady": true
+}

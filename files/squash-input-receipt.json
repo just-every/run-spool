@@ -1,0 +1,22 @@
+{
+  "base": "26d13d4f574298851f25778818c1af0b9b2a2386",
+  "round": "28bd1e7857c63015aaef5f23f9dd8f7ff2e43cb3",
+  "patchSha256": "9650e05d5956e6e8da2a920805d1f680ccf5d8b2a922cf92d679d338d1477a66",
+  "files": [
+    "sources.lock.json",
+    "src/domain/alerts/digests.ts",
+    "src/domain/alerts/team-digests.ts",
+    "src/domain/api.ts",
+    "src/domain/follow-up/routes.ts",
+    "src/domain/follow-up/scan.ts",
+    "src/domain/follow-up/types.ts",
+    "src/domain/investigation/search.ts",
+    "src/domain/issue-attention.ts",
+    "src/domain/reports/read.ts",
+    "tests/agent-handoff/packet.mjs",
+    "tests/operator-flow.mjs",
+    "tests/operator-ui.mjs",
+    "tests/sentry-sdk.mjs"
+  ],
+  "fixtureChangedBeforeReproduction": false
+}

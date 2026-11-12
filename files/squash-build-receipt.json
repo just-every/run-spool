@@ -1,0 +1,11 @@
+{
+  "name": "squash-build",
+  "command": "cloud_run npx -y @runeditrun/rer build",
+  "head": "26d13d4f574298851f25778818c1af0b9b2a2386",
+  "trackedDiffSha256": "9650e05d5956e6e8da2a920805d1f680ccf5d8b2a922cf92d679d338d1477a66",
+  "started": "2026-11-12T09:41:53.787231+00:00",
+  "ended": "2026-11-12T09:44:44.626545+00:00",
+  "exitCode": 0,
+  "log": "squash-build.log",
+  "logSha256": "b8c057451804ec920a728a0b39656049e7779660663ea6b84fd8a2313403e0f8"
+}

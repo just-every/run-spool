@@ -1,0 +1,96 @@
+{
+  "head": "3af8a3ca856777e2445d33c6d1e5227e624b8278",
+  "tree": "9913ba0ed9caf04015a4af7d180c75618bd298b0",
+  "checks": [
+    {
+      "name": "agent-main-update",
+      "command": "cloud_run node tests/agent-handoff.mjs",
+      "head": "ddeed7780feda8bb85c9b3d9dc740387c63b18db",
+      "tree": "9913ba0ed9caf04015a4af7d180c75618bd298b0",
+      "trackedDiffSha256": "f8c5ad1df2a630842334ebc29164afb9864b6a05443406ad00a396e9feb9ba1c",
+      "started": "2026-11-12T10:05:55.663384+00:00",
+      "ended": "2026-11-12T10:17:26.180297+00:00",
+      "exitCode": 0,
+      "log": "agent-main-update.log",
+      "logSha256": "f5bf74a74996e86c1f05ed24bd153f616538d4ea653d2198afaac5169ea2ac5a",
+      "matchesFinalTree": true
+    },
+    {
+      "name": "sdk-main-update",
+      "command": "cloud_run node tests/sentry-sdk.mjs",
+      "head": "ddeed7780feda8bb85c9b3d9dc740387c63b18db",
+      "tree": "9913ba0ed9caf04015a4af7d180c75618bd298b0",
+      "trackedDiffSha256": "f8c5ad1df2a630842334ebc29164afb9864b6a05443406ad00a396e9feb9ba1c",
+      "started": "2026-11-12T10:05:56.920064+00:00",
+      "ended": "2026-11-12T10:11:39.788833+00:00",
+      "exitCode": 0,
+      "log": "sdk-main-update.log",
+      "logSha256": "8a69bc8b56d4cd34fc1acd6640d75b820203903e002756ba3ba431002d88c917",
+      "matchesFinalTree": true
+    },
+    {
+      "name": "triage-main-update",
+      "command": "cloud_run node tests/triage-journey.mjs",
+      "head": "ddeed7780feda8bb85c9b3d9dc740387c63b18db",
+      "tree": "9913ba0ed9caf04015a4af7d180c75618bd298b0",
+      "trackedDiffSha256": "f8c5ad1df2a630842334ebc29164afb9864b6a05443406ad00a396e9feb9ba1c",
+      "started": "2026-11-12T10:11:39.825789+00:00",
+      "ended": "2026-11-12T10:17:49.522006+00:00",
+      "exitCode": 0,
+      "log": "triage-main-update.log",
+      "logSha256": "571e8352de683492c4846e68fc8e440fcd938d5ea04ef9dd8fce237de054b3e7",
+      "matchesFinalTree": true
+    },
+    {
+      "name": "product-main-update",
+      "command": "cloud_run node tests/product-runtime.mjs",
+      "head": "ddeed7780feda8bb85c9b3d9dc740387c63b18db",
+      "tree": "9913ba0ed9caf04015a4af7d180c75618bd298b0",
+      "trackedDiffSha256": "f8c5ad1df2a630842334ebc29164afb9864b6a05443406ad00a396e9feb9ba1c",
+      "started": "2026-11-12T10:17:49.555811+00:00",
+      "ended": "2026-11-12T10:20:32.299094+00:00",
+      "exitCode": 0,
+      "log": "product-main-update.log",
+      "logSha256": "c15699ae2c08cb561fa115988757e49d37e5e4f2575c0843a5b57430b3421e58",
+      "matchesFinalTree": true
+    },
+    {
+      "name": "main-update-typecheck",
+      "command": "cloud_run pnpm typecheck",
+      "head": "ddeed7780feda8bb85c9b3d9dc740387c63b18db",
+      "tree": "9913ba0ed9caf04015a4af7d180c75618bd298b0",
+      "trackedDiffSha256": "f8c5ad1df2a630842334ebc29164afb9864b6a05443406ad00a396e9feb9ba1c",
+      "started": "2026-11-12T10:01:29.401077+00:00",
+      "ended": "2026-11-12T10:01:43.661300+00:00",
+      "exitCode": 0,
+      "log": "main-update-typecheck.log",
+      "logSha256": "c041aff842b9a0eaba7c13660c2fabfa76e5dd7cf453d06a7bfeb55d4a67c379",
+      "matchesFinalTree": true
+    },
+    {
+      "name": "main-update-build",
+      "command": "cloud_run npx -y @runeditrun/rer build",
+      "head": "ddeed7780feda8bb85c9b3d9dc740387c63b18db",
+      "tree": "9913ba0ed9caf04015a4af7d180c75618bd298b0",
+      "trackedDiffSha256": "f8c5ad1df2a630842334ebc29164afb9864b6a05443406ad00a396e9feb9ba1c",
+      "started": "2026-11-12T10:01:14.014045+00:00",
+      "ended": "2026-11-12T10:01:29.338521+00:00",
+      "exitCode": 0,
+      "log": "main-update-build.log",
+      "logSha256": "b046c6f94b7af801eba351c4ac2f27a1a9dc96b64de05033e1fe0148620a5553",
+      "matchesFinalTree": true
+    },
+    {
+      "name": "source-main-update",
+      "command": "pnpm source:check && node src/base/contract-docs.mjs check",
+      "head": "ddeed7780feda8bb85c9b3d9dc740387c63b18db",
+      "tree": "9913ba0ed9caf04015a4af7d180c75618bd298b0",
+      "exitCode": 0,
+      "observation": "Both commands ran in a set -e shell before the recorded successful main-update-build step. The shell continued only after their zero exit status.",
+      "completed": "2026-11-12T10:01:13.946527+00:00",
+      "log": "source-final-main-update.log",
+      "logSha256": "0c6974e8d155d960ce25dc4c3de3098a23ac4ea59c8ef3247cb61031d2e4195b",
+      "matchesFinalTree": true
+    }
+  ]
+}

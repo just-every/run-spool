@@ -1,0 +1,14 @@
+{
+  "previousBase": "26d13d4f574298851f25778818c1af0b9b2a2386",
+  "updatedBase": "ddeed7780feda8bb85c9b3d9dc740387c63b18db",
+  "change": "Split Settings into seven addressable sections on current main",
+  "conflicts": [
+    "sources.lock.json"
+  ],
+  "resolution": "Retain updated main source lock, regenerate from combined source last, retain every newer Settings navigation and assertion",
+  "mainCapsFixtureUnchanged": true,
+  "contractsIdenticalToMain": true,
+  "productCommitCreatedBeforeUpdate": false,
+  "publishedHistoryRewritten": false,
+  "finalTree": "9913ba0ed9caf04015a4af7d180c75618bd298b0"
+}

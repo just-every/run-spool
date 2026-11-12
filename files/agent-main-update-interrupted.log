@@ -1,0 +1,22 @@
+rer toolchain: node v24.19.0 pnpm 10.12.4 (pins 22.20.0 / 10.12.4)
+verify
+Heavy job admitted: Spool verify:suite [6179c8701e00]
+STAGE setup
+STEP setup/startDev
+STEP setup/dev-ready
+END setup/dev-ready seconds=35.777
+END setup/startDev seconds=35.811
+STAGE ui
+STEP ui/launchBrowser
+END ui/launchBrowser seconds=0.230
+STEP ui/browser.newContext
+END ui/browser.newContext seconds=0.015
+STEP ui/openGate
+END ui/openGate seconds=0.062
+STEP ui/context.addCookies
+END ui/context.addCookies seconds=0.001
+STEP ui/context.newPage
+END ui/context.newPage seconds=0.122
+STEP ui/page.goto
+END ui/page.goto seconds=2.839
+STEP ui/page.waitForLoadState

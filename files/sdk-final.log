@@ -1,0 +1,62 @@
+rer toolchain: node v24.19.0 pnpm 10.12.4 (pins 22.20.0 / 10.12.4)
+[33m▲ [43;33m[[43;30mWARNING[43;33m][0m [1mProxy environment variables detected. We'll use your proxy for fetch requests.[0m
+
+
+{"stage":"browser-qualification","width":1440,"target":"reference"}
+{"stage":"browser-round","width":1440,"target":"reference","round":0}
+[SDK-001] lifecycle: original session
+[SDK-001] lifecycle: focus released
+[SDK-001] lifecycle: window minimized
+[SDK-001] lifecycle: report sent
+{"stage":"browser-round","width":1440,"target":"reference","round":1}
+[SDK-001] lifecycle: original session
+[SDK-001] lifecycle: focus released
+[SDK-001] lifecycle: window minimized
+[SDK-001] lifecycle: report sent
+{"stage":"browser-qualification","width":1440,"target":"qualification"}
+{"stage":"browser-round","width":1440,"target":"qualification","round":0}
+[SDK-001] lifecycle: original session
+[SDK-001] lifecycle: focus released
+[SDK-001] lifecycle: window minimized
+[SDK-001] lifecycle: report sent
+{"stage":"browser-round","width":1440,"target":"qualification","round":1}
+[SDK-001] lifecycle: original session
+[SDK-001] lifecycle: focus released
+[SDK-001] lifecycle: window minimized
+[SDK-001] lifecycle: report sent
+{"qualification":"[SDK-001] browser","width":1440,"sent":{"session":6,"transaction":4,"event":4,"attachment":2,"log":2,"replay_event":2,"replay_recording":2,"feedback":4,"span":2,"client_report":2},"outcomes":{"accepted":4,"client_discarded:error:before_send":6,"feedback_accepted":4,"sentry_unsupported_attachment":2,"sentry_unsupported_other_telemetry":2,"sentry_unsupported_performance":6,"sentry_unsupported_replay":4,"session_stored":6}}
+PROBE SDK-004 acceptance5: actual Sentry widget, handled then automatic error across reloads at 1440 -> 4 callback IDs equal emitted, inbox and archived reports; exact occurrence and issue links; feedback_accepted=4
+{"stage":"browser-qualification","width":390,"target":"reference"}
+{"stage":"browser-round","width":390,"target":"reference","round":0}
+[SDK-001] lifecycle: original session
+[SDK-001] lifecycle: focus released
+[SDK-001] lifecycle: window minimized
+[SDK-001] lifecycle: report sent
+{"stage":"browser-round","width":390,"target":"reference","round":1}
+[SDK-001] lifecycle: original session
+[SDK-001] lifecycle: focus released
+[SDK-001] lifecycle: window minimized
+[SDK-001] lifecycle: report sent
+{"stage":"browser-qualification","width":390,"target":"qualification"}
+{"stage":"browser-round","width":390,"target":"qualification","round":0}
+[SDK-001] lifecycle: original session
+[SDK-001] lifecycle: focus released
+[SDK-001] lifecycle: window minimized
+[SDK-001] lifecycle: report sent
+{"stage":"browser-round","width":390,"target":"qualification","round":1}
+[SDK-001] lifecycle: original session
+[SDK-001] lifecycle: focus released
+[SDK-001] lifecycle: window minimized
+[SDK-001] lifecycle: report sent
+{"qualification":"[SDK-001] browser","width":390,"sent":{"session":6,"transaction":4,"event":4,"attachment":2,"log":2,"replay_event":2,"replay_recording":2,"feedback":4,"span":2,"client_report":2},"outcomes":{"accepted":4,"client_discarded:error:before_send":6,"feedback_accepted":4,"sentry_unsupported_attachment":2,"sentry_unsupported_other_telemetry":2,"sentry_unsupported_performance":6,"sentry_unsupported_replay":4,"session_stored":6}}
+PROBE SDK-004 acceptance5: actual Sentry widget, handled then automatic error across reloads at 390 -> 4 callback IDs equal emitted, inbox and archived reports; exact occurrence and issue links; feedback_accepted=4
+SDK-023 populated upgrade: existing project, key and occurrence preserved; same key defaults lazy and captures once after migration0061
+{"clause":"SDK-023","captures":8,"widths":[1440,390],"icons":"no icon-only control on the touched screen","loader":"/sdk/<public-key>.min.js","custody":"archive excludes key; erasure removes settings"}
+SDK-006 real unmodified Node SDK: every filter enabled through app at 1440/390, nonmatches, exact counters, no issues/alerts/accepted units, disable and later acceptance.
+kj::getCaughtExceptionAsKj() = kj/async-io-unix.c++:186: disconnected: ::write(fd, buffer.begin(), buffer.size()): Broken pipe
+stack: /workspace/run-spool/node_modules/.pnpm/@cloudflare+workerd-linux-64@1.20260907.1/node_modules/@cloudflare/workerd-linux-64/bin/workerd@56a2038 /workspace/run-spool/node_modules/.pnpm/@cloudflare+workerd-linux-64@1.20260907.1/node_modules/@cloudflare/workerd-linux-64/bin/workerd@56a2ef1 /workspace/run-spool/node_modules/.pnpm/@cloudflare+workerd-linux-64@1.20260907.1/node_modules/@cloudflare/workerd-linux-64/bin/workerd@583f90f /workspace/run-spool/node_modules/.pnpm/@cloudflare+workerd-linux-64@1.20260907.1/node_modules/@cloudflare/workerd-linux-64/bin/workerd@583fb55 /workspace/run-spool/node_modules/.pnpm/@cloudflare+workerd-linux-64@1.20260907.1/node_modules/@cloudflare/workerd-linux-64/bin/workerd@5a392a8 /workspace/run-spool/node_modules/.pnpm/@cloudflare+workerd-linux-64@1.20260907.1/node_modules/@cloudflare/workerd-linux-64/bin/workerd@589bd33 /workspace/run-spool/node_modules/.pnpm/@cloudflare+workerd-linux-64@1.20260907.1/node_modules/@cloudflare/workerd-linux-64/bin/workerd@589fad7 /workspace/run-spool/node_modules/.pnpm/@cloudflare+workerd-linux-64@1.20260907.1/node_modules/@cloudflare/workerd-linux-64/bin/workerd@589fe48 /workspace/run-spool/node_modules/.pnpm/@cloudflare+workerd-linux-64@1.20260907.1/node_modules/@cloudflare/workerd-linux-64/bin/workerd@3343740 /workspace/run-spool/node_modules/.pnpm/@cloudflare+workerd-linux-64@1.20260907.1/node_modules/@cloudflare/workerd-linux-64/bin/workerd@247f477
+{"clause":"SDK-024","widths":[1440,390],"routed":4,"unrouted":2,"receiver":"recorded double of the documented Uptime heartbeat door","custody":"not archived, restored inert, erased with the project"}
+[SDK-005] default Node healthy/crashed and browser healthy/unhandled sessions, exact reference reconciliation, aggregate unknown users, missing release/origin/key refusal, read grant, JSON, 1440/390, archive/restore and erasure passed
+[SDK-005] session-only SDK backoff, mixed errors, deadline recovery, exact rate, capacity, invalid and discard accounting and grant fences passed
+[SDK-008] unmodified browser/Python: explicit keep, count-only preview, audited hash/drop conversion, count-only grants/packets, literal IPv4/IPv6, unresolved auto addresses, private restore and erasure; 1440/390 passed
+{"passed":true,"browser":"11.6.0","node":"11.6.0","proof":"Unmodified SDK programs/configs with DSN switched only: browser 1440/390 original source line through build plugin and CLI, Node gzip capture+flush."}

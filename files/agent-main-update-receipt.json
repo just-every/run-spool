@@ -1,0 +1,12 @@
+{
+  "name": "agent-main-update",
+  "command": "cloud_run node tests/agent-handoff.mjs",
+  "head": "ddeed7780feda8bb85c9b3d9dc740387c63b18db",
+  "tree": "9913ba0ed9caf04015a4af7d180c75618bd298b0",
+  "trackedDiffSha256": "f8c5ad1df2a630842334ebc29164afb9864b6a05443406ad00a396e9feb9ba1c",
+  "started": "2026-11-12T10:05:55.663384+00:00",
+  "ended": "2026-11-12T10:17:26.180297+00:00",
+  "exitCode": 0,
+  "log": "agent-main-update.log",
+  "logSha256": "f5bf74a74996e86c1f05ed24bd153f616538d4ea653d2198afaac5169ea2ac5a"
+}
