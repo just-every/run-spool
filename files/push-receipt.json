@@ -1,0 +1,17 @@
+{
+  "command": "python3 $HOME/rer-consolidation/.tools/cloud-push.py origin cloud/main-spool-plain-delivery-labels-1-r1-c2",
+  "underlying_command": "git push --porcelain origin HEAD:refs/heads/cloud/main-spool-plain-delivery-labels-1-r1-c2",
+  "repository": "just-every/run-spool",
+  "branch": "cloud/main-spool-plain-delivery-labels-1-r1-c2",
+  "head": "d92a108f47dcb3b59d2b8b085e4720ed1077830c",
+  "status": "pushed",
+  "attempts": 1,
+  "exit_code": 0,
+  "identity_audit": "Run Edit Run fleet <fleet@runeditrun.com>\nRun Edit Run fleet <fleet@runeditrun.com>\n\n",
+  "trailers": "absent",
+  "product_commit_count": 1,
+  "merge_commit_count": 0,
+  "remote_head_verified": "d92a108f47dcb3b59d2b8b085e4720ed1077830c",
+  "verify_run_id": 43231049521,
+  "verify_conclusion": "success"
+}

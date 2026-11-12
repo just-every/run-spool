@@ -1,0 +1,38 @@
+{
+  "head": "d92a108f47dcb3b59d2b8b085e4720ed1077830c",
+  "origin_main": "aff1c97b9c3b3dbba92472102265f0171fdb3bf3",
+  "parent": "aff1c97b9c3b3dbba92472102265f0171fdb3bf3",
+  "documents": [
+    {
+      "path": "CONTRACT.md",
+      "main_blob": "98d20645c67acd0ea21f39ea97855ba566a79e62",
+      "candidate_blob": "98d20645c67acd0ea21f39ea97855ba566a79e62",
+      "byte_identical": true
+    },
+    {
+      "path": "ACCEPTANCE.md",
+      "main_blob": "e791c4dd104e25ccdf1f5170532be6bd65317df6",
+      "candidate_blob": "e791c4dd104e25ccdf1f5170532be6bd65317df6",
+      "byte_identical": true
+    },
+    {
+      "path": "docs/CLAIMS.md",
+      "main_blob": "800c76e30c13423fb5df2cda55ab7829ff308f40",
+      "candidate_blob": "800c76e30c13423fb5df2cda55ab7829ff308f40",
+      "byte_identical": true
+    }
+  ],
+  "existing_release_test_lines_preserved": 327,
+  "new_release_test_lines": 30,
+  "test_registration_delta": 0,
+  "contract_counts_before": {
+    "done": 23,
+    "partial": 54,
+    "missing": 28
+  },
+  "contract_counts_after": {
+    "done": 23,
+    "partial": 54,
+    "missing": 28
+  }
+}

@@ -1,0 +1,14 @@
+{
+  "command": "gh api repos/just-every/run-spool --jq {full_name,private,visibility,html_url}",
+  "result": {
+    "full_name": "just-every/run-spool",
+    "private": false,
+    "visibility": "public",
+    "html_url": "https://github.com/just-every/run-spool"
+  },
+  "github_calls_used": 1,
+  "candidate_diff_github_repositories": [
+    "just-every/run-spool"
+  ],
+  "bare_repository_strings_added": []
+}

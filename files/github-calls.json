@@ -1,0 +1,48 @@
+{
+  "calls": [
+    {
+      "purpose": "public-repository check",
+      "number": 1
+    },
+    {
+      "number": 2,
+      "args": [
+        "repos/just-every/run-spool/actions/runs?head_sha=d92a108f47dcb3b59d2b8b085e4720ed1077830c&per_page=100",
+        "--jq",
+        "[.workflow_runs[]|{id,name,status,conclusion,head_sha,html_url,head_branch,event}]"
+      ],
+      "time": 1794491435.390467,
+      "exit_code": 0
+    },
+    {
+      "number": 3,
+      "args": [
+        "repos/just-every/run-spool/actions/runs/43231049521",
+        "--jq",
+        "{status,conclusion,head_sha,html_url}"
+      ],
+      "time": 1794491736.781441,
+      "exit_code": 0
+    },
+    {
+      "number": 4,
+      "args": [
+        "repos/just-every/run-spool/actions/runs/43231049521",
+        "--jq",
+        "{status,conclusion,head_sha,html_url}"
+      ],
+      "time": 1794492038.214918,
+      "exit_code": 0
+    },
+    {
+      "number": 5,
+      "args": [
+        "repos/just-every/run-spool/actions/runs/43231049521",
+        "--jq",
+        "{status,conclusion,head_sha,html_url}"
+      ],
+      "time": 1794492339.6728935,
+      "exit_code": 0
+    }
+  ]
+}

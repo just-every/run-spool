@@ -1,0 +1,91 @@
+{
+  "observed_at": "2026-11-12T13:50:10.488794+00:00",
+  "repository": "just-every/run-spool",
+  "branch": "cloud/main-spool-plain-delivery-labels-1-r1-c2",
+  "head": "d92a108f47dcb3b59d2b8b085e4720ed1077830c",
+  "base": "aff1c97b9c3b3dbba92472102265f0171fdb3bf3",
+  "product_commit_count": 1,
+  "checks": [
+    {
+      "command": "cloud_run npx -y @runeditrun/rer setup --owner-email fleet@runeditrun.com --non-interactive",
+      "exit_code": 0,
+      "result": "Local owner setup and migrations completed"
+    },
+    {
+      "command": "cloud_run npx -y @runeditrun/rer build",
+      "exit_code": 0,
+      "result": "Application built"
+    },
+    {
+      "command": "pnpm typecheck",
+      "exit_code": 0,
+      "result": "TypeScript passed"
+    },
+    {
+      "command": "cloud_run node /tmp/spool-release-identity-runner.mjs",
+      "entry": "tests/release-identity-flow.mjs#releaseIdentityFlow",
+      "exit_code": 0,
+      "result": "Existing flow invoked in isolation with its Worker/auth/policy harness; 1440/390 proof"
+    },
+    {
+      "command": "cloud_run node tests/alerts-ui.mjs",
+      "exit_code": 0,
+      "result": "Full existing alerts browser journey and its baseline/Slack helpers passed; 1440/390 proof"
+    },
+    {
+      "command": "node src/base/contract-docs.mjs check",
+      "exit_code": 0,
+      "result": "0 errors, 0 warnings; documents current"
+    },
+    {
+      "command": "cloud_run pnpm run check -- --profile first-party",
+      "exit_code": 0,
+      "result": "First-party check passed"
+    },
+    {
+      "command": "node scripts/edition-authoring/cli.mjs lock",
+      "exit_code": 0,
+      "result": "Source lock regenerated last"
+    },
+    {
+      "command": "pnpm source:check",
+      "exit_code": 0,
+      "result": "ok: true"
+    },
+    {
+      "command": "git diff --cached --check",
+      "exit_code": 0,
+      "result": "Whitespace check passed"
+    }
+  ],
+  "local_node": "24.19.0",
+  "pnpm": "10.12.4",
+  "browser": "/usr/bin/chromium, --no-sandbox",
+  "assertion_width": 1440,
+  "proof_widths": [
+    1440,
+    390
+  ],
+  "new_registrations": 0,
+  "removed_or_skipped_release_assertions": 0,
+  "changed_source_sha256": {
+    "sources.lock.json": "fa9df54875cc8b47e74ba6bc4f9bbb84b167663114396a3d5735ee4df540f230",
+    "src/ui/alerts/AlertControls.tsx": "12ce8e4eff46db7cbd0bbaa027cb9248067480f3f89d472cd20f15a9a743b31a",
+    "src/ui/alerts/AlertDeliveries.tsx": "8a25f86ce83f4d1877014393a247d561e829cf6126a12b389cb8b39af4bdb641",
+    "src/ui/alerts/client.ts": "749d4cc0d1add72c7ce3c3dec066d9e324e1b082d8ea29d9c5485c26d1b82b41",
+    "src/ui/workbench/DeploymentHistory.tsx": "22bd90bd66d933dba6eaa264921f27ca2705a46c3e3805cc3c96047e0d7f73b5",
+    "src/ui/workbench/EventExplorer.tsx": "8c366fa47c4e17d571f343594ecc982d81c1361dcaeb273befe3ebb9d7b8ffad",
+    "src/ui/workbench/IssueList.tsx": "2edff6e400cf4597a83f01caddcf0b4b6569034b2421b34878fa6ba0ddb251bf",
+    "src/ui/workbench/IssueView.tsx": "0facba1a6c9c2e53dc848eb17b6c6673653f662ee9d346337b2e6ed6933d620a",
+    "src/ui/workbench/ReleasesView.tsx": "3890d920892514ded029b2964ef76bbc9423bcd1f68c3f8cbf3033db7313591b",
+    "src/ui/workbench/SourceMapSetup.tsx": "a2c0d1d8e134ad2c5c803c8fe0df4e0bf9cce2c002dc0a4759398b63f57265c1",
+    "src/ui/workbench/releaseLabels.ts": "1f756ec1516b712ee49c781d8b37debf782cc6f9ff6f61a383627e3ffd24cf5f",
+    "tests/alerts-ui.mjs": "5b995c577f1ef94ac950ede9b51deb3a813b954d240a86adfe1bbfc1f9f67565",
+    "tests/release-identity-flow.mjs": "0063d99925e141f5f75151228cffe781432b12cbe59cfcf830355abe16c9f60a"
+  },
+  "preserved_main_documents": {
+    "CONTRACT.md": "98d20645c67acd0ea21f39ea97855ba566a79e62",
+    "ACCEPTANCE.md": "e791c4dd104e25ccdf1f5170532be6bd65317df6",
+    "docs/CLAIMS.md": "800c76e30c13423fb5df2cda55ab7829ff308f40"
+  }
+}

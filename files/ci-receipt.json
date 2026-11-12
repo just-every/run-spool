@@ -1,0 +1,37 @@
+{
+  "head": "d92a108f47dcb3b59d2b8b085e4720ed1077830c",
+  "run_id": 43231049521,
+  "url": "https://github.com/just-every/run-spool/actions/runs/43231049521",
+  "observations": [
+    {
+      "conclusion": null,
+      "event": "push",
+      "head_branch": "cloud/main-spool-plain-delivery-labels-1-r1-c2",
+      "head_sha": "d92a108f47dcb3b59d2b8b085e4720ed1077830c",
+      "html_url": "https://github.com/just-every/run-spool/actions/runs/43231049521",
+      "id": 43231049521,
+      "name": "Verify",
+      "status": "in_progress"
+    },
+    {
+      "conclusion": null,
+      "head_sha": "d92a108f47dcb3b59d2b8b085e4720ed1077830c",
+      "html_url": "https://github.com/just-every/run-spool/actions/runs/43231049521",
+      "status": "in_progress"
+    },
+    {
+      "conclusion": null,
+      "head_sha": "d92a108f47dcb3b59d2b8b085e4720ed1077830c",
+      "html_url": "https://github.com/just-every/run-spool/actions/runs/43231049521",
+      "status": "in_progress"
+    },
+    {
+      "conclusion": "success",
+      "head_sha": "d92a108f47dcb3b59d2b8b085e4720ed1077830c",
+      "html_url": "https://github.com/just-every/run-spool/actions/runs/43231049521",
+      "status": "completed"
+    }
+  ],
+  "status": "completed",
+  "conclusion": "success"
+}

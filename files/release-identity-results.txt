@@ -1,0 +1,7 @@
+▲ [WARNING] Proxy environment variables detected. We'll use your proxy for fetch requests.
+
+
+[TEAM-003] next-release regression, same/old/no-release accounting, previewed revision-fenced policy and unchanged plain resolution passed
+SDK-009 an explicit dist 'sentry-no-dist' stays distinct from no dist, and next/named-release resolution regresses only on a later release (owner; two auto semvers and two SHA releases).
+Release identity public flow passed: optional release, automatic/dists, enrichment, semantic regression, plain resolution, counted strict/pattern/name outcomes, archive restore and 1440/390 settings/history/triage.
+PASS tests/release-identity-flow.mjs#releaseIdentityFlow, existing public HTTP journey, 1440/390 screens
