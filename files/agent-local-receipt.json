@@ -1,0 +1,14 @@
+{
+  "candidate": "28bd1e7857c63015aaef5f23f9dd8f7ff2e43cb3",
+  "command": "RER_CHROMIUM_EXECUTABLE_PATH=/usr/bin/chromium cloud_run node tests/agent-handoff.mjs",
+  "exit_code": 1,
+  "regression": "importGap public import/list/search/packet checks passed; run continued to scheduled-retention and caps",
+  "failure": {
+    "stage": "caps",
+    "step": "setup",
+    "timeout_seconds": 90,
+    "location": "tests/agent-handoff/trace.mjs:41:12"
+  },
+  "cleanup": "all named browser, MCP, dev-server and checkout children stopped; checkout directory removed",
+  "scope": "installer setup after reset is unchanged by this round; final exact-SHA Verify remains authoritative"
+}

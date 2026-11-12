@@ -1,80 +1,144 @@
 {
-  "candidate": "958ff23cd5acbd7190a52fbebcb3a2209cf64ad8",
+  "candidate": "28bd1e7857c63015aaef5f23f9dd8f7ff2e43cb3",
   "checks": [
     {
       "command": "npx -y @runeditrun/rer setup --owner-email fleet@runeditrun.com --non-interactive",
       "exit_code": 0,
       "execution": "toolchain source and cloud_run",
-      "result": "setup completed"
+      "result": "setup completed",
+      "proofBasis": "first candidate or precommit identical source"
     },
     {
       "command": "npx -y @runeditrun/rer build",
       "exit_code": 0,
       "execution": "cloud_run",
-      "result": "application built"
+      "result": "application built",
+      "proofBasis": "first candidate or precommit identical source"
     },
     {
       "command": "pnpm typecheck",
       "exit_code": 0,
       "execution": "toolchain source",
-      "result": "TypeScript clean"
+      "result": "TypeScript clean",
+      "proofBasis": "first candidate or precommit identical source"
     },
     {
       "command": "node src/base/contract-docs.mjs check",
       "exit_code": 0,
       "execution": "toolchain source",
-      "result": "documents current; no prose errors or warnings"
+      "result": "documents current; no prose errors or warnings",
+      "proofBasis": "first candidate or precommit identical source"
     },
     {
       "command": "node tests/sentry-sdk.mjs",
       "exit_code": 0,
       "execution": "cloud_run; /usr/bin/chromium --no-sandbox",
-      "result": "all existing SDK flows plus successful intake, genuine losses and legacy repair passed"
+      "result": "all existing SDK flows plus successful intake, genuine losses and legacy repair passed",
+      "proofBasis": "first candidate or precommit identical source"
     },
     {
       "command": "node tests/triage-journey.mjs",
       "exit_code": 0,
       "execution": "cloud_run; /usr/bin/chromium --no-sandbox",
-      "result": "22 groups; 97 existing JPG captures at 1440 and 390; new count checks passed at 1440"
+      "result": "22 groups; 97 existing JPG captures at 1440 and 390; new count checks passed at 1440",
+      "proofBasis": "first candidate or precommit identical source"
     },
     {
       "command": "node tests/product-runtime.mjs --no-browser",
       "exit_code": 1,
       "execution": "initial concurrent execution",
-      "result": "shared local wrapper interference: POST fixture clock HTTP 404; replaced by sequential run"
+      "result": "shared local wrapper interference: POST fixture clock HTTP 404; replaced by sequential run",
+      "proofBasis": "first candidate or precommit identical source"
     },
     {
       "command": "node tests/product-runtime.mjs --no-browser",
       "exit_code": 0,
       "execution": "sequential cloud_run",
-      "result": "emitted Worker/D1, operatorFlow, archive/restore and retention passed"
+      "result": "emitted Worker/D1, operatorFlow, archive/restore and retention passed",
+      "proofBasis": "first candidate or precommit identical source"
     },
     {
       "command": "node scripts/edition-authoring/cli.mjs lock",
       "exit_code": 0,
       "execution": "after main fetch/rebase, last source change",
-      "result": "source lock regenerated"
+      "result": "source lock regenerated",
+      "proofBasis": "first candidate or precommit identical source"
     },
     {
       "command": "pnpm source:check",
       "exit_code": 0,
       "execution": "toolchain source",
-      "result": "source lock current"
+      "result": "source lock current",
+      "proofBasis": "first candidate or precommit identical source"
     },
     {
       "command": "git diff --check",
       "exit_code": 0,
       "execution": "candidate commit",
-      "result": "clean"
+      "result": "clean",
+      "proofBasis": "first candidate or precommit identical source"
     },
     {
       "command": "node .artifacts/capture-truth.mjs (PROOF_PHASE=after)",
       "exit_code": 0,
       "execution": "cloud_run, exact committed candidate; /usr/bin/chromium --no-sandbox",
-      "result": "success-only intake and rendered split/apply/undo: count restoration, alias/history, screenshots at 1440/390"
+      "result": "success-only intake and rendered split/apply/undo: count restoration, alias/history, screenshots at 1440/390",
+      "proofBasis": "first candidate or precommit identical source"
+    },
+    {
+      "command": "npx -y @runeditrun/rer build",
+      "exit_code": 0,
+      "execution": "cloud_run; narrowed filter",
+      "result": "final application built"
+    },
+    {
+      "command": "pnpm typecheck",
+      "exit_code": 0,
+      "result": "final shared listing predicate typechecks"
+    },
+    {
+      "command": "tests/agent-handoff/packet.mjs#importGap via emitted Worker harness",
+      "exit_code": 0,
+      "result": "public import retains zero-event imported history in list, search and gap-bearing packet"
+    },
+    {
+      "command": "node .artifacts/capture-truth.mjs",
+      "exit_code": 0,
+      "result": "narrowed filter still restores native split/undo counts, alias and history"
+    },
+    {
+      "command": "git merge --no-edit origin/main",
+      "exit_code": 0,
+      "result": "published history preserved; main already up to date"
+    },
+    {
+      "command": "node scripts/edition-authoring/cli.mjs lock; pnpm source:check",
+      "exit_code": 0,
+      "result": "source lock regenerated last and checked before second commit"
+    },
+    {
+      "candidate": "28bd1e7857c63015aaef5f23f9dd8f7ff2e43cb3",
+      "command": "RER_CHROMIUM_EXECUTABLE_PATH=/usr/bin/chromium cloud_run node tests/agent-handoff.mjs",
+      "exit_code": 1,
+      "regression": "importGap public import/list/search/packet checks passed; run continued to scheduled-retention and caps",
+      "failure": {
+        "stage": "caps",
+        "step": "setup",
+        "timeout_seconds": 90,
+        "location": "tests/agent-handoff/trace.mjs:41:12"
+      },
+      "cleanup": "all named browser, MCP, dev-server and checkout children stopped; checkout directory removed",
+      "scope": "installer setup after reset is unchanged by this round; final exact-SHA Verify remains authoritative"
+    },
+    {
+      "candidate": "28bd1e7857c63015aaef5f23f9dd8f7ff2e43cb3",
+      "command": "node .artifacts/capture-truth.mjs (PROOF_PHASE=after)",
+      "exit_code": 0,
+      "result": "final exact-head public SDK and rendered split/apply/undo proof passed with final 1440/390 screenshots"
     }
   ],
   "newTestRegistrations": 0,
   "testFilesAdded": 0,
-  "fullLocalVerify": "not run; branch Verify is the full wall"
+  "fullLocalVerify": "not run; branch Verify is the full wall",
+  "firstCandidate": "958ff23cd5acbd7190a52fbebcb3a2209cf64ad8"
 }

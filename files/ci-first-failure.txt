@@ -1,0 +1,25 @@
+Command: gh run view 43180790185 --repo just-every/run-spool --job 131056447085 --log-failed
+Root failure: imported issue-only history was absent from the ordinary API list; corrected by preserving both supported imported algorithms.
+Actual non-secret diagnostic tail:
+verify (agent-handoff)	Run suites	2026-11-12T08:18:27.3599042Z END second-origin/throwPage.evaluate seconds=0.002
+verify (agent-handoff)	Run suites	2026-11-12T08:18:27.5718203Z STEP second-origin/throwPage.close
+verify (agent-handoff)	Run suites	2026-11-12T08:18:27.5776654Z END second-origin/throwPage.close seconds=0.006
+verify (agent-handoff)	Run suites	2026-11-12T08:18:27.5788769Z STAGE scope
+verify (agent-handoff)	Run suites	2026-11-12T08:18:36.0887504Z STAGE clients
+verify (agent-handoff)	Run suites	2026-11-12T08:18:50.0050027Z STAGE selector-refusals
+verify (agent-handoff)	Run suites	2026-11-12T08:18:58.1504627Z AI-001 packet-selector refusals passed: HTTP 403, CLI 3 and official MCP 3 for traversal, command and instruction; packet, product rows and authority preserved.
+verify (agent-handoff)	Run suites	2026-11-12T08:19:08.0256364Z STAGE grouping-proposals
+verify (agent-handoff)	Run suites	2026-11-12T08:19:25.3229729Z PROBE SURFACE-001 4: official MCP over settled project a -> all five legacy operations match the three canonical names; complete reads, validated inert proposals, safe summaries, invalid arguments, forbidden writes, foreign projects and next-call revocation checked
+verify (agent-handoff)	Run suites	2026-11-12T08:19:25.3304600Z STAGE retention-ui
+verify (agent-handoff)	Run suites	2026-11-12T08:19:52.0056133Z [GOV-002] windows, preview, typed confirmation, legal hold, release, packet note, archive round trip and held erasure passed; 1440/390 captures
+verify (agent-handoff)	Run suites	2026-11-12T08:19:52.0070191Z STEP retention-ui/browser.close
+verify (agent-handoff)	Run suites	2026-11-12T08:19:52.0224326Z END retention-ui/browser.close seconds=0.017
+verify (agent-handoff)	Run suites	2026-11-12T08:19:52.0225213Z STAGE gaps
+verify (agent-handoff)	Run suites	2026-11-12T08:19:53.7664450Z {"journey":"agent-handoff","stage":"gaps","type":"TypeError","message":"assertion failed","stack":["    at importGap (file:///home/runner/work/run-spool/run-spool/tests/agent-handoff/packet.mjs:47:53)","    at async file:///home/runner/work/run-spool/run-spool/tests/agent-handoff.mjs:168:1256"]}
+verify (agent-handoff)	Run suites	2026-11-12T08:19:53.7666488Z STEP gaps/stopDev
+verify (agent-handoff)	Run suites	2026-11-12T08:19:53.7669636Z STEP gaps/dev-stop
+verify (agent-handoff)	Run suites	2026-11-12T08:19:53.9285716Z END gaps/dev-stop seconds=0.162
+verify (agent-handoff)	Run suites	2026-11-12T08:19:53.9296258Z END gaps/stopDev seconds=0.163
+verify (agent-handoff)	Run suites	2026-11-12T08:19:54.5952946Z Agent handoff cleanup: [{"name":"mcp","outcome":"stopped"},{"name":"browser","outcome":"stopped"},{"name":"second-origin","outcome":"stopped"},{"name":"redirect-edge","outcome":"stopped"},{"name":"receiving-edge","outcome":"stopped"},{"name":"checkout","outcome":"stopped","children":"stopped","directory":"removed"}]
+verify (agent-handoff)	Run suites	2026-11-12T08:19:54.6441579Z  ELIFECYCLE  Command failed with exit code 1.
+verify (agent-handoff)	Run suites	2026-11-12T08:19:54.6595032Z ##[error]Process completed with exit code 1.
