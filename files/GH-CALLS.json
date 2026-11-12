@@ -1,0 +1,80 @@
+[
+  {
+    "call": 1,
+    "started": "2026-11-12T12:01:31.475095+00:00",
+    "timestamp": 1794484890.8380678,
+    "command": [
+      "gh",
+      "api",
+      "repos/just-every/run-spool/actions/runs?head_sha=e974d4eaef7facdbdb0843933bdb95447fe83ade&per_page=100",
+      "--jq",
+      ".workflow_runs | map({id,name,status,conclusion,head_sha,html_url})"
+    ],
+    "exit": 0
+  },
+  {
+    "call": 2,
+    "started": "2026-11-12T12:06:31.601451+00:00",
+    "timestamp": 1794485190.9624853,
+    "command": [
+      "gh",
+      "api",
+      "repos/just-every/run-spool/actions/runs/43214135422",
+      "--jq",
+      "{status,conclusion,head_sha,html_url}"
+    ],
+    "exit": 0
+  },
+  {
+    "call": 3,
+    "started": "2026-11-12T12:11:31.723308+00:00",
+    "timestamp": 1794485491.0930932,
+    "command": [
+      "gh",
+      "api",
+      "repos/just-every/run-spool/actions/runs/43214135422",
+      "--jq",
+      "{status,conclusion,head_sha,html_url}"
+    ],
+    "exit": 0
+  },
+  {
+    "call": 4,
+    "started": "2026-11-12T12:16:31.806658+00:00",
+    "timestamp": 1794485791.2301555,
+    "command": [
+      "gh",
+      "api",
+      "repos/just-every/run-spool/actions/runs/43214135422",
+      "--jq",
+      "{status,conclusion,head_sha,html_url}"
+    ],
+    "exit": 0
+  },
+  {
+    "call": 5,
+    "started": "2026-11-12T12:21:31.945230+00:00",
+    "timestamp": 1794486091.3744714,
+    "command": [
+      "gh",
+      "api",
+      "repos/just-every/run-spool/actions/runs/43214135422",
+      "--jq",
+      "{status,conclusion,head_sha,html_url}"
+    ],
+    "exit": 0
+  },
+  {
+    "call": 6,
+    "started": "2026-11-12T12:26:32.099027+00:00",
+    "timestamp": 1794486391.5174649,
+    "command": [
+      "gh",
+      "api",
+      "repos/just-every/run-spool/actions/runs/43214135422",
+      "--jq",
+      "{status,conclusion,head_sha,html_url}"
+    ],
+    "exit": 0
+  }
+]

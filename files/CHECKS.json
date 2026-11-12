@@ -1,0 +1,82 @@
+[
+  {
+    "name": "site-build",
+    "command": [
+      "npx",
+      "-y",
+      "@runeditrun/rer",
+      "build",
+      "--site"
+    ],
+    "head": "e974d4eaef7facdbdb0843933bdb95447fe83ade",
+    "started": "2026-11-12T12:00:31.149269+00:00",
+    "seconds": 7.21,
+    "exit": 0,
+    "log": "site-build.log"
+  },
+  {
+    "name": "docs-and-source-check",
+    "command": [
+      "pnpm",
+      "run",
+      "check",
+      "--",
+      "--profile",
+      "first-party"
+    ],
+    "head": "e974d4eaef7facdbdb0843933bdb95447fe83ade",
+    "started": "2026-11-12T12:00:38.356506+00:00",
+    "seconds": 1.57,
+    "exit": 0,
+    "log": "docs-and-source-check.log"
+  },
+  {
+    "name": "runtime",
+    "command": [
+      "node",
+      "tests/runtime.mjs"
+    ],
+    "head": "e974d4eaef7facdbdb0843933bdb95447fe83ade",
+    "started": "2026-11-12T12:00:39.926005+00:00",
+    "seconds": 11.13,
+    "exit": 0,
+    "log": "runtime.log"
+  },
+  {
+    "name": "typecheck",
+    "command": [
+      "pnpm",
+      "typecheck"
+    ],
+    "head": "e974d4eaef7facdbdb0843933bdb95447fe83ade",
+    "started": "2026-11-12T12:00:51.058926+00:00",
+    "seconds": 12.82,
+    "exit": 0,
+    "log": "typecheck.log"
+  },
+  {
+    "name": "contract",
+    "command": [
+      "node",
+      "src/base/contract-docs.mjs",
+      "check"
+    ],
+    "head": "e974d4eaef7facdbdb0843933bdb95447fe83ade",
+    "started": "2026-11-12T12:01:03.882742+00:00",
+    "seconds": 0.25,
+    "exit": 0,
+    "log": "contract.log"
+  },
+  {
+    "name": "source-lock",
+    "command": [
+      "pnpm",
+      "source:check"
+    ],
+    "head": "e974d4eaef7facdbdb0843933bdb95447fe83ade",
+    "started": "2026-11-12T12:01:04.134566+00:00",
+    "seconds": 1.05,
+    "exit": 0,
+    "log": "source-lock.log"
+  }
+]

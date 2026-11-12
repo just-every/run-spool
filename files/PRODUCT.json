@@ -1,0 +1,73 @@
+{
+  "repository": "just-every/run-spool",
+  "branch": "cloud/main-spool-docs-truth-1-rb1",
+  "head": "e974d4eaef7facdbdb0843933bdb95447fe83ade",
+  "base": "ae07f7a47522ac43a5894fdfed3918ae49f763ea",
+  "parents": [
+    "ae07f7a47522ac43a5894fdfed3918ae49f763ea"
+  ],
+  "commit_count": 1,
+  "contract_sha256": {
+    "CONTRACT.md": "ee9c871bfa25a110d3f3e61924164c75cc17ea412cb775f2e0621f114ab3594b",
+    "ACCEPTANCE.md": "09f4bb713a3cf9acdde84ba680630f9e9356198966ea70f2ac502520909a9ab1",
+    "docs/CLAIMS.md": "dea371100eb9ee81aee20dfc3264506a9885383e15a197f813f044a335555aba"
+  },
+  "files": [
+    "OPERATIONS.md",
+    "README.md",
+    "RUN-LOCALLY.md",
+    "docs/FRAMEWORK-SETUP.md",
+    "docs/capture.md",
+    "sources.lock.json",
+    "src/ui/workbench/SdkSetup.tsx",
+    "src/ui/workbench/SourceMapSetup.tsx",
+    "tests/runtime.mjs"
+  ],
+  "identity": "Run Edit Run fleet <fleet@runeditrun.com>",
+  "trailers": [],
+  "contract_status_changes": [],
+  "registrations_added": 0,
+  "registrations_removed": 0,
+  "counts_before": {
+    "core": [
+      23,
+      45,
+      19,
+      87
+    ],
+    "agent": [
+      0,
+      9,
+      9,
+      18
+    ],
+    "full": [
+      23,
+      54,
+      28,
+      105
+    ]
+  },
+  "counts_after": {
+    "core": [
+      23,
+      45,
+      19,
+      87
+    ],
+    "agent": [
+      0,
+      9,
+      9,
+      18
+    ],
+    "full": [
+      23,
+      54,
+      28,
+      105
+    ]
+  },
+  "runtime_assertion_calls_before": 67,
+  "runtime_assertion_calls_after": 67
+}

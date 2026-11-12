@@ -1,0 +1,22 @@
+diff --git a/tests/runtime.mjs b/tests/runtime.mjs
+index 606260a..ee20c00 100644
+--- a/tests/runtime.mjs
++++ b/tests/runtime.mjs
+@@ -36,7 +36,7 @@ try {
+     assert.equal(new URL(page.url()).pathname,'/docs/framework-setup');
+     const article=page.locator('article');
+     const sections=[
+-     ['React and Next.js',/spool-setup/,/Sentry\.init/,/VITE_SPOOL_DSN/],
++     ['React and Next.js',/@sentry\/nextjs/,/Sentry\.init/,/NEXT_PUBLIC_SPOOL_DSN/,/VITE_SPOOL_DSN/],
+      ['Express',/@sentry\/node/,/setupExpressErrorHandler/,/dsn:\s*process\.env\.SPOOL_DSN/],
+      ['Django and FastAPI',/sentry-sdk\[django\]/,/sentry-sdk\[fastapi\]/,/dsn=os\.environ/],
+      ['Spring',/sentry-spring-boot-starter-jakarta/,/sentry\.dsn=\$\{SPOOL_DSN\}/],
+@@ -60,7 +60,7 @@ try {
+     await article.getByRole('link',{name:'JavaScript source-map step',exact:true}).click();
+     assert.equal(new URL(page.url()).hash,'#javascript-source-maps');
+     const maps=await page.locator('#javascript-source-maps').evaluate(heading=>{let text='';for(let node=heading.nextElementSibling;node&&node.tagName!=='H2';node=node.nextElementSibling)text+=node.textContent+'\n';return text;});
+-    for(const instruction of [/productionBrowserSourceMaps/,/spool-build\.mjs/,/spool-sourcemaps/,/--key-env SPOOL_DEPLOY_KEY/,/debug ID/])assert.match(maps,instruction);
++    for(const instruction of [/productionBrowserSourceMaps/,/next build --webpack/,/spool-sourcemaps/,/--key-env SPOOL_DEPLOY_KEY/,/debug ID/])assert.match(maps,instruction);
+     await article.getByRole('link',{name:'tunnel replacement',exact:true}).click();
+     assert.equal(new URL(page.url()).hash,'#replace-tunnelroute');
+     const tunnel=await page.locator('#replace-tunnelroute').evaluate(heading=>{let text='';for(let node=heading.nextElementSibling;node&&node.tagName!=='H2';node=node.nextElementSibling)text+=node.textContent+'\n';return text;});

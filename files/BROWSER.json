@@ -1,0 +1,47 @@
+{
+  "head": "e974d4eaef7facdbdb0843933bdb95447fe83ade",
+  "screens": [
+    {
+      "screen": "source-maps-plugin",
+      "width": 1440,
+      "path": "source-maps-plugin-1440.png"
+    },
+    {
+      "screen": "source-maps-cli",
+      "width": 1440,
+      "path": "source-maps-cli-1440.png"
+    },
+    {
+      "screen": "framework-setup",
+      "width": 1440,
+      "path": "framework-setup-1440.png"
+    },
+    {
+      "screen": "source-maps-plugin",
+      "width": 390,
+      "path": "source-maps-plugin-390.png"
+    },
+    {
+      "screen": "source-maps-cli",
+      "width": 390,
+      "path": "source-maps-cli-390.png"
+    },
+    {
+      "screen": "framework-setup",
+      "width": 390,
+      "path": "framework-setup-390.png"
+    },
+    {
+      "screen": "capture",
+      "width": 1440,
+      "path": "capture-1440.png"
+    },
+    {
+      "screen": "capture",
+      "width": 390,
+      "path": "capture-390.png"
+    }
+  ],
+  "capture_masks": "SDK init, DSN examples, secret-key blocks, password inputs and data-secret elements",
+  "notes": "Synthetic test installation; no deploy key created. Browsers closed and test Worker disposed. Capture images replaced with credential-example masking before publication."
+}

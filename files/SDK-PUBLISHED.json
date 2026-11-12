@@ -1,0 +1,10 @@
+{
+  "version": "0.1.0",
+  "bin": {
+    "spool-sourcemaps": "./dist/sourcemaps.js"
+  },
+  "integrity": "sha512-EY0+hrJit7V/B6Wv87Xux1gIyCsKBtcUnHdLjaVWLLD/k2ghQZriUVZHqvaovdFg0iCuUEFE8tjd5T6ZXqyAgA==",
+  "source": "npm registry tarball; inspected without executing",
+  "observed_cli": "dist/sourcemaps.js logs JSON.stringify({uploaded:result.uploaded}); unknown -- options, including --json, throw Unknown option and set exitCode=1.",
+  "observed_plugin": "dist/vite.js has no console.log or upload-summary output."
+}
