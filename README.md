@@ -95,11 +95,13 @@ To remove it, export anything you need and run `rer deploy --remove --yes` from 
 
 Spool's own SDK, [`@just-every/spool`](packages/sdk/README.md), is the way to send errors. Install it and initialise it once with the project's endpoint and ingest key:
 
+Run this in **your application’s repository**, using that application’s Node.js and npm. The Spool installer’s private Node runtime runs Spool itself; it does not put Node or npm on your shell’s PATH for your application.
+
 ```sh
 npm install @just-every/spool
 ```
 
-As of 2026-10-15, this installs SDK 0.1.0, the published npm version. SDK 0.2.0 remains owner-held and unpublished. Ordinary error capture and map upload work with 0.1.0; exposure measurement (`client`, `anonymousClient()` and `exposure()`) and the Vite/Rollup upload-count message require 0.2.0. The Spool app release does not publish or upgrade the SDK. See the [SDK release notes](packages/sdk/CHANGELOG.md).
+As of 2026-11-12, this installs SDK 0.1.0, the published npm version. SDK 0.2.0 remains owner-held and unpublished. Ordinary error capture and map upload work with 0.1.0; exposure measurement (`client`, `anonymousClient()` and `exposure()`) and the Vite/Rollup upload-count message require 0.2.0. The Spool app release does not publish or upgrade the SDK. See the [SDK release notes](packages/sdk/CHANGELOG.md).
 
 ```js
 import { init } from '@just-every/spool';

@@ -2,6 +2,8 @@
 
 Connect an existing Sentry SDK to your Spool project, or configure a new application using the framework steps below. These guides cover exception capture; publishing a guide does not qualify every feature of that framework's SDK.
 
+The manual instructions below use published packages. As of 2026-11-12, npm serves `@just-every/spool` 0.1.0 with only the `spool-sourcemaps` command. The `spool-setup` wizard and Spool tunnel helpers are in the repository’s unreleased SDK source (currently versioned 0.2.0), not on npm; see [unpublished guided setup](#unpublished-guided-setup). Installing the Spool app does not publish or upgrade that SDK.
+
 Only fresh Next.js App Router and Django applications are exercised by Spool's guided-setup journey. The other frameworks have manual instructions, not generated patches or fresh-framework qualification. Runtime qualification, hosted delivery, trusted tunnel addresses and native devices retain their separate limits in the [engineering notes](SENTRY-SWITCHING.md#runtime-qualification).
 
 Choose your framework:
@@ -24,15 +26,26 @@ After configuring a framework, trigger a deliberate exception in a development r
 
 ## React and Next.js
 
-For a fresh Next.js App Router application, run the guided command from your app folder, with `SPOOL_DSN` already set:
+For Next.js App Router, install the Sentry integration in **your application’s repository**, using that application’s Node.js and npm. The Spool installer’s private runtime runs Spool itself and does not add Node or npm to your application’s shell.
 
 ```sh
-npx -p @just-every/spool spool-setup --dsn "$SPOOL_DSN" --dir .
+npm install @sentry/nextjs
 ```
 
-Review the printed patch before applying it. The first command writes nothing; add `--apply --install` to write that same patch and install the packages. The test event runs before a patch is written; an invalid DSN or unsafe path refuses without configuration changes. The command runs on macOS, Linux and WSL2. Existing files that need manual merging are identified in its output.
+Create `instrumentation-client.js` next to `app` (under `src` if that is where your app lives), and initialize capture before the application runs:
 
-Next.js setup installs `@sentry/nextjs` and `@just-every/spool`, writes `instrumentation-client.js`, a same-origin tunnel in `app/monitoring/route.js`, DSNs in `.env.local`, `next.config.mjs` and `spool-build.mjs`. Keep `.env.local` private and ignored by Git. Set `NEXT_PUBLIC_SPOOL_RELEASE` for the browser release and keep `NEXT_PUBLIC_SPOOL_BUILD` equal to `SPOOL_BUILD`. The generated client initializes Sentry before the application runs; this guide qualifies browser errors, not Next.js server or edge instrumentation.
+```js
+import * as Sentry from '@sentry/nextjs';
+
+Sentry.init({
+  dsn: process.env.NEXT_PUBLIC_SPOOL_DSN,
+  release: process.env.NEXT_PUBLIC_SPOOL_RELEASE,
+  dist: process.env.NEXT_PUBLIC_SPOOL_BUILD,
+  environment: process.env.NEXT_PUBLIC_SPOOL_ENVIRONMENT ?? 'production',
+});
+```
+
+Set `NEXT_PUBLIC_SPOOL_DSN` to your project’s complete Spool DSN in your app’s private, ignored `.env.local` or build environment. Set `NEXT_PUBLIC_SPOOL_RELEASE` and `NEXT_PUBLIC_SPOOL_BUILD` to match the release and build used for map upload. This configures browser capture; it does not configure Next.js server or edge instrumentation. Events go directly to Spool, so allow the application’s exact browser origin in Capture.
 
 For React without Next.js, install `@sentry/react`, then initialize it before rendering the application:
 
@@ -47,11 +60,10 @@ Sentry.init({
   dsn: import.meta.env.VITE_SPOOL_DSN,
   release: import.meta.env.VITE_SPOOL_RELEASE,
   dist: import.meta.env.VITE_SPOOL_BUILD,
-  tunnel: '/monitoring',
 });
 ```
 
-These are Vite environment names: set `VITE_SPOOL_DSN` to your project's DSN at build time, and adapt them to your bundler if it differs. Serve `/monitoring` on the app's own origin using the [tunnel replacement](#replace-tunnelroute); omit `tunnel` if you intentionally send directly to Spool. Finish the [JavaScript source-map step](#javascript-source-maps) before publishing production bundles.
+These are Vite environment names: set `VITE_SPOOL_DSN` to your project's DSN at build time, and adapt them to your bundler if it differs. This sends directly to Spool; allow your app’s exact browser origin in Capture. See the [tunnel replacement](#replace-tunnelroute) notes if your existing app uses `tunnelRoute`. Finish the [JavaScript source-map step](#javascript-source-maps) before publishing production bundles.
 
 ## Express
 
@@ -83,22 +95,13 @@ Sentry.setupExpressErrorHandler(app);
 app.listen(3000);
 ```
 
-Request `/setup-check` in development and inspect the issue in Spool, then remove the deliberate failure. If your server JavaScript is compiled or bundled, follow the [source-map step](#javascript-source-maps). To relay a React application's events, mount the [Node tunnel](#replace-tunnelroute) before any JSON body parser on that path.
+Request `/setup-check` in development and inspect the issue in Spool, then remove the deliberate failure. If your server JavaScript is compiled or bundled, follow the [source-map step](#javascript-source-maps). See the [browser relay notes](#replace-tunnelroute) before retaining an existing browser relay.
 
 ## Django and FastAPI
 
 Python has no source maps to configure or upload. Keep Python source paths in the exception stack; the JavaScript source-map step applies only to any separately bundled frontend.
 
-For a fresh Django application, run the guided command from the folder containing `manage.py`:
-
-```sh
-npx -p @just-every/spool spool-setup --dsn "$SPOOL_DSN" --dir .
-npx -p @just-every/spool spool-setup --dsn "$SPOOL_DSN" --dir . --apply --install --python .venv/bin/python
-```
-
-Review the first patch before running the second command. Choose your actual virtual environment interpreter. Setup adds `sentry-sdk` to the requirements when present, initializes it in the detected settings module and writes the DSN to `.env`. Export that value before starting Django: a `.env` file alone does not load environment variables into Python.
-
-For manual Django setup, install `sentry-sdk` and put this in your settings module. For FastAPI, install the integration extra and initialize it before constructing the app:
+For Django, install `sentry-sdk` and put this in your settings module. For FastAPI, install the integration extra and initialize it before constructing the app. Use your application’s Python interpreter or activated virtual environment:
 
 ```sh
 python -m pip install 'sentry-sdk[django]'
@@ -117,7 +120,7 @@ sentry_sdk.init(
 )
 ```
 
-Django, FastAPI and Starlette integrations are enabled by the SDK's defaults when their framework is installed. For FastAPI, place `app = FastAPI()` after this initialization. Raise a development request exception and confirm the issue in Spool. The guided command generates a patch only for Django; FastAPI gets manual guidance. A Python backend relaying browser events can use the [Python tunnel](../packages/tunnel-python/README.md); it must not trust arbitrary forwarded client addresses.
+Django, FastAPI and Starlette integrations are enabled by the SDK's defaults when their framework is installed. For FastAPI, place `app = FastAPI()` after this initialization. Raise a development request exception and confirm the issue in Spool. Export `SPOOL_DSN` before starting the application; a `.env` file alone does not load environment variables into Python. The unpublished wizard generates patches only for Django; FastAPI uses manual setup.
 
 ## Spring
 
@@ -209,13 +212,32 @@ Set `SPOOL_DSN` in the host environment, then trigger an exception from a develo
 
 ## JavaScript source maps
 
-For the generated Next.js setup, review `productionBrowserSourceMaps: true` in `next.config.mjs`. Merge that option into an existing config when the command directs you to do so. In CI, set `SPOOL_ENDPOINT` to the Spool installation address, `SPOOL_PROJECT` to the project slug, `NEXT_PUBLIC_SPOOL_RELEASE` to the release and `SPOOL_BUILD` to the build. Set `NEXT_PUBLIC_SPOOL_BUILD` to the same build and keep the project's deploy key only in `SPOOL_DEPLOY_KEY` in CI secrets. Run:
+Install the upload tool in your application’s repository with that application’s Node.js and npm, not Spool’s private installer runtime:
 
 ```sh
-node --env-file=.env.local spool-build.mjs
+npm install @just-every/spool
 ```
 
-The generated script builds with webpack and uploads application-route maps. Shared framework chunks remain outside this bounded upload. For React or compiled Express with another bundler, emit adjacent `.js` and `.js.map` files, then run the source-map tool from `@just-every/spool` before serving those bundles:
+For Next.js, merge `productionBrowserSourceMaps: true` into your existing `next.config.mjs`:
+
+```js
+export default { productionBrowserSourceMaps: true };
+```
+
+Set `SPOOL_ENDPOINT` to the Spool installation address, `SPOOL_PROJECT` to the project slug, `SPOOL_RELEASE` and `SPOOL_BUILD` to the capture release and build, and keep the project’s deploy key only in `SPOOL_DEPLOY_KEY` in your build terminal or CI secrets. Next.js also needs `NEXT_PUBLIC_SPOOL_RELEASE` and `NEXT_PUBLIC_SPOOL_BUILD` set to those same values at build time. Build with webpack to emit adjacent maps, then upload before serving the resulting files:
+
+```sh
+npx next build --webpack
+find .next/static -name '*.js.map' -exec sh -c '
+  for map do
+    npx spool-sourcemaps --endpoint "$SPOOL_ENDPOINT" --project "$SPOOL_PROJECT" \
+      --release "$SPOOL_RELEASE" --build "$SPOOL_BUILD" \
+      --key-env SPOOL_DEPLOY_KEY "${map%.map}" || exit
+  done
+' sh {} +
+```
+
+For React or compiled Express with another bundler, emit adjacent `.js` and `.js.map` files, then run the tool before serving those bundles:
 
 ```sh
 npx -p @just-every/spool spool-sourcemaps --endpoint "$SPOOL_ENDPOINT" \
@@ -223,24 +245,22 @@ npx -p @just-every/spool spool-sourcemaps --endpoint "$SPOOL_ENDPOINT" \
   --key-env SPOOL_DEPLOY_KEY ./dist/app.js
 ```
 
-Serve the rewritten JavaScript: the tool stamps a matching debug ID into each bundle and its map, registers the release and uploads the map privately. The capture release and dist must equal the upload's release and build. A refused upload fails the build; trigger a real error after deployment and check its original file and line in Spool. Current artifact bounds apply; this guide makes no large-map or native-symbolication claim.
+Serve the rewritten JavaScript: the tool stamps a matching debug ID into each bundle and its map, registers the release and uploads the map privately. The capture release and dist must equal the upload's release and build. A refused upload fails the build; trigger a real error after deployment and check its original file and line in Spool. SDK 0.1.0 prints `{"uploaded":1}` for one successful CLI upload and exits 0; it does not accept `--json`. Its Vite/Rollup plugin is silent on success. Confirm the original-source frame rather than expecting the newer unpublished SDK’s readable summary. Current artifact bounds apply; this guide makes no large-map or native-symbolication claim.
 
 ## Replace tunnelRoute
 
-Sentry's Next.js `tunnelRoute` rewrite targets Sentry's hosted ingest, so it cannot send to Spool. Use the SDK's standard `tunnel: '/monitoring'` option and a Spool handler on that same origin instead. Install `@just-every/spool` on your server and create `app/monitoring/route.js` for Next.js:
+Sentry's Next.js `tunnelRoute` rewrite targets Sentry's hosted ingest, so it cannot send to Spool. The manual examples above send directly to Spool: remove `tunnelRoute` from the Sentry build configuration and omit the browser SDK’s `tunnel` option. Allow your app’s exact origin in Capture and check a real exception in Issues. Direct requests may be blocked by a browser extension; this path does not claim blocker resistance.
 
-```js
-import { spoolTunnelRoute } from '@just-every/spool/next';
+Spool’s `spoolTunnelRoute` and `nodeTunnel` helpers are in unreleased source, not the published SDK 0.1.0. Do not import `@just-every/spool/next` or `@just-every/spool/tunnel` after an npm install of that version. With a separately supplied artifact that includes those exports, the browser can use `tunnel: '/monitoring'` and a same-origin server handler. The [engineering notes](SENTRY-SWITCHING.md#runtime-qualification) describe that separate qualification and its limits.
 
-export const { POST } = spoolTunnelRoute({ dsn: process.env.SPOOL_DSN });
+## Unpublished guided setup
+
+The repository’s current SDK source is versioned 0.2.0; its **Unreleased** changes include `spool-setup` for fresh Next.js App Router and Django applications. This wizard is **not yet on npm**, and the earlier owner-held 0.2.0 artifact is not a guarantee that it contains the wizard. Check the [SDK release notes](../packages/sdk/CHANGELOG.md). Use the manual instructions above with today’s npm packages.
+
+Only if you have a separately supplied SDK artifact that includes the `spool-setup` bin, install that artifact in your application with its own Node.js and npm, then run its installed command:
+
+```sh
+npx --no-install spool-setup --dsn "$SPOOL_DSN" --dir .
 ```
 
-For an Express server, mount this route before JSON or text body parsers so the tunnel receives the envelope bytes:
-
-```js
-import { nodeTunnel } from '@just-every/spool/tunnel';
-
-app.post('/monitoring', nodeTunnel({ dsn: process.env.SPOOL_DSN }));
-```
-
-Set the server's `SPOOL_DSN` to the same project DSN as the browser. For a Fetch server use `spoolTunnel` from the same module; for Python use the [WSGI handler or forwarding function](../packages/tunnel-python/README.md). These handlers check the envelope DSN and forward only to their configured project. Browser origins and inbound filters still apply. Untrusted forwarded client addresses are ignored: the tunnel server remains labelled as the peer until a trusted ingress boundary is configured and authenticated. The local tests use a blocking engine and list excerpt, not a deployed browser extension or hosted-provider qualification.
+Review the printed patch before applying it. The command writes nothing until `--apply`; add `--install` to install the packages. For Django, choose your virtual environment with `--python .venv/bin/python`. A test event must receive Spool’s own receipt before any patch is printed or written. The wizard runs on macOS, Linux and WSL2. It is not a step for the published npm 0.1.0 package.

@@ -10,11 +10,13 @@ The **Capture** page in the workbench walks through these steps for the selected
 
 Install the package and initialize it once in your application, with your Spool address, the project and its ingest key:
 
+Run this in **your application’s repository**, using that application’s Node.js and npm. The Spool installer’s private Node runtime runs Spool itself; it does not put Node or npm on your shell’s PATH for your application.
+
 ```sh
 npm install @just-every/spool
 ```
 
-As of 2026-10-15 this installs SDK 0.1.0. SDK 0.2.0 remains owner-held and unpublished on npm. Ordinary capture and source-map upload work with 0.1.0; [exposure measurement](REPRODUCE-AND-FIX.md#3-did-the-fix-reach-the-affected-users) and the plugin's upload-count message require 0.2.0. The Spool app release does not publish the SDK.
+As of 2026-11-12 this installs SDK 0.1.0. SDK 0.2.0 remains owner-held and unpublished on npm. Ordinary capture and source-map upload work with 0.1.0; [exposure measurement](REPRODUCE-AND-FIX.md#3-did-the-fix-reach-the-affected-users) and the plugin's upload-count message require 0.2.0. The Spool app release does not publish the SDK.
 
 ```js
 import { init } from '@just-every/spool';
@@ -53,7 +55,7 @@ npx spool-sourcemaps --endpoint https://spool.example --project web \
   --release web@1.2.0 --build build-42 --key-env SPOOL_DEPLOY_KEY dist/app.js
 ```
 
-Each bundle needs its `.map` next to it. Run the tool before publishing the built application: it rewrites the bundle and map with the matching debug ID, so serve those resulting files. Both tools register the release, mark each bundle so the SDK can match its errors to the map, and upload the maps. The command-line tool prints a summary such as `Uploaded 1 source map.` (exit 0). Add `--json` for the machine-readable `{"uploaded":1}` result. Failures print a reason to stderr and exit 1 in either mode; the Vite/Rollup plugin prints that count in SDK 0.2.0, while the published 0.1.0 plugin is silent on success. A failed upload fails your build.
+Each bundle needs its `.map` next to it. Run the tool before publishing the built application: it rewrites the bundle and map with the matching debug ID, so serve those resulting files. Both tools register the release, mark each bundle so the SDK can match its errors to the map, and upload the maps. With the published SDK 0.1.0, a successful command-line upload exits 0 and prints `{"uploaded":1}` for one map, without any extra flag. This version does not accept `--json`. Its Vite/Rollup plugin is silent on success; a refused upload fails the build. Confirm success by triggering an error in the exact stamped build and checking its original-source frame as described below. Newer unpublished SDK source adds a readable upload summary; do not expect it from npm 0.1.0.
 
 ## 4. Check it works
 
