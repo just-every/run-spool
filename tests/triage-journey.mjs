@@ -170,6 +170,7 @@ try {
   assert.equal(await page.locator('.issue').count(),0);await recoveryScreens('unavailable-issue');
   await page.unroute(packetUrl);await page.getByRole('button',{name:'Retry evidence',exact:true}).click();
   await page.locator('.mapped-frame').first().waitFor();await page.getByLabel('Comment',{exact:true}).waitFor();await page.waitForLoadState('networkidle');
+  await page.waitForURL(url=>url.searchParams.has('event')&&url.searchParams.has('occurrence'));
   const retainedDestination=page.url(),retainedIssues=await api('/api/projects/cedar/issues');
   const draft='synthetic-spool-1 unsent investigation';
   const comment=page.getByLabel('Comment',{exact:true});await comment.fill(draft);await comment.focus();
