@@ -1,0 +1,11 @@
+{
+  "head": "33c29d204f27d85ac3320b49c206eef99177efb0",
+  "command": "cloud_run npx -y @runeditrun/rer build",
+  "exit": 0,
+  "warnings": [
+    "Existing Vite dynamic-import/chunk/plugin timing warnings; build completed."
+  ],
+  "node": "24.19.0",
+  "pnpm": "10.12.4",
+  "note": "The supplied fleet toolchain accepts this newer Node; branch CI uses the repository Node 22.20.0 pin."
+}

@@ -1,0 +1,231 @@
+{
+  "candidate": "33c29d204f27d85ac3320b49c206eef99177efb0",
+  "screens": [
+    {
+      "width": 1440,
+      "section": "organization",
+      "label": "Organization",
+      "address": "/projects/cedar/settings#settings-organization",
+      "file": "screens/settings-organization-1440.jpg",
+      "headings": [
+        "Members"
+      ],
+      "overflow": false
+    },
+    {
+      "width": 1440,
+      "section": "projects",
+      "label": "Projects & keys",
+      "address": "/projects/cedar/settings#settings-projects",
+      "file": "screens/settings-projects-1440.jpg",
+      "headings": [
+        "Create another project",
+        "Project keys",
+        "Reports, dashboards and query tables",
+        "Send errors to this project",
+        "Install the Spool SDK",
+        "Initialise it once in your app",
+        "Allow your app’s origin",
+        "Already using Sentry? Point your DSN here"
+      ],
+      "overflow": false
+    },
+    {
+      "width": 1440,
+      "section": "processing",
+      "label": "Issue processing",
+      "address": "/projects/cedar/settings#settings-processing",
+      "file": "screens/settings-processing-1440.jpg",
+      "headings": [
+        "Cron check-ins",
+        "Project grouping rules",
+        "Agent grouping proposals",
+        "Release recurrence",
+        "Sentry release identity",
+        "Commit author and message",
+        "Feedback inbox"
+      ],
+      "overflow": false
+    },
+    {
+      "width": 1440,
+      "section": "alerts",
+      "label": "Alerts & integrations",
+      "address": "/projects/cedar/settings#settings-alerts",
+      "file": "screens/settings-alerts-1440.jpg",
+      "headings": [
+        "Personal notifications",
+        "Slack destinations",
+        "Connect Slack",
+        "Scheduled alert run"
+      ],
+      "overflow": false
+    },
+    {
+      "width": 1440,
+      "section": "privacy",
+      "label": "Privacy & filtering",
+      "address": "/projects/cedar/settings#settings-privacy",
+      "file": "screens/settings-privacy-1440.jpg",
+      "headings": [
+        "Server scrubbing rules",
+        "Installation protection",
+        "Custom scrubbing rules",
+        "User identity policy",
+        "End-user erasure preview",
+        "Inbound filters and usage"
+      ],
+      "overflow": false
+    },
+    {
+      "width": 1440,
+      "section": "data",
+      "label": "Data & archive",
+      "address": "/projects/cedar/settings#settings-data",
+      "file": "screens/settings-data-1440.jpg",
+      "headings": [
+        "Archive and restore",
+        "Retention windows",
+        "Legal hold: inactive",
+        "Delete old evidence",
+        "Erase this project"
+      ],
+      "overflow": false
+    },
+    {
+      "width": 1440,
+      "section": "audit",
+      "label": "Audit",
+      "address": "/projects/cedar/settings#settings-audit",
+      "file": "screens/settings-audit-1440.jpg",
+      "headings": [
+        "Organization audit"
+      ],
+      "overflow": false
+    },
+    {
+      "width": 390,
+      "section": "organization",
+      "label": "Organization",
+      "address": "/projects/cedar/settings#settings-organization",
+      "file": "screens/settings-organization-390.jpg",
+      "headings": [
+        "Members"
+      ],
+      "overflow": false
+    },
+    {
+      "width": 390,
+      "section": "projects",
+      "label": "Projects & keys",
+      "address": "/projects/cedar/settings#settings-projects",
+      "file": "screens/settings-projects-390.jpg",
+      "headings": [
+        "Create another project",
+        "Project keys",
+        "Reports, dashboards and query tables",
+        "Send errors to this project",
+        "Install the Spool SDK",
+        "Initialise it once in your app",
+        "Allow your app’s origin",
+        "Already using Sentry? Point your DSN here"
+      ],
+      "overflow": false
+    },
+    {
+      "width": 390,
+      "section": "processing",
+      "label": "Issue processing",
+      "address": "/projects/cedar/settings#settings-processing",
+      "file": "screens/settings-processing-390.jpg",
+      "headings": [
+        "Cron check-ins",
+        "Project grouping rules",
+        "Agent grouping proposals",
+        "Release recurrence",
+        "Sentry release identity",
+        "Commit author and message",
+        "Feedback inbox"
+      ],
+      "overflow": false
+    },
+    {
+      "width": 390,
+      "section": "alerts",
+      "label": "Alerts & integrations",
+      "address": "/projects/cedar/settings#settings-alerts",
+      "file": "screens/settings-alerts-390.jpg",
+      "headings": [
+        "Personal notifications",
+        "Slack destinations",
+        "Connect Slack",
+        "Scheduled alert run"
+      ],
+      "overflow": false
+    },
+    {
+      "width": 390,
+      "section": "privacy",
+      "label": "Privacy & filtering",
+      "address": "/projects/cedar/settings#settings-privacy",
+      "file": "screens/settings-privacy-390.jpg",
+      "headings": [
+        "Server scrubbing rules",
+        "Installation protection",
+        "Custom scrubbing rules",
+        "User identity policy",
+        "End-user erasure preview",
+        "Inbound filters and usage"
+      ],
+      "overflow": false
+    },
+    {
+      "width": 390,
+      "section": "data",
+      "label": "Data & archive",
+      "address": "/projects/cedar/settings#settings-data",
+      "file": "screens/settings-data-390.jpg",
+      "headings": [
+        "Archive and restore",
+        "Retention windows",
+        "Legal hold: inactive",
+        "Delete old evidence",
+        "Erase this project"
+      ],
+      "overflow": false
+    },
+    {
+      "width": 390,
+      "section": "audit",
+      "label": "Audit",
+      "address": "/projects/cedar/settings#settings-audit",
+      "file": "screens/settings-audit-390.jpg",
+      "headings": [
+        "Organization audit"
+      ],
+      "overflow": false
+    }
+  ],
+  "legacy": [
+    {
+      "width": 1440,
+      "fragment": "slack-destinations",
+      "section": "alerts"
+    },
+    {
+      "width": 1440,
+      "fragment": "reports-configuration-title",
+      "section": "projects"
+    },
+    {
+      "width": 390,
+      "fragment": "slack-destinations",
+      "section": "alerts"
+    },
+    {
+      "width": 390,
+      "fragment": "reports-configuration-title",
+      "section": "projects"
+    }
+  ]
+}

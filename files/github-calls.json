@@ -1,0 +1,92 @@
+[
+  {
+    "at": 1794455475.6877658,
+    "args": [
+      "api",
+      "repos/just-every/run-spool/actions/runs?head_sha=33c29d204f27d85ac3320b49c206eef99177efb0&per_page=100",
+      "--jq",
+      ".workflow_runs | map({id,name,status,conclusion,head_sha,html_url})"
+    ]
+  },
+  {
+    "at": 1794455814.9880447,
+    "args": [
+      "api",
+      "repos/just-every/run-spool/actions/runs/43150919066",
+      "--jq",
+      "{status,conclusion,head_sha,html_url}"
+    ]
+  },
+  {
+    "at": 1794456144.2008295,
+    "args": [
+      "api",
+      "repos/just-every/run-spool/actions/runs/43150919066",
+      "--jq",
+      "{status,conclusion,head_sha,html_url}"
+    ]
+  },
+  {
+    "at": 1794456499.7816331,
+    "args": [
+      "api",
+      "repos/just-every/run-spool/actions/runs/43150919066",
+      "--jq",
+      "{status,conclusion,head_sha,html_url}"
+    ]
+  },
+  {
+    "at": 1794456831.4302142,
+    "args": [
+      "api",
+      "repos/just-every/run-spool/actions/runs/43150919066",
+      "--jq",
+      "{status,conclusion,head_sha,html_url}"
+    ]
+  },
+  {
+    "at": 1794457431.4565248,
+    "args": [
+      "api",
+      "repos/just-every/run-spool/actions/runs/43150919066",
+      "--jq",
+      "{status,conclusion,head_sha,html_url}"
+    ]
+  },
+  {
+    "at": 1794457731.485411,
+    "args": [
+      "api",
+      "repos/just-every/run-spool/actions/runs/43150919066/jobs?per_page=100",
+      "--jq",
+      "{total_count,jobs:[.jobs[]|{id,name,status,conclusion,started_at,completed_at,steps:[.steps[]|{name,status,conclusion}]}]}"
+    ]
+  },
+  {
+    "at": 1794458031.519157,
+    "args": [
+      "api",
+      "--method",
+      "POST",
+      "repos/just-every/run-spool/actions/runs/43150919066/rerun-failed-jobs"
+    ]
+  },
+  {
+    "at": 1794458331.550657,
+    "args": [
+      "api",
+      "repos/just-every/run-spool/actions/runs/43150919066",
+      "--jq",
+      "{status,conclusion,head_sha,html_url}"
+    ]
+  },
+  {
+    "at": 1794458631.5798788,
+    "args": [
+      "api",
+      "repos/just-every/run-spool/actions/runs/43150919066",
+      "--jq",
+      "{status,conclusion,head_sha,html_url}"
+    ]
+  }
+]

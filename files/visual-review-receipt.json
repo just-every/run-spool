@@ -1,0 +1,19 @@
+{
+  "head": "33c29d204f27d85ac3320b49c206eef99177efb0",
+  "screens_reviewed": 14,
+  "widths": [
+    1440,
+    390
+  ],
+  "sections": [
+    "Organization",
+    "Projects & keys",
+    "Issue processing",
+    "Alerts & integrations",
+    "Privacy & filtering",
+    "Data & archive",
+    "Audit"
+  ],
+  "result": "The named navigation and selected section render at both widths. Existing forms remain under their assigned sections; browser proof found one visible section per address, no horizontal document overflow, and legacy Slack/reports fragments select their containing sections.",
+  "scope": "Settings only; no whole-product accessibility, provider or hosted acceptance claim."
+}

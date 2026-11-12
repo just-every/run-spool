@@ -1,0 +1,184 @@
+{
+  "conclusion": null,
+  "head_sha": "33c29d204f27d85ac3320b49c206eef99177efb0",
+  "html_url": "https://github.com/just-every/run-spool/actions/runs/43150919066",
+  "status": "in_progress",
+  "run_id": 43150919066,
+  "github_calls": 10,
+  "local_journeys_passed": 5,
+  "owner_ui": "success",
+  "build": "success",
+  "cancelled_job": {
+    "id": 130959927107,
+    "name": "verify (agent-handoff)",
+    "started_at": "2026-11-12T03:52:07Z",
+    "completed_at": "2026-11-12T04:17:22Z",
+    "elapsed_seconds": 1515
+  },
+  "scope": "Known agent-handoff timeout is explicitly outside this Settings round; no product assertion failure is reported in the job metadata. Aggregate shard/verify failures follow the cancellation.",
+  "rerun": "One failed-jobs rerun accepted at 2026-11-12T04:33:52Z; latest exact-SHA status in_progress, conclusion None",
+  "prior_status": "completed",
+  "prior_conclusion": "cancelled",
+  "initial_jobs": [
+    {
+      "id": 130959585590,
+      "name": "plan",
+      "conclusion": "success"
+    },
+    {
+      "id": 130959659837,
+      "name": "build",
+      "conclusion": "success"
+    },
+    {
+      "id": 130959661631,
+      "name": "light",
+      "conclusion": "skipped"
+    },
+    {
+      "id": 130959662246,
+      "name": "commands",
+      "conclusion": "skipped"
+    },
+    {
+      "id": 130959927020,
+      "name": "runtime (ruby)",
+      "conclusion": "success"
+    },
+    {
+      "id": 130959927030,
+      "name": "runtime (electron)",
+      "conclusion": "success"
+    },
+    {
+      "id": 130959927042,
+      "name": "runtime (php)",
+      "conclusion": "success"
+    },
+    {
+      "id": 130959927071,
+      "name": "runtime (go)",
+      "conclusion": "success"
+    },
+    {
+      "id": 130959927090,
+      "name": "runtime (python)",
+      "conclusion": "success"
+    },
+    {
+      "id": 130959927107,
+      "name": "verify (agent-handoff)",
+      "conclusion": "cancelled"
+    },
+    {
+      "id": 130959927111,
+      "name": "verify (owner-ui)",
+      "conclusion": "success"
+    },
+    {
+      "id": 130959927112,
+      "name": "runtime (dotnet)",
+      "conclusion": "success"
+    },
+    {
+      "id": 130959927120,
+      "name": "runtime (node)",
+      "conclusion": "success"
+    },
+    {
+      "id": 130959927129,
+      "name": "runtime (java)",
+      "conclusion": "success"
+    },
+    {
+      "id": 130959927133,
+      "name": "runtime (elixir)",
+      "conclusion": "success"
+    },
+    {
+      "id": 130959927134,
+      "name": "verify (runtime)",
+      "conclusion": "success"
+    },
+    {
+      "id": 130959927145,
+      "name": "verify (project-erasure)",
+      "conclusion": "success"
+    },
+    {
+      "id": 130959927150,
+      "name": "verify (sdk)",
+      "conclusion": "success"
+    },
+    {
+      "id": 130959927160,
+      "name": "verify (alerts)",
+      "conclusion": "success"
+    },
+    {
+      "id": 130959927164,
+      "name": "verify (wizard)",
+      "conclusion": "success"
+    },
+    {
+      "id": 130959927166,
+      "name": "verify (sentry-cli)",
+      "conclusion": "success"
+    },
+    {
+      "id": 130959927174,
+      "name": "verify (project-erasure-cap)",
+      "conclusion": "success"
+    },
+    {
+      "id": 130959927180,
+      "name": "verify (execution)",
+      "conclusion": "success"
+    },
+    {
+      "id": 130959927184,
+      "name": "runtime (rust)",
+      "conclusion": "success"
+    },
+    {
+      "id": 130959927209,
+      "name": "verify (repair-recovery)",
+      "conclusion": "success"
+    },
+    {
+      "id": 130959927211,
+      "name": "verify (owner-erasure)",
+      "conclusion": "success"
+    },
+    {
+      "id": 130959927246,
+      "name": "verify (tunnel)",
+      "conclusion": "success"
+    },
+    {
+      "id": 130968961446,
+      "name": "shards (spool)",
+      "conclusion": "failure"
+    },
+    {
+      "id": 130968987536,
+      "name": "verify",
+      "conclusion": "failure"
+    },
+    {
+      "id": 130968988663,
+      "name": "full-push-proof",
+      "conclusion": "skipped"
+    },
+    {
+      "id": 130968989282,
+      "name": "nightly-proof",
+      "conclusion": "skipped"
+    }
+  ],
+  "github_budget_limit": 10,
+  "github_budget_remaining": 0,
+  "terminal_custody": "PUSHED",
+  "last_observed_at": "2026-11-12T04:43:51Z",
+  "terminal_note": "The single failed-jobs rerun is still in progress on the exact candidate SHA. The 10-call GitHub budget is exhausted, so custody is PUSHED; successful exact-SHA Verify remains outstanding. Initial owner-ui/build/other product jobs passed, and the known agent-handoff timeout remains outside this cut."
+}

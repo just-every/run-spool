@@ -1,0 +1,13 @@
+{
+  "head": "33c29d204f27d85ac3320b49c206eef99177efb0",
+  "write_command": "node src/base/contract-docs.mjs write",
+  "write_exit": 0,
+  "check_command": "node src/base/contract-docs.mjs check",
+  "check_exit": 0,
+  "generated_views_restored_whole_from": "origin/main",
+  "lock_command": "node scripts/edition-authoring/cli.mjs lock",
+  "lock_exit": 0,
+  "source_check_exit": 0,
+  "tracked_tree_unchanged": true,
+  "note": "Final generation proof reproduced the published tree exactly. No second product commit or changed acceptance judgment."
+}

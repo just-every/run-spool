@@ -1,0 +1,14 @@
+{
+  "source": "origin/main",
+  "source_sha": "7b8cc6213c14b0e2af650e2d6289dd0ac59871aa",
+  "files": [
+    "CONTRACT.md",
+    "ACCEPTANCE.md",
+    "docs/CLAIMS.md"
+  ],
+  "byte_identical_before": true,
+  "status_changes": [],
+  "claim": "CLAIM UX-001 PARTIAL points=none tests=tests/triage-journey.mjs#journey",
+  "defaults": [],
+  "gap": "Complete UX-001 proof and the existing human screen-reader and VPAT register rows remain unqualified."
+}

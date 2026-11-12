@@ -1,0 +1,10 @@
+{
+  "run_id": 43150919066,
+  "head_sha": "33c29d204f27d85ac3320b49c206eef99177efb0",
+  "command": "gh api --method POST repos/just-every/run-spool/actions/runs/43150919066/rerun-failed-jobs",
+  "exit": 0,
+  "requested_at": "2026-11-12T04:33:52Z",
+  "response": "{}",
+  "diagnostic": "GH_CALL 8/10\n",
+  "scope": "One rerun of failed/cancelled jobs; no product change."
+}

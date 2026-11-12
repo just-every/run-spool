@@ -1,0 +1,9 @@
+{
+  "lock_command": "node scripts/edition-authoring/cli.mjs lock",
+  "lock_exit": 0,
+  "check_command": "pnpm source:check",
+  "check_exit": 0,
+  "contract_check_command": "node src/base/contract-docs.mjs check",
+  "contract_check_exit": 0,
+  "typecheck_exit": 0
+}

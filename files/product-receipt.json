@@ -1,0 +1,71 @@
+{
+  "branch": "cloud/main-spool-settings-split-1-c2",
+  "head": "33c29d204f27d85ac3320b49c206eef99177efb0",
+  "base": "7b8cc6213c14b0e2af650e2d6289dd0ac59871aa",
+  "candidate_commit_count": 1,
+  "merge_commits": [],
+  "contracts": {
+    "CONTRACT.md": {
+      "head_blob": "2be0fe59b0663f4bffa20177d02bfa32f788a60a",
+      "main_blob": "2be0fe59b0663f4bffa20177d02bfa32f788a60a"
+    },
+    "ACCEPTANCE.md": {
+      "head_blob": "979924b90cd7f299845333a33a851c810b2a6176",
+      "main_blob": "979924b90cd7f299845333a33a851c810b2a6176"
+    },
+    "docs/CLAIMS.md": {
+      "head_blob": "800c76e30c13423fb5df2cda55ab7829ff308f40",
+      "main_blob": "800c76e30c13423fb5df2cda55ab7829ff308f40"
+    }
+  },
+  "candidate_files": [
+    "public/theme/spool.css",
+    "sources.lock.json",
+    "src/ui/workbench/SettingsView.tsx",
+    "tests/agent-handoff/ui.mjs",
+    "tests/audit-history.mjs",
+    "tests/checkin-flow.mjs",
+    "tests/end-user-erasure-preview.mjs",
+    "tests/grouping-rules-flow.mjs",
+    "tests/identity-flow.mjs",
+    "tests/inbound-filter-flow.mjs",
+    "tests/key-rate-limit-flow.mjs",
+    "tests/loader-flow.mjs",
+    "tests/notification-preferences.mjs",
+    "tests/operator-ui.mjs",
+    "tests/project-erasure/ui.mjs",
+    "tests/release-identity-flow.mjs",
+    "tests/reports-flow.mjs",
+    "tests/retention-flow.mjs",
+    "tests/retention-schedule-flow.mjs",
+    "tests/rollbar-import/screens.mjs",
+    "tests/scrubbing-flow.mjs",
+    "tests/slack-ui.mjs",
+    "tests/triage-journey.mjs"
+  ],
+  "difference_from_c1": [
+    "sources.lock.json",
+    "tests/triage-journey.mjs"
+  ],
+  "author": "Run Edit Run fleet <fleet@runeditrun.com>",
+  "committer": "Run Edit Run fleet <fleet@runeditrun.com>",
+  "trailers": "",
+  "clauses_before_after": {
+    "done": [
+      23,
+      23
+    ],
+    "partial": [
+      53,
+      53
+    ],
+    "missing": [
+      29,
+      29
+    ],
+    "total": [
+      105,
+      105
+    ]
+  }
+}

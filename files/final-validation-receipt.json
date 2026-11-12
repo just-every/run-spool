@@ -1,0 +1,40 @@
+{
+  "head": "33c29d204f27d85ac3320b49c206eef99177efb0",
+  "branch": "cloud/main-spool-settings-split-1-c2",
+  "clean": true,
+  "candidate_commits": 1,
+  "merge_commits": [],
+  "contract_views_equal_main": {
+    "CONTRACT.md": true,
+    "ACCEPTANCE.md": true,
+    "docs/CLAIMS.md": true
+  },
+  "consecutive_journeys": 5,
+  "passed": 5,
+  "failed": 0,
+  "check_groups_per_run": [
+    22,
+    22,
+    22,
+    22,
+    22
+  ],
+  "captures_per_run": [
+    100,
+    100,
+    100,
+    100,
+    100
+  ],
+  "widths": [
+    1440,
+    390
+  ],
+  "settings_screens": 14,
+  "legacy_fragment_checks": 4,
+  "typecheck_exit": 0,
+  "build_exit": 0,
+  "source_check_exit": 0,
+  "contract_check_exit": 0,
+  "test_registrations_added": 0
+}

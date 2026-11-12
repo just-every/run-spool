@@ -1,0 +1,12 @@
+{
+  "head": "8ef55561973155476e8c9c8d98c1c7b2e80c8b70",
+  "command": "cloud_run node tests/triage-journey.mjs",
+  "unmodified_full_journeys": 1,
+  "passed": 1,
+  "failed": 0,
+  "assertion_width": 1440,
+  "existing_smoke_width": 390,
+  "check_groups": 22,
+  "screenshots": 100,
+  "natural_flake_reproduced": false
+}

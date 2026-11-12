@@ -1,0 +1,17 @@
+{
+  "head": "33c29d204f27d85ac3320b49c206eef99177efb0",
+  "run": 3,
+  "command": "cloud_run node tests/triage-journey.mjs",
+  "assertion_width": 1440,
+  "existing_smoke_width": 390,
+  "started": "2026-11-12T03:56:32Z",
+  "finished": "2026-11-12T04:02:04Z",
+  "exit": 0,
+  "sleeps_added": 0,
+  "retries_added": 0,
+  "timeout_changes": 0,
+  "assertions_weakened": 0,
+  "check_groups": 22,
+  "screenshots": 100,
+  "manifest_head": "33c29d204f27d85ac3320b49c206eef99177efb0"
+}

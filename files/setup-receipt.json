@@ -1,0 +1,9 @@
+{
+  "command": "cloud_run npx -y @runeditrun/rer setup --owner-email fleet@runeditrun.com --non-interactive",
+  "exit": 0,
+  "node": "24.19.0",
+  "pnpm": "10.12.4",
+  "chromium": "/usr/bin/chromium",
+  "baseline_head": "8ef55561973155476e8c9c8d98c1c7b2e80c8b70",
+  "baseline_build_exit": 0
+}

@@ -1,0 +1,21 @@
+{
+  "baseline": "8ef55561973155476e8c9c8d98c1c7b2e80c8b70",
+  "mode": "Hold only the browser key-list refresh until the existing last row has been selected; release before the revoked-state assertion. No sleeps or retries.",
+  "before_capture": {
+    "status": 201,
+    "outcome": "accepted"
+  },
+  "positional_selection": {
+    "selected_created_key": false,
+    "selected_ingest_key": true
+  },
+  "after_keys": {
+    "ingest_revoked": true,
+    "created_deploy_active": true
+  },
+  "after_capture": {
+    "status": 401,
+    "outcome": "rejected",
+    "reason": "invalid_ingest_key"
+  }
+}
