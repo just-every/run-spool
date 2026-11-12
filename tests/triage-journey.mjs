@@ -109,6 +109,13 @@ try {
   await expect(page.getByRole('heading',{name:'Project keys',exact:true})).toBeHidden();
   await page.goBack();await expect(page.getByRole('heading',{name:'Project keys',exact:true})).toBeVisible();
   await page.goForward();await expect(page.getByRole('heading',{name:'Archive and restore',exact:true})).toBeVisible();
+  // Links published before the split select the section holding the original target.
+  await page.goto(origin+'/projects/cedar/settings#slack-destinations');
+  await expect(page.getByRole('region',{name:'Slack destinations',exact:true})).toBeVisible();
+  await expect(settingsNavigation.getByRole('link',{name:'Alerts & integrations',exact:true})).toHaveAttribute('aria-current','page');
+  await page.goto(origin+'/projects/cedar/settings#reports-configuration-title');
+  await expect(page.getByRole('heading',{name:'Reports, dashboards and query tables',exact:true})).toBeVisible();
+  await settingsNavigation.getByRole('link',{name:'Data & archive',exact:true}).click();
  }
  await capture('settings-data',width);
  const beforeDownload=await archiveProjection(await fetch(origin+'/api/archive',{headers:{Cookie:cookie}}));

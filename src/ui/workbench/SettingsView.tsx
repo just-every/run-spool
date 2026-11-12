@@ -29,20 +29,22 @@ import { date, type Request, type Run } from './shared';
 import { Members, type OrganizationAccess } from './Members';
 
 const settingsSections = [
-  { id: 'organization', label: 'Organization', fragments: [] },
-  { id: 'projects', label: 'Projects & keys', fragments: ['reports-configuration-title', 'origin-step-help'] },
-  { id: 'processing', label: 'Issue processing', fragments: ['grouping-rules-heading', 'grouping-proposals-heading', 'recurrence-policy-title', 'release-policy-title', 'commit-sharing-title'] },
-  { id: 'alerts', label: 'Alerts & integrations', fragments: ['personal-notifications-title', 'slack-destinations'] },
-  { id: 'privacy', label: 'Privacy & filtering', fragments: ['inbound-filters-heading', 'end-user-erasure-title'] },
-  { id: 'data', label: 'Data & archive', fragments: ['archive-error', 'erasure-title'] },
-  { id: 'audit', label: 'Audit', fragments: ['audit-history-heading'] },
+  { id: 'organization', label: 'Organization' },
+  { id: 'projects', label: 'Projects & keys' },
+  { id: 'processing', label: 'Issue processing' },
+  { id: 'alerts', label: 'Alerts & integrations' },
+  { id: 'privacy', label: 'Privacy & filtering' },
+  { id: 'data', label: 'Data & archive' },
+  { id: 'audit', label: 'Audit' },
 ] as const;
 
-// Retain the existing in-page addresses as well as the named section addresses.
+// Existing fragments still identify their original control, even inside a hidden
+// section. Discover its containing section rather than duplicating every form ID.
 function sectionFor(hash: string) {
   let fragment: string;
   try { fragment = decodeURIComponent(hash.replace(/^#/, '')); } catch { return undefined; }
-  return settingsSections.find(section => `settings-${section.id}` === fragment || section.fragments.some(value => value === fragment))?.id;
+  const container = typeof document === 'undefined' ? undefined : document.getElementById(fragment)?.closest('.settings-section')?.id;
+  return settingsSections.find(section => `settings-${section.id}` === (container ?? fragment))?.id;
 }
 
 export function SettingsView({ project, projects, keys, releases, request, run, busy, refresh, onCreated, onErased, onKey, access, revision }: {
@@ -80,7 +82,7 @@ export function SettingsView({ project, projects, keys, releases, request, run, 
     if (!hash) return;
     let fragment: string;
     try { fragment = decodeURIComponent(hash.slice(1)); } catch { return; }
-    const target = document.getElementById(fragment);
+    const target = fragment.startsWith('settings-') ? document.querySelector('.settings-navigation') : document.getElementById(fragment);
     if (target && !target.closest('[hidden]')) target.scrollIntoView({ block: 'start' });
   }, [hash, active]);
   return <>
