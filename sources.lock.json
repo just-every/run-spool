@@ -2937,6 +2937,10 @@
       "sha256": "cd6b58e81c7f448bef22b6c2ac1bd22895be73a8a24be5261bb264d05c8fa146",
       "executable": false
     },
+    "docs/BUSINESS-IMPORT-TRUST.md": {
+      "sha256": "a926ea4ea3d53621f8ce7f642956364b1b3d070d9854c046049eb70d1c27ad8b",
+      "executable": false
+    },
     "docs/capture.md": {
       "sha256": "f2be46af210e47778097bbc50a1ac64c527d186717daaa22ffd8441889be9b16",
       "executable": false
@@ -2993,6 +2997,10 @@
       "sha256": "3aa0206a0047352daf62a139f704fe9e3f36db28f2bdcb5b0692fb252091a88e",
       "executable": false
     },
+    "docs/GITHUB-CONNECTION.md": {
+      "sha256": "3565cc8ee227f0b8947c9d315f37eca10d0ef7e4eb1f6a727cda7f7d86e61986",
+      "executable": false
+    },
     "docs/GROUPING-RULES.md": {
       "sha256": "3e757d157d9cfd77bfac274b73383c4018e3b1de6c9d49f001bcb6dd385a3ddb",
       "executable": false
@@ -3011,6 +3019,10 @@
     },
     "docs/install.md": {
       "sha256": "3ce1be13db94dd2e86e98626f2fd3037fd9acb5be0c9299ec7c24021acbda16e",
+      "executable": false
+    },
+    "docs/INTEGRATION-EGRESS.md": {
+      "sha256": "d14b318bfd6ae37575600d784e8d9600bbf77515546ea38f72880ee14fd52906",
       "executable": false
     },
     "docs/INVESTIGATION.md": {
@@ -3719,6 +3731,10 @@
     },
     "docs/triage.md": {
       "sha256": "4404ac92f456fd4fec44be5ad504d22421b499af45a66f3636a6866f01a1edb4",
+      "executable": false
+    },
+    "docs/USER-IDENTITY.md": {
+      "sha256": "952f48e25dac6abbf2a0574873fade08b316616fbd6dbe6e6b0086ca1f165428",
       "executable": false
     },
     "docs/WITH-YOUR-AGENT.md": {
@@ -11630,7 +11646,11 @@
       "executable": false
     },
     "tests/setup-journey.mjs": {
-      "sha256": "9098549c40bcba23d96bf383e342e6b8b198987a7389dd03631335e86ef64e01",
+      "sha256": "ad83b96677c3b79682c9240b21f3efaefb8b74cad837b06ee1761c8f91a23ad9",
+      "executable": false
+    },
+    "tests/setup-prerequisites.mjs": {
+      "sha256": "2d3124e2b8e62eced647c96f446e5dc29aadb816839b0d628c6135e9c18dbd3f",
       "executable": false
     },
     "tests/slack-flow.mjs": {
