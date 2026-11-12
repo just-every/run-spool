@@ -12,7 +12,13 @@ Live hybrid egress qualification remains pending. Installing a binding does not 
 
 Use the same Spool checkout and its installed dependencies. These steps change deployment configuration; the service and Spool each retain their own private deployment state. One checkout must own the service's state. The operator needs `CLOUDFLARE_ACCOUNT_ID` and a matching `CLOUDFLARE_API_TOKEN` supplied privately to the deployment process, with permission to deploy Workers and read the complete account zone inventory. Never paste credentials into a command, page or report.
 
-1. In `src/modules/egress-service/deploy.json`, configure the service-owned `vars`:
+1. Create an installation-owned declaration from the shipped service declaration, leaving the vendored module intact:
+
+   ```sh
+   cp src/modules/egress-service/deploy.json egress-deploy.json
+   ```
+
+   Preserve its project identity and disabled public route. In `egress-deploy.json`, configure the service-owned `vars`:
    - `EGRESS_OWNED_ZONES`: a JSON array containing **all** zones the account owns (use an explicit `[]` only if there are none).
    - `EGRESS_WORKERS_SUFFIX`: the account's exact `<account-subdomain>.workers.dev` suffix.
    - `EGRESS_GRANTS`: a JSON array with an `EgressRestricted` entry whose `allowedHosts` lists the exact receiver hosts. Include `slack.com` for Slack and the host from each Uptime heartbeat URL for cron check-ins. The checked-in grants allow no hosts.
@@ -27,10 +33,10 @@ Use the same Spool checkout and its installed dependencies. These steps change d
 
    ```sh
    node node_modules/@runeditrun/rer/modules/deploy-kit/owner-cli.mjs dry-run \
-     --declaration src/modules/egress-service/deploy.json --environment production --product src/modules/egress-service \
+     --declaration egress-deploy.json --environment production --product src/modules/egress-service \
      --state .rer/deploy/egress-production.json
    node node_modules/@runeditrun/rer/modules/deploy-kit/owner-cli.mjs deploy \
-     --declaration src/modules/egress-service/deploy.json --environment production --product src/modules/egress-service \
+     --declaration egress-deploy.json --environment production --product src/modules/egress-service \
      --state .rer/deploy/egress-production.json
    ```
 
