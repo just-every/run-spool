@@ -1,0 +1,14 @@
+verify (execution)	Run suites	﻿2026-11-12T14:49:42.6473545Z ##[group]Run pnpm test:execution && node tests/business-import.mjs
+verify (execution)	Run suites	2026-11-12T14:49:42.6473957Z [36;1mpnpm test:execution && node tests/business-import.mjs[0m
+verify (execution)	Run suites	2026-11-12T14:49:42.6491540Z shell: /usr/bin/bash -e {0}
+[CI environment header omitted]
+verify (execution)	Run suites	2026-11-12T14:49:42.6493240Z ##[endgroup]
+verify (execution)	Run suites	2026-11-12T14:49:42.8551557Z 
+verify (execution)	Run suites	2026-11-12T14:49:42.8552580Z > @errors/errors-workbench@0.7.8 test:execution /home/runner/work/run-spool/run-spool
+verify (execution)	Run suites	2026-11-12T14:49:42.8553420Z > node tests/execution-journey.mjs
+verify (execution)	Run suites	2026-11-12T14:49:42.8553742Z 
+verify (execution)	Run suites	2026-11-12T14:49:43.3107982Z (node:2546) ExperimentalWarning: SQLite is an experimental feature and might change at any time
+verify (execution)	Run suites	2026-11-12T14:49:43.3108970Z (Use `node --trace-warnings ...` to show where the warning was created)
+verify (execution)	Run suites	2026-11-12T14:50:33.2130259Z {"journey":"execution","stage":"disconnected-setup","message":"browserContext.waitForEvent: Timeout 30000ms exceeded while waiting for event \"page\"","stack":["    at disconnectedGitHubSetup (/home/runner/work/run-spool/run-spool/tests/execution/ui.mjs:23:26)","    at async file:///home/runner/work/run-spool/run-spool/tests/execution-journey.mjs:37:24"]}
+verify (execution)	Run suites	2026-11-12T14:50:33.2763236Z  ELIFECYCLE  Command failed with exit code 1.
+verify (execution)	Run suites	2026-11-12T14:50:33.3990390Z ##[error]Process completed with exit code 1.

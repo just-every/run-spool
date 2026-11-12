@@ -1,0 +1,14 @@
+{
+  "at": "2026-11-12T15:13:41Z",
+  "repository": "just-every/run-spool",
+  "run_id": 43240964821,
+  "head": "47ecaeeec8c442aa4648ad3b7f4fc1d7e1f115e2",
+  "original_attempt": 1,
+  "job_id": 131261613690,
+  "job_name": "verify (execution)",
+  "prior_retry_count": 0,
+  "requested_retry_count": 1,
+  "command": "gh api --method POST repos/just-every/run-spool/actions/jobs/131261613690/rerun",
+  "exit": 0,
+  "response": "{}"
+}

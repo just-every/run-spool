@@ -1,0 +1,34 @@
+{
+  "main_snapshot": "461eb0f58adf9456aef587866dd013d628c38b9f",
+  "source": "ACCEPTANCE.md generated Progress table (read-only)",
+  "before_and_after": {
+    "core": {
+      "done": 23,
+      "partial": 45,
+      "missing": 19,
+      "total": 87
+    },
+    "agent_surface": {
+      "done": 0,
+      "partial": 9,
+      "missing": 9,
+      "total": 18
+    },
+    "full_target": {
+      "done": 23,
+      "partial": 54,
+      "missing": 28,
+      "total": 105
+    }
+  },
+  "source_table": "| Tier | Done | Partial | Missing | Total |\n| --- | ---: | ---: | ---: | ---: |\n| Core | 23 | 45 | 19 | 87 |\n| Agent surface | 0 | 9 | 9 | 18 |\n| Later | 0 | 0 | 0 | 0 |\n| Full target | 23 | 54 | 28 | 105 |",
+  "clause_status_changes": [],
+  "added_tests": 0,
+  "deleted_tests": 0,
+  "weakened_tests": 0,
+  "product_diff": "",
+  "product_commits": "0",
+  "candidate": "47ecaeeec8c442aa4648ad3b7f4fc1d7e1f115e2",
+  "candidate_source_table": "| Tier | Done | Partial | Missing | Total |\n| --- | ---: | ---: | ---: | ---: |\n| Core | 23 | 45 | 19 | 87 |\n| Agent surface | 0 | 9 | 9 | 18 |\n| Later | 0 | 0 | 0 | 0 |\n| Full target | 23 | 54 | 28 | 105 |",
+  "candidate_counts_equal_main_snapshot": true
+}

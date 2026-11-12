@@ -1,0 +1,96 @@
+Candidate 47ecaeeec8c442aa4648ad3b7f4fc1d7e1f115e2
+Workflow source only; never edited.
+
+1: name: Verify
+2: 
+3: on:
+4:   push:
+5:     branches: ['**']
+6:     tags: ['**']
+7:   pull_request:
+8:   workflow_dispatch:
+9:   workflow_call:
+10:     inputs:
+11:       tier:
+12:         type: string
+13:         default: push
+14: 
+15: permissions:
+16:   contents: read
+17: 
+18: concurrency:
+19:   group: seed-verify-${{ github.workflow }}-${{ github.event_name }}-${{ github.ref == 'refs/heads/main' && github.run_id || github.event.pull_request.number || github.ref }}
+20:   cancel-in-progress: ${{ github.ref != 'refs/heads/main' }}
+316:             command: pnpm test:tunnel && pnpm test:sentry:sdk && pnpm test:sdk && pnpm test:languages
+317:           - shard: wizard
+318:             command: pnpm test:wizard
+319:           - shard: agent-handoff
+320:             command: pnpm test:agent-door && pnpm test:agent-handoff && pnpm test:privacy
+321:           - shard: repair-recovery
+322:             command: pnpm test:repair-recovery
+323:           - shard: execution
+324:             command: pnpm test:execution && node tests/business-import.mjs
+325:           - shard: project-erasure
+326:             command: pnpm test:project-erasure
+327:           - shard: project-erasure-cap
+328:             command: pnpm test:project-erasure-cap
+329:           - shard: owner-erasure
+330:             command: pnpm test:owner-erasure
+331:     steps:
+332:       # Keep the default checkout root on every runner: emitted configs can
+333:       # contain absolute paths from the build job's checkout.
+334:       - uses: actions/checkout@v4
+335:         with:
+336:           persist-credentials: false
+337:       - uses: pnpm/action-setup@v4
+338:         with:
+339:           version: 10.12.4
+340:           run_install: false
+341:       - uses: actions/setup-node@v4
+342:         with:
+343:           node-version: 22.20.0
+344:       - name: Prepare runner-owned dependency and browser caches
+345:         run: |
+458:             *) exit 1 ;;
+459:           esac
+460: 
+461:   light:
+462:     needs: plan
+463:     if: ${{ needs.plan.outputs.coverage == 'light' }}
+464:     runs-on: ubuntu-24.04
+465:     timeout-minutes: 12
+466:     env:
+467:       CI: 'true'
+468:       WRANGLER_SEND_METRICS: 'false'
+469:     steps:
+470:       - uses: actions/checkout@v4
+471:         with:
+472:           persist-credentials: false
+473:           # The prose reader resolves COVERAGE.json's recorded old commit.
+474:           fetch-depth: 0
+475:       - uses: actions/setup-node@v4
+476:         with:
+477:           node-version: '22.20.0'
+478:       - run: npm install --global pnpm@10.12.4
+479:       - run: pnpm config set store-dir "$RUNNER_TEMP/pnpm-store"
+480:       - run: pnpm install --frozen-lockfile
+481:       - run: pnpm run deps
+482:       - name: Run the changed files' reviewed readers and build the run site
+483:         env:
+484:           LIGHT_READERS: ${{ needs.plan.outputs.readers }}
+485:         run: node scripts/verify-ci.mjs --light
+486: 
+487:   full-push-proof:
+488:     needs: [plan, shards]
+489:     if: ${{ github.event_name == 'push' && startsWith(github.ref, 'refs/heads/') && needs.plan.outputs.tier == 'push' && needs.plan.outputs.coverage == 'full' && needs.shards.result == 'success' }}
+490:     runs-on: ubuntu-24.04
+491:     timeout-minutes: 1
+492:     steps:
+493:       - run: test '${{ needs.shards.result }}' = success
+494: 
+495:   nightly-proof:
+
+322:             command: pnpm test:repair-recovery
+323:           - shard: execution
+324:             command: pnpm test:execution && node tests/business-import.mjs
+325:           - shard: project-erasure

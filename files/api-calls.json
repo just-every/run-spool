@@ -1,0 +1,44 @@
+[
+  {
+    "call": 1,
+    "at": "2026-11-12T15:12:36Z",
+    "command": "gh api repos/just-every/run-spool/actions/runs/43240964821 --jq {id,name,head_sha,head_branch,status,conclusion,run_attempt,event,created_at,updated_at,html_url,workflow_id}",
+    "exit": 0
+  },
+  {
+    "call": 2,
+    "at": "2026-11-12T15:12:51Z",
+    "command": "gh api repos/just-every/run-spool/actions/runs/43240964821/jobs?filter=all&per_page=100 --jq {total_count,jobs:[.jobs[]|{id,name,run_id,run_attempt,head_sha,status,conclusion,started_at,completed_at,runner_id,runner_name,runner_group_id,runner_group_name,labels,html_url,steps}]}",
+    "exit": 0
+  },
+  {
+    "call": 3,
+    "at": "2026-11-12T15:13:10Z",
+    "command": "gh run view 43240964821 --repo just-every/run-spool --job 131261613690 --log-failed",
+    "exit": 0
+  },
+  {
+    "call": 4,
+    "at": "2026-11-12T15:13:41Z",
+    "command": "gh api --method POST repos/just-every/run-spool/actions/jobs/131261613690/rerun",
+    "exit": 0
+  },
+  {
+    "call": 5,
+    "at": "2026-11-12T15:18:53Z",
+    "command": "gh api repos/just-every/run-spool/actions/runs/43240964821 --jq {id,name,head_sha,head_branch,status,conclusion,run_attempt,event,created_at,updated_at,html_url}",
+    "exit": 0
+  },
+  {
+    "call": 6,
+    "at": "2026-11-12T15:24:09Z",
+    "command": "gh api repos/just-every/run-spool/actions/runs/43240964821 --jq {id,name,head_sha,head_branch,status,conclusion,run_attempt,event,created_at,updated_at,html_url}",
+    "exit": 0
+  },
+  {
+    "call": 7,
+    "at": "2026-11-12T15:24:24Z",
+    "command": "gh api repos/just-every/run-spool/actions/runs/43240964821/jobs?filter=all&per_page=100 --jq {total_count,jobs:[.jobs[]|{id,name,run_id,run_attempt,head_sha,status,conclusion,started_at,completed_at,runner_id,runner_name,runner_group_id,runner_group_name,labels,html_url,steps}]}",
+    "exit": 0
+  }
+]

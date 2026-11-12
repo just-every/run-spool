@@ -1,0 +1,56 @@
+{
+  "at": "2026-11-12T15:17:06Z",
+  "repository": "just-every/run-spool",
+  "candidate": "47ecaeeec8c442aa4648ad3b7f4fc1d7e1f115e2",
+  "clone_head": "461eb0f58adf9456aef587866dd013d628c38b9f",
+  "clone_branch": "cloud/sd-spool-release-0-7-8-rebased-ci-triage-1",
+  "main_snapshot": "461eb0f58adf9456aef587866dd013d628c38b9f",
+  "main_test_executed": false,
+  "source_comparison": [
+    {
+      "path": "tests/execution/ui.mjs",
+      "candidate_sha256": "5d887613f0cff97b0dde2526c1f3d69e24faa65d70f36153896db1d206357a2f",
+      "main_sha256": "5d887613f0cff97b0dde2526c1f3d69e24faa65d70f36153896db1d206357a2f",
+      "same_bytes": true
+    },
+    {
+      "path": "tests/execution-journey.mjs",
+      "candidate_sha256": "db6b9e148f429689c9c25cf4bdfd1f5f836f05dbda1250d768ecf90047a88c5e",
+      "main_sha256": "db6b9e148f429689c9c25cf4bdfd1f5f836f05dbda1250d768ecf90047a88c5e",
+      "same_bytes": true
+    },
+    {
+      "path": ".github/workflows/verify.yml",
+      "candidate_sha256": "4e37178ccff6fd86b4acf80b66cfa575cffe93eee6e59ada8ffed481970b79ed",
+      "main_sha256": "4e37178ccff6fd86b4acf80b66cfa575cffe93eee6e59ada8ffed481970b79ed",
+      "same_bytes": true
+    }
+  ],
+  "working_tree_status": "",
+  "candidate_ui_lines_16_25": [
+    "   const connection=page.getByRole('group',{name:'GitHub connection',exact:true});",
+    "   await connection.getByRole('status').filter({hasText:/not configured/i}).waitFor();",
+    "   await connection.locator('.callout').filter({hasText:/setup.*unavailable/i}).waitFor();",
+    "   await connection.getByText(/hosted.*cannot connect.*deployment.*optional.*secret/i).waitFor();",
+    "   const guideLink=connection.getByRole('link',{name:'Set up the GitHub connection',exact:true});await guideLink.waitFor();",
+    "   if(width===1440){",
+    "    const href=await guideLink.getAttribute('href');assert.equal(new URL(href,app.origin).origin,app.origin,'GitHub setup stays on this install');",
+    "    const opened=context.waitForEvent('page');await guideLink.click({modifiers:['ControlOrMeta']});const guide=await opened;try{await guide.locator('article').waitFor();assert.equal((await fetch(guide.url())).status,200,'GitHub guide opens anonymously');const index=await (await fetch(app.origin+'/docs')).text();assert.ok(index.includes(`href=\"${new URL(guide.url()).pathname}\"`),'GitHub guide is reachable from docs index');}finally{await guide.close();}",
+    "   }",
+    "   const path=`${directory}/github-disconnected-${width}.png`;await connection.screenshot({path});captures.push(path);"
+  ],
+  "test_command": "pnpm test:execution && node tests/business-import.mjs",
+  "failing_test": "node tests/execution-journey.mjs",
+  "failing_function": "disconnectedGitHubSetup",
+  "failing_stage": "disconnected-setup",
+  "expectation": "browserContext.waitForEvent(\"page\") after modifier-clicking the local GitHub setup guide at width 1440",
+  "error": "Timeout 30000ms exceeded while waiting for event \"page\"",
+  "stack": [
+    "tests/execution/ui.mjs:23:26",
+    "tests/execution-journey.mjs:37:24"
+  ],
+  "classification": "Exact-head retry-resolved browser page-event flake; root cause undetermined. Not a proven infrastructure failure or matching main failure.",
+  "clause_changes": [],
+  "product_commits": 0,
+  "product_pushes": 0
+}

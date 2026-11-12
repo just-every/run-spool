@@ -1,0 +1,93 @@
+{
+  "at": "2026-11-12T15:25:21Z",
+  "repository": "just-every/run-spool",
+  "task": "sd-spool-release-0-7-8-rebased-ci-triage-1",
+  "triaged_branch": "cloud/sd-spool-release-0-7-8-rebase-47ecaeeec8c442aa4648ad3b7f4fc1d7e1f115e2",
+  "triaged_head": "47ecaeeec8c442aa4648ad3b7f4fc1d7e1f115e2",
+  "run_id": 43240964821,
+  "run_attempt": 2,
+  "run_status": "completed",
+  "run_conclusion": "success",
+  "run_last_updated_at": "2026-11-12T15:19:14Z",
+  "workflow_url": "https://github.com/just-every/run-spool/actions/runs/43240964821",
+  "initial_failed_job": 131261613690,
+  "retry_execution_job": 131276971438,
+  "retry_execution_runner_id": 1000314956,
+  "retry_execution_started_at": "2026-11-12T15:13:51Z",
+  "retry_execution_completed_at": "2026-11-12T15:19:03Z",
+  "exact_head_prior_retries": 0,
+  "exact_head_retries_requested": 1,
+  "manual_jobs_requested": [
+    131261613690
+  ],
+  "actual_non_skipped_attempt_2_jobs": [
+    {
+      "id": 131276971438,
+      "name": "verify (execution)",
+      "run_attempt": 2,
+      "status": "completed",
+      "conclusion": "success",
+      "started_at": "2026-11-12T15:13:51Z",
+      "completed_at": "2026-11-12T15:19:03Z",
+      "runner_id": 1000314956
+    },
+    {
+      "id": 131280331915,
+      "name": "shards (spool)",
+      "run_attempt": 2,
+      "status": "completed",
+      "conclusion": "success",
+      "started_at": "2026-11-12T15:19:05Z",
+      "completed_at": "2026-11-12T15:19:08Z",
+      "runner_id": 1000314983
+    },
+    {
+      "id": 131280388151,
+      "name": "verify",
+      "run_attempt": 2,
+      "status": "completed",
+      "conclusion": "success",
+      "started_at": "2026-11-12T15:19:11Z",
+      "completed_at": "2026-11-12T15:19:13Z",
+      "runner_id": 1000314984
+    }
+  ],
+  "carried_forward_jobs": "Other success records in attempt 2 retain original attempt-1 execution times; they were not requested again.",
+  "before_job_counts": {
+    "success": 24,
+    "failure": 3,
+    "skipped": 4,
+    "total": 31
+  },
+  "after_job_counts": {
+    "success": 27,
+    "skipped": 4,
+    "failure": 0,
+    "total": 31
+  },
+  "before_product_matrix": {
+    "success": 22,
+    "failure": 1,
+    "total": 23
+  },
+  "after_product_matrix": {
+    "success": 23,
+    "failure": 0,
+    "total": 23
+  },
+  "gh_calls_used": 7,
+  "gh_call_budget": 10,
+  "classification": "Exact-head retry-resolved browser page-event flake; root cause undetermined. Not a proven infrastructure failure or matching main failure.",
+  "same_runner_main_probe": "Not required: permitted retry passed; no main test was run.",
+  "clause_changes": [],
+  "product_commits": 0,
+  "product_pushes": 0,
+  "pr": null,
+  "landing_records_modified": false,
+  "readmitted": false,
+  "blockers": [],
+  "next_action": "sd may review the exact-head green receipt and resume the fleet-owned guarded release/landing process for the original release candidate; investigator performs no readmission.",
+  "clone_branch": "cloud/sd-spool-release-0-7-8-rebased-ci-triage-1",
+  "clone_head": "461eb0f58adf9456aef587866dd013d628c38b9f",
+  "clone_worktree_status": ""
+}
