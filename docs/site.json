@@ -50,6 +50,31 @@
           "label": "Your coding agent"
         }
       ]
+    },
+    {
+      "title": "Installation settings",
+      "pages": [
+        {
+          "slug": "user-identity",
+          "source": "docs/USER-IDENTITY.md",
+          "label": "User identity policy"
+        },
+        {
+          "slug": "github-connection",
+          "source": "docs/GITHUB-CONNECTION.md",
+          "label": "GitHub connection"
+        },
+        {
+          "slug": "integration-egress",
+          "source": "docs/INTEGRATION-EGRESS.md",
+          "label": "Integration egress service"
+        },
+        {
+          "slug": "business-import-trust",
+          "source": "docs/BUSINESS-IMPORT-TRUST.md",
+          "label": "Business import trust"
+        }
+      ]
     }
   ],
   "githubOnly": [
