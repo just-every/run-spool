@@ -2938,7 +2938,7 @@
       "executable": false
     },
     "docs/capture.md": {
-      "sha256": "f2be46af210e47778097bbc50a1ac64c527d186717daaa22ffd8441889be9b16",
+      "sha256": "a9c01547d33fe32b604559b04bc04e40011f8df6da30b14c89f3fe263572af1a",
       "executable": false
     },
     "docs/CHECK-INS.md": {
@@ -2986,7 +2986,7 @@
       "executable": false
     },
     "docs/FRAMEWORK-SETUP.md": {
-      "sha256": "872a6cfa4fc9493b55de934335eb8d781fa7ced0db0d0a07d07126f88df6da67",
+      "sha256": "64e2b1b77a8c417c68e36b650e81c0fcde13f362b9b64acd89be38c60a4135ff",
       "executable": false
     },
     "docs/getting-started.md": {
@@ -4158,7 +4158,7 @@
       "executable": false
     },
     "OPERATIONS.md": {
-      "sha256": "64fda042f230964ef35f2d2031a0a7b3c4350d91dd7f47cc6ea82fa0ee1c452c",
+      "sha256": "6b140cbf6c421b71a8bdd4a8429dc67c9e2dddd7ee5f99c5413b8339eeb1e61e",
       "executable": false
     },
     "package.json": {
@@ -4450,7 +4450,7 @@
       "executable": false
     },
     "README.md": {
-      "sha256": "bff27b2cfdded428c060477c659865274ec51b3cb66f017de27b76a48cebb043",
+      "sha256": "c2ef06b31c7688ef5dd651d10ce6b889ccc79abb837ba167453e52ebe356f6f1",
       "executable": false
     },
     "release-history/0.6.0.json": {
@@ -4502,7 +4502,7 @@
       "executable": false
     },
     "RUN-LOCALLY.md": {
-      "sha256": "539e20832096d1e27e78786aa193d23860b535219d35aba9804c113e2f153331",
+      "sha256": "25ad217ef94d3bdde6e5fc420d394ddb93549992993227da5a8983d4ca17730f",
       "executable": false
     },
     "scripts/agent-door/surface.mjs": {
@@ -10498,7 +10498,7 @@
       "executable": false
     },
     "src/ui/workbench/SdkSetup.tsx": {
-      "sha256": "b31bccf0d7e1001055560f7f36c8371f6f0add17b24e262606751af51db0a09d",
+      "sha256": "7b78280cd2a6c03f42b6e5c05e78551fc30d2af83ffa7e5238d088e6cf955a93",
       "executable": false
     },
     "src/ui/workbench/SentryEvent.tsx": {
@@ -10522,7 +10522,7 @@
       "executable": false
     },
     "src/ui/workbench/SourceMapSetup.tsx": {
-      "sha256": "ffb48e60f30dbd21cb91ce77ef5884ef42e8a5cbfd933a58d1ead821ee18ff1a",
+      "sha256": "7a2f599f3f5fe8c3c470bd028aaafcf71c0c8caccabbe813955fad0f48120f7c",
       "executable": false
     },
     "src/ui/workbench/sourceMapSnippets.ts": {
@@ -11346,7 +11346,7 @@
       "executable": false
     },
     "tests/runtime.mjs": {
-      "sha256": "949672581e937bd987a21fada308fb1a7bf7ff34773c3af47e41b2b297cb5a8e",
+      "sha256": "251e22a4694f1a992ebe2910e129fb69c497e14fce45efeaab0c05a8b18bd6eb",
       "executable": false
     },
     "tests/runtimes/browser.mjs": {

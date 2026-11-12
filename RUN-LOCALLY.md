@@ -145,6 +145,8 @@ first-run panel shows the ingest key once, the install line and a three-line
 test error**, which registers the release and sends one real exception that
 appears in Issues:
 
+Run this in **your application’s repository**, using that application’s Node.js and npm. The Spool installer’s private Node runtime runs Spool itself; it does not put Node or npm on your shell’s PATH for your application.
+
 ```sh
 npm install @just-every/spool
 ```
@@ -176,9 +178,10 @@ all project grants, outbox, private settings and transient runtime state are
 excluded. Remote transfer is unsupported by the maintained references and fails visibly.
 
 Real deployment uses the owner-account procedure and its private credentials.
-`rer deploy --dry-run` validates and builds without deploying. With the
-Cloudflare credentials it also reads the target's secret bindings; without
-them it stops with exit 3 and names every input a real deploy still needs. The default environment is `production`; select another with
+`rer deploy --dry-run` validates and builds locally without deploying or
+contacting Cloudflare. A successful dry run exits 0 even without credentials
+and names the inputs a real deploy still needs. It does not check the target’s
+secret bindings or remote readiness. The default environment is `production`; select another with
 `--environment NAME`. Local validation does not establish provider acceptance,
 hosted health or mail delivery.
 

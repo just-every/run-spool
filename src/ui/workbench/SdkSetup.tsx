@@ -21,6 +21,7 @@ export function CodeBlock({ label, code }: { label: string; code: string }) {
 export function SdkSetup({ endpoint, project, ingestKey, release, build }: { endpoint: string; project: string; ingestKey: string; release: string; build: string }) {
   return <div className="sdk-setup">
     <h3>Install the Spool SDK</h3>
+    <p>Run this in your application’s repository with its own Node.js and npm. The Spool installer’s private runtime runs Spool; it does not add Node or npm to your application’s shell.</p>
     <CodeBlock label="Install command" code={installCommand} />
     <h3>Initialise it once in your app</h3>
     <CodeBlock label="SDK init" code={initSnippet({ endpoint, project, ingestKey, release, build })} />
