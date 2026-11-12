@@ -53,6 +53,8 @@ export async function operatorUi({page,api,origin,project,issue,capture}){
  await page.waitForFunction(()=>document.querySelector('dialog[open]')?.textContent?.includes('Enabled'));
  await dialog.getByRole('button',{name:'Disable policy',exact:true}).click();await page.waitForFunction(()=>document.querySelector('dialog[open]')?.textContent?.includes('Disabled'));
  await page.keyboard.press('Escape');
+ const beforeSplitList=await api(root+'/issue-search');
+ const beforeSplitOwnership=(await api('/api/reports?projects='+project)).ownership.unowned;
  const beforeSplitPreview=await groupingSnapshot();
  await page.getByRole('button',{name:'Details: Correct grouping',exact:true}).click();await page.getByRole('dialog').getByRole('checkbox').first().check();
  const [preview]=await Promise.all([page.waitForResponse(r=>r.url().endsWith('/corrections/preview')&&r.request().method()==='POST'),page.getByRole('button',{name:'Preview selected-event split',exact:true}).click()]);
@@ -75,6 +77,19 @@ export async function operatorUi({page,api,origin,project,issue,capture}){
  for(const original of beforeSplitPreview.events){
   const restored=(await api(root+'/issues/'+original.issue+'/packet')).events.find(event=>event.id===original.id);
   assert.equal(restored.originalGrouping.issue,original.issue,'Original membership stays inspectable after split undo');
+ }
+ if(page.viewportSize().width===1440){
+  const list=await api(root+'/issue-search');
+  assert.equal(list.total,beforeSplitList.total,'undo restores the ordinary issue count');
+  assert.deepEqual(list.facets.statuses,beforeSplitList.facets.statuses,'undo restores open issue counts');
+  assert.equal((await api('/api/reports?projects='+project)).ownership.unowned,beforeSplitOwnership,'undo restores unowned counts');
+  assert.ok(!list.rows.some(row=>row.id===splitPreview.plan.target));
+  await page.goto(origin+'/projects/'+project+'/issues');
+  await page.locator('.issue-counts').waitFor();
+  await page.waitForFunction(()=>!document.querySelector('.issue-counts')?.textContent.includes('…'));
+  assert.equal(await page.locator('.issue-open').count(),list.rows.length);
+  assert.equal(await page.locator('.issue-counts').getByText('Open',{exact:true}).locator('..').locator('strong').textContent(),String(list.facets.statuses.find(row=>row.value==='open')?.count??0));
+  await capture('operator-undone-list');
  }
  // Merge real captured issues using only the rendered review, apply and undo controls.
  await page.keyboard.press('Escape');await page.keyboard.press('Escape');

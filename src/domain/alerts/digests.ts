@@ -18,7 +18,7 @@ export async function queueDigests(env:AlertEnvironment,time:number){
    i.first_seen>=? AND i.first_seen<? new_work,
    EXISTS(SELECT 1 FROM alerts a WHERE a.project=i.project AND a.issue=i.id AND a.kind='regression' AND a.created>=? AND a.created<?) regressed,
    NOT EXISTS(SELECT 1 FROM issue_assignments x WHERE x.project=i.project AND x.issue=i.id) unowned
-   FROM issues i WHERE i.project=?) SELECT * FROM work WHERE new_work OR regressed OR state='open' ORDER BY id`,period.start,period.end,period.start,period.end,c.project).all<any>()).results;
+   FROM issues i WHERE i.project=? AND i.count>0) SELECT * FROM work WHERE new_work OR regressed OR state='open' ORDER BY id`,period.start,period.end,period.start,period.end,c.project).all<any>()).results;
   const usage=(await s(env.DB,'SELECT reason,SUM(count) count FROM outcomes WHERE project=? AND window>=? AND window<? GROUP BY reason ORDER BY reason',c.project,period.start,period.end).all<any>()).results;
   const attention=(await s(env.DB,"SELECT source,state,reason,COUNT(*) count FROM follow_up_attention WHERE project=? AND state NOT IN ('completed','canceled') GROUP BY source,state,reason ORDER BY source,state,reason",c.project).all<any>()).results;
   const suppressed=await s(env.DB,'SELECT COUNT(*) n FROM alert_suppressed WHERE project=? AND released_at IS NULL',c.project).first<any>();

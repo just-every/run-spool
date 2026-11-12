@@ -1,6 +1,7 @@
 import { auditCommit, auditedBatch } from '../audit/context';
 import { auditSubject, projectAuditLabel, serviceActor } from '../audit/identity';
-import { s, type Environment } from './types';
+import { s, nonLossOutcomes, type Environment } from './types';
+const nonLossSql=nonLossOutcomes.map(reason=>"'"+reason+"'").join(',');
 type Candidate={project:string;source:'alert'|'deployment'|'fix';source_id:string;due:number;state:string;reason:string};
 
 async function remember(env:Environment,row:Candidate,time:number) {
@@ -18,6 +19,15 @@ async function remember(env:Environment,row:Candidate,time:number) {
 /** One installation-wide scan, independent of the alert dispatch cursor. */
 export async function scanFollowUp(env:Environment,time:number) {
  if(!Number.isSafeInteger(time)||time<0)throw new Error('Invalid follow-up time');
+ // Retain the mistaken attention identity and a reason instead of deleting
+ // its history. Repeated ticks do not revise it again or resend old notices.
+ // This also repairs installations that already scanned successful receipts.
+ await env.DB.batch([
+  s(env.DB,`UPDATE follow_up_attention SET state='canceled',reason='successful_capture_not_loss',updated=?,revision=revision+1
+   WHERE source='alert' AND source_id LIKE 'loss:%' AND reason IN (${nonLossOutcomes.map(reason=>"'capture_loss_"+reason+"'").join(',')})`,time),
+  s(env.DB,`UPDATE follow_up_notices SET state='canceled',code='successful_capture_not_loss'
+   WHERE state IN ('queued','blocked') AND attention IN (SELECT id FROM follow_up_attention WHERE reason='successful_capture_not_loss' AND state='canceled')`),
+ ]);
  // Expired provider boundaries never become retryable merely because a lease
  // disappeared. A delayed old worker may still finish; uncertainty stays fenced.
  await s(env.DB,"UPDATE follow_up_fix_steps SET state='uncertain',finished=? WHERE state='running' AND due<=?",time,time).run();
@@ -57,7 +67,7 @@ export async function scanFollowUp(env:Environment,time:number) {
   UNION ALL
   SELECT m.project,'alert','scheduled:'||m.id,m.created,'failed',COALESCE(m.code,'scheduled_mail_failed') FROM alert_scheduled_mail m WHERE m.historical=0 AND m.state IN ('blocked','rejected','uncertain')
   UNION ALL
-  SELECT o.project,'alert','loss:'||o.window||':'||o.reason,o.window,'overdue','capture_loss_'||o.reason FROM outcomes o WHERE o.reason NOT IN ('accepted','duplicate') AND o.count>0
+  SELECT o.project,'alert','loss:'||o.window||':'||o.reason,o.window,'overdue','capture_loss_'||o.reason FROM outcomes o WHERE o.reason NOT IN (${nonLossSql}) AND o.count>0
 `,time).all<Candidate>()).results;
  // D1 bounds compound SELECT terms. Keep the existing project sources and
  // these two team sources in separate reads, retaining the complete scan.

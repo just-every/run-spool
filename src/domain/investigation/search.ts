@@ -32,7 +32,7 @@ async function search(c:any,exporting=false){
  const project=c.req.param('project'),q=c.req.query('q')??'',state=c.req.query('status')??'all',release=c.req.query('release')??'all',sort=c.req.query('sort')??'priority';
  if(!['all','open','acknowledged','resolved','suppressed'].includes(state))throw new Error('Invalid issue status');
  if(!['priority','latest','occurrences'].includes(sort))throw new Error('Invalid issue sort');
- const query=eventQuery(q,c.get('agent')),where=['i.project=?'],args:any[]=[project];
+ const query=eventQuery(q,c.get('agent')),where=['i.project=?','i.count>0'],args:any[]=[project];
  await ensureReleaseOrderKeys(c.env.DB,project);
  await ensureShortIds(c.env.DB,project);
  if(state!=='all'){where.push('i.state=?');args.push(state)}

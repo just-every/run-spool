@@ -22,7 +22,7 @@ export async function queueTeamDigests(env:AlertEnvironment,time:number) {
      SELECT i.id,i.title,i.state,i.first_seen>=? AND i.first_seen<? new_work,
       EXISTS(SELECT 1 FROM alerts a WHERE a.project=i.project AND a.issue=i.id AND a.kind='regression' AND a.created>=? AND a.created<?) regressed,
       NOT EXISTS(SELECT 1 FROM issue_assignments x WHERE x.project=i.project AND x.issue=i.id) unowned
-     FROM issues i WHERE i.project=?)
+     FROM issues i WHERE i.project=? AND i.count>0)
      SELECT *,COUNT(*) OVER() total,SUM(new_work) OVER() new_total,SUM(regressed) OVER() regressed_total,SUM(unowned) OVER() unowned_total
      FROM work WHERE new_work OR regressed OR state='open' ORDER BY id LIMIT 50`,period.start,period.end,period.start,period.end,project).all<any>(),
     s(env.DB,'SELECT reason,SUM(count) count FROM outcomes WHERE project=? AND window>=? AND window<? GROUP BY reason ORDER BY reason',project,period.start,period.end).all<any>(),
