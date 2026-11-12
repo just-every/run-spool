@@ -102,7 +102,7 @@ export async function sdkInboundFilterFlow({request,origin,browser,temporary,req
   const project=await request('/api/projects','POST',{id,name:'Cedar checkout inbound filters'});
   const context=await browser.newContext({viewport:{width,height:1000}}),page=await context.newPage();
   try {
-   await browserSignIn(page,origin);await page.goto(`${origin}/projects/${id}/settings`);
+   await browserSignIn(page,origin);await page.goto(`${origin}/projects/${id}/settings#settings-privacy`);
    const panel=page.locator('section').filter({has:page.getByRole('heading',{name:'Inbound filters and usage',exact:true})});
    await panel.getByText('Browser extensions',{exact:true}).waitFor();
    // Filters save as you go: wait for the policy the page sent to land on the server.
@@ -167,7 +167,7 @@ export async function sdkInboundFilterFlow({request,origin,browser,temporary,req
    await context.setOffline(true);await hydration.check();await page.getByRole('alert').filter({hasText:/^Not saved\. You are offline/}).waitFor();assert.equal(await hydration.isChecked(),true,'the refused value stays in its field');assert.equal((await request(root)).policy.filters.react_hydration.enabled,false,'nothing reached the server while offline');
    await context.setOffline(false);await panel.getByRole('button',{name:'Retry',exact:true}).click();await landed(p=>p.filters.react_hydration.enabled);
    await page.route('**'+root,route=>route.abort());await page.reload();await page.getByRole('alert').filter({hasText:'Filters could not be loaded'}).waitFor();await snap('failure');await page.unroute('**'+root);await page.getByRole('button',{name:'Retry filters',exact:true}).click();await panel.getByRole('button',{name:'Preview retained events',exact:true}).waitFor();
-   const denied=await browser.newContext({viewport:{width,height:1000}});try{const signedOut=await denied.newPage();await signedOut.goto(`${origin}/projects/${id}/settings`);await signedOut.getByRole('heading',{name:'Sign in to your installation',exact:true}).waitFor();if(process.env.SPOOL_SCREEN_DIR)await signedOut.screenshot({path:resolve(process.env.SPOOL_SCREEN_DIR,`SDK-006-${width}-denied.png`)});}finally{await denied.close()}
+   const denied=await browser.newContext({viewport:{width,height:1000}});try{const signedOut=await denied.newPage();await signedOut.goto(`${origin}/projects/${id}/settings#settings-privacy`);await signedOut.getByRole('heading',{name:'Sign in to your installation',exact:true}).waitFor();if(process.env.SPOOL_SCREEN_DIR)await signedOut.screenshot({path:resolve(process.env.SPOOL_SCREEN_DIR,`SDK-006-${width}-denied.png`)});}finally{await denied.close()}
 
 
   } finally {await context.close()}
