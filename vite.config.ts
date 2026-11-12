@@ -8,11 +8,12 @@ import { excludeLocalVariables } from '@runeditrun/rer/local-variables-output'
 import { docsSite } from './vite/docs-site'
 import { archiveOutputGuard } from '@runeditrun/rer/archive-output'
 import { legacyMigrationEvidence } from '@runeditrun/rer/portability-evidence'
+import { resolve } from 'node:path'
 
 // Only `vite dev` loads the local-only entry and the checkout's dev key; a build keeps src/server.ts
 // and never sees either (rer build checks its output).
 const local = (name: string) => process.env[name] ? { [name]: process.env[name] } : {}
-const serve = { main: './src/server.dev.ts', vars: { ...local('RER_DEV_ORIGIN'), ...local('RER_DEV_KEY'), ...local('RER_DEV_IDENTITY'), ...local('RER_DEMO'), ...local('RER_DEMO_EXPIRES') } }
+const serve = { main: './src/server.dev.ts', vars: { ...local('RER_DEV_ORIGIN'), ...local('RER_DEV_KEY'), ...local('RER_DEV_IDENTITY'), ...local('RER_DEMO'), ...local('RER_DEMO_EXPIRES'), SPOOL_AGENT_NODE: process.execPath, SPOOL_AGENT_CLI: resolve('packages/agent/bin/spool-agent.mjs') } }
 
 // Serve application sources and assets; private local state and archives stay closed,
 // and a build refuses any archive in its written output.
