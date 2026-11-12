@@ -1,0 +1,22 @@
+[33m▲ [43;33m[[43;30mWARNING[43;33m][0m [1mProxy environment variables detected. We'll use your proxy for fetch requests.[0m
+
+
+(node:18890) ExperimentalWarning: SQLite is an experimental feature and might change at any time
+(Use `node --trace-warnings ...` to show where the warning was created)
+node:internal/modules/run_main:123
+    triggerUncaughtException(
+    ^
+
+locator.waitFor: Timeout 30000ms exceeded.
+Call log:
+[2m  - waiting for locator('.event-explorer').getByRole('status').filter({ hasText: /^1 matching events$/ }) to be visible[22m
+
+    at rollbarScreens (/workspace/run-spool/tests/rollbar-import/screens.mjs:16:102)
+    at async file:///workspace/run-spool/tests/rollbar-import.mjs:118:2 {
+  log: [
+    "  - waiting for locator('.event-explorer').getByRole('status').filter({ hasText: /^1 matching events$/ }) to be visible"
+  ],
+  name: 'TimeoutError'
+}
+
+Node.js v22.20.0

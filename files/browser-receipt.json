@@ -1,0 +1,182 @@
+{
+  "head": "a6ba9c9eb819120a3a4a40968e5220a72bd6de93",
+  "checks": [
+    "1440: public Settings navigation, isolated sections, create/revoke deploy key, private archive download, nonempty restore refusal, retained draft, refresh, Back/Forward",
+    "1440: old Slack, report, grouping and audit fragments reveal their containing section"
+  ],
+  "screens": [
+    {
+      "width": 1440,
+      "section": "Organization",
+      "file": "after-1440-settings-organization.png",
+      "height": 900,
+      "overflow": false,
+      "visibleHeadings": [
+        "Members"
+      ]
+    },
+    {
+      "width": 1440,
+      "section": "Projects & keys",
+      "file": "after-1440-settings-projects.png",
+      "height": 2858,
+      "overflow": false,
+      "visibleHeadings": [
+        "Create another project",
+        "Project keys",
+        "Reports, dashboards and query tables",
+        "Send errors to this project"
+      ]
+    },
+    {
+      "width": 1440,
+      "section": "Issue processing",
+      "file": "after-1440-settings-processing.png",
+      "height": 3581,
+      "overflow": false,
+      "visibleHeadings": [
+        "Project grouping rules",
+        "Agent grouping proposals",
+        "Release recurrence",
+        "Sentry release identity",
+        "Commit author and message",
+        "Feedback inbox"
+      ]
+    },
+    {
+      "width": 1440,
+      "section": "Alerts & integrations",
+      "file": "after-1440-settings-alerts.png",
+      "height": 1689,
+      "overflow": false,
+      "visibleHeadings": [
+        "Personal notifications",
+        "Slack destinations",
+        "Scheduled alert run"
+      ]
+    },
+    {
+      "width": 1440,
+      "section": "Privacy & filtering",
+      "file": "after-1440-settings-privacy.png",
+      "height": 4880,
+      "overflow": false,
+      "visibleHeadings": [
+        "Server scrubbing rules",
+        "User identity policy",
+        "End-user erasure preview",
+        "Inbound filters and usage"
+      ]
+    },
+    {
+      "width": 1440,
+      "section": "Data & archive",
+      "file": "after-1440-settings-data.png",
+      "height": 2091,
+      "overflow": false,
+      "visibleHeadings": [
+        "Archive and restore",
+        "Retention windows",
+        "Delete old evidence",
+        "Erase this project"
+      ]
+    },
+    {
+      "width": 1440,
+      "section": "Audit",
+      "file": "after-1440-settings-audit.png",
+      "height": 8139,
+      "overflow": false,
+      "visibleHeadings": [
+        "Organization audit"
+      ]
+    },
+    {
+      "width": 390,
+      "section": "Organization",
+      "file": "after-390-settings-organization.png",
+      "height": 1090,
+      "overflow": false,
+      "visibleHeadings": [
+        "Members"
+      ]
+    },
+    {
+      "width": 390,
+      "section": "Projects & keys",
+      "file": "after-390-settings-projects.png",
+      "height": 5219,
+      "overflow": false,
+      "visibleHeadings": [
+        "Create another project",
+        "Project keys",
+        "Reports, dashboards and query tables",
+        "Send errors to this project"
+      ]
+    },
+    {
+      "width": 390,
+      "section": "Issue processing",
+      "file": "after-390-settings-processing.png",
+      "height": 5305,
+      "overflow": false,
+      "visibleHeadings": [
+        "Project grouping rules",
+        "Agent grouping proposals",
+        "Release recurrence",
+        "Sentry release identity",
+        "Commit author and message",
+        "Feedback inbox"
+      ]
+    },
+    {
+      "width": 390,
+      "section": "Alerts & integrations",
+      "file": "after-390-settings-alerts.png",
+      "height": 2407,
+      "overflow": false,
+      "visibleHeadings": [
+        "Personal notifications",
+        "Slack destinations",
+        "Scheduled alert run"
+      ]
+    },
+    {
+      "width": 390,
+      "section": "Privacy & filtering",
+      "file": "after-390-settings-privacy.png",
+      "height": 6328,
+      "overflow": false,
+      "visibleHeadings": [
+        "Server scrubbing rules",
+        "User identity policy",
+        "End-user erasure preview",
+        "Inbound filters and usage"
+      ]
+    },
+    {
+      "width": 390,
+      "section": "Data & archive",
+      "file": "after-390-settings-data.png",
+      "height": 3081,
+      "overflow": false,
+      "visibleHeadings": [
+        "Archive and restore",
+        "Retention windows",
+        "Delete old evidence",
+        "Erase this project"
+      ]
+    },
+    {
+      "width": 390,
+      "section": "Audit",
+      "file": "after-390-settings-audit.png",
+      "height": 10212,
+      "overflow": false,
+      "visibleHeadings": [
+        "Organization audit"
+      ]
+    }
+  ],
+  "status": "passed"
+}

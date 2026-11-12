@@ -1,0 +1,94 @@
+{
+  "head": "a6ba9c9eb819120a3a4a40968e5220a72bd6de93",
+  "checks": [
+    {
+      "command": "npx -y @runeditrun/rer setup --owner-email fleet@runeditrun.com --non-interactive",
+      "exit": 0
+    },
+    {
+      "command": "npx -y @runeditrun/rer build",
+      "exit": 0,
+      "log": "build.log"
+    },
+    {
+      "command": "pnpm typecheck",
+      "exit": 0,
+      "log": "typecheck.log"
+    },
+    {
+      "command": "pnpm source:check",
+      "exit": 0
+    },
+    {
+      "command": "node .artifacts/settings-proof.mjs",
+      "exit": 0,
+      "receipt": "browser-receipt.json"
+    },
+    {
+      "command": "node tests/triage-journey.mjs",
+      "head": "a6ba9c9eb819120a3a4a40968e5220a72bd6de93",
+      "exit": 0,
+      "log": "triage-final.log",
+      "groups": 22,
+      "captures": 100
+    },
+    {
+      "command": "node tests/sentry-sdk.mjs",
+      "head": "a6ba9c9eb819120a3a4a40968e5220a72bd6de93",
+      "runtime": "Node 22.20.0",
+      "exit": 0,
+      "log": "sentry-sdk-final.log"
+    },
+    {
+      "command": "node tests/reports-flow.mjs",
+      "exit": 0,
+      "log": "reports-flow.log"
+    },
+    {
+      "command": "node tests/end-user-erasure-preview.mjs",
+      "exit": 0,
+      "log": "end-user-erasure-preview.log"
+    },
+    {
+      "command": "node tests/audit-history.mjs",
+      "exit": 0,
+      "log": "audit-history.log"
+    },
+    {
+      "command": "node tests/alerts-ui.mjs",
+      "exit": 0,
+      "log": "alerts-ui.log"
+    },
+    {
+      "command": "node tests/rollbar-import.mjs",
+      "runtime": "Node 22.20.0",
+      "exit": 1,
+      "log": "rollbar-import-final.log",
+      "failure": "Unchanged issue screen event-count assertion times out before Settings"
+    },
+    {
+      "command": "node tests/sentry-http.mjs",
+      "runtime": "Node 22.20.0",
+      "status": "not_completed",
+      "log": "sentry-http-final.log"
+    },
+    {
+      "command": "CI=true node tests/project-erasure.mjs",
+      "runtime": "Node 22.20.0",
+      "status": "not_completed",
+      "log": "project-erasure-final.log"
+    },
+    {
+      "command": "node --input-type=module -e teamFlow()",
+      "status": "not_completed",
+      "log": "team-flow-final.log",
+      "receipt": "incomplete-local-receipt.json"
+    }
+  ],
+  "notes": [
+    "Initial broad runs started before final build completion. Complete failures and subsequent runs retained separately.",
+    "node tests/team-flow.mjs only imports its exports; that command is not accepted as a passing team journey.",
+    "Full Base publication scan runs on fleet landing hardware; cloud does not waive it.",
+    "Tracked alert003 screenshots emitted by tests were restored from HEAD; they are not product changes."
+  ]
+}

@@ -1,0 +1,8 @@
+{
+  "head": "a6ba9c9eb819120a3a4a40968e5220a72bd6de93",
+  "command": "pnpm source:check",
+  "exit": 0,
+  "tracked_worktree_clean": true,
+  "generated_views_unchanged": true,
+  "test_screenshots_restored": true
+}

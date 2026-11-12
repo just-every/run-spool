@@ -1,0 +1,31 @@
+{
+  "head": "a6ba9c9eb819120a3a4a40968e5220a72bd6de93",
+  "status": "not_completed",
+  "team": {
+    "command": "node --input-type=module -e teamFlow()",
+    "observed_health_status": 503,
+    "observed_health_body": "{\"error\":\"Storage operation not confirmed\"}",
+    "note": "Broad team fixture ceased making progress; its health read reported storage unconfirmed. No complete team pass claimed."
+  },
+  "agent_handoff": {
+    "command": "node tests/agent-handoff.mjs",
+    "observed_health_status": null,
+    "observed_transport": "curl: (28) Operation timed out after 5002 milliseconds with 0 bytes received",
+    "passed_logged_slices": [
+      "handoff Settings UI reached",
+      "GOV-002 retention UI and archive/hold custody",
+      "GOV-003 scheduled retention"
+    ],
+    "note": "Stopped during subsequent unrelated archive-cap work after prolonged lack of progress; no complete agent-handoff pass claimed."
+  },
+  "sentry_http_final": {
+    "command": "node tests/sentry-http.mjs",
+    "status": "not_completed",
+    "note": "Stopped after prolonged full-journey execution; logs show grouping, release identity, commit-sharing/citations and inbound-filter Settings slices passed. The complete HTTP run is not represented as passing."
+  },
+  "project_erasure_final": {
+    "command": "CI=true node tests/project-erasure.mjs",
+    "status": "not_completed",
+    "note": "Desktop and phone preview, typed confirmation, progress and completed erasure receipt captures were emitted. Later CLI/archive fence work did not complete; no complete erasure journey pass is claimed."
+  }
+}

@@ -1,0 +1,51 @@
+[33m▲ [43;33m[[43;30mWARNING[43;33m][0m [1mProxy environment variables detected. We'll use your proxy for fetch requests.[0m
+
+
+node:internal/modules/run_main:107
+    triggerUncaughtException(
+    ^
+
+ExpectError: expect(locator).toContainText(expected) failed
+
+Locator: getByRole('alert')
+Expected pattern: /unavailable/i
+Timeout: 5000ms
+Error: element(s) not found
+
+Call log:
+  - Expect "toContainText" getByRole('alert') with timeout 5000ms
+  - waiting for getByRole('alert')
+
+    at captureRawStack (/workspace/run-spool/node_modules/.pnpm/playwright-core@1.63.0/node_modules/playwright-core/lib/coreBundle.js:8588:17)
+    at callMatcherAsStep (/workspace/run-spool/node_modules/.pnpm/playwright@1.63.0/node_modules/playwright/lib/matchers/expect.js:13310:57)
+    at Object.toContainText (/workspace/run-spool/node_modules/.pnpm/playwright@1.63.0/node_modules/playwright/lib/matchers/expect.js:13302:23)
+    at journey (/workspace/run-spool/tests/triage-journey.mjs:154:61)
+    at async file:///workspace/run-spool/tests/triage-journey.mjs:233:31 {
+  matcherResult: {
+    name: 'toContainText',
+    expected: /unavailable/i,
+    message: 'expect(locator).toContainText(expected) failed\n' +
+      '\n' +
+      "Locator: getByRole('alert')\n" +
+      'Expected pattern: /unavailable/i\n' +
+      'Timeout: 5000ms\n' +
+      'Error: element(s) not found\n' +
+      '\n' +
+      'Call log:\n' +
+      `  - Expect "toContainText" getByRole('alert') with timeout 5000ms\n` +
+      "  - waiting for getByRole('alert')\n",
+    pass: false,
+    actual: undefined,
+    log: [
+      `  - Expect "toContainText" getByRole('alert') with timeout 5000ms`,
+      "  - waiting for getByRole('alert')"
+    ],
+    timeout: 5000,
+    ariaSnapshot: '- main:\n' +
+      '  - text: Spool\n' +
+      '  - heading "Opening your workspace" [level=1]\n' +
+      '  - status: Checking your session…'
+  }
+}
+
+Node.js v24.19.0

@@ -1,0 +1,103 @@
+{
+  "head": "a6ba9c9eb819120a3a4a40968e5220a72bd6de93",
+  "before_component_expressions": 23,
+  "after_preserved_component_expressions": 23,
+  "section_links_before": 0,
+  "section_links_after": 7,
+  "test_registrations_added": 0,
+  "contract_status_changes": 0,
+  "rows": [
+    {
+      "expression": "<Members {...{ access, revision, refresh, request, run, busy }} />",
+      "preserved": true
+    },
+    {
+      "expression": "{!!project && <PersonalNotifications key={`notifications:${project}`} {...{project,request,run,busy}} />}",
+      "preserved": true
+    },
+    {
+      "expression": "{organizationManager && <section className=\"evidence\"><h2>{projects.length ? 'Create another project' : 'Create your first project'}</h2><ProjectForm {...{ request, run, busy, onCreated }} /></section>}",
+      "preserved": true
+    },
+    {
+      "expression": "{!!project && <section className=\"evidence\"><h2>Project keys</h2><p>Capture keys send events. Agent keys read this project\u2019s evidence and submit suggested grouping changes; decisions and apply require the owner. Deploy keys only register releases and upload source maps for this project.</p><p>Archives exclude project keys. After restoring, create new keys for this installation.</p>{!keys.length && <p>No project keys have been created here.</p>}<div className=\"button-row\">{credentialKinds.map(kind => <button key={kind} className=\"text-button\" disabled={busy} onClick={() => void run(async () => { const grant = await request(`/api/projects/${project}/keys`, 'POST', { kind }); onKey({ ...grant, kind }); refresh(); })}>Create {kind} key</button>)}</div>{keys.map((key, index) => <div className=\"data-row key-row\" key={key.hash} data-key-hash={key.hash}><span><span className={index === agentRow ? 'mark' : undefined}>{keyKind(key.kind)}</span> \u00b7 {keyStatus(key)}</span><span>Created {date(key.created)}</span><Details title=\"Project key\"><ProjectKeyFacts value={key} />{configure && key.kind === 'ingest' && !key.revoked && !key.stopped && <><LoaderSettings project={project} keyHash={key.hash} {...{request,run,busy}} />{organizationManager&&<KeyRateLimit project={project} keyHash={key.hash} {...{request,run,busy}} />}</>}{!key.revoked && (configure || (projectRole === 'member' && key.kind === 'deploy')) && <button className=\"danger-button\" disabled={busy} onClick={() => void run(async () => { await request(`/api/projects/${project}/keys/${key.hash}`, 'DELETE'); refresh(); })}>Revoke key</button>}</Details></div>)}</section>}",
+      "preserved": true
+    },
+    {
+      "expression": "{!!project && configure && <ReportsConfiguration key={`reports:${project}`} {...{ project, projects }} />}",
+      "preserved": true
+    },
+    {
+      "expression": "{!!project && configure && <section className=\"evidence\"><h2>Send errors to this project</h2>{endpoint && <SdkSetup endpoint={endpoint} project={project} ingestKey=\"YOUR_INGEST_KEY\" release={releases[0]?.name ?? 'REGISTERED_RELEASE'} build={releases[0]?.build ?? 'REGISTERED_BUILD'} />}<OriginStep key={project} project={project} request={request} /><SentryIntake /></section>}",
+      "preserved": true
+    },
+    {
+      "expression": "{!!project&&configure&&<section className=\"evidence\"><CheckInRoutes key={`check-ins:${project}`} {...{project,request,run,busy}}/></section>}",
+      "preserved": true
+    },
+    {
+      "expression": "{!!project&&configure&&<GroupingRules key={`grouping:${project}`} {...{project,request,run,busy}} approvedPreview={rulePreview?.project===project?rulePreview.preview:null} onSaved={()=>{setProposalVersion(value=>value+1);refresh();}}/>}",
+      "preserved": true
+    },
+    {
+      "expression": "{!!project&&configure&&<GroupingProposals key={`proposals:${project}`} {...{project,request,run,busy,refresh}} refreshVersion={proposalVersion} onRulePreview={preview=>setRulePreview({project,preview})}/>}",
+      "preserved": true
+    },
+    {
+      "expression": "{!!project&&configure&&<SlackDestinationForm key={`slack:${project}`} project={project}/>}",
+      "preserved": true
+    },
+    {
+      "expression": "{!!project&&configure&&<ScrubbingRules key={`scrubbing:${project}`} {...{project,request,run,busy}} installation={access.role === 'owner'}/>}",
+      "preserved": true
+    },
+    {
+      "expression": "{!!project&&configure&&<IdentityPolicy key={`identity:${project}`} {...{project,request,run,busy}}/>}",
+      "preserved": true
+    },
+    {
+      "expression": "{!!project&&configure&&<RecurrencePolicy key={`recurrence:${project}`} {...{project,request,run,busy}}/>}",
+      "preserved": true
+    },
+    {
+      "expression": "{!!project&&configure&&<ReleasePolicy key={`release-policy:${project}`} {...{project,request,run,busy}}/>}",
+      "preserved": true
+    },
+    {
+      "expression": "{!!project&&configure&&<CommitSharing key={`commit-sharing:${project}`} {...{project,request,run,busy}}/>}",
+      "preserved": true
+    },
+    {
+      "expression": "{access.role === 'owner' && <SchedulerStatus />}",
+      "preserved": true
+    },
+    {
+      "expression": "{!!project&&organizationManager&&<FeedbackPanel key={`feedback:${project}`} {...{project,request,run,busy}}/>}",
+      "preserved": true
+    },
+    {
+      "expression": "{!!project&&configure&&<InboundFilters key={project} {...{project,request,run,busy}}/>}",
+      "preserved": true
+    },
+    {
+      "expression": "{access.role === 'owner' && <BusinessImports {...{ request, run, busy }} />}",
+      "preserved": true
+    },
+    {
+      "expression": "{organizationManager && <AuditHistory {...{request,run,busy}} />}",
+      "preserved": true
+    },
+    {
+      "expression": "{access.role === 'owner' && <ArchiveSettings busy={busy} empty={!projects.length} run={run} refresh={refresh} />}",
+      "preserved": true
+    },
+    {
+      "expression": "{!!project && configure && <RetentionSettings {...{ project, request, run, busy, refresh }} />}",
+      "preserved": true
+    },
+    {
+      "expression": "{!!project && access.role === 'owner' && <ProjectErasure key={project} {...{ project, request, run, busy, onErased }} />}",
+      "preserved": true
+    }
+  ]
+}

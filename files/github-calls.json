@@ -1,0 +1,124 @@
+[
+  {
+    "at": 1794443622.3061113,
+    "args": [
+      "api",
+      "repos/just-every/run-spool/actions/runs?head_sha=a6ba9c95862c3373ef62ece69d35e255c73592ab&per_page=100",
+      "--jq",
+      ".workflow_runs[] | {id,name,status,conclusion,head_sha,html_url}"
+    ],
+    "exit": 0,
+    "output": ""
+  },
+  {
+    "at": 1794443637.918416,
+    "args": [
+      "api",
+      "repos/just-every/run-spool/actions/runs?head_sha=a6ba9c9eb819120a3a4a40968e5220a72bd6de93&per_page=100",
+      "--jq",
+      ".workflow_runs[] | {id,name,status,conclusion,head_sha,html_url}"
+    ],
+    "exit": 0,
+    "output": "{\"conclusion\":null,\"head_sha\":\"a6ba9c9eb819120a3a4a40968e5220a72bd6de93\",\"html_url\":\"https://github.com/just-every/run-spool/actions/runs/43128174623\",\"id\":43128174623,\"name\":\"Verify\",\"status\":\"in_progress\"}\n"
+  },
+  {
+    "at": 1794443939.798162,
+    "args": [
+      "api",
+      "repos/just-every/run-spool/actions/runs/43128174623",
+      "--jq",
+      "{status,conclusion,head_sha,html_url}"
+    ],
+    "exit": 0,
+    "output": "{\"conclusion\":null,\"head_sha\":\"a6ba9c9eb819120a3a4a40968e5220a72bd6de93\",\"html_url\":\"https://github.com/just-every/run-spool/actions/runs/43128174623\",\"status\":\"in_progress\"}\n"
+  },
+  {
+    "at": 1794444240.7338212,
+    "args": [
+      "api",
+      "repos/just-every/run-spool/actions/runs/43128174623",
+      "--jq",
+      "{status,conclusion,head_sha,html_url}"
+    ],
+    "exit": 0,
+    "output": "{\"conclusion\":null,\"head_sha\":\"a6ba9c9eb819120a3a4a40968e5220a72bd6de93\",\"html_url\":\"https://github.com/just-every/run-spool/actions/runs/43128174623\",\"status\":\"in_progress\"}\n"
+  },
+  {
+    "at": 1794444541.9459658,
+    "args": [
+      "api",
+      "repos/just-every/run-spool/actions/runs/43128174623",
+      "--jq",
+      "{status,conclusion,head_sha,html_url}"
+    ],
+    "exit": 0,
+    "output": "{\"conclusion\":null,\"head_sha\":\"a6ba9c9eb819120a3a4a40968e5220a72bd6de93\",\"html_url\":\"https://github.com/just-every/run-spool/actions/runs/43128174623\",\"status\":\"queued\"}\n"
+  },
+  {
+    "at": 1794444843.0779018,
+    "args": [
+      "api",
+      "repos/just-every/run-spool/actions/runs/43128174623",
+      "--jq",
+      "{status,conclusion,head_sha,html_url}"
+    ],
+    "exit": 0,
+    "output": "{\"conclusion\":\"failure\",\"head_sha\":\"a6ba9c9eb819120a3a4a40968e5220a72bd6de93\",\"html_url\":\"https://github.com/just-every/run-spool/actions/runs/43128174623\",\"status\":\"completed\"}\n"
+  },
+  {
+    "at": 1794444990.9865353,
+    "args": [
+      "api",
+      "repos/just-every/run-spool/actions/runs/43128174623/jobs?per_page=100",
+      "--jq",
+      ".jobs[] | select(.conclusion == \"failure\") | {id,name,conclusion,steps:[.steps[] | select(.conclusion == \"failure\") | {name,conclusion}]}"
+    ],
+    "exit": 0,
+    "output": "{\"conclusion\":\"failure\",\"id\":130885919501,\"name\":\"verify (sdk)\",\"steps\":[{\"conclusion\":\"failure\",\"name\":\"Run suites\"}]}\n{\"conclusion\":\"failure\",\"id\":130891662987,\"name\":\"shards (spool)\",\"steps\":[{\"conclusion\":\"failure\",\"name\":\"Require every job in this coverage partition\"}]}\n{\"conclusion\":\"failure\",\"id\":130891695467,\"name\":\"verify\",\"steps\":[{\"conclusion\":\"failure\",\"name\":\"Require the selected coverage and its proof\"}]}\n"
+  },
+  {
+    "at": 1794445031.5020328,
+    "args": [
+      "run",
+      "view",
+      "43128174623",
+      "--repo",
+      "just-every/run-spool",
+      "--job",
+      "130885919501",
+      "--log-failed"
+    ],
+    "exit": 0,
+    "output": "verify (sdk)\tRun suites\t\ufeff2026-11-12T00:35:22.8471460Z ##[group]Run node tests/sentry-http.mjs && node tests/sentry-import.mjs\nverify (sdk)\tRun suites\t2026-11-12T00:35:22.8471903Z \u001b[36;1mnode tests/sentry-http.mjs && node tests/sentry-import.mjs\u001b[0m\nverify (sdk)\tRun suites\t2026-11-12T00:35:22.8489253Z shell: /usr/bin/bash -e {0}\n[workflow environment block omitted]\nverify (sdk)\tRun suites\t2026-11-12T00:35:22.8491011Z ##[endgroup]\nverify (sdk)\tRun suites\t2026-11-12T00:35:23.8260354Z (node:2449) ExperimentalWarning: SQLite is an experimental feature and might change at any time\nverify (sdk)\tRun suites\t2026-11-12T00:35:23.8260997Z (Use `node --trace-warnings ...` to show where the warning was created)\nverify (sdk)\tRun suites\t2026-11-12T00:35:53.8857089Z node:internal/deps/undici/undici:13510\nverify (sdk)\tRun suites\t2026-11-12T00:35:53.8860590Z       Error.captureStackTrace(err);\nverify (sdk)\tRun suites\t2026-11-12T00:35:53.8861304Z             ^\nverify (sdk)\tRun suites\t2026-11-12T00:35:53.8861489Z \nverify (sdk)\tRun suites\t2026-11-12T00:35:53.8861685Z TypeError: fetch failed\nverify (sdk)\tRun suites\t2026-11-12T00:35:53.8862081Z     at node:internal/deps/undici/undici:13510:13\nverify (sdk)\tRun suites\t2026-11-12T00:35:53.8862797Z     at async file:///home/runner/work/run-spool/run-spool/tests/sentry-http.mjs:80:51 {\nverify (sdk)\tRun suites\t2026-11-12T00:35:53.8863365Z   [cause]: Error: read ECONNRESET\nverify (sdk)\tRun suites\t2026-11-12T00:35:53.8863833Z       at TCP.onStreamRead (node:internal/stream_base_commons:216:20) {\nverify (sdk)\tRun suites\t2026-11-12T00:35:53.8864258Z     errno: -104,\nverify (sdk)\tRun suites\t2026-11-12T00:35:53.8864515Z     code: 'ECONNRESET',\nverify (sdk)\tRun suites\t2026-11-12T00:35:53.8864797Z     syscall: 'read'\nverify (sdk)\tRun suites\t2026-11-12T00:35:53.8865116Z   }\nverify (sdk)\tRun suites\t2026-11-12T00:35:53.8865341Z }\nverify (sdk)\tRun suites\t2026-11-12T00:35:53.8865467Z \nverify (sdk)\tRun suites\t2026-11-12T00:35:53.8865576Z Node.js v22.20.0\nverify (sdk)\tRun suites\t2026-11-12T00:35:53.9124147Z ##[error]Process completed with exit code 1.\n"
+  },
+  {
+    "at": 1794445078.6759665,
+    "args": [
+      "run",
+      "view",
+      "43128174623",
+      "--repo",
+      "just-every/run-spool",
+      "--job",
+      "130891662987",
+      "--log-failed"
+    ],
+    "exit": 0,
+    "output": "shards (spool)\tRequire every job in this coverage partition\t\ufeff2026-11-12T00:49:03.5692426Z ##[group]Run set -euo pipefail\nshards (spool)\tRequire every job in this coverage partition\t2026-11-12T00:49:03.5693369Z \u001b[36;1mset -euo pipefail\u001b[0m\nshards (spool)\tRequire every job in this coverage partition\t2026-11-12T00:49:03.5694095Z \u001b[36;1mcase \"$SHARD\" in\u001b[0m\nshards (spool)\tRequire every job in this coverage partition\t2026-11-12T00:49:03.5695476Z \u001b[36;1m  spool) test \"$BUILD\" = success && test \"$RUNTIMES\" = success && test \"$TESTS\" = success ;;\u001b[0m\nshards (spool)\tRequire every job in this coverage partition\t2026-11-12T00:49:03.5696535Z \u001b[36;1m  commands) test \"$COMMANDS\" = success ;;\u001b[0m\nshards (spool)\tRequire every job in this coverage partition\t2026-11-12T00:49:03.5697288Z \u001b[36;1m  *) exit 1 ;;\u001b[0m\nshards (spool)\tRequire every job in this coverage partition\t2026-11-12T00:49:03.5697954Z \u001b[36;1mesac\u001b[0m\nshards (spool)\tRequire every job in this coverage partition\t2026-11-12T00:49:03.6026432Z shell: /usr/bin/bash -e {0}\n[workflow environment block omitted]\nshards (spool)\tRequire every job in this coverage partition\t2026-11-12T00:49:03.6031796Z ##[endgroup]\nshards (spool)\tRequire every job in this coverage partition\t2026-11-12T00:49:03.6217911Z ##[error]Process completed with exit code 1.\n"
+  },
+  {
+    "at": 1794445082.2105129,
+    "args": [
+      "run",
+      "view",
+      "43128174623",
+      "--repo",
+      "just-every/run-spool",
+      "--job",
+      "130891695467",
+      "--log-failed"
+    ],
+    "exit": 0,
+    "output": "verify\tRequire the selected coverage and its proof\t\ufeff2026-11-12T00:49:07.7057516Z ##[group]Run set -euo pipefail\nverify\tRequire the selected coverage and its proof\t2026-11-12T00:49:07.7058393Z \u001b[36;1mset -euo pipefail\u001b[0m\nverify\tRequire the selected coverage and its proof\t2026-11-12T00:49:07.7059077Z \u001b[36;1mtest \"$PLAN\" = success\u001b[0m\nverify\tRequire the selected coverage and its proof\t2026-11-12T00:49:07.7060030Z \u001b[36;1mcase \"$PUSH_PROOF:$NIGHTLY_PROOF\" in\u001b[0m\nverify\tRequire the selected coverage and its proof\t2026-11-12T00:49:07.7060818Z \u001b[36;1m  *failure*|*cancelled*) exit 1 ;;\u001b[0m\nverify\tRequire the selected coverage and its proof\t2026-11-12T00:49:07.7061557Z \u001b[36;1mesac\u001b[0m\nverify\tRequire the selected coverage and its proof\t2026-11-12T00:49:07.7062174Z \u001b[36;1mcase \"$COVERAGE\" in\u001b[0m\nverify\tRequire the selected coverage and its proof\t2026-11-12T00:49:07.7063043Z \u001b[36;1m  reuse) test \"$SKIP\" = true && test \"$SHARDS\" = skipped && test \"$LIGHT\" = skipped ;;\u001b[0m\nverify\tRequire the selected coverage and its proof\t2026-11-12T00:49:07.7064319Z \u001b[36;1m  light) test \"$SKIP\" = false && test \"$LIGHT\" = success && test \"$SHARDS\" = skipped ;;\u001b[0m\nverify\tRequire the selected coverage and its proof\t2026-11-12T00:49:07.7065913Z \u001b[36;1m  full) test \"$LIGHT\" = skipped && { test \"$SHARDS\" = success || { test \"$HAS_SHARDS\" = false && test \"$SHARDS\" = skipped; }; } ;;\u001b[0m\nverify\tRequire the selected coverage and its proof\t2026-11-12T00:49:07.7067117Z \u001b[36;1m  *) exit 1 ;;\u001b[0m\nverify\tRequire the selected coverage and its proof\t2026-11-12T00:49:07.7067731Z \u001b[36;1mesac\u001b[0m\nverify\tRequire the selected coverage and its proof\t2026-11-12T00:49:07.7451288Z shell: /usr/bin/bash -e {0}\n[workflow environment block omitted]\nverify\tRequire the selected coverage and its proof\t2026-11-12T00:49:07.7465416Z ##[endgroup]\nverify\tRequire the selected coverage and its proof\t2026-11-12T00:49:07.7815076Z ##[error]Process completed with exit code 1.\n"
+  }
+]

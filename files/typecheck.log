@@ -1,0 +1,4 @@
+
+> @errors/errors-workbench@0.7.6 typecheck /workspace/run-spool
+> tsc --noEmit
+

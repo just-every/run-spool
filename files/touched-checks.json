@@ -1,0 +1,72 @@
+[
+  {
+    "command": "node tests/sentry-http.mjs",
+    "exit": 1,
+    "seconds": 173.7,
+    "log": "sentry-http.log",
+    "batch_head_at_start": "f2cbf098d443526bf36e577ff5347e65f1d7e25f"
+  },
+  {
+    "command": "node tests/sentry-sdk.mjs",
+    "exit": 1,
+    "seconds": 81.1,
+    "log": "sentry-sdk.log",
+    "batch_head_at_start": "f2cbf098d443526bf36e577ff5347e65f1d7e25f"
+  },
+  {
+    "command": "node tests/team-flow.mjs",
+    "exit": 0,
+    "seconds": 2.7,
+    "log": "team-flow.log",
+    "batch_head_at_start": "f2cbf098d443526bf36e577ff5347e65f1d7e25f"
+  },
+  {
+    "command": "node tests/agent-handoff.mjs",
+    "exit": 143,
+    "seconds": 1512.0,
+    "log": "agent-handoff.log",
+    "batch_head_at_start": "f2cbf098d443526bf36e577ff5347e65f1d7e25f"
+  },
+  {
+    "command": "node tests/project-erasure.mjs",
+    "exit": 143,
+    "seconds": 1184.4,
+    "log": "project-erasure.log",
+    "batch_head_at_start": "f2cbf098d443526bf36e577ff5347e65f1d7e25f"
+  },
+  {
+    "command": "node tests/reports-flow.mjs",
+    "exit": 0,
+    "seconds": 57.4,
+    "log": "reports-flow.log",
+    "batch_head_at_start": "f2cbf098d443526bf36e577ff5347e65f1d7e25f"
+  },
+  {
+    "command": "node tests/end-user-erasure-preview.mjs",
+    "exit": 0,
+    "seconds": 61.6,
+    "log": "end-user-erasure-preview.log",
+    "batch_head_at_start": "f2cbf098d443526bf36e577ff5347e65f1d7e25f"
+  },
+  {
+    "command": "node tests/audit-history.mjs",
+    "exit": 0,
+    "seconds": 84.4,
+    "log": "audit-history.log",
+    "batch_head_at_start": "f2cbf098d443526bf36e577ff5347e65f1d7e25f"
+  },
+  {
+    "command": "node tests/alerts-ui.mjs",
+    "exit": 0,
+    "seconds": 338.3,
+    "log": "alerts-ui.log",
+    "batch_head_at_start": "f2cbf098d443526bf36e577ff5347e65f1d7e25f"
+  },
+  {
+    "command": "node tests/rollbar-import.mjs",
+    "exit": 1,
+    "seconds": 107.4,
+    "log": "rollbar-import.log",
+    "batch_head_at_start": "f2cbf098d443526bf36e577ff5347e65f1d7e25f"
+  }
+]

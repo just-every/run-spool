@@ -1,0 +1,44 @@
+[33m▲ [43;33m[[43;30mWARNING[43;33m][0m [1mProxy environment variables detected. We'll use your proxy for fetch requests.[0m
+
+
+{"stage":"browser-qualification","width":1440,"target":"reference"}
+{"stage":"browser-round","width":1440,"target":"reference","round":0}
+[SDK-001] lifecycle: original session
+[SDK-001] lifecycle: focus released
+[SDK-001] lifecycle: window minimized
+[SDK-001] lifecycle: report sent
+{"stage":"browser-round","width":1440,"target":"reference","round":1}
+[SDK-001] lifecycle: original session
+[SDK-001] lifecycle: focus released
+[SDK-001] lifecycle: window minimized
+[SDK-001] lifecycle: report sent
+{"stage":"browser-qualification","width":1440,"target":"qualification"}
+{"stage":"browser-round","width":1440,"target":"qualification","round":0}
+[SDK-001] lifecycle: original session
+[SDK-001] lifecycle: focus released
+[SDK-001] lifecycle: window minimized
+[SDK-001] lifecycle: report sent
+{"stage":"browser-round","width":1440,"target":"qualification","round":1}
+[SDK-001] lifecycle: original session
+[SDK-001] lifecycle: focus released
+[SDK-001] lifecycle: window minimized
+[SDK-001] lifecycle: report sent
+node:internal/modules/run_main:107
+    triggerUncaughtException(
+    ^
+
+locator.waitFor: Timeout 30000ms exceeded.
+Call log:
+[2m  - waiting for getByRole('heading', { name: /synthetic-spool-browser-handled/ }).first() to be visible[22m
+
+    at check (/workspace/run-spool/tests/runtimes/browser.mjs:175:86)
+    at readScreens (/workspace/run-spool/tests/runtimes/screens.mjs:19:41)
+    at async qualifyBrowser (/workspace/run-spool/tests/runtimes/browser.mjs:173:3)
+    at async file:///workspace/run-spool/tests/sentry-sdk.mjs:91:3 {
+  log: [
+    "  - waiting for getByRole('heading', { name: /synthetic-spool-browser-handled/ }).first() to be visible"
+  ],
+  name: 'TimeoutError'
+}
+
+Node.js v24.19.0

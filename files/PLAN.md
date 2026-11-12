@@ -1,0 +1,9 @@
+# Settings section split plan
+
+1. Configure fleet identity and credential, push, and commit hooks; read launcher and product instructions. Clone only just-every/run-spool at main and use cloud/main-spool-settings-split-1.
+2. Reproduce Settings through authenticated native doors in the emitted app at 1440 and 390. Inventory every existing component and stable fragment.
+3. Group existing controls into Organization, Projects & keys, Issue processing, Alerts & integrations, Privacy & filtering, Data & archive, and Audit. Use readable links and a stacked phone navigation. Preserve form components, permission predicates, drafts, confirmations, and server handlers.
+4. Give every section a stable fragment read by the application. Resolve existing descendant IDs to their containing section, including old Slack and report links; support refresh and Back/Forward.
+5. Extend the existing triage journey for project-key create/revoke and archive download across section navigation, with legacy links and section isolation. Adjust existing feature journey URLs without weakening their assertions; add no registrations. Run the touched journeys and typecheck. Capture the changed sections at both requested widths and retain evidence outside the product tree.
+6. Regenerate and check the source lock last. Preserve all clause judgments and generated views. Save the first implementation commit immediately; merge fresh main before the final candidate because the save is already published. Inspect all candidate identities/trailers and push only the named branch using the guard.
+7. Discover and poll exact-SHA Verify by REST with one watcher and at least 300 seconds between reads, within the ten-call budget. Publish explicitly selected non-secret reports and receipts to the separate evidence ref. Report custody and claims without asserting DONE or landing.

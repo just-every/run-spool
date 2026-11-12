@@ -1,0 +1,27 @@
+[33m▲ [43;33m[[43;30mWARNING[43;33m][0m [1mProxy environment variables detected. We'll use your proxy for fetch requests.[0m
+
+
+PROBE SDK-011 invalid-only: framed JSON and conversion failures -> typed event invalid_item; no identity, scrubbing, release, issue or alert writes; exact refusal usage
+PROBE SDK-011 order and accounting: each invalid kind before and after two valid companions -> accepted=25, invalid_item=21; one retained occurrence and accepted unit per valid error
+PROBE SDK-011 refusal boundaries: malformed framing and store -> whole request refused; refusal-accounting and event-storage faults -> 503 with no partial product writes
+PROBE SDK-011 authority: invalid, foreign and revoked grants and denied origin -> no companions admitted or conversion refusals attributed
+OTLP HTTP flow passed: located log/JS exception, resource association, privacy/deduplication, full/partial rejection accounting, framing/limits, project CORS/grant revocation and shared native budget.
+node:internal/modules/run_main:107
+    triggerUncaughtException(
+    ^
+
+locator.waitFor: Timeout 30000ms exceeded.
+Call log:
+[2m  - waiting for getByRole('status').filter({ hasText: '90 issues' }) to be visible[22m
+
+    at prioritySearchScreen (/workspace/run-spool/tests/priority-search-flow.mjs:125:64)
+    at async prioritySearchFlow (/workspace/run-spool/tests/priority-search-flow.mjs:114:2)
+    at async investigationFlow (/workspace/run-spool/tests/investigation-flow.mjs:11:2)
+    at async file:///workspace/run-spool/tests/sentry-http.mjs:120:3 {
+  log: [
+    "  - waiting for getByRole('status').filter({ hasText: '90 issues' }) to be visible"
+  ],
+  name: 'TimeoutError'
+}
+
+Node.js v24.19.0
