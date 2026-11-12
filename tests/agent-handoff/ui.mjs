@@ -18,7 +18,7 @@ export async function handoffPanel(browser,app,directory,issue){
  try{
   await openGate(context,app.origin);
   const pairs=app.cookie.split('; ').filter(Boolean);await context.addCookies(pairs.map(pair=>({name:pair.slice(0,pair.indexOf('=')),value:pair.slice(pair.indexOf('=')+1),url:app.origin})));
-  const page=await context.newPage();await page.goto(app.origin+'/projects/a/settings');await page.waitForLoadState('networkidle');
+  const page=await context.newPage();await page.goto(app.origin+'/projects/a/settings#settings-projects');await page.waitForLoadState('networkidle');
   const minted=page.waitForResponse(r=>new URL(r.url()).pathname==='/api/projects/a/keys'&&r.request().method()==='POST');
   await page.getByRole('button',{name:'Create agent key',exact:true}).click();const grant=await (await minted).json();
   const panel=page.locator('.agent-handoff');await panel.locator('[data-agent-command]').waitFor();
