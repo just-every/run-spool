@@ -7,7 +7,7 @@ import { IntegrationsRepository } from '../../modules/integrations/core/reposito
 import { D1SqlDatabase } from '../../modules/integrations/core/database';
 import { attentionAction } from './actions';
 import { activeProjectRecipient } from '../members/notifications';
-import { s,type Attention } from './types';
+import { s,isCaptureLoss,type Attention } from './types';
 const routes=ownerProjectRouter();
 routes.get('/',async c=>{
  const project=c.req.param('project')!,db=c.env.DB;
@@ -28,7 +28,7 @@ routes.get('/',async c=>{
   const notices=(await s(db,'SELECT n.id,n.destination,n.channel,n.state,n.attempts,n.code,n.next_at,m.provider,m.message_id FROM follow_up_notices n LEFT JOIN follow_up_notice_meta m ON m.notice=n.id AND m.project=n.project WHERE n.attention=? ORDER BY n.id',row.id).all<any>()).results;
   for(const notice of notices)notice.log=(await s(db,'SELECT number,started,finished,state,code FROM follow_up_attempts WHERE notice=? ORDER BY number',notice.id).all()).results;
   const loss=/^loss:(\d+):(.+)$/.exec(row.source_id);
-  const captureLoss=loss?Number((await s(db,'SELECT count FROM outcomes WHERE project=? AND window=? AND reason=?',project,Number(loss[1]),loss[2]).first<any>())?.count??0):null;
+  const captureLoss=loss&&isCaptureLoss(loss[2])?Number((await s(db,'SELECT count FROM outcomes WHERE project=? AND window=? AND reason=?',project,Number(loss[1]),loss[2]).first<any>())?.count??0):null;
   const held=row.source_id.startsWith('snooze:')?await s(db,'SELECT COUNT(*) n FROM alert_suppressed WHERE project=? AND snooze_id=? AND released_at IS NULL',project,row.source_id.slice(7)).first<any>():row.source_id.startsWith('held:')?await s(db,'SELECT COUNT(*) n FROM alert_suppressed WHERE project=? AND delivery_id=? AND released_at IS NULL',project,row.source_id.slice(5)).first<any>():null;
   enriched.push({...row,attempts,notices,capture_loss:captureLoss,held_alerts:held?.n??null});
  }

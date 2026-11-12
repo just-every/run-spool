@@ -1,3 +1,4 @@
+import { listedIssueSql } from '../issue-attention';
 import {resolvedProjectTeams} from '../members/resolver';
 import type {ReportRead,ReportInput} from './types';
 import {eventUserKeySql} from '../identities/read';
@@ -42,7 +43,7 @@ export async function readReport(db:D1Database,projects:string[],input:ReportInp
    ${eventUserKeySql()} user_key
    FROM events e LEFT JOIN event_identities x ON x.project=e.project AND x.event=e.id AND x.occurrence=e.occurrence
    WHERE e.${scope} AND e.received>=? AND e.received<? ORDER BY e.received,e.project,e.id`).bind(ids,input.from,input.to),
-  db.prepare(`SELECT i.project,i.id,i.state,i.first_seen,i.last_seen,i.algorithm,a.label FROM issues i LEFT JOIN issue_assignments a ON a.project=i.project AND a.issue=i.id WHERE i.${scope} AND i.first_seen<? ORDER BY i.project,i.id`).bind(ids,input.to),
+  db.prepare(`SELECT i.project,i.id,i.state,i.first_seen,i.last_seen,i.algorithm,a.label FROM issues i LEFT JOIN issue_assignments a ON a.project=i.project AND a.issue=i.id WHERE i.${scope} AND ${listedIssueSql('i')} AND i.first_seen<? ORDER BY i.project,i.id`).bind(ids,input.to),
   db.prepare(`SELECT project,kind,detail,created FROM audit WHERE ${scope} AND kind IN ('triage','commit_resolution','capture_history_started','retention_gap') ORDER BY created,rowid`).bind(ids),
   db.prepare(`SELECT project,issue,id,kind,created FROM alerts WHERE ${scope} AND kind IN ('new_issue','regression') ORDER BY created,rowid`).bind(ids),
   db.prepare(`SELECT project,issue,alert,reviewed FROM review_stamps WHERE ${scope}`).bind(ids),
