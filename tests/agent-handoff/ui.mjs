@@ -47,7 +47,7 @@ export async function handoffPanel(browser,app,directory,issue){
   for(const select of await form.locator('[data-policy-class]').all())await select.selectOption('autonomous');
   await form.locator('input[name="paidAI"][value="no"]').check();
   const saved=policyPage.waitForResponse(response=>new URL(response.url()).pathname==='/agents/api/policy'&&response.request().method()==='PUT',{timeout:30000});
-  await form.getByRole('button',{name:'Save policy',exact:true}).click();assert.equal((await saved).status(),200);assert.equal((await app.json('/agents/api/state')).policy.complete,true);await policyPage.close();await page.bringToFront();
+  await form.getByRole('button',{name:'Save policy',exact:true}).click();assert.equal((await saved).status(),200);assert.equal((await app.json('/agents/api/state')).policy.complete,true);await policyPage.close({runBeforeUnload:true});await page.bringToFront();
   assert.equal(await panel.locator('[data-secret="agent-key"]').innerText(),grant.key,'following and saving policy preserves the once-shown key');
   const packet=await app.json(`/api/projects/a/issues/${issue}/packet`);
   const result=await runCopiedSetup(setup,`${grant.key}\n${app.devKey}\n${packet.issue.short_id}\n`);assert.equal(result.code,0,'copied Settings command reads the displayed short ID');assert.ok(result.stdout.includes(packet.issue.short_id));assert.ok(!result.stdout.includes(grant.key)&&!result.stderr.includes(app.devKey),'copied command keeps credentials private');
