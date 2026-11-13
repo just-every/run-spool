@@ -83,7 +83,10 @@ try {
  for(const path of ['/app','/setup','/projects','/projects/synthetic-project','/projects/synthetic-project/releases/web@1.2.0','/projects/synthetic-project/releases/setup/source-maps']){const response=await fetch(origin+path,{redirect:'manual'});assert.equal(response.status,303);const destination=new URL(response.headers.get('location'),origin);assert.equal(destination.pathname,'/sign-in');assert.equal(destination.searchParams.get('returnTo'),path);}
  for(const path of ['/missing','/health/extra'])assert.equal((await fetch(origin+path,{redirect:'manual'})).status,404);
  for(const path of ['/api','/api/missing','/api/projects','/api/archive'])assert.equal((await fetch(origin+path)).status,401);
- const form=await (await fetch(origin+'/sign-in')).text();assert.ok(form.includes('/auth/dev/enter?as=owner'));
+ const form=await (await fetch(origin+'/sign-in')).text();
+ assert.doesNotMatch(form,/href=["'][^"']*\/auth\/(?:dev\/enter|one-click)/,'an anonymous local browser is offered no owner shortcut');
+ const ownerForm=await (await fetch(origin+'/sign-in',{headers:{'x-rer-dev-key':testDevKey}})).text();
+ assert.match(ownerForm,/href=["'][^"']*\/auth\/dev\/enter\?as=owner(?:&|["'])/,'the explicit owner gate retains owner sign-in');
  assert.equal((await fetch(origin+'/__dev/outbox')).status,404,'the outbox needs the key gate');
  assert.equal((await fetch(origin+'/__dev/personas',{redirect:'manual'})).status,404,'dev personas stay hidden before document authorization');
  let cookie=await signIn(origin);

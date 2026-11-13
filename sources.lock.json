@@ -11398,7 +11398,7 @@
       "executable": false
     },
     "tests/runtime.mjs": {
-      "sha256": "94ef0737a874b291981eef02c7d9c33a7ab0658ef52d1f0f1b18f5a5bfad9acc",
+      "sha256": "19d6b4cf320b7a27e8644e767f23cc42e13de687e5fdc27127f736579f189023",
       "executable": false
     },
     "tests/runtimes/browser.mjs": {
