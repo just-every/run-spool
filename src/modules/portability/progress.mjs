@@ -1,10 +1,11 @@
 import { skippedTablesLine } from './bookkeeping.mjs';
 // Human progress for a long export or import. The caller sends events; this turns
 // them into at most one line every few seconds, with an estimate of the time left
-// once a phase has two samples. The first and last line of every phase always show.
-// Rates are bytes per second measured on a 1.2 GB local install on a loaded machine
-// (export 1725 s, import 2234 s); a quiet machine is faster.
-const RATES = { export: 700_000, import: 550_000 };
+// once a phase has two samples and a known total. The first and last line of every
+// phase always show. Local disk allocation includes free pages and transient state;
+// it cannot predict archive bytes or building time.
+// Import rate measured on a 1.2 GB archive on a loaded machine (2234 s).
+const IMPORT_RATE = 550_000;
 const UNITS = ['B', 'KB', 'MB', 'GB', 'TB'];
 export function formatBytes(bytes) {
   let value = bytes, unit = 0;
@@ -18,16 +19,15 @@ export function formatDuration(seconds) {
 }
 const left = seconds => `, ${formatDuration(seconds)} left`;
 export function transferProgress(report, { interval = 3000, now = () => performance.now() } = {}) {
-  let phase, first, printed = -Infinity, expected;
+  let phase, first, printed = -Infinity;
   const line = event => {
-    const bytes = event.bytes === undefined ? '' : ` (${formatBytes(event.bytes)}${event.phase === 'building' && expected ? ` of about ${formatBytes(expected)}` : ''})`;
+    const bytes = event.bytes === undefined ? '' : ` (${formatBytes(event.bytes)})`;
     const parts = event.total === undefined ? `${event.parts} part${event.parts === 1 ? '' : 's'} so far` : `${event.parts} of ${event.total} parts`;
     // Seconds left, from the rate since the phase's first sample.
     const eta = () => {
       const seconds = (now() - first.time) / 1000;
       if (event === first.event || seconds <= 0 || event.parts === event.total) return '';
       if (event.total !== undefined && event.parts > first.event.parts) return left((event.total - event.parts) * seconds / (event.parts - first.event.parts));
-      if (event.phase === 'building' && expected && event.bytes > first.event.bytes && event.bytes < expected) return left((expected - event.bytes) * seconds / (event.bytes - first.event.bytes));
       return '';
     };
     switch (event.phase) {
@@ -42,9 +42,11 @@ export function transferProgress(report, { interval = 3000, now = () => performa
     if(event.phase==='schema-unverified') { report('Schema unverified: '+JSON.stringify(event.receipt)); return; }
     if (event.phase === 'skipped') { report(skippedTablesLine(event.tables)); return; }
     if (event.phase === 'start') {
-      const noun = event.direction === 'export' ? `Exporting about ${formatBytes(event.bytes)} of local data` : `Restoring a ${formatBytes(event.bytes)} archive`;
-      if (event.direction === 'export') expected = event.bytes;
-      report(`${noun}. ${event.bytes / RATES[event.direction] < 45 ? 'This takes under a minute.' : `An archive this size usually takes ${formatDuration(event.bytes / RATES[event.direction])}; a busy machine takes longer. Progress follows every few seconds.`}`);
+      if (event.direction === 'export') {
+        report(`Exporting local data (${formatBytes(event.bytes)} on disk). Archive size and time remaining are not known yet. Progress follows every few seconds.`);
+      } else {
+        report(`Restoring a ${formatBytes(event.bytes)} archive. ${event.bytes / IMPORT_RATE < 45 ? 'This takes under a minute.' : `An archive this size usually takes ${formatDuration(event.bytes / IMPORT_RATE)}; a busy machine takes longer. Progress follows every few seconds.`}`);
+      }
       printed = now();
       return;
     }
