@@ -20,7 +20,10 @@ export async function disconnectedGitHubSetup(app,browser,directory,issue){
    const guideLink=connection.getByRole('link',{name:'Set up the GitHub connection',exact:true});await guideLink.waitFor();
    if(width===1440){
     const href=await guideLink.getAttribute('href');assert.equal(new URL(href,app.origin).origin,app.origin,'GitHub setup stays on this install');
-    const opened=context.waitForEvent('page');await guideLink.click({modifiers:['ControlOrMeta']});const guide=await opened;try{await guide.locator('article').waitFor();assert.equal((await fetch(guide.url())).status,200,'GitHub guide opens anonymously');const index=await (await fetch(app.origin+'/docs')).text();assert.ok(index.includes(`href="${new URL(guide.url()).pathname}"`),'GitHub guide is reachable from docs index');}finally{await guide.close();}
+    await guideLink.click();await page.locator('article').waitFor();
+    assert.equal((await fetch(page.url())).status,200,'GitHub guide opens anonymously');
+    const index=await (await fetch(app.origin+'/docs')).text();assert.ok(index.includes(`href="${new URL(page.url()).pathname}"`),'GitHub guide is reachable from docs index');
+    await page.goBack();await connection.getByRole('status').filter({hasText:/not configured/i}).waitFor();
    }
    const path=`${directory}/github-disconnected-${width}.png`;await connection.screenshot({path});captures.push(path);
    await connection.getByRole('button',{name:/connection limits/i}).click();

@@ -6,11 +6,25 @@ During first-project setup, **Send test error** checks the new key and release f
 
 The **Capture** page in the workbench walks through these steps for the selected project and fills in its own address and the latest release for you.
 
+## Browser capture without Node.js or npm
+
+Download `/errors-capture.js` from your Spool installation (the **Capture** page links to it), and serve the file alongside your browser app. In a module script, initialise the helper once:
+
+```html
+<script type="module">
+import { installBrowserCapture } from './errors-capture.js';
+installBrowserCapture({ endpoint: 'http://127.0.0.1:8787', project: 'web-app',
+  ingestKey: 'YOUR_INGEST_KEY', release: 'r42', build: 'b1907' });
+</script>
+```
+
+Use your Spool address, project key and registered release/build, and allow your application's exact origin on **Capture**. This helper captures browser errors and unhandled rejections without npm or a bundler. For Node, Workers or build-time map tooling, use the SDK below.
+
 ## 1. Add the Spool SDK
 
 Install the package and initialize it once in your application, with your Spool address, the project and its ingest key:
 
-Run this in **your application’s repository**, using that application’s Node.js and npm. The Spool installer’s private Node runtime runs Spool itself; it does not put Node or npm on your shell’s PATH for your application.
+Run this in **your application’s repository**, with [Node.js and npm](https://nodejs.org/en/download) installed and available on PATH. The Spool installer’s private Node runtime runs Spool itself; it does not put Node or npm on your shell’s PATH for your application.
 
 ```sh
 npm install @just-every/spool
@@ -36,7 +50,7 @@ Open **Releases** and add the release name and build your application reports, s
 
 ## 3. Upload the source maps
 
-Spool matches each bundle to its source map using a **bundle debug ID**, a UUID stored in both the JavaScript bundle and its map. Use the plugin or command below to create that matching pair and upload the map. For a manual upload in **Releases**, use the ID from the prepared map's `debug_id` field (also written as `//# debugId=…` in the bundle), and select the same project, release and build your SDK reports. Typing a new ID into the upload form does not stamp your bundle. Spool keeps maps private and never fetches source files from the internet. A project holds up to 20 flat V3 maps of 256 KiB each.
+Spool matches each bundle to its source map using a **bundle debug ID**, a UUID stored in both the JavaScript bundle and its map. Use the plugin or command below to create that matching pair and upload the map. For a manual upload in **Releases**, use the ID from the prepared map's `debug_id` field (also written as `//# debugId=…` in the bundle), and select the same project, release and build your SDK reports. Typing a new ID into the upload form does not stamp your bundle. Spool keeps maps private and never fetches source files from the internet. The upload service and current checkout CLI accept flat or indexed V3 maps up to 1 MiB each. The published npm SDK 0.1.0 CLI and the prepared-map picker on **Releases** accept only flat V3 maps up to 256 KiB. There is no lifetime map count; all paths respect the optional project artifact-storage byte cap. The larger/indexed CLI support is in the unpublished 0.2.0 source, not npm 0.1.0.
 
 You can also upload maps from your build with a **deploy key** from **Settings**. A deploy key can only register releases and upload maps for its project. Keep the key in your build's environment, never in your application's source. With Vite or Rollup, add the SDK's plugin:
 
@@ -61,7 +75,7 @@ Each bundle needs its `.map` next to it. Run the tool before publishing the buil
 
 Trigger an error in your application, then open **Capture** and choose **Check for events**. Open the received issue in **Issues** and check that its stack maps to your original source using the matching release, build and uploaded map.
 
-For a check from inside Spool, first-project setup has **Send test error**, which registers the release shown and sends one sample error with the new key. Choose **Continue to workbench** to see it in **Issues**. Later, **Capture test exception** on **Capture** sends a test using your ingest key and a release you already registered. These tests check ingestion from Spool's own origin; they do not check your app's origin, SDK installation or source maps.
+For a check from inside Spool, first-project setup has **Send test error**, which registers the release shown and sends one sample error with the new key. Choose **Continue to workbench** to see it in **Issues**. Later, **Capture test exception** on **Capture** sends a test using your ingest key and a release you already registered. Both are labelled as Spool sample evidence in the issue, without a map-upload or reproducer step. These tests check ingestion from Spool's own origin; they do not check your app's origin, SDK installation or source maps.
 
 ## Keys for anything outside this checkout
 

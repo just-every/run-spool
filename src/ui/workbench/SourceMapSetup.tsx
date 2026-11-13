@@ -1,4 +1,5 @@
 import { releaseLabel, buildLabel } from './releaseLabels';
+import { hrefFor } from './location';
 import { plural } from './readable';
 import { useEffect, useState } from 'react';
 import { CodeBlock, installCommand } from './SdkSetup';
@@ -54,7 +55,7 @@ export function SourceMapSetup({ project, releases, request, run, busy, refresh 
     })}>Create source-map deploy key</button>}
     <p className="muted">Copy the environment line into your build terminal before running the commands below. In CI, save the key as <code>SPOOL_DEPLOY_KEY</code>. Local dev keys work only with this local installation; create a fresh key on hosted Spool.</p>
     <h3>3. Build, stamp and upload</h3>
-    <p>Use your application’s own Node.js and npm in its repository. Spool’s installer keeps its runtime private; it does not provide npm on your shell’s PATH.</p>
+    <p>Requires <a className="inline-link" href="https://nodejs.org/en/download">Node.js and npm</a> on your PATH in your application’s repository. Spool’s installer keeps its runtime private; it does not provide npm on your shell’s PATH. For browser capture without npm, use <a className="inline-link" href={hrefFor(project, 'capture')}>the browser helper on Capture</a>. For maps you already prepared, use the picker on Releases.</p>
     <CodeBlock label="Source-map SDK install" code={installCommand} />
     {ready ? <>
       <CodeBlock label={instructions.label} code={instructions.config} />
@@ -71,7 +72,7 @@ export function SourceMapSetup({ project, releases, request, run, busy, refresh 
     <h3>If the frame is still unmapped</h3>
     <ul>
       <li>No event: allow the app’s exact scheme, host and port on Capture, and check its ingest key and registered release.</li>
-      <li>Upload refused: check the deploy key belongs to this project and installation, and is exported as <code>SPOOL_DEPLOY_KEY</code>. CLI uploads accept flat or indexed V3 maps up to 1 MiB each, without a lifetime map count. Check the project byte cap above. The prepared-map picker below retains its smaller flat-map limit.</li>
+      <li>Upload refused: check the deploy key belongs to this project and installation, and is exported as <code>SPOOL_DEPLOY_KEY</code>. The upload service and current checkout CLI accept flat or indexed V3 maps up to 1 MiB each. The npm SDK 0.1.0 CLI and prepared-map picker on Releases accept only flat V3 maps up to 256 KiB. Larger/indexed CLI support remains in unpublished 0.2.0 source. There is no lifetime map count; check the project byte cap above.</li>
       <li>Missing map or debug ID: confirm the served bundle ends in <code>//# debugId=…</code> and its adjacent map’s <code>debug_id</code> matches. Deploy those exact stamped files, clear old cached bundles and trigger a new error.</li>
       <li>Map uploaded but no original location: match the event’s project, release and build exactly; include every chunk’s map and check the map contains mappings for the failing line.</li>
     </ul>

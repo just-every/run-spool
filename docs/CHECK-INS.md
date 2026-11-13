@@ -4,6 +4,8 @@ Scheduled-job and heartbeat monitoring is [Uptime](https://github.com/just-every
 
 ## Connect a monitor
 
+**Owner accounts required.** First have the deployment operator install and bind the [integration egress service](INTEGRATION-EGRESS.md), using the owner's Cloudflare account. That guide links Base's pinned owner procedure and shows exactly how to obtain the receipt fields and `deploy.json` binding. Creating the heartbeat and obtaining its capability URL require access to the buyer's own Uptime installation.
+
 In Settings, under **Cron check-ins**, enter the monitor slug your SDK sends and the separate capability URL Uptime shows once when it issues a heartbeat key, which has the form `https://<uptime>/api/heartbeats/<monitor>/url/<token>`. Spool accepts only an https URL of that shape on a public host. The URL is a secret: it is stored by this installation, never shown again (Settings lists the host only), never returned by the API, and excluded from archives, exports, audit entries and logs. Saving, enabling, disabling and removing a connection are owner-only and audited. A project holds up to 20 connections.
 
 By default no monitor is connected and forwarding is off. Connected check-ins leave only through the installation's egress service (`INTEGRATION_EGRESS`, the door alert webhooks use). Without one they are counted as not routed and nothing is sent by any other path.

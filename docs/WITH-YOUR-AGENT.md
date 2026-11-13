@@ -107,6 +107,8 @@ When the agent reports a branch or pull request, record it yourself in the issue
 
 Your agent can also wire Spool into the application it works on. Ask it to add Spool's own SDK and initialize it once, with the ingest key from the app's own configuration rather than its source. An ingest key can only send events to its project; the agent key's only write is an inert grouping proposal.
 
+Requires [Node.js and npm](https://nodejs.org/en/download) installed and available on PATH in your application’s repository. Spool’s installer keeps its runtime private and does not provide npm on PATH. For browser capture without Node.js or npm, use the [browser helper](capture.md#browser-capture-without-nodejs-or-npm).
+
 ```sh
 npm install @just-every/spool
 ```

@@ -17,6 +17,26 @@ async function reportWorkbench(origin,project,from,to,expected){
   await configuration.getByLabel('View name',{exact:true}).fill('Retained impact comparison');
   const widgets=configuration.locator('.reports-widget'),date=value=>new Date(value).toISOString().slice(0,16);
   for(let n=0;n<2;n++){await widgets.nth(n).getByLabel('Window start (UTC)',{exact:true}).fill(date(from));await widgets.nth(n).getByLabel('Window end (UTC)',{exact:true}).fill(date(to))}
+  // Refused windows identify each widget's field and preserve the unsaved draft.
+  const future=Date.now()+3600000;
+  for(let n=0;n<2;n++){await widgets.nth(n).getByLabel('Window start (UTC)',{exact:true}).fill(date(future-7200000));await widgets.nth(n).getByLabel('Window end (UTC)',{exact:true}).fill(date(future))}
+  await configuration.getByRole('button',{name:'Save dashboard',exact:true}).click();
+  for(let n=0;n<2;n++){
+   const end=widgets.nth(n).getByLabel('Window end (UTC)',{exact:true});
+   await end.locator('..').getByRole('alert').waitFor();
+   assert.match(await end.locator('..').getByRole('alert').innerText(),/end.*future/i);
+   assert.doesNotMatch(await end.locator('..').getByRole('alert').innerText(),/90|[0-9a-f]{8}-[0-9a-f-]{27,}/i);
+   assert.equal(await end.getAttribute('aria-invalid'),'true');
+   assert.equal(await end.getAttribute('aria-describedby'),await end.locator('..').getByRole('alert').getAttribute('id'));
+  }
+  const unchanged=await(await fetch(origin+'/api/reporting/items',{headers:{Cookie:cookie}})).json();
+  assert.equal(unchanged.items.some(item=>item.name==='Retained impact comparison'),false,'Refused windows create no saved dashboard');
+  await widgets.nth(0).getByLabel('Window start (UTC)',{exact:true}).fill(date(from));
+  await widgets.nth(0).getByLabel('Window end (UTC)',{exact:true}).fill(date(to));
+  assert.equal(await widgets.nth(0).getByRole('alert').count(),0,'Correcting one widget clears only its own error');
+  assert.equal(await widgets.nth(1).getByRole('alert').count(),1);
+  await widgets.nth(1).getByLabel('Window start (UTC)',{exact:true}).fill(date(from));
+  await widgets.nth(1).getByLabel('Window end (UTC)',{exact:true}).fill(date(to));
   const created=page.waitForResponse(response=>new URL(response.url()).pathname==='/api/reporting/items'&&response.request().method()==='POST'&&response.status()===201);await configuration.getByRole('button',{name:'Save dashboard',exact:true}).click();const item=await(await created).json();
   await configuration.locator('summary').filter({hasText:'Share this view'}).click();await configuration.getByRole('combobox',{name:'Share audience',exact:true}).selectOption('role');await configuration.getByRole('combobox',{name:'Role',exact:true}).selectOption('read-only');await configuration.getByRole('button',{name:'Add audience',exact:true}).click();
   const sharing=page.waitForResponse(response=>new URL(response.url()).pathname.endsWith('/'+item.id+'/shares')&&response.status()===200);await configuration.getByRole('button',{name:'Save sharing',exact:true}).click();await sharing;

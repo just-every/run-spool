@@ -97,6 +97,23 @@ export async function dashboardFlow({req,json}){
  assert.ok(item.widgets[1].data.metadata.sampling);assert.ok(item.widgets[1].data.metadata.retention);assert.ok(item.widgets[1].data.metadata.dropped);
  const persisted=await json(root+'/items/'+savedId);assert.equal(persisted.widgets[2].data.value,item.widgets[2].data.value);assert.ok(typeof persisted.author==='string'&&persisted.author);
  const before=JSON.stringify((await json(root+'/items/'+savedId)).widgets.map(row=>row.config));
+ // Public writes name the actual invalid window and widget, with no partial revision.
+ const invalidNow=Date.now(),day=86400000;
+ for(const [bounds,reason] of [
+  [{from:invalidNow-3600000,to:invalidNow+3600000},/end.*future/i],
+  [{from:invalidNow-100*day,to:invalidNow-60000},/exceeds.*90 days/i],
+  [{from:invalidNow,to:invalidNow-60000},/end.*after.*start/i],
+  [{from:-1,to:invalidNow},/start.*1970/i],
+  [{from:null,to:invalidNow},/start.*valid.*UTC/i],
+  [{from:invalidNow-60000,to:null},/end.*valid.*UTC/i],
+ ]){
+  const refused=await req(root+'/items/'+savedId,'PUT',{...input,revision:item.revision,widgets:[input.widgets[0],{...input.widgets[1],config:{...input.widgets[1].config,...bounds}}]});
+  assert.equal(refused.status,400);
+  const message=(await refused.json()).error;assert.match(message,/widget 2/i);assert.match(message,reason);
+  if(reason.source.includes('future'))assert.doesNotMatch(message,/90 days/i);
+  const retained=await json(root+'/items/'+savedId);assert.equal(retained.revision,item.revision);assert.equal(JSON.stringify(retained.widgets.map(row=>row.config)),before);
+ }
+
  const stale=await req(root+'/items/'+savedId,'PUT',{...input,name:'Changed dashboard',revision:item.revision+1});assert.equal(stale.status,409);await stale.body?.cancel();
  const agent=await json(base+'/keys','POST',{kind:'agent'}),auth={Cookie:'',Authorization:'Bearer '+agent.key};
  for(const headers of [{Cookie:''},auth,{Origin:'https://synthetic-foreign.example'}]){

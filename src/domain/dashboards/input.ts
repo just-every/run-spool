@@ -3,6 +3,7 @@ import {identity,scrub} from '../privacy';
 import {eventQuery} from '../investigation/query';
 import {secretField} from '../scrub-keyed';
 import {reportWindow} from '../reports/window';
+import {windowProblem} from '../reports/window-validation';
 
 export type ItemKind='dashboard'|'table'|'report';
 export type Metric='count'|'rate'|'users'|'sessions';
@@ -25,7 +26,8 @@ export function revision(value:unknown):number{
 }
 export function window(value:any,defaults=false):Window{
  const to=value.to??(defaults?Date.now():undefined),from=value.from??(defaults?to-30*86400000:undefined);
- if(!Number.isSafeInteger(from)||!Number.isSafeInteger(to)||from<0||to<=from||to-from>90*86400000||to>Date.now()+300000)return fail('Use an explicit reporting window of at most 90 days');
+ const problem=windowProblem(from,to);
+ if(problem)return fail(problem.message);
  return {from,to};
 }
 export function metricConfig(value:any):MetricConfig{
@@ -49,7 +51,8 @@ export function itemInput(value:any,updating=false):ItemInput{
  fields(value,['name','kind','widgets',...updating?['revision']:[]]);
  if(!['dashboard','table','report'].includes(value.kind))fail('Unsupported reporting item kind');
  if(!Array.isArray(value.widgets)||value.widgets.length<1||value.widgets.length>12)fail('reporting_widget_limit: use between 1 and 12 widgets');
- const widgets:Widget[]=value.widgets.map((row:any)=>{
+ const widgets:Widget[]=value.widgets.map((row:any,index:number)=>{
+  try{
   fields(row,['id','project','name','config','viewId']);
   const common={id:row.id===undefined?crypto.randomUUID():identity(row.id,'widget'),project:identity(row.project,'project'),name:name(row.name)};
   if(value.kind==='table'){
@@ -63,6 +66,10 @@ export function itemInput(value:any,updating=false):ItemInput{
    return {...common,config:{from:bounds.from,to:bounds.to,timeZone:bounds.timeZone},viewId:null};
   }
   return {...common,config:metricConfig(row.config),viewId:null};
+  }catch(error){
+   if(error instanceof Error)return fail(`Widget ${index+1}: ${error.message}`);
+   throw error;
+  }
  });
  if(new Set(widgets.map(row=>row.id)).size!==widgets.length)fail('Widget identifiers must be unique');
  return {name:name(value.name),kind:value.kind,widgets};
