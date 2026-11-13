@@ -2,7 +2,8 @@ import {splitSqlStatements} from './sql-statements.mjs';
 
 const sqlSpace = '(?:\\s|--[^\\n]*(?:\\n|$)|/\\*[\\s\\S]*?\\*/)*';
 const createVirtualTable = new RegExp(`^${sqlSpace}CREATE\\b${sqlSpace}VIRTUAL\\b${sqlSpace}TABLE\\b`, 'i');
-const exportPath = /^\/(?:[A-Za-z0-9._~-]+\/?)*$/;
+// Each repeated segment ends in a mandatory separator, so it cannot be repartitioned.
+const exportPath = /^\/(?:[A-Za-z0-9._~-]+\/)*[A-Za-z0-9._~-]*$/;
 
 /** Match platform's native export contract against the collected binding and SQL declarations. */
 export function validateNativeExport(declaration, context) {

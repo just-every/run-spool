@@ -2654,7 +2654,7 @@
       "executable": false
     },
     "base-copies.json": {
-      "sha256": "e388d32d812f1dbc147a91dcdffdfab152eb99376022637bcba20df1cebcd1fb",
+      "sha256": "82c3cfc8fed8761c3b06597509d73b4901cbe85b60471d581dd0c5f54d7de94e",
       "executable": false
     },
     "BROWSER-ORIGINS.md": {
@@ -4590,7 +4590,7 @@
       "executable": false
     },
     "scripts/delivery/base/native-export.mjs": {
-      "sha256": "5c0f90e688f5242dbc2f62416259cbb3074647298df8daa431a7022aa10d1a41",
+      "sha256": "dd3d03b201c471b0135af404d34ecdc68d0e134921d84e915ba91abc3c66d42c",
       "executable": false
     },
     "scripts/delivery/base/package.mjs": {
@@ -5294,7 +5294,7 @@
       "executable": false
     },
     "scripts/installer/verify.mjs": {
-      "sha256": "8764c2d753c61dffaf8f134f07c59ffc37134fef69bb33ce6c926b4227f973fb",
+      "sha256": "66a025a6310e67299bf8b6d0cfacb2ff56b343ec069fffd260ad19abfb8ea4e4",
       "executable": false
     },
     "scripts/installer/wal-inspection.mjs": {
@@ -11183,6 +11183,10 @@
     },
     "tests/multilingual/trust.mjs": {
       "sha256": "d9a8fda1b789c1d460194cacbbc55b924f7016eca246aa075abd6ab88f854519",
+      "executable": false
+    },
+    "tests/native-export.mjs": {
+      "sha256": "621a49d7e52baebb9295114aff2b822d138f20f16c51c9fb4039cea602f098e9",
       "executable": false
     },
     "tests/navigation.mjs": {
