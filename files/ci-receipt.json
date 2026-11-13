@@ -1,0 +1,35 @@
+{
+  "head_sha": "1cf2ac62b7c9867db4bf14ea8c140b11dd20e804",
+  "repository": "just-every/run-spool",
+  "calls": [
+    {
+      "number": 1,
+      "timestamp": 1794554671.4527965,
+      "utc": "2026-11-13T07:24:31.452796+00:00",
+      "command": "gh api repos/just-every/run-spool/actions/runs?head_sha=1cf2ac62b7c9867db4bf14ea8c140b11dd20e804&per_page=100",
+      "result": "HTTP request succeeded; task-side URL redactor truncated compact JSON before parsing. First result not usable. Wait at least 300 seconds before another discovery."
+    },
+    {
+      "number": 2,
+      "timestamp": 1794554971.4535322,
+      "utc": "2026-11-13T07:29:31.453651+00:00",
+      "command": "gh api repos/just-every/run-spool/actions/runs?head_sha=1cf2ac62b7c9867db4bf14ea8c140b11dd20e804&per_page=100"
+    },
+    {
+      "number": 3,
+      "timestamp": 1794555271.4540195,
+      "utc": "2026-11-13T07:34:31.454033+00:00",
+      "command": "gh api repos/just-every/run-spool/actions/runs/43385482074"
+    },
+    {
+      "number": 4,
+      "timestamp": 1794555571.4549537,
+      "utc": "2026-11-13T07:39:31.455047+00:00",
+      "command": "gh api repos/just-every/run-spool/actions/runs/43385482074"
+    }
+  ],
+  "status": "in_progress",
+  "conclusion": null,
+  "run_id": 43385482074,
+  "html_url": "https://github.com/just-every/run-spool/actions/runs/43385482074"
+}

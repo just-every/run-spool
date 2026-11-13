@@ -1,0 +1,73 @@
+{
+  "head": "1cf2ac62b7c9867db4bf14ea8c140b11dd20e804",
+  "sample": {
+    "sampleCallout": 1,
+    "uploadMap": 0,
+    "recordReproducer": 0
+  },
+  "nodeLinks": 2,
+  "browserHelperHTTP": 200,
+  "screens": [
+    {
+      "screen": "setup",
+      "width": 1440,
+      "overflow": false
+    },
+    {
+      "screen": "setup",
+      "width": 390,
+      "overflow": false
+    },
+    {
+      "screen": "capture",
+      "width": 1440,
+      "overflow": false
+    },
+    {
+      "screen": "capture",
+      "width": 390,
+      "overflow": false
+    },
+    {
+      "screen": "issue",
+      "width": 1440,
+      "overflow": false
+    },
+    {
+      "screen": "issue",
+      "width": 390,
+      "overflow": false
+    },
+    {
+      "screen": "releases",
+      "width": 1440,
+      "overflow": false
+    },
+    {
+      "screen": "releases",
+      "width": 390,
+      "overflow": false
+    },
+    {
+      "screen": "map-requirements",
+      "width": 1440,
+      "overflow": false
+    },
+    {
+      "screen": "map-requirements",
+      "width": 390,
+      "overflow": false
+    },
+    {
+      "screen": "settings",
+      "width": 1440,
+      "overflow": false
+    },
+    {
+      "screen": "settings",
+      "width": 390,
+      "overflow": false
+    }
+  ],
+  "pageErrors": []
+}

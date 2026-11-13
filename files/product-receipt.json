@@ -1,0 +1,18 @@
+{
+  "repository": "just-every/run-spool",
+  "branch": "cloud/main-spool-capture-setup-truth-1",
+  "head": "1cf2ac62b7c9867db4bf14ea8c140b11dd20e804",
+  "base": "0f9809608a4ba84b23f4f8ece165605fcdd1acba",
+  "push_command": "python3 $HOME/rer-consolidation/.tools/cloud-push.py origin cloud/main-spool-capture-setup-truth-1",
+  "push_exit": 0,
+  "push_attempts": 1,
+  "push_result": "PUSH_OK branch=cloud/main-spool-capture-setup-truth-1",
+  "working_tree_clean": true,
+  "identity": "Run Edit Run fleet <fleet@runeditrun.com>",
+  "candidate_commits_checked_including_side_parents": 1,
+  "trailers": [],
+  "published_history_rewritten": false,
+  "main_pushed": false,
+  "pr": null,
+  "publication_scan": "Fleet Mac lander owns the full publication scan; not run in cloud."
+}

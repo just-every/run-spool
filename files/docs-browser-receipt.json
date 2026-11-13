@@ -1,0 +1,26 @@
+{
+  "head": "1cf2ac62b7c9867db4bf14ea8c140b11dd20e804",
+  "screens": [
+    {
+      "screen": "docs-capture",
+      "width": 1440,
+      "overflow": false
+    },
+    {
+      "screen": "docs-capture",
+      "width": 390,
+      "overflow": false
+    },
+    {
+      "screen": "docs-framework-setup",
+      "width": 1440,
+      "overflow": false
+    },
+    {
+      "screen": "docs-framework-setup",
+      "width": 390,
+      "overflow": false
+    }
+  ],
+  "pageErrors": []
+}

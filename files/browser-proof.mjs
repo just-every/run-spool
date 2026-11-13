@@ -1,0 +1,32 @@
+import assert from 'node:assert/strict';
+import {execFileSync} from 'node:child_process';
+import {writeFile} from 'node:fs/promises';
+import {startTestWorker} from '../tests/worker.mjs';
+import {signIn} from '../tests/auth.mjs';
+import {launchBrowser} from '../tests/browser-launch.mjs';
+const packet=process.env.HOME+'/rer-consolidation/work/main-spool-capture-setup-truth-1/packet';
+const app=await startTestWorker(15592);let browser;
+try {
+ const cookie=await signIn(app.origin);const errors=[],screens=[];
+ const api=async(path,body)=>{const r=await fetch(app.origin+path,{method:'POST',headers:{Cookie:cookie,Origin:app.origin,'Content-Type':'application/json'},body:JSON.stringify(body)});assert.ok(r.ok);return r.json()};
+ browser=await launchBrowser();const context=await browser.newContext({viewport:{width:1440,height:1000}});
+ await context.addCookies(cookie.split('; ').map(c=>{const i=c.indexOf('=');return {name:c.slice(0,i),value:c.slice(i+1),url:app.origin}}));
+ const page=await context.newPage();page.on('pageerror',e=>errors.push(e.message));
+ const shots=async(name,mask=[])=>{for(const width of [1440,390]){await page.setViewportSize({width,height:1000});await page.screenshot({path:packet+`/after-${name}-${width}.png`,fullPage:true,mask:[page.locator('.secret-key, input[type=password], [data-secret]'),...mask]});screens.push({screen:name,width,overflow:await page.evaluate(()=>document.documentElement.scrollWidth>innerWidth+1)})}await page.setViewportSize({width:1440,height:1000})};
+ await page.goto(app.origin+'/setup');await page.getByLabel('Project identifier',{exact:true}).fill('synthetic-spool-1');await page.getByLabel('Project name',{exact:true}).fill('Synthetic capture setup');await page.getByRole('button',{name:'Create project',exact:true}).click();await page.getByRole('heading',{name:'Your project is ready',exact:true}).waitFor();
+ const key=await page.getByLabel('Ingest key',{exact:true}).inputValue();
+ await shots('setup',[page.locator('.code-block pre')]);
+ await api('/api/projects/synthetic-spool-1/releases',{name:'sample-release',build:'sample-build'});
+ await page.goto(app.origin+'/projects/synthetic-spool-1/capture');await page.getByLabel('SDK init',{exact:true}).waitFor();await shots('capture');
+ const nodeLinks=await page.getByRole('link',{name:'Node.js and npm',exact:true}).count();assert.ok(nodeLinks>0);assert.ok(await page.getByRole('link',{name:'the browser capture file',exact:true}).count());
+ const browserSnippet=await page.getByLabel('Browser helper init',{exact:true}).innerText();assert.match(browserSnippet,/installBrowserCapture/);
+ const helper=await fetch(app.origin+'/errors-capture.js');assert.equal(helper.status,200);await helper.body?.cancel();
+ await page.getByLabel('Project ingest key',{exact:true}).fill(key);
+ const received=page.waitForResponse(r=>r.url()===app.origin+'/api/ingest/synthetic-spool-1'&&r.request().method()==='POST');
+ await page.getByRole('button',{name:'Capture test exception',exact:true}).click();const response=await received,outcome=await response.json();assert.equal(outcome.outcome,'accepted');
+ await page.getByRole('button',{name:'Open captured issue',exact:true}).click();await page.locator('.issue').waitFor();await page.locator('.execution').waitFor();
+ const sample={sampleCallout:await page.locator('.issue .callout').filter({hasText:/Spool.*sample/i}).count(),uploadMap:await page.getByRole('button',{name:'Upload map',exact:true}).count(),recordReproducer:await page.getByRole('button',{name:'Record reproducer',exact:true}).count()};assert.deepEqual(sample,{sampleCallout:1,uploadMap:0,recordReproducer:0});await shots('issue');
+ await page.goto(app.origin+'/projects/synthetic-spool-1/releases');await page.getByLabel('Source-map SDK install',{exact:true}).waitFor();await shots('releases');await page.getByRole('button',{name:'Details: Source map requirements',exact:true}).click();await shots('map-requirements');await page.getByRole('button',{name:'Close details',exact:true}).click();
+ await page.goto(app.origin+'/projects/synthetic-spool-1/settings#settings-projects');await page.getByLabel('SDK init',{exact:true}).waitFor();await shots('settings');
+ assert.deepEqual(errors,[]);await writeFile(packet+'/browser-receipt.json',JSON.stringify({head:execFileSync('git',['rev-parse','HEAD'],{encoding:'utf8'}).trim(),sample,nodeLinks,browserHelperHTTP:helper.status,screens,pageErrors:errors},null,2)+'\n');console.log(JSON.stringify({sample,screens}));
+}finally{await browser?.close();await app.stop()}

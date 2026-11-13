@@ -1,0 +1,25 @@
+{
+  "package": "@just-every/spool",
+  "version": "0.1.0",
+  "edge": "local synthetic release responder; no provider or product state",
+  "rows": [
+    {
+      "input": "oversize-flat",
+      "map_bytes": 270089,
+      "exit": 1,
+      "reason": "Source map exceeds 256 KiB"
+    },
+    {
+      "input": "indexed",
+      "map_bytes": 133,
+      "exit": 1,
+      "reason": "Flat Source Map V3 required"
+    }
+  ],
+  "requests": [
+    {
+      "method": "POST",
+      "path": "/api/projects/synthetic-spool-1/releases"
+    }
+  ]
+}

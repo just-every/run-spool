@@ -1,0 +1,14 @@
+{
+  "registry": "https://registry.npmjs.org/@just-every%2fspool",
+  "http_status": 200,
+  "latest": "0.1.0",
+  "versions": [
+    "0.0.0-stage",
+    "0.1.0"
+  ],
+  "install_command": "npm install --ignore-scripts --no-audit --no-fund @just-every/spool",
+  "installed_package": "@just-every/spool",
+  "installed_version": "0.1.0",
+  "install_exit": 0,
+  "conclusion": "Public npm installation works; 0.2.0 remains unpublished. No package publication attempted."
+}

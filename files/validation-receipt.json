@@ -1,0 +1,46 @@
+{
+  "candidate_head": "1cf2ac62b7c9867db4bf14ea8c140b11dd20e804",
+  "local_journey_worktree_base": "0f9809608a4ba84b23f4f8ece165605fcdd1acba",
+  "local_journey_product_changes": "a5f4ce7a5bf03d5cd5a9ff30b81436ceb4c6893b38f81ce67a399dd85cdc77d0",
+  "commands": [
+    {
+      "command": "RER_CHROMIUM_EXECUTABLE_PATH=/usr/bin/chromium cloud_run node tests/triage-journey.mjs",
+      "exit": 0,
+      "check_groups": 22,
+      "captures": 101,
+      "widths": [
+        1440,
+        390
+      ],
+      "new_registrations": 0
+    },
+    {
+      "command": "firstProjectJourney(browser, real rer dev origin, 1440)",
+      "exit": 0,
+      "source": "tests/setup-journey.mjs",
+      "browser": "/usr/bin/chromium --no-sandbox"
+    },
+    {
+      "command": "pnpm typecheck",
+      "exit": 0
+    },
+    {
+      "command": "cloud_run npx -y @runeditrun/rer build",
+      "exit": 0
+    },
+    {
+      "command": "node src/base/contract-docs.mjs check",
+      "exit": 0
+    },
+    {
+      "command": "node scripts/edition-authoring/cli.mjs lock",
+      "exit": 0
+    },
+    {
+      "command": "pnpm source:check",
+      "exit": 0,
+      "ok": true
+    }
+  ],
+  "scope": "Existing public journeys extended; no full local Verify; exact-SHA branch Verify is required."
+}

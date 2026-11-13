@@ -1,0 +1,45 @@
+{
+  "service": {
+    "bytes_per_map": 1048576,
+    "formats": [
+      "flat V3",
+      "indexed V3"
+    ],
+    "lifetime_count_cap": null,
+    "project_bytes_cap": "optional; also includes native symbols/debug files",
+    "sources": [
+      "src/domain/artifacts.ts#validateMap",
+      "src/domain/sentry/deploy-routes.ts",
+      "migrations/core/0067_artifact_storage.sql",
+      "migrations/core/0101_native_debug_files.sql"
+    ]
+  },
+  "checkout_cli": {
+    "bytes_per_map": 1048576,
+    "formats": [
+      "flat V3",
+      "indexed input flattened before upload"
+    ],
+    "batch_count": 2000,
+    "sources": [
+      "packages/sdk/src/sourcemaps/inject.mjs#injectDebugId",
+      "packages/sdk/src/sourcemaps/upload.mjs#uploadSourceMaps"
+    ]
+  },
+  "npm_0_1_0_cli": {
+    "bytes_per_map": 262144,
+    "formats": [
+      "flat V3"
+    ],
+    "evidence": "Installed public package dist/shared-SXOIRV2H.js refuses map.sections with Flat Source Map V3 required, and refuses JSON map byte length >262144 with Source map exceeds 256 KiB."
+  },
+  "prepared_picker": {
+    "bytes_per_file": 262144,
+    "formats": [
+      "flat V3"
+    ],
+    "source": "src/ui/workbench/ReleasesView.tsx"
+  },
+  "limits_changed": false,
+  "finding": "The code intentionally differs by door and published SDK version; documentation now names the enforced limits instead of promising the current checkout CLI limits from npm 0.1.0."
+}

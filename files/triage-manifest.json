@@ -1,0 +1,602 @@
+{
+  "candidate": "0f9809608a4ba84b23f4f8ece165605fcdd1acba",
+  "business": "Cedar Dispatch",
+  "caption": "Synthetic business; real local capture and owner actions.",
+  "captures": [
+    {
+      "scenario": "owner-name",
+      "width": 1440,
+      "path": "owner-name-1440.jpg"
+    },
+    {
+      "scenario": "waiting",
+      "width": 1440,
+      "path": "waiting-1440.jpg"
+    },
+    {
+      "scenario": "map-upload",
+      "width": 1440,
+      "path": "map-upload-1440.jpg"
+    },
+    {
+      "scenario": "mapped-issue",
+      "width": 1440,
+      "path": "mapped-issue-1440.jpg"
+    },
+    {
+      "scenario": "regression-priority",
+      "width": 1440,
+      "path": "regression-priority-1440.jpg"
+    },
+    {
+      "scenario": "settings-projects",
+      "width": 1440,
+      "path": "settings-projects-1440.jpg"
+    },
+    {
+      "scenario": "settings-data",
+      "width": 1440,
+      "path": "settings-data-1440.jpg"
+    },
+    {
+      "scenario": "private-archive",
+      "width": 1440,
+      "path": "private-archive-1440.jpg"
+    },
+    {
+      "scenario": "offline-workspace",
+      "width": 1440,
+      "path": "offline-workspace-1440.jpg"
+    },
+    {
+      "scenario": "offline-workspace",
+      "width": 390,
+      "path": "offline-workspace-390.jpg"
+    },
+    {
+      "scenario": "unavailable-workspace",
+      "width": 1440,
+      "path": "unavailable-workspace-1440.jpg"
+    },
+    {
+      "scenario": "unavailable-workspace",
+      "width": 390,
+      "path": "unavailable-workspace-390.jpg"
+    },
+    {
+      "scenario": "unavailable-issue",
+      "width": 1440,
+      "path": "unavailable-issue-1440.jpg"
+    },
+    {
+      "scenario": "unavailable-issue",
+      "width": 390,
+      "path": "unavailable-issue-390.jpg"
+    },
+    {
+      "scenario": "stale-offline-issue",
+      "width": 1440,
+      "path": "stale-offline-issue-1440.jpg"
+    },
+    {
+      "scenario": "stale-offline-issue",
+      "width": 390,
+      "path": "stale-offline-issue-390.jpg"
+    },
+    {
+      "scenario": "reconnected-issue",
+      "width": 1440,
+      "path": "reconnected-issue-1440.jpg"
+    },
+    {
+      "scenario": "reconnected-issue",
+      "width": 390,
+      "path": "reconnected-issue-390.jpg"
+    },
+    {
+      "scenario": "not-found",
+      "width": 1440,
+      "path": "not-found-1440.jpg"
+    },
+    {
+      "scenario": "capture-item-diagnostics",
+      "width": 1440,
+      "path": "capture-item-diagnostics-1440.jpg"
+    },
+    {
+      "scenario": "test-issue-list",
+      "width": 1440,
+      "path": "test-issue-list-1440.jpg"
+    },
+    {
+      "scenario": "test-issue-list",
+      "width": 390,
+      "path": "test-issue-list-390.jpg"
+    },
+    {
+      "scenario": "test-issue-detail",
+      "width": 1440,
+      "path": "test-issue-detail-1440.jpg"
+    },
+    {
+      "scenario": "test-issue-detail",
+      "width": 390,
+      "path": "test-issue-detail-390.jpg"
+    },
+    {
+      "scenario": "operator-preview",
+      "width": 1440,
+      "path": "operator-preview-1440.jpg"
+    },
+    {
+      "scenario": "operator-applied",
+      "width": 1440,
+      "path": "operator-applied-1440.jpg"
+    },
+    {
+      "scenario": "operator-undone",
+      "width": 1440,
+      "path": "operator-undone-1440.jpg"
+    },
+    {
+      "scenario": "operator-undone-list",
+      "width": 1440,
+      "path": "operator-undone-list-1440.jpg"
+    },
+    {
+      "scenario": "operator-merge-preview",
+      "width": 1440,
+      "path": "operator-merge-preview-1440.jpg"
+    },
+    {
+      "scenario": "operator-merge-applied",
+      "width": 1440,
+      "path": "operator-merge-applied-1440.jpg"
+    },
+    {
+      "scenario": "operator-merge-undone",
+      "width": 1440,
+      "path": "operator-merge-undone-1440.jpg"
+    },
+    {
+      "scenario": "grouping-proposal-empty",
+      "width": 1440,
+      "path": "grouping-proposal-empty-1440.jpg"
+    },
+    {
+      "scenario": "grouping-proposal-proposed",
+      "width": 1440,
+      "path": "grouping-proposal-proposed-1440.jpg"
+    },
+    {
+      "scenario": "grouping-proposal-proposed-effect-1",
+      "width": 1440,
+      "path": "grouping-proposal-proposed-effect-1-1440.jpg"
+    },
+    {
+      "scenario": "grouping-proposal-proposed-effect-2",
+      "width": 1440,
+      "path": "grouping-proposal-proposed-effect-2-1440.jpg"
+    },
+    {
+      "scenario": "grouping-proposal-proposed-effect-3",
+      "width": 1440,
+      "path": "grouping-proposal-proposed-effect-3-1440.jpg"
+    },
+    {
+      "scenario": "grouping-proposal-proposed-effect-4",
+      "width": 1440,
+      "path": "grouping-proposal-proposed-effect-4-1440.jpg"
+    },
+    {
+      "scenario": "grouping-proposal-proposed-effect-5",
+      "width": 1440,
+      "path": "grouping-proposal-proposed-effect-5-1440.jpg"
+    },
+    {
+      "scenario": "grouping-proposal-proposed-effect-6",
+      "width": 1440,
+      "path": "grouping-proposal-proposed-effect-6-1440.jpg"
+    },
+    {
+      "scenario": "grouping-proposal-proposed-effect-7",
+      "width": 1440,
+      "path": "grouping-proposal-proposed-effect-7-1440.jpg"
+    },
+    {
+      "scenario": "grouping-proposal-proposed-decision",
+      "width": 1440,
+      "path": "grouping-proposal-proposed-decision-1440.jpg"
+    },
+    {
+      "scenario": "grouping-proposal-rejected",
+      "width": 1440,
+      "path": "grouping-proposal-rejected-1440.jpg"
+    },
+    {
+      "scenario": "grouping-proposal-approved",
+      "width": 1440,
+      "path": "grouping-proposal-approved-1440.jpg"
+    },
+    {
+      "scenario": "grouping-proposal-approved-effect-1",
+      "width": 1440,
+      "path": "grouping-proposal-approved-effect-1-1440.jpg"
+    },
+    {
+      "scenario": "grouping-proposal-approved-effect-2",
+      "width": 1440,
+      "path": "grouping-proposal-approved-effect-2-1440.jpg"
+    },
+    {
+      "scenario": "grouping-proposal-approved-effect-3",
+      "width": 1440,
+      "path": "grouping-proposal-approved-effect-3-1440.jpg"
+    },
+    {
+      "scenario": "grouping-proposal-approved-effect-4",
+      "width": 1440,
+      "path": "grouping-proposal-approved-effect-4-1440.jpg"
+    },
+    {
+      "scenario": "grouping-proposal-approved-effect-5",
+      "width": 1440,
+      "path": "grouping-proposal-approved-effect-5-1440.jpg"
+    },
+    {
+      "scenario": "grouping-proposal-approved-effect-6",
+      "width": 1440,
+      "path": "grouping-proposal-approved-effect-6-1440.jpg"
+    },
+    {
+      "scenario": "grouping-proposal-approved-effect-7",
+      "width": 1440,
+      "path": "grouping-proposal-approved-effect-7-1440.jpg"
+    },
+    {
+      "scenario": "grouping-proposal-approved-decision",
+      "width": 1440,
+      "path": "grouping-proposal-approved-decision-1440.jpg"
+    },
+    {
+      "scenario": "grouping-proposal-applied",
+      "width": 1440,
+      "path": "grouping-proposal-applied-1440.jpg"
+    },
+    {
+      "scenario": "grouping-proposal-undone",
+      "width": 1440,
+      "path": "grouping-proposal-undone-1440.jpg"
+    },
+    {
+      "scenario": "grouping-rule-approved",
+      "width": 1440,
+      "path": "grouping-rule-approved-1440.jpg"
+    },
+    {
+      "scenario": "grouping-rule-applied",
+      "width": 1440,
+      "path": "grouping-rule-applied-1440.jpg"
+    },
+    {
+      "scenario": "grouping-rule-undone",
+      "width": 1440,
+      "path": "grouping-rule-undone-1440.jpg"
+    },
+    {
+      "scenario": "grouping-proposal-stale",
+      "width": 1440,
+      "path": "grouping-proposal-stale-1440.jpg"
+    },
+    {
+      "scenario": "grouping-proposal-denied",
+      "width": 1440,
+      "path": "grouping-proposal-denied-1440.jpg"
+    },
+    {
+      "scenario": "owner-name",
+      "width": 390,
+      "path": "owner-name-390.jpg"
+    },
+    {
+      "scenario": "waiting",
+      "width": 390,
+      "path": "waiting-390.jpg"
+    },
+    {
+      "scenario": "map-upload",
+      "width": 390,
+      "path": "map-upload-390.jpg"
+    },
+    {
+      "scenario": "mapped-issue",
+      "width": 390,
+      "path": "mapped-issue-390.jpg"
+    },
+    {
+      "scenario": "regression-priority",
+      "width": 390,
+      "path": "regression-priority-390.jpg"
+    },
+    {
+      "scenario": "settings-projects",
+      "width": 390,
+      "path": "settings-projects-390.jpg"
+    },
+    {
+      "scenario": "settings-data",
+      "width": 390,
+      "path": "settings-data-390.jpg"
+    },
+    {
+      "scenario": "private-archive",
+      "width": 390,
+      "path": "private-archive-390.jpg"
+    },
+    {
+      "scenario": "not-found",
+      "width": 390,
+      "path": "not-found-390.jpg"
+    },
+    {
+      "scenario": "capture-item-diagnostics",
+      "width": 390,
+      "path": "capture-item-diagnostics-390.jpg"
+    },
+    {
+      "scenario": "operator-preview",
+      "width": 390,
+      "path": "operator-preview-390.jpg"
+    },
+    {
+      "scenario": "operator-applied",
+      "width": 390,
+      "path": "operator-applied-390.jpg"
+    },
+    {
+      "scenario": "operator-undone",
+      "width": 390,
+      "path": "operator-undone-390.jpg"
+    },
+    {
+      "scenario": "operator-merge-preview",
+      "width": 390,
+      "path": "operator-merge-preview-390.jpg"
+    },
+    {
+      "scenario": "operator-merge-applied",
+      "width": 390,
+      "path": "operator-merge-applied-390.jpg"
+    },
+    {
+      "scenario": "operator-merge-undone",
+      "width": 390,
+      "path": "operator-merge-undone-390.jpg"
+    },
+    {
+      "scenario": "grouping-proposal-empty",
+      "width": 390,
+      "path": "grouping-proposal-empty-390.jpg"
+    },
+    {
+      "scenario": "grouping-proposal-proposed",
+      "width": 390,
+      "path": "grouping-proposal-proposed-390.jpg"
+    },
+    {
+      "scenario": "grouping-proposal-proposed-effect-1",
+      "width": 390,
+      "path": "grouping-proposal-proposed-effect-1-390.jpg"
+    },
+    {
+      "scenario": "grouping-proposal-proposed-effect-2",
+      "width": 390,
+      "path": "grouping-proposal-proposed-effect-2-390.jpg"
+    },
+    {
+      "scenario": "grouping-proposal-proposed-effect-3",
+      "width": 390,
+      "path": "grouping-proposal-proposed-effect-3-390.jpg"
+    },
+    {
+      "scenario": "grouping-proposal-proposed-effect-4",
+      "width": 390,
+      "path": "grouping-proposal-proposed-effect-4-390.jpg"
+    },
+    {
+      "scenario": "grouping-proposal-proposed-effect-5",
+      "width": 390,
+      "path": "grouping-proposal-proposed-effect-5-390.jpg"
+    },
+    {
+      "scenario": "grouping-proposal-proposed-effect-6",
+      "width": 390,
+      "path": "grouping-proposal-proposed-effect-6-390.jpg"
+    },
+    {
+      "scenario": "grouping-proposal-proposed-effect-7",
+      "width": 390,
+      "path": "grouping-proposal-proposed-effect-7-390.jpg"
+    },
+    {
+      "scenario": "grouping-proposal-proposed-decision",
+      "width": 390,
+      "path": "grouping-proposal-proposed-decision-390.jpg"
+    },
+    {
+      "scenario": "grouping-proposal-rejected",
+      "width": 390,
+      "path": "grouping-proposal-rejected-390.jpg"
+    },
+    {
+      "scenario": "grouping-proposal-approved",
+      "width": 390,
+      "path": "grouping-proposal-approved-390.jpg"
+    },
+    {
+      "scenario": "grouping-proposal-approved-effect-1",
+      "width": 390,
+      "path": "grouping-proposal-approved-effect-1-390.jpg"
+    },
+    {
+      "scenario": "grouping-proposal-approved-effect-2",
+      "width": 390,
+      "path": "grouping-proposal-approved-effect-2-390.jpg"
+    },
+    {
+      "scenario": "grouping-proposal-approved-effect-3",
+      "width": 390,
+      "path": "grouping-proposal-approved-effect-3-390.jpg"
+    },
+    {
+      "scenario": "grouping-proposal-approved-effect-4",
+      "width": 390,
+      "path": "grouping-proposal-approved-effect-4-390.jpg"
+    },
+    {
+      "scenario": "grouping-proposal-approved-effect-5",
+      "width": 390,
+      "path": "grouping-proposal-approved-effect-5-390.jpg"
+    },
+    {
+      "scenario": "grouping-proposal-approved-effect-6",
+      "width": 390,
+      "path": "grouping-proposal-approved-effect-6-390.jpg"
+    },
+    {
+      "scenario": "grouping-proposal-approved-effect-7",
+      "width": 390,
+      "path": "grouping-proposal-approved-effect-7-390.jpg"
+    },
+    {
+      "scenario": "grouping-proposal-approved-decision",
+      "width": 390,
+      "path": "grouping-proposal-approved-decision-390.jpg"
+    },
+    {
+      "scenario": "grouping-proposal-applied",
+      "width": 390,
+      "path": "grouping-proposal-applied-390.jpg"
+    },
+    {
+      "scenario": "grouping-proposal-undone",
+      "width": 390,
+      "path": "grouping-proposal-undone-390.jpg"
+    },
+    {
+      "scenario": "grouping-rule-approved",
+      "width": 390,
+      "path": "grouping-rule-approved-390.jpg"
+    },
+    {
+      "scenario": "grouping-rule-applied",
+      "width": 390,
+      "path": "grouping-rule-applied-390.jpg"
+    },
+    {
+      "scenario": "grouping-rule-undone",
+      "width": 390,
+      "path": "grouping-rule-undone-390.jpg"
+    },
+    {
+      "scenario": "grouping-proposal-stale",
+      "width": 390,
+      "path": "grouping-proposal-stale-390.jpg"
+    },
+    {
+      "scenario": "grouping-proposal-denied",
+      "width": 390,
+      "path": "grouping-proposal-denied-390.jpg"
+    }
+  ],
+  "checks": [
+    {
+      "width": 1440,
+      "name": "Visitor unclaimed Lobby fits, passes axe and Finish setup leads to owner sign-in preserving /setup"
+    },
+    {
+      "width": 1440,
+      "name": "Real minified application throws and capture crosses a second loopback origin"
+    },
+    {
+      "width": 1440,
+      "name": "Contextual map upload yields actual original path, line and column as first stack fact"
+    },
+    {
+      "width": 1440,
+      "name": "Copy destination, refresh, history, viewed count and Details focus/Escape"
+    },
+    {
+      "width": 1440,
+      "name": "Resolved issue recurs in next release; late older release does not replace regression identity"
+    },
+    {
+      "width": 1440,
+      "name": "Populated browser download verifies integrity, whole product equality, private source maps and credential exclusions"
+    },
+    {
+      "width": 1440,
+      "name": "Offline and unavailable initial reads recover; retained issue evidence is stale, keeps destination, drafts and focus, and clears after a successful refresh without writes"
+    },
+    {
+      "width": 1440,
+      "name": "Hostile return destinations rejected and expired API session keeps requested issue"
+    },
+    {
+      "width": 1440,
+      "name": "Styled direct-navigation 404, both widths, no owner-page errors or horizontal overflow"
+    },
+    {
+      "width": 1440,
+      "name": "Capture receipts name statsd and unknown item counts separately from the accepted companion error"
+    },
+    {
+      "width": 1440,
+      "name": "Built-in test capture has sample-labelled evidence without map or reproducer steps, separate grouping and counts, and preserves ordinary app-error guidance"
+    },
+    {
+      "width": 1440,
+      "name": "Operator assignment, policy toggle and reviewed correction plus undo use the rendered controls"
+    },
+    {
+      "width": 390,
+      "name": "Visitor unclaimed Lobby fits, passes axe and Finish setup leads to owner sign-in preserving /setup"
+    },
+    {
+      "width": 390,
+      "name": "Real minified application throws and capture crosses a second loopback origin"
+    },
+    {
+      "width": 390,
+      "name": "Contextual map upload yields actual original path, line and column as first stack fact"
+    },
+    {
+      "width": 390,
+      "name": "Copy destination, refresh, history, viewed count and Details focus/Escape"
+    },
+    {
+      "width": 390,
+      "name": "Resolved issue recurs in next release; late older release does not replace regression identity"
+    },
+    {
+      "width": 390,
+      "name": "Populated browser download verifies integrity, whole product equality, private source maps and credential exclusions"
+    },
+    {
+      "width": 390,
+      "name": "Hostile return destinations rejected and expired API session keeps requested issue"
+    },
+    {
+      "width": 390,
+      "name": "Styled direct-navigation 404, both widths, no owner-page errors or horizontal overflow"
+    },
+    {
+      "width": 390,
+      "name": "Capture receipts name statsd and unknown item counts separately from the accepted companion error"
+    },
+    {
+      "width": 390,
+      "name": "Operator assignment, policy toggle and reviewed correction plus undo use the rendered controls"
+    }
+  ]
+}

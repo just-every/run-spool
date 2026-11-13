@@ -1,0 +1,11 @@
+{
+  "contract_status_counts": {
+    "done": 23,
+    "partial": 54,
+    "missing": 28
+  },
+  "contract_clause_rows": 105,
+  "test_registrations_added": 0,
+  "triage_width_invocations": 2,
+  "test_budget_file": "absent; default cap 200; existing journeys extended without registrations"
+}
