@@ -1,0 +1,1 @@
+PASS: package.json, seed.json and RELEASE.json agree on 0.7.11; previousVersion 0.7.10; publicReleaseNotes match CHANGELOG exactly; historical notes, rer 0.2.113, product, tests, contract, views and pnpm-lock.yaml unchanged. No package-lock.json exists or was created.

@@ -1,0 +1,24 @@
+{
+  "stamp": "2026-11-13T23:29:16Z",
+  "main": "4c14f5433cc7885a486db254549079d36443c37a",
+  "main_verify": [
+    43513594861,
+    43519208086
+  ],
+  "main_verify_attempt": 2,
+  "main_verify_conclusion": "success",
+  "main_site": 43519208061,
+  "main_site_conclusion": "success",
+  "latest_release": "v0.7.10",
+  "latest_release_url": "https://github.com/just-every/run-spool/releases/tag/v0.7.10",
+  "v0711_tag_present": false,
+  "v0711_release_present": false,
+  "competing_release_branch_present": false,
+  "source_pin": "0.2.113",
+  "previous_version": "0.7.10",
+  "new_version": "0.7.11",
+  "landed_commits": [
+    "169e4cb",
+    "4c14f5433cc7885a486db254549079d36443c37a"
+  ]
+}

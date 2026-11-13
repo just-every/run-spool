@@ -1,0 +1,221 @@
+diff --git a/src/modules/d1-transport/limits.mjs b/src/modules/d1-transport/limits.mjs
+index 018677a..c0ee68c 100644
+--- a/src/modules/d1-transport/limits.mjs
++++ b/src/modules/d1-transport/limits.mjs
+@@ -1,10 +1,14 @@
+ /** Cloudflare D1 per-query limits, supplied from the platform limits page
+  * (updated 24 Oct 2026). Expression depth 100 is OBSERVED-NOT-DOCUMENTED:
+  * native D1 rejected a concatenation tree of depth 101 on 27 Oct 2026.
++ * FROM items 100 is OBSERVED-NOT-DOCUMENTED (K21, 10 Nov 2026): native D1
++ * refuses a statement with "VIEWs and/or subqueries nested too deep" once its
++ * FROM-clause items, counted with every CTE and view reference expanded in
++ * place, reach 100. Local SQLite and Miniflare accept such a statement.
+  * Node 22.20.0 ignores DatabaseSync limits options: preflight is mandatory.
+  * Queries per Worker invocation (Paid 1000, Free 50, batch counts once) and
+  * the 30 second query deadline are NOT-ENFORCEABLE-LOCALLY here: a database
+  * connection has neither the invocation boundary nor the provider scheduler.
+  */
+ export const d1NativeLimits = Object.freeze({ length: 2_000_000, sqlLength: 100_000,
+-  column: 100, variableNumber: 100, functionArg: 32, likePatternLength: 50, exprDepth: 100 });
++  column: 100, variableNumber: 100, functionArg: 32, likePatternLength: 50, exprDepth: 100, fromItems: 100 });
+diff --git a/src/modules/operator-auth/README.md b/src/modules/operator-auth/README.md
+index d0bd137..c6de08e 100644
+--- a/src/modules/operator-auth/README.md
++++ b/src/modules/operator-auth/README.md
+@@ -117,7 +117,7 @@ version), domain rules in `oa_domain_rules`. `auth.accounts` exposes it and
+ | `/auth/confirm` | POST | token; consume once, create session and 303 to stored returnTo. A step-up link completes only in the session that asked for it and sets no new cookie. |
+ | `/auth/session` | GET | session and operator, or 401 |
+ | `/auth/signout` | POST | `{}`; revoke current session, clear cookie, 204 |
+-| `/auth/invite` | POST | email, displayName, role? (member), returnTo?; mail invitation, 202 |
++| `/auth/invite` | POST | email, displayName, role? (member), returnTo?; mail invitation, 202 `{status}`. A local development mail provider sends nothing, so it adds `delivery: 'none'`, and for an owner who holds the local key also `signInUrl` (the key-gated one-click entry for the invited person); a seed must not say the invitation was sent then |
+ | `/auth/invite/cancel` | POST | operatorId; cancel pending invitation, return inactive operator, 200 |
+ | `/auth/operators` | GET | authorized operator list |
+ | `/auth/operator/status` | POST | operatorId, status (`active`/`inactive`) |
+diff --git a/src/modules/operator-auth/accounts/admin.mjs b/src/modules/operator-auth/accounts/admin.mjs
+index eb75810..c1992cc 100644
+--- a/src/modules/operator-auth/accounts/admin.mjs
++++ b/src/modules/operator-auth/accounts/admin.mjs
+@@ -3,6 +3,8 @@ import { writeOperatorStatus } from './status.mjs';
+ import { AuthError, deny } from '../errors.mjs';
+ import { normalizeEmail, safeReturnTo } from '../policy.mjs';
+ import { requirePost } from '../http.mjs';
++import { devAdmitted } from '../dev-admission.mjs';
++import { oneClickHref } from './one-click.mjs';
+ import { operatorColumns } from './store.mjs';
+ import { DEFAULT_ROLES, emailAllowed } from './roles.mjs';
+ const DOMAIN = /^(?=.{1,253}$)(?:[a-z0-9](?:[a-z0-9-]{0,61}[a-z0-9])?\.)+[a-z][a-z0-9-]{0,61}[a-z0-9]$/;
+@@ -50,7 +52,7 @@ export function administration(context) {
+       const mutation = { operatorId: existing?.id ?? crypto.randomUUID(), expectedVersion: existing?.version ?? 1, reinviting, email, displayName: displayName(input.displayName), role, token, now };
+       return { mutation, actor, ...await store.prepareInvitation(mutation, actor, audit), async afterCommit() {
+         const issued = await store.first('SELECT id FROM oa_tokens WHERE id=? AND revoked_at IS NULL AND consumed_at IS NULL', [token.id]);
+-        if (issued) await sendLink(email, token);
++        if (issued) return sendLink(email, token);
+       } };
+   }
+   return {
+@@ -59,8 +61,12 @@ export function administration(context) {
+       const plan = await prepareInvitation(request, input);
+       const created = await store.invite(plan.mutation, plan.actor, plan);
+       if (!created) deny('invitation_conflict', 409);
+-      await plan.afterCommit();
+-      return { status: 'accepted' };
++      const delivered = await plan.afterCommit();
++      if (delivered === 'accepted') return { status: 'accepted' };
++      // A development provider takes the message and sends nothing. Say so; the
++      // key-gated local owner who made the invitation also gets the way to open it.
++      const link = config.local && plan.actor.operator.role === 'owner' && await devAdmitted(request);
++      return { status: 'accepted', delivery: 'none', ...(link ? { signInUrl: oneClickHref(plan.mutation.email, plan.mutation.token.returnTo) } : {}) };
+     },
+     async listOperators(request) {
+       const actor = await actorFor(request, 'operators:list', undefined, undefined, false);
+diff --git a/src/modules/operator-auth/accounts/one-click.mjs b/src/modules/operator-auth/accounts/one-click.mjs
+index 6bf3fde..6c4a190 100644
+--- a/src/modules/operator-auth/accounts/one-click.mjs
++++ b/src/modules/operator-auth/accounts/one-click.mjs
+@@ -13,7 +13,12 @@ export const oneClickHref = (email, returnTo = '/app') => `/auth/one-click?as=${
+ // this door. Ordinary production cannot enable it with a request header.
+ export function oneClickAccounts({ config, store, clock, sessions, authorizedLink, requireRoute, afterConfirm }) {
+   async function mode(request) {
+-    if (config.local) return await devAdmitted(request) ? 'dev' : null;
++    if (config.local) {
++      // Session admission allows OAuth returns; one-click entry needs the
++      // stricter sign-in gate, including for the people list.
++      if (request.headers.get('x-rer-dev-key') === null && request.headers.get('sec-fetch-site') === 'cross-site') return null;
++      return await devAdmitted(request) ? 'dev' : null;
++    }
+     return demoEffectsEnabled() ? 'native' : null;
+   }
+   async function invitation(request, operator) {
+@@ -29,6 +34,8 @@ export function oneClickAccounts({ config, store, clock, sessions, authorizedLin
+     return operator.status === 'active';
+   }
+   return {
++    // Only a local run's refusal can point at `rer dev`.
++    local: config.local === true,
+     async people(request) {
+       if (!await mode(request)) return null;
+       requireOrigin(request, config);
+diff --git a/src/modules/operator-auth/dev-gate.mjs b/src/modules/operator-auth/dev-gate.mjs
+index c622cd7..1efb290 100644
+--- a/src/modules/operator-auth/dev-gate.mjs
++++ b/src/modules/operator-auth/dev-gate.mjs
+@@ -41,7 +41,7 @@ export const EXCHANGE_SCRIPT = "(()=>{const exchange=()=>{const h=new URLSearchP
+ // the product and shown beside the wordmark text; a seed that declares no logo shows
+ // its product name as text alone.
+ const PAGE_STYLE = 'body{margin:0;font:16px/1.5 var(--rer-font-body,system-ui,sans-serif);color:var(--rer-text,#17212e);background:var(--rer-page,#f5f7fa)}main{max-width:36rem;margin:0 auto;padding:32px 16px}'
+-  + '.brand{display:flex;align-items:center;gap:12px;margin:0 0 28px;font:600 24px/1.2 var(--rer-font-heading,var(--rer-font-body,inherit));color:var(--rer-text,#17212e)}.brand img{display:block;flex:none;width:40px;height:40px;object-fit:contain}h1{font:600 20px/1.3 var(--rer-font-heading,var(--rer-font-body,inherit));margin:0 0 12px}p{color:var(--rer-muted,#475569);margin:0}';
++  + '.brand{display:flex;align-items:center;gap:12px;margin:0 0 28px;font:600 24px/1.2 var(--rer-font-heading,var(--rer-font-body,inherit));color:var(--rer-text,#17212e)}.brand img{display:block;flex:none;width:40px;height:40px;object-fit:contain}h1{font:600 20px/1.3 var(--rer-font-heading,var(--rer-font-body,inherit));margin:0 0 12px}p{color:var(--rer-muted,#475569);margin:0}p+p{margin-top:12px}code{font:inherit;font-weight:600;color:var(--rer-text,#17212e)}';
+ // Reads --rer-logo from the linked theme (a script after a stylesheet waits for it) and
+ // shows that same-origin file as an <img> named by the product; the text beside it is
+ // then hidden from screen readers so the name is announced once.
+@@ -94,7 +94,8 @@ export function devGate({ key, origin, local }) {
+     admitsSession: admitted,
+     setCookie,
+     // GET serves the exchange page with the seed's productName, mark and theme; POST trades the key for the cookie.
+-    async exchange(request, branding) {
++    // `invited` says whether the app has a person beyond the owner and its personas for `rer dev --as <email>` to take.
++    async exchange(request, branding, { invited = false } = {}) {
+       if (new URL(request.url).pathname !== DEV_KEY_PATH) return null;
+       if (request.method === 'GET' || request.method === 'HEAD') {
+         const { script, logo, style } = await exchangeHashes();
+@@ -103,7 +104,7 @@ export function devGate({ key, origin, local }) {
+         const theme = brand?.theme;
+         const mark = brand?.mark ? `<img src="${escapeHtml(brand.mark)}" alt="${escapeHtml(brand.productName)}" width="40" height="40" decoding="async">` : '';
+         const themeLogo = theme && !brand.mark;
+-        const body = `<!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><meta name="robots" content="noindex, nofollow"><title>Opening the local app</title>${iconHead}${theme ? `<link rel="stylesheet" href="${escapeHtml(theme)}">` : ''}<style>${PAGE_STYLE}</style></head><body><main>${brand ? `<p class="brand">${mark}<span>${escapeHtml(brand.productName)}</span></p>` : ''}<h1>Opening the local app</h1><p>Open the RER_OPEN link that rer prints on this computer.</p></main>${themeLogo ? `<script>${LOGO_SCRIPT}</script>` : ''}<script>${EXCHANGE_SCRIPT}</script></body></html>`;
++        const body = `<!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><meta name="robots" content="noindex, nofollow"><title>Open the local app</title>${iconHead}${theme ? `<link rel="stylesheet" href="${escapeHtml(theme)}">` : ''}<style>${PAGE_STYLE}</style></head><body><main>${brand ? `<p class="brand">${mark}<span>${escapeHtml(brand.productName)}</span></p>` : ''}<h1>This app runs on your own computer</h1><p>It opens only from that computer. Use the link printed in the terminal where <code>rer dev</code> is running, or run <code>rer dev --as owner</code> from the project folder.</p>${invited ? '<p>To sign in as someone who was invited, run <code>rer dev --as</code> followed by their email address.</p>' : ''}</main>${themeLogo ? `<script>${LOGO_SCRIPT}</script>` : ''}<script>${EXCHANGE_SCRIPT}</script></body></html>`;
+         return new Response(request.method === 'HEAD' ? null : body, { headers: { ...privateHeaders, 'content-type': 'text/html; charset=utf-8',
+           'content-security-policy': `default-src 'none'; img-src 'self'; script-src ${script}${themeLogo ? ` ${logo}` : ''}; style-src ${theme ? "'self' " : ''}${style}${theme ? "; font-src 'self'" : ''}; connect-src 'self'; base-uri 'none'; form-action 'none'; frame-ancestors 'none'` } });
+       }
+diff --git a/src/modules/operator-auth/dev/index.mjs b/src/modules/operator-auth/dev/index.mjs
+index 31187dd..de72ee5 100644
+--- a/src/modules/operator-auth/dev/index.mjs
++++ b/src/modules/operator-auth/dev/index.mjs
+@@ -18,6 +18,7 @@ import { signInRefusal } from './refusal.mjs';
+ import { representation } from '../representation.mjs';
+ import { decorateLabel } from '../../demo/label.mjs';
+ import { oneClickPage } from '../signin/one-click.mjs';
++import { hasInvitedPeople } from './invited.mjs';
+ 
+ export const DEV_LAYER_MARKER = 'rer-dev-layer:local-only-never-deploy';
+ const headers = { 'cache-control': 'no-store', 'referrer-policy': 'no-referrer', 'x-content-type-options': 'nosniff', 'x-robots-tag': 'noindex, nofollow', 'x-rer-dev-layer': DEV_LAYER_MARKER };
+@@ -51,7 +52,12 @@ export function withDevIdentity(worker, { bindings = env => env, config: authCon
+       const gate = devGate({ key: env.RER_DEV_KEY, origin: env.AUTH_ORIGIN, local: env.AUTH_LOCAL === 'true' });
+       registerDevAdmission(gate && env.RER_DEV_IDENTITY !== 'off' ? r => gate.admitsSession(r) : null);
+       const path = new URL(request.url).pathname;
+-      if (path === '/__dev/key') return gate ? gate.exchange(request, authConfig(env).branding) : devNotFound();
++      if (path === '/__dev/key') {
++        if (!gate) return devNotFound();
++        // The guidance names `rer dev --as <email>` only when the app has someone to take.
++        const context = request.method === 'GET' || request.method === 'HEAD' ? identity(env, authConfig, declared) : null;
++        return gate.exchange(request, authConfig(env).branding, { invited: context ? await hasInvitedPeople({ store: context.store, config: context.config, declared }) : false });
++      }
+       if (path === '/signin' && gate && env.RER_DEV_IDENTITY !== 'off' && ['GET', 'HEAD'].includes(request.method)) {
+         if (!await gate.admits(request)) return new Response(null, { status: 303, headers: { ...headers, location: '/__dev/key' } });
+         const context = identity(env, authConfig, declared);
+diff --git a/src/modules/operator-auth/dev/invited.mjs b/src/modules/operator-auth/dev/invited.mjs
+new file mode 100644
+index 0000000..4bb7f43
+--- /dev/null
++++ b/src/modules/operator-auth/dev/invited.mjs
+@@ -0,0 +1,11 @@
++// Whether /__dev/personas would list someone beyond the owner and the seed's own
++// personas: an active person or one with a live invitation. The keyless guidance page
++// uses this one fact to say whether `rer dev --as <email>` has anyone to take; it
++// reads no name or address.
++export async function hasInvitedPeople({ store, config, declared, now = Date.now() }) {
++  const own = [config.OWNER_EMAIL, ...declared.map(persona => persona.email)];
++  const row = await store.first(`SELECT 1 AS found FROM oa_operators o WHERE o.email NOT IN (${own.map(() => '?').join(',')})
++    AND (o.status='active' OR (o.status='invited' AND EXISTS (SELECT 1 FROM oa_tokens t WHERE t.operator_id=o.id AND t.kind='invite'
++      AND t.consumed_at IS NULL AND t.revoked_at IS NULL AND t.expires_at>? AND t.operator_version=o.version))) LIMIT 1`, [...own, now]);
++  return row !== null && row !== undefined;
++}
+diff --git a/src/modules/operator-auth/identity/email-link/index.mjs b/src/modules/operator-auth/identity/email-link/index.mjs
+index ea39433..79da500 100644
+--- a/src/modules/operator-auth/identity/email-link/index.mjs
++++ b/src/modules/operator-auth/identity/email-link/index.mjs
+@@ -54,6 +54,8 @@ export function createEmailLinkLifecycle({ config: input, clock = Date.now, mail
+       // Even ambiguous delivery cannot leave a valid, unreported auth link.
+       await revoke(); deny('mail_unavailable', 503);
+     }
++    // 'accepted' reached a mail provider; 'development' was suppressed on purpose (local or demo).
++    return result.status;
+   }
+ 
+   async function requireFreshProof(actor) {
+diff --git a/src/modules/operator-auth/index.d.mts b/src/modules/operator-auth/index.d.mts
+index b5ea1c8..156583a 100644
+--- a/src/modules/operator-auth/index.d.mts
++++ b/src/modules/operator-auth/index.d.mts
+@@ -214,7 +214,8 @@ export interface OperatorAuth<R extends string = Role> {
+   confirmLink(request: Request, input: { token: string }): Promise<CompletedSession<R> | StepUpConfirmed>;
+   getSession(request: Request): Promise<Session<R> | null>;
+   signOut(request: Request): Promise<{ cookie: string }>;
+-  invite(request: Request, input: { email: string; displayName: string; role?: Role; returnTo?: string }): Promise<{ status: 'accepted' }>;
++  /** `delivery: 'none'` means no message left this runtime (a development mail provider); `signInUrl` is then the key-gated local owner's way to open the invitation. */
++  invite(request: Request, input: { email: string; displayName: string; role?: Role; returnTo?: string }): Promise<{ status: 'accepted'; delivery?: 'none'; signInUrl?: string }>;
+   listOperators(request: Request): Promise<Operator<R>[]>;
+   /** Cancel a pending invitation using operators:deactivate policy; accepted invitations conflict. */
+   cancelInvitation(request: Request, operatorId: string): Promise<Operator<R>>;
+diff --git a/src/modules/operator-auth/routes.mjs b/src/modules/operator-auth/routes.mjs
+index 4d1b8f4..4332e61 100644
+--- a/src/modules/operator-auth/routes.mjs
++++ b/src/modules/operator-auth/routes.mjs
+@@ -9,6 +9,7 @@ import { securityHeaders, requireLoopback } from './http.mjs';
+ import { safeReturnTo } from './policy.mjs';
+ import { readInput, readParameters } from './input.mjs';
+ import { OWNER_SIGNIN_PATH } from './owner-signin-grant.mjs';
++const ONE_CLICK_REFUSED = 'This sign-in link did not open here. Open the link from the app itself, or run rer dev --as followed by the email address from the project folder.';
+ function json(value, status = 200) { return Response.json(value, { status, headers: securityHeaders() }); }
+ function seeOther(location, cookie) { return new Response(null, { status: 303, headers: { ...securityHeaders(), ...(cookie ? { 'Set-Cookie': cookie } : {}), Location: location } }); }
+ // A native HTML form (the sign-in page before any script) gets a page back; an
+@@ -143,6 +144,9 @@ export function createAuthHandler(auth) {
+         return settingsRefusalPage(request, auth.presentation, code, status);
+       }
+       if (form) return seeOther(notice(auth, error instanceof AuthError ? error.code : 'auth_unavailable'));
++      // A browser that follows a refused local one-click link gets words, with the same status and headers as the JSON.
++      if (path === '/auth/one-click' && auth.oneClick?.local && error instanceof AuthError && error.code === 'not_found' && representation(request) === 'html')
++        return new Response(ONE_CLICK_REFUSED, { status: error.status, headers: { ...securityHeaders(), 'Content-Type': 'text/plain; charset=utf-8' } });
+       if (error instanceof AuthError) return json({ error: error.code }, error.status);
+       // Do not put SQL, email addresses, setup tokens or provider exceptions on the wire.
+       return json({ error: 'auth_unavailable' }, 503);

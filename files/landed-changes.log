@@ -1,0 +1,40 @@
+4c14f5433cc7885a486db254549079d36443c37a Bound native export path validation without ambiguous repetition
+169e4cbcf1b93522506f97c71bf39e364bed2303 Adopt rer 0.2.113 with refreshed Base and repaired guide links
+
+ SEED-COMMAND-CONTRACT.md                           | 146 ++++++++++-
+ base-copies.json                                   | 281 +++++++++++----------
+ docs/ALERT-WEBHOOKS.md                             |   4 +-
+ docs/INTEGRATION-EGRESS.md                         |   2 +-
+ package.json                                       |   2 +-
+ pnpm-lock.yaml                                     |  10 +-
+ scripts/delivery/base/native-export.mjs            |   3 +-
+ scripts/installer/verify.mjs                       |   1 +
+ sources.lock.json                                  |  76 +++---
+ src/base/lobby.ts                                  |   2 +-
+ src/base/run-site.ts                               |   2 +-
+ src/foundation/runtime/lobby.ts                    |   2 +-
+ src/foundation/runtime/run-site.ts                 |   2 +-
+ src/modules/agent-door/conformance/audit.mjs       |   3 +
+ src/modules/agent-door/index.ts                    |   3 +-
+ src/modules/agent-door/policy-event.ts             |  19 ++
+ src/modules/business-settings/ADOPTING.md          |  13 +
+ src/modules/business-settings/README.md            |   5 +-
+ src/modules/business-settings/apply.ts             |   7 +-
+ src/modules/business-settings/retire.ts            |   8 +-
+ src/modules/business-settings/team.ts              |  16 +-
+ src/modules/business-settings/types.ts             |   5 +
+ src/modules/d1-transport/limits.mjs                |   6 +-
+ src/modules/operator-auth/README.md                |   2 +-
+ src/modules/operator-auth/accounts/admin.mjs       |  12 +-
+ src/modules/operator-auth/accounts/one-click.mjs   |   9 +-
+ src/modules/operator-auth/dev-gate.mjs             |   7 +-
+ src/modules/operator-auth/dev/index.mjs            |   8 +-
+ src/modules/operator-auth/dev/invited.mjs          |  11 +
+ .../operator-auth/identity/email-link/index.mjs    |   2 +
+ src/modules/operator-auth/index.d.mts              |   3 +-
+ src/modules/operator-auth/routes.mjs               |   4 +
+ src/modules/portability/import.mjs                 |   5 +-
+ src/modules/portability/journal.mjs                |   9 +-
+ src/modules/portability/progress.mjs               |  22 +-
+ tests/native-export.mjs                            |  37 +++
+ 36 files changed, 534 insertions(+), 215 deletions(-)

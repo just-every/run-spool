@@ -1,0 +1,67 @@
+{
+  "schema": 1,
+  "tag": "sd-spool-release-0-7-11-c1",
+  "repository": "just-every/run-spool",
+  "stamp": "2026-11-13T23:50:58Z",
+  "branch": "cloud/sd-spool-release-0-7-11-c1",
+  "head": "b9e7e575097e0dd0fc0662ce1ed507fa0d41f0d8",
+  "base": "4c14f5433cc7885a486db254549079d36443c37a",
+  "version_before": "0.7.10",
+  "version_after": "0.7.11",
+  "rer_pin": "0.2.113",
+  "metadata_paths": [
+    "CHANGELOG.md",
+    "README.md",
+    "RELEASE.json",
+    "docs/getting-started.md",
+    "package.json",
+    "seed.json",
+    "sources.lock.json"
+  ],
+  "checks": {
+    "pnpm_install_frozen_lockfile": "passed",
+    "rer_check_first_party": "passed",
+    "metadata_consistency": "passed",
+    "pnpm_typecheck": "passed",
+    "source_lock_write": "passed",
+    "pnpm_source_check": "passed",
+    "git_diff_check": "passed",
+    "identity_and_trailer_audit": "passed"
+  },
+  "ci": {
+    "conclusion": "success",
+    "head_sha": "b9e7e575097e0dd0fc0662ce1ed507fa0d41f0d8",
+    "html_url": "https://github.com/just-every/run-spool/actions/runs/43527603184",
+    "status": "completed",
+    "run_id": 43527603184,
+    "stamp": "2026-11-13T23:50:38Z",
+    "gh_calls_total": 8
+  },
+  "product_push": "success",
+  "product_push_attempts": 1,
+  "pr": null,
+  "contract_changes": {},
+  "counts_before": {
+    "done": 23,
+    "partial": 54,
+    "missing": 28,
+    "total": 105
+  },
+  "counts_after": {
+    "done": 23,
+    "partial": 54,
+    "missing": 28,
+    "total": 105
+  },
+  "tests_added": 0,
+  "tests_removed": 0,
+  "local_node": "24.19.0",
+  "local_pnpm": "10.12.4",
+  "declared_node": "22.20.0",
+  "publication_scan": "fleet Mac lander custody; not run in cloud",
+  "release_publication": "not authorized in this metadata round; no tags, signing, Release publication or deployment performed",
+  "terminal_status": "READY",
+  "blockers": [],
+  "evidence_ref": "refs/heads/evidence/sd-spool-release-0-7-11-c1",
+  "cleanup": "remove scratch product clone and dependencies after verified product/evidence custody; keep packet"
+}
