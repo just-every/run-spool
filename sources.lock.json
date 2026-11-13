@@ -6641,6 +6641,10 @@
       "sha256": "d77ecc9b9448cd1c3cecab596584e48460b9871a9671dcea12d784466a3f6001",
       "executable": false
     },
+    "src/domain/reports/window-validation.ts": {
+      "sha256": "e18f64ac41edbc5effaa7f2ffac122014bfdfb01f4a7d7d348f871f358364ad9",
+      "executable": false
+    },
     "src/domain/reports/window.ts": {
       "sha256": "c175fe42764453fb529a37c091dbe808ba8ba4bad54fcaeb8fff094e5d4764fa",
       "executable": false
