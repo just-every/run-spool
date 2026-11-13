@@ -18,5 +18,22 @@
     "local installation state",
     "credentials and environment dumps"
   ],
-  "review": "Selected files are regular non-symlink report/receipt files. No credential-shaped token, private key or rer-dev link was found. Credential fingerprint metadata was removed from push receipt."
+  "review": "Selected files are regular non-symlink report/receipt files. No credential-shaped token, private key or rer-dev link was found. Credential fingerprint metadata was removed from push receipt.",
+  "interim_transfer": {
+    "head": "e91d31d5315d3b69cb791a51144926aac83ec1c7",
+    "status": "restored",
+    "receipt": "EVIDENCE-TRANSFER-RECEIPT.json",
+    "meaning": "Report-only transfer roundtrip with manifest, tree, blob and file hashes verified. No acceptance or landing signal."
+  },
+  "terminal_custody": "PUSHED",
+  "ci_receipts": [
+    "CI-RECEIPT.json",
+    "CI-JOBS.json",
+    "CI-FAILED-runtime.log",
+    "CI-DIAGNOSIS.json",
+    "LOCAL-RUNTIME-DIAGNOSIS.json",
+    "CI-RERUN.log",
+    "CI-RERUN-RECEIPT.json"
+  ],
+  "final_file_count": 33
 }

@@ -1,0 +1,40 @@
+verify (runtime)	Run suites	﻿2026-11-13T17:02:02.2621894Z ##[group]Run node tests/demo-capture.mjs && node tests/deployment-history.mjs && node tests/audit-history.mjs && node tests/old-archive.mjs && pnpm test:runtime && pnpm test:product && pnpm test:origins && pnpm test:dev-credentials
+verify (runtime)	Run suites	2026-11-13T17:02:02.2623373Z [36;1mnode tests/demo-capture.mjs && node tests/deployment-history.mjs && node tests/audit-history.mjs && node tests/old-archive.mjs && pnpm test:runtime && pnpm test:product && pnpm test:origins && pnpm test:dev-credentials[0m
+verify (runtime)	Run suites	2026-11-13T17:02:02.2646136Z shell: /usr/bin/bash -e {0}
+verify (runtime)	Run suites	2026-11-13T17:02:02.2648360Z ##[endgroup]
+verify (runtime)	Run suites	2026-11-13T17:02:02.3695276Z (node:2732) ExperimentalWarning: SQLite is an experimental feature and might change at any time
+verify (runtime)	Run suites	2026-11-13T17:02:02.3696595Z (Use `node --trace-warnings ...` to show where the warning was created)
+verify (runtime)	Run suites	2026-11-13T17:02:07.9922338Z Demo capture: app 200; 3 recent events; 3 attributed transaction facts; restart unchanged
+verify (runtime)	Run suites	2026-11-13T17:02:08.6596312Z (node:2762) ExperimentalWarning: SQLite is an experimental feature and might change at any time
+verify (runtime)	Run suites	2026-11-13T17:02:08.6597518Z (Use `node --trace-warnings ...` to show where the warning was created)
+verify (runtime)	Run suites	2026-11-13T17:03:28.7025285Z [REL-002] first-release and reactivation candidates, exact regression alert and two commits with recorded deployment window, older-release spike comparison, audited reject and confirm without occurrence changes, restore and erasure; desktop and phone passed
+verify (runtime)	Run suites	2026-11-13T17:03:44.1780909Z REL-001 passed: CI and owner start/progress/success/failure/rollback, idempotency/conflicts, one overdue notice over two ticks, environments, enrichment, denials, inert restore, erasure and 1440/390.
+verify (runtime)	Run suites	2026-11-13T17:03:44.8539497Z (node:3087) ExperimentalWarning: SQLite is an experimental feature and might change at any time
+verify (runtime)	Run suites	2026-11-13T17:04:18.4162711Z (Use `node --trace-warnings ...` to show where the warning was created)
+verify (runtime)	Run suites	2026-11-13T17:04:18.4164418Z AUDIT-001 passed: atomic owner/deploy/ingest transaction facts, denied/stale request outcomes, agent and notification facts, fixed snapshot cursor/JSON/CSV, restart, archive payload append restore, previous-format legacy facts, project erasure and 1440/390 history/export/error/denied/empty.
+verify (runtime)	Run suites	2026-11-13T17:04:24.6435390Z (node:3199) ExperimentalWarning: SQLite is an experimental feature and might change at any time
+verify (runtime)	Run suites	2026-11-13T17:04:24.6436538Z (Use `node --trace-warnings ...` to show where the warning was created)
+verify (runtime)	Run suites	2026-11-13T17:04:37.5506597Z PASS populated published release upgrades preserve existing rows and columns with declared attribution additions: 176 tables, 120 rows before and after
+verify (runtime)	Run suites	2026-11-13T17:04:55.6215326Z PASS populated 0068 upgrade: 201 tables preserved; five additive migrations applied
+verify (runtime)	Run suites	2026-11-13T17:05:18.5300973Z PASS old native archive restores into a fresh migrated target with all product rows and destination ledger intact
+verify (runtime)	Run suites	2026-11-13T17:05:37.5062235Z PASS old archive refuses an occupied target without changing its project
+verify (runtime)	Run suites	2026-11-13T17:05:54.9404663Z PASS genuinely mismatched schema and corrupted original archive binding still refuse
+verify (runtime)	Run suites	2026-11-13T17:06:17.7670829Z PASS current archive independently restores and mandatory bookkeeping exclusions retain person-owned tables
+verify (runtime)	Run suites	2026-11-13T17:06:18.2197417Z 
+verify (runtime)	Run suites	2026-11-13T17:06:18.2200722Z > @errors/errors-workbench@0.7.9 test:runtime /home/runner/work/run-spool/run-spool
+verify (runtime)	Run suites	2026-11-13T17:06:18.2201537Z > node tests/runtime.mjs
+verify (runtime)	Run suites	2026-11-13T17:06:18.2201732Z 
+verify (runtime)	Run suites	2026-11-13T17:06:18.6833601Z (node:3262) ExperimentalWarning: SQLite is an experimental feature and might change at any time
+verify (runtime)	Run suites	2026-11-13T17:06:18.6834778Z (Use `node --trace-warnings ...` to show where the warning was created)
+verify (runtime)	Run suites	2026-11-13T17:06:26.2907255Z PROBE SDK-020 G5: anonymous docs navigation, seven configuration sections, source maps, Python guidance, tunnel replacement and generated static article passed.
+verify (runtime)	Run suites	2026-11-13T17:06:27.9549705Z {"spool_runtime_diagnostic":"owner_runtime_failure","assertionError":true,"error_type":"AssertionError","error_code":"ERR_ASSERTION","source":{},"actual":{"type":"string"},"expected":{"type":"string"},"workerBeforeStop":{"redacted":true,"networkConnectionLost":false,"d1Error":false,"sqliteError":false,"lines":139,"mentions":{"typeError":false,"referenceError":false,"rangeError":false,"syntaxError":false,"invalidProject":false,"instanceofOperand":false,"temporalDeadZone":false,"undefinedAccess":false,"notDefined":false,"internalError":false,"scriptNoResponse":false,"contextNotFinalized":false,"scrub":false,"apiErrorHandler":false}},"workerAfterStop":{"redacted":true,"networkConnectionLost":false,"d1Error":false,"sqliteError":false,"lines":139,"mentions":{"typeError":false,"referenceError":false,"rangeError":false,"syntaxError":false,"invalidProject":false,"instanceofOperand":false,"temporalDeadZone":false,"undefinedAccess":false,"notDefined":false,"internalError":false,"scriptNoResponse":false,"contextNotFinalized":false,"scrub":false,"apiErrorHandler":false}}}
+verify (runtime)	Run suites	2026-11-13T17:06:27.9555098Z file:///home/runner/work/run-spool/run-spool/tests/runtime.mjs:125
+verify (runtime)	Run suites	2026-11-13T17:06:27.9555881Z }catch(error){failure=error;throw new Error('Owner runtime journey failed; private runtime details withheld');}finally{
+verify (runtime)	Run suites	2026-11-13T17:06:27.9556452Z                                   ^
+verify (runtime)	Run suites	2026-11-13T17:06:27.9556633Z 
+verify (runtime)	Run suites	2026-11-13T17:06:27.9556899Z Error: Owner runtime journey failed; private runtime details withheld
+verify (runtime)	Run suites	2026-11-13T17:06:27.9557439Z     at file:///home/runner/work/run-spool/run-spool/tests/runtime.mjs:125:35
+verify (runtime)	Run suites	2026-11-13T17:06:27.9557746Z 
+verify (runtime)	Run suites	2026-11-13T17:06:27.9557849Z Node.js v22.20.0
+verify (runtime)	Run suites	2026-11-13T17:06:28.0160684Z  ELIFECYCLE  Command failed with exit code 1.
+verify (runtime)	Run suites	2026-11-13T17:06:28.0597257Z ##[error]Process completed with exit code 1.

@@ -38,7 +38,7 @@
   ],
   "runtime": "Node 22.20.0; pnpm 10.12.4",
   "full_local_verify": "not run, as instructed",
-  "browser": "not needed; no screen changes",
+  "browser": "No new UI proof required. The later targeted CI-failure diagnostic used the unchanged existing runtime journey and its existing browser coverage; no screenshots included in evidence.",
   "final_clean_install": {
     "command": "pnpm install --frozen-lockfile",
     "exit": 0,
@@ -74,5 +74,12 @@
     "insertions": 473,
     "deletions": 206,
     "comparison": "Every non-lock file patch is byte-identical to original 7faf5370 patch against its parent. No tests changed."
+  },
+  "failure_diagnostic": {
+    "command": "node --import /tmp/spool-runtime-diagnostic.mjs tests/runtime.mjs",
+    "exit": 1,
+    "tracked_edits": false,
+    "runtime": "Node 22.20.0; Chromium /usr/bin/chromium; --no-sandbox",
+    "receipt": "LOCAL-RUNTIME-DIAGNOSIS.json"
   }
 }

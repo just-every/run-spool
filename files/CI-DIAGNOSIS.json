@@ -1,0 +1,43 @@
+{
+  "run_id": 43468399080,
+  "head_sha": "edd624af411a36c72cbdd7f93d07ef5aabd3ca62",
+  "build": "success; source and portable contract step passed",
+  "failed_job": {
+    "id": 132034232843,
+    "name": "verify (runtime)",
+    "step": "Run suites",
+    "test": "tests/runtime.mjs",
+    "error": "Owner runtime journey failed; private runtime details withheld",
+    "diagnostic": "string assertion, source frame withheld; no Worker exception or 500 diagnostic",
+    "last_passed_probe": "SDK-020 G5 anonymous docs navigation"
+  },
+  "diagnostic_calls": [
+    {
+      "command": "gh api repos/just-every/run-spool/actions/runs/43468399080/jobs?per_page=100",
+      "exit": 0
+    },
+    {
+      "command": "gh run view 43468399080 --repo just-every/run-spool --job 132034232843 --log-failed",
+      "exit": 0,
+      "reads": 1
+    }
+  ],
+  "rerun": {
+    "command": "gh run rerun 43468399080 --repo just-every/run-spool --failed",
+    "exit": 0,
+    "time": "2026-11-13T17:23:02.105025+00:00",
+    "policy": "One permitted rerun of the untouched Run suites step; no product/test edits"
+  },
+  "github_calls_used": 8,
+  "github_calls_remaining": 2,
+  "local_reproduction": {
+    "exit": 1,
+    "assertion": "tests/setup-prerequisites.mjs:53",
+    "caller": "tests/runtime.mjs:104",
+    "actual_source_revision": "4dd4197007cefd688fd314ffb19eed4d0b3c67dd",
+    "expected_recorded_revision": "c2efb501cbc148c2aee4d5e1107ebdba81469006",
+    "meaning": "The original adoption refreshed Base records without updating the seed guide source links; this is distinct from the repaired two-file lock omission. The target test and guide files are unchanged by this repair.",
+    "receipt": "LOCAL-RUNTIME-DIAGNOSIS.json"
+  },
+  "scope_decision": "Keep the requested original adoption patch plus regenerated source lock as exactly one product commit. Do not edit product, copy or tests beyond this carry brief. If the permitted rerun remains red, return PUSHED as its Ending directs; do not claim READY."
+}

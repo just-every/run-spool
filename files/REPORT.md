@@ -31,7 +31,7 @@ Both clean pnpm install --frozen-lockfile runs succeeded and installed rer 0.2.1
     node src/base/contract-docs.mjs check
     node scripts/edition-authoring/cli.mjs verify-base --offline
 
-pnpm typecheck passed. Contract prose has zero errors and zero warnings. The offline Base check proves local bytes against recorded SHA-256 values; it does not reread Base origin. No full local rer verify was run, as instructed. Setup succeeded with 99 migrations and stopped its temporary app. No browser was needed. No remote deployment or provider request was made.
+pnpm typecheck passed. Contract prose has zero errors and zero warnings. The offline Base check proves local bytes against recorded SHA-256 values; it does not reread Base origin. No full local rer verify was run, as instructed. Setup succeeded with 99 migrations and stopped its temporary app. No new UI proof was needed for this lock repair. A later targeted diagnostic used the unchanged runtime browser journey, described below. No remote deployment or provider request was made.
 
 CLI proof
 
@@ -54,3 +54,21 @@ Custody and limits
 The candidate was pushed successfully on the first guard attempt. No PR was required by repository rules: Verify accepts branch pushes. No merge commit, force push, main push or earlier-branch change occurred. Full publication scanning and landing remain with the fleet Mac as instructed. Evidence transport does not imply READY or landing. Exact-SHA CI results and terminal custody are recorded below after completion; the full REST receipt is CI-RECEIPT.json.
 
 CI snapshot: Verify 43468399080 remained in progress on the exact product SHA at the ten-minute poll (3 GitHub calls). This interim evidence snapshot does not claim READY.
+
+CI diagnosis after first completed attempt
+
+Verify 43468399080 completed with failure on the exact product SHA. The build job, including the source and portable contract step that failed the prior adoption, succeeded. All other independent jobs succeeded; verify (runtime), job 132034232843, failed at Run suites, and the aggregate spool/verify jobs failed behind it. Read the failed job archive exactly once with gh run view 43468399080 --repo just-every/run-spool --job 132034232843 --log-failed. Its sanitized log reports an owner-runtime string assertion but withholds source coordinates. Environment-value lines and local gate values are excluded from the published log.
+
+A local targeted runtime diagnostic, using Chromium /usr/bin/chromium with --no-sandbox and an external assertion-observation preloader, reproduced the failure without any tracked edit: tests/setup-prerequisites.mjs:53 (called by tests/runtime.mjs:104) compares the owner-procedure link with the installed Base record. The guide links to /runeditrun/base/blob/4dd4197007cefd688fd314ffb19eed4d0b3c67dd/modules/egress-service/OWNER-STEPS.md, while refreshed base-copies.json records c2efb501cbc148c2aee4d5e1107ebdba81469006. This is an inherited mismatch within the original adoption, separate from the lock repair; a new source-link copy change would exceed this carry brief's exact original-patch-plus-lock result. No test was weakened, edited or skipped. The full local verify was not run.
+
+Requested the brief's one failed-job rerun with gh run rerun 43468399080 --repo just-every/run-spool --failed, exit 0. Eight of ten GitHub calls were used, including discovery/status, failed-job discovery, the one log read, and the rerun. The two remaining calls are reserved for spaced exact-SHA rerun status reads. If the rerun stays red, the brief explicitly directs PUSHED custody with the failing run/job/step rather than a READY claim. Lane follow-up: align the cron and Slack guides' Base OWNER-STEPS source links with the refreshed record without weakening the public-guide reader.
+
+Terminal result
+
+The one permitted rerun of Verify 43468399080 completed with conclusion failure on exact SHA edd624af411a36c72cbdd7f93d07ef5aabd3ca62. The final REST receipt is CI-RERUN-RECEIPT.json. Nine GitHub calls were used; no further rerun, dispatch or repeated log read was made. The original failed job was verify (runtime), id 132034232843, Run suites; the locally reproduced failure is tests/setup-prerequisites.mjs:53's Base owner-procedure source-link comparison. The rerun's failed-job list was not reread; no claim is made about a new job id. The successful build job proves the original source-lock failure is fixed on this exact SHA.
+
+Terminal custody is PUSHED, following this brief's Ending for a red check after the single rerun of an untouched step. This is not READY, acceptance, publication-scan completion or landing. Product remains exactly one commit, no merges, original adoption patch plus installed-package-regenerated sources.lock.json. Clause statuses and generated contract files remain unchanged. No PR was created; branch-push Verify is supported. All product commits and report-only evidence are pushed; the product clone and local state/archive are removed after final evidence publication as instructed, while the actual packet remains at $HOME/rer-consolidation/work/main-spool-rer-0213-1-c1/packet/.
+
+POST lanes/main/INBOX.md: main-spool-rer-0213-1-c1 pushed edd624af411a36c72cbdd7f93d07ef5aabd3ca62; source-lock omissions repaired, build/source checks green, clause changes none (23 done/54 partial/28 missing unchanged); Verify 43468399080 red after one permitted failed-job rerun. Initial failure verify (runtime)/Run suites reproduces at tests/setup-prerequisites.mjs:53: docs/INTEGRATION-EGRESS.md:15 and docs/ALERT-WEBHOOKS.md:61,81 link Base 4dd41970 while the refreshed record is c2efb501. Follow-up: align those source links, regenerate the source lock last through installed rer, and rerun exact-SHA Verify without weakening the reader.
+
+PUSHED branch=cloud/main-spool-rer-0213-1-c1 head=edd624af411a36c72cbdd7f93d07ef5aabd3ca62

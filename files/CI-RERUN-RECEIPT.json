@@ -1,0 +1,32 @@
+{
+  "run_id": 43468399080,
+  "head_sha": "edd624af411a36c72cbdd7f93d07ef5aabd3ca62",
+  "calls": [
+    {
+      "command": [
+        "gh",
+        "api",
+        "repos/just-every/run-spool/actions/runs/43468399080",
+        "--jq",
+        "{status,conclusion,head_sha,html_url}"
+      ],
+      "time": "2026-11-13T17:33:02.672690+00:00",
+      "exit": 0,
+      "response": {
+        "conclusion": "failure",
+        "head_sha": "edd624af411a36c72cbdd7f93d07ef5aabd3ca62",
+        "html_url": "https://github.com/just-every/run-spool/actions/runs/43468399080",
+        "status": "completed"
+      }
+    }
+  ],
+  "total_github_calls_before": 8,
+  "schedule_seconds_after_rerun": [
+    600,
+    1200
+  ],
+  "status": "completed",
+  "conclusion": "failure",
+  "html_url": "https://github.com/just-every/run-spool/actions/runs/43468399080",
+  "github_calls_used": 9
+}

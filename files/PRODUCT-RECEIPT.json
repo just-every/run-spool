@@ -20,5 +20,12 @@
   "checks_receipt": "CHECKS.json",
   "cli_receipt": "CLI-RECEIPT.json",
   "ci_run_id": 43468399080,
-  "ci_url": "https://github.com/just-every/run-spool/actions/runs/43468399080"
+  "ci_url": "https://github.com/just-every/run-spool/actions/runs/43468399080",
+  "terminal_custody": "PUSHED",
+  "ci_status": "completed",
+  "ci_conclusion": "failure",
+  "failed_jobs_rerun_once": true,
+  "github_calls_used": 9,
+  "ready": false,
+  "reason": "Exact-SHA Verify remains red after the permitted rerun. The repaired source-lock build step passed; the initial owner-runtime failure reproduces as a stale guide Base source link. No copy/test change added beyond the requested original adoption patch and regenerated lock."
 }

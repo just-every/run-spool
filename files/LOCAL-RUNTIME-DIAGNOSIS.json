@@ -1,0 +1,9 @@
+{
+  "command": "node --import /tmp/spool-runtime-diagnostic.mjs tests/runtime.mjs",
+  "exit": 1,
+  "purpose": "Local public-door diagnostic of the CI failure; assertion wrapper reports only source coordinates and whitelisted path strings. No tracked source edits.",
+  "observations": [
+    "PROBE SDK-020 G5: anonymous docs navigation, seven configuration sections, source maps, Python guidance, tunnel replacement and generated static article passed.",
+    "LOCAL_ASSERT_DIAGNOSTIC {\"method\":\"equal\",\"frames\":[\"tests/setup-prerequisites.mjs:53:13)\",\"tests/setup-prerequisites.mjs:74:3)\",\"tests/runtime.mjs:104:2\"],\"actual\":\"/runeditrun/base/blob/4dd4197007cefd688fd314ffb19eed4d0b3c67dd/modules/egress-service/OWNER-STEPS.md\",\"expected\":\"/runeditrun/base/blob/c2efb501cbc148c2aee4d5e1107ebdba81469006/modules/egress-service/OWNER-STEPS.md\"}"
+  ]
+}
