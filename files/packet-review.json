@@ -1,0 +1,33 @@
+{
+  "selectedFilesReviewed": [
+    "REPORT.md",
+    "PLAN.md",
+    "reproduction.json",
+    "browser-proof.mjs",
+    "browser-receipt.json",
+    "product-receipt.json",
+    "push-receipt.log",
+    "push-final-receipt.log",
+    "dev-credentials.log",
+    "typecheck.log",
+    "first-party-check.log",
+    "source-check-receipt.json",
+    "ci-discovery.json",
+    "ci-final-discovery.json",
+    "ci-first-receipt.json",
+    "ci-first-jobs.jsonl",
+    "ci-first-build-failure.log",
+    "local-invitations-1440.png",
+    "local-invitations-390.png",
+    "invitation-confirmation-1440.png",
+    "invitation-confirmation-390.png",
+    "removed-member-sign-in-1440.png",
+    "removed-member-sign-in-390.png",
+    "owner-gate-sign-in-1440.png",
+    "owner-gate-sign-in-390.png"
+  ],
+  "symlinks": false,
+  "credentialShapedValuesFound": false,
+  "screenshots": "Private invitation inputs masked; final candidate captures reviewed.",
+  "productProofFilesCommitted": false
+}

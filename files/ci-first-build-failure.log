@@ -1,0 +1,23 @@
+build	Check source and portable contract	﻿2026-11-13T07:19:55.0508487Z ##[group]Run pnpm run check -- --profile first-party
+build	Check source and portable contract	2026-11-13T07:19:55.0509071Z [36;1mpnpm run check -- --profile first-party[0m
+build	Check source and portable contract	2026-11-13T07:19:55.0509408Z [36;1mpnpm source:check[0m
+build	Check source and portable contract	2026-11-13T07:19:55.0509689Z [36;1mnode src/base/contract-docs.mjs check[0m
+build	Check source and portable contract	2026-11-13T07:19:55.0510124Z [36;1mnode scripts/edition-authoring/cli.mjs verify-base --offline[0m
+build	Check source and portable contract	2026-11-13T07:19:55.0531258Z shell: /usr/bin/bash -e {0}
+build	Check source and portable contract	2026-11-13T07:19:55.0531532Z env:
+build	Check source and portable contract	2026-11-13T07:19:55.0531755Z   PLAYWRIGHT_SKIP_BROWSER_GC: 1
+build	Check source and portable contract	2026-11-13T07:19:55.0532071Z   PNPM_HOME: /home/runner/setup-pnpm/node_modules/.bin
+build	Check source and portable contract	2026-11-13T07:19:55.0532400Z ##[endgroup]
+build	Check source and portable contract	2026-11-13T07:19:55.3331821Z 
+build	Check source and portable contract	2026-11-13T07:19:55.3332745Z > @errors/errors-workbench@0.7.8 check /home/runner/work/run-spool/run-spool
+build	Check source and portable contract	2026-11-13T07:19:55.3333469Z > rer check -- --profile first-party
+build	Check source and portable contract	2026-11-13T07:19:55.3333742Z 
+build	Check source and portable contract	2026-11-13T07:19:56.9670592Z SC-05.auth-copy.src/modules/operator-auth/accounts/oa.mjs: src/modules/operator-auth/accounts/oa.mjs differs from Base 4dd4197007cefd688fd314ffb19eed4d0b3c67dd; restore the copied bytes or record a new pin with refresh-base.
+build	Check source and portable contract	2026-11-13T07:19:56.9710079Z SC-05.auth-copy.src/modules/operator-auth/dev-admission.d.mts: src/modules/operator-auth/dev-admission.d.mts differs from Base 4dd4197007cefd688fd314ffb19eed4d0b3c67dd; restore the copied bytes or record a new pin with refresh-base.
+build	Check source and portable contract	2026-11-13T07:19:56.9739979Z SC-05.auth-copy.src/modules/operator-auth/dev-admission.mjs: src/modules/operator-auth/dev-admission.mjs differs from Base 4dd4197007cefd688fd314ffb19eed4d0b3c67dd; restore the copied bytes or record a new pin with refresh-base.
+build	Check source and portable contract	2026-11-13T07:19:56.9799839Z SC-05.auth-copy.src/modules/operator-auth/dev/index.d.mts: src/modules/operator-auth/dev/index.d.mts differs from Base 4dd4197007cefd688fd314ffb19eed4d0b3c67dd; restore the copied bytes or record a new pin with refresh-base.
+build	Check source and portable contract	2026-11-13T07:19:56.9829732Z SC-05.auth-copy.src/modules/operator-auth/dev/index.mjs: src/modules/operator-auth/dev/index.mjs differs from Base 4dd4197007cefd688fd314ffb19eed4d0b3c67dd; restore the copied bytes or record a new pin with refresh-base.
+build	Check source and portable contract	2026-11-13T07:19:56.9832725Z SC-05.auth-copy.src/modules/operator-auth/service.mjs: src/modules/operator-auth/service.mjs differs from Base 4dd4197007cefd688fd314ffb19eed4d0b3c67dd; restore the copied bytes or record a new pin with refresh-base.
+build	Check source and portable contract	2026-11-13T07:19:56.9854871Z check: failed (exit 1)
+build	Check source and portable contract	2026-11-13T07:19:57.0251093Z  ELIFECYCLE  Command failed with exit code 1.
+build	Check source and portable contract	2026-11-13T07:19:57.0467142Z ##[error]Process completed with exit code 1.

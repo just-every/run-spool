@@ -1,0 +1,25 @@
+{
+  "assertionWidth": 1440,
+  "proofWidths": [
+    1440,
+    390
+  ],
+  "memberReceivedOwnerGate": false,
+  "memberRole": "read-only",
+  "scopedProjects": [
+    "synthetic-spool-local"
+  ],
+  "removalReadStatus": 401,
+  "removedMemberOwnerOffers": 0,
+  "explicitOwnerGateRestoresShortcut": true,
+  "captures": [
+    "local-invitations-1440.png",
+    "local-invitations-390.png",
+    "invitation-confirmation-1440.png",
+    "invitation-confirmation-390.png",
+    "removed-member-sign-in-1440.png",
+    "removed-member-sign-in-390.png",
+    "owner-gate-sign-in-1440.png",
+    "owner-gate-sign-in-390.png"
+  ]
+}

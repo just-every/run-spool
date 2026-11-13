@@ -1,0 +1,11 @@
+# Local invitation scope plan
+
+1. Refresh launcher, install fleet Git credentials/push guard and commit hooks; clone declared Spool main only.
+2. Reproduce current main through rer setup/dev and independent browser contexts. Record the invitation failure without the gate, documented owner-gate handoff, removal, owner shortcut and recovered project access.
+3. Keep the existing native expiring, single-use invitation. Extend local dev admission with explicit token/session witnesses so the product can admit only a recorded team invitation and its member session. Do not admit owner shortcuts or unrelated grants through member proof. Production registers no scoped admission.
+4. Show the owner shortcut only when that browser holds the owner gate. Explain owner authority there. Update local invitation confirmation, Settings invitation custody, README and member instructions to use the member's invitation directly. Spool suppresses local mail and has no outbox viewer; preserve that boundary.
+5. Extend existing journeys (no new registration): local invitation through a real dev owner, independent browser acceptance, project scope, removal and absent owner offer; explicit owner gate restores its owner shortcut; hosted entry refuses dev invitation/session. Retain expiry, single-use and archive exclusions.
+6. Run touched journeys and typecheck. Capture changed screens once at 1440 and 390, masking private invitation tokens. Fetch/rebase unpublished work on current main; regenerate source lock last and check it. Keep contract judgments and generated acceptance/claims untouched.
+7. Commit under fleet identity, inspect every candidate author/committer/message/trailer, push named cloud branch with guard, and poll exact-SHA Verify through REST at >=300-second intervals under the GitHub budget. Publish actual reports/receipts separately on the evidence ref. Report clause proof as PARTIAL only.
+
+Implementation adjustment after the first CI run: SC-05 requires pinned Base auth copies unchanged. Restore those copies, use a product-owned local dev adapter with per-request native invitation/session proof, and run first-party source checking plus offline Base verification before the corrective commit. Keep published history and merge main rather than rebasing it.

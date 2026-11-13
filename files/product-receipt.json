@@ -1,0 +1,60 @@
+{
+  "repository": "just-every/run-spool",
+  "branch": "cloud/main-spool-local-invite-truth-1",
+  "head": "9fd605e63a7f93fde47f5c91380b79a31d51f41b",
+  "base": "0f9809608a4ba84b23f4f8ece165605fcdd1acba",
+  "tree": "0d3899d18f64c4a35f1e783c1542b559fe250355",
+  "push": "success",
+  "pushAttempts": 1,
+  "identity": "Run Edit Run fleet <fleet@runeditrun.com>",
+  "trailers": [],
+  "worktreeClean": true,
+  "generatedViewsCommitted": false,
+  "tests": {
+    "devCredentials": {
+      "command": "cloud_run node tests/dev-credentials.mjs",
+      "exit": 0
+    },
+    "typecheck": {
+      "command": "pnpm typecheck",
+      "exit": 0
+    },
+    "sourceCheck": {
+      "command": "pnpm source:check",
+      "exit": 0
+    },
+    "contractCheck": {
+      "command": "node src/base/contract-docs.mjs check",
+      "exit": 0
+    },
+    "firstPartyCheck": {
+      "command": "pnpm run check -- --profile first-party",
+      "exit": 0
+    },
+    "baseCopyCheck": {
+      "command": "node scripts/edition-authoring/cli.mjs verify-base --offline",
+      "exit": 0
+    },
+    "triageJourney": {
+      "command": "RER_CHROMIUM_EXECUTABLE_PATH=/usr/bin/chromium cloud_run node tests/triage-journey.mjs",
+      "exit": 0,
+      "groups": 22,
+      "captures": 101
+    },
+    "build": {
+      "command": "cloud_run npx -y @runeditrun/rer build",
+      "exit": 0
+    }
+  },
+  "testRegistrationsAdded": 0,
+  "testRegistrationsRemoved": 0,
+  "productPushes": 3,
+  "publishedHeads": [
+    "cd4ef4f4ef4aab230b2512c054a36f76659fd427",
+    "f41997d1b9eeb1cb3afd73d238761e9e1188a017",
+    "9fd605e63a7f93fde47f5c91380b79a31d51f41b"
+  ],
+  "baseAuthCopiesUnchanged": true,
+  "touchedTestScriptRegistrationsBefore": 2,
+  "touchedTestScriptRegistrationsAfter": 2
+}

@@ -1,0 +1,22 @@
+{
+  "run": 43388345534,
+  "head": "9fd605e63a7f93fde47f5c91380b79a31d51f41b",
+  "githubCallsUsed": 8,
+  "observations": [
+    {
+      "observedAt": 1794556123.6489227,
+      "conclusion": null,
+      "head_sha": "9fd605e63a7f93fde47f5c91380b79a31d51f41b",
+      "html_url": "https://github.com/just-every/run-spool/actions/runs/43388345534",
+      "id": 43388345534,
+      "name": "Verify",
+      "status": "queued"
+    }
+  ],
+  "conclusion": null,
+  "head_sha": "9fd605e63a7f93fde47f5c91380b79a31d51f41b",
+  "html_url": "https://github.com/just-every/run-spool/actions/runs/43388345534",
+  "id": 43388345534,
+  "name": "Verify",
+  "status": "queued"
+}

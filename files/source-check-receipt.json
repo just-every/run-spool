@@ -1,0 +1,12 @@
+{
+  "lockCommand": "node scripts/edition-authoring/cli.mjs lock",
+  "checkCommand": "pnpm source:check",
+  "lockExit": 0,
+  "checkExit": 0,
+  "contractCheck": "node src/base/contract-docs.mjs check",
+  "contractCheckExit": 0,
+  "generatedViewsChanged": false,
+  "firstPartyCheckExit": 0,
+  "baseCopyCheckExit": 0,
+  "baseAuthCopiesUnchanged": true
+}
