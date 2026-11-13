@@ -1,8 +1,11 @@
 import {timezone} from '../alerts/calendar';
+import {windowProblem} from './window-validation';
 import type {ReportInput,ReportBucket} from './types';
 
 export function reportWindow(input:ReportInput) {
- if(!input||Object.keys(input).some(k=>!['from','to','timeZone','team'].includes(k))||!Number.isSafeInteger(input.from)||!Number.isSafeInteger(input.to)||input.from<0||input.to<=input.from||input.to-input.from>90*86400000||input.to>Date.now()+300000)throw new Error('Use a positive report window of at most 90 days');
+ if(!input||Object.keys(input).some(k=>!['from','to','timeZone','team'].includes(k)))throw new Error('Use only the supported reporting fields');
+ const problem=windowProblem(input.from,input.to);
+ if(problem)throw new Error(problem.message);
  if(input.team!==undefined&&(typeof input.team!=='string'||!input.team.trim()||input.team.length>80||/[\x00-\x1f\x7f]/.test(input.team)))throw new Error('Use a bounded team name');
  return {from:input.from,to:input.to,timeZone:timezone(input.timeZone),bucket:'day' as const};
 }

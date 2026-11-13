@@ -5914,7 +5914,7 @@
       "executable": false
     },
     "src/domain/dashboards/input.ts": {
-      "sha256": "efd01a91c5c4b2a1efd5d33b1d2f1c7e931145be153d773269392ab11a0f8a7b",
+      "sha256": "c1e4335b96949485691b1ac8ffa11510b1a47838cc3bfc74f36a3e0b36b7ca56",
       "executable": false
     },
     "src/domain/dashboards/metrics.ts": {
@@ -6642,7 +6642,7 @@
       "executable": false
     },
     "src/domain/reports/window.ts": {
-      "sha256": "7d98359bd078881c8d85bce982e4fe6c6c9588d8f16c8c9a46323fd79f5d7990",
+      "sha256": "c175fe42764453fb529a37c091dbe808ba8ba4bad54fcaeb8fff094e5d4764fa",
       "executable": false
     },
     "src/domain/repository-links.ts": {
@@ -10442,7 +10442,7 @@
       "executable": false
     },
     "src/ui/workbench/ReportsConfiguration.tsx": {
-      "sha256": "6174c169ff847dc85ac2d7e0b7ba1b6681399c8897575e3967840edb640c4396",
+      "sha256": "602867c51e9a497bbccbaaee990513967b803871294caf5f8eab0a2d2c37105f",
       "executable": false
     },
     "src/ui/workbench/ReportsDashboard.tsx": {
@@ -10462,11 +10462,11 @@
       "executable": false
     },
     "src/ui/workbench/ReportsWidgetEditor.tsx": {
-      "sha256": "ca49af6922c94e408ba1405f6c7826ff262036bbdc3409af23beae7b1f118c08",
+      "sha256": "3f893c4ecc6c496c3bc898d0dec01e0fcf6758ed29d064740fcbdf0e406019c3",
       "executable": false
     },
     "src/ui/workbench/ReportsWindow.tsx": {
-      "sha256": "ba0e69efd41060feb3e5a1dad489f710bbf00974e01a4053f8847a8a336a204c",
+      "sha256": "195a769b6aecaecb700f913cbd3301cd269572c88b45a2cc1793babdf4e960ac",
       "executable": false
     },
     "src/ui/workbench/RepositoryLinkLog.tsx": {
@@ -11094,7 +11094,7 @@
       "executable": false
     },
     "tests/investigation-flow.mjs": {
-      "sha256": "b8c96a3fdf74530fbfaf63f9ba53ee292becd376dbdae9929a3df25d6bfb55f5",
+      "sha256": "78fd4c6e0edc3edb6f051ce19c2a5700a7b2a5e7dc446a012c5b6f988c559cd7",
       "executable": false
     },
     "tests/key-rate-limit-flow.mjs": {
@@ -11334,7 +11334,7 @@
       "executable": false
     },
     "tests/reports-flow.mjs": {
-      "sha256": "ed82a7e19a41464919b36d6bd261d03cef8d4eb30bc6c53ee05485e2511dcf96",
+      "sha256": "e7ea7d7ea815e848d8f106e06aa94cc0530e2debfcdc01a8f270517cf5b9383f",
       "executable": false
     },
     "tests/repository-source-flow.mjs": {
