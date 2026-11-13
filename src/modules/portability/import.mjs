@@ -11,7 +11,7 @@ import { platformTable, restorableManifest } from './bookkeeping.mjs';
 import { withoutAbsentExcludedObjects } from './snapshot-objects.mjs';
 import { canonicalJson, unbase64 } from './hash.mjs';
 import { checkManifest, checkPart, ContentVerifier, ArchiveVerifier } from './format.mjs';
-import { fence, mergeJournal, tombstone } from './journal.mjs';
+import { checkEpoch, fence, mergeJournal, tombstone } from './journal.mjs';
 import { writeObject } from './payloads.mjs';
 import { createCopy,sidecar,readCopy,restoreCopy } from './copies.mjs';
 import { excludedDependentGuards, migrationSeeded, seededCondition } from './restore-safety.mjs';
@@ -26,6 +26,9 @@ import { rebuildDerivedStatements } from './derived.mjs';
 export async function createImport(context,manifest,actor='direct',legacyRecovery,ledgers,acknowledgeUnverifiedSchemaObjects=false,id=crypto.randomUUID()) {
   const {db,config,buckets}=context;await checkManifest(manifest);checkArchivedLedgers(manifest,ledgers);
   insist(manifest.product===config.product,'wrong_product');
+  // An already-stale backup cannot become restorable. Refuse before schema
+  // inventory, staging copies and part uploads; fence checks again at finalize.
+  await checkEpoch(db,manifest);
   // Explicit schema upgrades can reconcile rows, but cannot attest an interrupted deployment.
   await appliedMigrations(db);
   const original=manifest;manifest=await restorableManifest(original,{canonical:true});

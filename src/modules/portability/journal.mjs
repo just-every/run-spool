@@ -21,10 +21,13 @@ export async function invalidateTransfersStatements(db) {
 export async function journal(db,source) {
   return (await all(db,'SELECT tombstone FROM rer_portability_journal WHERE source=? ORDER BY tombstone',source)).map(x=>x.tombstone);
 }
-export async function fence(db,manifest,copies,later) {
+export async function checkEpoch(db,manifest) {
   const recorded=await statement(db,'SELECT epoch FROM rer_portability_epochs WHERE source=?',manifest.sourceIdentity).first();
-  const s=await state(db);
-  insist(manifest.epoch>=Math.max(recorded?.epoch??0,s.source_identity===manifest.sourceIdentity?s.epoch:0),'erasure_epoch');
+  const s=await statement(db,'SELECT source_identity,epoch FROM rer_portability_state WHERE id=1').first();
+  insist(manifest.epoch>=Math.max(recorded?.epoch??0,s?.source_identity===manifest.sourceIdentity?s.epoch:0),'erasure_epoch');
+}
+export async function fence(db,manifest,copies,later) {
+  await checkEpoch(db,manifest);
   if(later) insist(later.sourceIdentity===manifest.sourceIdentity && Number.isSafeInteger(later.epoch) && later.epoch>=manifest.epoch && Array.isArray(later.journal),'later_journal');
   const hashes=new Set([...manifest.journal,...await journal(db,manifest.sourceIdentity),...(later?.journal??[])]);
   insist([...hashes].every(x=>/^[a-f0-9]{64}$/.test(x)),'invalid_journal');
