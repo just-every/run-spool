@@ -58,7 +58,9 @@ Webhook delivery calls only the `INTEGRATION_EGRESS.send(WireRequest)` RPC bindi
 
 ### Turning webhooks on
 
-The binding is Base's egress service (`src/modules/egress-service`, a separate Worker; Spool's own Worker never imports it). Install it once per account and environment first, following Base `modules/egress-service/OWNER-STEPS.md`: deploy the egress Worker with complete service-owned `EGRESS_OWNED_ZONES`, `EGRESS_WORKERS_SUFFIX` and an `EGRESS_GRANTS` entry for `EgressRestricted` that lists your receiver hosts, then keep its deployment receipt. Then add this entry to Spool's `deploy.json`, copying `grant` exactly from that receipt:
+**Owner Cloudflare account and deployment access required.** The binding is Base's egress service (`src/modules/egress-service`, a separate Worker; Spool's own Worker never imports it). Follow the [Spool integration egress installation guide](INTEGRATION-EGRESS.md), including [Base's owner steps at Spool's pinned module version](https://github.com/runeditrun/base/blob/4dd4197007cefd688fd314ffb19eed4d0b3c67dd/modules/egress-service/OWNER-STEPS.md). Install it once per account and environment with complete service-owned `EGRESS_OWNED_ZONES`, `EGRESS_WORKERS_SUFFIX` and an `EGRESS_GRANTS` entry for `EgressRestricted` that lists your receiver hosts, then keep its private deployment state.
+
+The installation guide shows how to extract a binding from `.rer/deploy/egress-production.json`: `grant.sourceSha` is `receipt.source.sha`, `fingerprint` and `provider` come from that same `receipt`, and `allowedHosts` comes from its recorded `EgressRestricted` grant. There is no whole `grant` object to copy from the receipt. Add this shape to Spool's `deploy.json`, replacing every placeholder with those fields:
 
 ```json
 "services": [
@@ -76,7 +78,7 @@ The binding is Base's egress service (`src/modules/egress-service`, a separate W
 ]
 ```
 
-Until the egress Worker exists, `rer deploy` refuses with `service-worker-missing` for `service:egress-service-<environment>`; `rer deploy --dry-run` validates the declaration either way without deploying. Upgrading the egress service needs a new grant from its new receipt. Call the deployment's webhooks installed only after the live probe (OWNER-STEPS.md P1 to P9) passes on that deployment.
+Until the egress Worker exists, `rer deploy` refuses with `service-worker-missing` for `service:egress-service-<environment>`; `rer deploy --dry-run` validates the declaration either way without deploying. Upgrading the egress service needs a new grant from its new receipt. Call the deployment's webhooks installed only after the separately owner-authorized live probe in [Base's owner steps, P1 to P9](https://github.com/runeditrun/base/blob/4dd4197007cefd688fd314ffb19eed4d0b3c67dd/modules/egress-service/OWNER-STEPS.md) passes on that deployment.
 
 ### What the egress service guarantees, and what it does not
 
