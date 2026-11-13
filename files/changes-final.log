@@ -1,0 +1,31 @@
+{
+  "files": [
+    {
+      "path": "docs/ALERT-WEBHOOKS.md",
+      "change": "modified",
+      "before": {
+        "sha256": "58ff0b7c4a1f98358ad11a122dd52e7a4d7950f0061bceb427654c555c6fefbd",
+        "executable": false
+      },
+      "after": {
+        "sha256": "67a1e324fa06f467b79bc4fd487d56dabc69efdd5f3777f52888ea460e787505",
+        "executable": false
+      }
+    },
+    {
+      "path": "docs/INTEGRATION-EGRESS.md",
+      "change": "modified",
+      "before": {
+        "sha256": "527a6c8a71bfcc1b4d04e3ca1bb84583e1da5dc14691206e462cc55f5f7487cd",
+        "executable": false
+      },
+      "after": {
+        "sha256": "0409b3fe9b25945910ad622a888dd8a4e151ebf64cf86b7c43d509fdade408bc",
+        "executable": false
+      }
+    }
+  ],
+  "metadata": [],
+  "meaning": "Origins are comparison baselines; changing an origin does not assert adoption or local byte equality."
+}
+

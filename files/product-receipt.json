@@ -1,0 +1,61 @@
+{
+  "branch": "cloud/main-spool-rer-0213-1-c1-pc1",
+  "head": "51336a9de74ff582b835ed3834d2ce5dc40a9f40",
+  "starting_head": "edd624af411a36c72cbdd7f93d07ef5aabd3ca62",
+  "origin_main": "3d3a7db595e571f8466bcee683634c83d93656b8",
+  "preserved_starting_head": true,
+  "new_commits": 1,
+  "rer_pin": "0.2.113",
+  "base_revision": "c2efb501cbc148c2aee4d5e1107ebdba81469006",
+  "recorded_base_copies": 105,
+  "preserved_declared_adaptations": [
+    ".github/workflows/run-demo.yml",
+    ".github/workflows/run-site.yml",
+    ".github/workflows/verify.yml",
+    "src/modules/agent-door/audit.ts",
+    "src/modules/agent-door/pages.ts",
+    "src/modules/agent-door/person-doors.ts",
+    "src/modules/agent-door/reviews.ts",
+    "src/modules/erasure/cascade.mjs",
+    "src/modules/erasure/index.d.mts",
+    "src/modules/erasure/index.mjs",
+    "src/modules/erasure/order.mjs",
+    "src/modules/erasure/verification.mjs"
+  ],
+  "contract_files": {
+    "CONTRACT.md": {
+      "sha256": "ee9c871bfa25a110d3f3e61924164c75cc17ea412cb775f2e0621f114ab3594b",
+      "identical_to_origin_main": true
+    },
+    "ACCEPTANCE.md": {
+      "sha256": "09f4bb713a3cf9acdde84ba680630f9e9356198966ea70f2ac502520909a9ab1",
+      "identical_to_origin_main": true
+    },
+    "docs/CLAIMS.md": {
+      "sha256": "dea371100eb9ee81aee20dfc3264506a9885383e15a197f813f044a335555aba",
+      "identical_to_origin_main": true
+    }
+  },
+  "before_counts": {
+    "done": 23,
+    "partial": 54,
+    "missing": 28,
+    "total": 105
+  },
+  "after_counts": {
+    "done": 23,
+    "partial": 54,
+    "missing": 28,
+    "total": 105
+  },
+  "clause_status_changes": [],
+  "test_changes": {
+    "added": 0,
+    "removed": 0,
+    "modified": 0
+  },
+  "diff": " docs/ALERT-WEBHOOKS.md     | 4 ++--\n docs/INTEGRATION-EGRESS.md | 2 +-\n sources.lock.json          | 4 ++--\n 3 files changed, 5 insertions(+), 5 deletions(-)\n",
+  "working_tree_clean": true,
+  "pr": null,
+  "publication_scan": "Mac fleet lander runs full publication scan; cloud brief explicitly excludes Mac tools"
+}

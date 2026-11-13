@@ -1,0 +1,18 @@
+{
+  "original_adoption_head": "7faf53703fcc6d8294f75dd4121a70cf0fcfa337",
+  "preserved_continuation_head": "edd624af411a36c72cbdd7f93d07ef5aabd3ca62",
+  "candidate_head": "51336a9de74ff582b835ed3834d2ce5dc40a9f40",
+  "original_missing_files": [
+    "src/modules/agent-door/policy-event.ts",
+    "src/modules/operator-auth/dev/invited.mjs"
+  ],
+  "toolchain_identity_matches": true,
+  "original_toolchain": {
+    "id": "runeditrun/edition-authoring",
+    "version": "1.1.0",
+    "sha256": "8d25b7528ba7c5301de349b51b7e6ca44d6b87478f27b5685a5c07b567612e13"
+  },
+  "lock_regenerator": "node node_modules/@runeditrun/rer/edition-authoring/cli.mjs lock",
+  "remaining_missing_files": [],
+  "guide_link_replacements": 3
+}

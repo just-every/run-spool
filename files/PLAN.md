@@ -1,0 +1,5 @@
+# Plan
+
+Preserve published continuation edd624af411a36c72cbdd7f93d07ef5aabd3ca62 on cloud/main-spool-rer-0213-1-c1-pc1; use new commits only. Read the saved Verify's failed runtime job once and reproduce the failing public-door journey. Correct the cause within rer adoption and refresh scope, preserving current main's intentional changes and all acceptance assertions. Do not edit contract judgments or generated views.
+
+Install the frozen lockfile and use installed rer 0.2.113. Run CI's source checks and typecheck, plus the failed/touched journey only. Confirm export and deployment dry-run summaries. Fetch current main and merge if necessary, regenerate the source lock last, check the complete candidate identity/trailers, and push with the fleet guard. Inspect exact-SHA Verify through REST at intervals of at least 300 seconds within the ten-call budget; fix forward if necessary. Save all non-secret receipts here and publish explicitly selected files to the separate evidence ref. Report counts, unchanged clause statuses, provenance, and lane POST lines.

@@ -1,0 +1,9 @@
+{
+  "commits_checked": 2,
+  "range": "origin/main..HEAD",
+  "includes_side_parents": true,
+  "authors": "Run Edit Run fleet <fleet@runeditrun.com>",
+  "committers": "Run Edit Run fleet <fleet@runeditrun.com>",
+  "trailers": "none",
+  "result": "pass"
+}

@@ -1,0 +1,31 @@
+{
+  "head": "51336a9de74ff582b835ed3834d2ce5dc40a9f40",
+  "node": "v22.20.0",
+  "commands": [
+    {
+      "command": "pnpm install --frozen-lockfile",
+      "exit_code": 0,
+      "log": "install-final.log"
+    },
+    {
+      "command": "pnpm run check -- --profile first-party",
+      "exit_code": 0,
+      "log": "check-final.log"
+    },
+    {
+      "command": "pnpm source:check",
+      "exit_code": 0,
+      "log": "source-check-final.log"
+    },
+    {
+      "command": "node src/base/contract-docs.mjs check",
+      "exit_code": 0,
+      "log": "contract-check.log"
+    },
+    {
+      "command": "node scripts/edition-authoring/cli.mjs verify-base --offline",
+      "exit_code": 0,
+      "log": "verify-base.log"
+    }
+  ]
+}

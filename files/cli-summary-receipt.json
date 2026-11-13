@@ -1,0 +1,31 @@
+{
+  "rer_version": "0.2.113",
+  "node": "22.20.0",
+  "setup_exit_code": 0,
+  "setup_migrations": 99,
+  "commands": [
+    {
+      "command": "pnpm exec rer export --output exports/spool.rer",
+      "exit_code": 0,
+      "summary": [
+        "Exported the local copy to exports/spool.rer (331 KB): 100 tables, 0 rows",
+        "To restore into an empty installation: rer import --input exports/spool.rer --yes"
+      ]
+    },
+    {
+      "command": "pnpm exec rer deploy --dry-run",
+      "exit_code": 0,
+      "summary": [
+        "Would deploy:",
+        "  Worker: spool-production",
+        "  D1 database: spool-production-db (99 declared migrations)",
+        "  Public settings: 3; scheduled triggers: 1",
+        "  Pending migrations: unknown until the hosted databases are checked.",
+        "Full plan: repeat this command with --json. Redacted capture log: .seed/installer/commands-4289/install.log",
+        "deploy: complete (exit 0)"
+      ]
+    }
+  ],
+  "private_data_export": "Excluded; local archive is not evidence",
+  "provider_requests": "none; deployment dry run only"
+}
