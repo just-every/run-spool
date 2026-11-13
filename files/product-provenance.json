@@ -1,0 +1,76 @@
+{
+  "repository": "just-every/run-spool",
+  "branch": "cloud/sd-spool-release-0-7-9",
+  "head": "d3aee03b5066430bf280b7fa17775d43ed27fb2f",
+  "parent": "e9540f7ae83a5334d11dcaeda44c66df3b5ad94c",
+  "tree": "957d527bd768fd737f47d92df44c95dcd67de465",
+  "changed_paths": [
+    "CHANGELOG.md",
+    "README.md",
+    "RELEASE.json",
+    "docs/getting-started.md",
+    "package.json",
+    "seed.json",
+    "sources.lock.json"
+  ],
+  "working_tree_clean": true,
+  "contract_counts_before": {
+    "core": {
+      "done": 23,
+      "partial": 45,
+      "missing": 19,
+      "total": 87
+    },
+    "agent_surface": {
+      "done": 0,
+      "partial": 9,
+      "missing": 9,
+      "total": 18
+    },
+    "full_target": {
+      "done": 23,
+      "partial": 54,
+      "missing": 28,
+      "total": 105
+    }
+  },
+  "contract_counts_after": "unchanged",
+  "clause_status_changes": [],
+  "tests_added": 0,
+  "tests_removed": 0,
+  "new_migrations": 0,
+  "rer_pin": "0.2.107",
+  "counts_after": {
+    "core": {
+      "done": 23,
+      "partial": 45,
+      "missing": 19,
+      "total": 87
+    },
+    "agent_surface": {
+      "done": 0,
+      "partial": 9,
+      "missing": 9,
+      "total": 18
+    },
+    "full_target": {
+      "done": 23,
+      "partial": 54,
+      "missing": 28,
+      "total": 105
+    }
+  },
+  "product_remote_readback_matches": true,
+  "product_push_attempts": 1,
+  "product_push_status": "success",
+  "exact_sha_verify_run_id": 43395322960,
+  "exact_sha_verify_url": "https://github.com/just-every/run-spool/actions/runs/43395322960",
+  "test_tree_before": "049c078adcd77a7fd42d3d95ebf07b7837f01c38",
+  "test_tree_after": "049c078adcd77a7fd42d3d95ebf07b7837f01c38",
+  "new_files": 0,
+  "changed_file_count": 7,
+  "insertions": 46,
+  "deletions": 19,
+  "pr_url": null,
+  "recorded_at_utc": "2026-11-13T08:45:06.971166+00:00"
+}

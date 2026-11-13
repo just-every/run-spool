@@ -1,0 +1,44 @@
+{
+  "head": "d3aee03b5066430bf280b7fa17775d43ed27fb2f",
+  "node_runtime": "24.19.0",
+  "node_declared": "22.20.0",
+  "pnpm": "10.12.4",
+  "checks": [
+    {
+      "name": "metadata consistency",
+      "command": "python3 /tmp/check-spool-metadata.py",
+      "exit_code": 0,
+      "output_file": "metadata-check.json",
+      "sha256": "0881823713151d59718ddb09b3fdba3cef78b99ecb56d84d0f3611075f76d5f1"
+    },
+    {
+      "name": "source lock integrity",
+      "command": "pnpm source:check",
+      "exit_code": 0,
+      "output_file": "source-lock-check.log",
+      "sha256": "9ae8bc8b369278df85504e7244f4ffafb1684f74c630a95b153242b101a903c7"
+    },
+    {
+      "name": "contract documents",
+      "command": "node src/base/contract-docs.mjs check",
+      "exit_code": 0,
+      "output_file": "contract-docs-check.log",
+      "sha256": "b04031901cfff3e9bc42a429b52cbc14c2442ffb68817fd62a245ac52847b422"
+    },
+    {
+      "name": "typecheck",
+      "command": "pnpm typecheck",
+      "exit_code": 0,
+      "output_file": "typecheck.log",
+      "sha256": "4c29938595b45aae37fe93681d5285d3cd83c7909fbdab1ac382eb680f98a452"
+    },
+    {
+      "name": "whitespace",
+      "command": "git diff --check",
+      "exit_code": 0
+    }
+  ],
+  "tests": "Not run: metadata-only brief requests typecheck and touched metadata checks; no tests added.",
+  "full_publication_scan": "Guarded Mac lander only; not invoked on cloud.",
+  "browser_proof": "Not applicable: no UI changes in this candidate."
+}

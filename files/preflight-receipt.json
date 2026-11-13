@@ -1,0 +1,46 @@
+{
+  "main": "e9540f7ae83a5334d11dcaeda44c66df3b5ad94c",
+  "previous_tag": "v0.7.8",
+  "previous_tag_commit": "47ecaeeec8c442aa4648ad3b7f4fc1d7e1f115e2",
+  "commits_since_tag": [
+    "e9540f7ae83a5334d11dcaeda44c66df3b5ad94c Make Capture setup and sample evidence match shipped behavior",
+    "ca62aee25af1dbbb665d0040151a1150fcc10946 Make the integration egress prerequisite actionable from Settings",
+    "0f9809608a4ba84b23f4f8ece165605fcdd1acba Restore plain release and delivery labels on current main"
+  ],
+  "version_on_main": "0.7.8",
+  "v0_7_9_tag_absent": true,
+  "v0_7_9_release_absent": true,
+  "competing_v0_7_9_release_branch_absent": true,
+  "package_lock_present": false,
+  "initial_main": "ca62aee25af1dbbb665d0040151a1150fcc10946",
+  "initial_main_ci_observed": {
+    "Verify": {
+      "run_id": 43391416578,
+      "conclusion": "success",
+      "head_sha": "ca62aee25af1dbbb665d0040151a1150fcc10946"
+    },
+    "Run site": {
+      "run_id": 43391416517,
+      "conclusion": "success",
+      "head_sha": "ca62aee25af1dbbb665d0040151a1150fcc10946"
+    }
+  },
+  "main_ci_observed": {
+    "Verify": {
+      "conclusion": "success",
+      "head_sha": "e9540f7ae83a5334d11dcaeda44c66df3b5ad94c",
+      "html_url": "https://github.com/just-every/run-spool/actions/runs/43391895713",
+      "id": 43391895713,
+      "name": "Verify",
+      "status": "completed"
+    },
+    "Run site": {
+      "conclusion": "success",
+      "head_sha": "e9540f7ae83a5334d11dcaeda44c66df3b5ad94c",
+      "html_url": "https://github.com/just-every/run-spool/actions/runs/43394717718",
+      "id": 43394717718,
+      "name": "Run site",
+      "status": "completed"
+    }
+  }
+}

@@ -1,0 +1,23 @@
+{
+  "ok": true,
+  "version_before": "0.7.8",
+  "version_after": "0.7.9",
+  "predecessor": "0.7.8",
+  "rer_pin": "0.2.107",
+  "new_migrations": 0,
+  "breaking": false,
+  "contract_changes": 0,
+  "product_changes": 0,
+  "test_changes": 0,
+  "notes_match": true,
+  "prior_changelog_preserved": true,
+  "metadata_paths": [
+    "CHANGELOG.md",
+    "README.md",
+    "RELEASE.json",
+    "docs/getting-started.md",
+    "package.json",
+    "seed.json",
+    "sources.lock.json"
+  ]
+}

@@ -1,0 +1,10 @@
+258c6f228fdf78480536886063912c46a60dc43c	refs/heads/cloud/main-spool-releases-plain-1
+c8b64ead9cff33792079557417d5dac653a33e3d	refs/heads/cloud/sd-spool-release-0-7-4
+5886617d17da50761fb442f66b03ce623d5e9559	refs/heads/cloud/sd-spool-release-0-7-5
+2e12affd54e9b3bfe759e0eaec60906e3548f876	refs/heads/cloud/sd-spool-release-0-7-6
+0f55a4add674585d39fcbc266edd629e2fb33c9d	refs/heads/cloud/sd-spool-release-0-7-7
+44c4c77974f6f33dd8c1763353f42746ae439e0a	refs/heads/cloud/sd-spool-release-0-7-7-fix-1
+26d13d4f574298851f25778818c1af0b9b2a2386	refs/heads/cloud/sd-spool-release-0-7-7-fix-2
+422a43dd5d3a89848165a1ee7dcab9172820676c	refs/heads/cloud/sd-spool-release-0-7-8
+47ecaeeec8c442aa4648ad3b7f4fc1d7e1f115e2	refs/heads/cloud/sd-spool-release-0-7-8-rebase-47ecaeeec8c442aa4648ad3b7f4fc1d7e1f115e2
+d371ff60239cff49b2cb251f6e40309b883a631b	refs/heads/cloud/sd-spool-release-0-7-8-rebase-d371ff60239cff49b2cb251f6e40309b883a631b

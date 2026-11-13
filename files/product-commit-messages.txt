@@ -1,0 +1,2 @@
+Prepare Spool 0.7.9 release metadata
+
