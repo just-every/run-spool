@@ -1,0 +1,24 @@
+{
+  "repository": "just-every/run-spool",
+  "branch": "cloud/main-spool-rer-0213-1-c1",
+  "head": "edd624af411a36c72cbdd7f93d07ef5aabd3ca62",
+  "base": "3d3a7db595e571f8466bcee683634c83d93656b8",
+  "candidate_commits": 1,
+  "merge_commits": 0,
+  "identity_audit": "Run Edit Run fleet <fleet@runeditrun.com>\nRun Edit Run fleet <fleet@runeditrun.com>",
+  "trailers": "none",
+  "contract_files": "byte-identical to origin/main",
+  "working_tree": "clean",
+  "scope": "original 31-file adoption patch; sources.lock.json regenerated",
+  "publication_scan": "Mac lander runs full publication scan; unavailable in cloud by task contract",
+  "push": {
+    "status": "success",
+    "attempts": 1,
+    "remote_ref": "refs/heads/cloud/main-spool-rer-0213-1-c1",
+    "remote_tracking_head": "edd624af411a36c72cbdd7f93d07ef5aabd3ca62"
+  },
+  "checks_receipt": "CHECKS.json",
+  "cli_receipt": "CLI-RECEIPT.json",
+  "ci_run_id": 43468399080,
+  "ci_url": "https://github.com/just-every/run-spool/actions/runs/43468399080"
+}

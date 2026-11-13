@@ -1,0 +1,4 @@
+
+> @errors/errors-workbench@0.7.9 typecheck /home/agent/rer-consolidation/work/main-spool-rer-0213-1-c1/run-spool
+> tsc --noEmit
+

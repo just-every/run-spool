@@ -1,0 +1,78 @@
+{
+  "install": {
+    "command": "pnpm install --frozen-lockfile",
+    "exit": 0,
+    "rer": "0.2.113",
+    "initial_node_modules": "absent"
+  },
+  "before": {
+    "command": "pnpm source:check",
+    "exit": 1,
+    "cause": "sources.lock.json omitted two newly added refreshed Base files"
+  },
+  "lock": {
+    "command": "node node_modules/@runeditrun/rer/edition-authoring/cli.mjs lock",
+    "exit": 0
+  },
+  "local_checks": [
+    {
+      "command": "pnpm run check -- --profile first-party",
+      "exit": 0
+    },
+    {
+      "command": "pnpm source:check",
+      "exit": 0
+    },
+    {
+      "command": "node src/base/contract-docs.mjs check",
+      "exit": 0
+    },
+    {
+      "command": "node scripts/edition-authoring/cli.mjs verify-base --offline",
+      "exit": 0
+    },
+    {
+      "command": "pnpm typecheck",
+      "exit": 0
+    }
+  ],
+  "runtime": "Node 22.20.0; pnpm 10.12.4",
+  "full_local_verify": "not run, as instructed",
+  "browser": "not needed; no screen changes",
+  "final_clean_install": {
+    "command": "pnpm install --frozen-lockfile",
+    "exit": 0,
+    "node_modules": "removed before install",
+    "rer": "0.2.113",
+    "runtime": "Node 22.20.0; pnpm 10.12.4"
+  },
+  "final_local_checks": [
+    {
+      "command": "pnpm run check -- --profile first-party",
+      "exit": 0
+    },
+    {
+      "command": "pnpm source:check",
+      "exit": 0
+    },
+    {
+      "command": "node src/base/contract-docs.mjs check",
+      "exit": 0
+    },
+    {
+      "command": "node scripts/edition-authoring/cli.mjs verify-base --offline",
+      "exit": 0
+    },
+    {
+      "command": "pnpm typecheck",
+      "exit": 0
+    }
+  ],
+  "regeneration_order": "After final main fetch/rebase and install: restore contract files, stage original adoption, regenerate source lock through installed rer, check, stage lock, commit.",
+  "scope_check": {
+    "changed_files": 31,
+    "insertions": 473,
+    "deletions": 206,
+    "comparison": "Every non-lock file patch is byte-identical to original 7faf5370 patch against its parent. No tests changed."
+  }
+}

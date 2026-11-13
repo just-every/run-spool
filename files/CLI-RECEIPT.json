@@ -1,0 +1,32 @@
+{
+  "setup": {
+    "command": "npx -y @runeditrun/rer@0.2.113 setup --owner-email fleet@runeditrun.com --non-interactive",
+    "exit": 0,
+    "summary": "Setup complete: 99 migrations applied, owner set up."
+  },
+  "probes": [
+    {
+      "command": "rer export --output exports/spool.rer",
+      "exit": 0,
+      "summary_excerpt": [
+        "Exported the local copy to exports/spool.rer (331 KB): 100 tables, 0 rows"
+      ]
+    },
+    {
+      "command": "rer deploy --dry-run",
+      "exit": 0,
+      "summary_excerpt": [
+        "Would deploy:",
+        "  Worker: spool-production",
+        "  D1 database: spool-production-db (99 declared migrations)",
+        "  Secret inputs: 7 required, 1 optional",
+        "  Public settings: 3; scheduled triggers: 1",
+        "  Cloudflare token permissions: Workers Scripts: Edit, D1: Edit",
+        "  Pending migrations: unknown until the hosted databases are checked.",
+        "deploy: local dry run complete; no credentials were needed, no Cloudflare requests were made and nothing was changed remotely."
+      ]
+    }
+  ],
+  "provider_requests": "none; deploy used --dry-run",
+  "archive": "private local archive retained only inside clone until cleanup; excluded from evidence"
+}

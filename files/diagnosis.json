@@ -1,0 +1,28 @@
+{
+  "original_commit": "7faf53703fcc6d8294f75dd4121a70cf0fcfa337",
+  "omitted_files": [
+    "src/modules/agent-door/policy-event.ts",
+    "src/modules/operator-auth/dev/invited.mjs"
+  ],
+  "metadata_changes": [],
+  "original_lock_file_count": 2310,
+  "main_lock_file_count": 2310,
+  "candidate_lock_file_count": 2312,
+  "recorded_base": "c2efb501cbc148c2aee4d5e1107ebdba81469006",
+  "copy_records": 105,
+  "preserved_adaptations": [
+    ".github/workflows/run-demo.yml",
+    ".github/workflows/run-site.yml",
+    ".github/workflows/verify.yml",
+    "src/modules/agent-door/audit.ts",
+    "src/modules/agent-door/pages.ts",
+    "src/modules/agent-door/person-doors.ts",
+    "src/modules/agent-door/reviews.ts",
+    "src/modules/erasure/cascade.mjs",
+    "src/modules/erasure/index.d.mts",
+    "src/modules/erasure/index.mjs",
+    "src/modules/erasure/order.mjs",
+    "src/modules/erasure/verification.mjs"
+  ],
+  "divergence_document": "DIVERGENCE.md is absent from current main and the original adoption; preserved all explicit base-copies.json adaptations instead."
+}

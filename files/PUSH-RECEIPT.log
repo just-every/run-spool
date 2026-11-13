@@ -1,0 +1,14 @@
+fleet Git: removed 0 credential-bearing GitHub URL rewrite sections
+PUSH attempt=1/5 command=git push --porcelain origin HEAD:refs/heads/cloud/main-spool-rer-0213-1-c1
+fleet Git: removed 0 credential-bearing GitHub URL rewrite sections
+To https://github.com/just-every/run-spool
+*	HEAD:refs/heads/cloud/main-spool-rer-0213-1-c1	[new branch]
+Done
+remote: 
+remote: Create a pull request for 'cloud/main-spool-rer-0213-1-c1' on GitHub by visiting:        
+remote:      https://github.com/just-every/run-spool/pull/new/cloud/main-spool-rer-0213-1-c1        
+remote: 
+remote: GitHub found 73 vulnerabilities on just-every/run-spool's default branch (21 high, 42 moderate, 10 low). To find out more, visit:        
+remote:      https://github.com/just-every/run-spool/security/dependabot        
+remote: 
+PUSH_OK branch=cloud/main-spool-rer-0213-1-c1

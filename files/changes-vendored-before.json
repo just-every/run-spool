@@ -1,0 +1,25 @@
+{
+  "files": [
+    {
+      "path": "src/modules/agent-door/policy-event.ts",
+      "change": "added",
+      "before": null,
+      "after": {
+        "sha256": "9d4e4126529374aeb266c7f532d85f143f719bf6335f82407298ab6d4c52349f",
+        "executable": false
+      }
+    },
+    {
+      "path": "src/modules/operator-auth/dev/invited.mjs",
+      "change": "added",
+      "before": null,
+      "after": {
+        "sha256": "54f5f042c592924937eb1e47ca6d751b6ddb59b76dc0b1e74962dfb2c2727d42",
+        "executable": false
+      }
+    }
+  ],
+  "metadata": [],
+  "meaning": "Origins are comparison baselines; changing an origin does not assert adoption or local byte equality."
+}
+
