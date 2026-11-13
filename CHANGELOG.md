@@ -2,10 +2,11 @@
 
 ## 0.7.10 — 2026-11-13
 
-Spool 0.7.10 clarifies how ownership transfer works in a local owner session and how to recover a pending invitation that has no saved link.
+Spool 0.7.10 lets invited members open a local copy with their own project access, clarifies local ownership transfer, and explains how to recover a pending invitation that has no saved link.
 
 ### What you can now do
 
+- **Open a local invitation with the member’s own access.** In a separate browser on the same computer, open the invitee’s single-use, expiring link directly and confirm it. The member receives only their granted project access, and removing them ends that access on the next request. Keep the owner’s local access link private; a browser that has opened it retains separate owner authority.
 - **Understand how to confirm a local ownership transfer.** Members explains that an owner session opened through this copy's local access link confirms the transfer with local access. The member's Manage access panel points to Confirm owner transfer. Other sessions still require identity verification; local development does not send verification email.
 - **Recover a pending invitation with no saved link.** Members explains how to remove the pending member through Manage access and invite that address again. Trying to invite an already-pending address gives the same recovery steps. A new local invitation has its own single-use, expiring link for that machine.
 
