@@ -1,0 +1,59 @@
+{
+  "repository": "just-every/run-spool",
+  "branch": "cloud/main-spool-local-invite-truth-1-c1",
+  "head": "00ec1fdc1dc2e3f0e23ba5d36d2cd5698d436f95",
+  "base": "8049c9153f1d987bba6211bc05b8405b06101a6f",
+  "candidateCommits": 1,
+  "parents": [
+    "8049c9153f1d987bba6211bc05b8405b06101a6f"
+  ],
+  "clean": true,
+  "identityAndTrailers": "Run Edit Run fleet <fleet@runeditrun.com>\nRun Edit Run fleet <fleet@runeditrun.com>",
+  "contractFiles": {
+    "CONTRACT.md": {
+      "unchangedFromMain": true,
+      "sha256": "ee9c871bfa25a110d3f3e61924164c75cc17ea412cb775f2e0621f114ab3594b"
+    },
+    "ACCEPTANCE.md": {
+      "unchangedFromMain": true,
+      "sha256": "09f4bb713a3cf9acdde84ba680630f9e9356198966ea70f2ac502520909a9ab1"
+    },
+    "docs/CLAIMS.md": {
+      "unchangedFromMain": true,
+      "sha256": "dea371100eb9ee81aee20dfc3264506a9885383e15a197f813f044a335555aba"
+    }
+  },
+  "localChecks": {
+    "setup": 0,
+    "main-build": 0,
+    "main-deployment-history": 0,
+    "candidate-build": 0,
+    "candidate-deployment-history": 0,
+    "candidate-dev-credentials": 0,
+    "candidate-triage-journey-including-triage-auth": 0,
+    "typecheck": 0,
+    "source-lock": 0,
+    "source-check": 0,
+    "contract-check": 0,
+    "first-party-check": 0
+  },
+  "clauseCountsBefore": {
+    "done": 22,
+    "partial": 50,
+    "missing": 26
+  },
+  "clauseCountsAfter": {
+    "done": 22,
+    "partial": 50,
+    "missing": 26
+  },
+  "verifyRun": 43426580198,
+  "pr": null,
+  "ciObservation": {
+    "conclusion": "failure",
+    "head_sha": "00ec1fdc1dc2e3f0e23ba5d36d2cd5698d436f95",
+    "html_url": "https://github.com/just-every/run-spool/actions/runs/43426580198",
+    "status": "completed"
+  },
+  "ciCalls": 7
+}

@@ -1,0 +1,11 @@
+{
+  "calls": 7,
+  "last_call": 1794574586.3055737,
+  "sha": "00ec1fdc1dc2e3f0e23ba5d36d2cd5698d436f95",
+  "latest": {
+    "conclusion": "failure",
+    "head_sha": "00ec1fdc1dc2e3f0e23ba5d36d2cd5698d436f95",
+    "html_url": "https://github.com/just-every/run-spool/actions/runs/43426580198",
+    "status": "completed"
+  }
+}

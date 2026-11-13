@@ -1,0 +1,85 @@
+{
+  "candidate": "81ffe485a2755d9bcc242ab4cff399bdd2e6bfd3",
+  "checks": [
+    {
+      "file": "main-deployment-history.log",
+      "exit": 0,
+      "bytes": 594,
+      "sha256": "1610167c5735aec61d9ded4edf4e1b2032839ff3dae3bd6fc2c096ce45a14e32"
+    },
+    {
+      "file": "candidate-deployment-history.log",
+      "exit": 0,
+      "bytes": 594,
+      "sha256": "1610167c5735aec61d9ded4edf4e1b2032839ff3dae3bd6fc2c096ce45a14e32"
+    },
+    {
+      "file": "candidate-dev-credentials.log",
+      "exit": 0,
+      "bytes": 550,
+      "sha256": "88ff4ee848521c45544532630c589e5368048ab5caa7fce5a4b7be1e730cb027"
+    },
+    {
+      "file": "candidate-triage-journey.log",
+      "exit": 0,
+      "bytes": 211,
+      "sha256": "9068e0b330589345fddfc8b63ac8070a98a0e4e9c47493a51b51c26e463b9769"
+    },
+    {
+      "file": "candidate-typecheck.log",
+      "exit": 0,
+      "bytes": 187,
+      "sha256": "92afc57536f8c787644f7adae5215ed1e1cfca51da16ff8a98b8e418695acb2e"
+    },
+    {
+      "file": "first-party-check.log",
+      "exit": 0,
+      "bytes": 341,
+      "sha256": "1c310eb5c5ee2faa8e360c9df8b89d946b20a2f5dcec5de303d56f0498ea101f"
+    },
+    {
+      "file": "source-lock.log",
+      "exit": 0,
+      "bytes": 471829,
+      "sha256": "5bcece1d4414e0756fa3ea298d44abc5ec4cacc529ed7aa1713b1ccf4a0deb6a"
+    },
+    {
+      "file": "source-check.log",
+      "exit": 0,
+      "bytes": 472065,
+      "sha256": "e76a8cb8cb04abcc79a565945e8d9b10295d322dc93d88d6588701d958f06135"
+    },
+    {
+      "file": "contract-check.log",
+      "exit": 0,
+      "bytes": 70,
+      "sha256": "b04031901cfff3e9bc42a429b52cbc14c2442ffb68817fd62a245ac52847b422"
+    },
+    {
+      "file": "corrected-runtime.log",
+      "exit": 0,
+      "bytes": 989,
+      "sha256": "29b1164cbba797ab1614313ea1a8a3979b7c535260badf57df12e091eb17663f"
+    },
+    {
+      "file": "corrected-source-lock.log",
+      "exit": 0,
+      "bytes": 471829,
+      "sha256": "ee02c1a4c7225c82d083b2c450c284223e4950cfcdb31743243ee61c55a50405"
+    },
+    {
+      "file": "corrected-source-check.log",
+      "exit": 0,
+      "bytes": 472065,
+      "sha256": "99baf3b72910e85da808fd374ac7b8d68c922c90a51480b03636af92d63f6ed3"
+    },
+    {
+      "file": "corrected-contract-check.log",
+      "exit": 0,
+      "bytes": 70,
+      "sha256": "b04031901cfff3e9bc42a429b52cbc14c2442ffb68817fd62a245ac52847b422"
+    }
+  ],
+  "initialCandidate": "00ec1fdc1dc2e3f0e23ba5d36d2cd5698d436f95",
+  "applicationSourceUnchangedAfterInitialProof": true
+}

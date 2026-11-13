@@ -1,0 +1,29 @@
+{
+  "status": "passed",
+  "origin": "loopback synthetic app",
+  "assertionWidth": 1440,
+  "screenshotWidths": [
+    1440,
+    390
+  ],
+  "checks": [
+    "Local Members invitation instructions captured without links or credentials.",
+    "Fresh browser accepted its own invitation and received only the granted read-only project; never held owner gate.",
+    "Removed member refused on next request and sign-in offers no owner shortcut.",
+    "Browser holding only explicit owner gate sees owner shortcut and explanation that it grants every project."
+  ],
+  "screens": [
+    "members-invitations-1440.png",
+    "members-invitations-390.png",
+    "invitation-preview-1440.png",
+    "invitation-preview-390.png",
+    "removed-member-signin-1440.png",
+    "removed-member-signin-390.png",
+    "explicit-owner-signin-1440.png",
+    "explicit-owner-signin-390.png"
+  ],
+  "harnessNotes": [
+    "Initial dev start was correctly refused while a test held the checkout; restarted after completion.",
+    "Authenticated owner sign-in redirects to app; final owner-screen proof uses a fresh gate-only browser."
+  ]
+}
