@@ -1,0 +1,17 @@
+{
+  "preserved": [
+    ".github/workflows/run-demo.yml",
+    ".github/workflows/run-site.yml",
+    ".github/workflows/verify.yml",
+    "src/modules/agent-door/audit.ts",
+    "src/modules/agent-door/pages.ts",
+    "src/modules/agent-door/person-doors.ts",
+    "src/modules/agent-door/reviews.ts",
+    "src/modules/erasure/cascade.mjs",
+    "src/modules/erasure/index.d.mts",
+    "src/modules/erasure/index.mjs",
+    "src/modules/erasure/order.mjs",
+    "src/modules/erasure/verification.mjs"
+  ],
+  "divergence_md": "Absent from repository; used recorded adapted copies and AGENTS.md ownership rules"
+}

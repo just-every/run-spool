@@ -1,0 +1,136 @@
+{
+  "files": [
+    {
+      "blob": "44932876dd001c9972105dc405ae44fc96ac391d",
+      "bytes": 644,
+      "path": "CI-RESULT.md",
+      "sha256": "ce76bc3c17174ac5436af1c44792d9fd69f155fe55ba67b865ef49f583e57dec"
+    },
+    {
+      "blob": "642ff10f1dfbf46b74a486329c1d65210eb508a2",
+      "bytes": 3631,
+      "path": "LOCAL-RECEIPT.json",
+      "sha256": "45580bedeb6209a719c1cbe2079247fc0bf027f192da3aac52e4a0721e10b053"
+    },
+    {
+      "blob": "bf0fbb9842116c3d5032ed5bac477a72bbc866e6",
+      "bytes": 1566,
+      "path": "PLAN.md",
+      "sha256": "be3adceca5a1e68df703f40e2535337de243028cc300199638e6a7a9ac9de14c"
+    },
+    {
+      "blob": "188550b98accb332b9b98169b54469f226b83fb4",
+      "bytes": 5739,
+      "path": "REPORT.md",
+      "sha256": "ae62ba9578116565b0c01f7d0c6285e4c7330c876a019a29c72b9cd9689127dc"
+    },
+    {
+      "blob": "11174c2305fd9849f13bdfd927497d03224a9a0d",
+      "bytes": 602,
+      "path": "adaptations.json",
+      "sha256": "776d9dd45e80feea476dab9ec30d57732d8c1b70079e1301eda1e43ac1c9824f"
+    },
+    {
+      "blob": "a90824274da2bbcac4940b469a217a3621958bc9",
+      "bytes": 24,
+      "path": "added-repositories.json",
+      "sha256": "c2a19cf9c2c2fee425e43ec42f1994b01d8171ba8b8de04ced3a4db9ad602d64"
+    },
+    {
+      "blob": "8c40dfbcf3e6625d77327baa5ecba9d7da539677",
+      "bytes": 259,
+      "path": "ci-receipt.json",
+      "sha256": "0ffd69313a6cdf4ae931ca297530a8eddeba692bc3459e8b6bdba9bd9dbff7fd"
+    },
+    {
+      "blob": "b59d39532e8a030ff74f6339019ab7870ef51548",
+      "bytes": 70,
+      "path": "contract-check.log",
+      "sha256": "b04031901cfff3e9bc42a429b52cbc14c2442ffb68817fd62a245ac52847b422"
+    },
+    {
+      "blob": "6048b88f46a3b1dab3f71f642530e825b54720f0",
+      "bytes": 13296,
+      "path": "deploy-dry-run.log",
+      "sha256": "ded230ae29230c2efc96e45e4548f88c72e0a9944dee804ec873350184cd4088"
+    },
+    {
+      "blob": "ccfb3407c298d999918071477a8837a9e489c7e6",
+      "bytes": 2094,
+      "path": "diff-stat.txt",
+      "sha256": "83309e832e6ceeaa07fce4b7d120003a55abf60bba35dbf46d38172067f5ca40"
+    },
+    {
+      "blob": "ca310a42c029248893eacc4a36353c35f7ba0a52",
+      "bytes": 789,
+      "path": "export.log",
+      "sha256": "ad0382e6c8058cf637c81d19db5d72a7c1b8cfb597d15fd9f96ed934b23c284c"
+    },
+    {
+      "blob": "a07a86af8877fbe80c34e03770b120f513115776",
+      "bytes": 386,
+      "path": "first-party-check.log",
+      "sha256": "bfa22db2527f1b63628c9e576dc07debca3747f41cbd45e26d36220245236ae1"
+    },
+    {
+      "blob": "44d3fef25420bf2bd6acacfbc2996307169f44e0",
+      "bytes": 2169,
+      "path": "github-calls.jsonl",
+      "sha256": "11be1fb5a851419dbfd52277ab07ebd2f4933cea820c36f939db58d441ffdca6"
+    },
+    {
+      "blob": "55bfeff023c4ae17dc59e12f86f446b1960e6b53",
+      "bytes": 85,
+      "path": "identity-audit.log",
+      "sha256": "148bad84b5b174568017df50d58e073566703d43c6c9fe7fa6f1af04420adf55"
+    },
+    {
+      "blob": "74adfab197c49f6abf1828c1c5a451cf6e1d64b8",
+      "bytes": 3535,
+      "path": "install.log",
+      "sha256": "434a7722c7e9776f20823a2af0885a648072894792d86d69c5a3d0713dcc62e7"
+    },
+    {
+      "blob": "ca6d7cf27047895263f6fc0c37447c2d4c72b243",
+      "bytes": 940,
+      "path": "product-push.log",
+      "sha256": "c2228a3ad2c36eccaa1bf9258cfcbca4d8c1329f09c92e645d4cda4fa24ea816"
+    },
+    {
+      "blob": "6ac0cbec4218cdfe343582e27ac57f8261d1f6e9",
+      "bytes": 11835,
+      "path": "source-changes.json",
+      "sha256": "13f4d35ef39db0a6b21d061c9f9843e3d5f4f7bd0a60c2c590e7521cb7c22fce"
+    },
+    {
+      "blob": "a30a6210f04213cb4a99a4f3ae7ace13df8aeeda",
+      "bytes": 472595,
+      "path": "source-check.log",
+      "sha256": "2566b600672602b148815540c6e9332048b3a3872f791e22e6b1d9bc1a2c794f"
+    },
+    {
+      "blob": "396ff8cd00858b83820347da0f869b2ccb9f6f0d",
+      "bytes": 472314,
+      "path": "source-lock.json",
+      "sha256": "5281919431ad47eb75dbc477c20348d4837a15a9a477e327ec040ab7960b4a73"
+    },
+    {
+      "blob": "5a4c43c159e25e110a46fa9b258f97f96810b263",
+      "bytes": 232,
+      "path": "typecheck.log",
+      "sha256": "d3781c63d65b52dc71235c23122c57fed1f17a9996f90ea6ec8470ae8554f463"
+    },
+    {
+      "blob": "62e040cd80f6d52e8ccbec2720c1ad95d022a17b",
+      "bytes": 22699,
+      "path": "verify-base.json",
+      "sha256": "ef5702353b237dc54bfaae7680e5b85528fc57280bcff8fc6baa8acba5030e9d"
+    }
+  ],
+  "product_branch": "cloud/main-spool-rer-0213-1-c2",
+  "product_head": "169e4cbcf1b93522506f97c71bf39e364bed2303",
+  "ref": "refs/heads/evidence/main-spool-rer-0213-1-c2",
+  "repository": "just-every/run-spool",
+  "schema": 1,
+  "tag": "main-spool-rer-0213-1-c2"
+}

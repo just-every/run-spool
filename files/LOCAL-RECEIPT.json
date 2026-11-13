@@ -1,0 +1,123 @@
+{
+  "repository": "just-every/run-spool",
+  "branch": "cloud/main-spool-rer-0213-1-c2",
+  "head": "169e4cbcf1b93522506f97c71bf39e364bed2303",
+  "base": "417ab513b3032370091479fa28f41a5a67b50c53",
+  "commits_ahead": 1,
+  "merge_commits": 0,
+  "files_changed": 33,
+  "insertions": 478,
+  "deletions": 211,
+  "pin_before": "0.2.107",
+  "pin_after": "0.2.113",
+  "base_revision_before": "4dd4197007cefd688fd314ffb19eed4d0b3c67dd",
+  "base_revision_after": "c2efb501cbc148c2aee4d5e1107ebdba81469006",
+  "base_copies_before": 105,
+  "base_copies_after": 105,
+  "preserved_adapted_files": 12,
+  "protected_sha256": {
+    "CONTRACT.md": "ee9c871bfa25a110d3f3e61924164c75cc17ea412cb775f2e0621f114ab3594b",
+    "ACCEPTANCE.md": "09f4bb713a3cf9acdde84ba680630f9e9356198966ea70f2ac502520909a9ab1",
+    "docs/CLAIMS.md": "dea371100eb9ee81aee20dfc3264506a9885383e15a197f813f044a335555aba"
+  },
+  "status_counts_before": {
+    "done": 23,
+    "partial": 54,
+    "missing": 28,
+    "total": 105
+  },
+  "status_counts_after": {
+    "done": 23,
+    "partial": 54,
+    "missing": 28,
+    "total": 105
+  },
+  "clause_changes": [],
+  "tests_added": 0,
+  "tests_removed": 0,
+  "checks": [
+    {
+      "command": "pnpm install --frozen-lockfile",
+      "exit": 0,
+      "receipt": "install.log"
+    },
+    {
+      "command": "pnpm exec rer setup --owner-email fleet@runeditrun.com --non-interactive",
+      "exit": 0,
+      "receipt": "Private setup output excluded; local setup only"
+    },
+    {
+      "command": "pnpm exec rer export --output exports/spool.rer",
+      "exit": 0,
+      "receipt": "export.log"
+    },
+    {
+      "command": "pnpm exec rer deploy --dry-run",
+      "exit": 0,
+      "receipt": "deploy-dry-run.log"
+    },
+    {
+      "command": "node node_modules/@runeditrun/rer/edition-authoring/cli.mjs changes",
+      "exit": 0,
+      "receipt": "source-changes.json"
+    },
+    {
+      "command": "node node_modules/@runeditrun/rer/edition-authoring/cli.mjs lock",
+      "exit": 0,
+      "receipt": "source-lock.json"
+    },
+    {
+      "command": "pnpm run check -- --profile first-party",
+      "exit": 0,
+      "receipt": "first-party-check.log"
+    },
+    {
+      "command": "pnpm source:check",
+      "exit": 0,
+      "receipt": "source-check.log"
+    },
+    {
+      "command": "node src/base/contract-docs.mjs check",
+      "exit": 0,
+      "receipt": "contract-check.log"
+    },
+    {
+      "command": "node scripts/edition-authoring/cli.mjs verify-base --offline",
+      "exit": 0,
+      "receipt": "verify-base.json"
+    },
+    {
+      "command": "pnpm typecheck",
+      "exit": 0,
+      "receipt": "typecheck.log"
+    },
+    {
+      "command": "git diff --check",
+      "exit": 0
+    },
+    {
+      "command": "git fetch origin main && git rebase origin/main",
+      "exit": 0,
+      "notes": "Before first real commit; temporary tracked-only stash restored; main unchanged"
+    },
+    {
+      "command": "python3 $HOME/rer-consolidation/.tools/cloud-push.py origin cloud/main-spool-rer-0213-1-c2",
+      "exit": 0,
+      "receipt": "product-push.log"
+    }
+  ],
+  "ci_run_id": 43502698751,
+  "full_local_verify": "Not run as instructed",
+  "publication_scan": "Fleet lander owns complete publication scan; local added-line repository and credential-shaped diff checks passed",
+  "pr": null,
+  "ci": {
+    "run_id": "43502698751",
+    "observed_at": 1794603245.6410298,
+    "conclusion": "success",
+    "head_sha": "169e4cbcf1b93522506f97c71bf39e364bed2303",
+    "html_url": "https://github.com/just-every/run-spool/actions/runs/43502698751",
+    "status": "completed"
+  },
+  "github_call_count": 6,
+  "result": "READY"
+}
