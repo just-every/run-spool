@@ -1,0 +1,15 @@
+Run Edit Run fleet <fleet@runeditrun.com>
+Run Edit Run fleet <fleet@runeditrun.com>
+
+30cc17837e934cc821948e34a694ca2b5d0ec0c7 message:
+Clarify local ownership transfer and pending invitation recovery
+
+Use the authenticated local dev session to explain direct transfer confirmation,
+while keeping native email-verification guidance and authorization unchanged.
+Pending local invitations without a retained link name Manage access, removal
+and re-invitation; duplicate pending invites give the same recovery steps.
+
+Extend the existing members journey through removal and fresh single-use
+invitation acceptance, preserving native step-up, expiry and custody checks.
+
+AUDIT_OK all candidate commits, side parents, identities, complete messages and trailers

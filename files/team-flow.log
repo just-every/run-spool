@@ -1,0 +1,33 @@
+[33m▲ [43;33m[[43;30mWARNING[43;33m][0m [1mProxy environment variables detected. We'll use your proxy for fetch requests.[0m
+
+
+Local mail journey: starting emitted app
+Local mail journey: emitted app ready
+Local mail journey: owner and project created
+Local mail journey: pending native link available after reload
+Local mail journey: missing-link recovery, copy and native verification complete
+PROBE TEAM-001 local invitation: suppressed mail; copy after reload; same native expiring token; second browser acceptance once; roles, expiry, read-only denial and archive exclusion preserved.
+PROBE GOV-001 local verification: request produces no completed proof and native transfer still refuses without email confirmation.
+PROBE TEAM-005 preferences: two native members, two projects, HTTP and Settings saves and reopen -> independent persisted email choices, weekly opt-in; no mail
+PROBE TEAM-005 authority: targeted, foreign-project, removed-member, project-grant, stale and cross-origin requests -> refused without preference mutation; safe audit facts
+[FIND-003] read-only omissions and exports, current roles, concealed ids and denied-write nonmutation passed
+PROBE UX-001 capture 1440: Prepare delivery -> accepted second-origin exception and matching retained event
+PROBE UX-001 mapping 1440: prepared matching map picker -> original coordinates and unchanged admission snapshot
+PROBE UX-001 search 1440: release query -> the isolated captured issue and its mapped frame
+PROBE UX-001 operator-label assignment 1440: busy Save assignment plus duplicate activation -> one request and retained responsibility label
+PROBE UX-001 comment 1440: member Post comment -> visible discussion and stored member attribution
+PROBE UX-001 alert navigation 1440: Open issue by touch -> the same issue deep link and mapped evidence
+PROBE UX-001 repair approval 1440: owner Record repair and Mark approved -> proposed record then persisted approval fact
+[UX-001] 1440 native team independently registered, captured, mapped, searched, operator-label assigned without duplicate writes, commented, followed alert by touch and recorded repair approval; keyboard, Axe and reflow passed
+PROBE UX-001 capture 390: Prepare delivery -> accepted second-origin exception and matching retained event
+PROBE UX-001 mapping 390: prepared matching map picker -> original coordinates and unchanged admission snapshot
+PROBE UX-001 search 390: release query -> the isolated captured issue and its mapped frame
+PROBE UX-001 operator-label assignment 390: busy Save assignment plus duplicate activation -> one request and retained responsibility label
+PROBE UX-001 comment 390: member Post comment -> visible discussion and stored member attribution
+PROBE UX-001 alert navigation 390: Open issue by touch -> the same issue deep link and mapped evidence
+PROBE UX-001 repair approval 390: owner Record repair and Mark approved -> proposed record then persisted approval fact
+[UX-001] 390 native team independently registered, captured, mapped, searched, operator-label assigned without duplicate writes, commented, followed alert by touch and recorded repair approval; keyboard, Axe and reflow passed
+[TEAM-001] team timezone digests, scoped recipients, expiring snooze and durable resumption, loss/backlog, member deployment deadline, accountable broken alternate and nonrecursive deduplication passed
+[TEAM-003] member priority, scoped scrubbed discussion, mention subscriptions, explicit unsubscribe, author/admin moderation and stale-write refusal passed
+PROBE TEAM-005 custody: private archive and independent restore -> preserved choices, null account bindings, inert history and no revived email opt-in
+[TEAM-001] native invitations and magic sign-in, simultaneous scoped triage, stale revision refusal, maintainer policy, read-only identity projection, billing/admin limits, member deployments, member/service revocation, safe audit and owner transfer passed

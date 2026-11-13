@@ -1,0 +1,13 @@
+{
+  "main_head": "8049c9153f1d987bba6211bc05b8405b06101a6f",
+  "contract_status_counts": {
+    "done": 23,
+    "partial": 54,
+    "missing": 28
+  },
+  "added_test_registrations": 0,
+  "extended_tests": [
+    "tests/team-browser.mjs#localMailFlow",
+    "tests/dev-credentials.mjs (existing script)"
+  ]
+}

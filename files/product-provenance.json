@@ -1,0 +1,16 @@
+{
+  "repository": "just-every/run-spool",
+  "branch": "cloud/main-spool-member-hints-1",
+  "head": "30cc17837e934cc821948e34a694ca2b5d0ec0c7",
+  "remote_head": "30cc17837e934cc821948e34a694ca2b5d0ec0c7",
+  "main_at_integration": "8049c9153f1d987bba6211bc05b8405b06101a6f",
+  "changed_files": [
+    "sources.lock.json",
+    "src/domain/members/mutations.ts",
+    "src/domain/members/routes.ts",
+    "src/ui/workbench/Members.tsx",
+    "tests/dev-credentials.mjs",
+    "tests/team-browser.mjs"
+  ],
+  "pr": null
+}

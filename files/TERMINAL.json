@@ -1,0 +1,18 @@
+{
+  "repository": "just-every/run-spool",
+  "branch": "cloud/main-spool-member-hints-1",
+  "head": "30cc17837e934cc821948e34a694ca2b5d0ec0c7",
+  "custody": "READY",
+  "verify_run_id": 43426549866,
+  "verify": {
+    "observed_at": 1794574582.3978257,
+    "run_id": "43426549866",
+    "conclusion": "success",
+    "head_sha": "30cc17837e934cc821948e34a694ca2b5d0ec0c7",
+    "html_url": "https://github.com/just-every/run-spool/actions/runs/43426549866",
+    "status": "completed"
+  },
+  "github_calls": 5,
+  "pr": null,
+  "blockers": []
+}

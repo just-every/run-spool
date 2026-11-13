@@ -1,0 +1,35 @@
+{
+  "mode": "after",
+  "runtime": "real rer dev",
+  "widths": [
+    1440,
+    390
+  ],
+  "probes": [
+    {
+      "name": "transfer guidance",
+      "sessionKind": "dev",
+      "text": "Verify identity for ownership transfer\n\nThis local copy confirms ownership transfer with your local access. Choose Confirm owner transfer in the member\u2019s Manage access panel.\n\nVerify your identity"
+    },
+    {
+      "name": "legacy invitation row",
+      "text": "synthetic-spool-legacy@example.test \u00b7 invited\n\nNo saved link is available. Use Manage access \u2192 Remove member, then invite this address again."
+    },
+    {
+      "name": "reinvite pending address",
+      "status": 409,
+      "body": {
+        "error": "Member already invited. Use Manage access \u2192 Remove member to remove the pending invitation, then invite this address again."
+      }
+    },
+    {
+      "name": "dev member transfer dialog",
+      "guidance": "local access confirms the transfer",
+      "widths": [
+        1440,
+        390
+      ]
+    }
+  ],
+  "head": "30cc17837e934cc821948e34a694ca2b5d0ec0c7"
+}

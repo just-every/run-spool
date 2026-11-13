@@ -1,0 +1,70 @@
+{
+  "repository": "just-every/run-spool",
+  "head": "30cc17837e934cc821948e34a694ca2b5d0ec0c7",
+  "checks": [
+    {
+      "command": "cloud_run npx -y @runeditrun/rer setup --owner-email fleet@runeditrun.com --non-interactive",
+      "exit": 0,
+      "purpose": "public first-run setup"
+    },
+    {
+      "command": "cloud_run npx -y @runeditrun/rer build",
+      "exit": 0
+    },
+    {
+      "command": "pnpm typecheck",
+      "exit": 0
+    },
+    {
+      "command": "RER_CHROMIUM_EXECUTABLE_PATH=/usr/bin/chromium cloud_run node tests/dev-credentials.mjs",
+      "exit": 0
+    },
+    {
+      "command": "RER_CHROMIUM_EXECUTABLE_PATH=/usr/bin/chromium cloud_run node /tmp/spool-local-mail-test.mjs",
+      "entry": "tests/team-browser.mjs#localMailFlow",
+      "exit": 0
+    },
+    {
+      "command": "git fetch origin main; git -c rebase.autoStash=true rebase origin/main",
+      "exit": 0,
+      "result": "main unchanged; autostash restored"
+    },
+    {
+      "command": "node scripts/edition-authoring/cli.mjs lock",
+      "exit": 0
+    },
+    {
+      "command": "pnpm source:check",
+      "exit": 0
+    },
+    {
+      "command": "git diff --check",
+      "exit": 0
+    },
+    {
+      "command": "RER_CHROMIUM_EXECUTABLE_PATH=/usr/bin/chromium cloud_run node /tmp/spool-team-flow-test.mjs",
+      "entry": "tests/team-flow.mjs#teamFlow",
+      "exit": 0,
+      "browser_configuration": "/usr/bin/chromium; --no-sandbox, including legacy direct launch sites"
+    },
+    {
+      "command": "RER_CHROMIUM_EXECUTABLE_PATH=/usr/bin/chromium cloud_run node /tmp/spool-member-proof.mjs after",
+      "exit": 0,
+      "head": "30cc17837e934cc821948e34a694ca2b5d0ec0c7",
+      "screens": [
+        "Members",
+        "Member access / Transfer ownership"
+      ],
+      "widths": [
+        1440,
+        390
+      ]
+    }
+  ],
+  "test_registration_delta": 0,
+  "contract_changes": false,
+  "contract_status_changes": [],
+  "notes": [
+    "Local-mail and dev-credential checks passed before the product commit. The build uses the declared rer Node runtime. The broader teamFlow rerun configures all Chromium launch sites to /usr/bin/chromium with --no-sandbox, including legacy launches that ignore the repository helper."
+  ]
+}

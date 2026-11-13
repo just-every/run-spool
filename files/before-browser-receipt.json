@@ -1,0 +1,34 @@
+{
+  "mode": "before",
+  "runtime": "real rer dev",
+  "widths": [
+    1440,
+    390
+  ],
+  "probes": [
+    {
+      "name": "transfer guidance",
+      "sessionKind": "dev",
+      "text": "Verify identity for ownership transfer\n\nThis local copy sends no email, so email verification for ownership transfer cannot be completed here.\n\nVerify your identity"
+    },
+    {
+      "name": "legacy invitation row",
+      "text": "synthetic-spool-legacy@example.test · invited"
+    },
+    {
+      "name": "reinvite pending address",
+      "status": 409,
+      "body": {
+        "error": "Member already invited"
+      }
+    },
+    {
+      "name": "dev transfer without native step-up",
+      "status": 200,
+      "body": {
+        "transferred": true,
+        "signInRequired": true
+      }
+    }
+  ]
+}
