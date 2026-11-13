@@ -1,3 +1,4 @@
+import {primaryShortIdSql} from '../short-ids/lookup';
 import {quietActive} from './snoozes';
 import {auditCommit} from '../audit/context';
 import { ownerBatch } from '../owner-authority';
@@ -10,7 +11,7 @@ export function controlsRoutes(routes:any,input:(c:any)=>Promise<any>){
   const p=c.req.param('project'),db=c.env.DB;
   return c.json({settings:await s(db,'SELECT * FROM alert_digest_settings WHERE project=?',p).first()??{timezone:'UTC',daily:0,weekly:0,personal_daily:0,personal_weekly:0,hour:9,quiet_start:null,quiet_end:null,destination:null},
    snoozes:(await s(db,`SELECT z.*,(SELECT COUNT(*) FROM alert_suppressed x WHERE x.snooze_id=z.id) suppressed FROM alert_snoozes z WHERE project=? ORDER BY created DESC`,p).all()).results,
-   held:(await s(db,'SELECT x.*,h.rule_id,a.issue FROM alert_suppressed x LEFT JOIN alert_history h ON h.id=x.delivery_id LEFT JOIN alerts a ON a.id=h.alert_id WHERE x.project=? ORDER BY x.created DESC LIMIT 100',p).all()).results,
+   held:(await s(db,`SELECT x.*,h.rule_id,a.issue,i.title issue_title,${primaryShortIdSql('i')} issue_short_id,r.name rule_name FROM alert_suppressed x LEFT JOIN alert_history h ON h.id=x.delivery_id AND h.project=x.project LEFT JOIN alerts a ON a.id=h.alert_id AND a.project=x.project LEFT JOIN issues i ON i.id=a.issue AND i.project=x.project LEFT JOIN alert_rules r ON r.id=h.rule_id AND r.project=x.project WHERE x.project=? ORDER BY x.created DESC LIMIT 100`,p).all()).results,
    digests:(await s(db,'SELECT * FROM alert_scheduled_mail WHERE project=? ORDER BY created DESC LIMIT 50',p).all()).results});
  });
  routes.put('/digest-settings',async(c:any)=>{
