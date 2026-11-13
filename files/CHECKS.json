@@ -1,0 +1,149 @@
+{
+  "tag": "sd-spool-release-0-7-10-merge-1",
+  "repository": "just-every/run-spool",
+  "recorded_at": "2026-11-13T18:20:37Z",
+  "branch": "cloud/sd-spool-release-0-7-10-merge-1",
+  "head": "417ab513b3032370091479fa28f41a5a67b50c53",
+  "parents": [
+    "3d3a7db595e571f8466bcee683634c83d93656b8",
+    "558089ee4fc3b809c515db5f9d322523fad958aa"
+  ],
+  "main": "3d3a7db595e571f8466bcee683634c83d93656b8",
+  "source": "558089ee4fc3b809c515db5f9d322523fad958aa",
+  "rer_before": "0.2.107",
+  "rer_after": "0.2.107",
+  "version_before": "0.7.9",
+  "version_after": "0.7.10",
+  "checks": [
+    {
+      "command": "pnpm install --frozen-lockfile",
+      "exit": 0
+    },
+    {
+      "command": "node scripts/edition-authoring/cli.mjs lock",
+      "exit": 0
+    },
+    {
+      "command": "pnpm source:check",
+      "exit": 0
+    },
+    {
+      "command": "node src/base/contract-docs.mjs check",
+      "exit": 0
+    },
+    {
+      "command": "pnpm run check -- --profile first-party",
+      "exit": 0
+    },
+    {
+      "command": "pnpm exec rer check --profile first-party",
+      "exit": 0
+    },
+    {
+      "command": "pnpm typecheck",
+      "exit": 0
+    },
+    {
+      "command": "git diff --check",
+      "exit": 0
+    },
+    {
+      "command": "metadata integrity assertions through Node assert",
+      "exit": 0,
+      "assertions": [
+        "package/seed/release versions agree",
+        "previousVersion is 0.7.9",
+        "release notes equal CHANGELOG section",
+        "dependencies and rer pin equal main",
+        "no new migrations or breaking change",
+        "CONTRACT.md, ACCEPTANCE.md, docs/CLAIMS.md and docs/contract/ANCHOR.json byte-identical to main",
+        "diff confined to seven leased metadata/lock files"
+      ]
+    },
+    {
+      "command": "git log origin/main..HEAD identity/trailers plus all-parent validation",
+      "exit": 0,
+      "commits": 3
+    }
+  ],
+  "local_toolchain": {
+    "node": "24.19.0",
+    "package_node_engine": "22.20.0",
+    "pnpm": "10.12.4",
+    "note": "Supplied toolchain keeps newer installed Node; CI uses declared Node 22.20.0."
+  },
+  "changed_files": [
+    "CHANGELOG.md",
+    "README.md",
+    "RELEASE.json",
+    "docs/getting-started.md",
+    "package.json",
+    "seed.json",
+    "sources.lock.json"
+  ],
+  "diff_stat": "CHANGELOG.md            | 26 ++++++++++++++++++++++++++\n README.md               |  6 +++---\n RELEASE.json            |  8 ++++----\n docs/getting-started.md |  2 +-\n package.json            |  2 +-\n seed.json               |  2 +-\n sources.lock.json       | 12 ++++++------\n 7 files changed, 42 insertions(+), 16 deletions(-)",
+  "unchanged_product_and_tests": true,
+  "contract_status_changes": [],
+  "counts_before": {
+    "done": 23,
+    "partial": 54,
+    "missing": 28,
+    "total": 105
+  },
+  "counts_after": {
+    "done": 23,
+    "partial": 54,
+    "missing": 28,
+    "total": 105
+  },
+  "tests_added": 0,
+  "tests_removed": 0,
+  "full_local_suite": "not run; metadata-only brief",
+  "product_push": {
+    "status": "pushed",
+    "attempt": 1,
+    "branch": "cloud/sd-spool-release-0-7-10-merge-1",
+    "head": "417ab513b3032370091479fa28f41a5a67b50c53"
+  },
+  "candidate_verify": {
+    "conclusion": null,
+    "head_sha": "417ab513b3032370091479fa28f41a5a67b50c53",
+    "html_url": "https://github.com/just-every/run-spool/actions/runs/43479806139",
+    "status": "in_progress"
+  },
+  "github_budget": 10,
+  "main_failed_log_read": {
+    "command": "gh run view 43463918357 --repo just-every/run-spool --job 132018638090 --log-failed",
+    "result": "No output returned; no archive retry. Failed job and step recorded in main-failed-jobs.json."
+  },
+  "pr": null,
+  "landing": "Mac fleet only; no submission, tag, release, deploy or default-branch write",
+  "candidate_verify_observations": [
+    [
+      {
+        "conclusion": null,
+        "head_sha": "417ab513b3032370091479fa28f41a5a67b50c53",
+        "html_url": "https://github.com/just-every/run-spool/actions/runs/43479806139",
+        "id": 43479806139,
+        "name": "Verify",
+        "status": "in_progress"
+      }
+    ],
+    {
+      "conclusion": null,
+      "head_sha": "417ab513b3032370091479fa28f41a5a67b50c53",
+      "html_url": "https://github.com/just-every/run-spool/actions/runs/43479806139",
+      "status": "in_progress"
+    },
+    {
+      "conclusion": null,
+      "head_sha": "417ab513b3032370091479fa28f41a5a67b50c53",
+      "html_url": "https://github.com/just-every/run-spool/actions/runs/43479806139",
+      "status": "in_progress"
+    }
+  ],
+  "github_calls_used": 8,
+  "custody": "PUSHED",
+  "blockers": "No observed candidate failure; exact-head Verify remains pending. Existing main Java runtime failure is documented separately, alongside an earlier exact-SHA successful branch Verify.",
+  "cleanup": "Pushed clone and dependencies to be removed after successful evidence transport; packet retained outside clone."
+}

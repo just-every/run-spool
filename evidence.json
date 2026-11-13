@@ -1,0 +1,124 @@
+{
+  "files": [
+    {
+      "blob": "469aefebd2e7d918a444778b7ef7c1482f902b44",
+      "bytes": 4903,
+      "path": "CHECKS.json",
+      "sha256": "6f940c9183843e64703c4b605768df4651cca1ae3f4ee2481ec6c65929bae00b"
+    },
+    {
+      "blob": "c102d823291ab07814aeec8823c55dd425b2b5f1",
+      "bytes": 4429,
+      "path": "REPORT.md",
+      "sha256": "3ecc715f001fef89978cf00f65b2d939da80a41aed58b5617c682052e9be6a0b"
+    },
+    {
+      "blob": "b91f771e42ef7a9526380105cc651e3a0ec9d624",
+      "bytes": 210,
+      "path": "candidate-discovery.json",
+      "sha256": "f2b367eaf79ea4b7d7d739ecc4d18bfbc6a73ee6173dd6ad3116dc7f52145563"
+    },
+    {
+      "blob": "05207ceb287627e2aaacc7c9f779fae09895527e",
+      "bytes": 175,
+      "path": "candidate-poll-1.json",
+      "sha256": "5327f2cc9e8648e7fcbf4cb01c1fa71e4d258b0ec6d3425ba482d2024d9927d5"
+    },
+    {
+      "blob": "05207ceb287627e2aaacc7c9f779fae09895527e",
+      "bytes": 175,
+      "path": "candidate-poll-2.json",
+      "sha256": "5327f2cc9e8648e7fcbf4cb01c1fa71e4d258b0ec6d3425ba482d2024d9927d5"
+    },
+    {
+      "blob": "b59d39532e8a030ff74f6339019ab7870ef51548",
+      "bytes": 70,
+      "path": "contract-check.log",
+      "sha256": "b04031901cfff3e9bc42a429b52cbc14c2442ffb68817fd62a245ac52847b422"
+    },
+    {
+      "blob": "edc5f32d16194e239cd67d28de938ca43d7b7121",
+      "bytes": 4122,
+      "path": "dependency-install.log",
+      "sha256": "6a4f387df284bd7091aadd7d9421853b550e5c3878ff37fe916afeebb4df036e"
+    },
+    {
+      "blob": "586bb4bcfb69318399b8c5ccb179badfff95a145",
+      "bytes": 255,
+      "path": "identity-check.log",
+      "sha256": "c25a9c829a41ff3b6938f4311bbea40664474a5d0bc965f03084b9b336738113"
+    },
+    {
+      "blob": "0db1fda01b87c1a5d3cb6b33fad674f9c1253f48",
+      "bytes": 437,
+      "path": "main-failed-jobs.json",
+      "sha256": "9bc6f569b27e5e3545f2c79662c64df47af0e935f22492385afcd2a05c387f04"
+    },
+    {
+      "blob": "e69de29bb2d1d6434b8b29ae775ad8c2e48c5391",
+      "bytes": 0,
+      "path": "main-java-failure.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "blob": "ba5b3eb2594c8e862b3e0d3a77c73ceb5b160158",
+      "bytes": 1067,
+      "path": "main-runs.json",
+      "sha256": "b3245115b7ff1c41dde1330944d8e86f0deed51c37e73c0a036e47a99c3d6033"
+    },
+    {
+      "blob": "5161df2a40d91d0879a6987376173439db8cd311",
+      "bytes": 342,
+      "path": "metadata-check.log",
+      "sha256": "b89803857f8974a72cb3b426f6515d4a73c76016e51ae51ff66e63e290dacd06"
+    },
+    {
+      "blob": "8e64ec8d363d561c79a0652d448fe844e874e959",
+      "bytes": 4555,
+      "path": "open-prs.json",
+      "sha256": "89c05d30970b2688cec6cfbab99baccdf724a3cdc93331c9c7ba4582afbbb6f7"
+    },
+    {
+      "blob": "3d9ec65cc978c2d1ab33fffe903a50f505aaf0e9",
+      "bytes": 979,
+      "path": "product-push.log",
+      "sha256": "a15734d63dc1db648853a7036a567fac95f4f40b44b697ff029b528c06699590"
+    },
+    {
+      "blob": "6cd7681a8d6b4eee9236304a921a22414f8ff4e3",
+      "bytes": 22882,
+      "path": "product.patch",
+      "sha256": "111f0ac7ed590d684b6aea17e832b97ddde4d06bc46ce7b07e0e03f168c9fef7"
+    },
+    {
+      "blob": "e51832f4475ef33a8fbc585355536f348d7b49bd",
+      "bytes": 1476,
+      "path": "releases.json",
+      "sha256": "4b99174aae6f655e016eecd7d3b45fa79ac4d7058c203363be9304637a6ea674"
+    },
+    {
+      "blob": "830be9373119d971362d248f78045319d81b76b8",
+      "bytes": 472218,
+      "path": "source-check.log",
+      "sha256": "12a0da5a0c2f3d52080ef1ba61271bc8514b1c8f902e5e4e776cc0c234fc6683"
+    },
+    {
+      "blob": "8eeb0093b93da10f05e6c85f26cf662ad544d2ea",
+      "bytes": 471981,
+      "path": "source-lock.json",
+      "sha256": "4af6caf64593de6d7f1995913138d3c50b46c5da0d5e5d79c8b831d65a13a5d8"
+    },
+    {
+      "blob": "35e1054a4035ae36912232999b28de68638f6f3d",
+      "bytes": 188,
+      "path": "typecheck.log",
+      "sha256": "38fefd0d6795edb62f277afb24bba24ac52604d61bff7486c2567436f24d3a2f"
+    }
+  ],
+  "product_branch": "cloud/sd-spool-release-0-7-10-merge-1",
+  "product_head": "417ab513b3032370091479fa28f41a5a67b50c53",
+  "ref": "refs/heads/evidence/sd-spool-release-0-7-10-merge-1",
+  "repository": "just-every/run-spool",
+  "schema": 1,
+  "tag": "sd-spool-release-0-7-10-merge-1"
+}
