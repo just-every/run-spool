@@ -44,5 +44,8 @@ export async function importGap(app){
  const plan=await door.plan(Buffer.from(JSON.stringify(fixture)));const {job}=await door.apply(plan.planId,plan.fingerprint);assert.equal(job.state,'completed');
  const projects=await app.json('/api/projects'),imported=projects.find(row=>row.id.startsWith('sentry-'));assert.ok(imported,'the import created its project');
  const issue=(await app.json(`/api/projects/${imported.id}/issues`))[0];
+ assert.ok(issue,'imported issue-only history stays inspectable without retained events');
+ const listed=await app.json(`/api/projects/${imported.id}/issue-search`);
+ assert.ok(listed.rows.some(row=>row.id===issue.id&&row.count===0),'search preserves supported imported issue-only history');
  const packet=await app.json(`/api/projects/${issue.project}/issues/${issue.id}/packet`);gap(packet,/import.*(history|live)|historical/i);assert.equal(packet.events.length,0);return packet;
 }

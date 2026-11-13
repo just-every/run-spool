@@ -5,6 +5,7 @@ import { createIdpOwnerClaimHandler } from '../modules/owner-claim/idp.mjs';
 import { operatorMail } from './mail.server.mjs';
 import type { Bindings } from './bindings';
 import { successorConfirmation } from '../domain/erasure/owner-transfer.ts';
+import type { MailSender } from '../modules/operator-auth/index.mjs';
 import type { Session } from '../modules/operator-auth/index.mjs';
 import type { TeamSession } from '../domain/members/model';
 export function authConfig(env: Bindings) {
@@ -12,14 +13,14 @@ export function authConfig(env: Bindings) {
   SETUP_TOKEN: env.SETUP_TOKEN, MAIL_FROM: env.MAIL_FROM, local: env.AUTH_LOCAL === 'true', dependencies: true,
   branding: { productName: 'Spool', accentColor: '#1C1C1B', signInPath: '/sign-in' } };
 }
-export function operatorAuth(env: Bindings, teamInvites = false) {
+export function operatorAuth(env: Bindings, teamInvites = false, mailSender: MailSender | undefined = operatorMail(env)) {
  return createOperatorAuth({ db: env.DB, config: authConfig(env),
   rolePolicy: async ({ actor, action, role }) => {
    if (actor.role==='owner' && ['operators:list','sessions:list','sessions:revoke'].includes(action)) return true;
    if (!teamInvites || action!=='operators:invite' || role!=='member') return false;
    return actor.role==='owner' || !!await env.DB.prepare("SELECT 1 FROM spool_members WHERE operator_id=? AND role='admin' AND state='active'").bind(actor.id).first();
   },
-  mailSender: operatorMail(env), clientIp: request => request.headers.get('CF-Connecting-IP') ?? '',
+  mailSender, clientIp: request => request.headers.get('CF-Connecting-IP') ?? '',
  });
 }
 export async function ownerSession(request: Request, env: Bindings, resolver?: (request: Request, env: Bindings, session: Session) => Promise<TeamSession | null>): Promise<TeamSession | null> {

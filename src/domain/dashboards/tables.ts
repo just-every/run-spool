@@ -1,3 +1,4 @@
+import {primaryShortIdSql} from '../short-ids/lookup';
 import {eventQuery} from '../investigation/query';
 import {pendingReview,reviewQuery} from '../review/model';
 import {scrub} from '../privacy';
@@ -29,4 +30,11 @@ export async function eventTable(db:D1Database,project:string,value:any,input:Wi
  if(exporting&&total>tableExportLimit)return fail(`reporting_export_limit: ${total} matching occurrences exceed the ${tableExportLimit} row cap; narrow the saved review query or reporting window`,413);
  const rows=results[1].results.slice(0,limit).map((row:any)=>({id:row.id,occurrence:row.occurrence,issue:row.issue,received:row.received,release:scrub(row.release),build:scrub(row.build),environment:scrub(row.environment),type:row.type===null?null:scrub(row.type),message:row.message===null?null:scrub(row.message)}));
  return {rows,total,next:null,query,metadata:await widgetCoverage(db,project,bounds),bounds:{...bounds,limit,complete:total<=limit},definition:'Retained occurrence metadata matching the existing saved review query, with all event predicates on the same occurrence. Source, locals, user identity values, attachments and full payloads are excluded. Rows are bounded explicitly; narrow the query or window to see more.'};
+}
+
+/** Explicit UI projection; ordinary API reads and JSON/CSV exports keep their schema. */
+export async function readableTableRows(db:D1Database,project:string,rows:any[]){
+ const issues=(await db.prepare(`SELECT i.id,i.title,${primaryShortIdSql('i')} short_id FROM issues i WHERE i.project=? AND i.id IN (SELECT value FROM json_each(?))`)
+  .bind(project,JSON.stringify([...new Set(rows.map(row=>row.issue))])).all<{id:string;title:string;short_id:string|null}>()).results;
+ return rows.map(row=>({...row,issueReference:issues.find(issue=>issue.id===row.issue)??null}));
 }

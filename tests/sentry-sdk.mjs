@@ -1,3 +1,4 @@
+import {emitClientReport} from './client-report-sdk.mjs';
 import {scrubbingSelectors} from './scrubbing-selectors.mjs';
 import {scrubbingFlow} from './scrubbing-flow.mjs';
 import {identityFlow} from './identity-flow.mjs';
@@ -94,6 +95,54 @@ try{
   }});
   await loaderFlow({browser,origin,cookie,request,applicationOrigin,dsns});
   await sdkInboundFilterFlow({request,origin,browser,temporary,require,applicationOrigin,dsns});
+  // Successful non-error items share the public envelope door with real loss
+  // receipts. Exercise default Node session tracking and captureFeedback together.
+  const success=await request('/api/projects','POST',{id:'synthetic-spool-capture-truth',name:'Capture truth'}),truth='/api/projects/'+success.id;
+  const successEntry=resolve(temporary,'success-client.mjs');
+  await writeFile(successEntry,`import * as Sentry from ${JSON.stringify(require.resolve('@sentry/node'))};
+Sentry.init({dsn:process.env.FIXTURE_DSN,release:'synthetic-spool-success@1'});
+Sentry.captureFeedback({message:'Synthetic successful capture'});
+Sentry.endSession();await Sentry.flush(10000);await Sentry.close(10000);
+`);
+  await new Promise((resolve,reject)=>{const child=spawn(process.execPath,[successEntry],{env:{...process.env,FIXTURE_DSN:success.dsn},stdio:'ignore'});child.once('error',reject);child.once('exit',code=>code===0?resolve():reject(new Error('Node success SDK exited '+code)))});
+  const stored=(await request(truth+'/outcomes')).rows;
+  for(const reason of ['feedback_accepted','session_stored'])assert.ok(stored.some(row=>row.reason===reason&&row.count>0),'unmodified SDK stored '+reason);
+  await (await worker.scheduled(Date.now())).text();
+  assert.deepEqual((await request(truth+'/follow-up')).rows,[],'stored feedback and sessions create no loss follow-up');
+  const truthContext=await browser.newContext({viewport:{width:1440,height:1000}}),truthPage=await truthContext.newPage();
+  try{
+   await browserSignIn(truthPage,origin);await truthPage.goto(origin+'/projects/'+success.id+'/alerts');
+   await truthPage.getByRole('button',{name:'Needs attention',exact:true}).click();
+   await truthPage.getByText('No work needs attention.',{exact:true}).waitFor();
+   assert.equal(await truthPage.getByText(/Recorded capture loss:/).count(),0,'successful SDK intake has no recorded capture loss');
+  }finally{await truthContext.close()}
+  const refused=await fetch(origin+'/api/ingest/'+success.id,{method:'POST',headers:{'Content-Type':'application/json',Authorization:'Bearer '+success.ingestKey},body:JSON.stringify({version:'invalid'})});
+  assert.equal(refused.status,400);await refused.body?.cancel();
+  await emitClientReport(success.dsn);
+  await (await worker.scheduled(Date.now())).text();
+  const losses=(await request(truth+'/follow-up')).rows;
+  assert.ok(losses.some(row=>row.reason==='capture_loss_invalid'&&row.capture_loss===1),'real refusal still creates capture-loss work');
+  assert.ok(losses.some(row=>row.reason==='capture_loss_client_discarded:error:before_send'&&row.capture_loss===3),'real SDK discards still create capture-loss work');
+  // Populate the operational mistake an older installation already persisted.
+  // Product inputs above remain actual SDK requests; only old custody is seeded.
+  const db=await worker.db(),stamp=Date.now(),window=Math.floor(stamp/60000)*60000;
+  for(const reason of ['feedback_accepted','session_stored']){
+   const id='synthetic-spool-legacy-'+reason;
+   await db.prepare("INSERT INTO follow_up_attention(id,project,source,source_id,due,state,reason,created,updated) VALUES(?,?,'alert',?,?,'overdue',?,?,?)").bind(id,success.id,'loss:'+window+':'+reason,window,'capture_loss_'+reason,stamp,stamp).run();
+   await db.prepare("INSERT INTO follow_up_notices(id,attention,project,destination,channel,next_at,body) VALUES(?,?,?,'synthetic-spool-alternate','mail',?,'{}')").bind(id,id,success.id,stamp+60000).run();
+  }
+  await (await worker.scheduled(Date.now())).text();
+  const repaired=(await request(truth+'/follow-up')).rows,realAfter=repaired.filter(row=>losses.some(loss=>loss.id===row.id));
+  assert.deepEqual(realAfter,losses,'retiring mistaken success follow-ups leaves genuine loss custody untouched');
+  for(const row of repaired.filter(row=>row.id.startsWith('synthetic-spool-legacy-'))){
+   assert.equal(row.state,'canceled');assert.equal(row.capture_loss,null);
+   assert.ok(row.reason&&!row.reason.startsWith('capture_loss_'),'cancellation retains its reason');
+   assert.ok(row.notices.every(notice=>notice.state==='canceled'&&notice.code),'queued alternate work is canceled with a reason');
+  }
+  assert.equal(repaired.filter(row=>row.id.startsWith('synthetic-spool-legacy-')).length,2);
+  await (await worker.scheduled(Date.now())).text();
+  assert.deepEqual((await request(truth+'/follow-up')).rows,repaired,'repeated reconciliation is idempotent');
+
   const nodeEntry=resolve(temporary,'node-client.mjs');
   // This exact program/config runs twice. Only the DSN environment value differs.
   await writeFile(nodeEntry,`import * as Sentry from ${JSON.stringify(require.resolve('@sentry/node'))};\nSentry.init({dsn:process.env.FIXTURE_DSN,release:'node@1.0.0',dist:'node-build',environment:'compatibility'});\nSentry.setContext('sized',{value:'x'.repeat(40000)});\ntry{const account={};account.address.city}catch(error){const eventId=Sentry.captureException(error);await Sentry.flush(10000);Sentry.captureFeedback({message:'Node checkout feedback',associatedEventId:eventId,email:'node-feedback-private@example.com'})}\nconst flushed=await Sentry.flush(10000);await Sentry.close(10000);if(!flushed)process.exitCode=1;\n`);

@@ -25,6 +25,11 @@ export async function operatorFlow({req,json}){
 
  const receipts=async()=>{const a=await readArchive();return {outcomes:a.data.outcomes.filter(e=>e.project===project.id),alerts:a.data.alerts.filter(e=>e.project===project.id),history:a.data.alert_history.filter(e=>e.project===project.id)}};
  const before=await receipts(),source=falseMerge.results[0].issue,selected=falseMerge.case.events[1].event.eventId;
+ const triageCounts=async()=>{
+  const list=await json(p+'/issue-search'),report=await json('/api/reports?projects='+project.id);
+  return {listed:(await json(p+'/issues')).map(row=>row.id).sort(),total:list.total,open:list.facets.statuses.find(row=>row.value==='open')?.count??0,unowned:report.ownership.unowned};
+ };
+ const beforeSplitCounts=await triageCounts();
  let current=await packet(source);const beforeSplitPreview=await groupingSnapshot();
  const preview=await json(`${p}/corrections/preview`,'POST',{kind:'split',source,revision:current.issue.revision,events:[selected]});
  assert.deepEqual(await groupingSnapshot(),beforeSplitPreview,'HTTP split preview preserves every occurrence, aggregate and revision');
@@ -40,6 +45,10 @@ export async function operatorFlow({req,json}){
  assert.ok(splitIds[source]&&splitIds[preview.plan.target]&&splitIds[source]!==splitIds[preview.plan.target]);assert.equal((await packet(splitIds[preview.plan.target])).issue.id,preview.plan.target);assert.equal((await packet(splitIds[source])).issue.id,source);
  await json(`${p}/corrections/${preview.id}/undo`,'POST',{confirm:true});assert.equal((await packet(source)).issue.count,current.issue.count);
  assert.equal((await packet(splitIds[source])).issue.short_id,splitIds[source],'the original ID never moves');assert.equal((await packet(splitIds[preview.plan.target])).issue.id,source,'undo: the split-out ID resolves where its occurrences returned');
+ assert.deepEqual(await triageCounts(),beforeSplitCounts,'split undo restores the ordinary list and open/unowned counts');
+ const exported=await json(p+'/issue-export?format=json');
+ assert.ok(!exported.rows.some(row=>row.id===preview.plan.target),'empty correction history is absent from ordinary exports');
+ assert.ok((await json(p+'/corrections')).some(row=>row.id===preview.id&&row.state==='undone'),'undo retains correction history');
  const from=falseSplit.results[1].issue,to=falseSplit.results[0].issue,a=await packet(from),b=await packet(to);
  const beforeMergePreview=await groupingSnapshot();
  const merge=await json(`${p}/corrections/preview`,'POST',{kind:'merge',source:from,revision:a.issue.revision,target:to,targetRevision:b.issue.revision});

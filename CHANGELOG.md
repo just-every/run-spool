@@ -1,5 +1,58 @@
 # Changelog
 
+## 0.7.8 — 2026-11-12
+
+Spool 0.7.8 makes Settings easier to navigate, adds copyable invitations on a local installation, and corrects issue and capture-loss reporting.
+
+### What you can now do
+
+- **Go straight to the Settings you need.** Settings has seven sections: Organization, Projects & keys, Issue processing, Alerts & integrations, Privacy & filtering, Data & archive, and Audit. Links to existing controls open the matching section, and browser Back returns to the previous section. Each person sees the sections their access allows.
+- **Invite someone to your local copy without waiting for email.** Members explains that local development sends no email. The inviting owner can copy a pending invitation's existing single-use, expiring link on that machine. Another browser must first open the copy with its private local access link. Hosted installations continue to send invitations by email and do not expose these links. Local invitation links are excluded from private archives.
+- **Keep empty native issue groups out of your work lists.** Native groups with no remaining occurrences stay out of Issues, investigation search, Reports and digests. Their correction history remains stored, and imported Sentry and Rollbar issue-only records remain visible.
+- **See capture loss without counting successful receipts as failures.** Successful feedback storage, session storage, check-in routing and other non-loss receipts no longer create capture-loss follow-ups. Earlier follow-ups created for those receipts are canceled on the next scan; actual refusals and SDK-reported discards remain in the loss path.
+
+### Updating
+
+Back up first: download a private archive in Settings, or stop local dev and run `rer export --output exports/spool.jsonl`. From 0.7.7 on main, update with `git pull --ff-only` and `rer dev`; from a tag, run `git fetch --tags && git checkout v0.7.8` and `rer dev`. For a hosted installation, use `rer deploy` from the original deploying checkout. Keep the database, private settings, project keys and deployment receipt. This release adds one migration after 0.7.7 (0105), creating a local invitation-link table without changing existing rows. Previously applied migration files are unchanged, there are no breaking changes, and you should not reset. Import private archives only into an empty destination. The application still pins rer exactly to 0.2.107. This application release does not publish the Spool SDK.
+
+### Known limits
+
+- Local development sends no email, so ownership-transfer email verification cannot be completed there. Copyable invitations do not change that limit.
+- Browser restore is limited to 16 MiB. Larger current JSONL archives need the CLI; legacy JSON archives over 16 MiB remain refused. A refused legacy JSON upload over 16 MiB can still end in a connection reset: the fix drains only what the restore engine has not already begun reading. Refused requests on the agent-door `/mcp` route are not covered by this fix.
+- Agent setup still requires an owner to save all six policy answers and create a project agent key. The agent CLI runs from a Spool checkout; it is not an npm-published package. Local agent calls also require the private dev gate described in the panel.
+- Erasing the owner is held while other stored agent text contains a different address that ends with the owner's address. The erasure match is case-sensitive.
+- Before the first project is created, opening a missing project URL as the owner redirects to setup instead of showing a not-found page.
+- Retained hosted archives still require separate Managed-to-native release qualification. If an archive is refused with `schema_mismatch`, restore into the release you exported from. Retrying a cut-off hosted restore can be refused until its five-minute lease expires; wait before retrying.
+- Bugsnag, Rollbar and Sentry imports remain bounded to 2 MiB and 500 records; larger sets are refused rather than partly applied. A real-account migration and live mail delivery through Cloudflare remain unqualified.
+
+Product screenshot: .github/assets/release/spool-issue-page-1600.png
+
+## 0.7.7 — 2026-11-12
+
+Spool 0.7.7 fixes backup refusal messages and makes the agent handoff commands usable directly from the panel.
+
+### What you can now do
+
+- **Read why a backup restore was refused.** When Spool refuses a restore before reading the upload, it discards the unread upload so the refusal can reach you instead of the connection resetting.
+- **Copy working agent setup commands from the panel.** Create agent key in Settings shows copyable Bash setup lines with this local installation's actual Node executable and Spool checkout path. Node does not need to be on PATH. The panel explains the six agent policy questions that the owner must answer and save first; opening that policy keeps the once-shown key available in the original tab. Credentials are entered at hidden prompts and copied separately from the commands. Hand to agent on an issue fills in its short ID, so the copied command can run from your application's repository without substituting an internal ID. On a hosted installation, enter the absolute Node and checkout paths on the computer where your agent runs.
+- **Open an issue without starting agent setup.** The issue page loads agent setup only when you open the handoff panel. Download evidence (raw JSON) still gives the complete packet.
+- **Read the evidence packet more easily.** The Markdown summary shows the issue's short ID, readable UTC dates and each event's received time. The complete raw data remains available underneath for tools.
+
+### Updating
+
+Back up first: download a private archive in Settings, or stop local dev and run `rer export --output exports/spool.jsonl`. From 0.7.6 on main, update with `git pull --ff-only` and `rer dev`; from a tag, run `git fetch --tags && git checkout v0.7.7` and `rer dev`. For a hosted installation, use `rer deploy` from the original deploying checkout. Keep the database, private settings, project keys and deployment receipt. There are no new migrations or breaking changes after 0.7.6; previously applied migration files are unchanged, so do not reset. Import private archives only into an empty destination. The application still pins rer exactly to 0.2.107. This application release does not publish the Spool SDK.
+
+### Known limits
+
+- Browser restore is limited to 16 MiB. Larger current JSONL archives need the CLI; legacy JSON archives over 16 MiB remain refused. A refused legacy JSON upload over 16 MiB can still end in a connection reset: the fix drains only what the restore engine has not already begun reading. Refused requests on the agent-door `/mcp` route are not covered by this fix.
+- Agent setup still requires an owner to save all six policy answers and create a project agent key. The agent CLI runs from a Spool checkout; it is not an npm-published package. Local agent calls also require the private dev gate described in the panel.
+- Erasing the owner is held while other stored agent text contains a different address that ends with the owner's address. The erasure match is case-sensitive.
+- Before the first project is created, opening a missing project URL as the owner redirects to setup instead of showing a not-found page.
+- Retained hosted archives still require separate Managed-to-native release qualification. If an archive is refused with `schema_mismatch`, restore into the release you exported from. Retrying a cut-off hosted restore can be refused until its five-minute lease expires; wait before retrying.
+- Bugsnag, Rollbar and Sentry imports remain bounded to 2 MiB and 500 records; larger sets are refused rather than partly applied. A real-account migration and live mail delivery through Cloudflare remain unqualified.
+
+Product screenshot: .github/assets/release/spool-issue-page-1600.png
+
 ## 0.7.6 — 2026-11-11
 
 Spool 0.7.6 is a small release since 0.7.5 (11 November). It fixes the rough edges that people setting Spool up for the first time ran into, it makes erasing a person also remove them from your Business team list, and it moves to rer 0.2.107.

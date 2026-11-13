@@ -11,9 +11,13 @@ export function productionMailConfig(env) {
   }
 }
 
+export function mailSuppressed(env) {
+  return env.RER_DEMO === '1' || localDevelopmentEnabled(env)
+}
+
 // Construct only on a send: first-owner setup never depends on mail credentials.
 export function operatorMail(env) {
-  if (env.RER_DEMO === '1' || localDevelopmentEnabled(env)) {
+  if (mailSuppressed(env)) {
     return createMailSender({ provider: 'development', mode: 'development' })
   }
   if (!env.MAIL_PROVIDER || env.MAIL_PROVIDER === 'development') return undefined

@@ -1,3 +1,4 @@
+import {settingsPrerequisiteGuides} from './setup-prerequisites.mjs';
 import {queuedEntrypoint} from '@runeditrun/rer/queued-entry';
 const queuedExit=await queuedEntrypoint(import.meta.url);if(queuedExit!==null)process.exit(queuedExit);
 import assert from 'node:assert/strict';import {emitRuntimeDiagnostic,observeRuntimeFetch} from './runtime-diagnostic.mjs';
@@ -36,7 +37,7 @@ try {
     assert.equal(new URL(page.url()).pathname,'/docs/framework-setup');
     const article=page.locator('article');
     const sections=[
-     ['React and Next.js',/spool-setup/,/Sentry\.init/,/VITE_SPOOL_DSN/],
+     ['React and Next.js',/@sentry\/nextjs/,/Sentry\.init/,/NEXT_PUBLIC_SPOOL_DSN/,/VITE_SPOOL_DSN/],
      ['Express',/@sentry\/node/,/setupExpressErrorHandler/,/dsn:\s*process\.env\.SPOOL_DSN/],
      ['Django and FastAPI',/sentry-sdk\[django\]/,/sentry-sdk\[fastapi\]/,/dsn=os\.environ/],
      ['Spring',/sentry-spring-boot-starter-jakarta/,/sentry\.dsn=\$\{SPOOL_DSN\}/],
@@ -60,7 +61,7 @@ try {
     await article.getByRole('link',{name:'JavaScript source-map step',exact:true}).click();
     assert.equal(new URL(page.url()).hash,'#javascript-source-maps');
     const maps=await page.locator('#javascript-source-maps').evaluate(heading=>{let text='';for(let node=heading.nextElementSibling;node&&node.tagName!=='H2';node=node.nextElementSibling)text+=node.textContent+'\n';return text;});
-    for(const instruction of [/productionBrowserSourceMaps/,/spool-build\.mjs/,/spool-sourcemaps/,/--key-env SPOOL_DEPLOY_KEY/,/debug ID/])assert.match(maps,instruction);
+    for(const instruction of [/productionBrowserSourceMaps/,/next build --webpack/,/spool-sourcemaps/,/--key-env SPOOL_DEPLOY_KEY/,/debug ID/])assert.match(maps,instruction);
     await article.getByRole('link',{name:'tunnel replacement',exact:true}).click();
     assert.equal(new URL(page.url()).hash,'#replace-tunnelroute');
     const tunnel=await page.locator('#replace-tunnelroute').evaluate(heading=>{let text='';for(let node=heading.nextElementSibling;node&&node.tagName!=='H2';node=node.nextElementSibling)text+=node.textContent+'\n';return text;});
@@ -97,6 +98,7 @@ try {
  assert.equal((await (await fetch(origin+'/api/projects',{headers})).json()).length,0);
  assert.equal((await fetch(origin+'/setup',{headers,redirect:'manual'})).status,200);
  const created=await create({id:'fresh',name:'Fresh'});assert.equal(created.status,201);const project=await created.json();
+ await settingsPrerequisiteGuides(origin,cookie,project.id);
  assert.deepEqual(await (await fetch(origin+'/setup/state')).json(),{state:'claimed'});
  await assertLobby(await fetch(origin+'/'),true);
  const agentResponse=await fetch(origin+'/api/projects/fresh/keys',{method:'POST',headers,body:JSON.stringify({kind:'agent'})});assert.equal(agentResponse.status,201);const agent=await agentResponse.json();

@@ -1,3 +1,4 @@
+import { releaseLabel, buildLabel } from './releaseLabels';
 import { plural } from './readable';
 import { useEffect, useState } from 'react';
 import { CodeBlock, installCommand } from './SdkSetup';
@@ -33,13 +34,13 @@ export function SourceMapSetup({ project, releases, request, run, busy, refresh 
     <p>Run these steps in your application’s repository before deploying its built files. The tool generates a <strong>debug ID</strong>, stamps that same ID into the bundle and its map, registers the release and uploads the map. You do not need to invent or enter an ID.</p>
     <h3>Artifact storage</h3>
     {storage ? <><p>{storage.count} {plural(storage.count, 'map')} {storage.count === 1 ? 'uses' : 'use'} {storage.bytes} stored bytes. An empty cap allows uploads without a project byte cap. Lowering the cap preserves stored maps and limits future uploads.</p><div className="form-grid"><Field label="Artifact storage cap (bytes, optional)" adornment={<SavedMark doc={cap} field="cap" />} type="number" min="0" step="1" value={cap.draft ?? ''} onChange={e=>{const text=e.target.value;cap.edit(text,{field:'cap',hold:text!==''&&(!Number.isSafeInteger(Number(text))||Number(text)<0)})}} onBlur={cap.flush} /></div><SaveFailure doc={cap} field="cap" /><SaveAnnouncer doc={cap} /></> : <p role="status">Artifact storage setting unavailable.</p>}
-    {uploads?.builds?.map((row:any)=><p key={`${row.release}:${row.build}`}><strong>{row.release} / {row.build}: {row.state}</strong>{row.missing.length>0&&<> · Missing: {row.missing.join(', ')}</>}</p>)}
-    {uploads&&<details><summary>Stored maps and upload failures</summary>{uploads.artifacts.length?<ul>{uploads.artifacts.map((row:any)=><li key={`${row.release}:${row.build}:${row.debug}`}><code>{row.release} / {row.build} / {row.debug}</code> · {row.bytes} bytes</li>)}</ul>:<p>No maps uploaded.</p>}{uploads.assemblies.filter((row:any)=>row.state==='error').map((row:any)=><p key={row.checksum} style={{overflowWrap:'anywhere',whiteSpace:'pre-wrap'}}>{row.detail}</p>)}</details>}
+    {uploads?.builds?.map((row:any)=><p key={`${row.release}:${row.build}`}><strong>{releaseLabel(row.release)} / {buildLabel(row.build)}: {row.state}</strong>{row.missing.length>0&&<> · Missing: {row.missing.join(', ')}</>}</p>)}
+    {uploads&&<details><summary>Stored maps and upload failures</summary>{uploads.artifacts.length?<ul>{uploads.artifacts.map((row:any)=><li key={`${row.release}:${row.build}:${row.debug}`}><code>{releaseLabel(row.release)} / {buildLabel(row.build)} / {row.debug}</code> · {row.bytes} bytes</li>)}</ul>:<p>No maps uploaded.</p>}{uploads.assemblies.filter((row:any)=>row.state==='error').map((row:any)=><p key={row.checksum} style={{overflowWrap:'anywhere',whiteSpace:'pre-wrap'}}>{row.detail}</p>)}</details>}
     <h3>1. Match your application’s release</h3>
     <p>Use exactly the <code>release</code> and <code>build</code> from your SDK’s <code>init</code>. A new release is registered automatically when the upload runs.</p>
     <div className="form-grid">
       <Field label="Application release" required pattern={String.raw`[a-zA-Z0-9._:@+\-]+`} value={release} placeholder="web@1.0.0" onChange={e => setRelease(e.target.value)} />
-      <Field label="Application build" required pattern={String.raw`[a-zA-Z0-9._:\-]+`} value={build} placeholder="build-1" onChange={e => setBuild(e.target.value)} />
+      <Field label="Application build" required pattern={String.raw`[a-zA-Z0-9._:\-]+`} value={buildLabel(build) === build ? build : ''} placeholder={buildLabel(build) === build ? 'build-1' : buildLabel(build)} onChange={e => setBuild(e.target.value)} />
       <label className="form-field">Your bundler<select value={bundler} onChange={e => setBundler(e.target.value as Bundler)}>{bundlers.map(row => <option key={row.value} value={row.value}>{row.label}</option>)}</select></label>
     </div>
     <h3>2. Create a build-only key</h3>
@@ -53,16 +54,20 @@ export function SourceMapSetup({ project, releases, request, run, busy, refresh 
     })}>Create source-map deploy key</button>}
     <p className="muted">Copy the environment line into your build terminal before running the commands below. In CI, save the key as <code>SPOOL_DEPLOY_KEY</code>. Local dev keys work only with this local installation; create a fresh key on hosted Spool.</p>
     <h3>3. Build, stamp and upload</h3>
+    <p>Use your application’s own Node.js and npm in its repository. Spool’s installer keeps its runtime private; it does not provide npm on your shell’s PATH.</p>
     <CodeBlock label="Source-map SDK install" code={installCommand} />
     {ready ? <>
       <CodeBlock label={instructions.label} code={instructions.config} />
       <CodeBlock label="Source-map build and upload" code={instructions.command} />
-      <p>On success, {bundler === 'vite' || bundler === 'rollup' ? 'the build plugin' : 'the CLI'} prints a summary for the number of maps uploaded, for example:</p>
-      <CodeBlock label="Source-map upload result" code="Uploaded 1 source map." />
+      {bundler === 'vite' || bundler === 'rollup' ? <p>The published SDK 0.1.0 plugin is silent on success; an upload failure fails the build. Confirm the upload with an original-source frame in step 4.</p> : <>
+        <p>With the published SDK 0.1.0, a successful CLI upload exits 0 and prints JSON for the number of maps uploaded, for example:</p>
+        <CodeBlock label="Source-map upload result" code={'{"uploaded":1}'} />
+        <p>This version does not accept <code>--json</code>; no extra flag is needed.</p>
+      </>}
     </> : <p role="status">Enter a valid application release and build above to fill in the commands for this project and endpoint. Use letters, numbers, dots or hyphens; release names also allow @ and +.</p>}
     <p>Merge the configuration into your existing config. For CLI builds, replace <code>src/index.js</code> and <code>dist/*.js</code> with your entry point and every emitted bundle, including nested chunks. Each bundle needs its adjacent <code>.map</code>. Deploy the <strong>stamped output</strong> after upload; rebuilding afterwards removes its matching ID. Keep maps private when publishing assets.</p>
     <h3>4. Confirm a mapped frame</h3>
-    <p>The CLI prints a readable upload summary. Add <code>--json</code> when a script needs the count as JSON. The published SDK 0.1.0 Vite/Rollup plugin is silent on success; an upload failure fails the build. Trigger a new error in your deployed application, open its issue in Spool, then look for <strong>Original source</strong> and a frame such as <code>src/checkout.js:7:12</code>. Spool’s own test exception checks capture only, not your app’s maps.</p>
+    <p>After a successful upload, trigger a new error in your deployed application, open its issue in Spool, then look for <strong>Original source</strong> and a frame such as <code>src/checkout.js:7:12</code>. Spool’s own test exception checks capture only, not your app’s maps.</p>
     <h3>If the frame is still unmapped</h3>
     <ul>
       <li>No event: allow the app’s exact scheme, host and port on Capture, and check its ingest key and registered release.</li>

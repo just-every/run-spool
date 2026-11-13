@@ -9,7 +9,7 @@ import {cli} from './agent-handoff/clients.mjs';
 import {runtime} from './owner-erasure/helpers.mjs';
 import {signIn,confirmEmailLink,emailSignIn,testOwner} from './auth.mjs';
 import {legacyMailRows} from './legacy-mail.mjs';
-import {browserMembers,memberBrowser,teamTriage} from './team-browser.mjs';
+import {browserMembers,memberBrowser,teamTriage,localMailFlow} from './team-browser.mjs';
 
 const organization = '/api/organization';
 const client = (origin,cookie='') => {
@@ -309,6 +309,7 @@ async function inertTeamArchive(owner,projects,formerCookie) {
 
 /** [TEAM-001] Membership lifecycle through the real emitted Worker and native mail proof. */
 export async function teamFlow() {
+ await localMailFlow();
  const worker=await runtime();
  try {
   const origin=worker.origin,cookie=worker.cookie,owner={...client(origin,cookie),origin,cookie};
