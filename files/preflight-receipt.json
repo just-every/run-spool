@@ -1,0 +1,58 @@
+{
+  "tag": "sd-spool-release-0-7-11",
+  "repository": "just-every/run-spool",
+  "observed_at": "2026-11-13T22:46:07Z",
+  "branch": "cloud/sd-spool-release-0-7-11",
+  "head": "4c14f5433cc7885a486db254549079d36443c37a",
+  "product_commits": 0,
+  "product_pushes": 0,
+  "product_status": "BLOCKED",
+  "blocker": "Latest exact-main Verify 43519208086 failed runtime (ruby), job 132209451995, tests/sdk-runtimes.mjs:41; main must be green before metadata editing.",
+  "earlier_verify": {
+    "id": 43513594861,
+    "status": "completed",
+    "conclusion": "success",
+    "head_sha": "4c14f5433cc7885a486db254549079d36443c37a"
+  },
+  "latest_verify": {
+    "id": 43519208086,
+    "status": "completed",
+    "conclusion": "failure",
+    "head_sha": "4c14f5433cc7885a486db254549079d36443c37a",
+    "failed_job_id": 132209451995
+  },
+  "run_site": {
+    "id": 43519208061,
+    "status": "completed",
+    "conclusion": "success",
+    "head_sha": "4c14f5433cc7885a486db254549079d36443c37a"
+  },
+  "source_pin": "0.2.113",
+  "version_before": "0.7.10",
+  "version_after": "0.7.10",
+  "requested_version": "0.7.11",
+  "release_previous_version": "0.7.9",
+  "latest_public_release": "v0.7.10",
+  "release_v0711_observed": false,
+  "tag_v0711_observed": false,
+  "peer_release_branch_observed": false,
+  "modified_paths": [],
+  "contract_status_changes": [],
+  "counts_before": {
+    "done": 23,
+    "partial": 54,
+    "missing": 28,
+    "total": 105
+  },
+  "counts_after": {
+    "done": 23,
+    "partial": 54,
+    "missing": 28,
+    "total": 105
+  },
+  "github_calls": 4,
+  "local_tests": "NOT RUN: main-red prerequisite; no metadata edited",
+  "publication_scan": "NOT RUN: cloud excluded; no product candidate",
+  "failed_log_command": "gh run view 43519208086 --repo just-every/run-spool --job 132209451995 --log-failed",
+  "failed_log_exit": 0
+}
