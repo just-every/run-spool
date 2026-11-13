@@ -2662,7 +2662,7 @@
       "executable": false
     },
     "CHANGELOG.md": {
-      "sha256": "04715fddfb6669e3150950b95e3bd6b591dec727d820dfd7bc6d0c6507423e15",
+      "sha256": "4907cfe06bca83252a001ffde08f76674d4d11fe71faeee676530f3e1b817aba",
       "executable": false
     },
     "CLAUDE.md": {
@@ -2998,7 +2998,7 @@
       "executable": false
     },
     "docs/getting-started.md": {
-      "sha256": "1be59f819c9ca966ad0c5ea7ccfe86ccd1d764ecea6c565a4d89ba8d334ac486",
+      "sha256": "b63c303ee28f3a2eabf6548a6d7bbcaedd5818dfcc63fce79d3fd383301acad2",
       "executable": false
     },
     "docs/GITHUB-CONNECTION.md": {
@@ -4182,7 +4182,7 @@
       "executable": false
     },
     "package.json": {
-      "sha256": "91b8db82ac01c9a6f7184cee8c70235eac963fb6a9cb27ac6568ffc2a6f4f793",
+      "sha256": "d77779e9f2ec8e616c7ec926f6cdaa9cd049d355474dc263cc3bd4c323169174",
       "executable": false
     },
     "packages/agent/bin/spool-agent.mjs": {
@@ -4470,7 +4470,7 @@
       "executable": false
     },
     "README.md": {
-      "sha256": "d3558bee3c5f1d963d7dc15b042c02a103888422d608384f2a5caf8d8ff78b60",
+      "sha256": "c942367838430a754d26b981891e3e70f87ca2d3a537f90d9f3cbf9460f9fe88",
       "executable": false
     },
     "release-history/0.6.0.json": {
@@ -4506,7 +4506,7 @@
       "executable": false
     },
     "RELEASE.json": {
-      "sha256": "8e7c5a8984112d70b16a6471d81fdd04c09255db77d2c38ec5f80a5b1a95fa38",
+      "sha256": "0772032f0ffef059f59d09bcaa7032f10105e51437c671286dbcab6e9652e992",
       "executable": false
     },
     "rer-project.json": {
@@ -5354,7 +5354,7 @@
       "executable": false
     },
     "seed.json": {
-      "sha256": "76b608fdf01eeaa904ab3b0f510bdbde20400041dc68c956146c037ced76f5bb",
+      "sha256": "2121502a5371a2c380585e6f3b3151152290518dd40def0b381e546e256b7aeb",
       "executable": false
     },
     "src/archive-evidence.d.ts": {

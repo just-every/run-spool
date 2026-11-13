@@ -16,7 +16,7 @@ To start Spool again later, run the same line from the same folder, or `cd run-s
 
 ## Choose your owner
 
-These instructions describe `main`, which may be ahead of the latest tagged Spool release, `v0.7.10`. For that release, clone it yourself with `git clone --branch v0.7.10 https://github.com/just-every/run-spool.git run-spool` and follow the instructions shipped with the tag.
+These instructions describe `main`, which may be ahead of the latest tagged Spool release, `v0.7.11`. For that release, clone it yourself with `git clone --branch v0.7.11 https://github.com/just-every/run-spool.git run-spool` and follow the instructions shipped with the tag.
 
 For separate lifecycle steps, `rer install` installs the locked dependencies and `rer setup` prepares or preserves the owner and local settings, then stops its temporary app. Run `rer dev` afterwards to start Spool. Explicit `rer setup` prompts for missing required answers when stdin is a terminal (unless `--json` or `--non-interactive` is set). Piping an email alone is not a setup answer.
 

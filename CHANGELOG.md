@@ -1,5 +1,33 @@
 # Changelog
 
+## 0.7.11 — 2026-11-13
+
+Spool 0.7.11 gives clearer guidance when opening a local copy, makes export progress more accurate, and fixes a stall when checking an invalid native export path during deployment preparation.
+
+### What changed
+
+- **Find the way into a local copy.** When the local access key is missing, the page explains that Spool runs on your own computer and points to the terminal link or `rer dev --as owner`. If someone has been invited, it also explains how to open the copy as that person. A refused local one-click sign-in link now gives recovery instructions.
+- **Read export progress without a misleading estimate.** Local export distinguishes disk usage from archive size and says when archive size and time remaining are not yet known. Restore retains its archive-size progress estimate.
+- **Reject an outdated backup earlier.** Restore checks whether a backup predates recorded erasure before staging its data, and checks again before completing the restore.
+- **Avoid a deployment-preparation stall.** Native export path validation rejects invalid paths without the ambiguous pattern matching that could stall the check. Existing valid export paths remain supported.
+- **Follow the matching integration guide.** Webhook and integration egress instructions link to the owner steps for the Base module version included in this release. Live delivery still needs separate owner-authorized qualification.
+
+### Updating
+
+From 0.7.10: Back up first: download a private archive in Settings, or stop local dev and run `rer export --output exports/spool.jsonl`. From 0.7.10 on main, update with `git pull --ff-only` and `rer dev`; from a tag, run `git fetch --tags && git checkout v0.7.11` and `rer dev`. For a hosted installation, use `rer deploy` from the original deploying checkout. Keep the database, private settings, project keys and deployment receipt. There are no new migrations or breaking changes after 0.7.10; previously applied migration files are unchanged, so do not reset. Import private archives only into an empty destination. The application pins rer exactly to 0.2.113, updated from 0.2.107 in 0.7.10. This application release does not publish the Spool SDK.
+
+### Known limits
+
+- Local development sends no email. Email verification for ownership transfer remains unavailable there; only an owner session opened through the local access link uses local confirmation.
+- Browser restore is limited to 16 MiB. Larger current JSONL archives need the CLI; legacy JSON archives over 16 MiB remain refused. A refused legacy JSON upload over 16 MiB can still end in a connection reset: the fix drains only what the restore engine has not already begun reading. Refused requests on the agent-door `/mcp` route are not covered by this fix.
+- Agent setup still requires an owner to save all six policy answers and create a project agent key. The agent CLI runs from a Spool checkout; it is not an npm-published package. Local agent calls also require the private dev gate described in the panel.
+- Erasing the owner is held while other stored agent text contains a different address that ends with the owner's address. The erasure match is case-sensitive.
+- Before the first project is created, opening a missing project URL as the owner redirects to setup instead of showing a not-found page.
+- Retained hosted archives still require separate Managed-to-native release qualification. If an archive is refused with `schema_mismatch`, restore into the release you exported from. Retrying a cut-off hosted restore can be refused until its five-minute lease expires; wait before retrying.
+- Bugsnag, Rollbar and Sentry imports remain bounded to 2 MiB and 500 records; larger sets are refused rather than partly applied. A real-account migration and live mail delivery through Cloudflare remain unqualified.
+
+Product screenshot: .github/assets/release/spool-issue-page-1600.png
+
 ## 0.7.10 — 2026-11-13
 
 Spool 0.7.10 lets invited members open a local copy with their own project access, clarifies local ownership transfer, and explains how to recover a pending invitation that has no saved link.
