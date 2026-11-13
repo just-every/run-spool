@@ -1,0 +1,105 @@
+{
+  "checked_at": "2026-11-13T23:06:49.954106+00:00",
+  "files": [
+    {
+      "path": "REPORT.md",
+      "bytes": 12569,
+      "sha256": "7d374b027715fc9d40024545dacc4a2328b0754fd5b4fa7ccd44df0090ebcce1"
+    },
+    {
+      "path": "PLAN.md",
+      "bytes": 1760,
+      "sha256": "a160194abdc322c03c21280061670b12ffe8d465463c01c26d0a7d9df3bb16e4"
+    },
+    {
+      "path": "INITIAL-RECEIPT.json",
+      "bytes": 585,
+      "sha256": "086c0042f891395655e2e346c4bf5abaeeaef2ee50188d7f753ba871cd264982"
+    },
+    {
+      "path": "initial-jobs.json",
+      "bytes": 100686,
+      "sha256": "94f9eeb20eaa3f7ff0a2f09a2921311766dcd3fd37ca9ee90575f43fc8cd4d21"
+    },
+    {
+      "path": "ruby-attempt1.log",
+      "bytes": 7226,
+      "sha256": "8b47f4fbf42ef864951620f12a793e6646187e9a63ad3687c801e520a94128cb"
+    },
+    {
+      "path": "shard-attempt1.log",
+      "bytes": 1133,
+      "sha256": "1c88106423c4d9341ce877b95c64deb04b5a324396e35935846fe56adc67d935"
+    },
+    {
+      "path": "aggregate-attempt1.log",
+      "bytes": 1726,
+      "sha256": "aebedddff059b1b045e21cfc9081090b09d8adb0a2ad7dd4c78739248380e56b"
+    },
+    {
+      "path": "RETRY-RECEIPT.json",
+      "bytes": 18570,
+      "sha256": "9def9b1f890c94ef5c20ab07e38e0c6037a35fa8c2aa6a0139bf39e4ca5bcb94"
+    },
+    {
+      "path": "retry-run.json",
+      "bytes": 268,
+      "sha256": "f42583e5b3f75fa6ad147f440d0d2821409263a7955c42031aeb22db383ea3d3"
+    },
+    {
+      "path": "final-jobs.json",
+      "bytes": 16430,
+      "sha256": "0ed8bbed8051450d9739788c91286f636e8ab7aa0c9a23db376fe5c40f06a53b"
+    },
+    {
+      "path": "LOCAL-RECEIPT.json",
+      "bytes": 489,
+      "sha256": "f83c82842e4bb35cd07a58a73bfd98131ac015e2d491bba2a535ea04ab7d0fbf"
+    },
+    {
+      "path": "local-start.json",
+      "bytes": 422,
+      "sha256": "8fa46203c6a9c07fe6d99805dfe35cef7ce37801414f5f9fff54440637a3d007"
+    },
+    {
+      "path": "local-ruby.log",
+      "bytes": 694,
+      "sha256": "93d8935f57ad13e351fbc8b326d1692a17dbb7066c4a64d3b3b8ba33a4e3829e"
+    },
+    {
+      "path": "BUILD-RECEIPT.json",
+      "bytes": 376,
+      "sha256": "57aaa975d4f4b508f9ece8e4baa2bae7105e0d84bd6354747cf274c33a5ce7a4"
+    },
+    {
+      "path": "PRODUCT-PROVENANCE.json",
+      "bytes": 860,
+      "sha256": "950308e830b6741645d99391d5a5428e98cbf67b0fab3b49e593d4b7b183023d"
+    },
+    {
+      "path": "SOURCE-EVIDENCE.md",
+      "bytes": 20070,
+      "sha256": "15a1c76ad22b6fa6658c392e3c2e2524d69f497f4754deace5ebb6b853ae3f55"
+    },
+    {
+      "path": "SDK-SOURCE-EVIDENCE.md",
+      "bytes": 5068,
+      "sha256": "220dbee691acd12c06f47b0af49ebe91fb79d349de74c57417a3a58af02d5a4e"
+    },
+    {
+      "path": "GITHUB-CALLS.jsonl",
+      "bytes": 1686,
+      "sha256": "df7ef57eab62d3601bd611bca11a89453e569b99ca5556e6f1f60160d1c13cf0"
+    }
+  ],
+  "regular_files_only": true,
+  "injected_values_absent": true,
+  "credential_shape_scan": "passed",
+  "environment_dumps": "not selected; original log blocks omitted",
+  "held_out_gate_material": "not read or selected",
+  "public_repository": true,
+  "publication_scan": "Mac-only fleet gate not available here; not claimed",
+  "product_state_clean": true,
+  "product_branch_push": "none; read-only triage",
+  "evidence_destination": "refs/heads/evidence/sd-spool-0711-ci-triage-1"
+}

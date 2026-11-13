@@ -1,0 +1,13 @@
+{
+  "observed_at": "2026-11-13T22:56:43Z",
+  "repository": "just-every/run-spool",
+  "run_id": 43519208086,
+  "head_branch": "main",
+  "head_sha": "4c14f5433cc7885a486db254549079d36443c37a",
+  "status": "completed",
+  "conclusion": "failure",
+  "attempt": 1,
+  "attempt_source": "all 31 jobs in initial-jobs.json have run_attempt=1",
+  "url": "https://github.com/just-every/run-spool/actions/runs/43519208086",
+  "note": "Projected observed fields; the first raw response was over-sanitized around query URLs and is excluded. initial-jobs.json is the complete selected job receipt."
+}

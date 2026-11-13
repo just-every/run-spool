@@ -1,0 +1,35 @@
+{
+  "observed_at": "2026-11-13T23:03:18.008341+00:00",
+  "repository": "just-every/run-spool",
+  "branch": "cloud/sd-spool-0711-ci-triage-1",
+  "head": "4c14f5433cc7885a486db254549079d36443c37a",
+  "origin_main": "4c14f5433cc7885a486db254549079d36443c37a",
+  "dirty_paths": [],
+  "product_commits": 0,
+  "product_pushes": 0,
+  "pr": null,
+  "rer_pin": "0.2.113",
+  "product_version": "0.7.10",
+  "tests_sdk_runtimes_sha256": "38d12aa4653403a1a4ae880198bc1870fc4d3873b0b287b8c6d9baa8e08abd94",
+  "before_after_counts": {
+    "Core": {
+      "done": 23,
+      "partial": 45,
+      "missing": 19,
+      "total": 87
+    },
+    "Agent_surface": {
+      "done": 0,
+      "partial": 9,
+      "missing": 9,
+      "total": 18
+    },
+    "Full_target": {
+      "done": 23,
+      "partial": 54,
+      "missing": 28,
+      "total": 105
+    }
+  },
+  "clause_changes": []
+}

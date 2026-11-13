@@ -1,0 +1,685 @@
+{
+  "requested_at": "2026-11-13T22:58:33Z",
+  "http_date": "2026-11-13T22:58:35Z",
+  "command": "gh api --method POST repos/just-every/run-spool/actions/jobs/132209451995/rerun --include",
+  "original_run": 43519208086,
+  "original_attempt": 1,
+  "original_job": 132209451995,
+  "original_job_name": "runtime (ruby)",
+  "response_status": "HTTP/2.0 201 Created",
+  "response_body": {},
+  "github_request_id": "7A80:672B1:80D7E1:D690DB:6AF79619",
+  "requests": 1,
+  "explicit_aggregate_reruns": 0,
+  "successful_jobs_requested": 0,
+  "full_workflow_reruns": 0,
+  "new_workflow_dispatches": 0,
+  "final_run": {
+    "conclusion": "success",
+    "head_branch": "main",
+    "head_sha": "4c14f5433cc7885a486db254549079d36443c37a",
+    "html_url": "https://github.com/just-every/run-spool/actions/runs/43519208086",
+    "id": 43519208086,
+    "run_attempt": 2,
+    "status": "completed",
+    "updated_at": "2026-11-13T22:59:40Z"
+  },
+  "retry_jobs": [
+    {
+      "completed_at": "2026-11-13T22:26:04Z",
+      "conclusion": "success",
+      "id": 132223604413,
+      "labels": [
+        "ubuntu-24.04"
+      ],
+      "name": "plan",
+      "run_attempt": 2,
+      "run_id": 43519208086,
+      "runner_name": "GitHub Actions 1000323014",
+      "started_at": "2026-11-13T22:25:55Z",
+      "status": "completed"
+    },
+    {
+      "completed_at": "2026-11-13T22:26:04Z",
+      "conclusion": "skipped",
+      "id": 132223605612,
+      "labels": [
+        "ubuntu-24.04"
+      ],
+      "name": "light",
+      "run_attempt": 2,
+      "run_id": 43519208086,
+      "runner_name": null,
+      "started_at": "2026-11-13T22:58:38Z",
+      "status": "completed"
+    },
+    {
+      "completed_at": "2026-11-13T22:58:38Z",
+      "conclusion": "skipped",
+      "id": 132223605864,
+      "labels": [],
+      "name": "commands",
+      "run_attempt": 2,
+      "run_id": 43519208086,
+      "runner_name": null,
+      "started_at": "2026-11-13T22:58:38Z",
+      "status": "completed"
+    },
+    {
+      "completed_at": "2026-11-13T22:27:05Z",
+      "conclusion": "success",
+      "id": 132223606020,
+      "labels": [
+        "ubuntu-24.04"
+      ],
+      "name": "build",
+      "run_attempt": 2,
+      "run_id": 43519208086,
+      "runner_name": "GitHub Actions 1000323023",
+      "started_at": "2026-11-13T22:26:06Z",
+      "status": "completed"
+    },
+    {
+      "completed_at": "2026-11-13T22:59:29Z",
+      "conclusion": "success",
+      "id": 132223606034,
+      "labels": [
+        "ubuntu-24.04"
+      ],
+      "name": "runtime (ruby)",
+      "run_attempt": 2,
+      "run_id": 43519208086,
+      "runner_name": "GitHub Actions 1000323077",
+      "started_at": "2026-11-13T22:58:40Z",
+      "status": "completed"
+    },
+    {
+      "completed_at": "2026-11-13T22:28:20Z",
+      "conclusion": "success",
+      "id": 132223606677,
+      "labels": [
+        "ubuntu-24.04"
+      ],
+      "name": "runtime (go)",
+      "run_attempt": 2,
+      "run_id": 43519208086,
+      "runner_name": "GitHub Actions 1000323033",
+      "started_at": "2026-11-13T22:27:07Z",
+      "status": "completed"
+    },
+    {
+      "completed_at": "2026-11-13T22:28:18Z",
+      "conclusion": "success",
+      "id": 132223606815,
+      "labels": [
+        "ubuntu-24.04"
+      ],
+      "name": "runtime (python)",
+      "run_attempt": 2,
+      "run_id": 43519208086,
+      "runner_name": "GitHub Actions 1000323036",
+      "started_at": "2026-11-13T22:27:07Z",
+      "status": "completed"
+    },
+    {
+      "completed_at": "2026-11-13T22:28:19Z",
+      "conclusion": "success",
+      "id": 132223607034,
+      "labels": [
+        "ubuntu-24.04"
+      ],
+      "name": "runtime (java)",
+      "run_attempt": 2,
+      "run_id": 43519208086,
+      "runner_name": "GitHub Actions 1000323024",
+      "started_at": "2026-11-13T22:27:07Z",
+      "status": "completed"
+    },
+    {
+      "completed_at": "2026-11-13T22:36:38Z",
+      "conclusion": "success",
+      "id": 132223607044,
+      "labels": [
+        "ubuntu-24.04"
+      ],
+      "name": "verify (runtime)",
+      "run_attempt": 2,
+      "run_id": 43519208086,
+      "runner_name": "GitHub Actions 1000323044",
+      "started_at": "2026-11-13T22:27:07Z",
+      "status": "completed"
+    },
+    {
+      "completed_at": "2026-11-13T22:35:43Z",
+      "conclusion": "success",
+      "id": 132223607045,
+      "labels": [
+        "ubuntu-24.04"
+      ],
+      "name": "verify (sdk)",
+      "run_attempt": 2,
+      "run_id": 43519208086,
+      "runner_name": "GitHub Actions 1000323031",
+      "started_at": "2026-11-13T22:27:07Z",
+      "status": "completed"
+    },
+    {
+      "completed_at": "2026-11-13T22:35:07Z",
+      "conclusion": "success",
+      "id": 132223607083,
+      "labels": [
+        "ubuntu-24.04"
+      ],
+      "name": "verify (sentry-cli)",
+      "run_attempt": 2,
+      "run_id": 43519208086,
+      "runner_name": "GitHub Actions 1000323030",
+      "started_at": "2026-11-13T22:27:07Z",
+      "status": "completed"
+    },
+    {
+      "completed_at": "2026-11-13T22:28:13Z",
+      "conclusion": "success",
+      "id": 132223607088,
+      "labels": [
+        "ubuntu-24.04"
+      ],
+      "name": "runtime (electron)",
+      "run_attempt": 2,
+      "run_id": 43519208086,
+      "runner_name": "GitHub Actions 1000323032",
+      "started_at": "2026-11-13T22:27:07Z",
+      "status": "completed"
+    },
+    {
+      "completed_at": "2026-11-13T22:33:09Z",
+      "conclusion": "success",
+      "id": 132223607135,
+      "labels": [
+        "ubuntu-24.04"
+      ],
+      "name": "verify (alerts)",
+      "run_attempt": 2,
+      "run_id": 43519208086,
+      "runner_name": "GitHub Actions 1000323045",
+      "started_at": "2026-11-13T22:27:07Z",
+      "status": "completed"
+    },
+    {
+      "completed_at": "2026-11-13T22:34:15Z",
+      "conclusion": "success",
+      "id": 132223607332,
+      "labels": [
+        "ubuntu-24.04"
+      ],
+      "name": "verify (owner-ui)",
+      "run_attempt": 2,
+      "run_id": 43519208086,
+      "runner_name": "GitHub Actions 1000323040",
+      "started_at": "2026-11-13T22:27:07Z",
+      "status": "completed"
+    },
+    {
+      "completed_at": "2026-11-13T22:28:13Z",
+      "conclusion": "success",
+      "id": 132223607481,
+      "labels": [
+        "ubuntu-24.04"
+      ],
+      "name": "runtime (dotnet)",
+      "run_attempt": 2,
+      "run_id": 43519208086,
+      "runner_name": "GitHub Actions 1000323035",
+      "started_at": "2026-11-13T22:27:07Z",
+      "status": "completed"
+    },
+    {
+      "completed_at": "2026-11-13T22:28:55Z",
+      "conclusion": "success",
+      "id": 132223607483,
+      "labels": [
+        "ubuntu-24.04"
+      ],
+      "name": "verify (wizard)",
+      "run_attempt": 2,
+      "run_id": 43519208086,
+      "runner_name": "GitHub Actions 1000323038",
+      "started_at": "2026-11-13T22:27:07Z",
+      "status": "completed"
+    },
+    {
+      "completed_at": "2026-11-13T22:32:00Z",
+      "conclusion": "success",
+      "id": 132223607524,
+      "labels": [
+        "ubuntu-24.04"
+      ],
+      "name": "verify (project-erasure-cap)",
+      "run_attempt": 2,
+      "run_id": 43519208086,
+      "runner_name": "GitHub Actions 1000323042",
+      "started_at": "2026-11-13T22:27:07Z",
+      "status": "completed"
+    },
+    {
+      "completed_at": "2026-11-13T22:36:06Z",
+      "conclusion": "success",
+      "id": 132223607580,
+      "labels": [
+        "ubuntu-24.04"
+      ],
+      "name": "verify (tunnel)",
+      "run_attempt": 2,
+      "run_id": 43519208086,
+      "runner_name": "GitHub Actions 1000323029",
+      "started_at": "2026-11-13T22:27:07Z",
+      "status": "completed"
+    },
+    {
+      "completed_at": "2026-11-13T22:28:28Z",
+      "conclusion": "success",
+      "id": 132223607774,
+      "labels": [
+        "ubuntu-24.04"
+      ],
+      "name": "runtime (rust)",
+      "run_attempt": 2,
+      "run_id": 43519208086,
+      "runner_name": "GitHub Actions 1000323046",
+      "started_at": "2026-11-13T22:27:07Z",
+      "status": "completed"
+    },
+    {
+      "completed_at": "2026-11-13T22:33:09Z",
+      "conclusion": "success",
+      "id": 132223607777,
+      "labels": [
+        "ubuntu-24.04"
+      ],
+      "name": "verify (project-erasure)",
+      "run_attempt": 2,
+      "run_id": 43519208086,
+      "runner_name": "GitHub Actions 1000323039",
+      "started_at": "2026-11-13T22:27:07Z",
+      "status": "completed"
+    },
+    {
+      "completed_at": "2026-11-13T22:43:32Z",
+      "conclusion": "success",
+      "id": 132223607787,
+      "labels": [
+        "ubuntu-24.04"
+      ],
+      "name": "verify (agent-handoff)",
+      "run_attempt": 2,
+      "run_id": 43519208086,
+      "runner_name": "GitHub Actions 1000323028",
+      "started_at": "2026-11-13T22:27:07Z",
+      "status": "completed"
+    },
+    {
+      "completed_at": "2026-11-13T22:27:53Z",
+      "conclusion": "success",
+      "id": 132223607793,
+      "labels": [
+        "ubuntu-24.04"
+      ],
+      "name": "runtime (node)",
+      "run_attempt": 2,
+      "run_id": 43519208086,
+      "runner_name": "GitHub Actions 1000323025",
+      "started_at": "2026-11-13T22:27:07Z",
+      "status": "completed"
+    },
+    {
+      "completed_at": "2026-11-13T22:27:52Z",
+      "conclusion": "success",
+      "id": 132223607818,
+      "labels": [
+        "ubuntu-24.04"
+      ],
+      "name": "runtime (php)",
+      "run_attempt": 2,
+      "run_id": 43519208086,
+      "runner_name": "GitHub Actions 1000323027",
+      "started_at": "2026-11-13T22:27:07Z",
+      "status": "completed"
+    },
+    {
+      "completed_at": "2026-11-13T22:34:07Z",
+      "conclusion": "success",
+      "id": 132223607892,
+      "labels": [
+        "ubuntu-24.04"
+      ],
+      "name": "verify (execution)",
+      "run_attempt": 2,
+      "run_id": 43519208086,
+      "runner_name": "GitHub Actions 1000323041",
+      "started_at": "2026-11-13T22:27:07Z",
+      "status": "completed"
+    },
+    {
+      "completed_at": "2026-11-13T22:31:29Z",
+      "conclusion": "success",
+      "id": 132223608021,
+      "labels": [
+        "ubuntu-24.04"
+      ],
+      "name": "runtime (elixir)",
+      "run_attempt": 2,
+      "run_id": 43519208086,
+      "runner_name": "GitHub Actions 1000323034",
+      "started_at": "2026-11-13T22:27:07Z",
+      "status": "completed"
+    },
+    {
+      "completed_at": "2026-11-13T22:33:48Z",
+      "conclusion": "success",
+      "id": 132223608523,
+      "labels": [
+        "ubuntu-24.04"
+      ],
+      "name": "verify (owner-erasure)",
+      "run_attempt": 2,
+      "run_id": 43519208086,
+      "runner_name": "GitHub Actions 1000323043",
+      "started_at": "2026-11-13T22:27:07Z",
+      "status": "completed"
+    },
+    {
+      "completed_at": "2026-11-13T22:40:40Z",
+      "conclusion": "success",
+      "id": 132223608543,
+      "labels": [
+        "ubuntu-24.04"
+      ],
+      "name": "verify (repair-recovery)",
+      "run_attempt": 2,
+      "run_id": 43519208086,
+      "runner_name": "GitHub Actions 1000323037",
+      "started_at": "2026-11-13T22:27:07Z",
+      "status": "completed"
+    },
+    {
+      "completed_at": "2026-11-13T22:59:34Z",
+      "conclusion": "success",
+      "id": 132223964322,
+      "labels": [
+        "ubuntu-24.04"
+      ],
+      "name": "shards (spool)",
+      "run_attempt": 2,
+      "run_id": 43519208086,
+      "runner_name": "GitHub Actions 1000323078",
+      "started_at": "2026-11-13T22:59:31Z",
+      "status": "completed"
+    },
+    {
+      "completed_at": "2026-11-13T22:59:39Z",
+      "conclusion": "success",
+      "id": 132224000296,
+      "labels": [
+        "ubuntu-24.04"
+      ],
+      "name": "verify",
+      "run_attempt": 2,
+      "run_id": 43519208086,
+      "runner_name": "GitHub Actions 1000323079",
+      "started_at": "2026-11-13T22:59:37Z",
+      "status": "completed"
+    },
+    {
+      "completed_at": "2026-11-13T22:59:34Z",
+      "conclusion": "skipped",
+      "id": 132224001451,
+      "labels": [
+        "ubuntu-24.04"
+      ],
+      "name": "nightly-proof",
+      "run_attempt": 2,
+      "run_id": 43519208086,
+      "runner_name": null,
+      "started_at": "2026-11-13T22:59:34Z",
+      "status": "completed"
+    },
+    {
+      "completed_at": "2026-11-13T22:59:34Z",
+      "conclusion": "skipped",
+      "id": 132224001918,
+      "labels": [
+        "ubuntu-24.04"
+      ],
+      "name": "full-push-proof",
+      "run_attempt": 2,
+      "run_id": 43519208086,
+      "runner_name": null,
+      "started_at": "2026-11-13T22:59:35Z",
+      "status": "completed"
+    }
+  ],
+  "initial_conclusions": {
+    "success": 24,
+    "skipped": 4,
+    "failure": 3
+  },
+  "latest_conclusions": {
+    "success": 27,
+    "skipped": 4
+  },
+  "note": "The all-attempts API returns 31 job records for each attempt, including retained successes with original timestamps. Only Ruby, shards (spool), and verify have new successful execution timestamps after the one POST. No independent successful test/build job was requested or newly executed. Skipped proof records remain skipped.",
+  "fresh_successful_executions": [
+    {
+      "completed_at": "2026-11-13T22:59:29Z",
+      "conclusion": "success",
+      "id": 132223606034,
+      "labels": [
+        "ubuntu-24.04"
+      ],
+      "name": "runtime (ruby)",
+      "run_attempt": 2,
+      "run_id": 43519208086,
+      "runner_name": "GitHub Actions 1000323077",
+      "started_at": "2026-11-13T22:58:40Z",
+      "status": "completed"
+    },
+    {
+      "completed_at": "2026-11-13T22:59:34Z",
+      "conclusion": "success",
+      "id": 132223964322,
+      "labels": [
+        "ubuntu-24.04"
+      ],
+      "name": "shards (spool)",
+      "run_attempt": 2,
+      "run_id": 43519208086,
+      "runner_name": "GitHub Actions 1000323078",
+      "started_at": "2026-11-13T22:59:31Z",
+      "status": "completed"
+    },
+    {
+      "completed_at": "2026-11-13T22:59:39Z",
+      "conclusion": "success",
+      "id": 132224000296,
+      "labels": [
+        "ubuntu-24.04"
+      ],
+      "name": "verify",
+      "run_attempt": 2,
+      "run_id": 43519208086,
+      "runner_name": "GitHub Actions 1000323079",
+      "started_at": "2026-11-13T22:59:37Z",
+      "status": "completed"
+    }
+  ],
+  "retained_successful_jobs": [
+    {
+      "id": 132223604413,
+      "name": "plan",
+      "run_attempt": 2,
+      "started_at": "2026-11-13T22:25:55Z",
+      "completed_at": "2026-11-13T22:26:04Z"
+    },
+    {
+      "id": 132223606020,
+      "name": "build",
+      "run_attempt": 2,
+      "started_at": "2026-11-13T22:26:06Z",
+      "completed_at": "2026-11-13T22:27:05Z"
+    },
+    {
+      "id": 132223606677,
+      "name": "runtime (go)",
+      "run_attempt": 2,
+      "started_at": "2026-11-13T22:27:07Z",
+      "completed_at": "2026-11-13T22:28:20Z"
+    },
+    {
+      "id": 132223606815,
+      "name": "runtime (python)",
+      "run_attempt": 2,
+      "started_at": "2026-11-13T22:27:07Z",
+      "completed_at": "2026-11-13T22:28:18Z"
+    },
+    {
+      "id": 132223607034,
+      "name": "runtime (java)",
+      "run_attempt": 2,
+      "started_at": "2026-11-13T22:27:07Z",
+      "completed_at": "2026-11-13T22:28:19Z"
+    },
+    {
+      "id": 132223607044,
+      "name": "verify (runtime)",
+      "run_attempt": 2,
+      "started_at": "2026-11-13T22:27:07Z",
+      "completed_at": "2026-11-13T22:36:38Z"
+    },
+    {
+      "id": 132223607045,
+      "name": "verify (sdk)",
+      "run_attempt": 2,
+      "started_at": "2026-11-13T22:27:07Z",
+      "completed_at": "2026-11-13T22:35:43Z"
+    },
+    {
+      "id": 132223607083,
+      "name": "verify (sentry-cli)",
+      "run_attempt": 2,
+      "started_at": "2026-11-13T22:27:07Z",
+      "completed_at": "2026-11-13T22:35:07Z"
+    },
+    {
+      "id": 132223607088,
+      "name": "runtime (electron)",
+      "run_attempt": 2,
+      "started_at": "2026-11-13T22:27:07Z",
+      "completed_at": "2026-11-13T22:28:13Z"
+    },
+    {
+      "id": 132223607135,
+      "name": "verify (alerts)",
+      "run_attempt": 2,
+      "started_at": "2026-11-13T22:27:07Z",
+      "completed_at": "2026-11-13T22:33:09Z"
+    },
+    {
+      "id": 132223607332,
+      "name": "verify (owner-ui)",
+      "run_attempt": 2,
+      "started_at": "2026-11-13T22:27:07Z",
+      "completed_at": "2026-11-13T22:34:15Z"
+    },
+    {
+      "id": 132223607481,
+      "name": "runtime (dotnet)",
+      "run_attempt": 2,
+      "started_at": "2026-11-13T22:27:07Z",
+      "completed_at": "2026-11-13T22:28:13Z"
+    },
+    {
+      "id": 132223607483,
+      "name": "verify (wizard)",
+      "run_attempt": 2,
+      "started_at": "2026-11-13T22:27:07Z",
+      "completed_at": "2026-11-13T22:28:55Z"
+    },
+    {
+      "id": 132223607524,
+      "name": "verify (project-erasure-cap)",
+      "run_attempt": 2,
+      "started_at": "2026-11-13T22:27:07Z",
+      "completed_at": "2026-11-13T22:32:00Z"
+    },
+    {
+      "id": 132223607580,
+      "name": "verify (tunnel)",
+      "run_attempt": 2,
+      "started_at": "2026-11-13T22:27:07Z",
+      "completed_at": "2026-11-13T22:36:06Z"
+    },
+    {
+      "id": 132223607774,
+      "name": "runtime (rust)",
+      "run_attempt": 2,
+      "started_at": "2026-11-13T22:27:07Z",
+      "completed_at": "2026-11-13T22:28:28Z"
+    },
+    {
+      "id": 132223607777,
+      "name": "verify (project-erasure)",
+      "run_attempt": 2,
+      "started_at": "2026-11-13T22:27:07Z",
+      "completed_at": "2026-11-13T22:33:09Z"
+    },
+    {
+      "id": 132223607787,
+      "name": "verify (agent-handoff)",
+      "run_attempt": 2,
+      "started_at": "2026-11-13T22:27:07Z",
+      "completed_at": "2026-11-13T22:43:32Z"
+    },
+    {
+      "id": 132223607793,
+      "name": "runtime (node)",
+      "run_attempt": 2,
+      "started_at": "2026-11-13T22:27:07Z",
+      "completed_at": "2026-11-13T22:27:53Z"
+    },
+    {
+      "id": 132223607818,
+      "name": "runtime (php)",
+      "run_attempt": 2,
+      "started_at": "2026-11-13T22:27:07Z",
+      "completed_at": "2026-11-13T22:27:52Z"
+    },
+    {
+      "id": 132223607892,
+      "name": "verify (execution)",
+      "run_attempt": 2,
+      "started_at": "2026-11-13T22:27:07Z",
+      "completed_at": "2026-11-13T22:34:07Z"
+    },
+    {
+      "id": 132223608021,
+      "name": "runtime (elixir)",
+      "run_attempt": 2,
+      "started_at": "2026-11-13T22:27:07Z",
+      "completed_at": "2026-11-13T22:31:29Z"
+    },
+    {
+      "id": 132223608523,
+      "name": "verify (owner-erasure)",
+      "run_attempt": 2,
+      "started_at": "2026-11-13T22:27:07Z",
+      "completed_at": "2026-11-13T22:33:48Z"
+    },
+    {
+      "id": 132223608543,
+      "name": "verify (repair-recovery)",
+      "run_attempt": 2,
+      "started_at": "2026-11-13T22:27:07Z",
+      "completed_at": "2026-11-13T22:40:40Z"
+    }
+  ]
+}

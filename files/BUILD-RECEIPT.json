@@ -1,0 +1,11 @@
+{
+  "command": "pnpm run build:app",
+  "through": "cloud_run",
+  "exit": 0,
+  "head": "4c14f5433cc7885a486db254549079d36443c37a",
+  "dependencies": "pnpm install --frozen-lockfile",
+  "dependency_exit": 0,
+  "node": "v22.20.0",
+  "pnpm": "10.12.4",
+  "setup_not_needed": "The CI runtime journey starts and migrates its own isolated Worker; no rer setup/dev/deploy was run."
+}

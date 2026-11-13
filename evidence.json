@@ -1,0 +1,124 @@
+{
+  "files": [
+    {
+      "blob": "7f00fbcee684024b86f382040a75c05d27a728f1",
+      "bytes": 376,
+      "path": "BUILD-RECEIPT.json",
+      "sha256": "57aaa975d4f4b508f9ece8e4baa2bae7105e0d84bd6354747cf274c33a5ce7a4"
+    },
+    {
+      "blob": "4a9ca102ee711c744eb95c798ae938cd4572f70c",
+      "bytes": 1686,
+      "path": "GITHUB-CALLS.jsonl",
+      "sha256": "df7ef57eab62d3601bd611bca11a89453e569b99ca5556e6f1f60160d1c13cf0"
+    },
+    {
+      "blob": "2325d7747ce1a7d046613d9e9ae6b63b1e05a869",
+      "bytes": 585,
+      "path": "INITIAL-RECEIPT.json",
+      "sha256": "086c0042f891395655e2e346c4bf5abaeeaef2ee50188d7f753ba871cd264982"
+    },
+    {
+      "blob": "ab091096f83f975c4fb9a8246e9399b8da75786a",
+      "bytes": 489,
+      "path": "LOCAL-RECEIPT.json",
+      "sha256": "f83c82842e4bb35cd07a58a73bfd98131ac015e2d491bba2a535ea04ab7d0fbf"
+    },
+    {
+      "blob": "6c28f051e272ec153130599e8e750ee99cf70959",
+      "bytes": 3289,
+      "path": "PACKET-HYGIENE.json",
+      "sha256": "ac426ac3e201561e39c5e425a1e16a17d511e907e01fbb81deed08cc5a44b3d5"
+    },
+    {
+      "blob": "fa701255ccec884dce49cef3f10b750c231b07d8",
+      "bytes": 1760,
+      "path": "PLAN.md",
+      "sha256": "a160194abdc322c03c21280061670b12ffe8d465463c01c26d0a7d9df3bb16e4"
+    },
+    {
+      "blob": "4d797a4bfd709ac15404cc236e4269485ef9d465",
+      "bytes": 860,
+      "path": "PRODUCT-PROVENANCE.json",
+      "sha256": "950308e830b6741645d99391d5a5428e98cbf67b0fab3b49e593d4b7b183023d"
+    },
+    {
+      "blob": "479e1ee9f4978d3b776597faee20095f880ef2a7",
+      "bytes": 12569,
+      "path": "REPORT.md",
+      "sha256": "7d374b027715fc9d40024545dacc4a2328b0754fd5b4fa7ccd44df0090ebcce1"
+    },
+    {
+      "blob": "d11f39be41bd92c6774c85d4c88c3468b477fdde",
+      "bytes": 18570,
+      "path": "RETRY-RECEIPT.json",
+      "sha256": "9def9b1f890c94ef5c20ab07e38e0c6037a35fa8c2aa6a0139bf39e4ca5bcb94"
+    },
+    {
+      "blob": "eaf784b633df9b29cf902e070e6f2548c9535317",
+      "bytes": 5068,
+      "path": "SDK-SOURCE-EVIDENCE.md",
+      "sha256": "220dbee691acd12c06f47b0af49ebe91fb79d349de74c57417a3a58af02d5a4e"
+    },
+    {
+      "blob": "88142ebfd3efc9879ab3f7b4ba2962992bb0a7b0",
+      "bytes": 20070,
+      "path": "SOURCE-EVIDENCE.md",
+      "sha256": "15a1c76ad22b6fa6658c392e3c2e2524d69f497f4754deace5ebb6b853ae3f55"
+    },
+    {
+      "blob": "fb37f53cb89c8b5ccc71a95bcb40cdd2553988f3",
+      "bytes": 1726,
+      "path": "aggregate-attempt1.log",
+      "sha256": "aebedddff059b1b045e21cfc9081090b09d8adb0a2ad7dd4c78739248380e56b"
+    },
+    {
+      "blob": "840d348b690c00b2e32a29813279a59f43bda5e5",
+      "bytes": 16430,
+      "path": "final-jobs.json",
+      "sha256": "0ed8bbed8051450d9739788c91286f636e8ab7aa0c9a23db376fe5c40f06a53b"
+    },
+    {
+      "blob": "54ff6c8f5d98e85e554dd6ce142e8d8023b503eb",
+      "bytes": 100686,
+      "path": "initial-jobs.json",
+      "sha256": "94f9eeb20eaa3f7ff0a2f09a2921311766dcd3fd37ca9ee90575f43fc8cd4d21"
+    },
+    {
+      "blob": "f77ae79ef3e40b6925243f76d94038baa6be6d37",
+      "bytes": 694,
+      "path": "local-ruby.log",
+      "sha256": "93d8935f57ad13e351fbc8b326d1692a17dbb7066c4a64d3b3b8ba33a4e3829e"
+    },
+    {
+      "blob": "dc16ea18c1a1687991ee2e610da8f4d07d0015ee",
+      "bytes": 422,
+      "path": "local-start.json",
+      "sha256": "8fa46203c6a9c07fe6d99805dfe35cef7ce37801414f5f9fff54440637a3d007"
+    },
+    {
+      "blob": "e321fbe922d9b857450a23cc19dd9cc88828179b",
+      "bytes": 268,
+      "path": "retry-run.json",
+      "sha256": "f42583e5b3f75fa6ad147f440d0d2821409263a7955c42031aeb22db383ea3d3"
+    },
+    {
+      "blob": "da25b38c58c6577a36f6f63b69efc89ade731453",
+      "bytes": 7226,
+      "path": "ruby-attempt1.log",
+      "sha256": "8b47f4fbf42ef864951620f12a793e6646187e9a63ad3687c801e520a94128cb"
+    },
+    {
+      "blob": "78a839963b18db2ab0e78888eb0235802f886aee",
+      "bytes": 1133,
+      "path": "shard-attempt1.log",
+      "sha256": "1c88106423c4d9341ce877b95c64deb04b5a324396e35935846fe56adc67d935"
+    }
+  ],
+  "product_branch": "cloud/sd-spool-0711-ci-triage-1",
+  "product_head": "4c14f5433cc7885a486db254549079d36443c37a",
+  "ref": "refs/heads/evidence/sd-spool-0711-ci-triage-1",
+  "repository": "just-every/run-spool",
+  "schema": 1,
+  "tag": "sd-spool-0711-ci-triage-1"
+}

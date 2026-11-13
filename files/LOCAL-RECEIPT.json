@@ -1,0 +1,14 @@
+{
+  "started_at": "2026-11-13T23:01:07.134829+00:00",
+  "sha": "4c14f5433cc7885a486db254549079d36443c37a",
+  "command": "node tests/sdk-runtimes.mjs ruby",
+  "node": "v22.20.0",
+  "ruby": "ruby 3.3.10 (2025-10-23 revision 343ea05002) [x86_64-linux]",
+  "bundler": "Bundler version 2.5.22",
+  "pnpm": "10.12.4",
+  "os": "Debian GNU/Linux 13 (trixie), x86_64",
+  "ci_os": "ubuntu-24.04",
+  "chromium": "/usr/bin/chromium",
+  "exit": 0,
+  "completed_at": "2026-11-13T23:01:42.225274+00:00"
+}

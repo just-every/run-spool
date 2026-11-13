@@ -1,0 +1,6 @@
+(node:15454) ExperimentalWarning: SQLite is an experimental feature and might change at any time
+(Use `node --trace-warnings ...` to show where the warning was created)
+▲ [WARNING] Proxy environment variables detected. We'll use your proxy for fetch requests.
+
+
+{"runtime":"ruby","sdk":"sentry-ruby 7.1.0","sent":{"log":3,"event":3,"attachment":7,"check_in":2,"transaction":4,"client_report":2,"sessions":1},"outcomes":{"accepted":3,"check_in_unrouted":2,"client_discarded:error:before_send":2,"sentry_unsupported_attachment":7,"sentry_unsupported_other_telemetry":3,"sentry_unsupported_performance":4,"session_stored":1},"identity":["[\"synthetic-spool-ruby@1.0.0\",\"[sentry:no-dist]\"]"]}

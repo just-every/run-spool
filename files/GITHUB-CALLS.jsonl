@@ -1,0 +1,8 @@
+{"call": 1, "utc": "2026-11-13T22:56:43.590214+00:00", "command": ["gh", "api", "repos/just-every/run-spool/actions/runs/43519208086"]}
+{"call": 2, "utc": "2026-11-13T22:57:04.555588+00:00", "command": ["gh", "api", "repos/just-every/run-spool/actions/runs/43519208086/jobs?filter=all&per_page=100", "--jq", "{total_count,jobs:[.jobs[]|{id,name,run_id,run_attempt,status,conclusion,started_at,completed_at,runner_name,runner_group_name,labels,steps}]}"]}
+{"call": 3, "utc": "2026-11-13T22:57:46.067088+00:00", "command": ["gh", "run", "view", "43519208086", "--repo", "just-every/run-spool", "--job", "132216969096", "--log-failed"]}
+{"call": 4, "utc": "2026-11-13T22:57:46.075255+00:00", "command": ["gh", "run", "view", "43519208086", "--repo", "just-every/run-spool", "--job", "132209451995", "--log-failed"]}
+{"call": 5, "utc": "2026-11-13T22:58:30.728961+00:00", "command": ["gh", "run", "view", "43519208086", "--repo", "just-every/run-spool", "--job", "132217024904", "--log-failed"]}
+{"call": 6, "utc": "2026-11-13T22:58:33.503366+00:00", "command": ["gh", "api", "--method", "POST", "repos/just-every/run-spool/actions/jobs/132209451995/rerun", "--include"]}
+{"call": 7, "utc": "2026-11-13T23:03:34.535282+00:00", "command": ["gh", "api", "repos/just-every/run-spool/actions/runs/43519208086", "--jq", "{id,run_attempt,status,conclusion,head_sha,head_branch,html_url,updated_at}"]}
+{"call": 8, "utc": "2026-11-13T23:04:01.759581+00:00", "command": ["gh", "api", "repos/just-every/run-spool/actions/runs/43519208086/jobs?filter=all&per_page=100", "--jq", "{total_count,jobs:[.jobs[]|{id,name,run_id,run_attempt,status,conclusion,started_at,completed_at,runner_name,labels}]}"]}
