@@ -1,0 +1,19 @@
+Scope: all 3 workspace projects
+Lockfile is up to date, resolution step is skipped
+Progress: resolved 1, reused 0, downloaded 0, added 0
+Packages: +79
++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+Progress: resolved 79, reused 0, downloaded 15, added 15
+Progress: resolved 79, reused 0, downloaded 42, added 38
+Progress: resolved 79, reused 0, downloaded 72, added 72
+Progress: resolved 79, reused 0, downloaded 79, added 79, done
+
+╭ Warning ─────────────────────────────────────────────────────────────────────╮
+│                                                                              │
+│   Ignored build scripts: @sentry/cli.                                        │
+│   Run "pnpm approve-builds" to pick which dependencies should be allowed     │
+│   to run scripts.                                                            │
+│                                                                              │
+╰──────────────────────────────────────────────────────────────────────────────╯
+
+Done in 11.1s using pnpm v10.12.4

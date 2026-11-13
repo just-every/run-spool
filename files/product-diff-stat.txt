@@ -1,0 +1,33 @@
+7faf537 Adopt rer 0.2.113 and refresh recorded Base source
+ SEED-COMMAND-CONTRACT.md                           | 146 ++++++++++-
+ base-copies.json                                   | 270 +++++++++++----------
+ package.json                                       |   2 +-
+ pnpm-lock.yaml                                     |  10 +-
+ sources.lock.json                                  |  56 ++---
+ src/base/lobby.ts                                  |   2 +-
+ src/base/run-site.ts                               |   2 +-
+ src/foundation/runtime/lobby.ts                    |   2 +-
+ src/foundation/runtime/run-site.ts                 |   2 +-
+ src/modules/agent-door/conformance/audit.mjs       |   3 +
+ src/modules/agent-door/index.ts                    |   3 +-
+ src/modules/agent-door/policy-event.ts             |  19 ++
+ src/modules/business-settings/ADOPTING.md          |  13 +
+ src/modules/business-settings/README.md            |   5 +-
+ src/modules/business-settings/apply.ts             |   7 +-
+ src/modules/business-settings/retire.ts            |   8 +-
+ src/modules/business-settings/team.ts              |  16 +-
+ src/modules/business-settings/types.ts             |   5 +
+ src/modules/d1-transport/limits.mjs                |   6 +-
+ src/modules/operator-auth/README.md                |   2 +-
+ src/modules/operator-auth/accounts/admin.mjs       |  12 +-
+ src/modules/operator-auth/accounts/one-click.mjs   |   9 +-
+ src/modules/operator-auth/dev-gate.mjs             |   7 +-
+ src/modules/operator-auth/dev/index.mjs            |   8 +-
+ src/modules/operator-auth/dev/invited.mjs          |  11 +
+ .../operator-auth/identity/email-link/index.mjs    |   2 +
+ src/modules/operator-auth/index.d.mts              |   3 +-
+ src/modules/operator-auth/routes.mjs               |   4 +
+ src/modules/portability/import.mjs                 |   5 +-
+ src/modules/portability/journal.mjs                |   9 +-
+ src/modules/portability/progress.mjs               |  22 +-
+ 31 files changed, 465 insertions(+), 206 deletions(-)

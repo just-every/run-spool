@@ -1,0 +1,24 @@
+{
+  "checked_at": "2026-11-13T15:44:35.713048+00:00",
+  "head": "7faf53703fcc6d8294f75dd4121a70cf0fcfa337",
+  "verify": [
+    {
+      "conclusion": "failure",
+      "event": "push",
+      "head_sha": "7faf53703fcc6d8294f75dd4121a70cf0fcfa337",
+      "html_url": "https://github.com/just-every/run-spool/actions/runs/43455376010",
+      "id": 43455376010,
+      "name": "Verify",
+      "status": "completed"
+    }
+  ],
+  "github_calls_used": 10,
+  "github_call_budget": 10,
+  "discovery_counts_as_poll": true,
+  "ready": false,
+  "remaining": "Exact-SHA Verify must complete successfully before READY/landing.",
+  "terminal_status": "BLOCKED",
+  "blocker": "Exact-SHA Verify 43455376010 completed with failure. The ten-call GitHub budget is exhausted (nine source acquisition calls and one exact-SHA run discovery); failing job/step and its logs were not retrieved, and no unqualified rerun was attempted.",
+  "failed_job": "unknown; job metadata/logs not retrieved",
+  "exception_for_generated_views": "not established; local contract-docs check passed"
+}

@@ -1,0 +1,36 @@
+ WARN  Unsupported engine: wanted: {"node":"22.20.0"} (current: {"node":"v24.19.0","pnpm":"10.12.4"})
+packages/agent                           |  WARN  Unsupported engine: wanted: {"node":"22.20.0"} (current: {"node":"v24.19.0","pnpm":"10.12.4"})
+
+   ╭──────────────────────────────────────────╮
+   │                                          │
+   │   Update available! 10.12.4 → 12.18.0.   │
+   │   Changelog: https://pnpm.io/v/12.18.0   │
+   │     To update, run: pnpm add -g pnpm     │
+   │                                          │
+   ╰──────────────────────────────────────────╯
+
+Progress: resolved 1, reused 0, downloaded 0, added 0
+Progress: resolved 25, reused 0, downloaded 0, added 0
+Progress: resolved 32, reused 0, downloaded 0, added 0
+Progress: resolved 53, reused 0, downloaded 0, added 0
+Progress: resolved 89, reused 0, downloaded 0, added 0
+Progress: resolved 122, reused 0, downloaded 0, added 0
+Progress: resolved 153, reused 0, downloaded 0, added 0
+Progress: resolved 188, reused 0, downloaded 0, added 0
+Progress: resolved 223, reused 0, downloaded 0, added 0
+Progress: resolved 285, reused 0, downloaded 0, added 0
+Progress: resolved 323, reused 0, downloaded 0, added 0
+Progress: resolved 362, reused 0, downloaded 0, added 0
+Progress: resolved 411, reused 0, downloaded 0, added 0
+Progress: resolved 453, reused 0, downloaded 0, added 0
+Progress: resolved 491, reused 0, downloaded 0, added 0, done
+
+Packages: +264
+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+.../node_modules/workerd postinstall$ node install.js
+.../esbuild@0.28.1/node_modules/esbuild postinstall$ node install.js
+.../esbuild@0.28.2/node_modules/esbuild postinstall$ node install.js
+.../node_modules/workerd postinstall: Done
+.../esbuild@0.28.1/node_modules/esbuild postinstall: Done
+.../esbuild@0.28.2/node_modules/esbuild postinstall: Done
+Done in 28.2s using pnpm v10.12.4

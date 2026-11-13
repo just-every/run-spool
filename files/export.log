@@ -1,0 +1,20 @@
+Using project Node 22.20.0 (current Node 24.19.0).
+▲ [WARNING] Proxy environment variables detected. We'll use your proxy for fetch requests.
+
+
+Heavy job admitted: Spool export:workflow [69217b04afc5]
+▲ [WARNING] Proxy environment variables detected. We'll use your proxy for fetch requests.
+
+
+Checking pinned pnpm
+10.12.4
+Local export
+Using secrets defined in .dev.vars
+Transferring private Spool data
+▲ [WARNING] Proxy environment variables detected. We'll use your proxy for fetch requests.
+
+
+Using secrets defined in .dev.vars
+Exported the local copy to exports/spool.rer (331 KB): 100 tables, 0 rows
+Full output: .seed/installer/commands-6212/install.log
+To restore into an empty installation: rer import --input exports/spool.rer --yes

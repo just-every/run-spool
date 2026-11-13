@@ -1,0 +1,41 @@
+{
+  "candidate_commits": [
+    "7faf53703fcc6d8294f75dd4121a70cf0fcfa337"
+  ],
+  "changed_files": [
+    "SEED-COMMAND-CONTRACT.md",
+    "base-copies.json",
+    "package.json",
+    "pnpm-lock.yaml",
+    "sources.lock.json",
+    "src/base/lobby.ts",
+    "src/base/run-site.ts",
+    "src/foundation/runtime/lobby.ts",
+    "src/foundation/runtime/run-site.ts",
+    "src/modules/agent-door/conformance/audit.mjs",
+    "src/modules/agent-door/index.ts",
+    "src/modules/agent-door/policy-event.ts",
+    "src/modules/business-settings/ADOPTING.md",
+    "src/modules/business-settings/README.md",
+    "src/modules/business-settings/apply.ts",
+    "src/modules/business-settings/retire.ts",
+    "src/modules/business-settings/team.ts",
+    "src/modules/business-settings/types.ts",
+    "src/modules/d1-transport/limits.mjs",
+    "src/modules/operator-auth/README.md",
+    "src/modules/operator-auth/accounts/admin.mjs",
+    "src/modules/operator-auth/accounts/one-click.mjs",
+    "src/modules/operator-auth/dev-gate.mjs",
+    "src/modules/operator-auth/dev/index.mjs",
+    "src/modules/operator-auth/dev/invited.mjs",
+    "src/modules/operator-auth/identity/email-link/index.mjs",
+    "src/modules/operator-auth/index.d.mts",
+    "src/modules/operator-auth/routes.mjs",
+    "src/modules/portability/import.mjs",
+    "src/modules/portability/journal.mjs",
+    "src/modules/portability/progress.mjs"
+  ],
+  "identity": "all candidate authors/committers fleet; no trailers",
+  "secret_scan": "changed product files contain no injected/private values or credential patterns",
+  "publication_scan": "Full publication scan belongs to the fleet Mac lander, as required by the cloud brief."
+}

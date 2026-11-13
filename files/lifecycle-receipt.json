@@ -1,0 +1,14 @@
+{
+  "export": {
+    "command": "rer export --output exports/spool.rer",
+    "exit": 0,
+    "summary": "Exported the local copy to exports/spool.rer (331 KB): 100 tables, 0 rows",
+    "machine_format": "--json remains supported by the pinned CLI."
+  },
+  "deploy": {
+    "command": "rer deploy --dry-run",
+    "exit": 0,
+    "summary": "Your application is built\nWould deploy:\n  Worker: spool-production\n  D1 database: spool-production-db (99 declared migrations)\n  Secret inputs: 7 required, 1 optional\n  Public settings: 3; scheduled triggers: 1\n  Cloudflare token permissions: Workers Scripts: Edit, D1: Edit\n  Pending migrations: unknown until the hosted databases are checked.\nFull plan: repeat this command with --json. Redacted capture log: .seed/installer/commands-6377/install.log\ndeploy: local dry run complete; no credentials were needed, no Cloudflare requests were made and nothing was changed remotely. Target secrets and remote readiness were not checked.",
+    "machine_format": "--json remains supported by the pinned CLI."
+  }
+}

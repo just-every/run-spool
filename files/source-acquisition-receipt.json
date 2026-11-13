@@ -1,0 +1,10 @@
+{
+  "source_repository": "runeditrun/base",
+  "revision": "c2efb501cbc148c2aee4d5e1107ebdba81469006",
+  "tree": "ce0b5e4c36ec6460492851f1bbbfc8630d7621ff",
+  "acquisition": "gh api repos/runeditrun/base/tarball/<full revision>; authenticated immutable Git commit/tree/ancestry API responses; local blob cache from the tarball verified against GitHub tree identities",
+  "verified_tree_blobs": 4796,
+  "missing": [],
+  "purpose": "Avoid one GitHub request per Base blob while running unmodified rer refresh-base --from-api. Cache and wrapper remain outside the product repository.",
+  "github_source_calls": 9
+}

@@ -1,0 +1,35 @@
+{
+  "head": "104ae1c1532c4c9125858a571dbab223993500fd",
+  "rer": "0.2.107",
+  "copy_records": 105,
+  "copy_revisions": {
+    "4dd4197007cefd688fd314ffb19eed4d0b3c67dd": 105
+  },
+  "clauses": 105,
+  "status_summary": "## Status\n\nJudged from the code and tests at commit `904529593333cdb8e65006b7554ece0aaf8c1d9b` (5 November 2026). Native MCP transport qualification: `tests/agent-door/protocol-contract.mjs` protocolContract, invoked by `tests/agent-door.mjs`, qualifies acceptance 1 to 6 of BASE-AGENT-001 at the implemented native transport boundary under independent autonomous and held policies. The first modern discovery and tool lists precede initialize; the legacy client reconciles the complete offered catalogue, capabilities, serverInfo and instructions. Repeated lists retain deterministic order and private cache fields. Unsupported versions refuse, while mismatched method headers and foreign Origin refuse both discovery and a valid native mutation; declared-length and streamed oversized mutation bodies preserve populated issues, events, releases and alerts, plus proposal rows and existing native at",
+  "divergence_file_present": false,
+  "adapted_files": [
+    ".github/workflows/run-demo.yml",
+    ".github/workflows/run-site.yml",
+    ".github/workflows/verify.yml",
+    "src/modules/agent-door/audit.ts",
+    "src/modules/agent-door/pages.ts",
+    "src/modules/agent-door/person-doors.ts",
+    "src/modules/agent-door/reviews.ts",
+    "src/modules/erasure/cascade.mjs",
+    "src/modules/erasure/index.d.mts",
+    "src/modules/erasure/index.mjs",
+    "src/modules/erasure/order.mjs",
+    "src/modules/erasure/verification.mjs"
+  ],
+  "clause_status_counts": {
+    "done": 23,
+    "partial": 54,
+    "missing": 28
+  },
+  "summary_rows": [
+    "| Published | 9 | 3 | 0 | 12 |",
+    "| Target and push further | 14 | 51 | 28 | 93 |",
+    "| All | 23 | 54 | 28 | 105 |"
+  ]
+}

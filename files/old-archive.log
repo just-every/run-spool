@@ -1,0 +1,9 @@
+▲ [WARNING] Proxy environment variables detected. We'll use your proxy for fetch requests.
+
+
+PASS populated published release upgrades preserve existing rows and columns with declared attribution additions: 176 tables, 120 rows before and after
+PASS populated 0068 upgrade: 201 tables preserved; five additive migrations applied
+PASS old native archive restores into a fresh migrated target with all product rows and destination ledger intact
+PASS old archive refuses an occupied target without changing its project
+PASS genuinely mismatched schema and corrupted original archive binding still refuse
+PASS current archive independently restores and mandatory bookkeeping exclusions retain person-owned tables

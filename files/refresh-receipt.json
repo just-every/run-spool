@@ -1,0 +1,887 @@
+{
+  "refreshed": "c2efb501cbc148c2aee4d5e1107ebdba81469006",
+  "record": "base-copies.json",
+  "copies": [
+    {
+      "path": ".github/workflows/run-demo.yml",
+      "from": "4dd4197007cefd688fd314ffb19eed4d0b3c67dd",
+      "files": 0,
+      "added": [],
+      "removed": []
+    },
+    {
+      "path": ".github/workflows/run-site.yml",
+      "from": "4dd4197007cefd688fd314ffb19eed4d0b3c67dd",
+      "files": 0,
+      "added": [],
+      "removed": []
+    },
+    {
+      "path": ".github/workflows/verify.yml",
+      "from": "4dd4197007cefd688fd314ffb19eed4d0b3c67dd",
+      "files": 0,
+      "added": [],
+      "removed": []
+    },
+    {
+      "path": ".node-version",
+      "from": "4dd4197007cefd688fd314ffb19eed4d0b3c67dd",
+      "files": 1,
+      "added": [],
+      "removed": []
+    },
+    {
+      "path": "CLAUDE.md",
+      "from": "4dd4197007cefd688fd314ffb19eed4d0b3c67dd",
+      "files": 1,
+      "added": [],
+      "removed": []
+    },
+    {
+      "path": "LICENSE",
+      "from": "4dd4197007cefd688fd314ffb19eed4d0b3c67dd",
+      "files": 1,
+      "added": [],
+      "removed": []
+    },
+    {
+      "path": "migrations/core/0005_development_outbox.sql",
+      "from": "4dd4197007cefd688fd314ffb19eed4d0b3c67dd",
+      "files": 1,
+      "added": [],
+      "removed": []
+    },
+    {
+      "path": "migrations/core/0006_portability.sql",
+      "from": "4dd4197007cefd688fd314ffb19eed4d0b3c67dd",
+      "files": 1,
+      "added": [],
+      "removed": []
+    },
+    {
+      "path": "migrations/core/0009_integrations.sql",
+      "from": "4dd4197007cefd688fd314ffb19eed4d0b3c67dd",
+      "files": 1,
+      "added": [],
+      "removed": []
+    },
+    {
+      "path": "migrations/core/0011_owner_claim.sql",
+      "from": "4dd4197007cefd688fd314ffb19eed4d0b3c67dd",
+      "files": 1,
+      "added": [],
+      "removed": []
+    },
+    {
+      "path": "migrations/core/0014_dev_sessions.sql",
+      "from": "4dd4197007cefd688fd314ffb19eed4d0b3c67dd",
+      "files": 1,
+      "added": [],
+      "removed": []
+    },
+    {
+      "path": "migrations/core/0015_domain_rules_step_up.sql",
+      "from": "4dd4197007cefd688fd314ffb19eed4d0b3c67dd",
+      "files": 1,
+      "added": [],
+      "removed": []
+    },
+    {
+      "path": "migrations/core/0017_provider_control.sql",
+      "from": "4dd4197007cefd688fd314ffb19eed4d0b3c67dd",
+      "files": 1,
+      "added": [],
+      "removed": []
+    },
+    {
+      "path": "migrations/core/0018_erasure.sql",
+      "from": "4dd4197007cefd688fd314ffb19eed4d0b3c67dd",
+      "files": 1,
+      "added": [],
+      "removed": []
+    },
+    {
+      "path": "migrations/core/0020_dependencies.sql",
+      "from": "4dd4197007cefd688fd314ffb19eed4d0b3c67dd",
+      "files": 1,
+      "added": [],
+      "removed": []
+    },
+    {
+      "path": "migrations/core/0021_dependency_approval.sql",
+      "from": "4dd4197007cefd688fd314ffb19eed4d0b3c67dd",
+      "files": 1,
+      "added": [],
+      "removed": []
+    },
+    {
+      "path": "migrations/core/0022_dependency_setup.sql",
+      "from": "4dd4197007cefd688fd314ffb19eed4d0b3c67dd",
+      "files": 1,
+      "added": [],
+      "removed": []
+    },
+    {
+      "path": "migrations/core/0023_idp_owner.sql",
+      "from": "4dd4197007cefd688fd314ffb19eed4d0b3c67dd",
+      "files": 1,
+      "added": [],
+      "removed": []
+    },
+    {
+      "path": "migrations/core/0024_identity_providers.sql",
+      "from": "4dd4197007cefd688fd314ffb19eed4d0b3c67dd",
+      "files": 1,
+      "added": [],
+      "removed": []
+    },
+    {
+      "path": "migrations/core/0036_owner_signin.sql",
+      "from": "4dd4197007cefd688fd314ffb19eed4d0b3c67dd",
+      "files": 1,
+      "added": [],
+      "removed": []
+    },
+    {
+      "path": "migrations/core/0104_business_retired.sql",
+      "from": "4dd4197007cefd688fd314ffb19eed4d0b3c67dd",
+      "files": 1,
+      "added": [],
+      "removed": []
+    },
+    {
+      "path": "scripts/delivery/base/artifact.mjs",
+      "from": "4dd4197007cefd688fd314ffb19eed4d0b3c67dd",
+      "files": 1,
+      "added": [],
+      "removed": []
+    },
+    {
+      "path": "scripts/delivery/base/bindings.mjs",
+      "from": "4dd4197007cefd688fd314ffb19eed4d0b3c67dd",
+      "files": 1,
+      "added": [],
+      "removed": []
+    },
+    {
+      "path": "scripts/delivery/base/capabilities.mjs",
+      "from": "4dd4197007cefd688fd314ffb19eed4d0b3c67dd",
+      "files": 1,
+      "added": [],
+      "removed": []
+    },
+    {
+      "path": "scripts/delivery/base/cli.mjs",
+      "from": "4dd4197007cefd688fd314ffb19eed4d0b3c67dd",
+      "files": 1,
+      "added": [],
+      "removed": []
+    },
+    {
+      "path": "scripts/delivery/base/declarations.mjs",
+      "from": "4dd4197007cefd688fd314ffb19eed4d0b3c67dd",
+      "files": 1,
+      "added": [],
+      "removed": []
+    },
+    {
+      "path": "scripts/delivery/base/export.mjs",
+      "from": "4dd4197007cefd688fd314ffb19eed4d0b3c67dd",
+      "files": 1,
+      "added": [],
+      "removed": []
+    },
+    {
+      "path": "scripts/delivery/base/generators/integration.mjs",
+      "from": "4dd4197007cefd688fd314ffb19eed4d0b3c67dd",
+      "files": 1,
+      "added": [],
+      "removed": []
+    },
+    {
+      "path": "scripts/delivery/base/generators/managed.mjs",
+      "from": "4dd4197007cefd688fd314ffb19eed4d0b3c67dd",
+      "files": 1,
+      "added": [],
+      "removed": []
+    },
+    {
+      "path": "scripts/delivery/base/generators/project.mjs",
+      "from": "4dd4197007cefd688fd314ffb19eed4d0b3c67dd",
+      "files": 1,
+      "added": [],
+      "removed": []
+    },
+    {
+      "path": "scripts/delivery/base/generators/validation.mjs",
+      "from": "4dd4197007cefd688fd314ffb19eed4d0b3c67dd",
+      "files": 1,
+      "added": [],
+      "removed": []
+    },
+    {
+      "path": "scripts/delivery/base/mail.mjs",
+      "from": "4dd4197007cefd688fd314ffb19eed4d0b3c67dd",
+      "files": 1,
+      "added": [],
+      "removed": []
+    },
+    {
+      "path": "scripts/delivery/base/migrations.mjs",
+      "from": "4dd4197007cefd688fd314ffb19eed4d0b3c67dd",
+      "files": 1,
+      "added": [],
+      "removed": []
+    },
+    {
+      "path": "scripts/delivery/base/native-export.mjs",
+      "from": "4dd4197007cefd688fd314ffb19eed4d0b3c67dd",
+      "files": 1,
+      "added": [],
+      "removed": []
+    },
+    {
+      "path": "scripts/delivery/base/package.mjs",
+      "from": "4dd4197007cefd688fd314ffb19eed4d0b3c67dd",
+      "files": 1,
+      "added": [],
+      "removed": []
+    },
+    {
+      "path": "scripts/delivery/base/paths.mjs",
+      "from": "4dd4197007cefd688fd314ffb19eed4d0b3c67dd",
+      "files": 1,
+      "added": [],
+      "removed": []
+    },
+    {
+      "path": "scripts/delivery/base/payloads.mjs",
+      "from": "4dd4197007cefd688fd314ffb19eed4d0b3c67dd",
+      "files": 1,
+      "added": [],
+      "removed": []
+    },
+    {
+      "path": "scripts/delivery/base/schema/business-field-inputs.mjs",
+      "from": "4dd4197007cefd688fd314ffb19eed4d0b3c67dd",
+      "files": 1,
+      "added": [],
+      "removed": []
+    },
+    {
+      "path": "scripts/delivery/base/schema/dependencies.mjs",
+      "from": "4dd4197007cefd688fd314ffb19eed4d0b3c67dd",
+      "files": 1,
+      "added": [],
+      "removed": []
+    },
+    {
+      "path": "scripts/delivery/base/schema/json-schema.mjs",
+      "from": "4dd4197007cefd688fd314ffb19eed4d0b3c67dd",
+      "files": 1,
+      "added": [],
+      "removed": []
+    },
+    {
+      "path": "scripts/delivery/base/schema/setup-validation.mjs",
+      "from": "4dd4197007cefd688fd314ffb19eed4d0b3c67dd",
+      "files": 1,
+      "added": [],
+      "removed": []
+    },
+    {
+      "path": "scripts/delivery/base/schema/SETUP.schema.json",
+      "from": "4dd4197007cefd688fd314ffb19eed4d0b3c67dd",
+      "files": 1,
+      "added": [],
+      "removed": []
+    },
+    {
+      "path": "scripts/delivery/base/sign-in.mjs",
+      "from": "4dd4197007cefd688fd314ffb19eed4d0b3c67dd",
+      "files": 1,
+      "added": [],
+      "removed": []
+    },
+    {
+      "path": "scripts/delivery/base/spec.mjs",
+      "from": "4dd4197007cefd688fd314ffb19eed4d0b3c67dd",
+      "files": 1,
+      "added": [],
+      "removed": []
+    },
+    {
+      "path": "scripts/delivery/base/sql-statements.mjs",
+      "from": "4dd4197007cefd688fd314ffb19eed4d0b3c67dd",
+      "files": 1,
+      "added": [],
+      "removed": []
+    },
+    {
+      "path": "scripts/edition-authoring",
+      "from": "4dd4197007cefd688fd314ffb19eed4d0b3c67dd",
+      "files": 150,
+      "added": [],
+      "removed": []
+    },
+    {
+      "path": "scripts/install-chromium-deps.py",
+      "from": "4dd4197007cefd688fd314ffb19eed4d0b3c67dd",
+      "files": 1,
+      "added": [],
+      "removed": []
+    },
+    {
+      "path": "scripts/installer/ui/background.svg",
+      "from": "4dd4197007cefd688fd314ffb19eed4d0b3c67dd",
+      "files": 1,
+      "added": [],
+      "removed": []
+    },
+    {
+      "path": "scripts/operations-config.mjs",
+      "from": "4dd4197007cefd688fd314ffb19eed4d0b3c67dd",
+      "files": 1,
+      "added": [],
+      "removed": []
+    },
+    {
+      "path": "scripts/verify-app.mjs",
+      "from": "4dd4197007cefd688fd314ffb19eed4d0b3c67dd",
+      "files": 1,
+      "added": [],
+      "removed": []
+    },
+    {
+      "path": "scripts/verify-ci.mjs",
+      "from": "4dd4197007cefd688fd314ffb19eed4d0b3c67dd",
+      "files": 1,
+      "added": [],
+      "removed": []
+    },
+    {
+      "path": "scripts/verify-evidence.mjs",
+      "from": "4dd4197007cefd688fd314ffb19eed4d0b3c67dd",
+      "files": 1,
+      "added": [],
+      "removed": []
+    },
+    {
+      "path": "scripts/verify-light.mjs",
+      "from": "4dd4197007cefd688fd314ffb19eed4d0b3c67dd",
+      "files": 1,
+      "added": [],
+      "removed": []
+    },
+    {
+      "path": "scripts/verify-plan.mjs",
+      "from": "4dd4197007cefd688fd314ffb19eed4d0b3c67dd",
+      "files": 1,
+      "added": [],
+      "removed": []
+    },
+    {
+      "path": "SEED-COMMAND-CONTRACT.md",
+      "from": "4dd4197007cefd688fd314ffb19eed4d0b3c67dd",
+      "files": 1,
+      "added": [],
+      "removed": []
+    },
+    {
+      "path": "src/base/contract-anchor.mjs",
+      "from": "4dd4197007cefd688fd314ffb19eed4d0b3c67dd",
+      "files": 1,
+      "added": [],
+      "removed": []
+    },
+    {
+      "path": "src/base/contract-docs.mjs",
+      "from": "4dd4197007cefd688fd314ffb19eed4d0b3c67dd",
+      "files": 1,
+      "added": [],
+      "removed": []
+    },
+    {
+      "path": "src/base/contract-filter.ts",
+      "from": "4dd4197007cefd688fd314ffb19eed4d0b3c67dd",
+      "files": 1,
+      "added": [],
+      "removed": []
+    },
+    {
+      "path": "src/base/contract-page.ts",
+      "from": "4dd4197007cefd688fd314ffb19eed4d0b3c67dd",
+      "files": 1,
+      "added": [],
+      "removed": []
+    },
+    {
+      "path": "src/base/contract-prose-patterns.mjs",
+      "from": "4dd4197007cefd688fd314ffb19eed4d0b3c67dd",
+      "files": 1,
+      "added": [],
+      "removed": []
+    },
+    {
+      "path": "src/base/contract-prose.mjs",
+      "from": "4dd4197007cefd688fd314ffb19eed4d0b3c67dd",
+      "files": 1,
+      "added": [],
+      "removed": []
+    },
+    {
+      "path": "src/base/contract-style.ts",
+      "from": "4dd4197007cefd688fd314ffb19eed4d0b3c67dd",
+      "files": 1,
+      "added": [],
+      "removed": []
+    },
+    {
+      "path": "src/base/deployment-health.ts",
+      "from": "4dd4197007cefd688fd314ffb19eed4d0b3c67dd",
+      "files": 1,
+      "added": [],
+      "removed": []
+    },
+    {
+      "path": "src/base/dispatch.ts",
+      "from": "4dd4197007cefd688fd314ffb19eed4d0b3c67dd",
+      "files": 1,
+      "added": [],
+      "removed": []
+    },
+    {
+      "path": "src/base/font-response.ts",
+      "from": "4dd4197007cefd688fd314ffb19eed4d0b3c67dd",
+      "files": 1,
+      "added": [],
+      "removed": []
+    },
+    {
+      "path": "src/base/hosting-page.ts",
+      "from": "4dd4197007cefd688fd314ffb19eed4d0b3c67dd",
+      "files": 1,
+      "added": [],
+      "removed": []
+    },
+    {
+      "path": "src/base/hydration/intro-guard.ts",
+      "from": "4dd4197007cefd688fd314ffb19eed4d0b3c67dd",
+      "files": 1,
+      "added": [],
+      "removed": []
+    },
+    {
+      "path": "src/base/hydration/README.md",
+      "from": "4dd4197007cefd688fd314ffb19eed4d0b3c67dd",
+      "files": 1,
+      "added": [],
+      "removed": []
+    },
+    {
+      "path": "src/base/hydration/report.ts",
+      "from": "4dd4197007cefd688fd314ffb19eed4d0b3c67dd",
+      "files": 1,
+      "added": [],
+      "removed": []
+    },
+    {
+      "path": "src/base/hydration/unit.tsx",
+      "from": "4dd4197007cefd688fd314ffb19eed4d0b3c67dd",
+      "files": 1,
+      "added": [],
+      "removed": []
+    },
+    {
+      "path": "src/base/icon-head.ts",
+      "from": "4dd4197007cefd688fd314ffb19eed4d0b3c67dd",
+      "files": 1,
+      "added": [],
+      "removed": []
+    },
+    {
+      "path": "src/base/identity.ts",
+      "from": "4dd4197007cefd688fd314ffb19eed4d0b3c67dd",
+      "files": 1,
+      "added": [],
+      "removed": []
+    },
+    {
+      "path": "src/base/lobby.ts",
+      "from": "4dd4197007cefd688fd314ffb19eed4d0b3c67dd",
+      "files": 1,
+      "added": [],
+      "removed": []
+    },
+    {
+      "path": "src/base/page-style.ts",
+      "from": "4dd4197007cefd688fd314ffb19eed4d0b3c67dd",
+      "files": 1,
+      "added": [],
+      "removed": []
+    },
+    {
+      "path": "src/base/rejected-response.ts",
+      "from": "4dd4197007cefd688fd314ffb19eed4d0b3c67dd",
+      "files": 1,
+      "added": [],
+      "removed": []
+    },
+    {
+      "path": "src/base/run-chooser-style.ts",
+      "from": "4dd4197007cefd688fd314ffb19eed4d0b3c67dd",
+      "files": 1,
+      "added": [],
+      "removed": []
+    },
+    {
+      "path": "src/base/run-data.d.mts",
+      "from": "4dd4197007cefd688fd314ffb19eed4d0b3c67dd",
+      "files": 1,
+      "added": [],
+      "removed": []
+    },
+    {
+      "path": "src/base/run-data.mjs",
+      "from": "4dd4197007cefd688fd314ffb19eed4d0b3c67dd",
+      "files": 1,
+      "added": [],
+      "removed": []
+    },
+    {
+      "path": "src/base/run-pricing.ts",
+      "from": "4dd4197007cefd688fd314ffb19eed4d0b3c67dd",
+      "files": 1,
+      "added": [],
+      "removed": []
+    },
+    {
+      "path": "src/base/run-site.ts",
+      "from": "4dd4197007cefd688fd314ffb19eed4d0b3c67dd",
+      "files": 1,
+      "added": [],
+      "removed": []
+    },
+    {
+      "path": "src/base/seed-contract.d.mts",
+      "from": "4dd4197007cefd688fd314ffb19eed4d0b3c67dd",
+      "files": 1,
+      "added": [],
+      "removed": []
+    },
+    {
+      "path": "src/base/seed-contract.mjs",
+      "from": "4dd4197007cefd688fd314ffb19eed4d0b3c67dd",
+      "files": 1,
+      "added": [],
+      "removed": []
+    },
+    {
+      "path": "src/base/select-style.ts",
+      "from": "4dd4197007cefd688fd314ffb19eed4d0b3c67dd",
+      "files": 1,
+      "added": [],
+      "removed": []
+    },
+    {
+      "path": "src/base/setup-state.ts",
+      "from": "4dd4197007cefd688fd314ffb19eed4d0b3c67dd",
+      "files": 1,
+      "added": [],
+      "removed": []
+    },
+    {
+      "path": "src/base/setup.ts",
+      "from": "4dd4197007cefd688fd314ffb19eed4d0b3c67dd",
+      "files": 1,
+      "added": [],
+      "removed": []
+    },
+    {
+      "path": "src/base/static-assets.ts",
+      "from": "4dd4197007cefd688fd314ffb19eed4d0b3c67dd",
+      "files": 1,
+      "added": [],
+      "removed": []
+    },
+    {
+      "path": "src/base/theme-frame.ts",
+      "from": "4dd4197007cefd688fd314ffb19eed4d0b3c67dd",
+      "files": 1,
+      "added": [],
+      "removed": []
+    },
+    {
+      "path": "src/foundation/runtime",
+      "from": "4dd4197007cefd688fd314ffb19eed4d0b3c67dd",
+      "files": 37,
+      "added": [],
+      "removed": []
+    },
+    {
+      "path": "src/modules/agent-door",
+      "from": "4dd4197007cefd688fd314ffb19eed4d0b3c67dd",
+      "files": 84,
+      "added": [
+        "src/modules/agent-door/policy-event.ts"
+      ],
+      "removed": []
+    },
+    {
+      "path": "src/modules/business-settings",
+      "from": "4dd4197007cefd688fd314ffb19eed4d0b3c67dd",
+      "files": 19,
+      "added": [],
+      "removed": []
+    },
+    {
+      "path": "src/modules/d1-transport",
+      "from": "4dd4197007cefd688fd314ffb19eed4d0b3c67dd",
+      "files": 4,
+      "added": [],
+      "removed": []
+    },
+    {
+      "path": "src/modules/demo",
+      "from": "4dd4197007cefd688fd314ffb19eed4d0b3c67dd",
+      "files": 14,
+      "added": [],
+      "removed": []
+    },
+    {
+      "path": "src/modules/dependencies",
+      "from": "4dd4197007cefd688fd314ffb19eed4d0b3c67dd",
+      "files": 16,
+      "added": [],
+      "removed": []
+    },
+    {
+      "path": "src/modules/editor",
+      "from": "4dd4197007cefd688fd314ffb19eed4d0b3c67dd",
+      "files": 13,
+      "added": [],
+      "removed": []
+    },
+    {
+      "path": "src/modules/egress-service",
+      "from": "4dd4197007cefd688fd314ffb19eed4d0b3c67dd",
+      "files": 40,
+      "added": [],
+      "removed": []
+    },
+    {
+      "path": "src/modules/erasure",
+      "from": "4dd4197007cefd688fd314ffb19eed4d0b3c67dd",
+      "files": 16,
+      "added": [],
+      "removed": []
+    },
+    {
+      "path": "src/modules/import-kit/schema/importer-verification-receipt.schema.json",
+      "from": "4dd4197007cefd688fd314ffb19eed4d0b3c67dd",
+      "files": 1,
+      "added": [],
+      "removed": []
+    },
+    {
+      "path": "src/modules/import-kit/schema/importers.schema.json",
+      "from": "4dd4197007cefd688fd314ffb19eed4d0b3c67dd",
+      "files": 1,
+      "added": [],
+      "removed": []
+    },
+    {
+      "path": "src/modules/import-kit/src",
+      "from": "4dd4197007cefd688fd314ffb19eed4d0b3c67dd",
+      "files": 198,
+      "added": [],
+      "removed": []
+    },
+    {
+      "path": "src/modules/integrations/core",
+      "from": "4dd4197007cefd688fd314ffb19eed4d0b3c67dd",
+      "files": 15,
+      "added": [],
+      "removed": []
+    },
+    {
+      "path": "src/modules/mail",
+      "from": "4dd4197007cefd688fd314ffb19eed4d0b3c67dd",
+      "files": 65,
+      "added": [],
+      "removed": []
+    },
+    {
+      "path": "src/modules/operator-auth",
+      "from": "4dd4197007cefd688fd314ffb19eed4d0b3c67dd",
+      "files": 112,
+      "added": [
+        "src/modules/operator-auth/dev/invited.mjs"
+      ],
+      "removed": []
+    },
+    {
+      "path": "src/modules/owner-claim",
+      "from": "4dd4197007cefd688fd314ffb19eed4d0b3c67dd",
+      "files": 9,
+      "added": [],
+      "removed": []
+    },
+    {
+      "path": "src/modules/portability",
+      "from": "4dd4197007cefd688fd314ffb19eed4d0b3c67dd",
+      "files": 54,
+      "added": [],
+      "removed": []
+    },
+    {
+      "path": "src/router.tsx",
+      "from": "4dd4197007cefd688fd314ffb19eed4d0b3c67dd",
+      "files": 1,
+      "added": [],
+      "removed": []
+    }
+  ],
+  "retired": [],
+  "adapted": [
+    {
+      "path": ".github/workflows/run-demo.yml",
+      "originPath": "export/run-demo.yml",
+      "revision": "46b52ccb1cd3d3dc6f8d8507819673a4d74e038e",
+      "conflict": false
+    },
+    {
+      "path": ".github/workflows/run-site.yml",
+      "originPath": "export/run-site.yml",
+      "revision": "46b52ccb1cd3d3dc6f8d8507819673a4d74e038e",
+      "conflict": false
+    },
+    {
+      "path": ".github/workflows/verify.yml",
+      "originPath": "export/verify.yml",
+      "revision": "25d370982f5bd8afbe650b82cb58adc2137d10e9",
+      "conflict": false
+    },
+    {
+      "path": "src/modules/agent-door/audit.ts",
+      "originPath": "modules/agent-door/audit.ts",
+      "revision": "8b925fa5ffaa577df9f2e4ebab6ede8af5155baa",
+      "conflict": true,
+      "note": "Upstream changed or removed this seed-owned adaptation; review and reconcile explicitly.",
+      "diffHint": "git -C <base> diff 8b925fa5ffaa577df9f2e4ebab6ede8af5155baa c2efb501cbc148c2aee4d5e1107ebdba81469006 -- \"modules/agent-door/audit.ts\""
+    },
+    {
+      "path": "src/modules/agent-door/pages.ts",
+      "originPath": "modules/agent-door/pages.ts",
+      "revision": "8b925fa5ffaa577df9f2e4ebab6ede8af5155baa",
+      "conflict": true,
+      "note": "Upstream changed or removed this seed-owned adaptation; review and reconcile explicitly.",
+      "diffHint": "git -C <base> diff 8b925fa5ffaa577df9f2e4ebab6ede8af5155baa c2efb501cbc148c2aee4d5e1107ebdba81469006 -- \"modules/agent-door/pages.ts\""
+    },
+    {
+      "path": "src/modules/agent-door/person-doors.ts",
+      "originPath": "modules/agent-door/person-doors.ts",
+      "revision": "8b925fa5ffaa577df9f2e4ebab6ede8af5155baa",
+      "conflict": true,
+      "note": "Upstream changed or removed this seed-owned adaptation; review and reconcile explicitly.",
+      "diffHint": "git -C <base> diff 8b925fa5ffaa577df9f2e4ebab6ede8af5155baa c2efb501cbc148c2aee4d5e1107ebdba81469006 -- \"modules/agent-door/person-doors.ts\""
+    },
+    {
+      "path": "src/modules/agent-door/reviews.ts",
+      "originPath": "modules/agent-door/reviews.ts",
+      "revision": "8b925fa5ffaa577df9f2e4ebab6ede8af5155baa",
+      "conflict": true,
+      "note": "Upstream changed or removed this seed-owned adaptation; review and reconcile explicitly.",
+      "diffHint": "git -C <base> diff 8b925fa5ffaa577df9f2e4ebab6ede8af5155baa c2efb501cbc148c2aee4d5e1107ebdba81469006 -- \"modules/agent-door/reviews.ts\""
+    },
+    {
+      "path": "src/modules/erasure/cascade.mjs",
+      "originPath": "modules/erasure/cascade.mjs",
+      "revision": "8b925fa5ffaa577df9f2e4ebab6ede8af5155baa",
+      "conflict": false
+    },
+    {
+      "path": "src/modules/erasure/index.d.mts",
+      "originPath": "modules/erasure/index.d.mts",
+      "revision": "8b925fa5ffaa577df9f2e4ebab6ede8af5155baa",
+      "conflict": false
+    },
+    {
+      "path": "src/modules/erasure/index.mjs",
+      "originPath": "modules/erasure/index.mjs",
+      "revision": "8b925fa5ffaa577df9f2e4ebab6ede8af5155baa",
+      "conflict": false
+    },
+    {
+      "path": "src/modules/erasure/order.mjs",
+      "originPath": "modules/erasure/order.mjs",
+      "revision": "8b925fa5ffaa577df9f2e4ebab6ede8af5155baa",
+      "conflict": false
+    },
+    {
+      "path": "src/modules/erasure/verification.mjs",
+      "originPath": "modules/erasure/verification.mjs",
+      "revision": "8b925fa5ffaa577df9f2e4ebab6ede8af5155baa",
+      "conflict": false
+    }
+  ],
+  "relocated": [],
+  "withheld": [],
+  "packageDependencies": [
+    {
+      "package": "react",
+      "version": "19.2.8",
+      "baseVersion": "19.3.1",
+      "conflict": true,
+      "files": [
+        "src/base/hydration/unit.tsx",
+        "src/foundation/runtime/hydration/unit.tsx",
+        "src/modules/editor/react.tsx"
+      ]
+    },
+    {
+      "package": "miniflare",
+      "version": "5.20260907.0-alpha",
+      "baseVersion": "5.20260907.0-alpha",
+      "conflict": false,
+      "files": [
+        "src/modules/agent-door/conformance/network-runtime.mjs"
+      ]
+    },
+    {
+      "package": "wrangler",
+      "version": "4.129.1",
+      "baseVersion": "4.129.1",
+      "conflict": false,
+      "files": [
+        "src/modules/agent-door/conformance/network-runtime.mjs"
+      ]
+    },
+    {
+      "package": "@tanstack/react-router",
+      "version": "1.170.41",
+      "baseVersion": "1.170.41",
+      "conflict": false,
+      "files": [
+        "src/router.tsx",
+        "src/routes/__root.tsx"
+      ]
+    },
+    {
+      "package": "@tanstack/react-start",
+      "version": "1.168.60",
+      "baseVersion": "1.168.60",
+      "conflict": false,
+      "files": [
+        "src/routeTree.gen.ts"
+      ]
+    }
+  ],
+  "editionMigrations": [],
+  "templateAdoptions": [],
+  "notices": [
+    ".github/workflows/verify.yml: preserved seed-owned workflow. The current template pins Ubuntu 24.04 and moves browser and apt caches to the runner temporary directory. To adopt, merge export/verify.yml from Base c2efb501cbc148c2aee4d5e1107ebdba81469006 into .github/workflows/verify.yml, then run node node_modules/@runeditrun/rer/edition-authoring/cli.mjs record-base .github/workflows/verify.yml export/verify.yml c2efb501cbc148c2aee4d5e1107ebdba81469006 --base <base-checkout> and repeat rer refresh-base --ref c2efb501cbc148c2aee4d5e1107ebdba81469006 --base <base-checkout>.",
+    ".github/workflows/verify-nightly.yml: preserved seed-owned workflow. The current template pins Ubuntu 24.04 and moves browser and apt caches to the runner temporary directory. To adopt, merge export/verify-nightly.yml from Base c2efb501cbc148c2aee4d5e1107ebdba81469006 into .github/workflows/verify-nightly.yml, then run node node_modules/@runeditrun/rer/edition-authoring/cli.mjs record-base .github/workflows/verify-nightly.yml export/verify-nightly.yml c2efb501cbc148c2aee4d5e1107ebdba81469006 --base <base-checkout> and repeat rer refresh-base --ref c2efb501cbc148c2aee4d5e1107ebdba81469006 --base <base-checkout>."
+  ],
+  "next": "Run verify-base, then the edition tests, and commit the copied files with the record."
+}

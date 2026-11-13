@@ -1,0 +1,180 @@
+▲ [WARNING] Proxy environment variables detected. We'll use your proxy for fetch requests.
+
+
+(node:6560) ExperimentalWarning: SQLite is an experimental feature and might change at any time
+(Use `node --trace-warnings ...` to show where the warning was created)
+Native agent fixture: starting emitted Worker
+Native agent fixture: Worker and ledger ready
+Native agent fixture: signed owner ready
+Native agent fixture: durable Business mapping ready
+PROBE SURFACE-002 acceptance-7 autonomous: MCP spool.alerts.test clean, fresh-key arguments and saved-label claims -> external measure=1 counterparty=known provider=email step=destination test; policy_blocked rule=external-blocked revision=1; no native test, delivery job or provider send
+PROBE SURFACE-002 acceptance-7-control autonomous: remove external block on the same saved target -> one native passing test and one fake email to the actual recipient; replay unchanged; external facts retained at revision=2
+PROBE SURFACE-002 acceptance-7-replay autonomous: restore external block then replay admitted key with internal and zero-cost claims -> policy_blocked rule=external-blocked revision=3; computed external facts and completed native state unchanged
+PROBE SURFACE-002 acceptance-7-configured autonomous: configured mail with an internal label claim -> unchanged external facts; company approval names the saved address; one fake TEST and inert replay
+PROBE SURFACE-002 acceptance-2 autonomous: MCP spool.alerts.test -> exact active owner and confirmed signed teammate are standard; same-domain, invited, unmapped, roster-removed and native-removed recipients stay external; blocked calls leave native effects unchanged; allowed internal controls each send once to the actual recipient
+PROBE SURFACE-002 acceptance-7-internal autonomous: fresh-key internal and zero-cost arguments plus saved-label claims -> identical standard facts for current Business identities and identical external facts for outside identities
+PROBE SURFACE-002 acceptance-2-held-change autonomous: approve a held internal TEST after signed roster removal -> approval_evidence_changed; a fresh call is externally blocked; no native test or provider send
+PROBE SURFACE-002 acceptance-7-recipient-change autonomous: MCP spool.alerts.test and native destination edit -> label-only change preserves one approved send; address change retires the target and refuses old approval and replay with no send; fresh replacement is externally blocked despite injected claims, then sends once only after fresh exact approval
+Native agent fixture: starting emitted Worker
+Native agent fixture: Worker and ledger ready
+Native agent fixture: signed owner ready
+Native agent fixture: durable Business mapping ready
+PROBE SURFACE-002 acceptance-7 held: MCP spool.alerts.test clean, fresh-key arguments and saved-label claims -> external measure=1 counterparty=known provider=email step=destination test; policy_blocked rule=external-blocked revision=1; no native test, delivery job or provider send
+PROBE SURFACE-002 acceptance-7-control held: remove external block on the same saved target -> inert approval then one native passing test and one fake email to the actual recipient; replay unchanged; external facts retained at revision=2
+PROBE SURFACE-002 acceptance-7-replay held: restore external block then replay admitted key with internal and zero-cost claims -> policy_blocked rule=external-blocked revision=3; computed external facts and completed native state unchanged
+PROBE SURFACE-002 acceptance-7-configured held: configured mail with an internal label claim -> unchanged external facts; company approval names the saved address; one fake TEST and inert replay
+PROBE SURFACE-002 acceptance-2 held: MCP spool.alerts.test -> exact active owner and confirmed signed teammate are standard; same-domain, invited, unmapped, roster-removed and native-removed recipients stay external; blocked calls leave native effects unchanged; allowed internal controls each send once to the actual recipient
+PROBE SURFACE-002 acceptance-7-internal held: fresh-key internal and zero-cost arguments plus saved-label claims -> identical standard facts for current Business identities and identical external facts for outside identities
+PROBE SURFACE-002 acceptance-2-held-change held: approve a held internal TEST after signed roster removal -> approval_evidence_changed; a fresh call is externally blocked; no native test or provider send
+PROBE SURFACE-002 acceptance-7-recipient-change held: MCP spool.alerts.test and native destination edit -> label-only change preserves one approved send; address change retires the target and refuses old approval and replay with no send; fresh replacement is externally blocked despite injected claims, then sends once only after fresh exact approval
+Native agent fixture: starting emitted Worker
+Native agent fixture: Worker and ledger ready
+Native agent fixture: signed owner ready
+Native agent fixture: durable Business mapping ready
+PROBE BASE-AGENT-001 1 autonomous: signed modern discovery before initialize -> supported versions, capabilities, serverInfo and specialist instructions
+PROBE BASE-AGENT-001 2 autonomous: handshake-free modern list and body-only legacy initialize without modern metadata -> identical complete 55-tool catalogue and server description
+PROBE BASE-AGENT-001 4 autonomous: repeated lists in both revisions -> deterministic unique sorted names, unchanged descriptions, ttlMs and private cache scope
+PROBE BASE-AGENT-001 3 autonomous: unsupported version -> HTTP 400 UnsupportedProtocolVersion and supported revisions, unchanged populated state
+PROBE BASE-AGENT-001 5 autonomous: mismatched method header -> HTTP 400 HeaderMismatch; foreign Origin -> HTTP 403, unchanged populated state
+PROBE BASE-AGENT-001 6 autonomous: oversized valid issue mutation with declared length and streamed body -> HTTP 413, identical populated native records and custody
+PROBE BASE-AGENT-001 control autonomous: identical bounded mutation -> suppressed exactly once
+Native agent fixture: starting emitted Worker
+Native agent fixture: Worker and ledger ready
+Native agent fixture: signed owner ready
+Native agent fixture: durable Business mapping ready
+PROBE BASE-AGENT-001 1 held: signed modern discovery before initialize -> supported versions, capabilities, serverInfo and specialist instructions
+PROBE BASE-AGENT-001 2 held: handshake-free modern list and body-only legacy initialize without modern metadata -> identical complete 55-tool catalogue and server description
+PROBE BASE-AGENT-001 4 held: repeated lists in both revisions -> deterministic unique sorted names, unchanged descriptions, ttlMs and private cache scope
+PROBE BASE-AGENT-001 3 held: unsupported version -> HTTP 400 UnsupportedProtocolVersion and supported revisions, unchanged populated state
+PROBE BASE-AGENT-001 5 held: mismatched method header -> HTTP 400 HeaderMismatch; foreign Origin -> HTTP 403, unchanged populated state
+PROBE BASE-AGENT-001 6 held: oversized valid issue mutation with declared length and streamed body -> HTTP 413, identical populated native records and custody
+PROBE BASE-AGENT-001 control held: identical bounded mutation -> waits for native sponsor approval, then suppressed exactly once
+Native agent fixture: starting emitted Worker
+Native agent fixture: Worker and ledger ready
+Native agent fixture: signed owner ready
+Native agent fixture: durable Business mapping ready
+PROBE BASE-AGENT-007 acceptance-8-autonomous: untrusted-key policy POST -> 400 policy_invalid, stored policy and pending actions unchanged, native records preserved; subsequent MCP update follows original autonomous policy; trusted-signature control adopted
+Native agent fixture: starting emitted Worker
+Native agent fixture: Worker and ledger ready
+Native agent fixture: signed owner ready
+Native agent fixture: durable Business mapping ready
+PROBE BASE-AGENT-007 acceptance-8-held: untrusted-key policy POST -> 400 policy_invalid, stored policy and pending actions unchanged, native records preserved; subsequent MCP update follows original held policy; trusted-signature control adopted
+PROBE BASE-AGENT-008 acceptance-2-policy: native policy PUT with real project agent key, with and without owner cookie -> 403 and unchanged policy and native records; subsequent owner UI save succeeds
+PROBE SURFACE-005 native-link: authenticated exact-project MCP read -> policy_unset and native /agents setup URL
+PROBE SURFACE-005 unanswered-controls: native owner setup -> every declared class and paid AI unanswered; labelled keyboard controls, Axe and desktop and phone proof
+PROBE SURFACE-005 incomplete-refusal: blank form, omitted class, unanswered paid AI and incomplete native PUT -> no policy saved and no MCP operation admitted
+PROBE SURFACE-005 explicit-choice: owner answers all classes and No paid AI -> revision 1, exact-project MCP read succeeds, foreign-project read and revoked key refused
+Native agent fixture: starting emitted Worker
+Native agent fixture: Worker and ledger ready
+Native agent fixture: signed owner ready
+Native agent fixture: durable Business mapping ready
+PROBE BASE-AGENT-011 6 autonomous native Pause: Business MCP, native project MCP and HTTP read -> agents_paused within 60 seconds; retained writes refused without changes
+PROBE BASE-AGENT-011 6 autonomous native resume: owner resumes -> both agent credentials read the retained issue under the original disposition; native person mutation remains usable
+PROBE BASE-AGENT-011 6 autonomous signed Business Pause: Business MCP, native project MCP and HTTP read -> agents_paused within 60 seconds; retained writes refused without changes
+PROBE BASE-AGENT-011 6 autonomous Business resume: signed policy clears pause -> both agent credentials and the native HTTP alias regain access
+PROBE BASE-AGENT-011 6 autonomous Business pause after local resume: Business MCP, native project MCP and HTTP read -> agents_paused within 60 seconds; retained writes refused without changes
+PROBE BASE-AGENT-011 6 autonomous local pause after Business resume: Business MCP, native project MCP and HTTP read -> agents_paused within 60 seconds; retained writes refused without changes
+PROBE BASE-AGENT-011 6 autonomous combined pause: clear either source alone -> agents_paused; clear both -> access and original replay restored without duplicate effects
+PROBE BASE-AGENT-011 7 autonomous: valid Business and native project agent POST paused=false -> 403 person_session_required with identical pause and policy state
+Native agent fixture: starting emitted Worker
+Native agent fixture: Worker and ledger ready
+Native agent fixture: signed owner ready
+Native agent fixture: durable Business mapping ready
+PROBE BASE-AGENT-011 6 held native Pause: Business MCP, native project MCP and HTTP read -> agents_paused within 60 seconds; retained writes refused without changes
+PROBE BASE-AGENT-011 6 held native resume: owner resumes -> both agent credentials read the retained issue under the original disposition; native person mutation remains usable
+PROBE BASE-AGENT-011 6 held signed Business Pause: Business MCP, native project MCP and HTTP read -> agents_paused within 60 seconds; retained writes refused without changes
+PROBE BASE-AGENT-011 6 held Business resume: signed policy clears pause -> both agent credentials and the native HTTP alias regain access
+PROBE BASE-AGENT-011 6 held Business pause after local resume: Business MCP, native project MCP and HTTP read -> agents_paused within 60 seconds; retained writes refused without changes
+PROBE BASE-AGENT-011 6 held local pause after Business resume: Business MCP, native project MCP and HTTP read -> agents_paused within 60 seconds; retained writes refused without changes
+PROBE BASE-AGENT-011 6 held combined pause: clear either source alone -> agents_paused; clear both -> access and original replay restored without duplicate effects
+PROBE BASE-AGENT-011 7 held: valid Business and native project agent POST paused=false -> 403 person_session_required with identical pause and policy state
+Native agent fixture: starting emitted Worker
+Native agent fixture: Worker and ledger ready
+Native agent fixture: signed owner ready
+Native agent fixture: durable Business mapping ready
+Catalogue acknowledgement probe: [{"class":"standard","acknowledged":20,"declared":50},{"class":"external","acknowledged":5,"declared":2},{"class":"access","acknowledged":2,"declared":2},{"class":"security","acknowledged":1,"declared":1},{"class":"destructive","acknowledged":4,"declared":3},{"class":"live","acknowledged":7,"declared":3}]
+PROBE BASE-AGENT-008 acceptance-2 held: valid Business and exact-project tokens POST real approval and review IDs and policy answers, with and without person session -> 403 person_session_required; all persisted state unchanged
+PROBE BASE-AGENT-008 acceptance-1-and-3 held: MCP confirmation flags and form accept with the real pending request state -> identical classes and input_required, no approval mark or native effect
+PROBE BASE-AGENT-008 person-controls held: signed-in person marks reviewed under current policy and approves under matching saved policy -> person attribution persists and native issue changes exactly once
+PROBE BASE-AGENT-008 acceptance-5-and-6 held: signed person approval -> durable named approver and separate agent preparer; populated activity at 1440 with 390 capture
+PROBE BASE-AGENT-008 acceptance-7 held: native agent TEST -> one provider payload with agent and sponsor sender; matching real-person TEST retains installation sender and the same sending mailbox
+PROBE BASE-AGENT-008 acceptance-2 autonomous: valid Business and exact-project tokens POST real approval and review IDs and policy answers, with and without person session -> 403 person_session_required; all persisted state unchanged
+PROBE BASE-AGENT-008 acceptance-1-and-3 autonomous: MCP confirmation flags and form accept with the real pending request state -> identical classes and input_required, no approval mark or native effect
+PROBE BASE-AGENT-008 person-controls autonomous: signed-in person marks reviewed under current policy and approves under matching saved policy -> person attribution persists and native issue changes exactly once
+PROBE BASE-AGENT-008 acceptance-5-and-6 autonomous: signed person approval -> durable named approver and separate agent preparer; populated activity at 1440 with 390 capture
+PROBE BASE-AGENT-008 acceptance-7 autonomous: native agent TEST -> one provider payload with agent and sponsor sender; matching real-person TEST retains installation sender and the same sending mailbox
+PROBE SURFACE-003 windows: authenticated MCP 30 -> 60 -> 60 -> 90 -> standard and review; empty shortening -> destructive count 0, approved once
+PROBE SURFACE-003 blocked: MCP shortening with injected standard and zero count -> policy_blocked, destructive count 2, unchanged native policy
+PROBE SURFACE-003 stale: approved MCP calls after changed quantity, same-count range and native revision -> refused, no policy mutation
+PROBE SURFACE-003 approval: MCP shortening of 3 eligible sessions -> pending, approved current policy saved once; replay and audit preserve destructive count 3 and native standing custody
+PROBE SURFACE-003 lengthening: MCP 30 -> 60 days with 3 eligible retained records -> standard, no destructive or live addition
+PROBE SURFACE-003 authority: foreign-project maintainer MCP update -> not_found and unchanged policy; direct standing-worker MCP call remains unavailable
+Closed-schema narrowing: injected confirmations and widening fields refuse with no native effect; the exact revoke succeeds.
+Closed Base assertions: native audit targets, resource refusal code and current replay admission.
+Spool people: native invitation, signed teammate mapping, stale-email refusal, ID/email self-escalation, exact local project scope and permanent key retirement passed.
+PROBE BASE-AGENT-005 scope-autonomous: populated evidence-only token -> read succeeds, writes HTTP 403 with required scope, foreign populated and absent records both not_found; ledger preserved
+PROBE BASE-AGENT-005 injection-autonomous: captured wider-action and internal-recipient instructions plus forged arguments -> foreign read refused and live classification unchanged, no mutation
+PROBE BASE-AGENT-005 self-widening-autonomous: three native sponsor aliases with role and project-grant widening -> self_escalation, no native effect
+PROBE BASE-AGENT-005 downgrade-autonomous-project: same unexpired Business bearer after native member PUT -> fresh mutation and completed replay not_found, native ledger unchanged, populated read succeeds
+PROBE BASE-AGENT-005 downgrade-autonomous-organization: same unexpired Business bearer after native member PUT -> fresh mutation and completed replay not_found, native ledger unchanged, populated read succeeds
+PROBE BASE-AGENT-005 downgrade-autonomous-combined: same unexpired Business bearer after native member PUT -> fresh mutation and completed replay not_found, native ledger unchanged, populated read succeeds
+PROBE BASE-AGENT-005 inactive-autonomous: same unexpired Business bearer after native member DELETE -> next MCP read HTTP 401 and unchanged native ledger
+PROBE BASE-AGENT-005 scope-held: populated evidence-only token -> read succeeds, writes HTTP 403 with required scope, foreign populated and absent records both not_found; ledger preserved
+PROBE BASE-AGENT-005 injection-held: captured wider-action and internal-recipient instructions plus forged arguments -> foreign read refused and live classification unchanged, no mutation
+PROBE BASE-AGENT-005 self-widening-held: three native sponsor aliases with role and project-grant widening -> self_escalation, no native effect
+PROBE BASE-AGENT-005 downgrade-held-project: same unexpired Business bearer after native member PUT -> fresh mutation and completed replay not_found, pending replay not_found, native ledger unchanged, populated read succeeds
+PROBE BASE-AGENT-005 downgrade-held-organization: same unexpired Business bearer after native member PUT -> fresh mutation and completed replay not_found, pending replay not_found, native ledger unchanged, populated read succeeds
+PROBE BASE-AGENT-005 downgrade-held-combined: same unexpired Business bearer after native member PUT -> fresh mutation and completed replay not_found, pending replay not_found, native ledger unchanged, populated read succeeds
+PROBE BASE-AGENT-005 inactive-held: same unexpired Business bearer after native member DELETE -> next MCP read HTTP 401 and unchanged native ledger
+PROBE BASE-AGENT-005 role-owner: populated native issue read and triage mutation -> browser-session and MCP read=true, write=true
+PROBE BASE-AGENT-005 role-admin: populated native issue read and triage mutation -> browser-session and MCP read=true, write=true
+PROBE BASE-AGENT-005 role-billing: populated native issue read and triage mutation -> browser-session and MCP read=false, write=false
+PROBE BASE-AGENT-005 role-maintainer: populated native issue read and triage mutation -> browser-session and MCP read=true, write=true
+PROBE BASE-AGENT-005 role-member: populated native issue read and triage mutation -> browser-session and MCP read=true, write=true
+PROBE BASE-AGENT-005 role-read-only: populated native issue read and triage mutation -> browser-session and MCP read=true, write=false
+Spool specialist: real captured failure, isolated reproduction, queued Pause, exact native repository consent and policy-held GitHub draft data PR passed.
+Spool review/erasure: independent native reviewer Undo with no agent identity, durable erasure custody, paused continuation and current person completion passed.
+PROBE BASE-AGENT-008 acceptance-7: native destination test and resumed standing mail -> provider payload sender names Agent door conformance for Dana Engineer; Pause and detach prevent sends
+PROBE BASE-AGENT-008 acceptance-7-followup: authorized invalid intake -> native attention and one completed alternate notice with agent and sponsor sender
+PROBE BASE-AGENT-006 acceptance-6-autonomous: MCP suppression at current native revision with explicit live block -> policy_blocked; exact decision audit has live, measure 1, native project, rule synthetic-spool-live-autonomous, revision 46 and refused outcome; captured state, delivery jobs and usage unchanged
+PROBE BASE-AGENT-006 acceptance-6-held: MCP suppression at current native revision with explicit live block -> policy_blocked; exact decision audit has live, measure 1, native project, rule synthetic-spool-live-held, revision 47 and refused outcome; captured state, delivery jobs and usage unchanged
+PROBE BASE-AGENT-009 acceptance-6 autonomous: native paginated audit and signed-in revoke -> 206 prior agent rows unchanged across 4 pages; fresh call and list tokens refused; current person and peer access retained
+PROBE BASE-AGENT-009 acceptance-6 held: native paginated audit and signed-in revoke -> 206 prior agent rows unchanged across 5 pages; fresh call and list tokens refused; current person and peer access retained
+PROBE BASE-AGENT-009 acceptance-1 autonomous: authenticated proposal write -> complete identity, sponsor, consent, scope, target, class facts, policy rule, decision, outcome, review, key and trace row
+PROBE BASE-AGENT-009 acceptance-2 autonomous: blocked, unset, held write and member escalation -> retained truthful refusals and pending audit; unsafe calls preserve native state
+PROBE BASE-AGENT-009 acceptance-4 autonomous: native review feed and person controls -> exact review membership; held Mark reviewed, Flag and reversible Undo preserve real person attribution
+PROBE BASE-AGENT-009 acceptance-3 autonomous: Agents fixture-week counts -> exact class and decision totals; earlier week excluded
+PROBE BASE-AGENT-009 acceptance-5 autonomous: native Agent and Class filters and browser download -> matching rows only; every visible field preserved
+PROBE BASE-AGENT-009 acceptance-7 autonomous: populated Agents screen -> 1440 Axe and keyboard form; 1440 and 390 browser proof
+PROBE BASE-AGENT-009 acceptance-1 held: authenticated proposal write -> complete identity, sponsor, consent, scope, target, class facts, policy rule, decision, outcome, review, key and trace row
+PROBE BASE-AGENT-009 acceptance-2 held: blocked, unset, held write and member escalation -> retained truthful refusals and pending audit; unsafe calls preserve native state
+PROBE BASE-AGENT-009 acceptance-4 held: native review feed and person controls -> exact review membership; held Mark reviewed, Flag and reversible Undo preserve real person attribution
+PROBE BASE-AGENT-009 acceptance-3 held: Agents fixture-week counts -> exact class and decision totals; earlier week excluded
+PROBE BASE-AGENT-009 acceptance-5 held: native Agent and Class filters and browser download -> matching rows only; every visible field preserved
+PROBE BASE-AGENT-009 acceptance-7 held: populated Agents screen -> 1440 Axe and keyboard form; 1440 and 390 browser proof
+Native standing worker: durable real jobs; Pause no-send; resumed attributed delivery; detached Business no-send.
+Spool agent erasure: al@example.com erased; sal@example.com and al@example.com.test records byte-for-byte unchanged.
+Spool native door: signed owner/settings, one registry, inert proposal/replay, attributed repair claim, exact approval, Pause and identity checks passed.
+Native agent fixture: starting emitted Worker
+Native agent fixture: Worker and ledger ready
+Native agent fixture: signed owner ready
+Native agent fixture: durable Business mapping ready
+Native owner custody: paired Business identity, call/approval/audit map scan, ordinary verified successor, retained project and irreversible detach passed.
+Native agent fixture: starting emitted Worker
+Native agent fixture: Worker and ledger ready
+Native agent fixture: signed owner ready
+Native agent fixture: durable Business mapping ready
+Replay fixture: native owner ready
+Replay fixture: native call saved
+Replay fixture: native archive read
+Replay erasure step 0: complete
+Replay clock boundary 24h+1ms
+Replay clock restarted
+Replay clock policy adopted
+Replay clock boundary legacy horizon+1ms
+Replay clock restarted
+Replay clock policy adopted
+Replay clock boundary completion horizon+1ms
+Replay clock restarted
+Replay clock policy adopted
+Native replay horizon: original completion expiry preserved; now/24h+1ms tombstones; horizon+1ms fresh refusal; old archive epoch refused.

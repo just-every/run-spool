@@ -1,0 +1,60 @@
+{
+  "generated_at": "2026-11-13T15:44:22.467160+00:00",
+  "product": {
+    "repository": "just-every/run-spool",
+    "branch": "cloud/main-spool-rer-0213-1",
+    "head": "7faf53703fcc6d8294f75dd4121a70cf0fcfa337",
+    "remote_head": "7faf53703fcc6d8294f75dd4121a70cf0fcfa337",
+    "pushed_at": "2026-11-13T15:42:55.664826+00:00",
+    "main_parent": "104ae1c1532c4c9125858a571dbab223993500fd",
+    "worktree_clean": true
+  },
+  "local_checks": "all final touched checks pass",
+  "clauses_before": {
+    "done": 23,
+    "partial": 54,
+    "missing": 28
+  },
+  "clauses_after": {
+    "done": 23,
+    "partial": 54,
+    "missing": 28
+  },
+  "test_files_changed": 0,
+  "test_registrations_added": 0,
+  "test_registrations_removed": 0,
+  "base_records_before": 105,
+  "base_records_after": 105,
+  "base_added_files": 2,
+  "base_removed_files": 0,
+  "adaptations_preserved": 12,
+  "source_lock": "regenerated last, check passed",
+  "publication_scan": "deferred to fleet Mac per cloud brief",
+  "ready": false,
+  "terminal_status": "BLOCKED",
+  "ci": {
+    "checked_at": "2026-11-13T15:44:35.713048+00:00",
+    "head": "7faf53703fcc6d8294f75dd4121a70cf0fcfa337",
+    "verify": [
+      {
+        "conclusion": "failure",
+        "event": "push",
+        "head_sha": "7faf53703fcc6d8294f75dd4121a70cf0fcfa337",
+        "html_url": "https://github.com/just-every/run-spool/actions/runs/43455376010",
+        "id": 43455376010,
+        "name": "Verify",
+        "status": "completed"
+      }
+    ],
+    "github_calls_used": 10,
+    "github_call_budget": 10,
+    "discovery_counts_as_poll": true,
+    "ready": false,
+    "remaining": "Exact-SHA Verify must complete successfully before READY/landing.",
+    "terminal_status": "BLOCKED",
+    "blocker": "Exact-SHA Verify 43455376010 completed with failure. The ten-call GitHub budget is exhausted (nine source acquisition calls and one exact-SHA run discovery); failing job/step and its logs were not retrieved, and no unqualified rerun was attempted.",
+    "failed_job": "unknown; job metadata/logs not retrieved",
+    "exception_for_generated_views": "not established; local contract-docs check passed"
+  },
+  "blocker": "Exact-SHA Verify 43455376010 completed with failure. The ten-call GitHub budget is exhausted (nine source acquisition calls and one exact-SHA run discovery); failing job/step and its logs were not retrieved, and no unqualified rerun was attempted."
+}

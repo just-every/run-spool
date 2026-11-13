@@ -1,0 +1,6 @@
+{
+  "command": "node tests/agent-door.mjs",
+  "node": "22.20.0",
+  "exit": 0,
+  "setup_note": "First attempt could not load the agent workspace SDK after root-only install; pnpm install --frozen-lockfile installed the declared workspace dependencies before this run."
+}

@@ -1,0 +1,11 @@
+{
+  "old-archive": 0,
+  "dev-credentials": 0,
+  "typecheck": 0,
+  "commands": [
+    "node tests/old-archive.mjs",
+    "node tests/dev-credentials.mjs",
+    "pnpm typecheck"
+  ],
+  "additional_typecheck": "pnpm typecheck also passed under the exact Node 22.20.0 runtime after workspace install."
+}
