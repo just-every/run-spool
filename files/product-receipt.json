@@ -1,0 +1,18 @@
+{
+  "head": "02e798f0a22349398ec82f4ec6ea6ff86385e8bd",
+  "branch": "cloud/main-spool-dashboard-window-1",
+  "push": "succeeded",
+  "attempts": 1,
+  "command": "python3 $HOME/rer-consolidation/.tools/cloud-push.py origin cloud/main-spool-dashboard-window-1",
+  "author": "Run Edit Run fleet <fleet@runeditrun.com>",
+  "committer": "Run Edit Run fleet <fleet@runeditrun.com>",
+  "trailers": [],
+  "tree_clean": true,
+  "publication_scan": "fleet lander gate; not available in this cloud",
+  "product_pushes": 2,
+  "attempts_per_push": [
+    1,
+    1
+  ],
+  "published_history_rewritten": false
+}

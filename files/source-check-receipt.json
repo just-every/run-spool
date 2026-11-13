@@ -1,0 +1,9 @@
+{
+  "product_head": "02e798f0a22349398ec82f4ec6ea6ff86385e8bd",
+  "command": "pnpm source:check",
+  "ok": true,
+  "schemaVersion": 1,
+  "edition": "just-every/spool",
+  "new_validator_tracked": true,
+  "new_validator_locked": true
+}

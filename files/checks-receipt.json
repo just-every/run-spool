@@ -1,0 +1,69 @@
+{
+  "product_head": "02e798f0a22349398ec82f4ec6ea6ff86385e8bd",
+  "source_base": "0f9809608a4ba84b23f4f8ece165605fcdd1acba",
+  "checks": [
+    {
+      "command": "cloud_run npx -y @runeditrun/rer setup --owner-email fleet@runeditrun.com --non-interactive",
+      "result": "passed"
+    },
+    {
+      "command": "cloud_run npx -y @runeditrun/rer build",
+      "result": "passed"
+    },
+    {
+      "command": "pnpm typecheck",
+      "result": "passed",
+      "log": "typecheck.log"
+    },
+    {
+      "command": "RER_CHROMIUM_EXECUTABLE_PATH=/usr/bin/chromium cloud_run node tests/reports-flow.mjs",
+      "result": "passed",
+      "log": "reports-test.log"
+    },
+    {
+      "command": "cloud_run node /tmp/spool-dashboard-test.mjs",
+      "result": "passed",
+      "log": "dashboard-test.log",
+      "entry": "tests/investigation-flow.mjs#dashboardFlow",
+      "details": "Fresh emitted native Worker, signIn public owner door, req/json harness; runs existing exported dashboardFlow only."
+    },
+    {
+      "command": "node scripts/edition-authoring/cli.mjs lock",
+      "result": "passed"
+    },
+    {
+      "command": "pnpm source:check",
+      "result": "passed",
+      "source_ok": true
+    },
+    {
+      "command": "node src/base/contract-docs.mjs check",
+      "result": "passed",
+      "log": "contract-check.log"
+    },
+    {
+      "command": "git diff --check",
+      "result": "passed"
+    }
+  ],
+  "test_registration_delta": 0,
+  "existing_journeys_extended": [
+    "reportWorkbench",
+    "dashboardFlow"
+  ],
+  "contract_counts_before": {
+    "done": 23,
+    "partial": 54,
+    "missing": 28,
+    "total": 105
+  },
+  "contract_counts_after": {
+    "done": 23,
+    "partial": 54,
+    "missing": 28,
+    "total": 105
+  },
+  "clause_status_changes": [],
+  "source_lock_verified_after_commit": true,
+  "corrected_initial_ci_failure": "ci-initial-failure.json"
+}

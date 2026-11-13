@@ -1,0 +1,12 @@
+{
+  "run": 43383739912,
+  "head": "d59a9c13f64bc69715766d9ed879e60c6c32f6e5",
+  "job": 131747338251,
+  "step": "Check source and portable contract",
+  "command": "pnpm source:check",
+  "error": "Stale lock or source/tool integrity mismatch; run changes to inspect intentional edits before lock",
+  "cause": "The generator enumerates tracked files; the new validator was untracked when the initial lock was generated.",
+  "correction_head": "02e798f0a22349398ec82f4ec6ea6ff86385e8bd",
+  "log_read_command": "gh run view 43383739912 --repo just-every/run-spool --job 131747338251 --log-failed",
+  "log_read_result": "success; read once"
+}
