@@ -1,0 +1,70 @@
+[
+  {
+    "call": 1,
+    "purpose": "latest release",
+    "receipt": "latest-release.json"
+  },
+  {
+    "call": 2,
+    "purpose": "exact-main workflows",
+    "receipt": "main-ci.json"
+  },
+  {
+    "call": 3,
+    "purpose": "open release ownership PRs",
+    "receipt": "open-prs.json"
+  },
+  {
+    "call": 4,
+    "purpose": "target Release absence including drafts",
+    "receipt": "target-release-check.json"
+  },
+  {
+    "call": 5,
+    "timestamp": "2026-11-13T13:43:19Z",
+    "command": [
+      "api",
+      "repos/just-every/run-spool/actions/runs?head_sha=cc0a05ec50d235f457e03dc5f0be0efa6e413b31&per_page=100",
+      "--jq",
+      "{total_count,workflow_runs:[.workflow_runs[]|{id,name,status,conclusion,head_sha,html_url}]}"
+    ],
+    "purpose": "candidate exact-SHA discovery",
+    "receipt": "branch-ci-discovery.json"
+  },
+  {
+    "call": 6,
+    "timestamp": "2026-11-13T13:48:19Z",
+    "command": [
+      "api",
+      "repos/just-every/run-spool/actions/runs/43435974422",
+      "--jq",
+      "{status,conclusion,head_sha,html_url}"
+    ],
+    "purpose": "candidate Verify poll",
+    "receipt": "branch-ci-poll-6.json"
+  },
+  {
+    "call": 7,
+    "timestamp": "2026-11-13T13:53:20Z",
+    "command": [
+      "api",
+      "repos/just-every/run-spool/actions/runs/43435974422",
+      "--jq",
+      "{status,conclusion,head_sha,html_url}"
+    ],
+    "purpose": "candidate Verify poll",
+    "receipt": "branch-ci-poll-7.json"
+  },
+  {
+    "call": 8,
+    "timestamp": "2026-11-13T13:58:21Z",
+    "command": [
+      "api",
+      "repos/just-every/run-spool/actions/runs/43435974422",
+      "--jq",
+      "{status,conclusion,head_sha,html_url}"
+    ],
+    "purpose": "candidate Verify poll",
+    "receipt": "branch-ci-poll-8.json"
+  }
+]

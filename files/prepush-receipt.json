@@ -1,0 +1,20 @@
+{
+  "timestamp": "2026-11-13T13:42:14Z",
+  "commits": [
+    "cc0a05ec50d235f457e03dc5f0be0efa6e413b31"
+  ],
+  "all_parents_included": true,
+  "identity_and_trailers": "PASS",
+  "changed_paths": [
+    "CHANGELOG.md",
+    "README.md",
+    "RELEASE.json",
+    "docs/getting-started.md",
+    "package.json",
+    "seed.json",
+    "sources.lock.json"
+  ],
+  "clean_worktree": true,
+  "credential_shape_diff_check": "PASS",
+  "full_publication_scan": "Deferred to fleet guarded lander as required by cloud brief"
+}

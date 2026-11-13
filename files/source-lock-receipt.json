@@ -1,0 +1,11 @@
+{
+  "timestamp": "2026-11-13T13:41:32Z",
+  "lock_command": "node scripts/edition-authoring/cli.mjs lock",
+  "lock_exit": 0,
+  "check_command": "pnpm source:check",
+  "check_exit": 0,
+  "schemaVersion": 1,
+  "edition": "just-every/spool",
+  "tracked_files": 2306,
+  "lock_sha256": "07e322d97a9b23f1167308f268eafb11cf235ed981132a98a936a9cc09e327ad"
+}

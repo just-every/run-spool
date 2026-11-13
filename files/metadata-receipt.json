@@ -1,0 +1,34 @@
+{
+  "timestamp": "2026-11-13T13:41:28Z",
+  "metadata_version": "0.7.10",
+  "previous_version": "0.7.9",
+  "rer_pin": "0.2.107",
+  "metadata_check_exit": 0,
+  "typecheck_exit": 0,
+  "notes_match_changelog": true,
+  "historical_changelog_preserved": true,
+  "unleased_changes": [],
+  "package_lock_present": false,
+  "pnpm_lock_changed": false,
+  "clauses_changed": [],
+  "counts_before": {
+    "core_done": 23,
+    "core_partial": 45,
+    "core_missing": 19,
+    "agent_done": 0,
+    "agent_partial": 9,
+    "agent_missing": 9,
+    "total": 105
+  },
+  "counts_after": {
+    "core_done": 23,
+    "core_partial": 45,
+    "core_missing": 19,
+    "agent_done": 0,
+    "agent_partial": 9,
+    "agent_missing": 9,
+    "total": 105
+  },
+  "test_registrations_added": 0,
+  "test_registrations_removed": 0
+}

@@ -1,0 +1,9 @@
+30cc17837e934cc821948e34a694ca2b5d0ec0c7 Clarify local ownership transfer and pending invitation recovery
+
+ sources.lock.json               | 10 +++++-----
+ src/domain/members/mutations.ts |  4 +++-
+ src/domain/members/routes.ts    |  3 ++-
+ src/ui/workbench/Members.tsx    | 11 +++++++----
+ tests/dev-credentials.mjs       |  2 ++
+ tests/team-browser.mjs          | 33 +++++++++++++++++++++++++++++----
+ 6 files changed, 48 insertions(+), 15 deletions(-)

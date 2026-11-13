@@ -1,0 +1,8 @@
+{
+  "timestamp": "2026-11-13T13:45:19Z",
+  "dependencies_removed": [
+    "node_modules",
+    "packages/agent/node_modules"
+  ],
+  "clone_cleanup": "Pending successful evidence publication; product checkout retained for that entrypoint"
+}

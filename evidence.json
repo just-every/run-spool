@@ -1,0 +1,172 @@
+{
+  "files": [
+    {
+      "blob": "03690f0155b8c1eac760cc9365348e7f03abb18a",
+      "bytes": 1901,
+      "path": "PLAN.md",
+      "sha256": "ee0aacc966129e9dd4cd4ea3afa478957939252f4123a4c4afbde25eb494fdcb"
+    },
+    {
+      "blob": "a89a2a682d62a87044c19f57661ddd5b2a4617a8",
+      "bytes": 7778,
+      "path": "REPORT.md",
+      "sha256": "c6e29a2a1914f81f262aaf251a29057af21d2f0aca812fdf5c35fa46a7871865"
+    },
+    {
+      "blob": "16c12a72bd32085b1b2c359e6196b7c7d454bc85",
+      "bytes": 314,
+      "path": "branch-ci-discovery.json",
+      "sha256": "e39be8cbf63cc95f718b176d523d3af8d4b065ddca16d11012c8f0005c530e1c"
+    },
+    {
+      "blob": "0ca11589e36a310c851ae991320a38983fbae413",
+      "bytes": 274,
+      "path": "branch-ci-final.json",
+      "sha256": "fe5a547562e71e8a07b12a1ce89b28b4cb258b476d15ef66d5ad8ab6e16a10cb"
+    },
+    {
+      "blob": "b40bfab08de7b12ff3ad42ba86b0c34e97ab3119",
+      "bytes": 192,
+      "path": "branch-ci-poll-6.json",
+      "sha256": "01aeb59995c0925b998fd3d91fd6b372f8b352162d35eb89fe8237c2e95f2f26"
+    },
+    {
+      "blob": "b40bfab08de7b12ff3ad42ba86b0c34e97ab3119",
+      "bytes": 192,
+      "path": "branch-ci-poll-7.json",
+      "sha256": "01aeb59995c0925b998fd3d91fd6b372f8b352162d35eb89fe8237c2e95f2f26"
+    },
+    {
+      "blob": "b40bfab08de7b12ff3ad42ba86b0c34e97ab3119",
+      "bytes": 192,
+      "path": "branch-ci-poll-8.json",
+      "sha256": "01aeb59995c0925b998fd3d91fd6b372f8b352162d35eb89fe8237c2e95f2f26"
+    },
+    {
+      "blob": "af3e1b9ee631cfaeab9385185b1823e518d59990",
+      "bytes": 285,
+      "path": "candidate-messages.txt",
+      "sha256": "ef2cb974b80ec05c2ae2dc8f3feda48adbacd2c95561768944d2918db32f8cef"
+    },
+    {
+      "blob": "55bfeff023c4ae17dc59e12f86f446b1960e6b53",
+      "bytes": 85,
+      "path": "commit-identities.txt",
+      "sha256": "148bad84b5b174568017df50d58e073566703d43c6c9fe7fa6f1af04420adf55"
+    },
+    {
+      "blob": "9b4bce964b8016ac5abdd37c3013c9987bad7b8d",
+      "bytes": 238,
+      "path": "dependency-cleanup-receipt.json",
+      "sha256": "56c760d7f3ca5e35f34d74c8a2d2d6618b3cab1d02a3ebbe06f94ae5ca2929a3"
+    },
+    {
+      "blob": "90f8af06180c7c35cf87bf3657dd6b3801e58bee",
+      "bytes": 1740,
+      "path": "github-call-ledger.json",
+      "sha256": "a3421ca9ea08e3f96563d83f299d7571eb77c6b562425d50b33f7217dfd32584"
+    },
+    {
+      "blob": "136688ab5a9fa75eed1bb2413ac632c5d4799b1e",
+      "bytes": 213,
+      "path": "latest-release.json",
+      "sha256": "81bb2e68ebb8bbf543fec564779d47a8a9ed94062fc8940e53710ce2cf9716a1"
+    },
+    {
+      "blob": "be10306d0b511d695cf592ef3ae7e024e3fb7efb",
+      "bytes": 1281,
+      "path": "main-ci.json",
+      "sha256": "779c0ac081933bc382b8f3cda2709b90cd6e718e80f6b813d28dc0133afda17a"
+    },
+    {
+      "blob": "34d1f56dff0b1a86aca85654eb02da31994dd1a9",
+      "bytes": 390,
+      "path": "metadata-check.log",
+      "sha256": "9a6a09777188ffe1fee5655d13490eae930fe5f3614f3ff24b33a6e1785ef91e"
+    },
+    {
+      "blob": "6f0c4d450335f7e78cbedee61b015b4de61bdf09",
+      "bytes": 798,
+      "path": "metadata-receipt.json",
+      "sha256": "b1bf09b2cadce3fb1904fcfd608d0b23c42828c76bda42d571bbfa1208ebcc57"
+    },
+    {
+      "blob": "3de7dbd0146375e510518bc028e1edd2b860a31d",
+      "bytes": 3855,
+      "path": "open-prs.json",
+      "sha256": "0722c7bc36a4965e950ed750c1d9607334d4dda7b04964bbbe6f290d999c6464"
+    },
+    {
+      "blob": "da89b66289185e4f04e99591693abd5d090e97e0",
+      "bytes": 4181,
+      "path": "packet-preflight-receipt.json",
+      "sha256": "1ea889a2f515c4a89b1baa0a36ddd4423366f3aeef1c8bfd36065cc138399681"
+    },
+    {
+      "blob": "2be5e6049463e69ba8d6ffdccf9a02be9ced4ea8",
+      "bytes": 508,
+      "path": "prepush-receipt.json",
+      "sha256": "8c86c0945e05e4c9685de1f882dc55a76b6008d26dbb91e73da0b5b9f8e2332c"
+    },
+    {
+      "blob": "87ed232407a20ee8a054eec1796ff7bc8cfaeaa3",
+      "bytes": 939,
+      "path": "product-push.log",
+      "sha256": "6bba779b796c401e5a7b96648cae0014d3c31cb5b00ffffb1489564939704a57"
+    },
+    {
+      "blob": "29d2c08470fc82418cee129b3731cccec43eb4db",
+      "bytes": 1199,
+      "path": "product-receipt.json",
+      "sha256": "4690dbc1f875ac5a6479110374da1b8659101e8d3b2bdccd99c5e39e25669cd5"
+    },
+    {
+      "blob": "21fce8eb235e7d4d55fdda8bd54856b990809a0a",
+      "bytes": 21982,
+      "path": "product.diff",
+      "sha256": "782d4bad74b6c1eaeb794f203a6a3c31e42b3ff6bba626f14797ce37a451b36c"
+    },
+    {
+      "blob": "1de5a4fddf0306def99dd44f53eeb3e30ae73adc",
+      "bytes": 456,
+      "path": "release-delta.txt",
+      "sha256": "e2f1788b6f95c7e3725fa1f0b0c548e3b575e2004c817164b8306bb8cb5acd70"
+    },
+    {
+      "blob": "764e87a9d93de8f3cb1d5719a68d09fa0b849e93",
+      "bytes": 193,
+      "path": "release-source-check.json",
+      "sha256": "2bf2e6bdee027538f55ab606e666d7b7ef94a0a3baa91a4c23fa86b3cf1ad3a7"
+    },
+    {
+      "blob": "dbfa1c7c4b649db9401955f9d6aad115660d8357",
+      "bytes": 82,
+      "path": "remote-product-ref.txt",
+      "sha256": "92837ea3ae22d9daae1f4339023d53b5f1a42510a75f186380fb031e8a7babc6"
+    },
+    {
+      "blob": "60383ed8ce5672d31e7555424d00a6b88ffee5c8",
+      "bytes": 349,
+      "path": "source-lock-receipt.json",
+      "sha256": "b8487834ab6f3b901dfa4f73e13ef47415f5fb1f582360b2804d81b5c5786e6d"
+    },
+    {
+      "blob": "fe51488c7066f6687ef680d6bfaa4f7768ef205c",
+      "bytes": 3,
+      "path": "target-release-check.json",
+      "sha256": "37517e5f3dc66819f61f5a7bb8ace1921282415f10551d2defa5c3eb0985b570"
+    },
+    {
+      "blob": "99a0f1a58dc6844d5b82c4787c7bf4c0659960b4",
+      "bytes": 236,
+      "path": "typecheck.log",
+      "sha256": "4c11efa66ad0954d0a9c4d038d391822a81ef4a1022910fc93e64243809ec9ab"
+    }
+  ],
+  "product_branch": "cloud/sd-spool-release-0-7-10",
+  "product_head": "cc0a05ec50d235f457e03dc5f0be0efa6e413b31",
+  "ref": "refs/heads/evidence/sd-spool-release-0-7-10",
+  "repository": "just-every/run-spool",
+  "schema": 1,
+  "tag": "sd-spool-release-0-7-10"
+}

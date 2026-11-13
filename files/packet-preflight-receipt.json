@@ -1,0 +1,137 @@
+{
+  "timestamp": "2026-11-13T13:58:57Z",
+  "status": "PASS",
+  "selection": "Explicit report/receipt filenames only; all regular files, no symlinks or credential-shaped values",
+  "files": [
+    {
+      "path": "REPORT.md",
+      "bytes": 7778,
+      "sha256": "c6e29a2a1914f81f262aaf251a29057af21d2f0aca812fdf5c35fa46a7871865"
+    },
+    {
+      "path": "PLAN.md",
+      "bytes": 1901,
+      "sha256": "ee0aacc966129e9dd4cd4ea3afa478957939252f4123a4c4afbde25eb494fdcb"
+    },
+    {
+      "path": "product-receipt.json",
+      "bytes": 1199,
+      "sha256": "4690dbc1f875ac5a6479110374da1b8659101e8d3b2bdccd99c5e39e25669cd5"
+    },
+    {
+      "path": "metadata-receipt.json",
+      "bytes": 798,
+      "sha256": "b1bf09b2cadce3fb1904fcfd608d0b23c42828c76bda42d571bbfa1208ebcc57"
+    },
+    {
+      "path": "source-lock-receipt.json",
+      "bytes": 349,
+      "sha256": "b8487834ab6f3b901dfa4f73e13ef47415f5fb1f582360b2804d81b5c5786e6d"
+    },
+    {
+      "path": "release-source-check.json",
+      "bytes": 193,
+      "sha256": "2bf2e6bdee027538f55ab606e666d7b7ef94a0a3baa91a4c23fa86b3cf1ad3a7"
+    },
+    {
+      "path": "prepush-receipt.json",
+      "bytes": 508,
+      "sha256": "8c86c0945e05e4c9685de1f882dc55a76b6008d26dbb91e73da0b5b9f8e2332c"
+    },
+    {
+      "path": "product-push.log",
+      "bytes": 939,
+      "sha256": "6bba779b796c401e5a7b96648cae0014d3c31cb5b00ffffb1489564939704a57"
+    },
+    {
+      "path": "metadata-check.log",
+      "bytes": 390,
+      "sha256": "9a6a09777188ffe1fee5655d13490eae930fe5f3614f3ff24b33a6e1785ef91e"
+    },
+    {
+      "path": "typecheck.log",
+      "bytes": 236,
+      "sha256": "4c11efa66ad0954d0a9c4d038d391822a81ef4a1022910fc93e64243809ec9ab"
+    },
+    {
+      "path": "commit-identities.txt",
+      "bytes": 85,
+      "sha256": "148bad84b5b174568017df50d58e073566703d43c6c9fe7fa6f1af04420adf55"
+    },
+    {
+      "path": "candidate-messages.txt",
+      "bytes": 285,
+      "sha256": "ef2cb974b80ec05c2ae2dc8f3feda48adbacd2c95561768944d2918db32f8cef"
+    },
+    {
+      "path": "product.diff",
+      "bytes": 21982,
+      "sha256": "782d4bad74b6c1eaeb794f203a6a3c31e42b3ff6bba626f14797ce37a451b36c"
+    },
+    {
+      "path": "latest-release.json",
+      "bytes": 213,
+      "sha256": "81bb2e68ebb8bbf543fec564779d47a8a9ed94062fc8940e53710ce2cf9716a1"
+    },
+    {
+      "path": "main-ci.json",
+      "bytes": 1281,
+      "sha256": "779c0ac081933bc382b8f3cda2709b90cd6e718e80f6b813d28dc0133afda17a"
+    },
+    {
+      "path": "open-prs.json",
+      "bytes": 3855,
+      "sha256": "0722c7bc36a4965e950ed750c1d9607334d4dda7b04964bbbe6f290d999c6464"
+    },
+    {
+      "path": "target-release-check.json",
+      "bytes": 3,
+      "sha256": "37517e5f3dc66819f61f5a7bb8ace1921282415f10551d2defa5c3eb0985b570"
+    },
+    {
+      "path": "github-call-ledger.json",
+      "bytes": 1740,
+      "sha256": "a3421ca9ea08e3f96563d83f299d7571eb77c6b562425d50b33f7217dfd32584"
+    },
+    {
+      "path": "branch-ci-discovery.json",
+      "bytes": 314,
+      "sha256": "e39be8cbf63cc95f718b176d523d3af8d4b065ddca16d11012c8f0005c530e1c"
+    },
+    {
+      "path": "branch-ci-final.json",
+      "bytes": 274,
+      "sha256": "fe5a547562e71e8a07b12a1ce89b28b4cb258b476d15ef66d5ad8ab6e16a10cb"
+    },
+    {
+      "path": "branch-ci-poll-6.json",
+      "bytes": 192,
+      "sha256": "01aeb59995c0925b998fd3d91fd6b372f8b352162d35eb89fe8237c2e95f2f26"
+    },
+    {
+      "path": "branch-ci-poll-7.json",
+      "bytes": 192,
+      "sha256": "01aeb59995c0925b998fd3d91fd6b372f8b352162d35eb89fe8237c2e95f2f26"
+    },
+    {
+      "path": "branch-ci-poll-8.json",
+      "bytes": 192,
+      "sha256": "01aeb59995c0925b998fd3d91fd6b372f8b352162d35eb89fe8237c2e95f2f26"
+    },
+    {
+      "path": "dependency-cleanup-receipt.json",
+      "bytes": 238,
+      "sha256": "56c760d7f3ca5e35f34d74c8a2d2d6618b3cab1d02a3ebbe06f94ae5ca2929a3"
+    },
+    {
+      "path": "remote-product-ref.txt",
+      "bytes": 82,
+      "sha256": "92837ea3ae22d9daae1f4339023d53b5f1a42510a75f186380fb031e8a7babc6"
+    },
+    {
+      "path": "release-delta.txt",
+      "bytes": 456,
+      "sha256": "e2f1788b6f95c7e3725fa1f0b0c548e3b575e2004c817164b8306bb8cb5acd70"
+    }
+  ]
+}
