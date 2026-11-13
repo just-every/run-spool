@@ -30,8 +30,14 @@
     "ci-poll-2.json",
     "ci-poll-2-time.txt",
     "ci-poll-3.json",
-    "ci-poll-3-time.txt"
+    "ci-poll-3-time.txt",
+    "ci-poll-4.json",
+    "ci-poll-4-time.txt",
+    "ci-final-receipt.json",
+    "ci-jobs.json",
+    "ci-execution-failed.log",
+    "failure-receipt.json",
+    "terminal-receipt.json"
   ],
-  "ci_files": "Final CI receipt and each actual poll receipt/time will be selected explicitly after CI completes.",
   "selection_policy": "Regular public report/receipt files only; no credentials, environment dumps, symlinks or private held-out material."
 }

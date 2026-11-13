@@ -1,0 +1,53 @@
+{
+  "repository": "just-every/run-spool",
+  "branch": "cloud/sd-spool-release-0-7-9",
+  "head": "d3aee03b5066430bf280b7fa17775d43ed27fb2f",
+  "run_id": 43395322960,
+  "status": "completed",
+  "conclusion": "failure",
+  "html_url": "https://github.com/just-every/run-spool/actions/runs/43395322960",
+  "github_calls_used": 10,
+  "github_call_budget": 10,
+  "failed_job": {
+    "id": 131785143347,
+    "name": "verify (execution)",
+    "step": "Run suites",
+    "stage": "disconnected-setup",
+    "assertion": "locator.waitFor: Timeout 30000ms exceeded while waiting for article and navigation to /docs/github-connection",
+    "test_location": "tests/execution/ui.mjs:23:160"
+  },
+  "dependent_failed_jobs": [
+    {
+      "id": 131791656238,
+      "name": "shards (spool)"
+    },
+    {
+      "id": 131791684475,
+      "name": "verify"
+    }
+  ],
+  "failed_log_read": {
+    "command": "gh run view 43395322960 --repo just-every/run-spool --job 131785143347 --log-failed",
+    "exit_code": 0,
+    "invocations": 1,
+    "public_excerpt": "ci-execution-failed.log",
+    "omission": "Workflow environment block omitted from public excerpt; complete sanitized original retained outside selected packet."
+  },
+  "unchanged_related_blob_ids": {
+    "tests/execution/ui.mjs": {
+      "before": "0965a04aec555a0b139fd3b140d927a70db3c4d0",
+      "after": "0965a04aec555a0b139fd3b140d927a70db3c4d0"
+    },
+    "tests/execution-journey.mjs": {
+      "before": "7b2869b4606e0c27b602acb2e3a9ac8ee8d473cd",
+      "after": "7b2869b4606e0c27b602acb2e3a9ac8ee8d473cd"
+    },
+    "docs/GITHUB-CONNECTION.md": {
+      "before": "5c7624648aed2b4cbe87b0a87bb7266136ac1b26",
+      "after": "5c7624648aed2b4cbe87b0a87bb7266136ac1b26"
+    }
+  },
+  "remaining_failure_logs": "Aggregate failure logs not fetched: ten-call budget exhausted. Their failed steps and dependencies are recorded in ci-jobs.json.",
+  "blocker": "Exact-SHA Verify is red on an unchanged execution journey; product/test changes are outside this metadata-only lease. No rerun, redispatch, empty commit or test weakening performed.",
+  "product_custody": "PUSHED; blocked from READY by Verify"
+}

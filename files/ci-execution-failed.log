@@ -1,0 +1,14 @@
+verify (execution)	Run suites	﻿2026-11-13T08:43:58.4805823Z ##[group]Run pnpm test:execution && node tests/business-import.mjs
+verify (execution)	Run suites	2026-11-13T08:43:58.4806239Z [36;1mpnpm test:execution && node tests/business-import.mjs[0m
+verify (execution)	Run suites	2026-11-13T08:43:58.4823896Z shell: /usr/bin/bash -e {0}
+[Public excerpt: workflow environment block omitted.]
+verify (execution)	Run suites	2026-11-13T08:43:58.4825673Z ##[endgroup]
+verify (execution)	Run suites	2026-11-13T08:43:58.7384364Z 
+verify (execution)	Run suites	2026-11-13T08:43:58.7384949Z > @errors/errors-workbench@0.7.9 test:execution /home/runner/work/run-spool/run-spool
+verify (execution)	Run suites	2026-11-13T08:43:58.7385404Z > node tests/execution-journey.mjs
+verify (execution)	Run suites	2026-11-13T08:43:58.7385561Z 
+verify (execution)	Run suites	2026-11-13T08:43:59.1921081Z (node:2522) ExperimentalWarning: SQLite is an experimental feature and might change at any time
+verify (execution)	Run suites	2026-11-13T08:43:59.1921834Z (Use `node --trace-warnings ...` to show where the warning was created)
+verify (execution)	Run suites	2026-11-13T08:44:49.2753701Z {"journey":"execution","stage":"disconnected-setup","message":"locator.waitFor: Timeout 30000ms exceeded.\nCall log:\n  - waiting for locator('article') to be visible\n    - waiting for \"http://127.0.0.1:15476/docs/github-connection\" navigation to finish...\n","stack":["    at disconnectedGitHubSetup (/home/runner/work/run-spool/run-spool/tests/execution/ui.mjs:23:160)","    at async file:///home/runner/work/run-spool/run-spool/tests/execution-journey.mjs:37:24"]}
+verify (execution)	Run suites	2026-11-13T08:44:49.3412498Z  ELIFECYCLE  Command failed with exit code 1.
+verify (execution)	Run suites	2026-11-13T08:44:49.3587977Z ##[error]Process completed with exit code 1.
