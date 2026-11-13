@@ -1,0 +1,53 @@
+{
+  "note": "Existing journey uses section.screenshot; dimensions are cropped panels at the named viewport, not full-window screenshots.",
+  "screens": [
+    {
+      "path": "screens/erasure-confirmation-1440.png",
+      "viewport_width": 1440,
+      "cropped_panel_width": 1064,
+      "cropped_panel_height": 3820
+    },
+    {
+      "path": "screens/erasure-confirmation-390.png",
+      "viewport_width": 390,
+      "cropped_panel_width": 342,
+      "cropped_panel_height": 2493
+    },
+    {
+      "path": "screens/erasure-preview-1440.png",
+      "viewport_width": 1440,
+      "cropped_panel_width": 1064,
+      "cropped_panel_height": 3820
+    },
+    {
+      "path": "screens/erasure-preview-390.png",
+      "viewport_width": 390,
+      "cropped_panel_width": 342,
+      "cropped_panel_height": 2493
+    },
+    {
+      "path": "screens/erasure-progress-1440.png",
+      "viewport_width": 1440,
+      "cropped_panel_width": 1064,
+      "cropped_panel_height": 959
+    },
+    {
+      "path": "screens/erasure-progress-390.png",
+      "viewport_width": 390,
+      "cropped_panel_width": 342,
+      "cropped_panel_height": 1249
+    },
+    {
+      "path": "screens/erasure-receipt-1440.png",
+      "viewport_width": 1440,
+      "cropped_panel_width": 1064,
+      "cropped_panel_height": 3687
+    },
+    {
+      "path": "screens/erasure-receipt-390.png",
+      "viewport_width": 390,
+      "cropped_panel_width": 342,
+      "cropped_panel_height": 2313
+    }
+  ]
+}

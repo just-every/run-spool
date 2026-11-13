@@ -1,0 +1,74 @@
+{
+  "label": "after",
+  "synthetic": true,
+  "originalArchiveAvailable": false,
+  "checks": [
+    "identical post-erasure source now restores",
+    "all retained domain rows compare equal",
+    "completed erasure receipt and anonymized execution/repair audit travel unchanged",
+    "authority and dispatch tables remain excluded",
+    "same-source and fresh post-import erasure fences refuse old archive",
+    "nonempty target refuses unchanged archive",
+    "rebound semantic execution and in-progress erasure tampering refuse before rows",
+    "checksum tampering refuses before rows"
+  ],
+  "before": {
+    "projects": 2,
+    "reproducers": 2,
+    "repairs": 2
+  },
+  "afterErasure": {
+    "projects": 1,
+    "reproducers": 1,
+    "repairs": 1,
+    "receipts": 1,
+    "anonymizedExecutionAudit": 1
+  },
+  "sameSourcePre": {
+    "status": 400,
+    "body": {
+      "error": "erasure_epoch"
+    }
+  },
+  "semanticExecution": {
+    "status": 400,
+    "body": {
+      "error": "Invalid execution archive"
+    }
+  },
+  "invalidReceipt": {
+    "status": 400,
+    "body": {
+      "error": "Archive erasure in progress"
+    }
+  },
+  "checksumTamper": {
+    "status": 400,
+    "body": {
+      "error": "part_checksum"
+    }
+  },
+  "restore": {
+    "status": 200,
+    "body": {
+      "restored": true,
+      "credentials": "excluded; create new project grants"
+    }
+  },
+  "freshPre": {
+    "status": 400,
+    "body": {
+      "error": "erasure_epoch"
+    }
+  },
+  "nonempty": {
+    "status": 409,
+    "body": {
+      "error": "target_not_empty:alerts"
+    }
+  },
+  "cleanup": [
+    "fulfilled",
+    "fulfilled"
+  ]
+}

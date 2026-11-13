@@ -1,0 +1,16 @@
+verify
+Heavy job admitted: Spool verify:suite [081951d959ce]
+STEP setup/startDev
+STEP setup/dev-ready
+END setup/dev-ready seconds=40.522
+END setup/startDev seconds=40.600
+STEP setup/dev-stop
+END setup/dev-stop seconds=0.379
+STEP setup/dev-ready
+END setup/dev-ready seconds=34.005
+STEP setup/dev-stop
+END setup/dev-stop seconds=0.132
+Project erasure public journey passed: 7 groups; 8 captures.
+STEP setup/stopDev
+END setup/stopDev seconds=0.000
+Project erasure cleanup: [{"name":"browser","outcome":"stopped"},{"name":"checkout","outcome":"stopped"}]

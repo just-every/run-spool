@@ -1,0 +1,178 @@
+{
+  "files": [
+    {
+      "blob": "47b2c5cc95d2e33955950d28681c6e6271703ec1",
+      "bytes": 2018,
+      "path": "PLAN.md",
+      "sha256": "66f31e84ab9d743568a5c107708e3dd0d830bd5a14ac34212cc876d29c205ec7"
+    },
+    {
+      "blob": "01be8bbc88b73649ce676a5808e326495265a97e",
+      "bytes": 7668,
+      "path": "REPORT.md",
+      "sha256": "a501e35120996ca73ad6b572699796d351cdc8642864b4bd65ebb9e4a3f1bc60"
+    },
+    {
+      "blob": "30243bdae81ed1d7c9b8d3b175b9e4356a17a568",
+      "bytes": 1317,
+      "path": "after-first-attempt-receipt.json",
+      "sha256": "d379c43d23de540ed7dfc83ab0e2462a726bcc493696860ab1f8a5201698dfbd"
+    },
+    {
+      "blob": "ced292f30061e4e964c9dc48b7d71ffaa32e673b",
+      "bytes": 1610,
+      "path": "after-receipt.json",
+      "sha256": "cbf8cc8b6aa778716c3987b4f003eca7f525dc8678191d44009ad3ffeff3b685"
+    },
+    {
+      "blob": "ae05b5a395b1ad26bb4c8911fa24b38e36f7c8f4",
+      "bytes": 900,
+      "path": "before-receipt.json",
+      "sha256": "f5d1d2e4dc6df08e761546e78204a31de916e83ba777613970e7072ad1aae5bf"
+    },
+    {
+      "blob": "e00c517fb9fc8b946a953bc2c9b6de2a253fcecb",
+      "bytes": 691,
+      "path": "ci-calls.jsonl",
+      "sha256": "af46bc76afd30fb9faf24ea8d3fa348b893d4bd21287b1304493b14264331e32"
+    },
+    {
+      "blob": "3c76a829a984a7ee3622eb9386eca69052aa394b",
+      "bytes": 358,
+      "path": "ci-discovery.json",
+      "sha256": "a9587bb21efa2d63d2bd9b245e10dbabe8813ba34a15b9ca8973f5425c6b1571"
+    },
+    {
+      "blob": "a777cdb5975d55d6059f7382c3a20277c575ccf1",
+      "bytes": 335,
+      "path": "ci-latest.json",
+      "sha256": "314282e5c45b42a8df46f089cf9212e810a972ff6157918998a62313ed07019f"
+    },
+    {
+      "blob": "b59d39532e8a030ff74f6339019ab7870ef51548",
+      "bytes": 70,
+      "path": "contract-check.log",
+      "sha256": "b04031901cfff3e9bc42a429b52cbc14c2442ffb68817fd62a245ac52847b422"
+    },
+    {
+      "blob": "4fdb64fb733b2e32694d1eafc692d5fc355ff937",
+      "bytes": 3231,
+      "path": "local-checks-receipt.json",
+      "sha256": "c67ceda580e1dceef861c4e917120ea33e4863e65f2f5ee114f57a42a8aa20ac"
+    },
+    {
+      "blob": "4315ca51ed7a661f89018f8cf45ce7c6a6e19b3a",
+      "bytes": 1141,
+      "path": "packet-review-receipt.json",
+      "sha256": "d15c22a2f656fffa848c11686b9bcc666a854b9354f64492ff4dd60ba1c998d1"
+    },
+    {
+      "blob": "3d9d0e5570216ab1765ff8a37d3389a608e308e9",
+      "bytes": 2262,
+      "path": "product.patch",
+      "sha256": "941cefa14dab82b43533ed5af966cc74c0e105a269b393d80038dbef940fe24d"
+    },
+    {
+      "blob": "fc982d6882efbc97f90147d7f3220e3da69c3014",
+      "bytes": 4676,
+      "path": "project-erasure-receipt.json",
+      "sha256": "9568768c36a8723f01f490c0f966cc459d0209fb54e5f59dba02f1419eb59131"
+    },
+    {
+      "blob": "8dc5ae769b277fde03026f969bcb4d9577d6af2b",
+      "bytes": 551,
+      "path": "project-erasure.log",
+      "sha256": "05a2a34fb26b166ca38b52e82f40da468ac429c7316ee075e3e458e34bae42e9"
+    },
+    {
+      "blob": "1ca7ecfee507abc3da13acc8a1de3f59b5018fae",
+      "bytes": 1325,
+      "path": "publication-receipt.json",
+      "sha256": "666aa9c8a0e758062803afce28a8cbdcd8119a7ffbc4026d756deace56e14e61"
+    },
+    {
+      "blob": "8b360bd9fb6f4bfca051654abdac998a318f80e1",
+      "bytes": 6845,
+      "path": "restore-reproduction-before.mjs",
+      "sha256": "1f1ecaa34d312fe40aa8d364d330b06ef4eef9193e8a9db4441dda881fceb7f6"
+    },
+    {
+      "blob": "2f6d63c6d55a490792f05329b39878fa75a55808",
+      "bytes": 6895,
+      "path": "restore-reproduction.mjs",
+      "sha256": "9c4ab9fff0754e62644770dcf5fc5c6238685b69f6f112d1c300b130e1a9397c"
+    },
+    {
+      "blob": "a08436e38fd3f24a37adbf1ea880b5c0b36cabf2",
+      "bytes": 1462,
+      "path": "screen-receipt.json",
+      "sha256": "8c87c2b2a4334f73a2aa57bd88d179f57be436168f4f9545f876b65401b6f12a"
+    },
+    {
+      "blob": "fc1e2db5af0c54ce1315f2b0486f5b8e8d5127bf",
+      "bytes": 290603,
+      "path": "screens/erasure-confirmation-1440.png",
+      "sha256": "8021e2f70f3db6befc0e30d1c8c6f043e12659926acf6468aec25e52e79a4023"
+    },
+    {
+      "blob": "525c57159f6eccc6f04001d663bcf83df5ffff0c",
+      "bytes": 168219,
+      "path": "screens/erasure-confirmation-390.png",
+      "sha256": "9c18edeacfd0ddaa6d8c09ecaeb379317eb0d8766a4d870254762406c4a9164c"
+    },
+    {
+      "blob": "05f52c0560dec3f39cb30f75dd7bc080713772a9",
+      "bytes": 285479,
+      "path": "screens/erasure-preview-1440.png",
+      "sha256": "67dc46dce90da3fd078c263bc6f186128486e1220473e8d1055bd455b4864265"
+    },
+    {
+      "blob": "6dd8140cc38aa21b5f92791dde9b21d3c2606de3",
+      "bytes": 166025,
+      "path": "screens/erasure-preview-390.png",
+      "sha256": "bed3f680048bdbc5992fffae0f92aa5d5af7990a7babd0055ae94ac9f3202a7d"
+    },
+    {
+      "blob": "afaef33d2e3e7c572eb90540cbb0786ed9a17715",
+      "bytes": 120911,
+      "path": "screens/erasure-progress-1440.png",
+      "sha256": "b621a2aed68de37925974d92031ecee792ff0d57fea8180f2ecf639538749970"
+    },
+    {
+      "blob": "8c664bcb32ab0a7831731425cca52bba6fe22ebb",
+      "bytes": 102687,
+      "path": "screens/erasure-progress-390.png",
+      "sha256": "82d2669887166158d52484e979023c179250ed44f4cf78eda717ed08b5aedfe7"
+    },
+    {
+      "blob": "c3536c38f4ee6a766824a2973951473b876a5daf",
+      "bytes": 266693,
+      "path": "screens/erasure-receipt-1440.png",
+      "sha256": "f43457828159558e1251631bd64d45eaee2397ae35ec4b8070be4bc0cffaa466"
+    },
+    {
+      "blob": "826fceb24aaca234a050eabf0bed00fa0b2278eb",
+      "bytes": 152813,
+      "path": "screens/erasure-receipt-390.png",
+      "sha256": "9e85416e8e3010686714af3cf11fee004e0d6efc580c825ac2b252477b9545de"
+    },
+    {
+      "blob": "591d0fea4870f0c89ca618b0b6614ada2ff538d0",
+      "bytes": 471153,
+      "path": "source-check.log",
+      "sha256": "838cd32f10184833ce2e6244243a5a5eed3b96f77c25ca4f5b584850c1e8ba22"
+    },
+    {
+      "blob": "09fab993e965b2ff72c03f242758045984409dfe",
+      "bytes": 241,
+      "path": "typecheck.log",
+      "sha256": "77b5ca05f4092d12328fa85534f291d127dc10de9d2cb22ef592f72f0718583e"
+    }
+  ],
+  "product_branch": "cloud/sd-spool-restore-validation-1",
+  "product_head": "378f4890b480884275441b4147da12483df9658b",
+  "ref": "refs/heads/evidence/sd-spool-restore-validation-1",
+  "repository": "just-every/run-spool",
+  "schema": 1,
+  "tag": "sd-spool-restore-validation-1"
+}

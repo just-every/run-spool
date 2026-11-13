@@ -1,0 +1,174 @@
+{
+  "checks": [
+    "canaries planted in event text, map content, recipient, webhook label, issue title, repair note, import originals and project name",
+    "count-only preview with retained tables and exceptions",
+    "anonymous 401, ingest/agent/deploy 403, unknown 404, wrong confirmation 400, cross-origin 403, all unchanged",
+    "preview, confirmation and receipt at 1440 and 390 with axe and no overflow",
+    "second erase changes nothing",
+    "no canary in D1, outbox or fresh archive; audits anonymised",
+    "pre-erasure archive refused on the same installation and on a fresh destination after the post-erasure archive, including a child fence; brand-new store limit"
+  ],
+  "captures": [
+    "/home/agent/rer-consolidation/work/sd-spool-restore-validation-1/run-spool/.artifacts/project-erasure/erasure-preview-1440.png",
+    "/home/agent/rer-consolidation/work/sd-spool-restore-validation-1/run-spool/.artifacts/project-erasure/erasure-confirmation-1440.png",
+    "/home/agent/rer-consolidation/work/sd-spool-restore-validation-1/run-spool/.artifacts/project-erasure/erasure-progress-1440.png",
+    "/home/agent/rer-consolidation/work/sd-spool-restore-validation-1/run-spool/.artifacts/project-erasure/erasure-receipt-1440.png",
+    "/home/agent/rer-consolidation/work/sd-spool-restore-validation-1/run-spool/.artifacts/project-erasure/erasure-preview-390.png",
+    "/home/agent/rer-consolidation/work/sd-spool-restore-validation-1/run-spool/.artifacts/project-erasure/erasure-confirmation-390.png",
+    "/home/agent/rer-consolidation/work/sd-spool-restore-validation-1/run-spool/.artifacts/project-erasure/erasure-progress-390.png",
+    "/home/agent/rer-consolidation/work/sd-spool-restore-validation-1/run-spool/.artifacts/project-erasure/erasure-receipt-390.png"
+  ],
+  "refusals": [
+    {
+      "label": "anonymous preview",
+      "status": 401
+    },
+    {
+      "label": "anonymous erase",
+      "status": 401
+    },
+    {
+      "label": "ingest grant preview",
+      "status": 403
+    },
+    {
+      "label": "ingest grant erase",
+      "status": 403
+    },
+    {
+      "label": "agent grant preview",
+      "status": 403
+    },
+    {
+      "label": "agent grant erase",
+      "status": 403
+    },
+    {
+      "label": "deploy grant preview",
+      "status": 403
+    },
+    {
+      "label": "deploy grant erase",
+      "status": 403
+    },
+    {
+      "label": "anonymous continuation",
+      "status": 401
+    },
+    {
+      "label": "ingest grant continuation",
+      "status": 403
+    },
+    {
+      "label": "agent grant continuation",
+      "status": 403
+    },
+    {
+      "label": "deploy grant continuation",
+      "status": 403
+    },
+    {
+      "label": "cross-origin continuation",
+      "status": 403
+    },
+    {
+      "label": "unknown continuation",
+      "status": 404
+    },
+    {
+      "label": "unknown project preview",
+      "status": 404
+    },
+    {
+      "label": "unknown project erase",
+      "status": 404
+    },
+    {
+      "label": "wrong confirmation",
+      "status": 400
+    },
+    {
+      "label": "missing confirmation",
+      "status": 400
+    },
+    {
+      "label": "cross-origin erase",
+      "status": 403
+    }
+  ],
+  "second": {
+    "status": 404
+  },
+  "scan": {
+    "before": {
+      "tables": 279,
+      "cells": 2537,
+      "found": 34
+    },
+    "after": {
+      "tables": 279,
+      "cells": 2769,
+      "found": 0
+    },
+    "outbox": 0,
+    "audit": {
+      "labels": 2,
+      "rows": 20,
+      "kinds": [
+        "alert_rule_created",
+        "artifact_uploaded",
+        "browser_origin_added",
+        "capture_history_started",
+        "capture_unsuppressed",
+        "key_created",
+        "project_created",
+        "release_registered",
+        "repair_recorded",
+        "retention_gap",
+        "retention_hold_changed",
+        "scrubbing_policy_changed"
+      ],
+      "counts": [
+        16,
+        4
+      ]
+    }
+  },
+  "fences": {
+    "sameHttpPre": {
+      "status": 400,
+      "error": "erasure_epoch"
+    },
+    "sameHttpChild": {
+      "status": 400,
+      "error": "erased_row:events"
+    },
+    "sameCliPre": {
+      "exit": 4,
+      "reason": "erasure_epoch"
+    },
+    "freshPost": {
+      "exit": 0
+    },
+    "freshCliPre": {
+      "exit": 4,
+      "reason": "erasure_epoch"
+    },
+    "freshHttpChild": {
+      "status": 400,
+      "error": "erased_row:events"
+    },
+    "newStoreWithCheckpoint": {
+      "exit": 4,
+      "reason": "erasure_epoch"
+    },
+    "newStoreWithJournal": {
+      "exit": 4,
+      "reason": "erased_row"
+    },
+    "newStoreAlone": {
+      "exit": 0,
+      "limit": "a brand-new store has no later journal and accepts the older archive"
+    }
+  }
+}

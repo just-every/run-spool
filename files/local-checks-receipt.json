@@ -1,0 +1,97 @@
+{
+  "base_main": "0f9809608a4ba84b23f4f8ece165605fcdd1acba",
+  "merged_main": "ca62aee25af1dbbb665d0040151a1150fcc10946",
+  "commands": [
+    {
+      "name": "setup",
+      "command": "cloud_run npx -y @runeditrun/rer setup --owner-email fleet@runeditrun.com --non-interactive",
+      "exit": 0,
+      "log_sha256": "27254ef0da8cfbb09fdcb3ec6f177dde3740c39e5df84b6f8d0e430e3ea93381"
+    },
+    {
+      "name": "build_before",
+      "command": "cloud_run npx -y @runeditrun/rer build",
+      "exit": 0,
+      "log_sha256": "5daf1d249557f90ed2159ecbd5a473106a0ec7b5be5ef43e9df4d4e787e292b5"
+    },
+    {
+      "name": "build_after",
+      "command": "cloud_run npx -y @runeditrun/rer build",
+      "exit": 0,
+      "log_sha256": "06c904f5beb5a67ad61ef6db47f5e47dd2b5a7bca796717f26c51ff6b4b396a8"
+    },
+    {
+      "name": "typecheck",
+      "command": "cloud_run pnpm typecheck",
+      "exit": 0,
+      "log_sha256": "77b5ca05f4092d12328fa85534f291d127dc10de9d2cb22ef592f72f0718583e"
+    },
+    {
+      "name": "source_lock",
+      "command": "node scripts/edition-authoring/cli.mjs lock",
+      "exit": 0,
+      "log_sha256": "c60714e1f7378876d99edf235f62a267fce010edc55700856bcdc664adbe6681"
+    },
+    {
+      "name": "source_check",
+      "command": "pnpm source:check",
+      "exit": 0,
+      "log_sha256": "838cd32f10184833ce2e6244243a5a5eed3b96f77c25ca4f5b584850c1e8ba22"
+    },
+    {
+      "name": "contract_check",
+      "command": "node src/base/contract-docs.mjs check",
+      "exit": 0,
+      "log_sha256": "b04031901cfff3e9bc42a429b52cbc14c2442ffb68817fd62a245ac52847b422"
+    },
+    {
+      "name": "enclosing_erasure_journey",
+      "command": "RER_CHROMIUM_EXECUTABLE_PATH=/usr/bin/chromium cloud_run node tests/project-erasure.mjs",
+      "exit": 0,
+      "log_sha256": "05a2a34fb26b166ca38b52e82f40da468ac429c7316ee075e3e458e34bae42e9"
+    },
+    {
+      "name": "contract_regenerate",
+      "command": "node src/base/contract-docs.mjs write",
+      "exit": 0,
+      "log_sha256": "14cee29b7bd19487e15f4013d4fb85016e022ef21d230676971a6490c88436d2"
+    },
+    {
+      "name": "contract_check_final",
+      "command": "node src/base/contract-docs.mjs check",
+      "exit": 0,
+      "log_sha256": "b04031901cfff3e9bc42a429b52cbc14c2442ffb68817fd62a245ac52847b422"
+    },
+    {
+      "name": "source_lock_final",
+      "command": "node scripts/edition-authoring/cli.mjs lock",
+      "exit": 0,
+      "log_sha256": "c60714e1f7378876d99edf235f62a267fce010edc55700856bcdc664adbe6681"
+    },
+    {
+      "name": "source_check_final",
+      "command": "pnpm source:check",
+      "exit": 0,
+      "log_sha256": "838cd32f10184833ce2e6244243a5a5eed3b96f77c25ca4f5b584850c1e8ba22"
+    }
+  ],
+  "model_effort": "Not independently exposed by the execution environment; brief requested gpt-6.1-sol/high.",
+  "runtime": {
+    "node_direct": "24.19.0",
+    "rer_owned_node": "22.20.0",
+    "pnpm": "10.12.4"
+  },
+  "generated_views_changed": false,
+  "contract_counts_before": {
+    "done": 23,
+    "partial": 54,
+    "missing": 28
+  },
+  "contract_counts_after": {
+    "done": 23,
+    "partial": 54,
+    "missing": 28
+  },
+  "generated_views_restored_from_main": true,
+  "post_regeneration_product_tree_equals_pushed_head": true
+}

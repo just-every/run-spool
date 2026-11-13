@@ -1,0 +1,37 @@
+{
+  "repository": "just-every/run-spool",
+  "branch": "cloud/sd-spool-restore-validation-1",
+  "head": "378f4890b480884275441b4147da12483df9658b",
+  "parent_main": "ca62aee25af1dbbb665d0040151a1150fcc10946",
+  "push": "PUSH_OK branch=cloud/sd-spool-restore-validation-1",
+  "push_attempts": 1,
+  "identity_audit": {
+    "candidate_commits": 1,
+    "author_name": "Run Edit Run fleet",
+    "author_email": "fleet@runeditrun.com",
+    "committer_name": "Run Edit Run fleet",
+    "committer_email": "fleet@runeditrun.com",
+    "trailers": []
+  },
+  "changed_files": [
+    "sources.lock.json",
+    "src/domain/portability.ts"
+  ],
+  "pr": null,
+  "landing_performed": false,
+  "ci": {
+    "id": 43393388729,
+    "name": "Verify",
+    "head_sha": "378f4890b480884275441b4147da12483df9658b",
+    "status": "completed",
+    "conclusion": "success",
+    "html_url": "https://github.com/just-every/run-spool/actions/runs/43393388729",
+    "event": "push",
+    "created_at": "2026-11-13T08:27:39Z",
+    "updated_at": "2026-11-13T08:45:52Z"
+  },
+  "github_calls_used": 5,
+  "status": "READY",
+  "remote_product_head_verified": "378f4890b480884275441b4147da12483df9658b",
+  "clone_cleanup": "Delete owned clone only after successful evidence publication and remote-head verification; terminal result is reported in the final message."
+}

@@ -1,0 +1,53 @@
+{
+  "label": "before",
+  "synthetic": true,
+  "originalArchiveAvailable": false,
+  "checks": [],
+  "before": {
+    "projects": 2,
+    "reproducers": 2,
+    "repairs": 2
+  },
+  "afterErasure": {
+    "projects": 1,
+    "reproducers": 1,
+    "repairs": 1,
+    "receipts": 1,
+    "anonymizedExecutionAudit": 1
+  },
+  "sameSourcePre": {
+    "status": 400,
+    "body": {
+      "error": "erasure_epoch"
+    }
+  },
+  "semanticExecution": {
+    "status": 400,
+    "body": {
+      "error": "Invalid execution archive"
+    }
+  },
+  "invalidReceipt": {
+    "status": 400,
+    "body": {
+      "error": "Invalid execution archive"
+    }
+  },
+  "checksumTamper": {
+    "status": 400,
+    "body": {
+      "error": "part_order"
+    }
+  },
+  "restore": {
+    "status": 400,
+    "body": {
+      "error": "Invalid execution archive"
+    }
+  },
+  "reproduced": true,
+  "cleanup": [
+    "fulfilled",
+    "fulfilled"
+  ]
+}

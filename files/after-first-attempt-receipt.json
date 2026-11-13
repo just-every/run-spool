@@ -1,0 +1,69 @@
+{
+  "label": "after",
+  "synthetic": true,
+  "originalArchiveAvailable": false,
+  "checks": [],
+  "before": {
+    "projects": 2,
+    "reproducers": 2,
+    "repairs": 2
+  },
+  "afterErasure": {
+    "projects": 1,
+    "reproducers": 1,
+    "repairs": 1,
+    "receipts": 1,
+    "anonymizedExecutionAudit": 1
+  },
+  "sameSourcePre": {
+    "status": 400,
+    "body": {
+      "error": "erasure_epoch"
+    }
+  },
+  "semanticExecution": {
+    "status": 400,
+    "body": {
+      "error": "Invalid execution archive"
+    }
+  },
+  "invalidReceipt": {
+    "status": 400,
+    "body": {
+      "error": "Archive erasure in progress"
+    }
+  },
+  "checksumTamper": {
+    "status": 400,
+    "body": {
+      "error": "part_checksum"
+    }
+  },
+  "restore": {
+    "status": 200,
+    "body": {
+      "restored": true,
+      "credentials": "excluded; create new project grants"
+    }
+  },
+  "freshPre": {
+    "status": 400,
+    "body": {
+      "error": "erasure_epoch"
+    }
+  },
+  "nonempty": {
+    "status": 409,
+    "body": {
+      "error": "target_not_empty:alerts"
+    }
+  },
+  "failure": {
+    "name": "AssertionError",
+    "message": "Expected values to be strictly equal:\n+ actual - expected\n\n+ 'target_not_empty:alerts'\n- 'target_not_empty'\n                   ^\n"
+  },
+  "cleanup": [
+    "fulfilled",
+    "fulfilled"
+  ]
+}
