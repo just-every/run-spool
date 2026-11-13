@@ -340,7 +340,7 @@ export async function usageLabels(page,owner,project) {
  const filtered=await owner.req('/api/ingest/'+project.id,'POST',event,{Cookie:'',Authorization:'Bearer '+grant.key});assert.equal((await filtered.json()).outcome,'filtered');
  for(const expected of ['accepted','duplicate']){const response=await owner.req('/api/ingest/'+project.id,'POST',{...event,eventId:'synthetic-spool-counted',environment:'synthetic-spool-accepted'},{Cookie:'',Authorization:'Bearer '+grant.key});assert.equal((await response.json()).outcome,expected);}
  const usage=await owner.json('/api/organization/usage');assert.ok(usage.usage.some(row=>row.project===project.id&&row.reason==='filtered:environments'&&row.count>0));
- await page.setViewportSize({width:1440,height:1000});await page.goto(owner.origin+'/projects/'+project.id+'/settings#settings-organization');
+ await page.setViewportSize({width:1440,height:1000});await page.goto(owner.origin+'/projects/'+project.id+'/settings#settings-organization');await page.reload();
  const members=page.getByRole('region',{name:'Members',exact:true}),section=members.locator('details').filter({has:page.locator('summary').getByText('Usage',{exact:true})});await section.locator('summary').click();await section.locator('.data-row').first().waitFor();
  await expect(section.locator('.data-row')).toHaveCount(usage.usage.length,{timeout:20000});
  const text=await section.innerText();for(const row of usage.usage.filter(row=>/[_:]/.test(row.reason)))assert.ok(!text.includes(row.reason),'Usage labels hide internal reason codes');assert.match(text,/environment/i);

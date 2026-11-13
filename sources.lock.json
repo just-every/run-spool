@@ -11710,7 +11710,7 @@
       "executable": false
     },
     "tests/team-browser.mjs": {
-      "sha256": "78546c2d911577b37e852d3aa839d035e85f6a4f29cb96e49f5f02ab3b9c7b16",
+      "sha256": "84077cef07834308a3ab4e464e473c24ae51e9eeda5655eaf3c7f66aec1cab79",
       "executable": false
     },
     "tests/team-flow.mjs": {
