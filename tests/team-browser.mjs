@@ -342,7 +342,7 @@ export async function usageLabels(page,owner,project) {
  const usage=await owner.json('/api/organization/usage');assert.ok(usage.usage.some(row=>row.project===project.id&&row.reason==='filtered:environments'&&row.count>0));
  await page.setViewportSize({width:1440,height:1000});await page.goto(owner.origin+'/projects/'+project.id+'/settings#settings-organization');
  const members=page.getByRole('region',{name:'Members',exact:true}),section=members.locator('details').filter({has:page.locator('summary').getByText('Usage',{exact:true})});await section.locator('summary').click();await section.locator('.data-row').first().waitFor();
- assert.equal(await section.locator('.data-row').count(),usage.usage.length,'Each recorded counter has a visible label and count');
+ await expect(section.locator('.data-row')).toHaveCount(usage.usage.length,{timeout:20000});
  const text=await section.innerText();for(const row of usage.usage.filter(row=>/[_:]/.test(row.reason)))assert.ok(!text.includes(row.reason),'Usage labels hide internal reason codes');assert.match(text,/environment/i);
  const folder=process.env.SPOOL_TEAM_EVIDENCE||'.artifacts/team';for(const width of [1440,390]){await page.setViewportSize({width,height:1000});await section.screenshot({path:resolve(folder,'usage-'+width+'.png')});}
  const latest=await owner.json(root+'/inbound-filters');await owner.json(root+'/inbound-filters','PUT',{revision:latest.revision,policy:snapshot.policy});
