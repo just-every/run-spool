@@ -1,0 +1,17 @@
+{
+  "scope": "extended existing settingsPrerequisiteGuides called by runtime.mjs; no new suite or test registration",
+  "runtime_assert_script_before": 1,
+  "runtime_assert_script_after": 1,
+  "new_registrations": 0,
+  "files": {
+    "tests/runtime.mjs": {
+      "before_explicit_registrations": 0,
+      "after_explicit_registrations": 0
+    },
+    "tests/setup-prerequisites.mjs": {
+      "before_explicit_registrations": 0,
+      "after_explicit_registrations": 0
+    }
+  },
+  "total_seed_count": "not recomputed; no registration added and no cap increase requested"
+}

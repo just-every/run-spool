@@ -1,0 +1,93 @@
+{
+  "repository": "just-every/run-spool",
+  "branch": "cloud/main-spool-egress-guide-link-1",
+  "head": "ca62aee25af1dbbb665d0040151a1150fcc10946",
+  "base": "0f9809608a4ba84b23f4f8ece165605fcdd1acba",
+  "created_at": "2026-11-13T07:15:09.802572+00:00",
+  "checks": [
+    {
+      "command": "cloud_run npx -y @runeditrun/rer setup --owner-email fleet@runeditrun.com --non-interactive",
+      "exit": 0,
+      "kind": "local setup only"
+    },
+    {
+      "command": "cloud_run npx -y @runeditrun/rer build",
+      "exit": 0
+    },
+    {
+      "command": "RER_CHROMIUM_EXECUTABLE_PATH=/usr/bin/chromium cloud_run node tests/runtime.mjs",
+      "exit": 0,
+      "proof": "runtime-check.txt",
+      "note": "1440 assertion journey; changed screens captured at 1440 and 390"
+    },
+    {
+      "command": "settingsPrerequisiteGuides on the emitted Worker through native owner admission and HTTP project creation",
+      "exit": 0,
+      "proof": "guide-check.txt",
+      "note": "rerun after moving Slack owner prerequisites above its form; same test helper and recipe assertions"
+    },
+    {
+      "command": "cloud_run pnpm typecheck",
+      "exit": 0,
+      "proof": "typecheck.txt"
+    },
+    {
+      "command": "node scripts/edition-authoring/cli.mjs lock",
+      "exit": 0,
+      "note": "regenerated source lock last after main fetch/rebase"
+    },
+    {
+      "command": "pnpm source:check",
+      "exit": 0
+    },
+    {
+      "command": "node src/base/contract-docs.mjs check",
+      "exit": 0,
+      "proof": "contract-check.txt"
+    },
+    {
+      "command": "git diff --check",
+      "exit": 0
+    }
+  ],
+  "before_after": {
+    "settings_egress_entry_points": {
+      "before": 2,
+      "after": 2
+    },
+    "settings_egress_paths_reaching_pinned_base_owner_procedure": {
+      "before": 0,
+      "after": 2
+    },
+    "shared_guide_exact_receipt_source_mapping": {
+      "before": false,
+      "after": true
+    },
+    "runtime_assert_script_registrations": {
+      "before": 1,
+      "after": 1
+    },
+    "new_registrations": 0
+  },
+  "clause_status_changes": [],
+  "generated_contract_views_changed": false,
+  "live_provider_qualification": "NOT RUN; owner credentials, separately authorized probe and safe external receiver are outside this task",
+  "publication_scan": "Not run in this cloud by task adaptation; fleet runs its full publication scan before landing",
+  "pr": null,
+  "contract_judgment_counts_before": {
+    "done": 13,
+    "partial": 47,
+    "missing": 26
+  },
+  "contract_judgment_counts_after": {
+    "done": 13,
+    "partial": 47,
+    "missing": 26
+  },
+  "terminal_custody": "PUSHED",
+  "ci_run_id": 43384211264,
+  "ci_run_attempt": 2,
+  "ci_status_at_last_allowed_observation": "in_progress",
+  "github_calls_used": 10,
+  "pending_gate": "Exact-SHA Verify; no READY claim"
+}

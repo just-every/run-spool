@@ -1,0 +1,117 @@
+{
+  "repository": "just-every/run-spool",
+  "head_sha": "ca62aee25af1dbbb665d0040151a1150fcc10946",
+  "api_calls_before_watcher": 2,
+  "prior_calls": [
+    "Base pinned owner-step URL lookup",
+    "mistyped short-SHA run discovery returned no runs; no green conclusion drawn"
+  ],
+  "observations": [
+    {
+      "at": "2026-11-13T07:19:18.808429+00:00",
+      "command": "gh api repos/just-every/run-spool/actions/runs?head_sha=ca62aee25af1dbbb665d0040151a1150fcc10946&per_page=100",
+      "result": [
+        {
+          "conclusion": null,
+          "head_sha": "ca62aee25af1dbbb665d0040151a1150fcc10946",
+          "html_url": "https://github.com/just-every/run-spool/actions/runs/43384211264",
+          "id": 43384211264,
+          "name": "Verify",
+          "status": "in_progress"
+        }
+      ]
+    },
+    {
+      "at": "2026-11-13T07:24:19.390419+00:00",
+      "command": "gh api repos/just-every/run-spool/actions/runs/43384211264",
+      "result": {
+        "conclusion": null,
+        "head_sha": "ca62aee25af1dbbb665d0040151a1150fcc10946",
+        "html_url": "https://github.com/just-every/run-spool/actions/runs/43384211264",
+        "id": 43384211264,
+        "name": "Verify",
+        "status": "in_progress"
+      }
+    },
+    {
+      "at": "2026-11-13T07:29:19.926254+00:00",
+      "command": "gh api repos/just-every/run-spool/actions/runs/43384211264",
+      "result": {
+        "conclusion": null,
+        "head_sha": "ca62aee25af1dbbb665d0040151a1150fcc10946",
+        "html_url": "https://github.com/just-every/run-spool/actions/runs/43384211264",
+        "id": 43384211264,
+        "name": "Verify",
+        "status": "in_progress"
+      }
+    },
+    {
+      "at": "2026-11-13T07:34:20.475042+00:00",
+      "command": "gh api repos/just-every/run-spool/actions/runs/43384211264",
+      "result": {
+        "conclusion": "failure",
+        "head_sha": "ca62aee25af1dbbb665d0040151a1150fcc10946",
+        "html_url": "https://github.com/just-every/run-spool/actions/runs/43384211264",
+        "id": 43384211264,
+        "name": "Verify",
+        "status": "completed"
+      }
+    },
+    {
+      "at": "2026-11-13T07:46:37.975963+00:00",
+      "command": "gh api repos/just-every/run-spool/actions/runs/43384211264",
+      "exit": 0,
+      "result": {
+        "conclusion": null,
+        "head_sha": "ca62aee25af1dbbb665d0040151a1150fcc10946",
+        "html_url": "https://github.com/just-every/run-spool/actions/runs/43384211264",
+        "id": 43384211264,
+        "run_attempt": 2,
+        "status": "in_progress"
+      }
+    }
+  ],
+  "api_calls_total": 10,
+  "run_id": 43384211264,
+  "final": {
+    "conclusion": "failure",
+    "head_sha": "ca62aee25af1dbbb665d0040151a1150fcc10946",
+    "html_url": "https://github.com/just-every/run-spool/actions/runs/43384211264",
+    "id": 43384211264,
+    "name": "Verify",
+    "status": "completed"
+  },
+  "diagnostics": [
+    {
+      "command": "gh api repos/just-every/run-spool/actions/runs/43384211264/jobs?per_page=100",
+      "proof": "ci-jobs.json"
+    },
+    {
+      "command": "gh run view 43384211264 --repo just-every/run-spool --job 131749343308 --log-failed",
+      "proof": "ci-failed-job.txt",
+      "read_once": true
+    }
+  ],
+  "failure": {
+    "job_id": 131749343308,
+    "job": "verify (runtime)",
+    "step": "Run suites",
+    "test": "tests/deployment-history.mjs calling tests/suspect-flow.mjs:73",
+    "code": "ECONNRESET",
+    "scope": "untouched: the shard failed before invoking pnpm test:runtime and the changed Settings prerequisite helper"
+  },
+  "rerun": {
+    "command": "gh run rerun 43384211264 --repo just-every/run-spool --failed",
+    "exit": 0,
+    "at": "2026-11-13T07:35:36.891489+00:00",
+    "attempts_requested": 1
+  },
+  "retry_final_observation": {
+    "conclusion": null,
+    "head_sha": "ca62aee25af1dbbb665d0040151a1150fcc10946",
+    "html_url": "https://github.com/just-every/run-spool/actions/runs/43384211264",
+    "id": 43384211264,
+    "run_attempt": 2,
+    "status": "in_progress"
+  }
+}

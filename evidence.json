@@ -1,0 +1,184 @@
+{
+  "files": [
+    {
+      "blob": "0fb0551d3247c12e3d71ba36db31ff5f0503c320",
+      "bytes": 1712,
+      "path": "PLAN.md",
+      "sha256": "d4da0be6ff19c8398bd542bb2a372e8d8f070ee0720147bcb1d39659b0021793"
+    },
+    {
+      "blob": "fa12947f10d41140572fb4195c7c85e2dbeac3ef",
+      "bytes": 8923,
+      "path": "REPORT.md",
+      "sha256": "87277b41ea4e9964f5f5b30116cfbe41a71f47a3071c154718d89951585aa45b"
+    },
+    {
+      "blob": "0c4e4b41b913ab11d197b50f862f857273f7ce88",
+      "bytes": 170,
+      "path": "after-receipt.json",
+      "sha256": "85863edc1059d1a15cddbd0472cf0ed5b5c31f46d6e50892f92375f7f0486652"
+    },
+    {
+      "blob": "2bc08ab5392429c165cee8fe63dd91024e429812",
+      "bytes": 72155,
+      "path": "after/cron-1440.png",
+      "sha256": "b4681d682c380cde98b6b29272e37722fcda46d575101905da1f22ac835a0bab"
+    },
+    {
+      "blob": "0e3324f7248f1470299c3034d4153adaa8618346",
+      "bytes": 63107,
+      "path": "after/cron-390.png",
+      "sha256": "5109a4f6ee59518a48d0914c022d14a1e6d2a48fe1dcdfdc04db0b6a54c4cc32"
+    },
+    {
+      "blob": "715ebfe38d741efca1d65f81b8dbd7048f447803",
+      "bytes": 996157,
+      "path": "after/integration-guide-1440.png",
+      "sha256": "908c95e74684318c77895ba35443881d2f4d513a9a714a2ea644bc2cb7369790"
+    },
+    {
+      "blob": "34b8407d0415d068175addb5a1410d2d9f340395",
+      "bytes": 878959,
+      "path": "after/integration-guide-390.png",
+      "sha256": "3eda30aea218bc676385f6d06e0a6a8ea31c779b50420f1cbf277b37134371f9"
+    },
+    {
+      "blob": "2deccc02a6c69ebaba0e2cab14300251227cc567",
+      "bytes": 68428,
+      "path": "after/slack-1440.png",
+      "sha256": "ba4a3cda6d551435b16a3911b3e2fc9d6929ed0647e528bb9e030b3cf024ec06"
+    },
+    {
+      "blob": "8d9faf050d0d460005369f2fe2df5b5569c2e605",
+      "bytes": 60953,
+      "path": "after/slack-390.png",
+      "sha256": "67e7e3e85554aedc5184a3480a2fcd37457491e7f57213b49b8cc3068ad929a1"
+    },
+    {
+      "blob": "916522ed109e9b262513e54cfc726769f0acd4f1",
+      "bytes": 325,
+      "path": "base-link-receipt.json",
+      "sha256": "e081069e46a6a43c46852d6c701d5261846c003474ca6d9a74712a6476ed973c"
+    },
+    {
+      "blob": "acea824ddbf62f77b48f7d0f2a04e95e1ccb8993",
+      "bytes": 172,
+      "path": "before-receipt.json",
+      "sha256": "99f64343ff0a62fef00fcb96b761f8d05f828214446fdc3fd6da32fc6654f59f"
+    },
+    {
+      "blob": "f2651e0d53ba6987bbb5d80fd2c106eccf4a272b",
+      "bytes": 62012,
+      "path": "before/cron-1440.png",
+      "sha256": "ea28f870c1715e4d82ece63e4587afc9bb6e421e05c12353a240bd69518e4e60"
+    },
+    {
+      "blob": "ac7b62f159c96ca1dc3ac3bd9c43a786a7dd940d",
+      "bytes": 56897,
+      "path": "before/cron-390.png",
+      "sha256": "78ec2a4e59791ddc9b58a5084bc394a20ac74f9165dc139469554fabc3dd9e2c"
+    },
+    {
+      "blob": "b30c709662af155a18c87b642c895dbedc0b421e",
+      "bytes": 732253,
+      "path": "before/integration-guide-1440.png",
+      "sha256": "83e2cc232c788341450e492c2f910e8e77987bd8cbb557c95241340607da6907"
+    },
+    {
+      "blob": "9cf64847aeaa99065f52ec7ff991661d10d04b35",
+      "bytes": 634489,
+      "path": "before/integration-guide-390.png",
+      "sha256": "759aee95c492d92093cf4ff066636a08d999a9b8b622040c3519c094f1270949"
+    },
+    {
+      "blob": "76c7d2baad8e9ec60eb474a49eb316cbf871962c",
+      "bytes": 63352,
+      "path": "before/slack-1440.png",
+      "sha256": "21edf6af16a4fede5e1fef920ddacf72a5db202aa75f30741c7c4a27bb5b2f16"
+    },
+    {
+      "blob": "4e672e889bd457ab18e2073db572b597b309ac33",
+      "bytes": 52160,
+      "path": "before/slack-390.png",
+      "sha256": "d7bf34e4f3ebddd1f725844487da0734f119a6b1b911d0f284edea6e4fa241bd"
+    },
+    {
+      "blob": "970fd6ec14d1fb69477f5ec2737c2f7c288f76a6",
+      "bytes": 1895,
+      "path": "ci-failed-job.txt",
+      "sha256": "7d763b9993a4961d55eb4573cc7af69706f55ded2f7741f31199c3f925bc3355"
+    },
+    {
+      "blob": "8ab458c7c9589f1b390486f89abe4321351b923d",
+      "bytes": 47991,
+      "path": "ci-jobs.json",
+      "sha256": "483a7d632d2c58e5d27ef0e94f86cdf87006ead6ae325af3ee8c1c22c389b858"
+    },
+    {
+      "blob": "782bbc67de790d40f545a6d5d4dad5ff0524146b",
+      "bytes": 4011,
+      "path": "ci-receipt.json",
+      "sha256": "9a095eef0b8ae91fdd1b4d5e0b7d39b047b4e8a233acfa23a8c735e7a0aeb619"
+    },
+    {
+      "blob": "1fba47a3cfafa55549ec3d4b50358303cf257957",
+      "bytes": 168,
+      "path": "commit-audit.txt",
+      "sha256": "a2503fa55e02f4fb6bd561c8b131ad030155a8a6bd1ae0915757f050be901bf8"
+    },
+    {
+      "blob": "b59d39532e8a030ff74f6339019ab7870ef51548",
+      "bytes": 70,
+      "path": "contract-check.txt",
+      "sha256": "b04031901cfff3e9bc42a429b52cbc14c2442ffb68817fd62a245ac52847b422"
+    },
+    {
+      "blob": "38fb44357aad64e3ad012dc5015e1b75d9b28faa",
+      "bytes": 483,
+      "path": "guide-check.txt",
+      "sha256": "986429438c7b6c8d86b87a7dadaf7c2096fb9c63e999f9b86047f635983638b1"
+    },
+    {
+      "blob": "ba8bda8576b7b728545112fdddef8be1d6bdfadf",
+      "bytes": 2813,
+      "path": "local-checks.json",
+      "sha256": "7e0fea840cae95f591c3530be37159da04773d163adc365782c7e1c2e5f2c4ec"
+    },
+    {
+      "blob": "3bd16267329a968937423312d5858cb2ea7b4c3c",
+      "bytes": 764,
+      "path": "product-commit.txt",
+      "sha256": "91707aca549ed68ab36a704ebe42680240c0f4422177bbf96177f29450cb3273"
+    },
+    {
+      "blob": "63a9bf64e8243fb431eeb2155faa37903e7bd0fb",
+      "bytes": 969,
+      "path": "product-push.txt",
+      "sha256": "168dedb161bb61220724639ba344fd3d4edcd4353e80ecf0bf3d780414da9a04"
+    },
+    {
+      "blob": "726791ec2a921c332faac08e7fb0dfc7a675eaf0",
+      "bytes": 653,
+      "path": "runtime-check.txt",
+      "sha256": "2046dd37ac3538314f2aba1215ba6fc37ba92782358dd5ac4afea2ba08d37aee"
+    },
+    {
+      "blob": "ce8d4bf19ebd64e145d9b14ff4a3f981d4faeff5",
+      "bytes": 572,
+      "path": "test-registration-receipt.json",
+      "sha256": "49724a3cee74119017a0e3756eb745c9444e25466b6e72c6175d9923c18d372c"
+    },
+    {
+      "blob": "70113ac86ceebc18cd0a7ad87c24d7bbccc41c92",
+      "bytes": 187,
+      "path": "typecheck.txt",
+      "sha256": "06c4ca756ad1ce94a18876e2d4aaf219f614da325d72ea63a7bdbf710aac70d8"
+    }
+  ],
+  "product_branch": "cloud/main-spool-egress-guide-link-1",
+  "product_head": "ca62aee25af1dbbb665d0040151a1150fcc10946",
+  "ref": "refs/heads/evidence/main-spool-egress-guide-link-1",
+  "repository": "just-every/run-spool",
+  "schema": 1,
+  "tag": "main-spool-egress-guide-link-1"
+}

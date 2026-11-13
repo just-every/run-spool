@@ -1,0 +1,16 @@
+commit ca62aee25af1dbbb665d0040151a1150fcc10946
+Author:     Run Edit Run fleet <fleet@runeditrun.com>
+AuthorDate: Fri Nov 13 07:13:33 2026 +0000
+Commit:     Run Edit Run fleet <fleet@runeditrun.com>
+CommitDate: Fri Nov 13 07:13:33 2026 +0000
+
+    Make the integration egress prerequisite actionable from Settings
+
+ docs/ALERT-WEBHOOKS.md                 |  6 ++--
+ docs/CHECK-INS.md                      |  2 ++
+ docs/INTEGRATION-EGRESS.md             | 53 +++++++++++++++++++++++++++++++---
+ sources.lock.json                      | 12 ++++----
+ src/ui/alerts/SlackDestinationForm.tsx |  3 +-
+ src/ui/workbench/CheckInRoutes.tsx     |  4 +--
+ tests/setup-prerequisites.mjs          | 36 +++++++++++++++++++++--
+ 7 files changed, 99 insertions(+), 17 deletions(-)

@@ -1,0 +1,22 @@
+Command: gh run view 43384211264 --repo just-every/run-spool --job 131749343308 --log-failed
+Actual failure excerpt; runner environment block omitted.
+
+verify (runtime)	Run suites	2026-11-13T07:17:31.9686566Z node:internal/deps/undici/undici:13510
+verify (runtime)	Run suites	2026-11-13T07:17:31.9687115Z       Error.captureStackTrace(err);
+verify (runtime)	Run suites	2026-11-13T07:17:31.9689551Z             ^
+verify (runtime)	Run suites	2026-11-13T07:17:31.9689763Z 
+verify (runtime)	Run suites	2026-11-13T07:17:31.9689924Z TypeError: fetch failed
+verify (runtime)	Run suites	2026-11-13T07:17:31.9690298Z     at node:internal/deps/undici/undici:13510:13
+verify (runtime)	Run suites	2026-11-13T07:17:31.9691150Z     at async suspectFlow (file:///home/runner/work/run-spool/run-spool/tests/suspect-flow.mjs:73:38)
+verify (runtime)	Run suites	2026-11-13T07:17:31.9692062Z     at async file:///home/runner/work/run-spool/run-spool/tests/deployment-history.mjs:59:2 {
+verify (runtime)	Run suites	2026-11-13T07:17:31.9692626Z   [cause]: Error: read ECONNRESET
+verify (runtime)	Run suites	2026-11-13T07:17:31.9693180Z       at TCP.onStreamRead (node:internal/stream_base_commons:216:20)
+verify (runtime)	Run suites	2026-11-13T07:17:31.9693727Z       at TCP.callbackTrampoline (node:internal/async_hooks:130:17) {
+verify (runtime)	Run suites	2026-11-13T07:17:31.9694171Z     errno: -104,
+verify (runtime)	Run suites	2026-11-13T07:17:31.9694443Z     code: 'ECONNRESET',
+verify (runtime)	Run suites	2026-11-13T07:17:31.9694717Z     syscall: 'read'
+verify (runtime)	Run suites	2026-11-13T07:17:31.9694961Z   }
+verify (runtime)	Run suites	2026-11-13T07:17:31.9695173Z }
+verify (runtime)	Run suites	2026-11-13T07:17:31.9695295Z 
+verify (runtime)	Run suites	2026-11-13T07:17:31.9695416Z Node.js v22.20.0
+verify (runtime)	Run suites	2026-11-13T07:17:32.0069323Z ##[error]Process completed with exit code 1.

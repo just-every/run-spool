@@ -1,0 +1,5 @@
+[33m▲ [43;33m[[43;30mWARNING[43;33m][0m [1mProxy environment variables detected. We'll use your proxy for fetch requests.[0m
+
+
+Settings prerequisite guides passed: Slack and cron reach pinned Base owner steps and a working receipt-to-binding recipe; Business trust links open locally and anonymously from the docs index.
+{"baseSha":"0f9809608a4ba84b23f4f8ece165605fcdd1acba","settingsLinksOpen":true,"sharedGuideReceiptSourceMapped":true,"sharedGuideOwnerStepsLinked":true}
