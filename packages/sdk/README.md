@@ -2,11 +2,13 @@
 
 Send JavaScript errors from browsers, Node and Cloudflare Workers to your own [Spool](https://github.com/just-every/run-spool) installation. No runtime dependencies; the browser entry is about 5 KB gzipped.
 
+Requires [Node.js and npm](https://nodejs.org/en/download) installed and available on PATH in your application’s repository. Spool’s installer keeps its runtime private and does not provide npm on PATH. For browser capture without Node.js or npm, use the [browser helper](../../docs/capture.md#browser-capture-without-nodejs-or-npm).
+
 ```sh
 npm install @just-every/spool
 ```
 
-As of 2026-10-15, npm serves 0.1.0. This checkout contains owner-held SDK 0.2.0 source, which remains unpublished. Ordinary capture and source-map upload are available in 0.1.0. Exposure signals, the Vite/Rollup upload-count message, long-stack handling and location-tracking improvements described here require 0.2.0; use a separately supplied 0.2.0 artifact or wait for its authorized npm release. Updating the Spool app does not publish or upgrade the SDK. See [CHANGELOG.md](CHANGELOG.md).
+As of 2026-10-15, npm serves 0.1.0. This checkout contains owner-held SDK 0.2.0 source, which remains unpublished. Ordinary capture and flat-map upload up to 256 KiB are available in 0.1.0. The current checkout CLI supports flat or indexed maps up to 1 MiB, matching the upload service; that CLI support remains unpublished in 0.2.0. The prepared-map picker on Releases accepts only flat maps up to 256 KiB. There is no lifetime map count; the optional project artifact-storage byte cap applies. Exposure signals, the Vite/Rollup upload-count message, long-stack handling and location-tracking improvements described here require 0.2.0; use a separately supplied 0.2.0 artifact or wait for its authorized npm release. Updating the Spool app does not publish or upgrade the SDK. See [CHANGELOG.md](CHANGELOG.md).
 
 Applications that already run a Sentry SDK keep it: this package also ships the guided `spool-setup` command and server-side tunnels for the SDK's `tunnel` option (`@just-every/spool/tunnel`, `@just-every/spool/next`); see [Switching exception intake to Spool](../../docs/SENTRY-SWITCHING.md). Both are in this source and not in the npm 0.1.0 release.
 

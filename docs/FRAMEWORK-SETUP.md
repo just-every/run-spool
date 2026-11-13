@@ -214,6 +214,8 @@ Set `SPOOL_DSN` in the host environment, then trigger an exception from a develo
 
 Install the upload tool in your application’s repository with that application’s Node.js and npm, not Spool’s private installer runtime:
 
+Requires [Node.js and npm](https://nodejs.org/en/download) installed and available on PATH in your application’s repository. Spool’s installer keeps its runtime private and does not provide npm on PATH. For browser capture without Node.js or npm, use the [browser helper](capture.md#browser-capture-without-nodejs-or-npm).
+
 ```sh
 npm install @just-every/spool
 ```

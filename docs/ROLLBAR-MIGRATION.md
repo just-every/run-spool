@@ -96,6 +96,8 @@ Arbitrary Rollbar `custom`, `person` and `request` objects are not migrated into
 1. Select the native destination project after reconciliation. In **Settings**, create a fresh project ingest key and, for CI uploads, a separate deploy key. Existing Rollbar tokens and owner cookies are not Spool ingest credentials. Register the exact release and build in **Releases** before sending errors; register new releases in shipping order. Add the browser application's exact origin on **Capture**.
 2. Install `@just-every/spool` in the application and initialize it once. Follow the current package availability and API notes in the [SDK guide](../packages/sdk/README.md) and [capture guide](capture.md). The examples below use the ordinary capture API; owner-held SDK features require their separately supplied release.
 
+Requires [Node.js and npm](https://nodejs.org/en/download) installed and available on PATH in your application’s repository. Spool’s installer keeps its runtime private and does not provide npm on PATH. For browser capture without Node.js or npm, use the [browser helper](capture.md#browser-capture-without-nodejs-or-npm).
+
 ```sh
 npm install @just-every/spool
 ```
