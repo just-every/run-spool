@@ -40,7 +40,10 @@ try {
   assert.equal(await lobby.evaluate(()=>document.documentElement.scrollWidth<=innerWidth+1),true,'Lobby overflow');
   assert.deepEqual((await new AxeBuilder({page:lobby}).withTags(['wcag2a','wcag2aa','wcag21aa']).analyze()).violations.map(item=>item.id),[]);
   const setup=lobby.getByRole('link',{name:'Finish setup',exact:true});assert.equal(await setup.getAttribute('href'),'/setup');
-  await setup.click();await assertSignInForm(lobby,'/setup');
+  await setup.click();
+  if(width===1440)await expect(lobby.locator('a[href*="/auth/dev/enter"],a[href*="/auth/one-click"]')).toHaveCount(0);
+  // Owner setup keeps its return destination after explicitly opening the owner gate.
+  await openGate(visitor,origin);await lobby.reload();await assertSignInForm(lobby,'/setup');
   await visitor.close();checked('Visitor unclaimed Lobby fits, passes axe and Finish setup leads to owner sign-in preserving /setup');
  }
  const project=await api('/api/projects','POST',{id:'cedar',name:'Cedar Dispatch'});

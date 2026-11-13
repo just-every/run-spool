@@ -11726,11 +11726,11 @@
       "executable": false
     },
     "tests/triage-auth.mjs": {
-      "sha256": "23c6005732be5c8e0187519362040765c93db868e97f0655d2eb31379fcccdb0",
+      "sha256": "07509c7dd716e144de307726c8a974b5455d9db4de6f2f107a9708110c706857",
       "executable": false
     },
     "tests/triage-journey.mjs": {
-      "sha256": "af882d281492b5f6d0fd623eeebb22aef62b2a6dce4457e4b65a891dcc071c89",
+      "sha256": "c277be67a497bf44ef7e5a93437ea90678d2957c43991ceedbeaa4f7d6e1c145",
       "executable": false
     },
     "tests/tunnel-flow.mjs": {
