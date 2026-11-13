@@ -14,5 +14,12 @@
     1,
     1
   ],
-  "published_history_rewritten": false
+  "published_history_rewritten": false,
+  "exact_sha_verify": {
+    "run": 43384549662,
+    "head_sha": "02e798f0a22349398ec82f4ec6ea6ff86385e8bd",
+    "status": "completed",
+    "conclusion": "success"
+  },
+  "terminal_custody": "READY"
 }

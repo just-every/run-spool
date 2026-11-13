@@ -1,10 +1,11 @@
 {
   "id": 43384549662,
   "head_sha": "02e798f0a22349398ec82f4ec6ea6ff86385e8bd",
-  "status": "in_progress",
-  "conclusion": null,
+  "status": "completed",
+  "conclusion": "success",
   "html_url": "https://github.com/just-every/run-spool/actions/runs/43384549662",
   "run_attempt": 1,
-  "api_calls": 2,
-  "observed_at": "2026-11-13T07:21:58Z"
+  "api_calls": 5,
+  "task_github_calls": 9,
+  "observed_at": "2026-11-13T07:37:00Z"
 }
