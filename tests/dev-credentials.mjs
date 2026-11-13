@@ -72,23 +72,47 @@ try{
  assert.equal(await status(await local('/api/projects/minted/releases',{method:'POST',cookie:dev,key:true,body:{name:'r1',build:'b1'}})),201);
  assert.equal((await db.prepare("SELECT COUNT(*) n FROM oa_dev_credentials WHERE credential='credentials'").first()).n,4,'every mint path in the dev session is recorded; the ordinary ones are not');
 
- // The local invitation carries the same native token and retains dev admission.
+ // The local invitation is its own scoped dev admission, never the owner gate.
  assert.equal(await status(await local('/api/organization',{method:'POST',cookie:dev,key:true,body:{id:'synthetic-spool-dev',name:'Synthetic dev team'}})),201);
- const invitation={email:'synthetic-spool-dev@example.test',name:'Synthetic dev invitee',role:'admin',grants:[]};
+ const invitation={email:'synthetic-spool-dev@example.test',name:'Synthetic dev invitee',role:'read-only',grants:[{project:'minted',role:'read-only'}]};
  assert.equal(await status(await local('/api/organization/invites',{method:'POST',cookie:dev,key:true,body:invitation})),202);
  const inviteData=await (await local('/api/organization',{cookie:dev,key:true})).json();
  const inviteLink=inviteData.invites.find(row=>row.localLink)?.localLink;assert.ok(inviteLink);
  const inviteToken=new URL(inviteLink).searchParams.get('token');
- assert.equal(await status(await local('/auth/confirm',{method:'POST',body:{token:inviteToken}})),400,'dev invitation acceptance retains the local gate');
+ assert.equal(await status(await local(new URL(inviteLink).pathname+new URL(inviteLink).search)),200,'the invitee previews their own link without the owner gate');
  assert.equal(await status(await remote('/auth/confirm',{method:'POST',key:true,body:{token:inviteToken}})),400,'deployed entry never accepts the dev invitation');
- const accepted=await local('/auth/confirm',{method:'POST',key:true,body:{token:inviteToken}});assert.equal(accepted.status,303);await accepted.body?.cancel();
+ const accepted=await local('/auth/confirm',{method:'POST',body:{token:inviteToken}});assert.equal(accepted.status,303);await accepted.body?.cancel();
  const invitedCookie=accepted.headers.getSetCookie().map(line=>line.split(';')[0]).join('; ');
- assert.equal((await (await local('/auth/session',{cookie:invitedCookie,key:true})).json()).kind,'dev');
+ assert.ok(!invitedCookie.includes('rer_dev_gate'),'acceptance never sets the owner gate');
+ assert.equal((await (await local('/auth/session',{cookie:invitedCookie})).json()).kind,'dev');
+ assert.equal(await status(await remote('/auth/session',{cookie:invitedCookie,key:true})),401,'hosted entry still rejects the member dev session');
+ const scoped=await (await local('/api/organization/me',{cookie:invitedCookie})).json();
+ assert.equal(scoped.role,'read-only');assert.deepEqual(scoped.projects.map(row=>row.id),['minted']);
+ assert.equal(await status(await local('/api/projects/web/issues',{cookie:invitedCookie})),404,'the member cannot read an ungranted project');
+ assert.equal(await status(await local('/api/projects/minted/issues',{cookie:invitedCookie})),200);
+ assert.equal(await status(await local('/api/projects/minted/releases',{method:'POST',cookie:invitedCookie,body:{name:'member-forbidden',build:'b'}})),404,'read-only membership cannot write');
+ for(const path of ['/auth/dev/enter?as=owner','/auth/one-click?as='+encodeURIComponent(testOwner),'/__dev/personas'])
+  assert.equal(await status(await local(path,{cookie:invitedCookie})),404,'member proof cannot open an owner shortcut');
  assert.equal(await status(await local('/auth/confirm',{method:'POST',key:true,body:{token:inviteToken}})),400,'dev invitation is single-use');
- assert.equal(await status(await local('/api/organization/invites',{method:'POST',cookie:dev,key:true,body:{...invitation,email:'synthetic-spool-pending@example.test',name:'Synthetic pending invitee',role:'read-only'}})),202);
+ assert.equal(await status(await local('/api/organization/invites',{method:'POST',cookie:dev,key:true,body:{...invitation,email:'synthetic-spool-pending@example.test',name:'Synthetic pending invitee',role:'admin',grants:[]}})),202);
  assert.ok((await (await local('/api/organization',{cookie:dev,key:true})).json()).invites.some(row=>row.localLink));
- assert.ok((await (await local('/api/organization',{cookie:invitedCookie,key:true})).json()).invites.every(row=>!row.localLink),'local admins cannot read the inviting owner’s links');
- console.log('PROBE TEAM-001 rer dev invitation: same native token; existing key gate required; deployed refusal; single use; admin link denial.');
+ const pendingData=await (await local('/api/organization',{cookie:dev,key:true})).json();
+ const pendingLink=pendingData.invites.find(row=>row.localLink).localLink;
+ const adminAccepted=await local('/auth/confirm',{method:'POST',body:{token:new URL(pendingLink).searchParams.get('token')}});assert.equal(adminAccepted.status,303);await adminAccepted.body?.cancel();
+ const adminCookie=adminAccepted.headers.getSetCookie().map(line=>line.split(';')[0]).join('; ');
+ assert.ok((await (await local('/api/organization',{cookie:adminCookie})).json()).invites.every(row=>!row.localLink),'local admins cannot read the inviting owner’s links');
+ const person=pendingData.members.find(row=>row.name==='Synthetic dev invitee');
+ assert.equal(await status(await local('/api/organization/members/'+person.id,{method:'DELETE',cookie:dev,key:true,body:{version:person.version}})),200);
+ assert.equal(await status(await local('/api/projects/minted/issues',{cookie:invitedCookie})),401,'removal refuses the member on the next request');
+ const refusedDocument=await local('/projects/minted/issues',{cookie:invitedCookie});assert.equal(refusedDocument.status,303);
+ const signInPath=refusedDocument.headers.get('location');assert.equal(new URL(signInPath,origin).pathname,'/sign-in');await refusedDocument.body?.cancel();
+ const removedPage=await (await local(signInPath,{cookie:invitedCookie})).text();
+ assert.ok(!/href=["'][^"']*\/auth\/(?:dev\/enter|one-click)/.test(removedPage),'removed browser is offered no owner sign-in');
+ assert.equal(await status(await local('/auth/confirm',{method:'POST',body:{token:inviteToken}})),400,'removal cannot revive the used invitation');
+ const ownerPage=await (await local(signInPath,{cookie:invitedCookie,key:true})).text();
+ assert.ok(/href=["'][^"']*\/auth\/dev\/enter\?as=owner/.test(ownerPage),'only opening the owner gate restores its shortcut');
+ assert.equal(await status(await local('/auth/dev/enter?as=owner',{cookie:invitedCookie,key:true})),303,'the owner gate keeps its explicit owner authority');
+ console.log('PROBE TEAM-001 rer dev invitation: independent scoped acceptance, project/read-only fences, removal without owner shortcuts, explicit owner gate, hosted refusal, single use and admin link denial.');
 
  // Dev-minted capture/build credentials need no owner gate locally. Agent reads
  // still need it, and production refuses every dev-minted credential.

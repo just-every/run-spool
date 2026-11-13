@@ -53,7 +53,7 @@ export function createOperatorAuth(options) {
   async function authorizedLink(request, digest) {
     const link = await store.preview(digest, clock());
     if (!link || !emailAllowed(link.email, config.allowList)) return null;
-    if (link.dev && !await devAdmitted(request)) return null;
+    if (link.dev && !await devAdmitted(request, link.kind === 'invite' ? { type: 'invite', digest } : undefined)) return null;
     if (link.kind !== 'invite') return { link };
     const issuer = await store.operator(link.issuerId);
     if (!isActiveOperator(issuer, config.allowList) || issuer.version !== link.issuerVersion
