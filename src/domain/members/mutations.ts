@@ -16,8 +16,10 @@ export async function invite(request: Request, env: Bindings, session: NativeAut
  const email=normalizeEmail(input.email), displayName=name(input.name), memberRole=role(input.role), access=await grants(env.DB,organization,input.grants);
  if (memberRole==='billing'&&access.length) throw new AuthError('Billing has no project grants',400);
  const existing=await s(env.DB,'SELECT * FROM spool_members WHERE email=?',email).first<any>();
- if (existing?.state==='active') throw new AuthError('Member already invited',409);
  const native=await s(env.DB,'SELECT id,status,role FROM oa_operators WHERE email=?',email).first<any>();
+ if (existing?.state==='active') throw new AuthError(native?.status==='invited'
+  ? 'Member already invited. Use Manage access → Remove member to remove the pending invitation, then invite this address again.'
+  : 'Member already invited',409);
  if (native?.role==='owner') throw new AuthError('Owner already belongs to this organization',409);
  if (native?.status==='inactive') {
   // A fresh native invitation, rather than reactivation, proves the person

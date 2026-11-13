@@ -1,4 +1,5 @@
 import { mailSuppressed } from '../../auth/mail.server.mjs';
+import { localDevelopmentEnabled } from '../../auth/local.server.mjs';
 import { localInvitationLink } from './local-invitations';
 import { mintedByCurrentPerson } from '../credential-fence';
 import { Hono } from 'hono';
@@ -25,7 +26,7 @@ memberRoutes.use('*',async(c,next)=>{
 const organization=(db:D1Database)=>s(db,'SELECT * FROM spool_organizations ORDER BY created LIMIT 1').first<any>();
 memberRoutes.get('/me',async c=>{
  const session=c.get('teamSession'), org=await organization(c.env.DB);
- return c.json({mailSuppressed:mailSuppressed(c.env),role:session.operator.role==='owner'?'owner':session.membership.role,memberId:session.membership?.id??(await s(c.env.DB,'SELECT id FROM spool_members WHERE operator_id=?',session.operator.id).first<any>())?.id,organization:org,projects:await memberProjects(c.env.DB,session)});
+ return c.json({mailSuppressed:mailSuppressed(c.env),localTransferConfirmation:localDevelopmentEnabled(c.env)&&session.kind==='dev',role:session.operator.role==='owner'?'owner':session.membership.role,memberId:session.membership?.id??(await s(c.env.DB,'SELECT id FROM spool_members WHERE operator_id=?',session.operator.id).first<any>())?.id,organization:org,projects:await memberProjects(c.env.DB,session)});
 });
 memberRoutes.get('/usage',async c=>{
  const session=c.get('teamSession');
