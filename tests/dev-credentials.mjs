@@ -64,6 +64,8 @@ try{
  const entered=await local('/auth/dev/enter?as=owner',{key:true});assert.equal(entered.status,303);await entered.body?.cancel();
  // The browser also receives the port-named gate cookie (rer_dev_gate_<port>); the session cookie alone is what a request without the key carries.
  const dev=entered.headers.getSetCookie().map(line=>line.split(';')[0]).filter(pair=>!pair.startsWith('rer_dev_gate')).join('; ');
+ assert.equal((await (await local('/api/organization/me',{cookie:dev,key:true})).json()).localTransferConfirmation,true,'gated dev access confirms ownership transfer locally');
+ assert.equal((await (await local('/api/organization/me',{cookie:ordinary})).json()).localTransferConfirmation,false,'native access still requires its own proof');
  assert.equal(await status(await local('/api/projects',{cookie:dev})),401,'a dev session without the key is refused');
  assert.equal(await status(await remote('/api/projects',{cookie:dev,key:true})),401,'the deployed entry refuses a dev session even with the key');
  const create=await local('/api/projects',{method:'POST',cookie:dev,key:true,body:{id:'minted',name:'Minted'}});assert.equal(create.status,201);
