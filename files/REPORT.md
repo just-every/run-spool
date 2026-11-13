@@ -49,7 +49,7 @@ Before → after for an invitee browser that has never opened the owner gate:
 - pnpm run check -- --profile first-party: exit 0 after the correction. Offline Base-copy verification: exit 0; all pinned auth copies match main.
 - git diff --check: passed. Worktree clean at candidate push.
 - Browser proof through actual rer dev: independent owner and member contexts; no test session or token rows manufactured. Assertions at 1440. Changed screens captured once at 1440 and 390: Settings invitation list, invitation confirmation, removed-member sign-in and owner-gate sign-in. Private invitation input masked. browser-receipt.json and the eight PNGs record the results. Screenshots were regenerated through the corrected product-owned adapter before its commit; source bytes match the final candidate. One browser launch before dev readiness was discarded before invitation setup; the successful run began after /health returned 200.
-- Exact-SHA Verify for the final candidate: run 43388345534, https://github.com/just-every/run-spool/actions/runs/43388345534. Initial discovery found in_progress. Final status is recorded in ci-receipt.json when polling completes.
+- Exact-SHA Verify for the final candidate: run 43388345534, https://github.com/just-every/run-spool/actions/runs/43388345534. Discovery found queued. The final permitted REST observation at 2026-11-13T08:03:44.871796+00:00 was in_progress with no conclusion on the exact candidate SHA. The task’s ten-call GitHub budget is exhausted. Terminal custody is PUSHED; no green Verify or landing is claimed. Actual observations are recorded in ci-receipt.json.
 
 ## Custody and limitations
 
@@ -66,4 +66,6 @@ This round proves local invitation/session scoping and removal without an owner 
 DEFAULT TEAM-001: Use the existing native local invitation as scoped member admission; preserve the owner's separately held dev gate.
 GAP TEAM-001: No new hosted-provider or complete team qualification is claimed by this local-only round.
 
-The full executed plan is PLAN.md. The final test-only commit followed another main fetch/merge (main remained unchanged), then a fresh source lock and passing source/contract checks. No product blocker is known from local checks; exact-SHA Verify is pending in the initial report.
+The full executed plan is PLAN.md. The final test-only commit followed another main fetch/merge (main remained unchanged), then a fresh source lock and passing source/contract checks. No product blocker is known from local checks. The initial evidence publication e0e870921f3f5c28dc5f4fd48f341d4c5f0ff57a was fetched independently and its manifest and all 31 file hashes verified. Exact-SHA Verify remained in_progress at the final permitted poll; its actual observation is in ci-receipt.json. All ten GitHub calls were used: Uptime reference, first-head discovery/status/jobs/failed build log, intermediate-head discovery/status, final-head discovery and two final-head status reads.
+
+Final handoff: PUSHED branch=cloud/main-spool-local-invite-truth-1 head=9fd605e63a7f93fde47f5c91380b79a31d51f41b. Verify 43388345534 remains in_progress. No local product or account blocker was identified. Fleet owns remaining CI observation, publication scan and landing. The task clone will be deleted after final evidence verification.

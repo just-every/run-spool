@@ -7,14 +7,19 @@
     "browser-receipt.json",
     "product-receipt.json",
     "push-receipt.log",
+    "push-corrective-receipt.log",
     "push-final-receipt.log",
     "dev-credentials.log",
+    "triage-journey.log",
     "typecheck.log",
     "first-party-check.log",
     "source-check-receipt.json",
     "ci-discovery.json",
     "ci-final-discovery.json",
+    "ci-candidate-discovery.json",
     "ci-first-receipt.json",
+    "ci-second-receipt.json",
+    "ci-receipt.json",
     "ci-first-jobs.jsonl",
     "ci-first-build-failure.log",
     "local-invitations-1440.png",
@@ -24,10 +29,15 @@
     "removed-member-sign-in-1440.png",
     "removed-member-sign-in-390.png",
     "owner-gate-sign-in-1440.png",
-    "owner-gate-sign-in-390.png"
+    "owner-gate-sign-in-390.png",
+    "packet-review.json",
+    "evidence-first-transfer-receipt.json"
   ],
   "symlinks": false,
   "credentialShapedValuesFound": false,
   "screenshots": "Private invitation inputs masked; final candidate captures reviewed.",
-  "productProofFilesCommitted": false
+  "productProofFilesCommitted": false,
+  "finalProductHead": "9fd605e63a7f93fde47f5c91380b79a31d51f41b",
+  "fileCount": 32,
+  "finalCapturesInspected": true
 }

@@ -56,5 +56,10 @@
   ],
   "baseAuthCopiesUnchanged": true,
   "touchedTestScriptRegistrationsBefore": 2,
-  "touchedTestScriptRegistrationsAfter": 2
+  "touchedTestScriptRegistrationsAfter": 2,
+  "terminalCustody": "PUSHED",
+  "verifyRun": 43388345534,
+  "verifyStatus": "in_progress",
+  "verifyConclusion": null,
+  "githubCallsUsed": 10
 }
