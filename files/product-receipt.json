@@ -1,0 +1,22 @@
+{
+  "repository": "just-every/run-spool",
+  "branch": "cloud/sd-spool-slack-flake-1",
+  "head": "07fd7437b0e2fba5b100c3d3a571a5a0ce6a2ca2",
+  "base": "2073114e2a52b168413b9609a8f6c1d13038a8aa",
+  "commits": [
+    "07fd7437b0e2fba5b100c3d3a571a5a0ce6a2ca2"
+  ],
+  "tested_source_blob": "5a19d1e739ec5b8ee9cf8338cc99dca79ae3ed48",
+  "identity_validated": true,
+  "trailers_absent": true,
+  "push_status": "success",
+  "push_attempts": 1,
+  "push_observed_utc": "2026-11-13T15:23:19.622244+00:00",
+  "verify_run_id": 43452009602,
+  "verify_conclusion": "success",
+  "verify_head": "07fd7437b0e2fba5b100c3d3a571a5a0ce6a2ca2",
+  "product_outcome": "READY",
+  "observed_utc": "2026-11-13T15:44:23Z",
+  "clause_changes": [],
+  "claim": "none"
+}

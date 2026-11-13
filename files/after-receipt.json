@@ -1,0 +1,61 @@
+{
+  "phase": "after",
+  "command": [
+    "timeout",
+    "--kill-after=10s",
+    "20m",
+    "bash",
+    "-e",
+    "-o",
+    "pipefail",
+    "-c",
+    "pnpm test:alerts && pnpm test:alerts-ui"
+  ],
+  "node": "v22.20.0",
+  "chromium": "/usr/bin/chromium",
+  "source_head": "2073114e2a52b168413b9609a8f6c1d13038a8aa",
+  "runs": [
+    {
+      "run": 1,
+      "started_utc": "2026-11-13T14:36:42.547657+00:00",
+      "finished_utc": "2026-11-13T14:55:56.221808+00:00",
+      "elapsed_seconds": 1153.674,
+      "exit_code": 0,
+      "log": "after-1.log"
+    },
+    {
+      "run": 2,
+      "started_utc": "2026-11-13T14:55:56.236004+00:00",
+      "finished_utc": "2026-11-13T15:02:22.968954+00:00",
+      "elapsed_seconds": 386.733,
+      "exit_code": 0,
+      "log": "after-2.log"
+    },
+    {
+      "run": 3,
+      "started_utc": "2026-11-13T15:02:22.990189+00:00",
+      "finished_utc": "2026-11-13T15:08:25.977054+00:00",
+      "elapsed_seconds": 362.987,
+      "exit_code": 0,
+      "log": "after-3.log"
+    },
+    {
+      "run": 4,
+      "started_utc": "2026-11-13T15:08:25.988687+00:00",
+      "finished_utc": "2026-11-13T15:14:24.258572+00:00",
+      "elapsed_seconds": 358.27,
+      "exit_code": 0,
+      "log": "after-4.log"
+    },
+    {
+      "run": 5,
+      "started_utc": "2026-11-13T15:14:24.272300+00:00",
+      "finished_utc": "2026-11-13T15:20:22.308775+00:00",
+      "elapsed_seconds": 358.037,
+      "exit_code": 0,
+      "log": "after-5.log"
+    }
+  ],
+  "passed": 5,
+  "failed": 0
+}

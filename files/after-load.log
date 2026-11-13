@@ -1,0 +1,6 @@
+load monitor waiting after-1.log
+load started run=1 host_pid=4761 cpu=0 busy_processes=40 at=2026-11-13T14:41:29.753506+00:00
+Traceback (most recent call last):
+  File "/tmp/spool-load.py", line 31, in <module>
+    time.sleep(1)
+KeyboardInterrupt

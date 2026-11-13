@@ -1,0 +1,5 @@
+
+> @errors/errors-workbench@0.7.9 integration:check /home/agent/rer-consolidation/work/sd-spool-slack-flake-1/run-spool
+> node scripts/sync-integration.mjs --check
+
+Integration deployment spec, setup digest and producer workflow match.

@@ -1,0 +1,92 @@
+[
+  {
+    "command": [
+      "node",
+      "scripts/edition-authoring/cli.mjs",
+      "changes"
+    ],
+    "started_utc": "2026-11-13T15:20:23.125971+00:00",
+    "elapsed_seconds": 0.787,
+    "exit_code": 0,
+    "log": "final-check-1.log"
+  },
+  {
+    "command": [
+      "node",
+      "scripts/edition-authoring/cli.mjs",
+      "lock"
+    ],
+    "started_utc": "2026-11-13T15:20:23.913565+00:00",
+    "elapsed_seconds": 0.588,
+    "exit_code": 0,
+    "log": "final-check-2.log"
+  },
+  {
+    "command": [
+      "pnpm",
+      "source:check"
+    ],
+    "started_utc": "2026-11-13T15:20:24.502338+00:00",
+    "elapsed_seconds": 1.06,
+    "exit_code": 0,
+    "log": "final-check-3.log"
+  },
+  {
+    "command": [
+      "pnpm",
+      "run",
+      "check",
+      "--",
+      "--profile",
+      "first-party"
+    ],
+    "started_utc": "2026-11-13T15:20:25.562368+00:00",
+    "elapsed_seconds": 2.235,
+    "exit_code": 0,
+    "log": "final-check-4.log"
+  },
+  {
+    "command": [
+      "node",
+      "src/base/contract-docs.mjs",
+      "check"
+    ],
+    "started_utc": "2026-11-13T15:20:27.798681+00:00",
+    "elapsed_seconds": 0.235,
+    "exit_code": 0,
+    "log": "final-check-5.log"
+  },
+  {
+    "command": [
+      "node",
+      "scripts/edition-authoring/cli.mjs",
+      "verify-base",
+      "--offline"
+    ],
+    "started_utc": "2026-11-13T15:20:28.034577+00:00",
+    "elapsed_seconds": 0.205,
+    "exit_code": 0,
+    "log": "final-check-6.log"
+  },
+  {
+    "command": [
+      "pnpm",
+      "integration:check"
+    ],
+    "started_utc": "2026-11-13T15:20:28.239966+00:00",
+    "elapsed_seconds": 0.457,
+    "exit_code": 0,
+    "log": "final-check-7.log"
+  },
+  {
+    "command": [
+      "git",
+      "diff",
+      "--check"
+    ],
+    "started_utc": "2026-11-13T15:20:28.697112+00:00",
+    "elapsed_seconds": 0.032,
+    "exit_code": 0,
+    "log": "final-check-8.log"
+  }
+]

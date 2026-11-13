@@ -1,0 +1,6 @@
+
+> @errors/errors-workbench@0.7.9 source:check /home/agent/rer-consolidation/work/sd-spool-slack-flake-1/run-spool
+> node scripts/edition-authoring/cli.mjs check
+
+Stale lock or source/tool integrity mismatch; run changes to inspect intentional edits before lock
+ ELIFECYCLE  Command failed with exit code 1.

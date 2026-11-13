@@ -1,0 +1,11 @@
+[
+  {
+    "run": 1,
+    "started_utc": "2026-11-13T14:41:29.753506+00:00",
+    "host_pid": 4761,
+    "busy_processes": 40,
+    "cpu": 0,
+    "stopped_utc": "2026-11-13T14:54:16.987097+00:00",
+    "reason": "Bounded stress pulse; remaining full-command repetitions use ordinary VM load."
+  }
+]

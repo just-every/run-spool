@@ -1,0 +1,4 @@
+
+> @errors/errors-workbench@0.7.9 typecheck /home/agent/rer-consolidation/work/sd-spool-slack-flake-1/run-spool
+> tsc --noEmit
+

@@ -1,0 +1,109 @@
+
+> @errors/errors-workbench@0.7.9 test:alerts /home/agent/rer-consolidation/work/sd-spool-slack-flake-1/run-spool
+> node tests/alerts-runtime.mjs && node tests/alerts-immediate.mjs && node tests/alerts-edge-runtime.mjs && node tests/alerts-native.mjs && node tests/alerts-egress.mjs
+
+(node:5490) ExperimentalWarning: SQLite is an experimental feature and might change at any time
+(Use `node --trace-warnings ...` to show where the warning was created)
+verify
+Heavy job admitted: Spool verify:suite [c08d59fd1950]
+(node:5512) ExperimentalWarning: SQLite is an experimental feature and might change at any time
+(Use `node --trace-warnings ...` to show where the warning was created)
+▲ [WARNING] Proxy environment variables detected. We'll use your proxy for fetch requests.
+
+
+PROBE AI-004 acceptance 4: native repair facts and strictly newer capture -> recurred observation, one matching regression delivery, one owner follow-up at the 24-hour boundary, one suppressed alternate notice and one creation audit fact; older capture and replay controls passed.
+(node:5512) ExperimentalWarning: The MockTimers API is an experimental feature and might change at any time
+ALERT-003 destination tests, delivery states, timezone digests and snoozing never hide loss: passing reviewed tests and unchanged archive projection; accepted/delivered/bounced/complained (signed fixtures), unsigned/forged/unknown refused, duplicate once; webhook HTTP/signature receipt; America/New_York daily/weekly at DST boundary once; burst held, expiry one durable resumption and suppressed count; inert restore.
+ALERT-004 an interrupted send, an expired lease and a lost provider response each leave one durable follow-up and never a duplicate. Alert public doors passed: atomic capture with silent local mail and HMAC receiver; regression, isolation/revocation/origin, immutable 429 retry, uncertainty, overlapping complete-window spikes, safe restore without replay.
+(node:5598) ExperimentalWarning: SQLite is an experimental feature and might change at any time
+(Use `node --trace-warnings ...` to show where the warning was created)
+verify
+Heavy job admitted: Spool verify:suite [c08d59fd1950]
+(node:5620) ExperimentalWarning: SQLite is an experimental feature and might change at any time
+(Use `node --trace-warnings ...` to show where the warning was created)
+▲ [WARNING] Proxy environment variables detected. We'll use your proxy for fetch requests.
+
+
+{"passed":true,"ingestToDeliveredMs":702,"proof":"Idle tick recorded in /health; new-issue and regression mail accepted silently and webhook delivered after ingest with no scheduled run; racing and later scheduled runs sent nothing twice."}
+(node:5656) ExperimentalWarning: SQLite is an experimental feature and might change at any time
+(Use `node --trace-warnings ...` to show where the warning was created)
+verify
+Heavy job admitted: Spool verify:suite [c08d59fd1950]
+(node:5678) ExperimentalWarning: SQLite is an experimental feature and might change at any time
+(Use `node --trace-warnings ...` to show where the warning was created)
+▲ [WARNING] Proxy environment variables detected. We'll use your proxy for fetch requests.
+
+
+Alert edge policy passed: missing enforcing egress blocks without fetch; real Base mail 429 retries, 503 uncertainty never replays, rule revocation cancels pending work.
+RER relay: native sign-in and alert mail POST the exact relay envelope with Bearer credentials; emitted workerd uses Base redirect:manual; 302 is rejected/provider_redirected with no target fetch or retry; 429 queues then retries per policy; 401 is a rejected delivery and a plain owner-visible sign-in problem, with health intact. Login hints prefill both sign-in paths without sending mail.
+(node:5731) ExperimentalWarning: SQLite is an experimental feature and might change at any time
+(Use `node --trace-warnings ...` to show where the warning was created)
+verify
+Heavy job admitted: Spool verify:suite [c08d59fd1950]
+(node:5757) ExperimentalWarning: SQLite is an experimental feature and might change at any time
+(Use `node --trace-warnings ...` to show where the warning was created)
+TAP version 13
+▲ [WARNING] Proxy environment variables detected. We'll use your proxy for fetch requests.
+
+
+ALERT-001 filters, retained-user windows, explicit session denominator, identity/session refusals, stale preview, durable deduplication, reactivation and plain Resolve passed
+ALERT-001 baseline journey: sample-scaled normal/burst, weekly seasonality, low traffic, current/historical loss, insufficient history, and durable once-only routing across restart
+ALERT-001 archive round trip restores 33 alerts of kinds new_issue, reactivation, regression, spike; unknown kind refused: {"error":"Invalid alert archive"}
+# Subtest: native scheduled event delivers a new issue with silent local mail once
+ok 1 - native scheduled event delivers a new issue with silent local mail once
+  ---
+  duration_ms: 42477.710074
+  type: 'test'
+  ...
+PROBE ALERT-001 acceptance-5: Sentry intake and plain Resolve on two distinct issues -> same-release and release-less recurrence each reopen once, retain the correct release identity and create two reviewed-rule intents; repeated capture and scheduling create no duplicate alert, intent or attempt.
+# Subtest: native scheduled event delivers a later-release regression with silent local mail once
+ok 2 - native scheduled event delivers a later-release regression with silent local mail once
+  ---
+  duration_ms: 4847.363263
+  type: 'test'
+  ...
+# Subtest: native scheduled event completes a real spike window and completes with silent local mail once
+ok 3 - native scheduled event completes a real spike window and completes with silent local mail once
+  ---
+  duration_ms: 114721.433361
+  type: 'test'
+  ...
+1..3
+# tests 3
+# suites 0
+# pass 3
+# fail 0
+# cancelled 0
+# skipped 0
+# todo 0
+# duration_ms 162052.092847
+(node:5829) ExperimentalWarning: SQLite is an experimental feature and might change at any time
+(Use `node --trace-warnings ...` to show where the warning was created)
+[33m▲ [43;33m[[43;30mWARNING[43;33m][0m [1mProxy environment variables detected. We'll use your proxy for fetch requests.[0m
+
+
+Alert egress delivery passed: signed delivery through the egress service transport, private-address refusal without connection, redirect not followed (3 pinned connections).
+[ALERT-002] reviewed Slack test, exactly-once new/regression, safe identifiers, rotation/revoke, API/500/timeout/egress failures, secret exclusion, inert restore and erasure passed (recorded edge double only)
+PROBE ALERT-002 alternate: reviewed exact-project Slack -> one posted notice, attempt, message identifier and safe follow-up fact across concurrent ticks and restart
+PROBE ALERT-002 uncertainty: provider timeout -> uncertain once without automatic resend or recursive notices; source reconciliation preserves unknown alternate receipt
+PROBE ALERT-002 rate: HTTP 429 with Retry-After 60 -> no early retry; restart continues the same notice and records the posted message
+PROBE ALERT-002 retry: overlapping ticks, one waiting on a held notice while the other receives HTTP 429 Retry-After 60 -> the stale snapshot sends nothing before the durable boundary; the due retry posts the same notice once
+PROBE ALERT-002 credentials: foreign and unreviewed alternates refused; rotation and revocation cancel old queued notices across restart
+PROBE ALERT-002 custody: archive excludes notice queues and tokens; project erasure removes operational notice custody and no later send occurs
+
+> @errors/errors-workbench@0.7.9 test:alerts-ui /home/agent/rer-consolidation/work/sd-spool-slack-flake-1/run-spool
+> node tests/alerts-ui.mjs
+
+(node:5944) ExperimentalWarning: SQLite is an experimental feature and might change at any time
+(Use `node --trace-warnings ...` to show where the warning was created)
+verify
+Heavy job admitted: Spool verify:suite [c08d59fd1950]
+(node:5966) ExperimentalWarning: SQLite is an experimental feature and might change at any time
+(Use `node --trace-warnings ...` to show where the warning was created)
+(node:5966) ExperimentalWarning: The MockTimers API is an experimental feature and might change at any time
+▲ [WARNING] Proxy environment variables detected. We'll use your proxy for fetch requests.
+
+
+ALERT-001 baseline journey: sample-scaled normal/burst, weekly seasonality, low traffic, current/historical loss, insufficient history, and durable once-only routing across restart
+[ALERT-002] Slack settings/test/review/rotate/revoke and posted delivery identifiers at 1440/390: no overflow, serious Axe finding or icon-only control
+ALERT-003 destination tests, delivery states, timezone digests and snoozing never hide loss. Alert browser journeys passed at 1440 and 390: persisted rule create/edit/reload, real feed/delivery/webhook state, project isolation and keyboard navigation.

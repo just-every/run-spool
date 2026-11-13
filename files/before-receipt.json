@@ -1,0 +1,45 @@
+{
+  "phase": "before",
+  "command": [
+    "timeout",
+    "--kill-after=10s",
+    "20m",
+    "bash",
+    "-e",
+    "-o",
+    "pipefail",
+    "-c",
+    "pnpm test:alerts && pnpm test:alerts-ui"
+  ],
+  "node": "v22.20.0",
+  "chromium": "/usr/bin/chromium",
+  "source_head": "2073114e2a52b168413b9609a8f6c1d13038a8aa",
+  "runs": [
+    {
+      "run": 1,
+      "started_utc": "2026-11-13T14:17:04.308657+00:00",
+      "finished_utc": "2026-11-13T14:23:15.827278+00:00",
+      "elapsed_seconds": 371.519,
+      "exit_code": 0,
+      "log": "before-1.log"
+    },
+    {
+      "run": 2,
+      "started_utc": "2026-11-13T14:23:15.847474+00:00",
+      "finished_utc": "2026-11-13T14:29:23.639170+00:00",
+      "elapsed_seconds": 367.792,
+      "exit_code": 1,
+      "log": "before-2.log"
+    },
+    {
+      "run": 3,
+      "started_utc": "2026-11-13T14:29:23.660170+00:00",
+      "finished_utc": "2026-11-13T14:36:16.334947+00:00",
+      "elapsed_seconds": 412.675,
+      "exit_code": 1,
+      "log": "before-3.log"
+    }
+  ],
+  "passed": 1,
+  "failed": 2
+}

@@ -1,0 +1,116 @@
+
+> @errors/errors-workbench@0.7.9 test:alerts /home/agent/rer-consolidation/work/sd-spool-slack-flake-1/run-spool
+> node tests/alerts-runtime.mjs && node tests/alerts-immediate.mjs && node tests/alerts-edge-runtime.mjs && node tests/alerts-native.mjs && node tests/alerts-egress.mjs
+
+(node:3096) ExperimentalWarning: SQLite is an experimental feature and might change at any time
+(Use `node --trace-warnings ...` to show where the warning was created)
+verify
+Heavy job admitted: Spool verify:suite [c08d59fd1950]
+(node:3118) ExperimentalWarning: SQLite is an experimental feature and might change at any time
+(Use `node --trace-warnings ...` to show where the warning was created)
+▲ [WARNING] Proxy environment variables detected. We'll use your proxy for fetch requests.
+
+
+PROBE AI-004 acceptance 4: native repair facts and strictly newer capture -> recurred observation, one matching regression delivery, one owner follow-up at the 24-hour boundary, one suppressed alternate notice and one creation audit fact; older capture and replay controls passed.
+(node:3118) ExperimentalWarning: The MockTimers API is an experimental feature and might change at any time
+kj::getCaughtExceptionAsKj() = kj/async-io-unix.c++:186: disconnected: ::write(fd, buffer.begin(), buffer.size()): Broken pipe
+stack: [REDACTED]/node_modules/.pnpm/@cloudflare+workerd-linux-64@1.20260907.1/node_modules/@cloudflare/workerd-linux-64/bin/workerd@56a2038 [REDACTED]/node_modules/.pnpm/@cloudflare+workerd-linux-64@1.20260907.1/node_modules/@cloudflare/workerd-linux-64/bin/workerd@56a2ef1 [REDACTED]/node_modules/.pnpm/@cloudflare+workerd-linux-64@1.20260907.1/node_modules/@cloudflare/workerd-linux-64/bin/workerd@583f90f [REDACTED]/node_modules/.pnpm/@cloudflare+workerd-linux-64@1.20260907.1/node_modules/@cloudflare/workerd-linux-64/bin/workerd@583fb55 [REDACTED]/node_modules/.pnpm/@cloudflare+workerd-linux-64@1.20260907.1/node_modules/@cloudflare/workerd-linux-64/bin/workerd@5a392a8 [REDACTED]/node_modules/.pnpm/@cloudflare+workerd-linux-64@1.20260907.1/node_modules/@cloudflare/workerd-linux-64/bin/workerd@589bd33 [REDACTED]/node_modules/.pnpm/@cloudflare+workerd-linux-64@1.20260907.1/node_modules/@cloudflare/workerd-linux-64/bin/workerd@589fad7 [REDACTED]/node_modules/.pnpm/@cloudflare+workerd-linux-64@1.20260907.1/node_modules/@cloudflare/workerd-linux-64/bin/workerd@589fe48 [REDACTED]/node_modules/.pnpm/@cloudflare+workerd-linux-64@1.20260907.1/node_modules/@cloudflare/workerd-linux-64/bin/workerd@3343740 [REDACTED]/node_modules/.pnpm/@cloudflare+workerd-linux-64@1.20260907.1/node_modules/@cloudflare/workerd-linux-64/bin/workerd@247f477
+ALERT-003 destination tests, delivery states, timezone digests and snoozing never hide loss: passing reviewed tests and unchanged archive projection; accepted/delivered/bounced/complained (signed fixtures), unsigned/forged/unknown refused, duplicate once; webhook HTTP/signature receipt; America/New_York daily/weekly at DST boundary once; burst held, expiry one durable resumption and suppressed count; inert restore.
+ALERT-004 an interrupted send, an expired lease and a lost provider response each leave one durable follow-up and never a duplicate. Alert public doors passed: atomic capture with silent local mail and HMAC receiver; regression, isolation/revocation/origin, immutable 429 retry, uncertainty, overlapping complete-window spikes, safe restore without replay.
+(node:3199) ExperimentalWarning: SQLite is an experimental feature and might change at any time
+(Use `node --trace-warnings ...` to show where the warning was created)
+verify
+Heavy job admitted: Spool verify:suite [c08d59fd1950]
+(node:3221) ExperimentalWarning: SQLite is an experimental feature and might change at any time
+(Use `node --trace-warnings ...` to show where the warning was created)
+▲ [WARNING] Proxy environment variables detected. We'll use your proxy for fetch requests.
+
+
+{"passed":true,"ingestToDeliveredMs":719,"proof":"Idle tick recorded in /health; new-issue and regression mail accepted silently and webhook delivered after ingest with no scheduled run; racing and later scheduled runs sent nothing twice."}
+(node:3256) ExperimentalWarning: SQLite is an experimental feature and might change at any time
+(Use `node --trace-warnings ...` to show where the warning was created)
+verify
+Heavy job admitted: Spool verify:suite [c08d59fd1950]
+(node:3278) ExperimentalWarning: SQLite is an experimental feature and might change at any time
+(Use `node --trace-warnings ...` to show where the warning was created)
+▲ [WARNING] Proxy environment variables detected. We'll use your proxy for fetch requests.
+
+
+kj::getCaughtExceptionAsKj() = kj/async-io-unix.c++:186: disconnected: ::write(fd, buffer.begin(), buffer.size()): Broken pipe
+stack: [REDACTED]/node_modules/.pnpm/@cloudflare+workerd-linux-64@1.20260907.1/node_modules/@cloudflare/workerd-linux-64/bin/workerd@56a2038 [REDACTED]/node_modules/.pnpm/@cloudflare+workerd-linux-64@1.20260907.1/node_modules/@cloudflare/workerd-linux-64/bin/workerd@56a2ef1 [REDACTED]/node_modules/.pnpm/@cloudflare+workerd-linux-64@1.20260907.1/node_modules/@cloudflare/workerd-linux-64/bin/workerd@583f90f [REDACTED]/node_modules/.pnpm/@cloudflare+workerd-linux-64@1.20260907.1/node_modules/@cloudflare/workerd-linux-64/bin/workerd@583fb55 [REDACTED]/node_modules/.pnpm/@cloudflare+workerd-linux-64@1.20260907.1/node_modules/@cloudflare/workerd-linux-64/bin/workerd@5a392a8 [REDACTED]/node_modules/.pnpm/@cloudflare+workerd-linux-64@1.20260907.1/node_modules/@cloudflare/workerd-linux-64/bin/workerd@589bd33 [REDACTED]/node_modules/.pnpm/@cloudflare+workerd-linux-64@1.20260907.1/node_modules/@cloudflare/workerd-linux-64/bin/workerd@589fad7 [REDACTED]/node_modules/.pnpm/@cloudflare+workerd-linux-64@1.20260907.1/node_modules/@cloudflare/workerd-linux-64/bin/workerd@589fe48 [REDACTED]/node_modules/.pnpm/@cloudflare+workerd-linux-64@1.20260907.1/node_modules/@cloudflare/workerd-linux-64/bin/workerd@3343740 [REDACTED]/node_modules/.pnpm/@cloudflare+workerd-linux-64@1.20260907.1/node_modules/@cloudflare/workerd-linux-64/bin/workerd@247f477
+Alert edge policy passed: missing enforcing egress blocks without fetch; real Base mail 429 retries, 503 uncertainty never replays, rule revocation cancels pending work.
+RER relay: native sign-in and alert mail POST the exact relay envelope with Bearer credentials; emitted workerd uses Base redirect:manual; 302 is rejected/provider_redirected with no target fetch or retry; 429 queues then retries per policy; 401 is a rejected delivery and a plain owner-visible sign-in problem, with health intact. Login hints prefill both sign-in paths without sending mail.
+(node:3331) ExperimentalWarning: SQLite is an experimental feature and might change at any time
+(Use `node --trace-warnings ...` to show where the warning was created)
+verify
+Heavy job admitted: Spool verify:suite [c08d59fd1950]
+(node:3353) ExperimentalWarning: SQLite is an experimental feature and might change at any time
+(Use `node --trace-warnings ...` to show where the warning was created)
+TAP version 13
+▲ [WARNING] Proxy environment variables detected. We'll use your proxy for fetch requests.
+
+
+ALERT-001 filters, retained-user windows, explicit session denominator, identity/session refusals, stale preview, durable deduplication, reactivation and plain Resolve passed
+ALERT-001 baseline journey: sample-scaled normal/burst, weekly seasonality, low traffic, current/historical loss, insufficient history, and durable once-only routing across restart
+ALERT-001 archive round trip restores 33 alerts of kinds new_issue, reactivation, regression, spike; unknown kind refused: {"error":"Invalid alert archive"}
+# Subtest: native scheduled event delivers a new issue with silent local mail once
+ok 1 - native scheduled event delivers a new issue with silent local mail once
+  ---
+  duration_ms: 42314.964068
+  type: 'test'
+  ...
+PROBE ALERT-001 acceptance-5: Sentry intake and plain Resolve on two distinct issues -> same-release and release-less recurrence each reopen once, retain the correct release identity and create two reviewed-rule intents; repeated capture and scheduling create no duplicate alert, intent or attempt.
+# Subtest: native scheduled event delivers a later-release regression with silent local mail once
+ok 2 - native scheduled event delivers a later-release regression with silent local mail once
+  ---
+  duration_ms: 4659.523844
+  type: 'test'
+  ...
+# Subtest: native scheduled event completes a real spike window and completes with silent local mail once
+ok 3 - native scheduled event completes a real spike window and completes with silent local mail once
+  ---
+  duration_ms: 97577.791232
+  type: 'test'
+  ...
+1..3
+# tests 3
+# suites 0
+# pass 3
+# fail 0
+# cancelled 0
+# skipped 0
+# todo 0
+# duration_ms 144559.83762
+(node:3458) ExperimentalWarning: SQLite is an experimental feature and might change at any time
+(Use `node --trace-warnings ...` to show where the warning was created)
+[33m▲ [43;33m[[43;30mWARNING[43;33m][0m [1mProxy environment variables detected. We'll use your proxy for fetch requests.[0m
+
+
+Alert egress delivery passed: signed delivery through the egress service transport, private-address refusal without connection, redirect not followed (3 pinned connections).
+[ALERT-002] reviewed Slack test, exactly-once new/regression, safe identifiers, rotation/revoke, API/500/timeout/egress failures, secret exclusion, inert restore and erasure passed (recorded edge double only)
+kj::getCaughtExceptionAsKj() = kj/async-io-unix.c++:186: disconnected: ::write(fd, buffer.begin(), buffer.size()): Broken pipe
+stack: /home/agent/rer-consolidation/work/sd-spool-slack-flake-1/run-spool/node_modules/.pnpm/@cloudflare+workerd-linux-64@1.20260907.1/node_modules/@cloudflare/workerd-linux-64/bin/workerd@56a2038 /home/agent/rer-consolidation/work/sd-spool-slack-flake-1/run-spool/node_modules/.pnpm/@cloudflare+workerd-linux-64@1.20260907.1/node_modules/@cloudflare/workerd-linux-64/bin/workerd@56a2ef1 /home/agent/rer-consolidation/work/sd-spool-slack-flake-1/run-spool/node_modules/.pnpm/@cloudflare+workerd-linux-64@1.20260907.1/node_modules/@cloudflare/workerd-linux-64/bin/workerd@583f90f /home/agent/rer-consolidation/work/sd-spool-slack-flake-1/run-spool/node_modules/.pnpm/@cloudflare+workerd-linux-64@1.20260907.1/node_modules/@cloudflare/workerd-linux-64/bin/workerd@583fb55 /home/agent/rer-consolidation/work/sd-spool-slack-flake-1/run-spool/node_modules/.pnpm/@cloudflare+workerd-linux-64@1.20260907.1/node_modules/@cloudflare/workerd-linux-64/bin/workerd@5a392a8 /home/agent/rer-consolidation/work/sd-spool-slack-flake-1/run-spool/node_modules/.pnpm/@cloudflare+workerd-linux-64@1.20260907.1/node_modules/@cloudflare/workerd-linux-64/bin/workerd@589bd33 /home/agent/rer-consolidation/work/sd-spool-slack-flake-1/run-spool/node_modules/.pnpm/@cloudflare+workerd-linux-64@1.20260907.1/node_modules/@cloudflare/workerd-linux-64/bin/workerd@589fad7 /home/agent/rer-consolidation/work/sd-spool-slack-flake-1/run-spool/node_modules/.pnpm/@cloudflare+workerd-linux-64@1.20260907.1/node_modules/@cloudflare/workerd-linux-64/bin/workerd@589fe48 /home/agent/rer-consolidation/work/sd-spool-slack-flake-1/run-spool/node_modules/.pnpm/@cloudflare+workerd-linux-64@1.20260907.1/node_modules/@cloudflare/workerd-linux-64/bin/workerd@3343740 /home/agent/rer-consolidation/work/sd-spool-slack-flake-1/run-spool/node_modules/.pnpm/@cloudflare+workerd-linux-64@1.20260907.1/node_modules/@cloudflare/workerd-linux-64/bin/workerd@247f477
+node:internal/modules/run_main:123
+    triggerUncaughtException(
+    ^
+
+AssertionError [ERR_ASSERTION]: Expected values to be strictly equal:
++ actual - expected
+
++ 'uncertain'
+- 'queued'
+
+    at slackFollowUp (file:///home/agent/rer-consolidation/work/sd-spool-slack-flake-1/run-spool/tests/alerts/follow-up.mjs:61:180)
+    at process.processTicksAndRejections (node:internal/process/task_queues:105:5)
+    at async Module.slackFlow (file:///home/agent/rer-consolidation/work/sd-spool-slack-flake-1/run-spool/tests/slack-flow.mjs:45:2)
+    at async file:///home/agent/rer-consolidation/work/sd-spool-slack-flake-1/run-spool/tests/alerts-egress.mjs:82:5 {
+  generatedMessage: true,
+  code: 'ERR_ASSERTION',
+  actual: 'uncertain',
+  expected: 'queued',
+  operator: 'strictEqual',
+  diff: 'simple'
+}
+
+Node.js v22.20.0
+ ELIFECYCLE  Command failed with exit code 1.

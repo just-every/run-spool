@@ -1,0 +1,20 @@
+[
+  {
+    "run": 2,
+    "started_utc": "2026-11-13T14:27:30.902187+00:00",
+    "finished_utc": "2026-11-13T14:29:24.022421+00:00",
+    "host_pid": 3458,
+    "cpu": 0,
+    "busy_processes": 40,
+    "trigger": "[ALERT-002] reviewed Slack test, exactly-once new/regression"
+  },
+  {
+    "run": 3,
+    "started_utc": "2026-11-13T14:33:29.201356+00:00",
+    "finished_utc": "2026-11-13T14:36:16.350352+00:00",
+    "host_pid": 3954,
+    "cpu": 0,
+    "busy_processes": 40,
+    "trigger": "[ALERT-002] reviewed Slack test, exactly-once new/regression"
+  }
+]

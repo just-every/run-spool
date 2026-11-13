@@ -1,0 +1,36 @@
+diff --git a/sources.lock.json b/sources.lock.json
+index 87f7a4a..6d18a08 100644
+--- a/sources.lock.json
++++ b/sources.lock.json
+@@ -10838,7 +10838,7 @@
+       "executable": false
+     },
+     "tests/alerts/follow-up.mjs": {
+-      "sha256": "f6cf75c48e9ee4116d2ba88195b85963f95271adf186e0d56d81b9b66474e7ad",
++      "sha256": "1e8ba049c70f16e8395409d2e5401c12d034601ee41db64b7dd35a1f6ea73d1c",
+       "executable": false
+     },
+     "tests/alerts/native-journey.mjs": {
+diff --git a/tests/alerts/follow-up.mjs b/tests/alerts/follow-up.mjs
+index b2bc3a1..5a19d1e 100644
+--- a/tests/alerts/follow-up.mjs
++++ b/tests/alerts/follow-up.mjs
+@@ -33,7 +33,7 @@ export async function slackFollowUp(receiver,edge){
+  const {alertRuntime,event,rule,testAndReview}=await import('./runtime.mjs'),{archiveProjection}=await import('../archive.mjs'),{followErasure}=await import('../project-erasure/follow.mjs');
+  const state=await mkdtemp(join(tmpdir(),'spool-slack-follow-up-')),path='/api/projects/web/follow-up',base='/api/projects/web/alerting';let app;
+  const token='synthetic-spool-'+crypto.randomUUID(),connect=value=>({kind:'slack',label:'Alternate operator',channelId:'synthetic-spool-alternate',token:value});
+- const open=(timeout='100')=>alertRuntime(receiver,{state,configure:false,egressBridge:wire=>edge.send(wire),extraBindings:{SLACK_TIMEOUT_MS:timeout}});
++ const open=(timeout='5000')=>alertRuntime(receiver,{state,configure:false,egressBridge:wire=>edge.send(wire),extraBindings:{SLACK_TIMEOUT_MS:timeout}});
+  try{
+   app=await open();const project=await app.json('/api/projects','POST',{id:'web',name:'Follow-up qualification'}),auth={Authorization:`Bearer ${project.ingestKey}`};
+   await app.json('/api/projects/web/releases','POST',{name:'r1',build:'b1'});await app.json('/api/projects','POST',{id:'other',name:'Other project'});
+@@ -61,7 +61,8 @@ export async function slackFollowUp(receiver,edge){
+   const rate=await capture('alternate-rate');edge.behavior='rate';const started=Date.now();await app.schedule(started);row=await forIssue(rate.issue);notice=row.notices[0];assert.equal(notice.state,'queued');assert.equal(notice.code,'slack_rate_limited');assert.ok(notice.next_at>=started+60000);assert.equal(notice.message_id,null);
+   const rateId=notice.id,rateRow=row.id;edge.behavior='posted';await app.schedule(started+59000);assert.equal(noticeCalls(rateRow).length,1,'Retry-After stops an early resend');
+   await app.close();app=await open();await app.schedule(notice.next_at+1);row=await forIssue(rate.issue);assert.equal(row.notices[0].id,rateId);assert.equal(row.notices[0].state,'completed');assert.equal(row.notices[0].log.length,2);assert.equal(noticeCalls(rateRow).length,2);assert.ok(row.notices[0].message_id);
+-  const lost=await capture('alternate-lost');edge.behavior='never';await app.schedule(Date.now());row=await forIssue(lost.issue);assert.equal(row.notices[0].state,'uncertain');assert.equal(row.notices[0].code,'slack_timeout');assert.equal(row.notices[0].message_id,null);const lostId=row.id,lostNotice=row.notices[0].id;
++  // Only the edge that never answers needs a short timeout.
++  const lost=await capture('alternate-lost');edge.behavior='never';await app.close();app=await open('100');await app.schedule(Date.now());row=await forIssue(lost.issue);assert.equal(row.notices[0].state,'uncertain');assert.equal(row.notices[0].code,'slack_timeout');assert.equal(row.notices[0].message_id,null);const lostId=row.id,lostNotice=row.notices[0].id;
+   edge.behavior='posted';await app.close();app=await open();await Promise.all([app.schedule(Date.now()+600000),app.schedule(Date.now()+600000)]);row=await forIssue(lost.issue);assert.equal(row.notices.length,1);assert.equal(row.notices[0].id,lostNotice);assert.equal(row.notices[0].state,'uncertain');assert.equal(noticeCalls(lostId).length,1,'unknown provider effect is never resent or recursively notified');assert.equal((await app.json(path)).rows.length,3,'alternate failures never become new attention sources');
+   const beforeReconcile=edge.calls.length;await app.json(path+'/'+row.id+'/reconcile','POST',{revision:row.revision,state:'accepted',evidence:'receiver_confirmed'});row=await forIssue(lost.issue);assert.equal(row.state,'completed');assert.equal(row.notices[0].state,'uncertain','source reconciliation does not fabricate an alternate recipient receipt');assert.equal(edge.calls.length,beforeReconcile);
+   // Overlapping ticks: A snapshots two due notices and waits on the first at the
