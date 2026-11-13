@@ -1,0 +1,17 @@
+
+> @errors/errors-workbench@0.7.8 test:alerts-ui /workspace/run-spool
+> node tests/alerts-ui.mjs
+
+(node:6985) ExperimentalWarning: SQLite is an experimental feature and might change at any time
+(Use `node --trace-warnings ...` to show where the warning was created)
+verify
+Heavy job admitted: Spool verify:suite [6179c8701e00]
+(node:7007) ExperimentalWarning: SQLite is an experimental feature and might change at any time
+(Use `node --trace-warnings ...` to show where the warning was created)
+(node:7007) ExperimentalWarning: The MockTimers API is an experimental feature and might change at any time
+▲ [WARNING] Proxy environment variables detected. We'll use your proxy for fetch requests.
+
+
+ALERT-001 baseline journey: sample-scaled normal/burst, weekly seasonality, low traffic, current/historical loss, insufficient history, and durable once-only routing across restart
+[ALERT-002] Slack settings/test/review/rotate/revoke and posted delivery identifiers at 1440/390: no overflow, serious Axe finding or icon-only control
+ALERT-003 destination tests, delivery states, timezone digests and snoozing never hide loss. Alert browser journeys passed at 1440 and 390: persisted rule create/edit/reload, real feed/delivery/webhook state, project isolation and keyboard navigation.

@@ -1,0 +1,18 @@
+{
+  "result": "passed",
+  "assertionWidth": 1440,
+  "screenshotWidths": [
+    1440,
+    390
+  ],
+  "screens": [
+    "usage",
+    "damaged restore refusal",
+    "erased-data restore refusal"
+  ],
+  "refusalsUnchanged": [
+    "part_checksum",
+    "erasure_epoch"
+  ],
+  "mutationsAfterRefusal": 0
+}

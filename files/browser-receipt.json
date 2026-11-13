@@ -1,0 +1,67 @@
+{
+  "candidate": "84132b9e5331a368a43b1a75eab7faa52cbfd8a0",
+  "data": "synthetic",
+  "assertionWidth": 1440,
+  "screenshots": [
+    {
+      "path": "screens/held-1440.png",
+      "bytes": 207688,
+      "sha256": "93ad11e282cebd652541482b2bb842c8c04a1a197802230846233e41b2223a81"
+    },
+    {
+      "path": "screens/held-390.png",
+      "bytes": 178652,
+      "sha256": "2953fbbff321194242e576100c41a0d1c2a5c602fa82d03c1094c6b87a8de908"
+    },
+    {
+      "path": "screens/released-1440.png",
+      "bytes": 241597,
+      "sha256": "740c0efaf443f98276917e8fef855906f03869a45b7c377ebd0a9444358b578c"
+    },
+    {
+      "path": "screens/released-390.png",
+      "bytes": 202060,
+      "sha256": "adc6e728d15ca3f26d81d3808c53a05b31e3681d48af255e120fb88e88f91743"
+    },
+    {
+      "path": "screens/restore-damaged-1440.png",
+      "bytes": 121810,
+      "sha256": "f978103f60941ad82725111984d9b43d87fc5b456b6de07227981a15d814526b"
+    },
+    {
+      "path": "screens/restore-damaged-390.png",
+      "bytes": 90371,
+      "sha256": "7181dc3fadd2f728937cee61182a5eb551504841700e483775975e6764a1f464"
+    },
+    {
+      "path": "screens/restore-erased-1440.png",
+      "bytes": 126067,
+      "sha256": "10e291addba9767cdc02817092dad58af3e207b36cd70eb52ef8ea9af4456cd6"
+    },
+    {
+      "path": "screens/restore-erased-390.png",
+      "bytes": 93847,
+      "sha256": "5e11b47f751683281acea1c0811bdded2872b3f97f480ee1e1323801f28b0f5f"
+    },
+    {
+      "path": "screens/usage-1440.png",
+      "bytes": 22901,
+      "sha256": "254f81aaad21625c76f1c8883618daa96a6521bb3cf2f091eedd4fef7ce149e9"
+    },
+    {
+      "path": "screens/usage-390.png",
+      "bytes": 22243,
+      "sha256": "b0f716b3b5676b2e0d1d05353b1c2ebc6ee530e1a60eaa5502fad760ef5ef808"
+    }
+  ],
+  "visuallyInspected": "all ten screenshots",
+  "captureTree": "Built from committed candidate 84132b9e5331a368a43b1a75eab7faa52cbfd8a0",
+  "browserExecutable": "/usr/bin/chromium",
+  "headless": true,
+  "contextsClosed": true,
+  "runtimesStopped": true,
+  "candidateBuildLog": "candidate-build.log",
+  "candidateProofLog": "candidate-readable-proof.log",
+  "candidateAlertsLog": "candidate-alerts-ui.log",
+  "changedCapturesSincePriorInspection": []
+}

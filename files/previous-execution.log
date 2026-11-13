@@ -1,0 +1,19 @@
+verify (execution)	Run suites	﻿2026-11-13T08:02:59.3381962Z ##[group]Run pnpm test:execution && node tests/business-import.mjs
+verify (execution)	Run suites	2026-11-13T08:02:59.3382797Z [36;1mpnpm test:execution && node tests/business-import.mjs[0m
+verify (execution)	Run suites	2026-11-13T08:02:59.3403295Z shell: /usr/bin/bash -e {0}
+verify (execution)	Run suites	2026-11-13T08:02:59.3403771Z env:
+verify (execution)	Run suites	2026-11-13T08:02:59.3404117Z   PLAYWRIGHT_SKIP_BROWSER_GC: 1
+verify (execution)	Run suites	2026-11-13T08:02:59.3404562Z   RER_SERVERS_DISK_FLOOR_GIB: 4
+verify (execution)	Run suites	2026-11-13T08:02:59.3405008Z   NODE_DEBUG: @cloudflare:vite-plugin
+verify (execution)	Run suites	2026-11-13T08:02:59.3405458Z   PNPM_HOME: /home/runner/setup-pnpm/node_modules/.bin
+verify (execution)	Run suites	2026-11-13T08:02:59.3406089Z   PLAYWRIGHT_BROWSERS_PATH: /home/runner/work/_temp/ms-playwright
+verify (execution)	Run suites	2026-11-13T08:02:59.3406574Z ##[endgroup]
+verify (execution)	Run suites	2026-11-13T08:02:59.6170697Z 
+verify (execution)	Run suites	2026-11-13T08:02:59.6171761Z > @errors/errors-workbench@0.7.8 test:execution /home/runner/work/run-spool/run-spool
+verify (execution)	Run suites	2026-11-13T08:02:59.6173068Z > node tests/execution-journey.mjs
+verify (execution)	Run suites	2026-11-13T08:02:59.6173408Z 
+verify (execution)	Run suites	2026-11-13T08:03:00.1927987Z (node:2755) ExperimentalWarning: SQLite is an experimental feature and might change at any time
+verify (execution)	Run suites	2026-11-13T08:03:00.1928830Z (Use `node --trace-warnings ...` to show where the warning was created)
+verify (execution)	Run suites	2026-11-13T08:03:49.5572142Z {"journey":"execution","stage":"disconnected-setup","message":"browserContext.waitForEvent: Timeout 30000ms exceeded while waiting for event \"page\"","stack":["    at disconnectedGitHubSetup (/home/runner/work/run-spool/run-spool/tests/execution/ui.mjs:23:26)","    at async file:///home/runner/work/run-spool/run-spool/tests/execution-journey.mjs:37:24"]}
+verify (execution)	Run suites	2026-11-13T08:03:49.6341781Z  ELIFECYCLE  Command failed with exit code 1.
+verify (execution)	Run suites	2026-11-13T08:03:49.6556129Z ##[error]Process completed with exit code 1.

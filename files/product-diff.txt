@@ -1,0 +1,13 @@
+18	10	sources.lock.json
+2	1	src/domain/alerts/controls-routes.ts
+1	1	src/ui/alerts/AlertControls.tsx
+1	1	src/ui/setup/Setup.tsx
+4	3	src/ui/workbench/ArchiveSettings.tsx
+13	1	src/ui/workbench/CaptureReceipts.tsx
+2	1	src/ui/workbench/Members.tsx
+14	0	src/ui/workbench/restore-refusal.ts
+8	2	tests/alerts-ui.mjs
+4	1	tests/execution/ui.mjs
+34	0	tests/restore-refusal-ui.mjs
+20	0	tests/team-browser.mjs
+3	0	tests/triage-journey.mjs

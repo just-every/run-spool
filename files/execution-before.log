@@ -1,0 +1,21 @@
+ WARN  Unsupported engine: wanted: {"node":"22.20.0"} (current: {"node":"v24.19.0","pnpm":"10.12.4"})
+
+> @errors/errors-workbench@0.7.8 test:execution /workspace/run-spool
+> node tests/execution-journey.mjs
+
+Waiting to start (queue position 1/1): all job slots are in use (1 of 1; change slots in /home/agent/.rer/jobs/config.json).
+Ahead of this job:
+  running: Spool setup:workflow [6179c8701e00] in [REDACTED]
+Memory: 15.8 GiB available, floor 2.0 GiB. Change the floor with RER_JOBS_MIN_FREE_MEMORY_BYTES (bytes; 0 for no floor).
+Run from the project root. Inspect the queue with: 'node' 'node_modules/.pnpm/@runeditrun+rer@0.2.107/node_modules/@runeditrun/rer/modules/job-queue/cli.mjs' 'status' '--json'
+Waiting to start (queue position 1/1): all job slots are in use (1 of 1; change slots in /home/agent/.rer/jobs/config.json).
+Ahead of this job:
+  running: Spool setup:workflow [6179c8701e00] in [REDACTED]
+Memory: 14.9 GiB available, floor 2.0 GiB. Change the floor with RER_JOBS_MIN_FREE_MEMORY_BYTES (bytes; 0 for no floor).
+Run from the project root. Inspect the queue with: 'node' 'node_modules/.pnpm/@runeditrun+rer@0.2.107/node_modules/@runeditrun/rer/modules/job-queue/cli.mjs' 'status' '--json'
+verify
+Heavy job admitted: Spool verify:suite [6179c8701e00]
+▲ [WARNING] Proxy environment variables detected. We'll use your proxy for fetch requests.
+
+
+ALERT-004 an interrupted send, an expired lease and a lost provider response each leave one durable follow-up and never a duplicate. Execution journey passed: outcomes reproduced,not_reproduced,failed,failed,not_reproduced,unsupported; module loading syntax finished failed load_failed,unresolved finished failed load_failed; workflow approved_awaiting_connection then deployed; exposure inconclusive,inconclusive,inconclusive,reached,inconclusive,recurred; 4 captures.

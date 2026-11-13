@@ -1,0 +1,19 @@
+{
+  "repository": "just-every/run-spool",
+  "branch": "cloud/main-spool-readable-codes-1-pc1",
+  "head": "84132b9e5331a368a43b1a75eab7faa52cbfd8a0",
+  "saved_head": "d43de99817db620fac950ddc7e8bfbcf3c38eccb",
+  "merged_main": "ba41c296c3aa6bc6aa5a7623e5d2dadfe99279bf",
+  "push": "success",
+  "attempts": 1,
+  "published_history_rewritten": false,
+  "contract_status_changes": 0,
+  "test_registrations_added_in_continuation": 0,
+  "blockers": [],
+  "verify_run": 43398044990,
+  "verify_status": "completed",
+  "verify_conclusion": "success",
+  "custody": "READY",
+  "github_calls": 7,
+  "clause_status_changes": 0
+}

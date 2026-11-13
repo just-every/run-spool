@@ -1,0 +1,62 @@
+[
+  {
+    "command": "pnpm typecheck (pinned pnpm 10.12.4, Node 22.20.0)",
+    "exit": 0,
+    "log": "typecheck.log"
+  },
+  {
+    "command": "pnpm source:check (after final regeneration)",
+    "exit": 0,
+    "log": "source-check.log"
+  },
+  {
+    "command": "node src/base/contract-docs.mjs check",
+    "exit": 0,
+    "log": "contract-check.log"
+  },
+  {
+    "command": "pnpm test:execution (before normal navigation repair)",
+    "exit": 0,
+    "log": "execution-before.log"
+  },
+  {
+    "command": "pnpm test:execution (after normal navigation repair)",
+    "exit": 0,
+    "log": "execution-after.log"
+  },
+  {
+    "command": "pnpm test:alerts-ui",
+    "exit": 0,
+    "log": "alerts-ui.log"
+  },
+  {
+    "command": "node readable-proof.mjs",
+    "exit": 0,
+    "log": "readable-proof.log"
+  },
+  {
+    "command": "npx -y @runeditrun/rer build",
+    "exit": 0,
+    "log": "build.log"
+  },
+  {
+    "command": "npx -y @runeditrun/rer build (committed candidate)",
+    "exit": 0,
+    "log": "candidate-build.log"
+  },
+  {
+    "command": "node readable-proof.mjs (committed candidate)",
+    "exit": 0,
+    "log": "candidate-readable-proof.log"
+  },
+  {
+    "command": "pnpm test:alerts-ui (committed candidate)",
+    "exit": 0,
+    "log": "candidate-alerts-ui.log"
+  },
+  {
+    "command": "pnpm source:check (committed candidate after proof cleanup)",
+    "exit": 0,
+    "log": "candidate-source-check.log"
+  }
+]
