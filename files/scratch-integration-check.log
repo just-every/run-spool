@@ -1,0 +1,26 @@
+$ pnpm integration:check
+ WARN  Unsupported engine: wanted: {"node":"22.20.0"} (current: {"node":"v24.19.0","pnpm":"10.12.4"})
+
+> @errors/errors-workbench@0.7.9 integration:check /home/agent/rer-consolidation/work/sd-spool-contract-anchor-2/scratch-after
+> node scripts/sync-integration.mjs --check
+
+ ELIFECYCLE  Command failed with exit code 1.
+node:internal/fs/promises:1086
+  const result = await PromisePrototypeThen(
+                 ^
+
+Error: ENOENT: no such file or directory, lstat '/home/agent/rer-consolidation/work/sd-spool-contract-anchor-2/scratch-after/dist'
+    at async lstat (node:internal/fs/promises:1086:18)
+    at async sourcePath (file:///home/agent/rer-consolidation/work/sd-spool-contract-anchor-2/scratch-after/scripts/delivery/base/migrations.mjs:24:18)
+    at async deploymentSpec (file:///home/agent/rer-consolidation/work/sd-spool-contract-anchor-2/scratch-after/scripts/delivery/base/spec.mjs:129:16)
+    at async integrationRecipe (file:///home/agent/rer-consolidation/work/sd-spool-contract-anchor-2/scratch-after/scripts/sync-integration.mjs:51:16)
+    at async file:///home/agent/rer-consolidation/work/sd-spool-contract-anchor-2/scratch-after/scripts/sync-integration.mjs:76:3 {
+  errno: -2,
+  code: 'ENOENT',
+  syscall: 'lstat',
+  path: '/home/agent/rer-consolidation/work/sd-spool-contract-anchor-2/scratch-after/dist'
+}
+
+Node.js v24.19.0
+
+exit=1

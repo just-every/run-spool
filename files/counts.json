@@ -1,0 +1,21 @@
+{
+  "before": {
+    "done": 23,
+    "partial": 54,
+    "missing": 28,
+    "total": 105
+  },
+  "after": {
+    "done": 23,
+    "partial": 54,
+    "missing": 28,
+    "total": 105
+  },
+  "contract_bytes_unchanged": true,
+  "tests_added": 0,
+  "tests_removed": 0,
+  "tests_changed": 0,
+  "clause_status_changes": [],
+  "anchor_files_before": 0,
+  "anchor_files_after": 1
+}

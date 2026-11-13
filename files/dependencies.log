@@ -1,0 +1,79 @@
+ WARN  Unsupported engine: wanted: {"node":"22.20.0"} (current: {"node":"v24.19.0","pnpm":"10.12.4"})
+packages/agent                           |  WARN  Unsupported engine: wanted: {"node":"22.20.0"} (current: {"node":"v24.19.0","pnpm":"10.12.4"})
+Scope: all 3 workspace projects
+Lockfile is up to date, resolution step is skipped
+Progress: resolved 1, reused 0, downloaded 0, added 0
+Packages: +343
+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+
+   ╭──────────────────────────────────────────╮
+   │                                          │
+   │   Update available! 10.12.4 → 12.18.0.   │
+   │   Changelog: https://pnpm.io/v/12.18.0   │
+   │     To update, run: pnpm add -g pnpm     │
+   │                                          │
+   ╰──────────────────────────────────────────╯
+
+Progress: resolved 343, reused 0, downloaded 18, added 18
+Progress: resolved 343, reused 0, downloaded 62, added 62
+Progress: resolved 343, reused 0, downloaded 81, added 81
+Progress: resolved 343, reused 0, downloaded 110, added 110
+Progress: resolved 343, reused 0, downloaded 147, added 147
+Progress: resolved 343, reused 0, downloaded 167, added 167
+Progress: resolved 343, reused 0, downloaded 188, added 188
+Progress: resolved 343, reused 0, downloaded 206, added 206
+Progress: resolved 343, reused 0, downloaded 236, added 236
+Progress: resolved 343, reused 0, downloaded 273, added 273
+Progress: resolved 343, reused 0, downloaded 317, added 317
+Progress: resolved 343, reused 0, downloaded 343, added 343, done
+.../esbuild@0.28.2/node_modules/esbuild postinstall$ node install.js
+.../esbuild@0.28.1/node_modules/esbuild postinstall$ node install.js
+.../node_modules/workerd postinstall$ node install.js
+.../esbuild@0.28.2/node_modules/esbuild postinstall: Done
+.../node_modules/workerd postinstall: Done
+.../esbuild@0.28.1/node_modules/esbuild postinstall: Done
+
+dependencies:
++ @babel/parser 7.29.8
++ @jridgewell/trace-mapping 0.3.31
++ @tanstack/react-router 1.170.41
++ @tanstack/react-start 1.168.60
++ hono 4.13.7
++ react 19.2.8
++ react-dom 19.2.8
+
+devDependencies:
++ @axe-core/playwright 4.13.0
++ @cloudflare/vite-plugin 1.54.5
++ @cloudflare/workers-types 5.20260908.1
++ @ghostery/adblocker 2.20.1
++ @playwright/test 1.63.0
++ @runeditrun/rer 0.2.107
++ @sentry/browser 11.6.0
++ @sentry/cli 3.8.1
++ @sentry/esbuild-plugin 11.8.0
++ @sentry/node 11.6.0
++ @sentry/rollup-plugin 11.8.0
++ @sentry/vite-plugin 11.8.0
++ @sentry/webpack-plugin 11.8.0
++ @types/node 22.20.5
++ @types/react 19.2.18
++ @types/react-dom 19.2.7
++ @vitejs/plugin-react 6.1.1
++ esbuild 0.28.2
++ miniflare 5.20260907.0-alpha
++ rollup 4.64.12
++ typescript 5.9.3
++ vite 8.2.2
++ webpack 5.112.0
++ wrangler 4.129.1
+
+╭ Warning ─────────────────────────────────────────────────────────────────────╮
+│                                                                              │
+│   Ignored build scripts: @sentry/cli.                                        │
+│   Run "pnpm approve-builds" to pick which dependencies should be allowed     │
+│   to run scripts.                                                            │
+│                                                                              │
+╰──────────────────────────────────────────────────────────────────────────────╯
+
+Done in 12.9s using pnpm v10.12.4

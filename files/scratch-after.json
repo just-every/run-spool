@@ -1,0 +1,14 @@
+{
+  "phase": "after",
+  "timestamp_utc": "2026-11-13T14:04:53.135935+00:00",
+  "product_tree_ref": "8f29bd3fcbc865aa5d3aba4c2ec3f85b847c1800",
+  "scratch": "/home/agent/rer-consolidation/work/sd-spool-contract-anchor-2/scratch-after",
+  "commit_count": 2,
+  "remotes": [],
+  "original_commit": "c829404210aacc3b8c4b4500b2ad1d5c4f9a2890",
+  "original_commit_absent": true,
+  "contract_check_exit": 0,
+  "command": "node src/base/contract-docs.mjs check",
+  "stdout": "Contract prose: 0 errors, 0 warnings.\nContract documents are current.\n",
+  "stderr": ""
+}

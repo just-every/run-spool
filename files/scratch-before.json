@@ -1,0 +1,14 @@
+{
+  "phase": "before",
+  "timestamp_utc": "2026-11-13T14:04:15.398165+00:00",
+  "product_tree_ref": "HEAD",
+  "scratch": "/home/agent/rer-consolidation/work/sd-spool-contract-anchor-2/scratch-before",
+  "commit_count": 2,
+  "remotes": [],
+  "original_commit": "c829404210aacc3b8c4b4500b2ad1d5c4f9a2890",
+  "original_commit_absent": true,
+  "contract_check_exit": 1,
+  "command": "node src/base/contract-docs.mjs check",
+  "stdout": "",
+  "stderr": "docs/contract/ANCHOR.json: contract_anchor_missing: original c829404210aacc3b8c4b4500b2ad1d5c4f9a2890 is unavailable; record it with anchor --old <ref> in a checkout with history. Command failed: git rev-parse --verify --end-of-options c829404210aacc3b8c4b4500b2ad1d5c4f9a2890^{commit}\nfatal: Needed a single revision\n\n"
+}

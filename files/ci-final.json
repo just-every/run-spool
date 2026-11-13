@@ -1,0 +1,10 @@
+{
+  "github_api_calls_used": 8,
+  "run_id": 43439471009,
+  "conclusion": "success",
+  "head_sha": "104ae1c1532c4c9125858a571dbab223993500fd",
+  "html_url": "https://github.com/just-every/run-spool/actions/runs/43439471009",
+  "id": 43439471009,
+  "name": "Verify",
+  "status": "completed"
+}

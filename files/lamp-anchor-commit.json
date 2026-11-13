@@ -1,0 +1,1 @@
+{"message":"Record the contract anchor the 0.2.106 contract generator needs\n\ndocs/contract/ANCHOR.json lets `contract-docs check` resolve the original\ncontract commit in a shallow CI checkout. Generated views stay as on main.\n\nCo-Authored-By: Claude Sonnet 5.5 \u003cnoreply@anthropic.com\u003e","sha":"35fc2789f388524634125d814da4c8efc47d0f8a"}

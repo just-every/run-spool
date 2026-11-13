@@ -1,0 +1,53 @@
+[
+  {
+    "name": "first-party-check",
+    "command": [
+      "pnpm",
+      "exec",
+      "rer",
+      "check",
+      "--profile",
+      "first-party"
+    ],
+    "cwd": "/home/agent/rer-consolidation/work/sd-spool-contract-anchor-2/scratch-after",
+    "timestamp_utc": "2026-11-13T14:04:56.303655+00:00",
+    "exit_code": 0,
+    "log": "scratch-first-party-check.log"
+  },
+  {
+    "name": "source-check",
+    "command": [
+      "node",
+      "scripts/edition-authoring/cli.mjs",
+      "check"
+    ],
+    "cwd": "/home/agent/rer-consolidation/work/sd-spool-contract-anchor-2/scratch-after",
+    "timestamp_utc": "2026-11-13T14:05:09.758704+00:00",
+    "exit_code": 0,
+    "log": "scratch-source-check.log"
+  },
+  {
+    "name": "verify-base-offline",
+    "command": [
+      "node",
+      "scripts/edition-authoring/cli.mjs",
+      "verify-base",
+      "--offline"
+    ],
+    "cwd": "/home/agent/rer-consolidation/work/sd-spool-contract-anchor-2/scratch-after",
+    "timestamp_utc": "2026-11-13T14:05:10.805140+00:00",
+    "exit_code": 0,
+    "log": "scratch-verify-base-offline.log"
+  },
+  {
+    "name": "integration-check",
+    "command": [
+      "pnpm",
+      "integration:check"
+    ],
+    "cwd": "/home/agent/rer-consolidation/work/sd-spool-contract-anchor-2/scratch-after",
+    "timestamp_utc": "2026-11-13T14:05:11.126741+00:00",
+    "exit_code": 1,
+    "log": "scratch-integration-check.log"
+  }
+]

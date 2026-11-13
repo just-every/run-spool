@@ -1,0 +1,200 @@
+{
+  "tag": "sd-spool-contract-anchor-2",
+  "repository": "just-every/run-spool",
+  "branch": "cloud/sd-spool-contract-anchor-2",
+  "head": "104ae1c1532c4c9125858a571dbab223993500fd",
+  "base": "2073114e2a52b168413b9609a8f6c1d13038a8aa",
+  "tree": "8f29bd3fcbc865aa5d3aba4c2ec3f85b847c1800",
+  "timestamp_utc": "2026-11-13T14:26:27Z",
+  "product_push": "success",
+  "pr_url": null,
+  "anchor_original": "c829404210aacc3b8c4b4500b2ad1d5c4f9a2890",
+  "anchor_sha256": "d44fe3b5f8a7922d6c8951b776beee5b4b42e6e0b85fea600bffa516b6207645",
+  "changed_files": [
+    "docs/contract/ANCHOR.json",
+    "sources.lock.json"
+  ],
+  "checks": [
+    {
+      "name": "full-before",
+      "command": "node src/base/contract-docs.mjs check",
+      "exit_code": 0,
+      "log": "full-before.log"
+    },
+    {
+      "name": "full-after",
+      "command": "node src/base/contract-docs.mjs check",
+      "exit_code": 0,
+      "log": "full-after.log"
+    },
+    {
+      "name": "source-lock",
+      "command": "node scripts/edition-authoring/cli.mjs lock",
+      "exit_code": 0,
+      "log": "source-lock.log"
+    },
+    {
+      "name": "source-check",
+      "command": "node scripts/edition-authoring/cli.mjs check",
+      "exit_code": 0,
+      "log": "source-check.log"
+    },
+    {
+      "name": "typecheck",
+      "command": "pnpm typecheck",
+      "exit_code": 0,
+      "log": "typecheck.log"
+    },
+    {
+      "name": "full-first-party",
+      "command": "pnpm exec rer check --profile first-party",
+      "exit_code": 0,
+      "log": "full-first-party-check.log"
+    }
+  ],
+  "scratch_before": {
+    "phase": "before",
+    "timestamp_utc": "2026-11-13T14:04:15.398165+00:00",
+    "product_tree_ref": "HEAD",
+    "scratch": "/home/agent/rer-consolidation/work/sd-spool-contract-anchor-2/scratch-before",
+    "commit_count": 2,
+    "remotes": [],
+    "original_commit": "c829404210aacc3b8c4b4500b2ad1d5c4f9a2890",
+    "original_commit_absent": true,
+    "contract_check_exit": 1,
+    "command": "node src/base/contract-docs.mjs check",
+    "stdout": "",
+    "stderr": "docs/contract/ANCHOR.json: contract_anchor_missing: original c829404210aacc3b8c4b4500b2ad1d5c4f9a2890 is unavailable; record it with anchor --old <ref> in a checkout with history. Command failed: git rev-parse --verify --end-of-options c829404210aacc3b8c4b4500b2ad1d5c4f9a2890^{commit}\nfatal: Needed a single revision\n\n"
+  },
+  "scratch_after": {
+    "phase": "after",
+    "timestamp_utc": "2026-11-13T14:04:53.135935+00:00",
+    "product_tree_ref": "8f29bd3fcbc865aa5d3aba4c2ec3f85b847c1800",
+    "scratch": "/home/agent/rer-consolidation/work/sd-spool-contract-anchor-2/scratch-after",
+    "commit_count": 2,
+    "remotes": [],
+    "original_commit": "c829404210aacc3b8c4b4500b2ad1d5c4f9a2890",
+    "original_commit_absent": true,
+    "contract_check_exit": 0,
+    "command": "node src/base/contract-docs.mjs check",
+    "stdout": "Contract prose: 0 errors, 0 warnings.\nContract documents are current.\n",
+    "stderr": ""
+  },
+  "scratch_declared_verify": [
+    {
+      "name": "first-party-check",
+      "command": [
+        "pnpm",
+        "exec",
+        "rer",
+        "check",
+        "--profile",
+        "first-party"
+      ],
+      "cwd": "/home/agent/rer-consolidation/work/sd-spool-contract-anchor-2/scratch-after",
+      "timestamp_utc": "2026-11-13T14:04:56.303655+00:00",
+      "exit_code": 0,
+      "log": "scratch-first-party-check.log"
+    },
+    {
+      "name": "source-check",
+      "command": [
+        "node",
+        "scripts/edition-authoring/cli.mjs",
+        "check"
+      ],
+      "cwd": "/home/agent/rer-consolidation/work/sd-spool-contract-anchor-2/scratch-after",
+      "timestamp_utc": "2026-11-13T14:05:09.758704+00:00",
+      "exit_code": 0,
+      "log": "scratch-source-check.log"
+    },
+    {
+      "name": "verify-base-offline",
+      "command": [
+        "node",
+        "scripts/edition-authoring/cli.mjs",
+        "verify-base",
+        "--offline"
+      ],
+      "cwd": "/home/agent/rer-consolidation/work/sd-spool-contract-anchor-2/scratch-after",
+      "timestamp_utc": "2026-11-13T14:05:10.805140+00:00",
+      "exit_code": 0,
+      "log": "scratch-verify-base-offline.log"
+    },
+    {
+      "name": "integration-check",
+      "command": [
+        "pnpm",
+        "integration:check"
+      ],
+      "cwd": "/home/agent/rer-consolidation/work/sd-spool-contract-anchor-2/scratch-after",
+      "timestamp_utc": "2026-11-13T14:05:11.126741+00:00",
+      "exit_code": 1,
+      "log": "scratch-integration-check.log"
+    }
+  ],
+  "counts": {
+    "before": {
+      "done": 23,
+      "partial": 54,
+      "missing": 28,
+      "total": 105
+    },
+    "after": {
+      "done": 23,
+      "partial": 54,
+      "missing": 28,
+      "total": 105
+    },
+    "contract_bytes_unchanged": true,
+    "tests_added": 0,
+    "tests_removed": 0,
+    "tests_changed": 0,
+    "clause_status_changes": [],
+    "anchor_files_before": 0,
+    "anchor_files_after": 1
+  },
+  "ci_status": "completed/success",
+  "github_api_calls_used": 8,
+  "github_api_call_budget": 10,
+  "publication_scan": "Mac lander gate; unavailable in this cloud adaptation; not claimed complete",
+  "blockers": [],
+  "ci_run_id": 43439471009,
+  "ci_url": "https://github.com/just-every/run-spool/actions/runs/43439471009",
+  "remote_product_ref_verified": true,
+  "product_checkout_clean": true,
+  "product_commit_count": 1,
+  "ci_last_observation": {
+    "timestamp_utc": "2026-11-13T14:20:39.681768+00:00",
+    "github_call": 7,
+    "command": [
+      "python3",
+      "/tmp/fleet-gh.py",
+      "api",
+      "repos/just-every/run-spool/actions/runs/43439471009",
+      "--jq",
+      "{status,conclusion,head_sha,html_url,id,name}"
+    ],
+    "response": {
+      "conclusion": null,
+      "head_sha": "104ae1c1532c4c9125858a571dbab223993500fd",
+      "html_url": "https://github.com/just-every/run-spool/actions/runs/43439471009",
+      "id": 43439471009,
+      "name": "Verify",
+      "status": "in_progress"
+    }
+  },
+  "ci_final": {
+    "github_api_calls_used": 8,
+    "run_id": 43439471009,
+    "conclusion": "success",
+    "head_sha": "104ae1c1532c4c9125858a571dbab223993500fd",
+    "html_url": "https://github.com/just-every/run-spool/actions/runs/43439471009",
+    "id": 43439471009,
+    "name": "Verify",
+    "status": "completed"
+  },
+  "terminal_product_custody": "READY",
+  "evidence_ref": "refs/heads/evidence/sd-spool-contract-anchor-2",
+  "cleanup": "Remove the successful product clone and two scratch repositories after evidence publication; retain this packet."
+}

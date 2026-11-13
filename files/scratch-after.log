@@ -1,0 +1,37 @@
+$ git init --quiet -b proof
+exit=0
+
+$ git config user.name Run Edit Run fleet
+exit=0
+
+$ git config user.email fleet@runeditrun.com
+exit=0
+
+$ python3 /tmp/fleet-cloud-hooks.py
+fleet cloud commit hook installed; repository hooks preserved
+exit=0
+
+$ git add --all
+exit=0
+
+$ env GIT_AUTHOR_NAME=Run Edit Run fleet GIT_AUTHOR_EMAIL=fleet@runeditrun.com GIT_COMMITTER_NAME=Run Edit Run fleet GIT_COMMITTER_EMAIL=fleet@runeditrun.com git commit --quiet -m Isolated source tree
+exit=0
+
+$ env GIT_AUTHOR_NAME=Run Edit Run fleet GIT_AUTHOR_EMAIL=fleet@runeditrun.com GIT_COMMITTER_NAME=Run Edit Run fleet GIT_COMMITTER_EMAIL=fleet@runeditrun.com git commit --quiet --allow-empty -m Second isolated commit
+exit=0
+
+$ git rev-list --count HEAD
+2
+exit=0
+
+$ git remote
+exit=0
+
+$ git cat-file -e c829404210aacc3b8c4b4500b2ad1d5c4f9a2890^{commit}
+fatal: Not a valid object name c829404210aacc3b8c4b4500b2ad1d5c4f9a2890^{commit}
+exit=128
+
+$ node src/base/contract-docs.mjs check
+Contract prose: 0 errors, 0 warnings.
+Contract documents are current.
+exit=0

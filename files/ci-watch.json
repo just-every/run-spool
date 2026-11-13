@@ -1,0 +1,87 @@
+[
+  {
+    "timestamp_utc": "2026-11-13T14:10:37.650291+00:00",
+    "github_call": 5,
+    "command": [
+      "python3",
+      "/tmp/fleet-gh.py",
+      "api",
+      "repos/just-every/run-spool/actions/runs?head_sha=104ae1c1532c4c9125858a571dbab223993500fd&per_page=100",
+      "--jq",
+      "{workflow_runs:[.workflow_runs[] | {id,name,status,conclusion,head_sha,head_branch,html_url}]}"
+    ],
+    "response": {
+      "workflow_runs": [
+        {
+          "conclusion": null,
+          "head_branch": "cloud/sd-spool-contract-anchor-2",
+          "head_sha": "104ae1c1532c4c9125858a571dbab223993500fd",
+          "html_url": "https://github.com/just-every/run-spool/actions/runs/43439471009",
+          "id": 43439471009,
+          "name": "Verify",
+          "status": "in_progress"
+        }
+      ]
+    }
+  },
+  {
+    "timestamp_utc": "2026-11-13T14:15:38.699096+00:00",
+    "github_call": 6,
+    "command": [
+      "python3",
+      "/tmp/fleet-gh.py",
+      "api",
+      "repos/just-every/run-spool/actions/runs/43439471009",
+      "--jq",
+      "{status,conclusion,head_sha,html_url,id,name}"
+    ],
+    "response": {
+      "conclusion": null,
+      "head_sha": "104ae1c1532c4c9125858a571dbab223993500fd",
+      "html_url": "https://github.com/just-every/run-spool/actions/runs/43439471009",
+      "id": 43439471009,
+      "name": "Verify",
+      "status": "in_progress"
+    }
+  },
+  {
+    "timestamp_utc": "2026-11-13T14:20:39.681768+00:00",
+    "github_call": 7,
+    "command": [
+      "python3",
+      "/tmp/fleet-gh.py",
+      "api",
+      "repos/just-every/run-spool/actions/runs/43439471009",
+      "--jq",
+      "{status,conclusion,head_sha,html_url,id,name}"
+    ],
+    "response": {
+      "conclusion": null,
+      "head_sha": "104ae1c1532c4c9125858a571dbab223993500fd",
+      "html_url": "https://github.com/just-every/run-spool/actions/runs/43439471009",
+      "id": 43439471009,
+      "name": "Verify",
+      "status": "in_progress"
+    }
+  },
+  {
+    "timestamp_utc": "2026-11-13T14:25:40.646668+00:00",
+    "github_call": 8,
+    "command": [
+      "python3",
+      "/tmp/fleet-gh.py",
+      "api",
+      "repos/just-every/run-spool/actions/runs/43439471009",
+      "--jq",
+      "{status,conclusion,head_sha,html_url,id,name}"
+    ],
+    "response": {
+      "conclusion": "success",
+      "head_sha": "104ae1c1532c4c9125858a571dbab223993500fd",
+      "html_url": "https://github.com/just-every/run-spool/actions/runs/43439471009",
+      "id": 43439471009,
+      "name": "Verify",
+      "status": "completed"
+    }
+  }
+]

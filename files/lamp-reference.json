@@ -1,0 +1,15 @@
+{
+  "repository": "just-every/run-lamp",
+  "path": "docs/contract/ANCHOR.json",
+  "blob": "a54c628af0e6a1e2e051c25b63a651b9320fae22",
+  "schema": 1,
+  "commit": "0c54dbcd4352babe9163e1600b6b7c3e0c8d760e",
+  "objects": 6,
+  "object_types": [
+    "blob",
+    "commit",
+    "tree"
+  ],
+  "coverage_original": "0c54dbcd4352babe9163e1600b6b7c3e0c8d760e",
+  "anchor_matches_coverage_original": true
+}
