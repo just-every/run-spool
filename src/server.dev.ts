@@ -2,7 +2,8 @@
 // src/server.ts, and `rer build` refuses any output that contains the dev layer. It adds dev
 // sign-in, personas and the Dev product label.
 import worker from './server';
-import { managedInstallation, withDevIdentity } from './modules/operator-auth/dev/index.mjs';
+import { managedInstallation } from './modules/operator-auth/dev/index.mjs';
+import { withDevIdentity } from './auth/local-identity.server.mjs';
 import { devGate } from './modules/operator-auth/dev-gate.mjs';
 import { admitLocalProjectKeys } from './domain/dev-credentials';
 import { authConfig, ownerSession } from './auth/session.server';
@@ -10,6 +11,8 @@ import { AuthError } from './modules/operator-auth/index.mjs';
 import { runtimeBindings, type Bindings } from './auth/bindings';
 import { signInPage } from './auth/sign-in.server';
 import { devPersonas } from './auth/dev-personas';
+import { localInvitationWitness } from './auth/local-members.server';
+import { hashToken } from './modules/operator-auth/crypto.mjs';
 import { privateRuntimePath } from './auth/private-runtime.server';
 
 // "/" sends a visitor without a session to /sign-in, a page the key exchange never runs on (the
@@ -45,6 +48,13 @@ const local = {
   const response = await worker.fetch(request, bindings, execution);
   const redirect = response.status === 303 && response.headers.get('location')?.startsWith('/sign-in');
   if (new URL(request.url).pathname === '/' && request.method === 'GET' && redirect) return await signInPage(request, runtimeBindings(bindings as Bindings));
+  const token = new URL(request.url).searchParams.get('token');
+  if (path === '/auth/confirm' && request.method === 'GET' && response.status === 200 && token
+   && await localInvitationWitness(env, await hashToken(env.SESSION_SECRET, 'link', token))) {
+   return new HTMLRewriter().on('main h1', { element(element) {
+    element.after('<p>Open your own invitation directly in a separate browser. It signs you in with your membership and project access. Do not open or share the owner’s RER_OPEN link; it signs in as the owner.</p>', { html: true });
+   } }).transform(response);
+  }
   return response;
  },
 } satisfies typeof worker;
