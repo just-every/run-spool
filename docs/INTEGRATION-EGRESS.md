@@ -12,7 +12,7 @@ Live hybrid egress qualification remains pending. Installing a binding does not 
 
 **Owner account required.** An installation operator needs access to the owner's Cloudflare account and deployment checkout. Supply `CLOUDFLARE_ACCOUNT_ID` and a matching `CLOUDFLARE_API_TOKEN` privately to the deployment process, with permission to deploy Workers and read the complete account zone inventory. Never paste credentials into a command, page or report.
 
-Read [Base's egress-service owner steps and live qualification procedure](https://github.com/runeditrun/base/blob/4dd4197007cefd688fd314ffb19eed4d0b3c67dd/modules/egress-service/OWNER-STEPS.md). This link uses the Base revision recorded for Spool's vendored egress module in `base-copies.json`. The historical probe authorizations there do not authorize a new live run; an owner must separately authorize qualification and supply a safe external receiver outside the account's own zones. The installation steps below use Spool's copy of that module.
+Read [Base's egress-service owner steps and live qualification procedure](https://github.com/runeditrun/base/blob/c2efb501cbc148c2aee4d5e1107ebdba81469006/modules/egress-service/OWNER-STEPS.md). This link uses the Base revision recorded for Spool's vendored egress module in `base-copies.json`. The historical probe authorizations there do not authorize a new live run; an owner must separately authorize qualification and supply a safe external receiver outside the account's own zones. The installation steps below use Spool's copy of that module.
 
 Use the same Spool checkout and its installed dependencies. These steps change deployment configuration; the service and Spool each retain their own private deployment state. One checkout must own the service's state.
 
