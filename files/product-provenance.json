@@ -1,0 +1,22 @@
+{
+  "repository": "just-every/run-spool",
+  "branch": "cloud/main-spool-readable-codes-1",
+  "head": "d43de99817db620fac950ddc7e8bfbcf3c38eccb",
+  "parent": "fc9504463ad9158b9275ff52d042b1002ca40da7",
+  "product_pushed": true,
+  "pr": null,
+  "identity_check": "Run Edit Run fleet <fleet@runeditrun.com>\nRun Edit Run fleet <fleet@runeditrun.com>\n\nRun Edit Run fleet <fleet@runeditrun.com>\nRun Edit Run fleet <fleet@runeditrun.com>\n\nRun Edit Run fleet <fleet@runeditrun.com>\nRun Edit Run fleet <fleet@runeditrun.com>\n\n",
+  "publication_scan": "Fleet Mac lander performs full publication scan; cloud checked own diff for credential-shaped additions.",
+  "first_product_head": "0c3d70f9a190c536ea417e53a68e1d58e91211d2",
+  "intermediate_head": "fc9504463ad9158b9275ff52d042b1002ca40da7",
+  "terminal_custody": "PUSHED",
+  "verify_run": {
+    "id": 43389953919,
+    "name": "Verify",
+    "status": "in_progress",
+    "conclusion": null,
+    "head_sha": "d43de99817db620fac950ddc7e8bfbcf3c38eccb",
+    "html_url": "https://github.com/just-every/run-spool/actions/runs/43389953919"
+  },
+  "watch_limit_reached": true
+}

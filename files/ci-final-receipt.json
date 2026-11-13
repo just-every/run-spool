@@ -1,0 +1,15 @@
+{
+  "head_sha": "d43de99817db620fac950ddc7e8bfbcf3c38eccb",
+  "calls_total": 8,
+  "observed_at": "2026-11-13T08:06:26.613796+00:00",
+  "api_exit": 0,
+  "watch_deadline": "2026-11-13T08:06:26Z",
+  "run": {
+    "id": 43389953919,
+    "name": "Verify",
+    "status": "in_progress",
+    "conclusion": null,
+    "head_sha": "d43de99817db620fac950ddc7e8bfbcf3c38eccb",
+    "html_url": "https://github.com/just-every/run-spool/actions/runs/43389953919"
+  }
+}

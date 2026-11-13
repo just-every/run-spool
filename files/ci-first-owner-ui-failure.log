@@ -1,0 +1,67 @@
+verify (owner-ui)	Run suites	﻿2026-11-13T07:22:48.6271226Z ##[group]Run pnpm test:accessibility && pnpm test:admission
+verify (owner-ui)	Run suites	2026-11-13T07:22:48.6271688Z [36;1mpnpm test:accessibility && pnpm test:admission[0m
+verify (owner-ui)	Run suites	2026-11-13T07:22:48.6284940Z shell: /usr/bin/bash -e {0}
+verify (owner-ui)	Run suites	2026-11-13T07:22:48.6285221Z env:
+verify (owner-ui)	Run suites	2026-11-13T07:22:48.6285445Z   PLAYWRIGHT_SKIP_BROWSER_GC: 1
+verify (owner-ui)	Run suites	2026-11-13T07:22:48.6285717Z   RER_SERVERS_DISK_FLOOR_GIB: 4
+verify (owner-ui)	Run suites	2026-11-13T07:22:48.6285978Z   NODE_DEBUG: @cloudflare:vite-plugin
+verify (owner-ui)	Run suites	2026-11-13T07:22:48.6286315Z   PNPM_HOME: /home/runner/setup-pnpm/node_modules/.bin
+verify (owner-ui)	Run suites	2026-11-13T07:22:48.6286724Z   PLAYWRIGHT_BROWSERS_PATH: /home/runner/work/_temp/ms-playwright
+verify (owner-ui)	Run suites	2026-11-13T07:22:48.6287070Z ##[endgroup]
+verify (owner-ui)	Run suites	2026-11-13T07:22:48.8986385Z 
+verify (owner-ui)	Run suites	2026-11-13T07:22:48.8987615Z > @errors/errors-workbench@0.7.8 test:accessibility /home/runner/work/run-spool/run-spool
+verify (owner-ui)	Run suites	2026-11-13T07:22:48.8988590Z > node tests/triage-journey.mjs
+verify (owner-ui)	Run suites	2026-11-13T07:22:48.8988885Z 
+verify (owner-ui)	Run suites	2026-11-13T07:22:49.4712296Z (node:2679) ExperimentalWarning: SQLite is an experimental feature and might change at any time
+verify (owner-ui)	Run suites	2026-11-13T07:22:49.4713114Z (Use `node --trace-warnings ...` to show where the warning was created)
+verify (owner-ui)	Run suites	2026-11-13T07:25:58.1595368Z Triage public journey passed: 22 groups; 101 JPG captures at 1440 and 390.
+verify (owner-ui)	Run suites	2026-11-13T07:25:58.4575630Z 
+verify (owner-ui)	Run suites	2026-11-13T07:25:58.4579196Z > @errors/errors-workbench@0.7.8 test:admission /home/runner/work/run-spool/run-spool
+verify (owner-ui)	Run suites	2026-11-13T07:25:58.4580183Z > node tests/owner-claim.mjs && node tests/owner-editor.mjs && node tests/managed-sign-in.mjs
+verify (owner-ui)	Run suites	2026-11-13T07:25:58.4580620Z 
+verify (owner-ui)	Run suites	2026-11-13T07:25:59.5933572Z (node:3040) ExperimentalWarning: SQLite is an experimental feature and might change at any time
+verify (owner-ui)	Run suites	2026-11-13T07:25:59.5934926Z (Use `node --trace-warnings ...` to show where the warning was created)
+verify (owner-ui)	Run suites	2026-11-13T07:26:16.5313101Z OWNER CLAIM passed: invalid signature/audience/issuer/email/installation/expiry/origin, native first claim, durable second refusal, additive existing-owner migration, Business door opened by the first claim only with RER_IMPORT_DOOR=on and kept under the owner's switch.
+verify (owner-ui)	Run suites	2026-11-13T07:26:20.5269787Z PROBE GOV-001 native refusal: bootstrap cookie and successor POST -> step_up_required, no successor or product mutation, owner denial audit
+verify (owner-ui)	Run suites	2026-11-13T07:26:22.5045463Z PROBE GOV-001 session binding: another native session confirms the challenge -> invalid_or_expired; requesting session remains unstepped
+verify (owner-ui)	Run suites	2026-11-13T07:26:23.6338978Z PROBE GOV-001 confirmation and replay: requesting session confirms -> settings redirect with no replacement cookie; replay -> invalid_or_expired
+verify (owner-ui)	Run suites	2026-11-13T07:26:23.9746927Z PROBE GOV-001 allowed invitation: original stepped-up cookie and successor POST -> one invited successor and one owner-attributed accepted fact
+verify (owner-ui)	Run suites	2026-11-13T07:26:25.9270164Z PROBE GOV-001 revocation: native session revoke then session, pending challenge and successor doors -> 401, invalid_or_expired and 401, no replacement invitation
+verify (owner-ui)	Run suites	2026-11-13T07:26:25.9272270Z GOV-001 native owner-successor step-up journey passed; enterprise providers and broader privileged operations remain unqualified.
+verify (owner-ui)	Run suites	2026-11-13T07:26:30.1239962Z PROBE GOV-001 missing proof: native bootstrap session POST organization transfer -> 403 step_up_required; protected rows unchanged
+verify (owner-ui)	Run suites	2026-11-13T07:26:32.1012250Z PROBE GOV-001 session binding: another native owner session POST confirmation -> 400 invalid_or_expired; requesting session still cannot transfer
+verify (owner-ui)	Run suites	2026-11-13T07:26:33.7230757Z PROBE GOV-001 successor controls: confirmed session rejects replay, unverified successor and stale membership version; protected rows unchanged
+verify (owner-ui)	Run suites	2026-11-13T07:26:36.4463563Z PROBE GOV-001 allowed transfer: same confirmed native session POST current verified successor -> exactly one transfer; no replacement cookie; both old identities fenced; fresh successor sign-in is owner
+verify (owner-ui)	Run suites	2026-11-13T07:26:36.4698744Z Local mail journey: starting emitted app
+verify (owner-ui)	Run suites	2026-11-13T07:26:39.5160462Z Local mail journey: emitted app ready
+verify (owner-ui)	Run suites	2026-11-13T07:26:39.6195236Z Local mail journey: owner and project created
+verify (owner-ui)	Run suites	2026-11-13T07:26:40.9338795Z Local mail journey: pending native link available after reload
+verify (owner-ui)	Run suites	2026-11-13T07:26:41.1019465Z Local mail journey: copy and verification complete
+verify (owner-ui)	Run suites	2026-11-13T07:26:43.6222677Z PROBE TEAM-001 local invitation: suppressed mail; copy after reload; same native expiring token; second browser acceptance once; roles, expiry, read-only denial and archive exclusion preserved.
+verify (owner-ui)	Run suites	2026-11-13T07:26:43.6225241Z PROBE GOV-001 local verification: request produces no completed proof and native transfer still refuses without email confirmation.
+verify (owner-ui)	Run suites	2026-11-13T07:27:08.8964544Z PROBE TEAM-005 preferences: two native members, two projects, HTTP and Settings saves and reopen -> independent persisted email choices, weekly opt-in; no mail
+verify (owner-ui)	Run suites	2026-11-13T07:27:08.8967346Z PROBE TEAM-005 authority: targeted, foreign-project, removed-member, project-grant, stale and cross-origin requests -> refused without preference mutation; safe audit facts
+verify (owner-ui)	Run suites	2026-11-13T07:27:10.0546419Z [FIND-003] read-only omissions and exports, current roles, concealed ids and denied-write nonmutation passed
+verify (owner-ui)	Run suites	2026-11-13T07:27:13.2155656Z node:internal/modules/run_main:123
+verify (owner-ui)	Run suites	2026-11-13T07:27:13.2156415Z     triggerUncaughtException(
+verify (owner-ui)	Run suites	2026-11-13T07:27:13.2157132Z     ^
+verify (owner-ui)	Run suites	2026-11-13T07:27:13.2157542Z 
+verify (owner-ui)	Run suites	2026-11-13T07:27:13.2158279Z AssertionError [ERR_ASSERTION]: Each recorded counter has a visible label and count
+verify (owner-ui)	Run suites	2026-11-13T07:27:13.2159126Z 
+verify (owner-ui)	Run suites	2026-11-13T07:27:13.2159607Z 2 !== 5
+verify (owner-ui)	Run suites	2026-11-13T07:27:13.2159823Z 
+verify (owner-ui)	Run suites	2026-11-13T07:27:13.2160392Z     at usageLabels (file:///home/runner/work/run-spool/run-spool/tests/team-browser.mjs:345:9)
+verify (owner-ui)	Run suites	2026-11-13T07:27:13.2161629Z     at async browserMembers (file:///home/runner/work/run-spool/run-spool/tests/team-browser.mjs:79:3)
+verify (owner-ui)	Run suites	2026-11-13T07:27:13.2162988Z     at async teamFlow (file:///home/runner/work/run-spool/run-spool/tests/team-flow.mjs:369:3)
+verify (owner-ui)	Run suites	2026-11-13T07:27:13.2163866Z     at async file:///home/runner/work/run-spool/run-spool/tests/owner-claim.mjs:146:1 {
+verify (owner-ui)	Run suites	2026-11-13T07:27:13.2164335Z   generatedMessage: false,
+verify (owner-ui)	Run suites	2026-11-13T07:27:13.2164636Z   code: 'ERR_ASSERTION',
+verify (owner-ui)	Run suites	2026-11-13T07:27:13.2164919Z   actual: 2,
+verify (owner-ui)	Run suites	2026-11-13T07:27:13.2165146Z   expected: 5,
+verify (owner-ui)	Run suites	2026-11-13T07:27:13.2165392Z   operator: 'strictEqual',
+verify (owner-ui)	Run suites	2026-11-13T07:27:13.2165670Z   diff: 'simple'
+verify (owner-ui)	Run suites	2026-11-13T07:27:13.2165912Z }
+verify (owner-ui)	Run suites	2026-11-13T07:27:13.2166042Z 
+verify (owner-ui)	Run suites	2026-11-13T07:27:13.2166150Z Node.js v22.20.0
+verify (owner-ui)	Run suites	2026-11-13T07:27:13.2698973Z  ELIFECYCLE  Command failed with exit code 1.
+verify (owner-ui)	Run suites	2026-11-13T07:27:13.3011745Z ##[error]Process completed with exit code 1.

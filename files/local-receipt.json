@@ -1,0 +1,64 @@
+{
+  "base_main": "0f9809608a4ba84b23f4f8ece165605fcdd1acba",
+  "checks": [
+    {
+      "command": "pnpm typecheck (toolchain pnpm 10.12.4)",
+      "exit": 0
+    },
+    {
+      "command": "node scripts/edition-authoring/cli.mjs lock; node scripts/edition-authoring/cli.mjs check",
+      "exit": 0
+    },
+    {
+      "command": "node src/base/contract-docs.mjs check",
+      "exit": 0
+    }
+  ],
+  "journeys": [
+    {
+      "command": "RER_CHROMIUM_EXECUTABLE_PATH=/usr/bin/chromium cloud_run node tests/alerts-ui.mjs",
+      "exit": 0,
+      "coverage": "Held new issue and regression names before expiry, after expiry, and after explicit release; existing destination, baseline, Slack and delivery assertions retained."
+    },
+    {
+      "command": "RER_CHROMIUM_EXECUTABLE_PATH=/usr/bin/chromium cloud_run node tests/triage-journey.mjs",
+      "exit": 0,
+      "coverage": "22 existing public journey groups; browser archive download and independent restore equality; real part_checksum and erasure_epoch refusals remain HTTP 400 with no project restoration; readable browser advice."
+    },
+    {
+      "command": "RER_CHROMIUM_EXECUTABLE_PATH=/usr/bin/chromium cloud_run node .artifacts/usage-proof.mjs",
+      "exit": 0,
+      "coverage": "Invokes exported tests/team-browser.mjs#usageLabels against emitted Worker with actual accepted, duplicate and environment-filtered captures."
+    }
+  ],
+  "browser_widths": [
+    1440,
+    390
+  ],
+  "assertion_width": 1440,
+  "new_top_level_test_registrations": 0,
+  "limits": [
+    "Broader teamFlow startup was attempted with Node 24 and pinned Node 22; its unchanged admissionRuntime fixture stalled before schema migration or any assertion. Stopped only its own PIDs. Targeted usageLabels public-door check passed separately.",
+    "Final sequential pinned-Node retry was bounded to 180 seconds, reached only the unchanged pre-migration fixture startup, and was terminated by timeout (shell exit 247 after forced cleanup). No full teamFlow pass claimed."
+  ],
+  "contract_status_changes": [],
+  "findings": {
+    "before": 3,
+    "after": 0
+  },
+  "product_head": "d43de99817db620fac950ddc7e8bfbcf3c38eccb",
+  "product_branch": "cloud/main-spool-readable-codes-1",
+  "first_product_head": "0c3d70f9a190c536ea417e53a68e1d58e91211d2",
+  "final_followup": {
+    "change": "Wait for the same expected usage row count to render before checking labels; retain all count and code assertions.",
+    "touched_usage_check_exit": 0,
+    "source_lock_check_exit": 0
+  },
+  "intermediate_head": "fc9504463ad9158b9275ff52d042b1002ca40da7",
+  "terminal_followup": {
+    "change": "Explicitly reload the existing Settings page after new intake; hash-only navigation preserves the old Members state. All count and label assertions remain.",
+    "control": "Same-page fixture expected 4 rows but kept 2 even after waiting 20 seconds.",
+    "same_page_public_door_after_exit": 0,
+    "source_lock_check_exit": 0
+  }
+}

@@ -1,0 +1,63 @@
+{
+  "repository": "just-every/run-spool",
+  "head_sha": "0c3d70f9a190c536ea417e53a68e1d58e91211d2",
+  "calls": 7,
+  "observations": [
+    {
+      "id": 43385097574,
+      "name": "Verify",
+      "status": "in_progress",
+      "conclusion": null,
+      "head_sha": "0c3d70f9a190c536ea417e53a68e1d58e91211d2",
+      "html_url": "https://github.com/just-every/run-spool/actions/runs/43385097574",
+      "observed_at": "2026-11-13T07:21:26.681079+00:00"
+    },
+    {
+      "id": 43385097574,
+      "name": "Verify",
+      "status": "in_progress",
+      "conclusion": null,
+      "head_sha": "0c3d70f9a190c536ea417e53a68e1d58e91211d2",
+      "html_url": "https://github.com/just-every/run-spool/actions/runs/43385097574",
+      "observed_at": "2026-11-13T07:26:27.271744+00:00"
+    },
+    {
+      "id": 43385097574,
+      "name": "Verify",
+      "status": "in_progress",
+      "conclusion": null,
+      "head_sha": "0c3d70f9a190c536ea417e53a68e1d58e91211d2",
+      "html_url": "https://github.com/just-every/run-spool/actions/runs/43385097574",
+      "observed_at": "2026-11-13T07:31:27.877704+00:00"
+    },
+    {
+      "id": 43385097574,
+      "name": "Verify",
+      "status": "in_progress",
+      "conclusion": null,
+      "head_sha": "0c3d70f9a190c536ea417e53a68e1d58e91211d2",
+      "html_url": "https://github.com/just-every/run-spool/actions/runs/43385097574",
+      "observed_at": "2026-11-13T07:36:28.506956+00:00"
+    },
+    {
+      "id": 43385097574,
+      "name": "Verify",
+      "status": "completed",
+      "conclusion": "failure",
+      "head_sha": "0c3d70f9a190c536ea417e53a68e1d58e91211d2",
+      "html_url": "https://github.com/just-every/run-spool/actions/runs/43385097574",
+      "observed_at": "2026-11-13T07:41:29.086149+00:00"
+    }
+  ],
+  "run": {
+    "id": 43385097574,
+    "name": "Verify",
+    "status": "completed",
+    "conclusion": "failure",
+    "head_sha": "0c3d70f9a190c536ea417e53a68e1d58e91211d2",
+    "html_url": "https://github.com/just-every/run-spool/actions/runs/43385097574",
+    "observed_at": "2026-11-13T07:41:29.086149+00:00"
+  },
+  "jobs_call": true,
+  "failed_log_job": 131752174469
+}
