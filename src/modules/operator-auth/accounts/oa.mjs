@@ -26,8 +26,8 @@ export function oaSessions({ config, store, clock }) {
     const digest = await hash('session', token);
     const session = await store.session(digest, clock());
     if (!session || !isActiveOperator(session.operator, config.allowList)) return null;
-    // Recheck local admission for this exact session on every request.
-    if (session.kind === 'dev' && !await devAdmitted(request, { type: 'session', id: session.id, operatorId: session.operator.id })) return null;
+    // A dev session counts only behind the local key gate, on every request.
+    if (session.kind === 'dev' && !await devAdmitted(request)) return null;
     if (session.kind === 'review') {
       requireLoopback(request);
       if (config.review?.enabled !== true || session.operator.email !== normalizeEmail(config.review.operatorEmail)) return null;

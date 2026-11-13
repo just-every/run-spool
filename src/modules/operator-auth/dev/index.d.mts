@@ -1,5 +1,4 @@
 import type { AuthConfig, Role } from '../index.mjs';
-import type { DevCredential } from '../dev-admission.mjs';
 export const DEV_LAYER_MARKER: string;
 export interface DevPersona { as: string; role: Role; displayName?: string }
 export interface DevIdentityOptions<Env> {
@@ -9,8 +8,6 @@ export interface DevIdentityOptions<Env> {
   config: (env: Env) => AuthConfig;
   /** The seed's devPersonas(): real operators at `<as>@dev.localhost`, created only in local dev. */
   personas?: () => DevPersona[];
-  /** Optional product scope for a verified invitation/session, never owner shortcuts. */
-  admitCredential?: (request: Request, env: Env, credential: DevCredential) => boolean | Promise<boolean>;
 }
 export function managedInstallation(env: Record<string, unknown>): boolean;
 /** Local-only Worker wrapper. Never import from a deployed entry. */

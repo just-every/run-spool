@@ -5373,8 +5373,16 @@
       "sha256": "54df5adeee779c805ed62a3f625a5e72fc7b5d5a6fbab57fc1deb608e2c2df61",
       "executable": false
     },
+    "src/auth/local-identity.server.d.mts": {
+      "sha256": "06925f704d374ec9649000c5b7ac0177345de27e9ac83ea41377daad34b133ba",
+      "executable": false
+    },
+    "src/auth/local-identity.server.mjs": {
+      "sha256": "093215f7cd6c1f6f134c040f3bd04d93072c362019d6c1063951887bcec4255e",
+      "executable": false
+    },
     "src/auth/local-members.server.ts": {
-      "sha256": "87203be7f3979a3361956579b5e3463a9c7dbabdfa97ed94e48720529d2b0f6d",
+      "sha256": "06237017d42af8baf5a867092d938244482abc498c5761d4bf5f7b821276dce7",
       "executable": false
     },
     "src/auth/local.server.mjs": {
@@ -9306,7 +9314,7 @@
       "executable": false
     },
     "src/modules/operator-auth/accounts/oa.mjs": {
-      "sha256": "986ea0f55cbfbcdff1991399e071eb14ecfb869aa37489eeffb9071252f1ea31",
+      "sha256": "84508f8c507d12d3df4cd0d683baa8bbd5a3b60522bd08d31cf49ebb92a72aa1",
       "executable": false
     },
     "src/modules/operator-auth/accounts/one-click.mjs": {
@@ -9426,11 +9434,11 @@
       "executable": false
     },
     "src/modules/operator-auth/dev-admission.d.mts": {
-      "sha256": "90e8645ebd882c99ca7db8fc7216b3f4264a8bd3ac30346777122f107c044fe7",
+      "sha256": "4fa20898bba75ecf5a09005fd4ea3ae520f8a43b4b2cca5ecb5069443cd72d1d",
       "executable": false
     },
     "src/modules/operator-auth/dev-admission.mjs": {
-      "sha256": "b639985795035542a426cb8ba13532f3724a46642fce4d296158fb7fd62e6bca",
+      "sha256": "d8c59cea293b24364961dc0a9a1f2bfb615ffee73cd48507147f37b577cc0ef8",
       "executable": false
     },
     "src/modules/operator-auth/dev-gate.mjs": {
@@ -9442,11 +9450,11 @@
       "executable": false
     },
     "src/modules/operator-auth/dev/index.d.mts": {
-      "sha256": "90830f554b491ba0ea16b4243cfe6058e28c42c6a173c47466effce87261363e",
+      "sha256": "7bd9b7a4082d367a8fb9f330906d97e647f05977491ebf3abbdd6940ff02821c",
       "executable": false
     },
     "src/modules/operator-auth/dev/index.mjs": {
-      "sha256": "2f866b01664dd01c2b02efdd5eb76124c9d9bacd5fc4d1946874627ecb666440",
+      "sha256": "fdf32e07f34130fd1a16ab0870bf8c73fb85c63575397e17d65a9761f9a8e2e3",
       "executable": false
     },
     "src/modules/operator-auth/dev/personas.mjs": {
@@ -9678,7 +9686,7 @@
       "executable": false
     },
     "src/modules/operator-auth/service.mjs": {
-      "sha256": "e99768e956bb3a41173a608134c0d0ec9bbdb9df5514a29060c72d20edb77e3f",
+      "sha256": "95223f5a274744470b1aeee735d9cc0a843d060f2f9579c4008816a476ba3d52",
       "executable": false
     },
     "src/modules/operator-auth/signin/index.d.mts": {
@@ -9970,7 +9978,7 @@
       "executable": false
     },
     "src/server.dev.ts": {
-      "sha256": "d0662312b9540fc7537a51e5e9d53cd2cb6f68fe35261a9bbe27345223e3bcf7",
+      "sha256": "fa288aa1a6bcb68e7b2b2e9f8c866141c661190f39ac71b6a617d18152b0ec9a",
       "executable": false
     },
     "src/server.ts": {
