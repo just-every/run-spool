@@ -2,6 +2,7 @@ import {chooseLocalAgentPolicy} from './agent-door/local-policy.mjs';
 import { operatorUi } from './operator-ui.mjs';
 import assert from 'node:assert/strict';
 import {mkdir,readFile,writeFile} from 'node:fs/promises';
+import {damagedRestoreUI,erasedRestoreUI} from './restore-refusal-ui.mjs';
 import {archiveProjection} from './archive.mjs';
 import {expect} from '@playwright/test';
 import {execFileSync} from 'node:child_process';
@@ -134,9 +135,11 @@ try {
  const destination=await startTestWorker(15483);
  try{
   const destinationCookie=await signIn(destination.origin),headers={Cookie:destinationCookie,Origin:destination.origin};
+  if(width===1440)await damagedRestoreUI(browser,destination.origin,destinationCookie,downloaded.text,output);
   const restored=await fetch(destination.origin+'/api/restore',{method:'POST',headers:{...headers,'Content-Type':'application/x-ndjson','X-Confirm-Restore':'yes'},body:downloaded.text});
   assert.equal(restored.status,200,'the actual browser file restores into an independent empty installation');await restored.body?.cancel();
   assert.deepEqual((await archiveProjection(await fetch(destination.origin+'/api/archive',{headers}))).data,downloaded.data,'every downloaded product row and private map restores unchanged');
+  if(width===1440)await erasedRestoreUI(browser,destination.origin,destinationCookie,downloaded.text,output);
  }finally{await destination.stop();}
  await page.getByRole('button',{name:'Download private archive',exact:true}).scrollIntoViewIfNeeded();await capture('private-archive',width);
  checked('Populated browser download verifies integrity, whole product equality, private source maps and credential exclusions');

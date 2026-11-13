@@ -76,6 +76,7 @@ export async function browserMembers(owner,projects) {
   await page.setViewportSize({width:390,height:900});
   assert.equal(await page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth),true,'Members settings fits the phone viewport');
   await members.screenshot({path:resolve(folder,'members-390.png')});
+  await usageLabels(page,owner,projects[0]);
   await context.close();
  }finally{await browser.close()}
 }
@@ -326,4 +327,23 @@ export async function localMailFlow() {
   console.log('PROBE TEAM-001 local invitation: suppressed mail; copy after reload; same native expiring token; second browser acceptance once; roles, expiry, read-only denial and archive exclusion preserved.');
   console.log('PROBE GOV-001 local verification: request produces no completed proof and native transfer still refuses without email confirmation.');
  }finally{await browser?.close();await app.close()}
+}
+
+// Extend the existing organization journey with real intake counters.
+export async function usageLabels(page,owner,project) {
+ const root='/api/projects/'+project.id,release='synthetic-spool-readable';
+ await owner.json(root+'/releases','POST',{name:release,build:'b1'});
+ const grant=await owner.json(root+'/keys','POST',{kind:'ingest'}),snapshot=await owner.json(root+'/inbound-filters');
+ const policy=structuredClone(snapshot.policy);policy.filters.environments={enabled:true,values:['synthetic-spool-filtered']};
+ await owner.json(root+'/inbound-filters','PUT',{revision:snapshot.revision,policy});
+ const event={version:1,eventId:'synthetic-spool-readable',release,build:'b1',environment:'synthetic-spool-filtered',type:'Error',message:'Filtered usage example',frames:[{file:'usage.js',line:1,column:0,function:'capture'}]};
+ const filtered=await owner.req('/api/ingest/'+project.id,'POST',event,{Cookie:'',Authorization:'Bearer '+grant.key});assert.equal((await filtered.json()).outcome,'filtered');
+ for(const expected of ['accepted','duplicate']){const response=await owner.req('/api/ingest/'+project.id,'POST',{...event,eventId:'synthetic-spool-counted',environment:'synthetic-spool-accepted'},{Cookie:'',Authorization:'Bearer '+grant.key});assert.equal((await response.json()).outcome,expected);}
+ const usage=await owner.json('/api/organization/usage');assert.ok(usage.usage.some(row=>row.project===project.id&&row.reason==='filtered:environments'&&row.count>0));
+ await page.setViewportSize({width:1440,height:1000});await page.goto(owner.origin+'/projects/'+project.id+'/settings#settings-organization');
+ const members=page.getByRole('region',{name:'Members',exact:true}),section=members.locator('details').filter({has:page.locator('summary').getByText('Usage',{exact:true})});await section.locator('summary').click();await section.locator('.data-row').first().waitFor();
+ assert.equal(await section.locator('.data-row').count(),usage.usage.length,'Each recorded counter has a visible label and count');
+ const text=await section.innerText();for(const row of usage.usage.filter(row=>/[_:]/.test(row.reason)))assert.ok(!text.includes(row.reason),'Usage labels hide internal reason codes');assert.match(text,/environment/i);
+ const folder=process.env.SPOOL_TEAM_EVIDENCE||'.artifacts/team';for(const width of [1440,390]){await page.setViewportSize({width,height:1000});await section.screenshot({path:resolve(folder,'usage-'+width+'.png')});}
+ const latest=await owner.json(root+'/inbound-filters');await owner.json(root+'/inbound-filters','PUT',{revision:latest.revision,policy:snapshot.policy});
 }

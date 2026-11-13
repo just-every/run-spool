@@ -40,7 +40,7 @@ export function Setup() {
     <img className="setup-illustration" src="/theme/spool-drawing.svg" alt="" width="240" height="220" />
    </div>
    <div className="setup-content">
-    {error && <div ref={notice} tabIndex={-1} role="alert" className="callout status-notice">{error} <a href="/sign-in">Sign in again</a></div>}
+    {error && <div ref={notice} tabIndex={-1} role="alert" className="callout status-notice">{error} {!restoring && <a href="/sign-in">Sign in again</a>}</div>}
     {created ? <>
      <h2>{created.name}</h2><p>Copy this ingest key now. It is shown only once. If you lose it, create a new ingest key in Settings.</p>
      {created.devMinted && <aside className="callout"><strong>Connect your app to local Spool with this key.</strong><p>This ingest key sends errors to this project without the private dev gate. Allow your browser app’s exact origin below. Never give your app the <code>RER_OPEN</code> link or <code>SPOOL_DEV_KEY</code>.</p><p>This dev key is refused by deployed Spool. Sign in there and create a fresh key when you deploy.</p></aside>}
