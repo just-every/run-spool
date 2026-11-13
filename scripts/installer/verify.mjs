@@ -10,6 +10,7 @@ const requested = process.env.SPOOL_VERIFY_SUITES?.split(',');
 if (requested?.some(name => !suites.includes(name))) throw Error('Unknown SPOOL_VERIFY_SUITES selection');
 const selected = requested ? suites.filter(name => requested.includes(name)) : suites;
 const commands = [
+ [process.execPath, ['tests/native-export.mjs']],
  ['pnpm', ['run', 'check', '--', '--profile', 'first-party']],
  ['pnpm', ['source:check']],
  [process.execPath, ['scripts/edition-authoring/cli.mjs', 'verify-base', '--offline']],
