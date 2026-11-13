@@ -61,6 +61,12 @@
       "sha256": "83309e832e6ceeaa07fce4b7d120003a55abf60bba35dbf46d38172067f5ca40"
     },
     {
+      "blob": "6282b4abca11305318e4feea0297832c761b263c",
+      "bytes": 3943,
+      "path": "evidence-publication.log",
+      "sha256": "8c9e7bd0510eba2a6f6ba0a8f2ffe96f6a68bb3216c29c4dbb61871ff6aed72b"
+    },
+    {
       "blob": "ca310a42c029248893eacc4a36353c35f7ba0a52",
       "bytes": 789,
       "path": "export.log",
