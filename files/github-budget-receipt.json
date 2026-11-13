@@ -1,0 +1,17 @@
+{
+  "limit": 10,
+  "used": 10,
+  "purposes": {
+    "read_only_Base_lookup": 3,
+    "official_Gitleaks_release_asset_and_metadata": 2,
+    "publication_repository_visibility": 1,
+    "exact_sha_CI_discovery_and_status": 4
+  },
+  "CI_intervals_seconds": [
+    373.772,
+    301.276,
+    301.405
+  ],
+  "overlapping_REST_watchers": false,
+  "CodeQL_alert_closure_queried": false
+}

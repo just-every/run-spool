@@ -1,0 +1,101 @@
+{
+  "candidate": "493cca6e81f8ae86e6c85ba05f52c674453eb342",
+  "base": "417ab513b3032370091479fa28f41a5a67b50c53",
+  "tree": "d9d88b57a9805f2f262218fb5ed88879c2aaf548",
+  "node": "v22.20.0",
+  "pnpm": "10.12.4",
+  "targeted_behavioral_scripts": {
+    "before": 0,
+    "after": 1,
+    "valid_paths": 6,
+    "invalid_paths": 19
+  },
+  "contract_counts": {
+    "before": {
+      "done": 23,
+      "partial": 54,
+      "missing": 28,
+      "total": 105
+    },
+    "after": {
+      "done": 23,
+      "partial": 54,
+      "missing": 28,
+      "total": 105
+    }
+  },
+  "contract_status_changes": [],
+  "identity_audit": {
+    "commits": 1,
+    "passed": true,
+    "trailers": 0
+  },
+  "checks": [
+    {
+      "command": "cloud_run npx -y @runeditrun/rer setup --owner-email fleet@runeditrun.com --non-interactive",
+      "exit": 0
+    },
+    {
+      "command": "cloud_run node tests/native-export.mjs",
+      "exit": 0
+    },
+    {
+      "command": "cloud_run pnpm typecheck",
+      "exit": 0
+    },
+    {
+      "command": "node scripts/edition-authoring/cli.mjs adapt-base scripts/delivery/base/native-export.mjs",
+      "exit": 0
+    },
+    {
+      "command": "node scripts/edition-authoring/cli.mjs verify-base --offline",
+      "exit": 0
+    },
+    {
+      "command": "node scripts/edition-authoring/cli.mjs lock",
+      "exit": 0
+    },
+    {
+      "command": "pnpm source:check",
+      "exit": 0
+    },
+    {
+      "command": "git diff --check",
+      "exit": 0
+    }
+  ],
+  "publication_scan": {
+    "status": "PASS",
+    "complete": true,
+    "findings": 0,
+    "source": {
+      "commit": "493cca6e81f8ae86e6c85ba05f52c674453eb342",
+      "tree": "d9d88b57a9805f2f262218fb5ed88879c2aaf548"
+    },
+    "implementation": {
+      "version": "0.2.107",
+      "sha256": "c5f2d788f2f08764cd018e049b507c26f5ac01f651e2e8696398d89a5a886ffb",
+      "python": "3.12.14"
+    },
+    "total_seconds": 374.793579
+  },
+  "product_push": {
+    "branch": "cloud/gr-mt-spool-code-7",
+    "head": "493cca6e81f8ae86e6c85ba05f52c674453eb342",
+    "status": "pushed",
+    "attempts": 1,
+    "receipt": "product-push.log"
+  },
+  "ci": {
+    "verify": "success",
+    "run_id": 43507787717,
+    "head": "493cca6e81f8ae86e6c85ba05f52c674453eb342",
+    "url": "https://github.com/just-every/run-spool/actions/runs/43507787717"
+  },
+  "codeql": {
+    "alert": 18,
+    "closure": "not-verified",
+    "reason": "Only Verify was advertised for the branch at discovery; the ten-call GitHub budget is exhausted. Confirm closure on the next CodeQL analysis."
+  },
+  "blockers": []
+}

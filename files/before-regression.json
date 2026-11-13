@@ -1,0 +1,7 @@
+{
+  "test": "tests/native-export.mjs against original main implementation",
+  "exit": 1,
+  "seconds": 5.054203062000056,
+  "timed_out_worker": true,
+  "expected_failure": true
+}

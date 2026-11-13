@@ -1,0 +1,124 @@
+{
+  "files": [
+    {
+      "blob": "5d7c98023fce920a8bf72b4a3ec5470fe4246e3f",
+      "bytes": 1460,
+      "path": "PLAN.md",
+      "sha256": "50c8db9a2be590d992deed03e386848a64b80eacfa068663cc2c1af5a8cb9baa"
+    },
+    {
+      "blob": "bb9c6d3aaf603010c2f4efbe4319f448398c5366",
+      "bytes": 6789,
+      "path": "REPORT.md",
+      "sha256": "ab4638c89147aba3c1acfbccd7f4e0216b9a698ae953dd5b9bc5aa74d4c7ad3c"
+    },
+    {
+      "blob": "e360dc974e7cbc0c52dfaa9a64cf3e3d8b86433b",
+      "bytes": 22830,
+      "path": "base-copy-check.json",
+      "sha256": "ae4faa7b9d165d9ecea6047871e2362e248c9259bfc1d79a014f9429dc88aeed"
+    },
+    {
+      "blob": "c86911f03b057d8adced9ea2bc85b31784be3ead",
+      "bytes": 178,
+      "path": "before-regression.json",
+      "sha256": "5ffdb7ce54b453c2169d49208149512955099e26836f7dceaefd4db03785feb0"
+    },
+    {
+      "blob": "71b40495968126c0bba66596f031801068fc7eb7",
+      "bytes": 336,
+      "path": "bundle-receipt.log",
+      "sha256": "ba697ef57c5dfac607dee47985e80942d1117444159dc7ad4c3a4d6f552b354b"
+    },
+    {
+      "blob": "4c2af73d70dea8d77c4dc86263780f464a3cacfe",
+      "bytes": 1046,
+      "path": "ci-receipt.json",
+      "sha256": "b34d1ddbf68fcf43b5dcf3683d9e72e6fa8dfa38cc666b90a21cd9b93507b819"
+    },
+    {
+      "blob": "fd549da5956491a29610f065e8f799a4cabd1fd2",
+      "bytes": 1526,
+      "path": "ci-watch-resume.log",
+      "sha256": "d70ebb000928e4e114c55cea8b2ac38b7f5cd7b5774dc08a5b1bc6eb47b7e740"
+    },
+    {
+      "blob": "e69de29bb2d1d6434b8b29ae775ad8c2e48c5391",
+      "bytes": 0,
+      "path": "ci-watch.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "blob": "d42d341b653aa6302a3102f021cfeb84d48ab9d2",
+      "bytes": 377,
+      "path": "github-budget-receipt.json",
+      "sha256": "c24ac271c1e53a53853895a6a4473ab871cc8698a703e198969ef1fcee55f46c"
+    },
+    {
+      "blob": "55bfeff023c4ae17dc59e12f86f446b1960e6b53",
+      "bytes": 85,
+      "path": "identity-audit.txt",
+      "sha256": "148bad84b5b174568017df50d58e073566703d43c6c9fe7fa6f1af04420adf55"
+    },
+    {
+      "blob": "933e67b39ec22173c637554c6477ef41c0a33e9a",
+      "bytes": 2551,
+      "path": "local-receipt.json",
+      "sha256": "a2889cdac2cae893dd430ccffe4760668739320c32b52b8916486b7d048d2737"
+    },
+    {
+      "blob": "c95d68c26b8a9c7bf35497ba0fbc442ccd4bb8e4",
+      "bytes": 101,
+      "path": "native-export-test.log",
+      "sha256": "c99e3f0e14e14b55e72a415e733a063420c30c9253b3021a4546b87a4e1bf230"
+    },
+    {
+      "blob": "b12ca0edf12d700993e30b83284234d9d02f7a1c",
+      "bytes": 915,
+      "path": "product-push.log",
+      "sha256": "97729ddfad2be89207b446f702deb62ae57bbde732871b400eb4a0bf504413db"
+    },
+    {
+      "blob": "01a729c1efebc3383c178dd6e3aebfa97d6b18da",
+      "bytes": 565,
+      "path": "publication-scan-first-attempt.json",
+      "sha256": "277dacd8e0a4d0248097493ca0d5072b26708c330010e32c1b31376c831d8442"
+    },
+    {
+      "blob": "5fe0349da397aed529ca0d07c29e9b9052933b12",
+      "bytes": 813208,
+      "path": "publication-scan.json",
+      "sha256": "e6cc6a6e08ef3de2675038245ed063af90515f99f929e85629950f7a788e9332"
+    },
+    {
+      "blob": "723abe59298b1ab8f3823925480cffaf01214e8d",
+      "bytes": 718,
+      "path": "result.json",
+      "sha256": "f16a13c44b1e078821da1535b80e8ea4af745997db86b791db1530af792151c4"
+    },
+    {
+      "blob": "f8ed25319f2b7ad3b04fc6cfc2d951a2bda5a574",
+      "bytes": 472306,
+      "path": "source-check.log",
+      "sha256": "5a897eced2f9dcf7d1909faa4e640b61437ee4098268c424ca13f3e5f8ec07a5"
+    },
+    {
+      "blob": "e6f26c7f2f4ff346f3124b6dbc66aa02cfb13e0b",
+      "bytes": 472131,
+      "path": "source-lock.json",
+      "sha256": "8d05b8f6deb852bafaf292adde0cafc4d0bf54d9098fce39999fbc6d982526a4"
+    },
+    {
+      "blob": "46e0059d867e6cdee9146815d140361441bf5cc3",
+      "bytes": 126,
+      "path": "typecheck.log",
+      "sha256": "cfa06b6682318e07c4824b73e62479d7d927a327bdc2fd1e2019d4f1eaf7e7f9"
+    }
+  ],
+  "product_branch": "cloud/gr-mt-spool-code-7",
+  "product_head": "493cca6e81f8ae86e6c85ba05f52c674453eb342",
+  "ref": "refs/heads/evidence/gr-mt-spool-code-7",
+  "repository": "just-every/run-spool",
+  "schema": 1,
+  "tag": "gr-mt-spool-code-7"
+}
