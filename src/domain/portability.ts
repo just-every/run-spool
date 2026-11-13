@@ -54,7 +54,19 @@ export type MigrationProvider = (db: D1Database, policy: ArchivePolicy) => Promi
 function stagedValidation(later: string[] = []) {
  return async ({ db, read, manifest }: { db: D1Database; read: (table: string) => Promise<any[]>; manifest: any }) => {
   const rows=Object.fromEntries(await Promise.all([...Object.keys(tables),...alertArchiveTables,...repairArchiveTables,...erasureArchiveTables,...executionArchiveTables].map(async table => [table, await read(table)])));
-  const data=await validateArchiveRows(validateAlertArchive(validateRepairArchive(validateErasureArchive(validateExecutionArchive(rows)))),false,rows.alert_rules);
+  let data;
+  try {
+   // Erasure validates and removes anonymised audit facts before validators
+   // that require the original execution or repair records to still exist.
+   const withoutErasedAudit=validateErasureArchive(rows);
+   data=await validateArchiveRows(validateAlertArchive(validateRepairArchive(validateExecutionArchive(withoutErasedAudit))),false,rows.alert_rules);
+  } catch (error) {
+   // Preserve only these fixed product diagnostics as portability refusals.
+   // Native/JSON errors may contain archive values and must not become codes.
+   if (error instanceof PortabilityError) throw error;
+   if (error instanceof Error && ['Archive erasure in progress','Archive erasure receipt','Archive erased audit','Invalid execution archive','Invalid repair archive','Invalid alert archive'].includes(error.message)) throw new PortabilityError(error.message);
+   throw error;
+  }
   await fenceLegacyOccurrences(db, manifest, data, later);
   return true;
  };
