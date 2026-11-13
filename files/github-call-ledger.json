@@ -1,0 +1,79 @@
+{
+  "budget": 10,
+  "poll_interval_seconds_minimum": 300,
+  "watchers": 1,
+  "calls": [
+    {
+      "number": 1,
+      "command": "gh api repos/just-every/run-spool/actions/runs/43435974422/jobs?per_page=100",
+      "purpose": "Completed failed run job IDs and failing steps"
+    },
+    {
+      "number": 2,
+      "command": "gh run view 43435974422 --repo just-every/run-spool --job 131921692838 --log-failed",
+      "purpose": "One archive read for failed alerts job; succeeded"
+    },
+    {
+      "number": 3,
+      "command": "gh api repos/just-every/run-spool/releases/latest",
+      "purpose": "Latest release v0.7.9 readback"
+    },
+    {
+      "number": 4,
+      "command": "gh api repos/just-every/run-spool/actions/runs?head_sha=2073114e2a52b168413b9609a8f6c1d13038a8aa&per_page=100",
+      "purpose": "Green current-main exact-SHA Verify and Run site"
+    },
+    {
+      "number": 5,
+      "command": "gh api repos/just-every/run-spool/actions/runs?head_sha=558089ee4fc3b809c515db5f9d322523fad958aa&per_page=100",
+      "purpose": "Candidate run discovery",
+      "observed_at": "2026-11-13T14:36:10Z",
+      "run_id": 43444080823,
+      "status": "in_progress"
+    },
+    {
+      "number": 6,
+      "command": "gh api repos/just-every/run-spool/actions/runs/43444080823",
+      "purpose": "Exact-SHA candidate status poll",
+      "status": "in_progress",
+      "conclusion": null
+    },
+    {
+      "number": 7,
+      "command": "gh api repos/just-every/run-spool/actions/runs/43444080823",
+      "purpose": "Exact-SHA candidate status poll",
+      "status": "in_progress",
+      "conclusion": null
+    },
+    {
+      "number": 8,
+      "command": "gh api repos/just-every/run-spool/actions/runs/43444080823",
+      "purpose": "Exact-SHA candidate status poll",
+      "status": "in_progress",
+      "conclusion": null
+    },
+    {
+      "number": 9,
+      "command": "gh api repos/just-every/run-spool/actions/runs/43444080823/jobs?per_page=100",
+      "purpose": "Completed candidate job outcomes",
+      "observed_at": "2026-11-13T14:56:17Z",
+      "total_jobs": 31,
+      "failed_checks": [
+        "verify (alerts)",
+        "verify (sentry-cli)",
+        "shards (spool)",
+        "verify"
+      ]
+    },
+    {
+      "number": 10,
+      "command": "gh run view 43444080823 --repo just-every/run-spool --job 131949773241 --log-failed",
+      "purpose": "Read newly failed Sentry CLI job once after all run jobs completed",
+      "exit_status": 0,
+      "observed_at": "2026-11-13T15:01:29Z",
+      "result": "TypeError: fetch failed; read ECONNRESET at tests/sentry-cli/durable.mjs:54 via tests/sentry-cli-compat.mjs:26"
+    }
+  ],
+  "note": "All gh commands load the launcher bundle GH_TOKEN privately. All ten available calls are allocated. Current alerts failure log and aggregate failure logs cannot also be read within budget; no assertion is fabricated. No workflow dispatch or re-run. Git transport is separate from this API budget.",
+  "calls_used": 10
+}

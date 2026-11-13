@@ -1,0 +1,33 @@
+{
+  "repository": "just-every/run-spool",
+  "branch": "cloud/sd-spool-release-0-7-10-pc1",
+  "head": "558089ee4fc3b809c515db5f9d322523fad958aa",
+  "parents": [
+    "cc0a05ec50d235f457e03dc5f0be0efa6e413b31",
+    "2073114e2a52b168413b9609a8f6c1d13038a8aa"
+  ],
+  "metadata_paths": [
+    "CHANGELOG.md",
+    "README.md",
+    "RELEASE.json",
+    "docs/getting-started.md",
+    "package.json",
+    "seed.json",
+    "sources.lock.json"
+  ],
+  "rer_pin": "0.2.107",
+  "changed_files_vs_main": [
+    "M\tCHANGELOG.md",
+    "M\tREADME.md",
+    "M\tRELEASE.json",
+    "M\tdocs/getting-started.md",
+    "M\tpackage.json",
+    "M\tseed.json",
+    "M\tsources.lock.json"
+  ],
+  "clause_changes": [],
+  "new_tests": 0,
+  "removed_tests": 0,
+  "generated_views_committed": false,
+  "product_checkout_clean": true
+}

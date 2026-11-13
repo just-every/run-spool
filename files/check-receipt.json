@@ -1,0 +1,21 @@
+{
+  "source_lock_matches_successful_check": true,
+  "tracked_file_identities": 2309,
+  "toolchain": {
+    "id": "runeditrun/edition-authoring",
+    "version": "1.1.0",
+    "sha256": "8d25b7528ba7c5301de349b51b7e6ca44d6b87478f27b5685a5c07b567612e13"
+  },
+  "source_lock_command": "node scripts/edition-authoring/cli.mjs lock",
+  "source_check_command": "pnpm source:check",
+  "exit_statuses": {
+    "lock": 0,
+    "source_check": 0,
+    "typecheck": 0
+  },
+  "notes": "The source lock was regenerated after release-note edits and resolving the merged main source; full command outputs are retained.",
+  "contract_generator_write": "passed; no clause changes",
+  "contract_generator_check": "passed",
+  "generated_views": "restored origin/main whole",
+  "post_generator_final_lock_and_check": "passed; clean unchanged product checkout"
+}

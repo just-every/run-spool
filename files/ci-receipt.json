@@ -1,0 +1,71 @@
+{
+  "head_sha": "558089ee4fc3b809c515db5f9d322523fad958aa",
+  "html_url": "https://github.com/just-every/run-spool/actions/runs/43444080823",
+  "observed_at": "2026-11-13T14:51:14Z",
+  "run_id": 43444080823,
+  "github_calls_used": 10,
+  "last_run_endpoint_status": "in_progress",
+  "last_run_endpoint_conclusion": null,
+  "all_jobs_completed": true,
+  "verify_job_conclusion": "failure",
+  "failed_jobs": [
+    {
+      "conclusion": "failure",
+      "id": 131949772858,
+      "name": "verify (alerts)",
+      "status": "completed",
+      "steps": [
+        {
+          "conclusion": "failure",
+          "name": "Run suites",
+          "number": 10
+        }
+      ]
+    },
+    {
+      "conclusion": "failure",
+      "id": 131949773241,
+      "name": "verify (sentry-cli)",
+      "status": "completed",
+      "steps": [
+        {
+          "conclusion": "failure",
+          "name": "Run suites",
+          "number": 10
+        }
+      ]
+    },
+    {
+      "conclusion": "failure",
+      "id": 131959295901,
+      "name": "shards (spool)",
+      "status": "completed",
+      "steps": [
+        {
+          "conclusion": "failure",
+          "name": "Require every job in this coverage partition",
+          "number": 2
+        }
+      ]
+    },
+    {
+      "conclusion": "failure",
+      "id": 131959507234,
+      "name": "verify",
+      "status": "completed",
+      "steps": [
+        {
+          "conclusion": "failure",
+          "name": "Require the selected coverage and its proof",
+          "number": 2
+        }
+      ]
+    }
+  ],
+  "job_observation_at": "2026-11-13T14:56:17Z",
+  "product_custody": "pushed; not READY; exact-SHA Verify red",
+  "sentry_cli_failed_log": "candidate-sentry-cli-failed.log",
+  "sentry_cli_failure": "TypeError: fetch failed; read ECONNRESET at tests/sentry-cli/durable.mjs:54 via tests/sentry-cli-compat.mjs:26",
+  "alerts_failure_detail": "Current assertion not read: ten-call budget exhausted; do not infer from previous candidate",
+  "final_custody": "BLOCKED by exact-SHA red checks; branch pushed and preserved"
+}

@@ -1,0 +1,34 @@
+{
+  "metadata_check": "passed",
+  "version_before": "0.7.9",
+  "version_after": "0.7.10",
+  "rer_pin_before": "0.2.107",
+  "rer_pin_after": "0.2.107",
+  "release_notes_match_changelog": true,
+  "new_migrations": 0,
+  "breaking": false,
+  "contract_and_generated_views_equal_main": true,
+  "package_lock": "absent; pnpm-lock.yaml unchanged",
+  "test_registrations_added": 0,
+  "test_registrations_removed": 0,
+  "counts_before_and_after": {
+    "core": {
+      "done": 23,
+      "partial": 45,
+      "missing": 19,
+      "total": 87
+    },
+    "agent_surface": {
+      "done": 0,
+      "partial": 9,
+      "missing": 9,
+      "total": 18
+    },
+    "full_target": {
+      "done": 23,
+      "partial": 54,
+      "missing": 28,
+      "total": 105
+    }
+  }
+}
