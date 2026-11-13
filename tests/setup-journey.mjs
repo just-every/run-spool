@@ -24,8 +24,8 @@ export async function firstProjectJourney(browser, origin, width) {
   async function inspect(state) {
    assert.equal(await page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth+1),true,'setup fits its viewport');
    const result=await new AxeBuilder({page}).analyze();assert.equal(result.violations.length,0,'setup accessibility');
-   await page.screenshot({path:`${out}/${width}-${state}.png`,fullPage:true,mask:[page.locator('#setup-ingest-key'),page.getByLabel('SDK init',{exact:true}),page.getByLabel('Sentry DSN',{exact:true})]});
-   if(width===1440&&['pending','sent'].includes(state)){await page.setViewportSize({width:390,height:900});await page.screenshot({path:`${out}/390-${state}.png`,fullPage:true,mask:[page.locator('#setup-ingest-key'),page.getByLabel('SDK init',{exact:true}),page.getByLabel('Sentry DSN',{exact:true})]});await page.setViewportSize(viewport);}
+   await page.screenshot({path:`${out}/${width}-${state}.png`,fullPage:true,mask:[page.locator('#setup-ingest-key'),page.getByLabel('SDK init',{exact:true}),page.getByLabel('Browser helper init',{exact:true}),page.getByLabel('Sentry DSN',{exact:true})]});
+   if(width===1440&&['pending','sent'].includes(state)){await page.setViewportSize({width:390,height:900});await page.screenshot({path:`${out}/390-${state}.png`,fullPage:true,mask:[page.locator('#setup-ingest-key'),page.getByLabel('SDK init',{exact:true}),page.getByLabel('Browser helper init',{exact:true}),page.getByLabel('Sentry DSN',{exact:true})]});await page.setViewportSize(viewport);}
   }
   const policy=page.getByRole('note',{name:'New project user identity policy'});
   await policy.waitFor();
@@ -62,8 +62,13 @@ export async function firstProjectJourney(browser, origin, width) {
   assert.equal(await page.evaluate(()=>localStorage.length===0&&sessionStorage.length===0),true,'first key stays out of browser storage');await inspect('key');
   assert.equal((await (await request.get(origin+'/api/projects')).json()).length,1);
   await tabTo(page.getByLabel('Release',{exact:true}),'Release');await tabTo(page.getByLabel('Build',{exact:true}),'Build');
+  await tabTo(page.getByRole('link',{name:'the browser capture file',exact:true}),'Browser helper download');
+  await tabTo(page.getByRole('button',{name:'Copy Browser helper init',exact:true}),'Copy browser helper button');
+  await page.keyboard.press('Enter');await page.getByLabel('Browser helper init',{exact:true}).locator('..').getByRole('status').filter({hasText:/^Copied\.$/}).waitFor();
+  assert.equal(await page.evaluate(async()=>await navigator.clipboard.readText()),await page.getByLabel('Browser helper init',{exact:true}).innerText(),'copy retains the no-npm helper setup');await page.evaluate(()=>navigator.clipboard.writeText(''));
+  await tabTo(page.getByRole('link',{name:'Node.js and npm',exact:true}),'Node and npm prerequisite link');
   await tabTo(page.getByRole('button',{name:'Copy Install command',exact:true}),'Copy install command button');
-  await tabTo(page.getByRole('button',{name:'Copy SDK init',exact:true}),'Copy SDK init button');await page.keyboard.press('Enter');await page.getByRole('status').filter({hasText:/^Copied\.$/}).waitFor();
+  await tabTo(page.getByRole('button',{name:'Copy SDK init',exact:true}),'Copy SDK init button');await page.keyboard.press('Enter');await init.locator('..').getByRole('status').filter({hasText:/^Copied\.$/}).waitFor();
   assert.equal(await page.evaluate(async()=>await navigator.clipboard.readText()),initText,'copy retains the SDK init with its key');await page.evaluate(()=>navigator.clipboard.writeText(''));
   // A dev-created ingest key works from the app once its exact origin is allowed.
   // The application never receives the private owner gate.

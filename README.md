@@ -93,9 +93,9 @@ To remove it, export anything you need and run `rer deploy --remove --yes` from 
 
 ## Capture protocol
 
-Spool's own SDK, [`@just-every/spool`](packages/sdk/README.md), is the way to send errors. Install it and initialise it once with the project's endpoint and ingest key:
+Spool's own SDK, [`@just-every/spool`](packages/sdk/README.md), is the way to send errors. For browser capture without Node.js or npm, download `/errors-capture.js` from your Spool installation, serve it with your app and follow the [browser-helper setup](docs/capture.md#browser-capture-without-nodejs-or-npm). Or install the SDK and initialise it once with the project's endpoint and ingest key:
 
-Run this in **your application’s repository**, using that application’s Node.js and npm. The Spool installer’s private Node runtime runs Spool itself; it does not put Node or npm on your shell’s PATH for your application.
+Run this in **your application’s repository**, with [Node.js and npm](https://nodejs.org/en/download) installed and available on PATH. The Spool installer’s private Node runtime runs Spool itself; it does not put Node or npm on your shell’s PATH for your application.
 
 ```sh
 npm install @just-every/spool
@@ -119,7 +119,7 @@ Each project can issue a Sentry DSN for supported JavaScript, Python and Go exce
 
 ## Operating limits and privacy
 
-Spool is intended for bounded error evidence. Each project retains at most 10,000 occurrences and admits at most 120 new occurrences per minute; recorded rejections can reduce the remaining admission budget. The issue list and its filters cover the latest 100 groups, and packets include the latest 10 occurrences. Maps are private uploads, limited to 20 flat V3 maps of 256 KiB per project; Spool never fetches source URLs. Ingest requests are limited to 32 KiB, 30 frames and 20 breadcrumbs.
+Spool is intended for bounded error evidence. Each project retains at most 10,000 occurrences and admits at most 120 new occurrences per minute; recorded rejections can reduce the remaining admission budget. The issue list and its filters cover the latest 100 groups, and packets include the latest 10 occurrences. Maps are private uploads. The upload service and current checkout CLI accept flat or indexed V3 maps up to 1 MiB each. The published npm SDK 0.1.0 CLI and the prepared-map picker on **Releases** accept only flat V3 maps up to 256 KiB. There is no lifetime map count; all paths respect the optional project artifact-storage byte cap. The larger/indexed CLI support is in the unpublished 0.2.0 source, not npm 0.1.0. Spool never fetches source URLs. Ingest requests are limited to 32 KiB, 30 frames and 20 breadcrumbs.
 
 The SDK and server scrub common emails, tokens and passwords, but free text can contain personal data those patterns do not recognize. Inspect event and packet previews. There is no durable offline queue, automatic retry or guaranteed unload flush; errors lost before reaching Spool are unknown. Firefox and Safari stack parsing is implemented but has not been tested in those browsers. See [supported languages](docs/SUPPORTED-LANGUAGES.md) for exact Python and Go support and symbolication limits.
 

@@ -231,9 +231,18 @@ try {
   await page.goto(origin+'/projects/cedar/issues');await page.getByRole('link',{name:testIssue.title,exact:true}).waitFor();
   for(const screen of [1440,390])await capture('test-issue-list',screen,screen===1440);await page.setViewportSize({width,height:900});
   await page.getByRole('link',{name:testIssue.title,exact:true}).click();await page.getByRole('heading',{name:testIssue.title,exact:true}).waitFor();
+  await expect(page.locator('.issue .callout').filter({hasText:/Spool.*sample/i})).toBeVisible();
+  assert.ok((await page.locator('.frame-source').allTextContents()).every(label=>/sample/i.test(label)),'built-in frames identify their sample source');
+  assert.equal(await page.locator('.missing-map').count(),0,'sample evidence never requests a debug ID or map upload');
+  assert.equal(await page.getByRole('button',{name:'Upload map',exact:true}).count(),0,'sample evidence offers no map upload');
+  await expect(page.locator('.execution')).toBeVisible();
+  assert.equal(await page.getByRole('button',{name:'Record reproducer',exact:true}).count(),0,'sample evidence offers no reproducer');
   for(const screen of [1440,390])await capture('test-issue-detail',screen,screen===1440);await page.setViewportSize({width,height:900});
   const packet=await api('/api/projects/cedar/issues/'+real.issue+'/packet');assert.equal(packet.events.length,1);assert.ok(packet.events.every(row=>row.event.type==='TypeError'),'the real issue contains only ordinary errors');
-  checked('Built-in test capture has a visible test title in list and detail, separate grouping and counts from the same real error');
+  await page.goto(origin+'/projects/cedar/issues/'+real.issue);await page.locator('.missing-map').waitFor();
+  await expect(page.getByRole('button',{name:'Record reproducer',exact:true})).toBeVisible();
+  assert.equal(await page.locator('.issue .callout').filter({hasText:/Spool.*sample/i}).count(),0,'ordinary app errors retain their own source guidance');
+  checked('Built-in test capture has sample-labelled evidence without map or reproducer steps, separate grouping and counts, and preserves ordinary app-error guidance');
  }
  await operatorUi({page,api,origin,project:'cedar',issue:admitted.issue,capture:scenario=>capture(scenario,width)});assert.equal(pageErrors.length,0,'No owner-page errors after operator flows');checked('Operator assignment, policy toggle and reviewed correction plus undo use the rendered controls');
 
