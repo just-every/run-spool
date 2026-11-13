@@ -26,10 +26,16 @@
       "timestamp": 1794555571.4549537,
       "utc": "2026-11-13T07:39:31.455047+00:00",
       "command": "gh api repos/just-every/run-spool/actions/runs/43385482074"
+    },
+    {
+      "number": 5,
+      "timestamp": 1794555871.4553518,
+      "utc": "2026-11-13T07:44:31.455373+00:00",
+      "command": "gh api repos/just-every/run-spool/actions/runs/43385482074"
     }
   ],
-  "status": "in_progress",
-  "conclusion": null,
+  "status": "completed",
+  "conclusion": "success",
   "run_id": 43385482074,
   "html_url": "https://github.com/just-every/run-spool/actions/runs/43385482074"
 }

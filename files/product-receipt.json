@@ -14,5 +14,9 @@
   "published_history_rewritten": false,
   "main_pushed": false,
   "pr": null,
-  "publication_scan": "Fleet Mac lander owns the full publication scan; not run in cloud."
+  "publication_scan": "Fleet Mac lander owns the full publication scan; not run in cloud.",
+  "terminal_status": "READY",
+  "verify_run_id": 43385482074,
+  "verify_conclusion": "success",
+  "verify_head_sha": "1cf2ac62b7c9867db4bf14ea8c140b11dd20e804"
 }
