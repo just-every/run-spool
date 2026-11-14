@@ -11582,7 +11582,11 @@
       "executable": false
     },
     "tests/runtimes/ruby/Gemfile": {
-      "sha256": "bafcb48941fd26986a3e6ef35dc94d5ba5e1d5282210e06f2bb82a021237f5fa",
+      "sha256": "259ee1e8b041db01952af8a992f330aa38010410a5e3df91b2f6f0f579fb2c99",
+      "executable": false
+    },
+    "tests/runtimes/ruby/Gemfile.lock": {
+      "sha256": "1cef48bafc54ff4c525e044f1a9af61e89f81d5c7347c8b3ba42e3e4d65f43d5",
       "executable": false
     },
     "tests/runtimes/rust.mjs": {
