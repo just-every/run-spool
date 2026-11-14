@@ -1,0 +1,7 @@
+551f72382d75eb6af9851c3d26de1d9dabbe8b01
+Expect the setup redirect for a project path before the first project
+
+The test must expect setup because OPERATIONS.md:96 says "document requests from an installation without projects redirect to `/setup`" and SEED-COMMAND-CONTRACT.md:233 says "any app route sends the owner to it"; c1 correctly classifies project paths as application documents.
+
+Before the repair, pnpm test:commands on H failed at desktop-sign-in, tests/setup-journey.mjs:22:61, with actual 303 and expected 404. The after result is in the report. Keep the unknown non-application path at 404 and assert both status 303 and exact Location for the project path. No product or release record changes.
+

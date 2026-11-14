@@ -1,0 +1,11 @@
+
+> @errors/errors-workbench@0.7.11 test:commands /home/agent/rer-consolidation/work/maint/gr-mt-spool-ci-5/repo
+> node tests/commands.mjs
+
+(node:2023) ExperimentalWarning: SQLite is an experimental feature and might change at any time
+(Use `node --trace-warnings ...` to show where the warning was created)
+verify
+Heavy job admitted: Spool verify:suite [b9c5cd23a083]
+(node:2055) ExperimentalWarning: SQLite is an experimental feature and might change at any time
+(Use `node --trace-warnings ...` to show where the warning was created)
+Spool README commands passed: fresh-clone package bootstrap and contract omission, frozen install, setup failure/resume and owner preservation, foreground dev/preview, independent fresh setup/form completion and no-JS sign-in at 1440/390, ordinary owner session in production preview after restart, active reset refusal, validated CLI portability, reset/fresh owner, deploy dry-run.

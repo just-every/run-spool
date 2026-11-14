@@ -1,0 +1,17 @@
+2026-10-26T15:50:06.2032286Z > @errors/errors-workbench@0.7.1 test:commands /home/runner/work/run-spool/run-spool
+2026-10-26T15:50:06.2032906Z > node tests/commands.mjs
+2026-10-26T15:50:06.2033086Z 
+2026-10-26T15:50:06.6867051Z (node:3448) ExperimentalWarning: SQLite is an experimental feature and might change at any time
+2026-10-26T15:50:06.6868028Z (Use `node --trace-warnings ...` to show where the warning was created)
+2026-10-26T15:52:13.4626971Z {"journey":"spool-commands","stage":"desktop-sign-in","stageOrdinal":11,"command":{"ordinal":11,"command":"reset","exitCode":4,"cliErrorCode":"safety_refusal","refusalFamily":"unknown","lifecycleMarker":"unknown","resourcePreflight":"not-requested","resourcePreflightRefusal":"unknown","spawned":true,"exited":true,"spawnFailed":false,"timedOut":false,"readinessObserved":false,"healthChecked":false,"outboxChecked":false},"error":{"type":"AssertionError","source":null,"line":null},"cleanup":{"browser":"closed","children":"stopped","directory":"removed"}}
+2026-10-26T15:52:13.4638427Z file:///home/runner/work/run-spool/run-spool/tests/command-diagnostics.mjs:203
+2026-10-26T15:52:13.4639247Z   throw new Error('Spool command journey failed: '+JSON.stringify(report));
+2026-10-26T15:52:13.4639715Z         ^
+2026-10-26T15:52:13.4639882Z 
+2026-10-26T15:52:13.4667250Z Error: Spool command journey failed: {"journey":"spool-commands","stage":"desktop-sign-in","stageOrdinal":11,"command":{"ordinal":11,"command":"reset","exitCode":4,"cliErrorCode":"safety_refusal","refusalFamily":"unknown","lifecycleMarker":"unknown","resourcePreflight":"not-requested","resourcePreflightRefusal":"unknown","spawned":true,"exited":true,"spawnFailed":false,"timedOut":false,"readinessObserved":false,"healthChecked":false,"outboxChecked":false},"error":{"type":"AssertionError","source":null,"line":null},"cleanup":{"browser":"closed","children":"stopped","directory":"removed"}}
+2026-10-26T15:52:13.4669970Z     at finishJourney (file:///home/runner/work/run-spool/run-spool/tests/command-diagnostics.mjs:203:9)
+2026-10-26T15:52:13.4670664Z     at async file:///home/runner/work/run-spool/run-spool/tests/commands.mjs:132:59
+2026-10-26T15:52:13.4671006Z 
+2026-10-26T15:52:13.4681634Z Node.js v22.20.0
+2026-10-26T15:52:13.4901873Z  ELIFECYCLE  Command failed with exit code 1.
+2026-10-26T15:52:13.5088819Z ##[error]Process completed with exit code 1.

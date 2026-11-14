@@ -1,0 +1,4 @@
+
+> @errors/errors-workbench@0.7.11 typecheck /home/agent/rer-consolidation/work/maint/gr-mt-spool-ci-5/repo
+> tsc --noEmit
+

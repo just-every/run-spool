@@ -1,0 +1,51 @@
+{
+  "budget": 10,
+  "calls": [
+    {
+      "call": 1,
+      "command": "gh api repos/just-every/run-spool/actions/runs/40351818419",
+      "result": "completed/failure; head cf0e18ab089d73330a8cd38004c8d1ef8f3d53ac"
+    },
+    {
+      "call": 2,
+      "command": "gh run view 40351818419 --repo just-every/run-spool --log-failed",
+      "result": "exit 0, empty stdout; downloaded log archive cached by gh"
+    },
+    {
+      "call": 3,
+      "command": "gh api repos/just-every/run-spool/actions/runs/40351818419/jobs?per_page=100",
+      "result": "commands job 121673606900; pnpm test:commands failed"
+    },
+    {
+      "call": 4,
+      "command": "gh run view 40351818419 --repo just-every/run-spool --job 121673606900 --log-failed",
+      "result": "exit 0, empty stdout; read existing gh log ZIP locally without another network request"
+    },
+    {
+      "call": 5,
+      "command": "gh api repos/just-every/run-spool/actions/workflows/command-journey.yml/runs?per_page=10",
+      "result": "ten completed/success runs after the reported failure; see later-command-runs.json"
+    },
+    {
+      "call": 6,
+      "command": "gh api repos/just-every/run-spool/actions/runs?head_sha=e206a1ca9a631059818333837062a90bd225443d&per_page=100",
+      "result": "HTTP 401 Bad credentials"
+    },
+    {
+      "call": 7,
+      "command": "same exact-SHA query; bundle refresh and re-read after 15 seconds",
+      "result": "HTTP 401 Bad credentials"
+    },
+    {
+      "call": 8,
+      "command": "same exact-SHA query; bundle refresh and re-read after 45 seconds",
+      "result": "HTTP 401 Bad credentials"
+    },
+    {
+      "call": 9,
+      "command": "same exact-SHA query; bundle refresh and re-read after 90 seconds",
+      "result": "success; exact-SHA Verify 43580557779 completed/success; Run site 43580557817 completed/success; see current-main-runs.json"
+    }
+  ],
+  "remaining": 1
+}

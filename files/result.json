@@ -1,0 +1,7 @@
+{
+  "status": "no-change",
+  "sha": "e206a1ca9a631059818333837062a90bd225443d",
+  "summary": "Already repaired on main: 551f723 fixes the pre-project redirect assertion; the current full Command journey and typecheck pass, and exact-SHA main Verify is green.",
+  "tests": "cloud_run npx -y @runeditrun/rer setup --owner-email fleet@runeditrun.com --non-interactive: passed; cloud_run pnpm typecheck: passed; cloud_run pnpm test:commands: passed (Node 22.20.0, pnpm 10.12.4, /usr/bin/chromium); exact-SHA Verify 43580557779 and Run site 43580557817: completed/success.",
+  "security": false
+}

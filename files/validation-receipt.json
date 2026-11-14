@@ -1,0 +1,72 @@
+{
+  "tag": "gr-mt-spool-ci-5",
+  "repository": "just-every/run-spool",
+  "branch": "cloud/gr-mt-spool-ci-5",
+  "head": "e206a1ca9a631059818333837062a90bd225443d",
+  "product_commits_created": 0,
+  "product_branch_pushed": false,
+  "pr": null,
+  "product_checkout_clean": true,
+  "tests": [
+    {
+      "command": "cloud_run npx -y @runeditrun/rer setup --owner-email fleet@runeditrun.com --non-interactive",
+      "exit": 0
+    },
+    {
+      "command": "cloud_run pnpm typecheck",
+      "exit": 0
+    },
+    {
+      "command": "cloud_run pnpm test:commands",
+      "exit": 0
+    }
+  ],
+  "runtime": {
+    "node": "22.20.0",
+    "pnpm": "10.12.4",
+    "browser": "/usr/bin/chromium",
+    "headless": true,
+    "no_sandbox": true
+  },
+  "ci": {
+    "verify": 43580557779,
+    "run_site": 43580557817,
+    "head_sha": "e206a1ca9a631059818333837062a90bd225443d",
+    "status": "completed",
+    "conclusion": "success"
+  },
+  "counts_before": {
+    "done": 23,
+    "partial": 54,
+    "missing": 28,
+    "total": 105
+  },
+  "counts_after": {
+    "done": 23,
+    "partial": 54,
+    "missing": 28,
+    "total": 105
+  },
+  "clause_status_changes": [],
+  "tests_added": 0,
+  "tests_removed": 0,
+  "publication_scan": {
+    "status": "not-run",
+    "reason": "No new product commit or product push; the Base publication scanner is not installed in this cloud. security=false records that no scanner PASS is claimed."
+  },
+  "github_budget": {
+    "used": 9,
+    "limit": 10
+  },
+  "credential_recovery": {
+    "status": "recovered",
+    "http_status": 401,
+    "attempts": 4,
+    "backoff_seconds": [
+      15,
+      45,
+      90
+    ]
+  },
+  "custody": "Evidence publication is separate from product READY/PUSHED; no landing candidate is created for this no-change result."
+}

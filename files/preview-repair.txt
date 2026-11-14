@@ -1,0 +1,11 @@
+2f72a0145a60cd65f6c8eb1dbc3873fec38d34e0
+Expect project paths in command previews
+
+Keep the product redirect introduced by f204a297bb9eec93407a5e6e915106e204f838e0 and update the stale preview expectations at the same exact URL strength.
+
+OPERATIONS.md:98 says "Completed `/setup` requests return a finite 303 to `/`"; that first server response remains asserted. SEED-COMMAND-CONTRACT.md:233 says "once finished, `/setup` takes the owner into the app" without pinning its final address. OPERATIONS.md:9's older "owners keep the workbench at `/`" wording conflicts with the owner's project-path change, announced by CHANGELOG.md:7's "Releases and source-map setup have direct links". Apply the brief's contradictory-text default: preserve the product and expect exactly `/projects` with JavaScript disabled.
+
+Before: mobile-preview, ./tests/preview-session.mjs:22, waitForURL expected the origin root but observed the origin plus `/projects`; ./tests/commands.mjs:75 expected pathname `/` but observed `/projects`. Fresh-owner repeats the shared wait failure and ./tests/commands.mjs:126 repeats the pathname failure. Discovery reached all 21 stages after recording these four failures, with no other failures.
+
+Keep the signed-in `/api/projects` 200 proof, setup response locations, sign-in checks and viewport assertions. The following owner commit 88843296bc755d104116ff2a6136e233aeb00288 updated other journeys for these project paths. Refresh the source lock for the two changed test files.
+

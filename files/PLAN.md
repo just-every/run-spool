@@ -1,0 +1,7 @@
+# gr-mt-spool-ci-5 plan
+
+1. Configure fleet identity, launcher bundle credential helper and preserved repository hooks. Clone only just-every/run-spool with full commit history into the assigned maintenance work directory; branch cloud/gr-mt-spool-ci-5 from origin/main.
+2. Read launcher and repository guidance plus the supplied RULES.md. Inspect the reported completed run, failed job and archived failing step within the GitHub call budget. Read the command journey and relevant history to identify whether main already contains the repair.
+3. Run the checkout setup using its declared toolchain, then only the affected Command journey and typecheck. Preserve assertions and product behavior. Use the supplied system Chromium and no-sandbox flag. Keep processes in the task's subreaper and test-owned custody.
+4. If main still fails for the reported cause, make the smallest supported change, regenerate the source lock last, commit with fleet identity, apply publication requirements and push only the named branch using the push guard. If the item is demonstrably fixed on current main, return no-change without a new product commit or a landing claim.
+5. Record actual results, before/after counts, provenance and any blocked transport in result.json and packet receipts. Select only non-secret regular report files and publish through evidence/gr-mt-spool-ci-5. Leave all product status judgments unchanged and send lane queue lines in the final report.
