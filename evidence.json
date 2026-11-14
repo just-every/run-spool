@@ -37,10 +37,22 @@
       "sha256": "3a311347a7e72e0b975ef7f6d9774c8caa6101ba7000883057961956995c1155"
     },
     {
+      "blob": "969d3c28413d309117d293823eeccf638b4f6abe",
+      "bytes": 3662,
+      "path": "evidence-publish-receipt.txt",
+      "sha256": "14464555ab39372702360da211f8ed53f13fe69ee1e579c3cc58c9d4a4ca41e0"
+    },
+    {
       "blob": "63800313d8fda32a1539f8b8452b6957438b56b3",
       "bytes": 366,
       "path": "evidence-secret-check.json",
       "sha256": "5b02f493c5b8fa840892af2cc1954e58ef9aae815001a0774b2891a35c6960ee"
+    },
+    {
+      "blob": "9aee1964f15ea1bebdced946b9b69ee4bbb45348",
+      "bytes": 3900,
+      "path": "evidence-transfer-receipt.json",
+      "sha256": "cb1069080d7b6cc4c0aaefa441ec5725a7df7e80e87e0068136bf1d739bf74fc"
     },
     {
       "blob": "9440fc4a04666117645568cfcf374df03fb16d82",
