@@ -1,0 +1,11 @@
+{
+  "adapted": "src/modules/mail/package.json",
+  "revision": "c2efb501cbc148c2aee4d5e1107ebdba81469006",
+  "sha256": "b6e2d1e285c44deffbec6ae94ab67599d8dda0aaa548066c415ec94418ffbd30",
+  "acknowledged": {
+    "sha256": "887d3c7dbbeba0a38c924a17b396966245140642602d047e309cec29645c089f",
+    "mode": "100644"
+  },
+  "record": "base-copies.json"
+}
+

@@ -1,0 +1,13 @@
+{
+  "explicit_api_commands": 9,
+  "mandatory_launcher_auth_probe": 1,
+  "total_known_github_commands": 10,
+  "limit": 10,
+  "ci_commands": 5,
+  "other_api_commands": {
+    "gitleaks_release_and_asset": 2,
+    "completed_publication_reference_resolution": 2
+  },
+  "interval_seconds_minimum": 300,
+  "notes": "All CI discoveries and polls are recorded in ci-state.json. Ordinary Git clone/fetch/push and report-only transport do not use the GitHub REST budget. One mandatory launcher gh auth status command is reserved conservatively."
+}

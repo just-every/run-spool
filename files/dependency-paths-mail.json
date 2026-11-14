@@ -1,0 +1,14 @@
+{
+  "command": [
+    "pnpm",
+    "--dir",
+    "src/modules/mail",
+    "why",
+    "--ignore-workspace",
+    "undici"
+  ],
+  "exit_code": 0,
+  "seconds": 0.23,
+  "log": "dependency-paths-mail.log",
+  "node": "22.20.0"
+}

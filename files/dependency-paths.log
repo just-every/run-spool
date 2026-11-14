@@ -1,0 +1,223 @@
+Legend: production dependency, optional only, dev only
+
+@errors/errors-workbench@0.7.11 /home/agent/rer-consolidation/work/maint/gr-mt-spool-dep-7/repo (PRIVATE)
+
+dependencies:
+@tanstack/react-start 1.168.60
+└─┬ @tanstack/react-start-rsc 0.1.59
+  └─┬ @tanstack/start-plugin-core 1.171.49
+    ├─┬ @tanstack/router-generator 1.167.40
+    │ └── zod 4.6.7
+    └─┬ @tanstack/router-plugin 1.168.42
+      ├─┬ @tanstack/router-generator 1.167.40
+      │ └── zod 4.6.7
+      ├─┬ unplugin 3.3.0
+      │ └─┬ webpack 5.112.0 peer
+      │   ├─┬ minimizer-webpack-plugin 5.13.1
+      │   │ └─┬ schema-utils 4.8.1
+      │   │   ├─┬ ajv 8.20.0
+      │   │   │ └── fast-uri 3.1.9
+      │   │   ├─┬ ajv-formats 3.0.1
+      │   │   │ └─┬ ajv 8.20.0 peer
+      │   │   │   └── fast-uri 3.1.9
+      │   │   └─┬ ajv-keywords 5.1.0
+      │   │     └─┬ ajv 8.20.0 peer
+      │   │       └── fast-uri 3.1.9
+      │   └─┬ schema-utils 4.8.1
+      │     ├─┬ ajv 8.20.0
+      │     │ └── fast-uri 3.1.9
+      │     ├─┬ ajv-formats 3.0.1
+      │     │ └─┬ ajv 8.20.0 peer
+      │     │   └── fast-uri 3.1.9
+      │     └─┬ ajv-keywords 5.1.0
+      │       └─┬ ajv 8.20.0 peer
+      │         └── fast-uri 3.1.9
+      ├─┬ webpack 5.112.0 peer
+      │ └─┬ minimizer-webpack-plugin 5.13.1
+      │   └─┬ schema-utils 4.8.1
+      │     └─┬ ajv 8.20.0
+      │       └── fast-uri 3.1.9
+      └── zod 4.6.7
+
+devDependencies:
+@cloudflare/vite-plugin 1.54.5
+├─┬ miniflare 5.20260907.0-alpha
+│ └── undici 7.30.1
+└─┬ wrangler 4.129.1 peer
+  └─┬ miniflare 5.20260907.0-alpha
+    └── undici 7.30.1
+@sentry/cli 3.8.1
+└── undici 7.30.1
+@sentry/esbuild-plugin 11.8.0
+└─┬ @sentry/bundler-plugins 11.8.0
+  └─┬ webpack 5.112.0 peer
+    ├─┬ minimizer-webpack-plugin 5.13.1
+    │ └─┬ schema-utils 4.8.1
+    │   ├─┬ ajv 8.20.0
+    │   │ └── fast-uri 3.1.9
+    │   ├─┬ ajv-formats 3.0.1
+    │   │ └─┬ ajv 8.20.0 peer
+    │   │   └── fast-uri 3.1.9
+    │   └─┬ ajv-keywords 5.1.0
+    │     └─┬ ajv 8.20.0 peer
+    │       └── fast-uri 3.1.9
+    └─┬ schema-utils 4.8.1
+      ├─┬ ajv 8.20.0
+      │ └── fast-uri 3.1.9
+      ├─┬ ajv-formats 3.0.1
+      │ └─┬ ajv 8.20.0 peer
+      │   └── fast-uri 3.1.9
+      └─┬ ajv-keywords 5.1.0
+        └─┬ ajv 8.20.0 peer
+          └── fast-uri 3.1.9
+@sentry/node 11.6.0
+└─┬ @sentry/bundler-plugins 11.6.0
+  └─┬ webpack 5.112.0 peer
+    ├─┬ minimizer-webpack-plugin 5.13.1
+    │ └─┬ schema-utils 4.8.1
+    │   ├─┬ ajv 8.20.0
+    │   │ └── fast-uri 3.1.9
+    │   ├─┬ ajv-formats 3.0.1
+    │   │ └─┬ ajv 8.20.0 peer
+    │   │   └── fast-uri 3.1.9
+    │   └─┬ ajv-keywords 5.1.0
+    │     └─┬ ajv 8.20.0 peer
+    │       └── fast-uri 3.1.9
+    └─┬ schema-utils 4.8.1
+      ├─┬ ajv 8.20.0
+      │ └── fast-uri 3.1.9
+      ├─┬ ajv-formats 3.0.1
+      │ └─┬ ajv 8.20.0 peer
+      │   └── fast-uri 3.1.9
+      └─┬ ajv-keywords 5.1.0
+        └─┬ ajv 8.20.0 peer
+          └── fast-uri 3.1.9
+@sentry/rollup-plugin 11.8.0
+└─┬ @sentry/bundler-plugins 11.8.0
+  └─┬ webpack 5.112.0 peer
+    ├─┬ minimizer-webpack-plugin 5.13.1
+    │ └─┬ schema-utils 4.8.1
+    │   ├─┬ ajv 8.20.0
+    │   │ └── fast-uri 3.1.9
+    │   ├─┬ ajv-formats 3.0.1
+    │   │ └─┬ ajv 8.20.0 peer
+    │   │   └── fast-uri 3.1.9
+    │   └─┬ ajv-keywords 5.1.0
+    │     └─┬ ajv 8.20.0 peer
+    │       └── fast-uri 3.1.9
+    └─┬ schema-utils 4.8.1
+      ├─┬ ajv 8.20.0
+      │ └── fast-uri 3.1.9
+      ├─┬ ajv-formats 3.0.1
+      │ └─┬ ajv 8.20.0 peer
+      │   └── fast-uri 3.1.9
+      └─┬ ajv-keywords 5.1.0
+        └─┬ ajv 8.20.0 peer
+          └── fast-uri 3.1.9
+@sentry/vite-plugin 11.8.0
+└─┬ @sentry/bundler-plugins 11.8.0
+  └─┬ webpack 5.112.0 peer
+    ├─┬ minimizer-webpack-plugin 5.13.1
+    │ └─┬ schema-utils 4.8.1
+    │   ├─┬ ajv 8.20.0
+    │   │ └── fast-uri 3.1.9
+    │   ├─┬ ajv-formats 3.0.1
+    │   │ └─┬ ajv 8.20.0 peer
+    │   │   └── fast-uri 3.1.9
+    │   └─┬ ajv-keywords 5.1.0
+    │     └─┬ ajv 8.20.0 peer
+    │       └── fast-uri 3.1.9
+    └─┬ schema-utils 4.8.1
+      ├─┬ ajv 8.20.0
+      │ └── fast-uri 3.1.9
+      ├─┬ ajv-formats 3.0.1
+      │ └─┬ ajv 8.20.0 peer
+      │   └── fast-uri 3.1.9
+      └─┬ ajv-keywords 5.1.0
+        └─┬ ajv 8.20.0 peer
+          └── fast-uri 3.1.9
+@sentry/webpack-plugin 11.8.0
+├─┬ @sentry/bundler-plugins 11.8.0
+│ └─┬ webpack 5.112.0 peer
+│   ├─┬ minimizer-webpack-plugin 5.13.1
+│   │ └─┬ schema-utils 4.8.1
+│   │   ├─┬ ajv 8.20.0
+│   │   │ └── fast-uri 3.1.9
+│   │   ├─┬ ajv-formats 3.0.1
+│   │   │ └─┬ ajv 8.20.0 peer
+│   │   │   └── fast-uri 3.1.9
+│   │   └─┬ ajv-keywords 5.1.0
+│   │     └─┬ ajv 8.20.0 peer
+│   │       └── fast-uri 3.1.9
+│   └─┬ schema-utils 4.8.1
+│     ├─┬ ajv 8.20.0
+│     │ └── fast-uri 3.1.9
+│     ├─┬ ajv-formats 3.0.1
+│     │ └─┬ ajv 8.20.0 peer
+│     │   └── fast-uri 3.1.9
+│     └─┬ ajv-keywords 5.1.0
+│       └─┬ ajv 8.20.0 peer
+│         └── fast-uri 3.1.9
+└─┬ webpack 5.112.0 peer
+  ├─┬ minimizer-webpack-plugin 5.13.1
+  │ └─┬ schema-utils 4.8.1
+  │   ├─┬ ajv 8.20.0
+  │   │ └── fast-uri 3.1.9
+  │   ├─┬ ajv-formats 3.0.1
+  │   │ └─┬ ajv 8.20.0 peer
+  │   │   └── fast-uri 3.1.9
+  │   └─┬ ajv-keywords 5.1.0
+  │     └─┬ ajv 8.20.0 peer
+  │       └── fast-uri 3.1.9
+  └─┬ schema-utils 4.8.1
+    ├─┬ ajv 8.20.0
+    │ └── fast-uri 3.1.9
+    ├─┬ ajv-formats 3.0.1
+    │ └─┬ ajv 8.20.0 peer
+    │   └── fast-uri 3.1.9
+    └─┬ ajv-keywords 5.1.0
+      └─┬ ajv 8.20.0 peer
+        └── fast-uri 3.1.9
+miniflare 5.20260907.0-alpha
+└── undici 7.30.1
+webpack 5.112.0
+├─┬ minimizer-webpack-plugin 5.13.1
+│ └─┬ schema-utils 4.8.1
+│   ├─┬ ajv 8.20.0
+│   │ └── fast-uri 3.1.9
+│   ├─┬ ajv-formats 3.0.1
+│   │ └─┬ ajv 8.20.0 peer
+│   │   └── fast-uri 3.1.9
+│   └─┬ ajv-keywords 5.1.0
+│     └─┬ ajv 8.20.0 peer
+│       └── fast-uri 3.1.9
+└─┬ schema-utils 4.8.1
+  ├─┬ ajv 8.20.0
+  │ └── fast-uri 3.1.9
+  ├─┬ ajv-formats 3.0.1
+  │ └─┬ ajv 8.20.0 peer
+  │   └── fast-uri 3.1.9
+  └─┬ ajv-keywords 5.1.0
+    └─┬ ajv 8.20.0 peer
+      └── fast-uri 3.1.9
+wrangler 4.129.1
+└─┬ miniflare 5.20260907.0-alpha
+  └── undici 7.30.1
+
+@errors/agent@0.1.0 /home/agent/rer-consolidation/work/maint/gr-mt-spool-dep-7/repo/packages/agent (PRIVATE)
+
+dependencies:
+@modelcontextprotocol/sdk 1.32.1
+├─┬ ajv 8.20.0
+│ └── fast-uri 3.1.9
+├─┬ ajv-formats 3.0.1
+│ └─┬ ajv 8.20.0 peer
+│   └── fast-uri 3.1.9
+├─┬ express 5.3.0
+│ └── body-parser 2.4.0
+├─┬ express-rate-limit 8.7.1
+│ └─┬ express 5.3.0 peer
+│   └── body-parser 2.4.0
+├── zod 4.6.7 peer
+└─┬ zod-to-json-schema 3.25.2
+  └── zod 4.6.7 peer

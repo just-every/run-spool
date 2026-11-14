@@ -1,0 +1,11 @@
+{
+  "command": [
+    "pnpm",
+    "install",
+    "--frozen-lockfile"
+  ],
+  "exit_code": 0,
+  "log": "install-root.log",
+  "package_manager": "pnpm@10.12.4",
+  "head": "d67444f31321fd2fca3013931f4a5121205c920e"
+}

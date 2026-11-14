@@ -1,0 +1,11 @@
+{
+  "command": [
+    "node",
+    "src/base/contract-docs.mjs",
+    "check"
+  ],
+  "exit_code": 0,
+  "seconds": 0.17,
+  "log": "contract-check.log",
+  "node": "22.20.0"
+}

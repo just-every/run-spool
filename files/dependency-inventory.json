@@ -1,0 +1,119 @@
+{
+  "repository": "just-every/run-spool",
+  "base": "e206a1ca9a631059818333837062a90bd225443d",
+  "head": "f773e85edf527a1e790f763a6da9a91c71aa8f73",
+  "listed_alerts_before": 8,
+  "listed_alerts_remaining": 0,
+  "installed_vulnerable_package_entries_before": 5,
+  "installed_vulnerable_package_entries_after": 0,
+  "lockfiles": [
+    {
+      "lockfile": "pnpm-lock.yaml",
+      "package_count_before": 491,
+      "package_count_after": 492,
+      "removed": [
+        "body-parser@2.3.0",
+        "fast-uri@3.1.8",
+        "undici@7.29.1",
+        "zod@4.6.3"
+      ],
+      "added": [
+        "body-parser@2.4.0",
+        "fast-uri@3.1.9",
+        "qs@6.17.1",
+        "undici@7.30.1",
+        "zod@4.6.7"
+      ],
+      "targets": [
+        {
+          "package": "undici",
+          "before": [
+            "7.29.1"
+          ],
+          "after": [
+            "7.30.1"
+          ],
+          "minimum_patched": "7.30.1",
+          "vulnerable_before": [
+            "7.29.1"
+          ],
+          "vulnerable_after": []
+        },
+        {
+          "package": "fast-uri",
+          "before": [
+            "3.1.8"
+          ],
+          "after": [
+            "3.1.9"
+          ],
+          "minimum_patched": "3.1.9",
+          "vulnerable_before": [
+            "3.1.8"
+          ],
+          "vulnerable_after": []
+        },
+        {
+          "package": "body-parser",
+          "before": [
+            "2.3.0"
+          ],
+          "after": [
+            "2.4.0"
+          ],
+          "minimum_patched": "2.4.0",
+          "vulnerable_before": [
+            "2.3.0"
+          ],
+          "vulnerable_after": []
+        },
+        {
+          "package": "zod",
+          "before": [
+            "4.6.3"
+          ],
+          "after": [
+            "4.6.7"
+          ],
+          "minimum_patched": "4.6.6",
+          "vulnerable_before": [
+            "4.6.3"
+          ],
+          "vulnerable_after": []
+        }
+      ]
+    },
+    {
+      "lockfile": "src/modules/mail/pnpm-lock.yaml",
+      "package_count_before": 56,
+      "package_count_after": 56,
+      "removed": [
+        "undici@7.29.1"
+      ],
+      "added": [
+        "undici@7.30.1"
+      ],
+      "targets": [
+        {
+          "package": "undici",
+          "before": [
+            "7.29.1"
+          ],
+          "after": [
+            "7.30.1"
+          ],
+          "minimum_patched": "7.30.1",
+          "vulnerable_before": [
+            "7.29.1"
+          ],
+          "vulnerable_after": []
+        }
+      ]
+    }
+  ],
+  "notes": [
+    "This checks the advisories supplied in the brief, not an exhaustive vulnerability audit.",
+    "body-parser 2.4.0 requires qs ^6.16.1; pnpm resolved qs 6.17.1 for that edge. Existing express qs 6.16.0 is retained.",
+    "The pinned pnpm normalizes libc metadata on unchanged optional sharp packages in the standalone mail lockfile. No optional package version changes."
+  ]
+}

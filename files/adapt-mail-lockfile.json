@@ -1,0 +1,12 @@
+{
+  "command": [
+    "node",
+    "scripts/edition-authoring/cli.mjs",
+    "adapt-base",
+    "src/modules/mail/pnpm-lock.yaml"
+  ],
+  "exit_code": 0,
+  "seconds": 0.12,
+  "log": "adapt-mail-lockfile.log",
+  "node": "22.20.0"
+}

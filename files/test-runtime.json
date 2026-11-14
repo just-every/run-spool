@@ -1,0 +1,12 @@
+{
+  "command": [
+    "python3",
+    "/tmp/rer-reap.py",
+    "pnpm",
+    "test:runtime"
+  ],
+  "exit_code": 0,
+  "seconds": 606.61,
+  "log": "test-runtime.log",
+  "node": "22.20.0"
+}

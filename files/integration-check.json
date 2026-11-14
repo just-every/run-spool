@@ -1,0 +1,10 @@
+{
+  "command": [
+    "pnpm",
+    "integration:check"
+  ],
+  "exit_code": 0,
+  "seconds": 0.44,
+  "log": "integration-check.log",
+  "node": "22.20.0"
+}

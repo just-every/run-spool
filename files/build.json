@@ -1,0 +1,14 @@
+{
+  "command": [
+    "python3",
+    "/tmp/rer-reap.py",
+    "npx",
+    "-y",
+    "@runeditrun/rer",
+    "build"
+  ],
+  "exit_code": 0,
+  "seconds": 14.09,
+  "log": "build.log",
+  "node": "22.20.0"
+}

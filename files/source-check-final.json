@@ -1,0 +1,10 @@
+{
+  "command": [
+    "pnpm",
+    "source:check"
+  ],
+  "exit_code": 0,
+  "seconds": 0.94,
+  "log": "source-check-final.log",
+  "node": "22.20.0"
+}

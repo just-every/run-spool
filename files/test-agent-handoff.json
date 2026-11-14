@@ -1,0 +1,12 @@
+{
+  "command": [
+    "python3",
+    "/tmp/rer-reap.py",
+    "pnpm",
+    "test:agent-handoff"
+  ],
+  "exit_code": 0,
+  "seconds": 590.65,
+  "log": "test-agent-handoff.log",
+  "node": "22.20.0"
+}

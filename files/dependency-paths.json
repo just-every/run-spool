@@ -1,0 +1,15 @@
+{
+  "command": [
+    "pnpm",
+    "why",
+    "-r",
+    "undici",
+    "fast-uri",
+    "body-parser",
+    "zod"
+  ],
+  "exit_code": 0,
+  "seconds": 0.32,
+  "log": "dependency-paths.log",
+  "node": "22.20.0"
+}

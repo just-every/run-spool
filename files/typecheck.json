@@ -1,0 +1,10 @@
+{
+  "command": [
+    "pnpm",
+    "typecheck"
+  ],
+  "exit_code": 0,
+  "seconds": 13.48,
+  "log": "typecheck.log",
+  "node": "22.20.0"
+}

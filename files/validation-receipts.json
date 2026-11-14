@@ -1,0 +1,227 @@
+{
+  "tag": "gr-mt-spool-dep-7",
+  "repository": "just-every/run-spool",
+  "branch": "cloud/gr-mt-spool-dep-7",
+  "head": "f773e85edf527a1e790f763a6da9a91c71aa8f73",
+  "base": "e206a1ca9a631059818333837062a90bd225443d",
+  "checks": [
+    {
+      "check": "install-root",
+      "command": [
+        "pnpm",
+        "install",
+        "--frozen-lockfile"
+      ],
+      "exit_code": 0,
+      "log": "install-root.log",
+      "package_manager": "pnpm@10.12.4",
+      "head": "d67444f31321fd2fca3013931f4a5121205c920e"
+    },
+    {
+      "check": "install-mail",
+      "command": [
+        "pnpm",
+        "--dir",
+        "src/modules/mail",
+        "install",
+        "--frozen-lockfile",
+        "--ignore-workspace"
+      ],
+      "exit_code": 0,
+      "log": "install-mail.log",
+      "package_manager": "pnpm@10.12.4",
+      "head": "d67444f31321fd2fca3013931f4a5121205c920e"
+    },
+    {
+      "check": "setup",
+      "command": [
+        "python3",
+        "/tmp/rer-reap.py",
+        "npx",
+        "-y",
+        "@runeditrun/rer",
+        "setup",
+        "--owner-email",
+        "fleet@runeditrun.com",
+        "--non-interactive"
+      ],
+      "exit_code": 0,
+      "seconds": 60.22,
+      "log": "setup.log",
+      "node": "22.20.0"
+    },
+    {
+      "check": "typecheck",
+      "command": [
+        "pnpm",
+        "typecheck"
+      ],
+      "exit_code": 0,
+      "seconds": 13.48,
+      "log": "typecheck.log",
+      "node": "22.20.0"
+    },
+    {
+      "check": "build",
+      "command": [
+        "python3",
+        "/tmp/rer-reap.py",
+        "npx",
+        "-y",
+        "@runeditrun/rer",
+        "build"
+      ],
+      "exit_code": 0,
+      "seconds": 14.09,
+      "log": "build.log",
+      "node": "22.20.0"
+    },
+    {
+      "check": "test-agent-handoff",
+      "command": [
+        "python3",
+        "/tmp/rer-reap.py",
+        "pnpm",
+        "test:agent-handoff"
+      ],
+      "exit_code": 0,
+      "seconds": 590.65,
+      "log": "test-agent-handoff.log",
+      "node": "22.20.0"
+    },
+    {
+      "check": "test-runtime",
+      "command": [
+        "python3",
+        "/tmp/rer-reap.py",
+        "pnpm",
+        "test:runtime"
+      ],
+      "exit_code": 0,
+      "seconds": 606.61,
+      "log": "test-runtime.log",
+      "node": "22.20.0"
+    },
+    {
+      "check": "integration-check",
+      "command": [
+        "pnpm",
+        "integration:check"
+      ],
+      "exit_code": 0,
+      "seconds": 0.44,
+      "log": "integration-check.log",
+      "node": "22.20.0"
+    },
+    {
+      "check": "contract-check",
+      "command": [
+        "node",
+        "src/base/contract-docs.mjs",
+        "check"
+      ],
+      "exit_code": 0,
+      "seconds": 0.17,
+      "log": "contract-check.log",
+      "node": "22.20.0"
+    },
+    {
+      "check": "base-check-final",
+      "command": [
+        "node",
+        "scripts/edition-authoring/cli.mjs",
+        "verify-base",
+        "--offline"
+      ],
+      "exit_code": 0,
+      "seconds": 0.17,
+      "log": "base-check-final.log",
+      "node": "22.20.0"
+    },
+    {
+      "check": "source-lock-final",
+      "command": [
+        "node",
+        "scripts/edition-authoring/cli.mjs",
+        "lock"
+      ],
+      "exit_code": 0,
+      "seconds": 0.65,
+      "log": "source-lock-final.log",
+      "node": "22.20.0"
+    },
+    {
+      "check": "source-check-final",
+      "command": [
+        "pnpm",
+        "source:check"
+      ],
+      "exit_code": 0,
+      "seconds": 0.94,
+      "log": "source-check-final.log",
+      "node": "22.20.0"
+    }
+  ],
+  "all_local_checks_passed": true,
+  "provenance_changes": "Only base-copies.json and sources.lock.json changed after the local dependency/type/build inputs were established. Application source and both dependency graphs were unchanged.",
+  "recovery": {
+    "path": "/home/agent/rer-consolidation/work/gr-mt-spool-dep-7/recovery/gr-mt-spool-dep-7.bundle",
+    "sha256": "4e0b8b99f4c39354923c9bbc0aa76159bb071562a84aa2196cf7d7f79da5ff27",
+    "verified": true,
+    "requires_commit": "e206a1ca9a631059818333837062a90bd225443d"
+  },
+  "publication": {
+    "status": "PASS",
+    "complete": true,
+    "findings": 0,
+    "source": {
+      "commit": "f773e85edf527a1e790f763a6da9a91c71aa8f73",
+      "tree": "e6209744aff376065e8871f7517acf647dea4be5"
+    },
+    "implementation": {
+      "version": "0.2.113",
+      "sha256": "c5f2d788f2f08764cd018e049b507c26f5ac01f651e2e8696398d89a5a886ffb",
+      "python": "3.12.14"
+    },
+    "history_commits": 907,
+    "seconds": 380.629946,
+    "receipt": "publication-scan.json"
+  },
+  "ci": {
+    "head": "f773e85edf527a1e790f763a6da9a91c71aa8f73",
+    "run_id": 43624307112,
+    "status": "completed",
+    "conclusion": "success",
+    "html_url": "https://github.com/just-every/run-spool/actions/runs/43624307112",
+    "receipt": "ci-state.json"
+  },
+  "product_push": {
+    "status": "pushed",
+    "branch": "cloud/gr-mt-spool-dep-7",
+    "head": "f773e85edf527a1e790f763a6da9a91c71aa8f73",
+    "attempts": 1,
+    "receipt": "product-push.log",
+    "remote_verified_head": "f773e85edf527a1e790f763a6da9a91c71aa8f73",
+    "remote_ref": "refs/heads/cloud/gr-mt-spool-dep-7"
+  },
+  "custody": {
+    "state": "READY",
+    "line": "READY branch=cloud/gr-mt-spool-dep-7 head=f773e85edf527a1e790f763a6da9a91c71aa8f73",
+    "reason": "",
+    "pr": null,
+    "clause_changes": []
+  },
+  "github_budget": {
+    "explicit_api_commands": 9,
+    "mandatory_launcher_auth_probe": 1,
+    "total_known_github_commands": 10,
+    "limit": 10,
+    "ci_commands": 5,
+    "other_api_commands": {
+      "gitleaks_release_and_asset": 2,
+      "completed_publication_reference_resolution": 2
+    },
+    "interval_seconds_minimum": 300,
+    "notes": "All CI discoveries and polls are recorded in ci-state.json. Ordinary Git clone/fetch/push and report-only transport do not use the GitHub REST budget. One mandatory launcher gh auth status command is reserved conservatively."
+  }
+}

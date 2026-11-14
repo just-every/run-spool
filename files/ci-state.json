@@ -1,0 +1,72 @@
+{
+  "head": "f773e85edf527a1e790f763a6da9a91c71aa8f73",
+  "calls": [
+    {
+      "time": 1794679314.6977139,
+      "utc": "2026-11-14T18:01:55.355342+00:00",
+      "exit_code": 0,
+      "endpoint": "repos/just-every/run-spool/actions/runs?head_sha=f773e85edf527a1e790f763a6da9a91c71aa8f73&per_page=100",
+      "result": null
+    },
+    {
+      "time": 1794679615.7353024,
+      "utc": "2026-11-14T18:06:57.125619+00:00",
+      "exit_code": 0,
+      "endpoint": "repos/just-every/run-spool/actions/runs?head_sha=f773e85edf527a1e790f763a6da9a91c71aa8f73&per_page=100",
+      "result": {
+        "conclusion": null,
+        "head_sha": "f773e85edf527a1e790f763a6da9a91c71aa8f73",
+        "html_url": "https://github.com/just-every/run-spool/actions/runs/43624307112",
+        "id": 43624307112,
+        "name": "Verify",
+        "status": "in_progress"
+      }
+    },
+    {
+      "time": 1794679916.7635922,
+      "utc": "2026-11-14T18:11:58.013685+00:00",
+      "exit_code": 0,
+      "endpoint": "repos/just-every/run-spool/actions/runs/43624307112",
+      "result": {
+        "conclusion": null,
+        "head_sha": "f773e85edf527a1e790f763a6da9a91c71aa8f73",
+        "html_url": "https://github.com/just-every/run-spool/actions/runs/43624307112",
+        "id": 43624307112,
+        "name": "Verify",
+        "status": "in_progress"
+      }
+    },
+    {
+      "time": 1794680217.8052416,
+      "utc": "2026-11-14T18:16:59.142442+00:00",
+      "exit_code": 0,
+      "endpoint": "repos/just-every/run-spool/actions/runs/43624307112",
+      "result": {
+        "conclusion": null,
+        "head_sha": "f773e85edf527a1e790f763a6da9a91c71aa8f73",
+        "html_url": "https://github.com/just-every/run-spool/actions/runs/43624307112",
+        "id": 43624307112,
+        "name": "Verify",
+        "status": "in_progress"
+      }
+    },
+    {
+      "time": 1794680518.8389647,
+      "utc": "2026-11-14T18:22:00.101272+00:00",
+      "exit_code": 0,
+      "endpoint": "repos/just-every/run-spool/actions/runs/43624307112",
+      "result": {
+        "conclusion": "success",
+        "head_sha": "f773e85edf527a1e790f763a6da9a91c71aa8f73",
+        "html_url": "https://github.com/just-every/run-spool/actions/runs/43624307112",
+        "id": 43624307112,
+        "name": "Verify",
+        "status": "completed"
+      }
+    }
+  ],
+  "run_id": 43624307112,
+  "status": "completed",
+  "conclusion": "success",
+  "html_url": "https://github.com/just-every/run-spool/actions/runs/43624307112"
+}

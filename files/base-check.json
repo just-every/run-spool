@@ -1,0 +1,12 @@
+{
+  "command": [
+    "node",
+    "scripts/edition-authoring/cli.mjs",
+    "verify-base",
+    "--offline"
+  ],
+  "exit_code": 1,
+  "seconds": 0.17,
+  "log": "base-check.log",
+  "node": "22.20.0"
+}
