@@ -1,0 +1,98 @@
+{
+  "schema": 1,
+  "tag": "gr-mt-spool-ci-7",
+  "repository": "just-every/run-spool",
+  "status": "no-change",
+  "created_at": "2026-11-14T16:53:16.972825+00:00",
+  "product_branch": "cloud/gr-mt-spool-ci-7",
+  "product_head": "e206a1ca9a631059818333837062a90bd225443d",
+  "origin_main": "e206a1ca9a631059818333837062a90bd225443d",
+  "product_commits": 0,
+  "product_files_changed": [],
+  "product_pushed": false,
+  "pr": null,
+  "clause_changes": [],
+  "github_command_invocations": 6,
+  "original_failing_run": 40002135351,
+  "successful_release_run": 43394717532,
+  "successful_release_sha": "e9540f7ae83a5334d11dcaeda44c66df3b5ad94c",
+  "current_main_verify_runs": [
+    43580557779,
+    43578422344
+  ],
+  "current_main_site_run": 43580557817,
+  "publication_scan": "not run; no product candidate/push; scanner unavailable",
+  "blockers": [],
+  "files": [
+    {
+      "path": "REPORT.md",
+      "bytes": 9077,
+      "sha256": "ca476539f80daf6d3f544238bca3badf08418cfc59afaec05f93732c4cda6bb0"
+    },
+    {
+      "path": "current-main-runs.json",
+      "bytes": 1179,
+      "sha256": "f1bcaf6649ae52dadbe419956a2e56e71aaac2eb9d33ce3f69b777169e7d06ed"
+    },
+    {
+      "path": "current-trusted-publishing-step.sh",
+      "bytes": 1267,
+      "sha256": "39f13127fd2a5280ac506efe3853133121f6c780f666bb8a01649a7d755fc4a7"
+    },
+    {
+      "path": "local-oidc-absent.log",
+      "bytes": 961,
+      "sha256": "28db07221fe96b64e1099beb28e70e01dba20625ecb92c91cfa5ac37e22f6d96"
+    },
+    {
+      "path": "local-oidc-present.log",
+      "bytes": 857,
+      "sha256": "d1c18c61b6a66d0681cc7b6235c5864bc9d12cb3d879a47737028ecf41544f0d"
+    },
+    {
+      "path": "local-verification.json",
+      "bytes": 1027,
+      "sha256": "5e8a517aa1b3f77e65ce744d823c6bcea4ea2fd606c513b1715059d09566bdb0"
+    },
+    {
+      "path": "main-release-runs.json",
+      "bytes": 2497,
+      "sha256": "39a25c857f4cac9796ba07bc7e0b445438fd87bb084cb934bd896357cd6af2b4"
+    },
+    {
+      "path": "npm-release-state.json",
+      "bytes": 210,
+      "sha256": "dea13333bfa5e78052c7e1edf5c4aed52efa1a5e6a0d6e36eee0202397073095"
+    },
+    {
+      "path": "original-failure-transport.log",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "original-failure.log",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "original-jobs.json",
+      "bytes": 1913,
+      "sha256": "77eab925396ce0a5917874bcb47e0d0c5830b87fa1fefd73447319b096875a82"
+    },
+    {
+      "path": "original-run.json",
+      "bytes": 362,
+      "sha256": "9e2bd6d9125d0fc2c6e83f65766a7dc6cc0f0510ba32219f791063e49027f9da"
+    },
+    {
+      "path": "result.json",
+      "bytes": 748,
+      "sha256": "1a2b17ef6b361cb9b91a2fe1df503f01081008b67826e11ac417a27e57e8fe01"
+    },
+    {
+      "path": "successful-main-jobs.json",
+      "bytes": 2018,
+      "sha256": "483aa6de72e2bba29f67d71cd200d0a1365147c805ea4be20018e3d1186b89e1"
+    }
+  ]
+}

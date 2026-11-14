@@ -1,0 +1,100 @@
+{
+  "files": [
+    {
+      "blob": "46f754493ba1a0b30cb041695eb1cbb23e833c52",
+      "bytes": 9077,
+      "path": "REPORT.md",
+      "sha256": "ca476539f80daf6d3f544238bca3badf08418cfc59afaec05f93732c4cda6bb0"
+    },
+    {
+      "blob": "be670c2652f76126b53b1a1bc07e3c83cd619ded",
+      "bytes": 1179,
+      "path": "current-main-runs.json",
+      "sha256": "f1bcaf6649ae52dadbe419956a2e56e71aaac2eb9d33ce3f69b777169e7d06ed"
+    },
+    {
+      "blob": "57a7f91bc73f52ae582bf02f5d5b1a7c9160d674",
+      "bytes": 1267,
+      "path": "current-trusted-publishing-step.sh",
+      "sha256": "39f13127fd2a5280ac506efe3853133121f6c780f666bb8a01649a7d755fc4a7"
+    },
+    {
+      "blob": "071c603b14a6cde8e85b8788dfbcf2e0d077e3e9",
+      "bytes": 961,
+      "path": "local-oidc-absent.log",
+      "sha256": "28db07221fe96b64e1099beb28e70e01dba20625ecb92c91cfa5ac37e22f6d96"
+    },
+    {
+      "blob": "7353ab6cf5f03df4d08313514f8164947e33bacd",
+      "bytes": 857,
+      "path": "local-oidc-present.log",
+      "sha256": "d1c18c61b6a66d0681cc7b6235c5864bc9d12cb3d879a47737028ecf41544f0d"
+    },
+    {
+      "blob": "4a3e3da0bbf34a831d095d497f483dc44116c15b",
+      "bytes": 1027,
+      "path": "local-verification.json",
+      "sha256": "5e8a517aa1b3f77e65ce744d823c6bcea4ea2fd606c513b1715059d09566bdb0"
+    },
+    {
+      "blob": "b5ebf088a63a9a4f5905e80d87c598b64ffad3dc",
+      "bytes": 2497,
+      "path": "main-release-runs.json",
+      "sha256": "39a25c857f4cac9796ba07bc7e0b445438fd87bb084cb934bd896357cd6af2b4"
+    },
+    {
+      "blob": "bc66da0d254fffddd3675aaf4161081584f624d2",
+      "bytes": 210,
+      "path": "npm-release-state.json",
+      "sha256": "dea13333bfa5e78052c7e1edf5c4aed52efa1a5e6a0d6e36eee0202397073095"
+    },
+    {
+      "blob": "e69de29bb2d1d6434b8b29ae775ad8c2e48c5391",
+      "bytes": 0,
+      "path": "original-failure-transport.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "blob": "e69de29bb2d1d6434b8b29ae775ad8c2e48c5391",
+      "bytes": 0,
+      "path": "original-failure.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "blob": "f3543122ec0719d31cbcddc2dc3524f130219be2",
+      "bytes": 1913,
+      "path": "original-jobs.json",
+      "sha256": "77eab925396ce0a5917874bcb47e0d0c5830b87fa1fefd73447319b096875a82"
+    },
+    {
+      "blob": "9a8c1ba70abea398d932017efb4458ab2c70890f",
+      "bytes": 362,
+      "path": "original-run.json",
+      "sha256": "9e2bd6d9125d0fc2c6e83f65766a7dc6cc0f0510ba32219f791063e49027f9da"
+    },
+    {
+      "blob": "460bcffa0f3857ef2524a7aa375beeb3266d1e67",
+      "bytes": 3041,
+      "path": "receipt.json",
+      "sha256": "07940d1bb44cca87742d7735653bfbbc77f3b715071cf6cb3759d572455f30c5"
+    },
+    {
+      "blob": "8e98c6f81449a50e2e234c6537f8143362a48daf",
+      "bytes": 748,
+      "path": "result.json",
+      "sha256": "1a2b17ef6b361cb9b91a2fe1df503f01081008b67826e11ac417a27e57e8fe01"
+    },
+    {
+      "blob": "cdb7c0d1b79989c061224cebf30a9b416919df44",
+      "bytes": 2018,
+      "path": "successful-main-jobs.json",
+      "sha256": "483aa6de72e2bba29f67d71cd200d0a1365147c805ea4be20018e3d1186b89e1"
+    }
+  ],
+  "product_branch": "cloud/gr-mt-spool-ci-7",
+  "product_head": "e206a1ca9a631059818333837062a90bd225443d",
+  "ref": "refs/heads/evidence/gr-mt-spool-ci-7",
+  "repository": "just-every/run-spool",
+  "schema": 1,
+  "tag": "gr-mt-spool-ci-7"
+}

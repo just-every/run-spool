@@ -1,0 +1,7 @@
+{
+  "status": "no-change",
+  "sha": "e206a1ca9a631059818333837062a90bd225443d",
+  "summary": "Already fixed on main by 8069a3255289f121700b24c629daa3b16c448e3a: Release SDK uses token-free OIDC; the unchanged current workflow passed main runs 43082652411 and 43394717532.",
+  "tests": "Executed the current trusted-publishing diagnostic shell body locally with OIDC availability absent and present: both exit 0 and truthful summaries. Verified workflow blob equality and fix/successful-head ancestry. REST confirms Release SDK success at e9540f7ae83a5334d11dcaeda44c66df3b5ad94c and Verify success at current HEAD e206a1ca9a631059818333837062a90bd225443d. No changed code; no dependency install, typecheck or full suite run.",
+  "security": true
+}

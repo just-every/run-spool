@@ -1,0 +1,11 @@
+{
+  "package": "@just-every/spool",
+  "checkout_sdk_version": "0.2.0",
+  "dist_tags": {
+    "latest": "0.1.0"
+  },
+  "version_present": false,
+  "published_at": null,
+  "integrity": null,
+  "read_only": true
+}

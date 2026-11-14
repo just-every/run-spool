@@ -1,0 +1,28 @@
+{
+  "product_head": "e206a1ca9a631059818333837062a90bd225443d",
+  "branch": "cloud/gr-mt-spool-ci-7",
+  "fix_commit": "8069a3255289f121700b24c629daa3b16c448e3a",
+  "successful_main_run": 43394717532,
+  "successful_main_sha": "e9540f7ae83a5334d11dcaeda44c66df3b5ad94c",
+  "local_checks": [
+    {
+      "oidc_request_available": false,
+      "exit": 0,
+      "summary_reports_expected_availability": true,
+      "network_requests": 0
+    },
+    {
+      "oidc_request_available": true,
+      "exit": 0,
+      "summary_reports_expected_availability": true,
+      "network_requests": 0
+    }
+  ],
+  "workflow_blob_by_commit": {
+    "8069a3255289f121700b24c629daa3b16c448e3a": "14ce602bb7eb550fb9b877f911b10b8d898a3a24",
+    "e9540f7ae83a5334d11dcaeda44c66df3b5ad94c": "14ce602bb7eb550fb9b877f911b10b8d898a3a24",
+    "e206a1ca9a631059818333837062a90bd225443d": "14ce602bb7eb550fb9b877f911b10b8d898a3a24"
+  },
+  "workflow_sha256": "1755ce0f4c8d487d35d1eddb9bb0b19862433b4b48d96888f69c21642f12f81f",
+  "product_worktree_clean": true
+}
