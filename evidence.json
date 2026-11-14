@@ -37,6 +37,12 @@
       "sha256": "a1a1d6ad23c4920e5a40c69934db1ea4a6ae97366612c23befd65e85ba77f099"
     },
     {
+      "blob": "7e754cdded43fdcf3aa6bb510a7fad081852d694",
+      "bytes": 4243,
+      "path": "evidence-transfer-receipt.json",
+      "sha256": "759a1cb1947608163b46816366fbef47fe45b7c0be43bd5cb29faf6709165b67"
+    },
+    {
       "blob": "4de8247693ba215928991093d510dc3f3b4b7a6d",
       "bytes": 1893,
       "path": "github-calls.json",
