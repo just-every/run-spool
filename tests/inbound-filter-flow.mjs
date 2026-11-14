@@ -82,13 +82,19 @@ export async function sdkInboundFilterFlow({request,origin,browser,temporary,req
  // unchanged SDK bytes. Automatic sessions can carry an SDK-inferred release
  // on CI; reconcile those real items instead of assuming one item per capture.
  const send=async(dsn,event,headers={})=>{
-  const original=new URL(dsn),items=[];
+  const fixtureOrigin=new URL(origin),original=new URL(dsn),items=[];
+  assert.equal(fixtureOrigin.protocol,'http:');assert.equal(fixtureOrigin.hostname,'127.0.0.1');
+  assert.equal(original.origin,fixtureOrigin.origin);
+  const destination=new URL(`/api${original.pathname}/envelope/`,fixtureOrigin);
+  destination.searchParams.set('sentry_key',original.username);destination.searchParams.set('sentry_version','7');
   const edge=createServer(async(req,res)=>{try{
+   const target=new URL(req.url,fixtureOrigin);
+   if(target.origin!==fixtureOrigin.origin||target.pathname!==destination.pathname){res.writeHead(400);res.end('Unexpected synthetic transport target');return}
    const chunks=[];for await(const chunk of req)chunks.push(chunk);const bytes=Buffer.concat(chunks),encoding=req.headers['content-encoding'];
    const decoded=encoding==='gzip'?gunzipSync(bytes):encoding==='deflate'?inflateSync(bytes):encoding==='br'?brotliDecompressSync(bytes):bytes;
    for(const item of parseEnvelope(decoded).items){const value=objectJson(item.bytes);items.push({type:item.header.type,release:value.attrs?.release})}
    const forwarded=new Headers();for(const [key,value] of Object.entries(req.headers))if(value!==undefined&&!['host','content-length','transfer-encoding','connection'].includes(key))forwarded.set(key,Array.isArray(value)?value.join(','):value);
-   const response=await fetch(new URL(req.url,original.protocol+'//'+original.host),{method:req.method,headers:forwarded,body:bytes,redirect:'manual'});res.writeHead(response.status,Object.fromEntries(response.headers));res.end(Buffer.from(await response.arrayBuffer()));
+   const response=await fetch(destination,{method:req.method,headers:forwarded,body:bytes,redirect:'manual'});res.writeHead(response.status,Object.fromEntries(response.headers));res.end(Buffer.from(await response.arrayBuffer()));
   }catch(error){res.writeHead(502);res.end('Synthetic transport edge failed')}});
   await new Promise(resolve=>edge.listen(0,'127.0.0.1',resolve));const endpoint=new URL(dsn);endpoint.hostname='127.0.0.1';endpoint.port=String(edge.address().port);
   try{return await new Promise((done,reject)=>{
