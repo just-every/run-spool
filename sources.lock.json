@@ -2654,7 +2654,7 @@
       "executable": false
     },
     "base-copies.json": {
-      "sha256": "82c3cfc8fed8761c3b06597509d73b4901cbe85b60471d581dd0c5f54d7de94e",
+      "sha256": "1ea60cfbf76f5db23d9236fcd4a897bfb982896a6062397ef83b773b64cbbe36",
       "executable": false
     },
     "BROWSER-ORIGINS.md": {
@@ -4182,7 +4182,7 @@
       "executable": false
     },
     "package.json": {
-      "sha256": "df2aa496530351b6c3babaeeba447be07e69f31908ec6198e580d55c771fc52e",
+      "sha256": "8efdd7dcc77997615a78b02e7e51875b57f218f847fc27d33bc68793f6284325",
       "executable": false
     },
     "packages/agent/bin/spool-agent.mjs": {
@@ -4354,7 +4354,7 @@
       "executable": false
     },
     "pnpm-lock.yaml": {
-      "sha256": "f6747602d94d5c7fe81a56b4e521b15fb6aca2f625ef3808f8a9633c5e78a292",
+      "sha256": "5453b680fd1c3af55bb579c638a44ed88b7f399a1d0d413cbcd57880d74ffa61",
       "executable": false
     },
     "pnpm-workspace.yaml": {
@@ -9034,11 +9034,11 @@
       "executable": false
     },
     "src/modules/mail/package.json": {
-      "sha256": "b6e2d1e285c44deffbec6ae94ab67599d8dda0aaa548066c415ec94418ffbd30",
+      "sha256": "887d3c7dbbeba0a38c924a17b396966245140642602d047e309cec29645c089f",
       "executable": false
     },
     "src/modules/mail/pnpm-lock.yaml": {
-      "sha256": "4b8846fd11bb799afabcb07e44e9a3297086144ef18521fcfc458718233941e6",
+      "sha256": "65eea51d3f37f0ee7a4fadbda7c9d6d177fd6bfa1df844aa50a5afacfcf872a5",
       "executable": false
     },
     "src/modules/mail/README.md": {
