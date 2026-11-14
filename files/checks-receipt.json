@@ -1,0 +1,66 @@
+{
+  "branch": "cloud/gr-mt-spool-code-9",
+  "contract_status_changes": [],
+  "counts_after": {
+    "done": 23,
+    "missing": 28,
+    "partial": 54,
+    "sdk_verification_scripts": 1,
+    "target_refusal_cases": 4
+  },
+  "counts_before": {
+    "done": 23,
+    "missing": 28,
+    "partial": 54,
+    "sdk_verification_scripts": 1,
+    "target_refusal_cases": 0
+  },
+  "head": "16a3c749f7a85262209ea90ee0660964bdd285bb",
+  "log_integrity": "The evidence manifest carries the actual per-file SHA-256 and Git blob identities.",
+  "preparation": [
+    {
+      "command": "cloud_run pnpm install --frozen-lockfile",
+      "exit": 0
+    },
+    {
+      "command": "cloud_run npx -y @runeditrun/rer setup --owner-email fleet@runeditrun.com --non-interactive",
+      "exit": 0
+    },
+    {
+      "command": "cloud_run npx -y @runeditrun/rer build",
+      "exit": 0
+    }
+  ],
+  "repository": "just-every/run-spool",
+  "runtime": {
+    "node": "24.19.0",
+    "note": "Supplied cloud toolchain retains the VM Node when it is newer than the repository minimum pin 22.20.0.",
+    "pnpm": "10.12.4"
+  },
+  "schema": 1,
+  "tests": [
+    {
+      "command": "pnpm typecheck",
+      "exit": 0,
+      "log": "typecheck.log"
+    },
+    {
+      "command": "RER_CHROMIUM_EXECUTABLE_PATH=/usr/bin/chromium cloud_run node tests/sentry-sdk.mjs",
+      "exit": 0,
+      "log": "sentry-sdk.log"
+    },
+    {
+      "command": "node --check tests/inbound-filter-flow.mjs",
+      "exit": 0
+    },
+    {
+      "command": "node src/base/contract-docs.mjs check",
+      "exit": 0
+    },
+    {
+      "command": "node scripts/edition-authoring/cli.mjs lock && pnpm source:check",
+      "exit": 0
+    }
+  ],
+  "tree": "e6330e86dc0c407a2fefe8613f6991d323195ea3"
+}

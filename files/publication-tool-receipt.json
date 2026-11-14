@@ -1,0 +1,42 @@
+{
+  "attempts": [
+    {
+      "exit": 2,
+      "report": "publication-scan-300s.json",
+      "rule": "scan.deadline-exceeded",
+      "status": "INCOMPLETE",
+      "timeout_seconds": 300
+    },
+    {
+      "complete": false,
+      "diagnostic": "identity-diagnostic.json",
+      "exit": 2,
+      "findings": {
+        "hygiene.github-missing": 1,
+        "scan.identity-invalid": 1
+      },
+      "history_blobs": 7859,
+      "history_commits": 907,
+      "report": "publication-scan.json",
+      "status": "INCOMPLETE",
+      "timeout_seconds": 1800,
+      "tooling_issue": "edition-authoring dependencies were initially absent from the extracted scanner. Restored from the same read-only Base archive after this attempt."
+    }
+  ],
+  "base_archive_root": "runeditrun-base-9de808d",
+  "base_archive_sha256": "d68a3786253d3cca7227f95b8adf05fffeeaad180ae7870d2837917f6387875b",
+  "base_source": "runeditrun/base main archive read through gh api",
+  "environment_file": "none; no owner environment file is available in this cloud task",
+  "final_publication_status": "BLOCKED: no COMPLETE/PASS scan; corrected full scan not run after the API budget was exhausted",
+  "github_api_budget": 10,
+  "github_api_calls_before_scan": 9,
+  "github_api_calls_total": 10,
+  "gitleaks_archive_sha256": "551f6fc83ea457d62a0d98237cbad105af8d557003051f41f3e7ca7b3f2470eb",
+  "gitleaks_checksum_verified_against": "Base scripts/install-gitleaks.sh Linux:x86_64 pin",
+  "gitleaks_version": "8.30.1",
+  "product_push_attempted": false,
+  "remaining_github_api_calls": 0,
+  "scanner_additional_calls_budget": 1,
+  "scanner_python_source_sha256": "b905f88a21022227fffeacaf6fd7417c8f25a83bc70b0bed69b9de5ac085c90b",
+  "worktree": "clean detached worktree at candidate HEAD"
+}

@@ -1,0 +1,14 @@
+{
+  "blocker": "Required COMPLETE/PASS publication scan unavailable after exhausted API budget; scanner dependencies restored and offline metadata validation passed.",
+  "branch": "cloud/gr-mt-spool-code-9",
+  "bundle_receipt": "bundle-receipt.txt",
+  "ci_run_ids": [],
+  "evidence_ref": "refs/heads/evidence/gr-mt-spool-code-9",
+  "head": "16a3c749f7a85262209ea90ee0660964bdd285bb",
+  "pr": null,
+  "product_push_http_status": "not applicable: no product push attempted",
+  "product_pushed": false,
+  "ready": false,
+  "repository": "just-every/run-spool",
+  "result": "result.json"
+}

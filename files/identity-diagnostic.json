@@ -1,0 +1,19 @@
+{
+  "command": "Base project_identity.tree_identity using the restored complete edition-authoring dependency tree",
+  "edition_json_changed": false,
+  "explanation": "Earlier scan.identity-invalid was caused by missing extracted scanner dependencies, not a product metadata change. This offline diagnostic does not replace a complete publication scan.",
+  "results": [
+    {
+      "commit": "16a3c749f7a85262209ea90ee0660964bdd285bb",
+      "invalid_paths": [],
+      "logical_project_identity": "just-every/spool",
+      "ref": "HEAD"
+    },
+    {
+      "commit": "e206a1ca9a631059818333837062a90bd225443d",
+      "invalid_paths": [],
+      "logical_project_identity": "just-every/spool",
+      "ref": "origin/main"
+    }
+  ]
+}

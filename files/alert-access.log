@@ -1,0 +1,12 @@
+Alert API retry 2/5; refresh=0 setup=0 cleanup=0
+{"message":"Resource not accessible by integration","documentation_url":"https://docs.github.com/rest/code-scanning/code-scanning#get-a-code-scanning-alert","status":"403"}gh: Resource not accessible by integration (HTTP 403)
+
+Alert API retry 3/5; refresh=0 setup=0 cleanup=0
+{"message":"Resource not accessible by integration","documentation_url":"https://docs.github.com/rest/code-scanning/code-scanning#get-a-code-scanning-alert","status":"403"}gh: Resource not accessible by integration (HTTP 403)
+
+Alert API retry 4/5; refresh=0 setup=0 cleanup=0
+{"message":"Resource not accessible by integration","documentation_url":"https://docs.github.com/rest/code-scanning/code-scanning#get-a-code-scanning-alert","status":"403"}gh: Resource not accessible by integration (HTTP 403)
+
+Alert API retry 5/5; refresh=0 setup=0 cleanup=0
+{"message":"Resource not accessible by integration","documentation_url":"https://docs.github.com/rest/code-scanning/code-scanning#get-a-code-scanning-alert","status":"403"}gh: Resource not accessible by integration (HTTP 403)
+

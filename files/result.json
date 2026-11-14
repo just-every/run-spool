@@ -1,0 +1,7 @@
+{
+  "security": true,
+  "sha": "16a3c749f7a85262209ea90ee0660964bdd285bb",
+  "status": "cannot",
+  "summary": "Repaired the loopback inbound-filter test SSRF sink and passed the touched SDK journey and typecheck; product publication is blocked because a corrected COMPLETE/PASS Base scan cannot be obtained after the ten-call GitHub API budget was exhausted.",
+  "tests": "PASS: node --check tests/inbound-filter-flow.mjs; pnpm typecheck; RER_CHROMIUM_EXECUTABLE_PATH=/usr/bin/chromium cloud_run node tests/sentry-sdk.mjs; source lock regeneration/check; contract-docs check; git diff --check. Publication scans: 300s deadline INCOMPLETE, then incomplete-tool-dependency identity finding; restored tooling validates candidate/main identity offline, but no corrected complete full scan or CI run was available."
+}

@@ -1,0 +1,2 @@
+BUNDLE path=/home/agent/rer-consolidation/work/push-rescue/cloud_gr-mt-spool-code-9-20261114T171527Z-16a3c749f7a8.bundle head=16a3c749f7a85262209ea90ee0660964bdd285bb sha256=5a64f438cd1859114d875d239dfbf7ce0ed8b2164be13fdaaddadd72c8c8abf8 verified=true
+Preserve this VM/clone and retrieve the bundle before ending its retention period.
