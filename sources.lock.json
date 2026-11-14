@@ -11762,7 +11762,7 @@
       "executable": false
     },
     "tests/tunnel-flow.mjs": {
-      "sha256": "9726b3edc0918d995f5059f5c7d05139be564a3b9f53fa726171b649355ef3e7",
+      "sha256": "32dcd9b7a9786f7c493602200e4ff9a6c034b42a8be3ed9a455a6709601cbb33",
       "executable": false
     },
     "tests/tunnel/server.mjs": {
@@ -11770,7 +11770,11 @@
       "executable": false
     },
     "tests/tunnel/server.py": {
-      "sha256": "cb97c783d8cd0eb2b287d319b181fc3324c2bf5c4c1419b92b90b5c3725113e3",
+      "sha256": "74a2801ef29f4f3b221751ced9add4423696399ca3ffdd846625d0f2f3f13c09",
+      "executable": false
+    },
+    "tests/tunnel/static-files.py": {
+      "sha256": "f175ad1dfd836d42a6b2489a2c996e037a2cc5efea41cc84255e104266631e37",
       "executable": false
     },
     "tests/worker-options.mjs": {

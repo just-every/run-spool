@@ -20,6 +20,7 @@ const temporary = await mkdtemp(resolve(tmpdir(), 'spool-tunnel-')), app = resol
 let worker, browser, python, nodeServer, capture, nextServer, redirector, foreign;
 const listen = server => new Promise(done => server.listen(0, '127.0.0.1', () => done(server.address().port)));
 try {
+  execFileSync('python3', ['tests/tunnel/static-files.py'], { stdio: 'inherit' });
   await mkdir(app); await mkdir(site);
   const packed = JSON.parse(execFileSync(process.execPath, ['packages/sdk/build.mjs', '--pack'], { encoding: 'utf8' }).trim().split('\n').at(-1));
   await writeFile(resolve(app, 'package.json'), JSON.stringify({ name: 'fresh-app', private: true, type: 'module' }));

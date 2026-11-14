@@ -10,6 +10,7 @@ sys.path.insert(0, os.path.join(os.path.dirname(__file__), "..", "..", "packages
 from spool_tunnel import Tunnel
 
 port, root, dsns = int(sys.argv[1]), sys.argv[2], sys.argv[3:]
+root = os.path.realpath(root)
 tunnel = Tunnel(dsn=dsns)
 types = {".html": "text/html", ".js": "text/javascript"}
 
@@ -21,12 +22,14 @@ def app(environ, start_response):
         peak = resource.getrusage(resource.RUSAGE_SELF).ru_maxrss
         start_response("200 OK", [("content-type", "application/json")])
         return [json.dumps({"pid": os.getpid(), "maxRSS": peak // 1024 if sys.platform == "darwin" else peak}).encode()]
-    path = os.path.join(root, os.path.basename(environ["PATH_INFO"]))
-    if not os.path.isfile(path):
+    # A basename can still name a symlink outside the static directory.
+    path = os.path.realpath(os.path.join(root, os.path.basename(environ["PATH_INFO"])))
+    if os.path.commonpath([root, path]) != root or not os.path.isfile(path):
         start_response("404 Not Found", [])
         return [b""]
     start_response("200 OK", [("content-type", types.get(os.path.splitext(path)[1], "text/plain"))])
-    return [open(path, "rb").read()]
+    with open(path, "rb") as source:
+        return [source.read()]
 
 
 class Quiet(WSGIRequestHandler):
