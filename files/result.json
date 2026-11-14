@@ -1,0 +1,7 @@
+{
+  "status": "no-change",
+  "sha": "b9e7e575097e0dd0fc0662ce1ed507fa0d41f0d8",
+  "summary": "Already fixed on current main by 8069a3255289f121700b24c629daa3b16c448e3a: npm trusted publishing replaced the failed token check; later main Release SDK runs 43082652411 and 43394717532 succeeded with unchanged release workflow and SDK bytes at current HEAD.",
+  "tests": "PASS: exact current workflow reporting step executed locally (no OIDC on local host, exit 0); node scripts/verify-ci.mjs --check-workflows; ancestry and workflow/SDK byte equivalence against successful main run 43394717532; clean product tree. Current-head Verify 43536837897 and Run site 43536837721 completed/success. No product changes, dependency install, typecheck, full suite, npm publish or new workflow dispatch.",
+  "security": true
+}

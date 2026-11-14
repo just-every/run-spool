@@ -1,0 +1,56 @@
+{
+  "tag": "gr-mt-spool-ci-4",
+  "repository": "just-every/run-spool",
+  "branch": "cloud/gr-mt-spool-ci-4",
+  "head": "b9e7e575097e0dd0fc0662ce1ed507fa0d41f0d8",
+  "origin_main": "b9e7e575097e0dd0fc0662ce1ed507fa0d41f0d8",
+  "product_commits": 0,
+  "product_changed_files": 0,
+  "product_push": false,
+  "pr_url": null,
+  "github_invocations": 5,
+  "failed_run": {
+    "id": 39866351660,
+    "job": 120129396518,
+    "step": "NPM_TOKEN reaches this repository"
+  },
+  "log_attempt": {
+    "command": "gh run view 39866351660 --repo just-every/run-spool --job 120129396518 --log-failed",
+    "exit_code": 0,
+    "stdout_bytes": 0,
+    "limitation": "The failed-log command returned no log lines. The exact historical npm error is unavailable; do not infer an expired or invalid token."
+  },
+  "existing_fix": "8069a3255289f121700b24c629daa3b16c448e3a",
+  "release_successes": [
+    43082652411,
+    43394717532
+  ],
+  "exact_head_verify": 43536837897,
+  "exact_head_run_site": 43536837721,
+  "local_checks": [
+    {
+      "command": "bash extracted trusted-publishing-check step (without OIDC URL)",
+      "exit_code": 0
+    },
+    {
+      "command": "node scripts/verify-ci.mjs --check-workflows",
+      "exit_code": 0
+    },
+    {
+      "command": "git diff --exit-code e9540f7ae83a5334d11dcaeda44c66df3b5ad94c HEAD -- .github/workflows/sdk-release.yml packages/sdk",
+      "exit_code": 0
+    },
+    {
+      "command": "git diff --exit-code; git status --porcelain=v1",
+      "exit_code": 0
+    }
+  ],
+  "runtime": {
+    "node": "24.19.0",
+    "pnpm": "10.12.4",
+    "setup": "User-supplied toolchain selected installed newer Node; no dependencies needed for read-only validation"
+  },
+  "clauses_changed": [],
+  "blockers": [],
+  "publication_scan": "Not run: no product commit or product publication; evidence-only protocol is separate."
+}

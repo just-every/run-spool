@@ -1,0 +1,19 @@
+commit 8069a3255289f121700b24c629daa3b16c448e3a
+Author:     Run Edit Run fleet <fleet@runeditrun.com>
+AuthorDate: Wed Nov 11 23:01:26 2026 +1000
+Commit:     Run Edit Run fleet <fleet@runeditrun.com>
+CommitDate: Wed Nov 11 23:01:26 2026 +1000
+
+    Publish the SDK to npm by trusted publishing, with no token
+    
+    The publish job now holds id-token: write and no npm token, installs
+    npm 11.6.2 and publishes the exact smoke-tested tarball with an empty user
+    config, so npm authenticates through OIDC when @just-every/spool lists this
+    workflow as its Trusted Publisher. A refused publish names the owner step.
+    The token-check job is replaced by a job that reports OIDC availability and
+    prints the owner's setup steps in the job summary.
+    
+    Co-Authored-By: Claude Sonnet 5.5 <noreply@anthropic.com>
+
+ .github/workflows/sdk-release.yml | 61 ++++++++++++++++++++++++++-------------
+ 1 file changed, 41 insertions(+), 20 deletions(-)
