@@ -1,0 +1,21 @@
+{
+  "before_vite_manifest": "8.2.2",
+  "after_vite_manifest": "8.2.4",
+  "removed_packages": [
+    "vite@8.2.2"
+  ],
+  "added_packages": [
+    "vite@8.2.4"
+  ],
+  "unrelated_package_changes": 0,
+  "before_vulnerable_vite_resolutions": 1,
+  "after_vulnerable_vite_resolutions": 0,
+  "locked_package_count_before": 547,
+  "locked_package_count_after": 547,
+  "node": "v22.20.0",
+  "pnpm": "10.12.4",
+  "installed_vite_versions": [
+    "8.2.4"
+  ],
+  "installed_dependency_paths": 12
+}

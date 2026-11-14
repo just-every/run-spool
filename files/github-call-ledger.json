@@ -1,0 +1,69 @@
+[
+  {
+    "call": 1,
+    "endpoint": "repos/runeditrun/base/tarball/main"
+  },
+  {
+    "call": 2,
+    "endpoint": "repos/gitleaks/gitleaks/releases/tags/v8.30.1"
+  },
+  {
+    "call": 3,
+    "endpoint": "repos/gitleaks/gitleaks/releases/assets/378332058"
+  },
+  {
+    "call": 4,
+    "arguments": [
+      "api",
+      "repos/just-every/run-spool/actions/runs?head_sha=3165877f046ca026c108f2b09cccdce845c3219d&per_page=100",
+      "--jq",
+      "{total_count,workflow_runs:[.workflow_runs[]|{id,name,status,conclusion,head_sha,html_url}]}"
+    ],
+    "timestamp": 1794643906.0819917,
+    "exit_code": 0
+  },
+  {
+    "call": 5,
+    "arguments": [
+      "api",
+      "repos/just-every/run-spool/actions/runs?head_sha=3165877f046ca026c108f2b09cccdce845c3219d&per_page=100",
+      "--jq",
+      "{total_count,workflow_runs:[.workflow_runs[]|{id,name,status,conclusion,head_sha,html_url}]}"
+    ],
+    "timestamp": 1794644206.0919876,
+    "exit_code": 0
+  },
+  {
+    "call": 6,
+    "arguments": [
+      "api",
+      "repos/just-every/run-spool/actions/runs/43574635673",
+      "--jq",
+      "{status,conclusion,head_sha,html_url}"
+    ],
+    "timestamp": 1794644506.0796092,
+    "exit_code": 0
+  },
+  {
+    "call": 7,
+    "arguments": [
+      "api",
+      "repos/just-every/run-spool/actions/runs/43574635673",
+      "--jq",
+      "{status,conclusion,head_sha,html_url}"
+    ],
+    "timestamp": 1794644806.0876365,
+    "exit_code": 0
+  },
+  {
+    "call": 8,
+    "arguments": [
+      "api",
+      "repos/just-every/run-spool/actions/runs/43574635673",
+      "--jq",
+      "{status,conclusion,head_sha,html_url}"
+    ],
+    "timestamp": 1794645106.114735,
+    "exit_code": 0
+  }
+]

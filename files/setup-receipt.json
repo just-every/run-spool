@@ -1,0 +1,5 @@
+{
+  "command": "cloud_run npx -y @runeditrun/rer setup --owner-email fleet@runeditrun.com --non-interactive",
+  "exit_code": 0,
+  "log": "private local log omitted from public evidence"
+}

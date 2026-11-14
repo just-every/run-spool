@@ -1,0 +1,5 @@
+
+> @errors/errors-workbench@0.7.11 integration:check /home/agent/rer-consolidation/work/maint/gr-mt-spool-dep-6/repo
+> node scripts/sync-integration.mjs --check
+
+Integration deployment spec, setup digest and producer workflow match.

@@ -1,0 +1,38 @@
+{
+  "api_calls_used": 3,
+  "reads": [
+    {
+      "call": 1,
+      "endpoint": "repos/runeditrun/base/tarball/main",
+      "purpose": "fresh Base publication scanner (read only; no clone)"
+    },
+    {
+      "call": 2,
+      "endpoint": "repos/gitleaks/gitleaks/releases/tags/v8.30.1",
+      "purpose": "scanner-required binary metadata"
+    },
+    {
+      "call": 3,
+      "endpoint": "repos/gitleaks/gitleaks/releases/assets/378332058",
+      "purpose": "checksum-verified scanner binary"
+    }
+  ],
+  "base_archive_root": "runeditrun-base-6c6c59e",
+  "base_archive_sha256": "b26f442815266481caae19c03288457c7e6359d887c47ca58a0932ae76613f90",
+  "gitleaks": {
+    "url": "https://api.github.com/repos/gitleaks/gitleaks/releases/assets/378332058",
+    "name": "gitleaks_8.30.1_linux_x64.tar.gz",
+    "digest": "sha256:551f6fc83ea457d62a0d98237cbad105af8d557003051f41f3e7ca7b3f2470eb"
+  },
+  "scanner_entrypoint": "scripts/publish-check/cli.py",
+  "scanner_entrypoint_reason": "Use the unmodified official Python scan CLI from the GitHub API archive; the Node presentation wrapper derives a version using Git metadata absent from archives. No scanner code or policy was changed.",
+  "initial_scan": {
+    "status": "FAIL",
+    "complete": true,
+    "finding_count": 13,
+    "committed_tree_findings": 0,
+    "cause": "Ignored local setup credentials, build output and runtime state were included in the working-tree scan. No product source finding. The complete actual report is initial-publication-scan.json."
+  },
+  "final_scan_location": "/home/agent/rer-consolidation/work/gr-mt-spool-dep-6/scan-tree",
+  "final_scan_method": "Clean detached worktree of the exact same commit, with full shared history; no new exclusions, scanner modifications, or product amendments."
+}

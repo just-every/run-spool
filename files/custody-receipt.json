@@ -1,0 +1,32 @@
+{
+  "repository": "just-every/run-spool",
+  "branch": "cloud/gr-mt-spool-dep-6",
+  "head": "3165877f046ca026c108f2b09cccdce845c3219d",
+  "tree": "425a590005014480c6c1d9bc3c14a295525b065b",
+  "remote_ref": "refs/heads/cloud/gr-mt-spool-dep-6",
+  "remote_head": "3165877f046ca026c108f2b09cccdce845c3219d",
+  "pushed": true,
+  "push_attempts": 1,
+  "publication_scan": {
+    "complete": true,
+    "status": "PASS",
+    "findings": 0,
+    "commit": "3165877f046ca026c108f2b09cccdce845c3219d"
+  },
+  "all_candidate_identities": "Run Edit Run fleet <fleet@runeditrun.com>",
+  "trailers": [],
+  "pr_url": null,
+  "landed": false,
+  "deployed": false,
+  "ci": {
+    "conclusion": "success",
+    "head_sha": "3165877f046ca026c108f2b09cccdce845c3219d",
+    "html_url": "https://github.com/just-every/run-spool/actions/runs/43574635673",
+    "id": 43574635673,
+    "name": "Verify",
+    "status": "completed"
+  },
+  "terminal_marker": "READY",
+  "blockers": [],
+  "landing_owner": "fleet guarded Mac lander"
+}

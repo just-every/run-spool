@@ -1,0 +1,7 @@
+{
+  "passed": true,
+  "checked_files": 29,
+  "symlinks": 0,
+  "credential_values_found": 0,
+  "method": "Compared report file bytes against confidential injected and generated setup values in memory; no secret values were recorded."
+}

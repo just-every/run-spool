@@ -1,0 +1,180 @@
+[
+  {
+    "name": "@errors/errors-workbench",
+    "version": "0.7.11",
+    "path": "/home/agent/rer-consolidation/work/maint/gr-mt-spool-dep-6/repo",
+    "private": true,
+    "dependencies": {
+      "@tanstack/react-start": {
+        "from": "@tanstack/react-start",
+        "version": "1.168.60",
+        "resolved": "https://registry.npmjs.org/@tanstack/react-start/-/react-start-1.168.60.tgz",
+        "path": "/home/agent/rer-consolidation/work/maint/gr-mt-spool-dep-6/repo/node_modules/.pnpm/@tanstack+react-start@1.168.60_esbuild@0.28.2_react-dom@19.2.8_react@19.2.8__react@19.2_31e14fe982f314fa9487cc94a9c831cf/node_modules/@tanstack/react-start",
+        "dependencies": {
+          "vite": {
+            "from": "vite",
+            "version": "8.2.4",
+            "resolved": "https://registry.npmjs.org/vite/-/vite-8.2.4.tgz",
+            "path": "/home/agent/rer-consolidation/work/maint/gr-mt-spool-dep-6/repo/node_modules/.pnpm/vite@8.2.4_@types+node@22.20.5_esbuild@0.28.2_jiti@2.7.0_terser@5.51.2/node_modules/vite"
+          },
+          "@tanstack/start-plugin-core": {
+            "from": "@tanstack/start-plugin-core",
+            "version": "1.171.49",
+            "resolved": "https://registry.npmjs.org/@tanstack/start-plugin-core/-/start-plugin-core-1.171.49.tgz",
+            "path": "/home/agent/rer-consolidation/work/maint/gr-mt-spool-dep-6/repo/node_modules/.pnpm/@tanstack+start-plugin-core@1.171.49_@tanstack+react-router@1.170.41_react-dom@19.2.8_r_8eae48c3bccc0a6277b4b9948c6f55fa/node_modules/@tanstack/start-plugin-core",
+            "dependencies": {
+              "vite": {
+                "from": "vite",
+                "version": "8.2.4",
+                "resolved": "https://registry.npmjs.org/vite/-/vite-8.2.4.tgz",
+                "path": "/home/agent/rer-consolidation/work/maint/gr-mt-spool-dep-6/repo/node_modules/.pnpm/vite@8.2.4_@types+node@22.20.5_esbuild@0.28.2_jiti@2.7.0_terser@5.51.2/node_modules/vite"
+              },
+              "vitefu": {
+                "from": "vitefu",
+                "version": "1.1.3",
+                "resolved": "https://registry.npmjs.org/vitefu/-/vitefu-1.1.3.tgz",
+                "path": "/home/agent/rer-consolidation/work/maint/gr-mt-spool-dep-6/repo/node_modules/.pnpm/vitefu@1.1.3_vite@8.2.4_@types+node@22.20.5_esbuild@0.28.2_jiti@2.7.0_terser@5.51.2_/node_modules/vitefu",
+                "dependencies": {
+                  "vite": {
+                    "from": "vite",
+                    "version": "8.2.4",
+                    "resolved": "https://registry.npmjs.org/vite/-/vite-8.2.4.tgz",
+                    "path": "/home/agent/rer-consolidation/work/maint/gr-mt-spool-dep-6/repo/node_modules/.pnpm/vite@8.2.4_@types+node@22.20.5_esbuild@0.28.2_jiti@2.7.0_terser@5.51.2/node_modules/vite"
+                  }
+                }
+              },
+              "@tanstack/router-plugin": {
+                "from": "@tanstack/router-plugin",
+                "version": "1.168.42",
+                "resolved": "https://registry.npmjs.org/@tanstack/router-plugin/-/router-plugin-1.168.42.tgz",
+                "path": "/home/agent/rer-consolidation/work/maint/gr-mt-spool-dep-6/repo/node_modules/.pnpm/@tanstack+router-plugin@1.168.42_@tanstack+react-router@1.170.41_react-dom@19.2.8_react_73b9e814d44ab71c283e6f5cc1a26fc0/node_modules/@tanstack/router-plugin",
+                "dependencies": {
+                  "vite": {
+                    "from": "vite",
+                    "version": "8.2.4",
+                    "resolved": "https://registry.npmjs.org/vite/-/vite-8.2.4.tgz",
+                    "path": "/home/agent/rer-consolidation/work/maint/gr-mt-spool-dep-6/repo/node_modules/.pnpm/vite@8.2.4_@types+node@22.20.5_esbuild@0.28.2_jiti@2.7.0_terser@5.51.2/node_modules/vite"
+                  },
+                  "unplugin": {
+                    "from": "unplugin",
+                    "version": "3.3.0",
+                    "resolved": "https://registry.npmjs.org/unplugin/-/unplugin-3.3.0.tgz",
+                    "path": "/home/agent/rer-consolidation/work/maint/gr-mt-spool-dep-6/repo/node_modules/.pnpm/unplugin@3.3.0_esbuild@0.28.2_rolldown@1.2.8_rollup@4.64.12_vite@8.2.4_@types+node@22.2_eb1a795b0b35a981a8a0c7654c5d41ad/node_modules/unplugin",
+                    "dependencies": {
+                      "vite": {
+                        "from": "vite",
+                        "version": "8.2.4",
+                        "resolved": "https://registry.npmjs.org/vite/-/vite-8.2.4.tgz",
+                        "path": "/home/agent/rer-consolidation/work/maint/gr-mt-spool-dep-6/repo/node_modules/.pnpm/vite@8.2.4_@types+node@22.20.5_esbuild@0.28.2_jiti@2.7.0_terser@5.51.2/node_modules/vite"
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "@tanstack/react-start-rsc": {
+            "from": "@tanstack/react-start-rsc",
+            "version": "0.1.59",
+            "resolved": "https://registry.npmjs.org/@tanstack/react-start-rsc/-/react-start-rsc-0.1.59.tgz",
+            "path": "/home/agent/rer-consolidation/work/maint/gr-mt-spool-dep-6/repo/node_modules/.pnpm/@tanstack+react-start-rsc@0.1.59_esbuild@0.28.2_react-dom@19.2.8_react@19.2.8__react@19_253f4b5d35aa3ac4aa4965faa79c6735/node_modules/@tanstack/react-start-rsc",
+            "dependencies": {
+              "@tanstack/start-plugin-core": {
+                "from": "@tanstack/start-plugin-core",
+                "version": "1.171.49",
+                "resolved": "https://registry.npmjs.org/@tanstack/start-plugin-core/-/start-plugin-core-1.171.49.tgz",
+                "path": "/home/agent/rer-consolidation/work/maint/gr-mt-spool-dep-6/repo/node_modules/.pnpm/@tanstack+start-plugin-core@1.171.49_@tanstack+react-router@1.170.41_react-dom@19.2.8_r_8eae48c3bccc0a6277b4b9948c6f55fa/node_modules/@tanstack/start-plugin-core",
+                "dependencies": {
+                  "vite": {
+                    "from": "vite",
+                    "version": "8.2.4",
+                    "resolved": "https://registry.npmjs.org/vite/-/vite-8.2.4.tgz",
+                    "path": "/home/agent/rer-consolidation/work/maint/gr-mt-spool-dep-6/repo/node_modules/.pnpm/vite@8.2.4_@types+node@22.20.5_esbuild@0.28.2_jiti@2.7.0_terser@5.51.2/node_modules/vite"
+                  },
+                  "vitefu": {
+                    "from": "vitefu",
+                    "version": "1.1.3",
+                    "resolved": "https://registry.npmjs.org/vitefu/-/vitefu-1.1.3.tgz",
+                    "path": "/home/agent/rer-consolidation/work/maint/gr-mt-spool-dep-6/repo/node_modules/.pnpm/vitefu@1.1.3_vite@8.2.4_@types+node@22.20.5_esbuild@0.28.2_jiti@2.7.0_terser@5.51.2_/node_modules/vitefu",
+                    "dependencies": {
+                      "vite": {
+                        "from": "vite",
+                        "version": "8.2.4",
+                        "resolved": "https://registry.npmjs.org/vite/-/vite-8.2.4.tgz",
+                        "path": "/home/agent/rer-consolidation/work/maint/gr-mt-spool-dep-6/repo/node_modules/.pnpm/vite@8.2.4_@types+node@22.20.5_esbuild@0.28.2_jiti@2.7.0_terser@5.51.2/node_modules/vite"
+                      }
+                    }
+                  },
+                  "@tanstack/router-plugin": {
+                    "from": "@tanstack/router-plugin",
+                    "version": "1.168.42",
+                    "resolved": "https://registry.npmjs.org/@tanstack/router-plugin/-/router-plugin-1.168.42.tgz",
+                    "path": "/home/agent/rer-consolidation/work/maint/gr-mt-spool-dep-6/repo/node_modules/.pnpm/@tanstack+router-plugin@1.168.42_@tanstack+react-router@1.170.41_react-dom@19.2.8_react_73b9e814d44ab71c283e6f5cc1a26fc0/node_modules/@tanstack/router-plugin",
+                    "dependencies": {
+                      "vite": {
+                        "from": "vite",
+                        "version": "8.2.4",
+                        "resolved": "https://registry.npmjs.org/vite/-/vite-8.2.4.tgz",
+                        "path": "/home/agent/rer-consolidation/work/maint/gr-mt-spool-dep-6/repo/node_modules/.pnpm/vite@8.2.4_@types+node@22.20.5_esbuild@0.28.2_jiti@2.7.0_terser@5.51.2/node_modules/vite"
+                      },
+                      "unplugin": {
+                        "from": "unplugin",
+                        "version": "3.3.0",
+                        "resolved": "https://registry.npmjs.org/unplugin/-/unplugin-3.3.0.tgz",
+                        "path": "/home/agent/rer-consolidation/work/maint/gr-mt-spool-dep-6/repo/node_modules/.pnpm/unplugin@3.3.0_esbuild@0.28.2_rolldown@1.2.8_rollup@4.64.12_vite@8.2.4_@types+node@22.2_eb1a795b0b35a981a8a0c7654c5d41ad/node_modules/unplugin",
+                        "dependencies": {
+                          "vite": {
+                            "from": "vite",
+                            "version": "8.2.4",
+                            "resolved": "https://registry.npmjs.org/vite/-/vite-8.2.4.tgz",
+                            "path": "/home/agent/rer-consolidation/work/maint/gr-mt-spool-dep-6/repo/node_modules/.pnpm/vite@8.2.4_@types+node@22.20.5_esbuild@0.28.2_jiti@2.7.0_terser@5.51.2/node_modules/vite"
+                          }
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "devDependencies": {
+      "vite": {
+        "from": "vite",
+        "version": "8.2.4",
+        "resolved": "https://registry.npmjs.org/vite/-/vite-8.2.4.tgz",
+        "path": "/home/agent/rer-consolidation/work/maint/gr-mt-spool-dep-6/repo/node_modules/.pnpm/vite@8.2.4_@types+node@22.20.5_esbuild@0.28.2_jiti@2.7.0_terser@5.51.2/node_modules/vite"
+      },
+      "@cloudflare/vite-plugin": {
+        "from": "@cloudflare/vite-plugin",
+        "version": "1.54.5",
+        "resolved": "https://registry.npmjs.org/@cloudflare/vite-plugin/-/vite-plugin-1.54.5.tgz",
+        "path": "/home/agent/rer-consolidation/work/maint/gr-mt-spool-dep-6/repo/node_modules/.pnpm/@cloudflare+vite-plugin@1.54.5_@types+node@22.20.5_vite@8.2.4_@types+node@22.20.5_esbui_6a09775e6026404667b8cb1762384d47/node_modules/@cloudflare/vite-plugin",
+        "dependencies": {
+          "vite": {
+            "from": "vite",
+            "version": "8.2.4",
+            "resolved": "https://registry.npmjs.org/vite/-/vite-8.2.4.tgz",
+            "path": "/home/agent/rer-consolidation/work/maint/gr-mt-spool-dep-6/repo/node_modules/.pnpm/vite@8.2.4_@types+node@22.20.5_esbuild@0.28.2_jiti@2.7.0_terser@5.51.2/node_modules/vite"
+          }
+        }
+      },
+      "@vitejs/plugin-react": {
+        "from": "@vitejs/plugin-react",
+        "version": "6.1.1",
+        "resolved": "https://registry.npmjs.org/@vitejs/plugin-react/-/plugin-react-6.1.1.tgz",
+        "path": "/home/agent/rer-consolidation/work/maint/gr-mt-spool-dep-6/repo/node_modules/.pnpm/@vitejs+plugin-react@6.1.1_vite@8.2.4_@types+node@22.20.5_esbuild@0.28.2_jiti@2.7.0_terser@5.51.2_/node_modules/@vitejs/plugin-react",
+        "dependencies": {
+          "vite": {
+            "from": "vite",
+            "version": "8.2.4",
+            "resolved": "https://registry.npmjs.org/vite/-/vite-8.2.4.tgz",
+            "path": "/home/agent/rer-consolidation/work/maint/gr-mt-spool-dep-6/repo/node_modules/.pnpm/vite@8.2.4_@types+node@22.20.5_esbuild@0.28.2_jiti@2.7.0_terser@5.51.2/node_modules/vite"
+          }
+        }
+      }
+    }
+  }
+]

@@ -1,0 +1,21 @@
+
+   ╭──────────────────────────────────────────╮
+   │                                          │
+   │   Update available! 10.12.4 → 12.18.0.   │
+   │   Changelog: https://pnpm.io/v/12.18.0   │
+   │     To update, run: pnpm add -g pnpm     │
+   │                                          │
+   ╰──────────────────────────────────────────╯
+
+Progress: resolved 1, reused 0, downloaded 0, added 0
+Progress: resolved 32, reused 0, downloaded 0, added 0
+Progress: resolved 66, reused 0, downloaded 0, added 0
+Progress: resolved 127, reused 0, downloaded 0, added 0
+Progress: resolved 215, reused 0, downloaded 0, added 0
+Progress: resolved 323, reused 0, downloaded 0, added 0
+Progress: resolved 423, reused 0, downloaded 0, added 0
+Progress: resolved 491, reused 0, downloaded 0, added 0, done
+
+Packages: +264
+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+Done in 11.6s using pnpm v10.12.4

@@ -1,0 +1,7 @@
+{
+  "status": "done",
+  "sha": "3165877f046ca026c108f2b09cccdce845c3219d",
+  "summary": "Upgrade Vite 8.2.2 to patched 8.2.4 in package.json and pnpm-lock.yaml, regenerate only their source-lock entries; all 12 installed paths resolve 8.2.4 with no unrelated dependency upgrades.",
+  "tests": "pnpm install --frozen-lockfile; cloud_run npx -y @runeditrun/rer setup --owner-email fleet@runeditrun.com --non-interactive; cloud_run npx -y @runeditrun/rer build; pnpm typecheck; pnpm integration:check; node src/base/contract-docs.mjs check; node scripts/edition-authoring/cli.mjs lock; pnpm source:check; RER_CHROMIUM_EXECUTABLE_PATH=/usr/bin/chromium cloud_run node tests/runtime.mjs; git diff --check: all passed. Fresh Base full-history publication scan: COMPLETE/PASS, zero findings on 3165877f046ca026c108f2b09cccdce845c3219d. Exact-SHA Verify 43574635673: completed/success.",
+  "security": true
+}

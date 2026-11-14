@@ -1,0 +1,54 @@
+{
+  "head": "3165877f046ca026c108f2b09cccdce845c3219d",
+  "branch": "cloud/gr-mt-spool-dep-6",
+  "base": "b9e7e575097e0dd0fc0662ce1ed507fa0d41f0d8",
+  "files": [
+    "package.json",
+    "pnpm-lock.yaml",
+    "sources.lock.json"
+  ],
+  "clauses_changed": [],
+  "clauses_promoted": [],
+  "tests_added": 0,
+  "tests_removed": 0,
+  "tests_weakened": 0,
+  "checks": [
+    {
+      "command": "pnpm install --frozen-lockfile",
+      "exit_code": 0
+    },
+    {
+      "command": "npx -y @runeditrun/rer setup --owner-email fleet@runeditrun.com --non-interactive",
+      "exit_code": 0
+    },
+    {
+      "command": "npx -y @runeditrun/rer build",
+      "exit_code": 0
+    },
+    {
+      "command": "pnpm typecheck",
+      "exit_code": 0
+    },
+    {
+      "command": "pnpm integration:check",
+      "exit_code": 0
+    },
+    {
+      "command": "node src/base/contract-docs.mjs check",
+      "exit_code": 0
+    },
+    {
+      "command": "node scripts/edition-authoring/cli.mjs lock",
+      "exit_code": 0
+    },
+    {
+      "command": "pnpm source:check",
+      "exit_code": 0
+    },
+    {
+      "command": "RER_CHROMIUM_EXECUTABLE_PATH=/usr/bin/chromium node tests/runtime.mjs",
+      "exit_code": 0
+    }
+  ],
+  "browser": "Existing runtime journey at its configured 1440px viewport, system /usr/bin/chromium, --no-sandbox; no changed UI screen requires 390px proof."
+}
