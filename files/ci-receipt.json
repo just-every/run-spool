@@ -1,0 +1,88 @@
+{
+  "tag": "gr-mt-spool-ci-6",
+  "repository": "just-every/run-spool",
+  "product_branch": "cloud/gr-mt-spool-ci-6",
+  "product_head": "e206a1ca9a631059818333837062a90bd225443d",
+  "status": "no-change",
+  "original": {
+    "run_id": 40340247075,
+    "head": "cf0e18ab089d73330a8cd38004c8d1ef8f3d53ac",
+    "conclusion": "failure",
+    "jobs": {
+      "success": 22,
+      "failure": 1,
+      "cancelled": 1
+    },
+    "failed_job": 121633148793,
+    "failed_step": "Run pnpm exec playwright install chromium",
+    "log_command": "gh run view 40340247075 --repo just-every/run-spool --job 121633148793 --log-failed",
+    "log_exit": 0,
+    "log_bytes": 0,
+    "log_limit": "No log text was returned; historical transport or assertion cause cannot be established from the empty archive response."
+  },
+  "current": {
+    "head": "e206a1ca9a631059818333837062a90bd225443d",
+    "verify_runs": [
+      43580557779,
+      43578422344
+    ],
+    "verify_conclusion": "success",
+    "site_run": 43580557817,
+    "site_conclusion": "success",
+    "jobs_run": 43580557779,
+    "jobs": {
+      "success": 27,
+      "skipped": 4
+    },
+    "owner_ui_job": 132404404977,
+    "owner_ui_install": "success",
+    "owner_ui_suites": "success",
+    "hosted_output_and_hydration": "success"
+  },
+  "github_cli_invocations": 5,
+  "github_cli_budget": 10,
+  "product_files_changed": 0,
+  "product_commits": 0,
+  "product_pushes": 0,
+  "pr": null,
+  "tests_added": 0,
+  "tests_removed": 0,
+  "tests_weakened": 0,
+  "clause_status_changes": [],
+  "clause_counts_before": {
+    "done": 23,
+    "partial": 54,
+    "missing": 28,
+    "total": 105
+  },
+  "clause_counts_after": {
+    "done": 23,
+    "partial": 54,
+    "missing": 28,
+    "total": 105
+  },
+  "local_checks": [
+    {
+      "command": "pnpm install --frozen-lockfile",
+      "exit": 0,
+      "log": "dependency-install.log"
+    },
+    {
+      "command": "pnpm exec playwright install chromium",
+      "exit": 0,
+      "log": "chromium-install.log"
+    },
+    {
+      "command": "Node 22.20.0 system Chromium launch, page title probe, browser.close()",
+      "exit": 0,
+      "log": "chromium-probe.log"
+    },
+    {
+      "command": "Node 22.20.0 / pnpm 10.12.4: pnpm exec playwright install chromium",
+      "exit": 0,
+      "log": "chromium-install-pinned.log"
+    }
+  ],
+  "product_publication_scan": "not applicable: no product changes, commits, or pushes",
+  "blockers": []
+}

@@ -1,0 +1,94 @@
+{
+  "files": [
+    {
+      "blob": "2f4f364d5eeb6b9c337f53503bd3cf6633598292",
+      "bytes": 6232,
+      "path": "REPORT.md",
+      "sha256": "0a68f34232f24357b8b7c1aea9391205c7dd0a8825bd75730f1d499b56457149"
+    },
+    {
+      "blob": "f31d77c9bc0ce95b320cefd09d531a70702e4841",
+      "bytes": 17,
+      "path": "chromium-install-pinned.log",
+      "sha256": "5204a0e9dbf3368f89a0a77cd8d2369a201e5f836a880998df5aedba36bf0679"
+    },
+    {
+      "blob": "98f1fcf77156e335a830ac668628be5bbd0c2cc8",
+      "bytes": 6835,
+      "path": "chromium-install.log",
+      "sha256": "32f3bfddeab5efac86d569e3b25b55e93b5383bfff61cd0ce1d1ccd889eba7c7"
+    },
+    {
+      "blob": "00d666f40a169c086b06fcdb87a13b76fca8e3f7",
+      "bytes": 77,
+      "path": "chromium-probe.log",
+      "sha256": "d1a372199b34090ad6f34bf147a62f02af0d3023a007fad68d7177cf7493933a"
+    },
+    {
+      "blob": "124dcdee9cfb057a3769e79bccc70d1e699a9057",
+      "bytes": 2420,
+      "path": "ci-receipt.json",
+      "sha256": "10f0eb845146f10d36c123165571530ce30cc9c4e440201c82cbb221cb03b3b5"
+    },
+    {
+      "blob": "55510cc477d0ed74200ce68ae5433c0f31b6e280",
+      "bytes": 36698,
+      "path": "current-main-jobs.json",
+      "sha256": "ef4f1ac2ea1abd2de80baf7b92ac1df8aaebe925fa9169d5d872dbae58b6dd1e"
+    },
+    {
+      "blob": "e11796660b68f64b2d1a8fc551ecb8c2497ddd2a",
+      "bytes": 1560,
+      "path": "current-main-runs.json",
+      "sha256": "d0b69f2f3e7c1e8d7f4d9119fc9f7b26ae094c2d9b5a3ff266e3b4fb68e3b636"
+    },
+    {
+      "blob": "5f0c602d63abfff06a47f2ec9dba6c86eace7dcf",
+      "bytes": 3479,
+      "path": "dependency-install.log",
+      "sha256": "74b057619500ea40015f5f696dd3479340054a696214f5963c5dd9ed3dd34be2"
+    },
+    {
+      "blob": "1bce49f0638dfe0773af79bdad286a14873cf952",
+      "bytes": 288,
+      "path": "main-provenance.txt",
+      "sha256": "05440139c1555ed4b121ab1c0206d569f5d781957c14b4c33be0dc1e7c8e61cd"
+    },
+    {
+      "blob": "27e96bbf70efe912647979921b21db39c65cc6a3",
+      "bytes": 24,
+      "path": "node-pin-install.log",
+      "sha256": "0084a2467ddcb7209a9d3143448e657c43875f2b05b5c0c5e89ed25ab6b9a3dd"
+    },
+    {
+      "blob": "e69de29bb2d1d6434b8b29ae775ad8c2e48c5391",
+      "bytes": 0,
+      "path": "original-failed-job.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "blob": "a98fd90e23805060d76d4f99368e4b18791d29e4",
+      "bytes": 2538,
+      "path": "original-jobs.json",
+      "sha256": "7a09c3ba05aca35d079739886d5580dad55a1835c70f38fe8f81829b9f54beee"
+    },
+    {
+      "blob": "94c894958cc22a910fb06380bbf82db9b70088f3",
+      "bytes": 12305,
+      "path": "original-run.json",
+      "sha256": "f56bc641bf2d797aa1e94fc060469d66587d81711f420793fa8d0e7abdea2c28"
+    },
+    {
+      "blob": "665d0266244131738348a0f60c3231fc03b747a3",
+      "bytes": 628,
+      "path": "result.json",
+      "sha256": "5d4816a29d020819e898b76a9b55339d8d38bd2687a1ce28bbe588e726cac1b7"
+    }
+  ],
+  "product_branch": "cloud/gr-mt-spool-ci-6",
+  "product_head": "e206a1ca9a631059818333837062a90bd225443d",
+  "ref": "refs/heads/evidence/gr-mt-spool-ci-6",
+  "repository": "just-every/run-spool",
+  "schema": 1,
+  "tag": "gr-mt-spool-ci-6"
+}

@@ -1,0 +1,7 @@
+{
+  "status": "no-change",
+  "sha": "e206a1ca9a631059818333837062a90bd225443d",
+  "summary": "Current main already passes Verify and Run site on e206a1ca9a631059818333837062a90bd225443d; the formerly failing Chromium installation and owner-ui suites now pass, so no product change or merge is needed.",
+  "tests": "Exact-SHA Verify 43580557779 and 43578422344 success; Run site 43580557817 success; pnpm install --frozen-lockfile exit 0; pnpm exec playwright install chromium exit 0; Node 22.20.0 system Chromium launch/page/close probe exit 0. No product files touched; no full local suite or build run.",
+  "security": true
+}

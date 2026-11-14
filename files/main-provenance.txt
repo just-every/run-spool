@@ -1,0 +1,9 @@
+repository=just-every/run-spool
+branch=cloud/gr-mt-spool-ci-6
+head=e206a1ca9a631059818333837062a90bd225443d
+origin_main=e206a1ca9a631059818333837062a90bd225443d
+remote_main_rechecked=e206a1ca9a631059818333837062a90bd225443d
+product_changes=none
+product_commits=0
+product_pushes=0
+pr=none
