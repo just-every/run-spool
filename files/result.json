@@ -1,0 +1,7 @@
+{
+  "status": "done",
+  "sha": "1c649c2de4f783d31b2733b4c9bdb7843f754e69",
+  "summary": "Pinned the Ruby fixture Rack dependency from 3.2.4 to patched 3.2.6, generated its Bundler lockfile, and refreshed source hashes; the 15 listed advisory ranges no longer match.",
+  "tests": "PASS: pinned frozen pnpm install, local rer setup and build, pnpm typecheck, Bundler resolution and install, source lock/check, contract-docs check, and the existing Ruby-only SDK public-door journey at 1440 and 390. Exact-SHA Verify 43573999876 completed successfully on 1c649c2de4f783d31b2733b4c9bdb7843f754e69.",
+  "security": true
+}

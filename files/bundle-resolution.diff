@@ -1,0 +1,20 @@
+--- /tmp/rer-spool-ruby-before/Gemfile.lock	2026-11-14 08:02:00.642292163 +0000
++++ tests/runtimes/ruby/Gemfile.lock	2026-11-14 08:02:13.700852983 +0000
+@@ -4,7 +4,7 @@
+     bigdecimal (4.1.3)
+     concurrent-ruby (1.3.8)
+     logger (1.7.0)
+-    rack (3.2.4)
++    rack (3.2.6)
+     sentry-ruby (7.1.0)
+       bigdecimal
+       concurrent-ruby (~> 1.0, >= 1.0.2)
+@@ -15,7 +15,7 @@
+   x86_64-linux
+ 
+ DEPENDENCIES
+-  rack (= 3.2.4)
++  rack (= 3.2.6)
+   sentry-ruby (= 7.1.0)
+ 
+ BUNDLED WITH

@@ -1,0 +1,190 @@
+{
+  "files": [
+    {
+      "blob": "25fae87d180c36ffec7c39af042f8a0b4802095c",
+      "bytes": 1036,
+      "path": "PLAN.md",
+      "sha256": "49a7d3cc6b837328e978539684f6144db293b4dfc9653a5b562ae850b4d07989"
+    },
+    {
+      "blob": "241fb3e1e87a88d70c1377641c63d15a77562a80",
+      "bytes": 5885,
+      "path": "REPORT.md",
+      "sha256": "cb130e00c5655fc1789c5074dbf8e27a5efdd55f943c1239329deb79a11018a4"
+    },
+    {
+      "blob": "e1ff9e0ae4cb70798e68c7e7d01181637991f870",
+      "bytes": 11545,
+      "path": "build.log",
+      "sha256": "a08b129fb6e69cdb356f8a6b2d5fa113509d6d19d3cf971fc34e59515bfab9cc"
+    },
+    {
+      "blob": "0e65f528c66c4b82fae4aa3703b01c2ffd78d6fa",
+      "bytes": 145,
+      "path": "bundle-before.log",
+      "sha256": "6d988210cebc6af876f7086df6ed96ed25f7dfc3c27c396a60d84aa533f7b6ef"
+    },
+    {
+      "blob": "f0bc29049ca11afcf704ef3991513b4913d963dc",
+      "bytes": 474,
+      "path": "bundle-install.log",
+      "sha256": "1bb131810d5d50bae37718a36053a881f50db023863b5516e7a2928c53917736"
+    },
+    {
+      "blob": "e0c4f0f8c83c1fad0201343bdfc2f8427c97a61e",
+      "bytes": 202,
+      "path": "bundle-lock.log",
+      "sha256": "47ba1210bc91032e2db7e4870fb157252cceed102ad3b1cbfcc31413e43439dc"
+    },
+    {
+      "blob": "5f6216a5bcc181cd7a03fb58df033a9f4a8ddff3",
+      "bytes": 490,
+      "path": "bundle-resolution.diff",
+      "sha256": "c33c1fb591ef6625fb9227d97d4100bc41a13e39b95c32803331d5bdc20f79fd"
+    },
+    {
+      "blob": "30c6f7eb0240555dca4fab20cd36563d52472cce",
+      "bytes": 170,
+      "path": "candidate-identity.txt",
+      "sha256": "84e5d531eae9103408c9d65b0e0ccd105cc7cbf770072e2af958c1147edcf1b0"
+    },
+    {
+      "blob": "8f95325275bb2882c0d5ee269f16139005df1a27",
+      "bytes": 1471,
+      "path": "candidate.patch",
+      "sha256": "4cd626a2fff1059393cc2e542ac822dfcefcf65c49f30e8b8e8ce53c8af62824"
+    },
+    {
+      "blob": "0b1147970d968de9267dd7e408f6d9908709306b",
+      "bytes": 208,
+      "path": "ci-discovery.jsonl",
+      "sha256": "7c8a12a7095bcd3a7aafcf358135092d66f76e1c60fd1b0a6b64f0e81c8f5cb6"
+    },
+    {
+      "blob": "706be14dbf5bd88e82f989ec3696567932d85fcd",
+      "bytes": 175,
+      "path": "ci-poll-1.json",
+      "sha256": "a0ac2926300f31f2996da9e4d1078ddaf9f9c01d746df9c5dddef7b8440b7836"
+    },
+    {
+      "blob": "706be14dbf5bd88e82f989ec3696567932d85fcd",
+      "bytes": 175,
+      "path": "ci-poll-2.json",
+      "sha256": "a0ac2926300f31f2996da9e4d1078ddaf9f9c01d746df9c5dddef7b8440b7836"
+    },
+    {
+      "blob": "706be14dbf5bd88e82f989ec3696567932d85fcd",
+      "bytes": 175,
+      "path": "ci-poll-3.json",
+      "sha256": "a0ac2926300f31f2996da9e4d1078ddaf9f9c01d746df9c5dddef7b8440b7836"
+    },
+    {
+      "blob": "cfd755d29215d26f8c8335c5932ae84c69e3b276",
+      "bytes": 170,
+      "path": "ci-poll-4.json",
+      "sha256": "cf275ffdfe178ea0f1371a7c27de5f9b9864b3607f6d9ce1bc2ab10317526933"
+    },
+    {
+      "blob": "2ccc70fcd0900af0b8f6ec58bfcec53e9ff6ca72",
+      "bytes": 178,
+      "path": "ci-poll-5.json",
+      "sha256": "b63c3766c1329c05d8cb56142c264b850d0b2c6d525e36b381ed15a6cbe92985"
+    },
+    {
+      "blob": "21ed5249f25a994470826511e5cbb11fb53df74e",
+      "bytes": 220,
+      "path": "ci-result.json",
+      "sha256": "5b2b1dbb0bab62c4dd04fb626484a3098b11c87e12953dd48a94b95a54a42416"
+    },
+    {
+      "blob": "b59d39532e8a030ff74f6339019ab7870ef51548",
+      "bytes": 70,
+      "path": "contract-check.log",
+      "sha256": "b04031901cfff3e9bc42a429b52cbc14c2442ffb68817fd62a245ac52847b422"
+    },
+    {
+      "blob": "23c2714977f4f560b900772cbb8d589209121f00",
+      "bytes": 1248,
+      "path": "github-api-calls.json",
+      "sha256": "4cf1f259c17352151d05bd701bc80d883b52c9cdb16869d731b585ea3907dff3"
+    },
+    {
+      "blob": "a54ca0eda234cef2e6335d0a9408ce10b0f920ef",
+      "bytes": 170,
+      "path": "installed-gems.json",
+      "sha256": "5dced71abff891ece3a337d0f2d1c59da2f03fd8a9767bb9bee49a2f47183cb1"
+    },
+    {
+      "blob": "678036b5d7833696acd98766bee35449df0719e1",
+      "bytes": 3811,
+      "path": "local-receipt.json",
+      "sha256": "fdc2426df7b5187e464340348fd4764851ddcf86d93a514aad639d2b4b0fa6e0"
+    },
+    {
+      "blob": "2f8f0bc5a70406542cd560db5bd3a1be42e9ddc6",
+      "bytes": 4550,
+      "path": "packet-screening.json",
+      "sha256": "a30db3138df9c200d78e29d8131bccadaf3ed3510806835e9132eed7863fe65d"
+    },
+    {
+      "blob": "387770f1a86634b68825aa507fb13c1a9c47b10b",
+      "bytes": 1026,
+      "path": "pnpm-install.log",
+      "sha256": "731dc3dfde00dd4839c5f2f58c13f1a9d944006d65199117dc7788355c5f0b7d"
+    },
+    {
+      "blob": "636a0139b3897d0f5067ae4745296180bb42d12b",
+      "bytes": 909,
+      "path": "product-push.log",
+      "sha256": "1bcefb8310bf2e3294d27a4d2e3b405a909aac943ead7449b972ee05b6f34fd3"
+    },
+    {
+      "blob": "07da5e66cd2428bf42a6e832c74a717511156470",
+      "bytes": 617,
+      "path": "result.json",
+      "sha256": "8f0ff4e292c12808c519248126f07f0ad926e3cfaec66281cdc0ed6556ef74bf"
+    },
+    {
+      "blob": "49603884519c4730f6c61c355112f1d063883c7b",
+      "bytes": 620106,
+      "path": "ruby-issue-1440.png",
+      "sha256": "a909bcd141788bbb5872a53f98959dfdd52103dd3705b9264e0431ee49c997c0"
+    },
+    {
+      "blob": "204aafd600ecc20822009deb1bd7583bbaadfe41",
+      "bytes": 468849,
+      "path": "ruby-issue-390.png",
+      "sha256": "3b62872de738815d1a1ee4b2bbc783b1d1a0715b972a9e2abe239e808605e79d"
+    },
+    {
+      "blob": "5ce8f13248f63da6d1562ba5f8d2bb0cd3098c7f",
+      "bytes": 735,
+      "path": "ruby-runtime.log",
+      "sha256": "ccbc8a4dd570f7468f6d015c1f307964aa795795b9a9fad449838af592d3b8c2"
+    },
+    {
+      "blob": "cbbeba48b7dea605141c353333d513ac79d182ef",
+      "bytes": 472797,
+      "path": "source-check.log",
+      "sha256": "729d519d5c8940e3152db37b282af7ec82471d05786add2082579e7403a8357e"
+    },
+    {
+      "blob": "d41bb9dd88642259b627d8d8220026020ab52b17",
+      "bytes": 472623,
+      "path": "source-lock.log",
+      "sha256": "3c71696e3a8bc75eecc11c3a425a1705fa8068346e102791b4ded116fce81732"
+    },
+    {
+      "blob": "05728676593c3db27ee46e861061b9ee9fc91802",
+      "bytes": 125,
+      "path": "typecheck.log",
+      "sha256": "60fa7c8a0d7fc4fa739068c4fefd971442d663e96a6227c188e51865473b49f1"
+    }
+  ],
+  "product_branch": "cloud/gr-mt-spool-dep-5",
+  "product_head": "1c649c2de4f783d31b2733b4c9bdb7843f754e69",
+  "ref": "refs/heads/evidence/gr-mt-spool-dep-5",
+  "repository": "just-every/run-spool",
+  "schema": 1,
+  "tag": "gr-mt-spool-dep-5"
+}

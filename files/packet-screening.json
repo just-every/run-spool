@@ -1,0 +1,151 @@
+{
+  "status": "PASS",
+  "scope": "Explicit packet files screened for injected secret values, credential-shaped material and symlinks; this is not the Base publication scan.",
+  "files": [
+    {
+      "path": "PLAN.md",
+      "bytes": 1036,
+      "sha256": "49a7d3cc6b837328e978539684f6144db293b4dfc9653a5b562ae850b4d07989"
+    },
+    {
+      "path": "REPORT.md",
+      "bytes": 5885,
+      "sha256": "cb130e00c5655fc1789c5074dbf8e27a5efdd55f943c1239329deb79a11018a4"
+    },
+    {
+      "path": "build.log",
+      "bytes": 11545,
+      "sha256": "a08b129fb6e69cdb356f8a6b2d5fa113509d6d19d3cf971fc34e59515bfab9cc"
+    },
+    {
+      "path": "bundle-before.log",
+      "bytes": 145,
+      "sha256": "6d988210cebc6af876f7086df6ed96ed25f7dfc3c27c396a60d84aa533f7b6ef"
+    },
+    {
+      "path": "bundle-install.log",
+      "bytes": 474,
+      "sha256": "1bb131810d5d50bae37718a36053a881f50db023863b5516e7a2928c53917736"
+    },
+    {
+      "path": "bundle-lock.log",
+      "bytes": 202,
+      "sha256": "47ba1210bc91032e2db7e4870fb157252cceed102ad3b1cbfcc31413e43439dc"
+    },
+    {
+      "path": "bundle-resolution.diff",
+      "bytes": 490,
+      "sha256": "c33c1fb591ef6625fb9227d97d4100bc41a13e39b95c32803331d5bdc20f79fd"
+    },
+    {
+      "path": "candidate-identity.txt",
+      "bytes": 170,
+      "sha256": "84e5d531eae9103408c9d65b0e0ccd105cc7cbf770072e2af958c1147edcf1b0"
+    },
+    {
+      "path": "candidate.patch",
+      "bytes": 1471,
+      "sha256": "4cd626a2fff1059393cc2e542ac822dfcefcf65c49f30e8b8e8ce53c8af62824"
+    },
+    {
+      "path": "ci-discovery.jsonl",
+      "bytes": 208,
+      "sha256": "7c8a12a7095bcd3a7aafcf358135092d66f76e1c60fd1b0a6b64f0e81c8f5cb6"
+    },
+    {
+      "path": "ci-poll-1.json",
+      "bytes": 175,
+      "sha256": "a0ac2926300f31f2996da9e4d1078ddaf9f9c01d746df9c5dddef7b8440b7836"
+    },
+    {
+      "path": "ci-poll-2.json",
+      "bytes": 175,
+      "sha256": "a0ac2926300f31f2996da9e4d1078ddaf9f9c01d746df9c5dddef7b8440b7836"
+    },
+    {
+      "path": "ci-poll-3.json",
+      "bytes": 175,
+      "sha256": "a0ac2926300f31f2996da9e4d1078ddaf9f9c01d746df9c5dddef7b8440b7836"
+    },
+    {
+      "path": "ci-poll-4.json",
+      "bytes": 170,
+      "sha256": "cf275ffdfe178ea0f1371a7c27de5f9b9864b3607f6d9ce1bc2ab10317526933"
+    },
+    {
+      "path": "ci-poll-5.json",
+      "bytes": 178,
+      "sha256": "b63c3766c1329c05d8cb56142c264b850d0b2c6d525e36b381ed15a6cbe92985"
+    },
+    {
+      "path": "ci-result.json",
+      "bytes": 220,
+      "sha256": "5b2b1dbb0bab62c4dd04fb626484a3098b11c87e12953dd48a94b95a54a42416"
+    },
+    {
+      "path": "contract-check.log",
+      "bytes": 70,
+      "sha256": "b04031901cfff3e9bc42a429b52cbc14c2442ffb68817fd62a245ac52847b422"
+    },
+    {
+      "path": "github-api-calls.json",
+      "bytes": 1248,
+      "sha256": "4cf1f259c17352151d05bd701bc80d883b52c9cdb16869d731b585ea3907dff3"
+    },
+    {
+      "path": "installed-gems.json",
+      "bytes": 170,
+      "sha256": "5dced71abff891ece3a337d0f2d1c59da2f03fd8a9767bb9bee49a2f47183cb1"
+    },
+    {
+      "path": "local-receipt.json",
+      "bytes": 3811,
+      "sha256": "fdc2426df7b5187e464340348fd4764851ddcf86d93a514aad639d2b4b0fa6e0"
+    },
+    {
+      "path": "pnpm-install.log",
+      "bytes": 1026,
+      "sha256": "731dc3dfde00dd4839c5f2f58c13f1a9d944006d65199117dc7788355c5f0b7d"
+    },
+    {
+      "path": "product-push.log",
+      "bytes": 909,
+      "sha256": "1bcefb8310bf2e3294d27a4d2e3b405a909aac943ead7449b972ee05b6f34fd3"
+    },
+    {
+      "path": "result.json",
+      "bytes": 617,
+      "sha256": "8f0ff4e292c12808c519248126f07f0ad926e3cfaec66281cdc0ed6556ef74bf"
+    },
+    {
+      "path": "ruby-issue-1440.png",
+      "bytes": 620106,
+      "sha256": "a909bcd141788bbb5872a53f98959dfdd52103dd3705b9264e0431ee49c997c0"
+    },
+    {
+      "path": "ruby-issue-390.png",
+      "bytes": 468849,
+      "sha256": "3b62872de738815d1a1ee4b2bbc783b1d1a0715b972a9e2abe239e808605e79d"
+    },
+    {
+      "path": "ruby-runtime.log",
+      "bytes": 735,
+      "sha256": "ccbc8a4dd570f7468f6d015c1f307964aa795795b9a9fad449838af592d3b8c2"
+    },
+    {
+      "path": "source-check.log",
+      "bytes": 472797,
+      "sha256": "729d519d5c8940e3152db37b282af7ec82471d05786add2082579e7403a8357e"
+    },
+    {
+      "path": "source-lock.log",
+      "bytes": 472623,
+      "sha256": "3c71696e3a8bc75eecc11c3a425a1705fa8068346e102791b4ded116fce81732"
+    },
+    {
+      "path": "typecheck.log",
+      "bytes": 125,
+      "sha256": "60fa7c8a0d7fc4fa739068c4fefd971442d663e96a6227c188e51865473b49f1"
+    }
+  ]
+}

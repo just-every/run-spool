@@ -1,0 +1,132 @@
+{
+  "tag": "gr-mt-spool-dep-5",
+  "repository": "just-every/run-spool",
+  "base": "b9e7e575097e0dd0fc0662ce1ed507fa0d41f0d8",
+  "branch": "cloud/gr-mt-spool-dep-5",
+  "checks": [
+    {
+      "command": "pnpm install --frozen-lockfile",
+      "exit": 0,
+      "node": "22.20.0",
+      "pnpm": "10.12.4",
+      "log": "pnpm-install.log"
+    },
+    {
+      "command": "npx -y @runeditrun/rer setup --owner-email fleet@runeditrun.com --non-interactive",
+      "exit": 0,
+      "node": "22.20.0",
+      "note": "Private setup output excluded from evidence."
+    },
+    {
+      "command": "npx -y @runeditrun/rer build",
+      "exit": 0,
+      "node": "22.20.0",
+      "log": "build.log"
+    },
+    {
+      "command": "pnpm typecheck",
+      "exit": 0,
+      "node": "22.20.0",
+      "log": "typecheck.log"
+    },
+    {
+      "command": "bundle lock --gemfile tests/runtimes/ruby/Gemfile",
+      "exit": 0,
+      "log": "bundle-lock.log"
+    },
+    {
+      "command": "BUNDLE_PATH=$HOME/.rer/spool-ruby-gems bundle install --gemfile tests/runtimes/ruby/Gemfile",
+      "exit": 0,
+      "log": "bundle-install.log"
+    },
+    {
+      "command": "Compare baseline and candidate Bundler resolution",
+      "result": "PASS: Rack only changes 3.2.4 -> 3.2.6; all other gem versions identical",
+      "log": "bundle-resolution.diff"
+    },
+    {
+      "command": "node scripts/edition-authoring/cli.mjs lock",
+      "exit": 0,
+      "log": "source-lock.log"
+    },
+    {
+      "command": "pnpm source:check",
+      "exit": 0,
+      "log": "source-check.log"
+    },
+    {
+      "command": "node src/base/contract-docs.mjs check",
+      "exit": 0,
+      "log": "contract-check.log"
+    },
+    {
+      "command": "node tests/sdk-runtimes.mjs ruby",
+      "exit": 0,
+      "log": "ruby-runtime.log",
+      "browser_executable": "/usr/bin/chromium",
+      "viewport_widths": [
+        1440,
+        390
+      ]
+    },
+    {
+      "command": "git diff --check",
+      "exit": 0
+    },
+    {
+      "command": "bundle exec ruby -r rack -r sentry-ruby: inspect Gem.loaded_specs",
+      "exit": 0,
+      "result": "Installed Rack 3.2.6 and sentry-ruby 7.1.0",
+      "receipt": "installed-gems.json"
+    },
+    {
+      "command": "Exact-SHA Verify via gh api REST polling",
+      "result": "PASS",
+      "run_id": 43573999876,
+      "head_sha": "1c649c2de4f783d31b2733b4c9bdb7843f754e69",
+      "url": "https://github.com/just-every/run-spool/actions/runs/43573999876"
+    }
+  ],
+  "head": "1c649c2de4f783d31b2733b4c9bdb7843f754e69",
+  "tree": "8810b2a9124f96c8791a247bbeac35fc5deebfb8",
+  "counts": {
+    "listed_advisory_ranges_matching_fixture_before": 15,
+    "listed_advisory_ranges_matching_fixture_after": 0,
+    "clauses_before": {
+      "done": 23,
+      "partial": 54,
+      "missing": 28,
+      "total": 105
+    },
+    "clauses_after": {
+      "done": 23,
+      "partial": 54,
+      "missing": 28,
+      "total": 105
+    },
+    "tests_added": 0,
+    "tests_removed": 0,
+    "ruby_journeys_run": 1
+  },
+  "clause_changes": [],
+  "publication": {
+    "local_base_scan": "NOT RUN: the task cloud override delegates the unavailable publication scan to the fleet before landing",
+    "candidate_diff_review": "PASS: only Rack pin, Bundler lockfile, and regenerated source hashes",
+    "identity_and_trailers": "PASS: fleet author and committer; no trailers; all candidate commits including side parents inspected"
+  },
+  "toolchain": {
+    "node": "22.20.0",
+    "pnpm": "10.12.4",
+    "ruby": "3.3.6",
+    "bundler": "2.5.22"
+  },
+  "ci": {
+    "conclusion": "success",
+    "head_sha": "1c649c2de4f783d31b2733b4c9bdb7843f754e69",
+    "html_url": "https://github.com/just-every/run-spool/actions/runs/43573999876",
+    "status": "completed",
+    "run_id": 43573999876
+  },
+  "github_api_calls": 6,
+  "product_status": "READY"
+}
