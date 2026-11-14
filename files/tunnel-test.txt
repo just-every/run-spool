@@ -1,0 +1,25 @@
+
+> @errors/errors-workbench@0.7.11 test:tunnel /home/agent/rer-consolidation/work/maint/gr-mt-spool-code-8/repo
+> node tests/tunnel-flow.mjs
+
+(node:1729) ExperimentalWarning: SQLite is an experimental feature and might change at any time
+(Use `node --trace-warnings ...` to show where the warning was created)
+.
+----------------------------------------------------------------------
+Ran 1 test in 0.062s
+
+OK
+npm warn Unknown env config "verify-deps-before-run". This will stop working in the next major version of npm.
+npm warn Unknown env config "_jsr-registry". This will stop working in the next major version of npm.
+[33m▲ [43;33m[[43;30mWARNING[43;33m][0m [1mProxy environment variables detected. We'll use your proxy for fetch requests.[0m
+
+
+⨯ TypeError: 'TRACE' HTTP method is unsupported.
+    at new ta (.next/server/chunks/[root-of-the-server]__0lgrtlrvdjxsy._.js:1:31787)
+    at tl.fromNodeNextRequest (.next/server/chunks/[root-of-the-server]__0lgrtlrvdjxsy._.js:1:33057)
+    at Module.S [as handler] (.next/server/chunks/_1m5vp8hb3q0y3._.js:1:5452)
+⨯ Error: aborted
+    at ignore-listed frames {
+  code: 'ECONNRESET'
+}
+{"passed":true,"memory":{"platform":"linux","source":"/proc/<pid>/status VmHWM after minus VmRSS before (KiB)","hosts":[{"host":"node","pid":1812,"residentBeforeKiB":56608,"peakBeforeKiB":56608,"peakAfterKiB":60820,"costKiB":4212},{"host":"python","pid":1819,"residentBeforeKiB":17376,"peakBeforeKiB":17376,"peakAfterKiB":19808,"costKiB":2432},{"host":"next","pid":2408,"residentBeforeKiB":92844,"peakBeforeKiB":92844,"peakAfterKiB":96492,"costKiB":3648}]},"proof":"Unmodified @sentry/browser with only DSN/tunnel changed: EasyPrivacy Sentry rules (Ghostery engine) block the default route; Node, real Next.js (build/start) and Python tunnels deliver; Spool origin enforcement, project fence and forwarded fields asserted; hosts survive TRACE and aborted uploads, follow no redirect, and refuse a decompression bomb within 32 MiB of peak memory on each of the three hosts."}

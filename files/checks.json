@@ -1,0 +1,88 @@
+{
+  "repository": "just-every/run-spool",
+  "branch": "cloud/gr-mt-spool-code-8",
+  "head": "46d531edf89e69c8d95acd36daa6d131dd807c32",
+  "tree": "177e16d2f7522e9806dc876e32c7ad5c7bf0d003",
+  "base": "b9e7e575097e0dd0fc0662ce1ed507fa0d41f0d8",
+  "changed_files": [
+    "sources.lock.json",
+    "tests/tunnel-flow.mjs",
+    "tests/tunnel/server.py",
+    "tests/tunnel/static-files.py"
+  ],
+  "checks": [
+    {
+      "command": "python3 tests/tunnel/static-files.py (original server)",
+      "exit": 1,
+      "tests": 1,
+      "failures": 3
+    },
+    {
+      "command": "python3 tests/tunnel/static-files.py (fixed server)",
+      "exit": 0,
+      "tests": 1,
+      "failures": 0
+    },
+    {
+      "command": "pnpm run build:app",
+      "exit": 0
+    },
+    {
+      "command": "pnpm typecheck",
+      "exit": 0
+    },
+    {
+      "command": "pnpm test:tunnel",
+      "exit": 0
+    },
+    {
+      "command": "pnpm source:check",
+      "exit": 0,
+      "stdout_sha256": "45e1b1272216d1c6c1dabcfde00797dbe7228afda0928fa1aa6431aec7cc80b5"
+    },
+    {
+      "command": "git diff --check",
+      "exit": 0
+    }
+  ],
+  "counts": {
+    "alerts_addressed": {
+      "before": 0,
+      "after": 2
+    },
+    "vulnerable_path_sinks": {
+      "before": 2,
+      "after": 0
+    },
+    "security_regression_failures": {
+      "before": 3,
+      "after": 0
+    },
+    "security_regression_tests": {
+      "before": 0,
+      "after": 1
+    },
+    "touched_journey_registrations": {
+      "before": 1,
+      "after": 2
+    },
+    "contract_before": {
+      "done": 22,
+      "partial": 50,
+      "missing": 26
+    },
+    "contract_after": {
+      "done": 22,
+      "partial": 50,
+      "missing": 26
+    }
+  },
+  "clause_status_changes": [],
+  "provider_alert_closure": "Not checked; no dismissal requested or performed",
+  "toolchain": {
+    "node": "22.20.0",
+    "pnpm": "10.12.4",
+    "browser": "/usr/bin/chromium"
+  },
+  "processes": "Journey and regression owned processes stopped; no tunnel servers remain"
+}

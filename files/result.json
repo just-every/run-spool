@@ -1,0 +1,7 @@
+{
+  "status": "cannot",
+  "sha": "46d531edf89e69c8d95acd36daa6d131dd807c32",
+  "summary": "Both Python tunnel test-server path sinks are fixed and pushed, but exact-SHA Verify run 43566469126 failed; the exhausted ten-call API budget prevents failed-job log retrieval and triage.",
+  "tests": "Original-server HTTP regression reproduced 3 disclosures; fixed regression passed (1 test, 0 failures). pnpm run build:app, pnpm typecheck, pnpm test:tunnel and pnpm source:check passed. Complete exact-tree Base publication scan passed with 0 findings. Exact-SHA Verify run 43566469126 completed/failure; failure cause is unknown and no contract-generator exception is claimed.",
+  "security": true
+}

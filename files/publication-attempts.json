@@ -1,0 +1,68 @@
+[
+  {
+    "status": "INCOMPLETE",
+    "complete": false,
+    "source": null,
+    "rules": [
+      "scan.history-incomplete"
+    ],
+    "diagnostics": null,
+    "seconds": 3.246875
+  },
+  {
+    "status": "INCOMPLETE",
+    "complete": false,
+    "source": null,
+    "rules": [
+      "scan.interrupted"
+    ],
+    "diagnostics": [
+      {
+        "stage": "slot",
+        "code": "process.signal",
+        "signal": "SIGKILL"
+      },
+      {
+        "stage": "report",
+        "code": "report.empty"
+      }
+    ],
+    "seconds": null
+  },
+  {
+    "status": "INCOMPLETE",
+    "complete": false,
+    "source": null,
+    "rules": [
+      "scan.deadline-exceeded"
+    ],
+    "diagnostics": [
+      {
+        "stage": "slot",
+        "code": "process.signal",
+        "signal": "SIGKILL"
+      },
+      {
+        "stage": "report",
+        "code": "report.empty"
+      },
+      {
+        "stage": "implementation",
+        "code": "version.error",
+        "errno": "UNKNOWN"
+      }
+    ],
+    "seconds": null
+  },
+  {
+    "status": "PASS",
+    "complete": true,
+    "source": {
+      "commit": "46d531edf89e69c8d95acd36daa6d131dd807c32",
+      "tree": "177e16d2f7522e9806dc876e32c7ad5c7bf0d003"
+    },
+    "rules": [],
+    "diagnostics": null,
+    "seconds": 371.858197
+  }
+]

@@ -1,0 +1,20 @@
+{
+  "repository": "just-every/run-spool",
+  "branch": "cloud/gr-mt-spool-code-8",
+  "head": "46d531edf89e69c8d95acd36daa6d131dd807c32",
+  "push": "accepted",
+  "guard_attempts": 1,
+  "remote_ref_confirmed": true,
+  "publication": {
+    "status": "PASS",
+    "complete": true,
+    "findings": 0
+  },
+  "ci_run_id": 43566469126,
+  "ci_status": "completed",
+  "pr": null,
+  "ci_conclusion": "failure",
+  "terminal_custody": "BLOCKED",
+  "blocker": "Exact-SHA Verify failed. The ten-call GitHub API budget is exhausted; failed-job discovery and logs were not requested, so the failure cause and contract-generator exception cannot be established.",
+  "clone_retained": "/home/agent/rer-consolidation/work/maint/gr-mt-spool-code-8/repo"
+}

@@ -1,0 +1,50 @@
+FFF
+======================================================================
+FAIL: test_static_reads_stay_inside_the_root (__main__.StaticFiles.test_static_reads_stay_inside_the_root) (path='/outside.txt')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/agent/rer-consolidation/work/maint/gr-mt-spool-code-8/repo/tests/tunnel/static-files.py", line 63, in test_static_reads_stay_inside_the_root
+    self.assertEqual((status, body), (404, b""))
+AssertionError: Tuples differ: (200, b'synthetic-spool-outside-root') != (404, b'')
+
+First differing element 0:
+200
+404
+
+- (200, b'synthetic-spool-outside-root')
++ (404, b'')
+
+======================================================================
+FAIL: test_static_reads_stay_inside_the_root (__main__.StaticFiles.test_static_reads_stay_inside_the_root) (path='/../outside.txt')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/agent/rer-consolidation/work/maint/gr-mt-spool-code-8/repo/tests/tunnel/static-files.py", line 63, in test_static_reads_stay_inside_the_root
+    self.assertEqual((status, body), (404, b""))
+AssertionError: Tuples differ: (200, b'synthetic-spool-outside-root') != (404, b'')
+
+First differing element 0:
+200
+404
+
+- (200, b'synthetic-spool-outside-root')
++ (404, b'')
+
+======================================================================
+FAIL: test_static_reads_stay_inside_the_root (__main__.StaticFiles.test_static_reads_stay_inside_the_root) (path='/%2e%2e/outside.txt')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/agent/rer-consolidation/work/maint/gr-mt-spool-code-8/repo/tests/tunnel/static-files.py", line 63, in test_static_reads_stay_inside_the_root
+    self.assertEqual((status, body), (404, b""))
+AssertionError: Tuples differ: (200, b'synthetic-spool-outside-root') != (404, b'')
+
+First differing element 0:
+200
+404
+
+- (200, b'synthetic-spool-outside-root')
++ (404, b'')
+
+----------------------------------------------------------------------
+Ran 1 test in 0.112s
+
+FAILED (failures=3)

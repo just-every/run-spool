@@ -1,0 +1,49 @@
+{
+  "repository": "just-every/run-spool",
+  "head": "46d531edf89e69c8d95acd36daa6d131dd807c32",
+  "workflow": "Verify",
+  "status": "completed",
+  "observations": [
+    {
+      "time_utc": "2026-11-14T06:28:29Z",
+      "status": "in_progress",
+      "conclusion": null,
+      "head_sha": "46d531edf89e69c8d95acd36daa6d131dd807c32",
+      "html_url": "https://github.com/just-every/run-spool/actions/runs/43566469126"
+    },
+    {
+      "time_utc": "2026-11-14T06:33:30Z",
+      "conclusion": null,
+      "head_sha": "46d531edf89e69c8d95acd36daa6d131dd807c32",
+      "html_url": "https://github.com/just-every/run-spool/actions/runs/43566469126",
+      "status": "in_progress"
+    },
+    {
+      "time_utc": "2026-11-14T06:38:31Z",
+      "conclusion": null,
+      "head_sha": "46d531edf89e69c8d95acd36daa6d131dd807c32",
+      "html_url": "https://github.com/just-every/run-spool/actions/runs/43566469126",
+      "status": "in_progress"
+    },
+    {
+      "time_utc": "2026-11-14T06:43:33Z",
+      "conclusion": null,
+      "head_sha": "46d531edf89e69c8d95acd36daa6d131dd807c32",
+      "html_url": "https://github.com/just-every/run-spool/actions/runs/43566469126",
+      "status": "in_progress"
+    },
+    {
+      "time_utc": "2026-11-14T06:48:34Z",
+      "conclusion": "failure",
+      "head_sha": "46d531edf89e69c8d95acd36daa6d131dd807c32",
+      "html_url": "https://github.com/just-every/run-spool/actions/runs/43566469126",
+      "status": "completed"
+    }
+  ],
+  "run_id": 43566469126,
+  "url": "https://github.com/just-every/run-spool/actions/runs/43566469126",
+  "conclusion": "failure",
+  "github_calls_total": 10,
+  "blocker": "Exact-SHA Verify failed. The ten-call GitHub API budget is exhausted; failed-job discovery and logs were not requested, so the failure cause and contract-generator exception cannot be established.",
+  "failed_job_logs": "NOT RUN: GitHub API budget exhausted"
+}

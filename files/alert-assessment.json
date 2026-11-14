@@ -1,0 +1,43 @@
+{
+  "repository": "just-every/run-spool",
+  "head": "46d531edf89e69c8d95acd36daa6d131dd807c32",
+  "alerts": [
+    {
+      "id": 19,
+      "rule": "py/path-injection",
+      "original_location": "tests/tunnel/server.py:25",
+      "sink": "os.path.isfile(path)",
+      "assessment": "fixed in code",
+      "provider_status": "not queried"
+    },
+    {
+      "id": 20,
+      "rule": "py/path-injection",
+      "original_location": "tests/tunnel/server.py:29",
+      "sink": "open(path, \"rb\")",
+      "assessment": "fixed in code",
+      "provider_status": "not queried"
+    }
+  ],
+  "input": "WSGI PATH_INFO from an HTTP request",
+  "boundary": "Configured static root, resolved once at startup",
+  "enforcement": "Resolve candidate basename through realpath; refuse when commonpath(root, candidate) differs from root before either sink",
+  "regression": "tests/tunnel/static-files.py#StaticFiles.test_static_reads_stay_inside_the_root",
+  "regression_before": {
+    "requests_revealing_outside_bytes": 3,
+    "test_exit": 1
+  },
+  "regression_after": {
+    "requests_revealing_outside_bytes": 0,
+    "test_exit": 0
+  },
+  "preserved": [
+    "static file content and MIME types",
+    "nested basename requests",
+    "symlinks resolving inside the root",
+    "404 for absent files and directories",
+    "peak-rss route",
+    "monitoring tunnel route"
+  ],
+  "scope": "No contract clauses changed; fixture roots are not concurrently writable by requesters"
+}
