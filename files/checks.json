@@ -1,0 +1,98 @@
+{
+  "base": "e206a1ca9a631059818333837062a90bd225443d",
+  "branch": "cloud/gr-mt-spool-code-9-c2",
+  "checks": [
+    {
+      "command": "pnpm install --frozen-lockfile",
+      "exit": 0
+    },
+    {
+      "command": "npx -y @runeditrun/rer setup --owner-email fleet@runeditrun.com --non-interactive",
+      "exit": 0,
+      "note": "Built application; applied 99 local migrations. Private setup log intentionally excluded."
+    },
+    {
+      "command": "node tests/sentry-sdk.mjs",
+      "exit": 0,
+      "node": "22.20.0",
+      "chromium": "/usr/bin/chromium",
+      "log": "sentry-sdk.log"
+    },
+    {
+      "command": "pnpm typecheck",
+      "exit": 0,
+      "log": "typecheck.log"
+    },
+    {
+      "command": "node src/base/contract-docs.mjs check",
+      "exit": 0,
+      "log": "contract-check.log"
+    },
+    {
+      "command": "node scripts/edition-authoring/cli.mjs lock",
+      "exit": 0,
+      "log": "source-lock.log"
+    },
+    {
+      "command": "pnpm source:check",
+      "exit": 0,
+      "log": "source-check.log"
+    },
+    {
+      "command": "node destination-probes.mjs <product-checkout>",
+      "exit": 0,
+      "result": "destination-probes.json"
+    },
+    {
+      "command": "git diff --check",
+      "exit": 0
+    },
+    {
+      "command": "node tests/sentry-http.mjs",
+      "exit": 0,
+      "node": "22.20.0",
+      "chromium": "/usr/bin/chromium",
+      "log": "sentry-http.log"
+    },
+    {
+      "command": "node node_modules/@runeditrun/rer/scripts/publish-check.mjs --repo <product-checkout> --ref HEAD --public-base https://github.com/just-every/run-spool#main --project just-every/spool --repository https://github.com/just-every/run-spool --env-file <private-bundle>",
+      "exit": 2,
+      "report": "publication-scan.json",
+      "status": "INCOMPLETE",
+      "rule": "scan.deadline-exceeded",
+      "note": "Single allowed scan hit its default 300-second deadline before completion. No product push attempted."
+    }
+  ],
+  "initial_attempts": [
+    {
+      "command": "node tests/sentry-sdk.mjs",
+      "exit": 1,
+      "reason": "Chromium default executable absent; rerun passed with explicit system executable.",
+      "log": "sentry-sdk-initial.log"
+    },
+    {
+      "command": "node tests/sentry-http.mjs",
+      "exit": 1,
+      "reason": "Chromium default executable absent; rerun passed with explicit system executable.",
+      "log": "sentry-http-initial.log"
+    }
+  ],
+  "clause_changes": [],
+  "before_counts": {
+    "done": 23,
+    "partial": 54,
+    "missing": 28
+  },
+  "after_counts": {
+    "done": 23,
+    "partial": 54,
+    "missing": 28
+  },
+  "ci": {
+    "queried": false,
+    "run_ids": [],
+    "reason": "Brief explicitly directs no polling or dispatch; Mac lander runs exact-SHA Verify."
+  },
+  "head": "5e15354d3219caa5e765e54e83b6c23f686af9d4",
+  "generated_output_cleanup": "The full Sentry HTTP journey refreshed retained TEAM-004 screenshots. Restored those generated files from HEAD and repeated source:check successfully. They are not included in the product commit."
+}

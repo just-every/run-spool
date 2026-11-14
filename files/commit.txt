@@ -1,0 +1,11 @@
+commit 5e15354d3219caa5e765e54e83b6c23f686af9d4
+Author:     Run Edit Run fleet <fleet@runeditrun.com>
+AuthorDate: Sat Nov 14 17:50:38 2026 +0000
+Commit:     Run Edit Run fleet <fleet@runeditrun.com>
+CommitDate: Sat Nov 14 17:50:38 2026 +0000
+
+    Constrain inbound-filter fixture forwarding to loopback
+
+ sources.lock.json             |  2 +-
+ tests/inbound-filter-flow.mjs | 10 ++++++++--
+ 2 files changed, 9 insertions(+), 3 deletions(-)

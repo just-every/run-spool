@@ -1,0 +1,32 @@
+{
+  "before": {
+    "probes": 4,
+    "rejected": 0,
+    "statuses": [
+      200,
+      200,
+      502,
+      201
+    ],
+    "foreign": 2,
+    "unexpected": 1,
+    "valid": 1,
+    "validStatus": 201,
+    "bodyAndHeaderPreserved": true
+  },
+  "after": {
+    "probes": 4,
+    "rejected": 4,
+    "statuses": [
+      400,
+      400,
+      400,
+      400
+    ],
+    "foreign": 0,
+    "unexpected": 0,
+    "valid": 1,
+    "validStatus": 201,
+    "bodyAndHeaderPreserved": true
+  }
+}

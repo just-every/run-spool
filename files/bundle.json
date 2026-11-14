@@ -1,0 +1,9 @@
+{
+  "path": "/home/agent/rer-consolidation/work/gr-mt-spool-code-9-c2/product.bundle",
+  "head": "5e15354d3219caa5e765e54e83b6c23f686af9d4",
+  "sha256": "8ebf5d6bc32bd184d9ebc05156a584fdb1f717f01d104d89a9fe29180ba80e8e",
+  "bytes": 208676957,
+  "verified": true,
+  "verification_command": "git bundle verify /home/agent/rer-consolidation/work/gr-mt-spool-code-9-c2/product.bundle",
+  "verification_log": "bundle-verify.log"
+}

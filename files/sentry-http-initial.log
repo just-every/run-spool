@@ -1,0 +1,33 @@
+[33m▲ [43;33m[[43;30mWARNING[43;33m][0m [1mProxy environment variables detected. We'll use your proxy for fetch requests.[0m
+
+
+(node:2013) ExperimentalWarning: SQLite is an experimental feature and might change at any time
+(Use `node --trace-warnings ...` to show where the warning was created)
+PROBE SDK-011 invalid-only: framed JSON and conversion failures -> typed event invalid_item; no identity, scrubbing, release, issue or alert writes; exact refusal usage
+PROBE SDK-011 order and accounting: each invalid kind before and after two valid companions -> accepted=25, invalid_item=21; one retained occurrence and accepted unit per valid error
+PROBE SDK-011 refusal boundaries: malformed framing and store -> whole request refused; refusal-accounting and event-storage faults -> 503 with no partial product writes
+PROBE SDK-011 authority: invalid, foreign and revoked grants and denied origin -> no companions admitted or conversion refusals attributed
+OTLP HTTP flow passed: located log/JS exception, resource association, privacy/deduplication, full/partial rejection accounting, framing/limits, project CORS/grant revocation and shared native budget.
+node:internal/modules/run_main:123
+    triggerUncaughtException(
+    ^
+
+browserType.launch: Executable doesn't exist at /home/agent/.cache/ms-playwright/chromium_headless_shell-1243/chrome-headless-shell-linux64/chrome-headless-shell
+╔════════════════════════════════════════════════════════════╗
+║ Looks like Playwright was just installed or updated.       ║
+║ Please run the following command to download new browsers: ║
+║                                                            ║
+║     npx playwright install                                 ║
+║                                                            ║
+║ <3 Playwright Team                                         ║
+╚════════════════════════════════════════════════════════════╝
+    at launchBrowser (/home/agent/rer-consolidation/work/gr-mt-spool-code-9-c2/run-spool/tests/browser-launch.mjs:5:19)
+    at prioritySearchScreen (/home/agent/rer-consolidation/work/gr-mt-spool-code-9-c2/run-spool/tests/priority-search-flow.mjs:120:22)
+    at prioritySearchFlow (/home/agent/rer-consolidation/work/gr-mt-spool-code-9-c2/run-spool/tests/priority-search-flow.mjs:114:8)
+    at async investigationFlow (/home/agent/rer-consolidation/work/gr-mt-spool-code-9-c2/run-spool/tests/investigation-flow.mjs:11:2)
+    at async file:///home/agent/rer-consolidation/work/gr-mt-spool-code-9-c2/run-spool/tests/sentry-http.mjs:120:3 {
+  log: [],
+  name: 'Error'
+}
+
+Node.js v22.20.0

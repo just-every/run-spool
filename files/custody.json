@@ -1,0 +1,28 @@
+{
+  "schema": 1,
+  "repository": "just-every/run-spool",
+  "branch": "cloud/gr-mt-spool-code-9-c2",
+  "base": "e206a1ca9a631059818333837062a90bd225443d",
+  "head": "5e15354d3219caa5e765e54e83b6c23f686af9d4",
+  "product_status": "BLOCKED_UNPUBLISHED",
+  "product_push_attempts": 0,
+  "remote_query": "git ls-remote --heads origin refs/heads/cloud/gr-mt-spool-code-9-c2",
+  "remote_advertisement": "",
+  "remote_branch_absent": true,
+  "publication_scan_invocations": 1,
+  "publication_status": "INCOMPLETE",
+  "publication_rule": "scan.deadline-exceeded",
+  "publication_exit": 2,
+  "ci_run_ids": [],
+  "pr": null,
+  "clause_changes": [],
+  "bundle": {
+    "path": "/home/agent/rer-consolidation/work/gr-mt-spool-code-9-c2/product.bundle",
+    "head": "5e15354d3219caa5e765e54e83b6c23f686af9d4",
+    "sha256": "8ebf5d6bc32bd184d9ebc05156a584fdb1f717f01d104d89a9fe29180ba80e8e",
+    "bytes": 208676957,
+    "verified": true,
+    "verification_command": "git bundle verify /home/agent/rer-consolidation/work/gr-mt-spool-code-9-c2/product.bundle",
+    "verification_log": "bundle-verify.log"
+  }
+}
