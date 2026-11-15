@@ -39,7 +39,7 @@ export async function issueRuleJourney(app){
   const intended=delivery.rule_id===rules[1].id?choices.members.filter(m=>m.member===member.id):choices.members;
   assert.deepEqual(emails,intended.map(m=>m.email).sort());assert.ok(detail.recipients.every(r=>!['synthetic-spool-foreign@example.test','synthetic-spool-reader@example.test'].includes(r.email)));
  }
- let issue=(await app.json(`/api/projects/${f.project.id}/issues`)).find(i=>i.id===first.issue);
+ let issue=(await app.json(`/api/projects/${f.project.id}/issues`)).find(i=>i.title.startsWith('PaymentFailure:'));
  await app.json(`/api/projects/${f.project.id}/issues/${issue.id}`,'PATCH',{revision:issue.revision,state:'resolved'});
  await capture('PaymentFailure');await app.tick();
  assert.equal((await app.json(f.base+'/deliveries')).filter(d=>rules.some(r=>r.id===d.rule_id)).length,3,'action interval prevents another notification for the same issue');
