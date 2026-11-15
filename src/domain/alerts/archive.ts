@@ -1,3 +1,4 @@
+import { transactionOutcomes } from '../sentry/transactions';
 import { metricConfig,validMetricAlert } from './metric-rules';
 import {validateDecision} from './decision-archive';
 import { ruleConfig } from './filters';
@@ -35,6 +36,7 @@ export function validateAlertArchive(data:any) {
   const events=JSON.parse(r.kinds);assert(Array.isArray(events)&&events.length>0&&events.length<=kinds.length&&new Set(events).size===events.length&&events.every(k=>kinds.includes(k)));rules.set(r.id,r);
  }
  for(const p of projects)assert(data.alert_rules.filter((r:any)=>r.project===p).length<=20);
+ for(const row of data.outcomes.filter((row:any)=>transactionOutcomes.includes(row.reason))){shape(row,['project','window','reason','count']);assert(projects.has(row.project));integer(row.count);integer(row.window);}
  for(const a of data.alerts){
   shape(a,['id','project','issue','kind','created','payload']);label(a.id);integer(a.created);assert(projects.has(a.project)&&(a.kind==='metric'?a.issue===null:issues.get(a.issue)?.project===a.project)&&kinds.includes(a.kind)&&!alerts.has(a.id));alerts.set(a.id,a);
   if(a.kind==='metric'){const payload=JSON.parse(a.payload);assert(validMetricAlert(a,payload,rules.get(payload.rule?.id)));continue;}
@@ -76,6 +78,7 @@ export function validateAlertArchive(data:any) {
  // Delegate the unchanged legacy rows to Spool's strict v1/v2 validator. Alert-specific
  // fields and new audit kinds were checked above, never accepted by the legacy reader.
  return {...Object.fromEntries(Object.entries(data).filter(([name])=>!alertArchiveTables.includes(name))),
+  outcomes:data.outcomes.filter((row:any)=>!transactionOutcomes.includes(row.reason)),
   alerts:data.alerts.filter((a:any)=>!['spike','metric'].includes(a.kind)).map(({payload,...row}:any)=>row),
   audit:data.audit.filter((r:any)=>!r.kind.startsWith('alert_'))};
 }

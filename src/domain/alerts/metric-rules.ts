@@ -24,14 +24,13 @@ export function metricConfig(value:any):MetricConfig {
  const above=value.thresholdType==='above',beyond=(a:number,b:number)=>above?a>b:a<b;
  if(triggers[0].label!=='critical'||new Set(triggers.map(t=>t.label)).size!==triggers.length||triggers[1]&&!beyond(triggers[0].alertThreshold,triggers[1].alertThreshold))fail('A metric rule needs a critical trigger; a warning trigger must be less severe');
  if(value.resolveThreshold!==null&&(!finite(value.resolveThreshold)||!beyond(triggers.at(-1)!.alertThreshold,value.resolveThreshold)&&triggers.at(-1)!.alertThreshold!==value.resolveThreshold))fail('The resolve threshold must not breach the lowest trigger');
+ if([...triggers.map(t=>t.alertThreshold),...(value.resolveThreshold===null?[]:[value.resolveThreshold])].some(t=>t<0))fail('Metric thresholds must be nonnegative');
  if(value.dataset==='sessions'&&[...triggers.map(t=>t.alertThreshold),...(value.resolveThreshold===null?[]:[value.resolveThreshold])].some(t=>t<0||t>100))fail('Crash-free rate thresholds are percentages');
  const query:MetricConfig['query']={};
  if(q.tags!==undefined)query.tags=Object.fromEntries(Object.keys(q.tags).sort().map(k=>[k,match(q.tags[k])]));
  if(q.transaction!==undefined)query.transaction=match(q.transaction);
  return {metric:'aggregate',dataset:value.dataset,aggregate:value.aggregate,query,filters:value.filters.environment===undefined?{}:{environment:value.filters.environment},thresholdType:value.thresholdType,triggers,resolveThreshold:value.resolveThreshold,tagKeys:[...value.tagKeys].sort()};
 }
-// The integer threshold column stays inside the spike range for archive compatibility; real numbers live in config.
-export const metricThreshold=(c:MetricConfig)=>Math.min(10000,Math.max(2,Math.round(c.triggers[0].alertThreshold)));
 // Critical wins; while nothing breaches, an open status holds until the resolve threshold
 // is crossed, or, without one, resolves as soon as no trigger is breached.
 export function metricStatus(c:MetricConfig,previous:Status,value:number):{status:Status;label?:string;threshold?:number}{

@@ -1,3 +1,4 @@
+import { findTarget } from './targets';
 import {primaryShortIdSql} from '../short-ids/lookup';
 import {quietActive} from './snoozes';
 import {auditCommit} from '../audit/context';
@@ -18,6 +19,7 @@ export function controlsRoutes(routes:any,input:(c:any)=>Promise<any>){
   const b=await input(c),p=c.req.param('project'),time=Date.now();
   if(!b||Object.keys(b).sort().join()!=='daily,destination,hour,personal_daily,personal_weekly,quiet_end,quiet_start,timezone,weekly'||['daily','weekly','personal_daily','personal_weekly'].some(k=>typeof b[k]!=='boolean')||!Number.isInteger(b.hour)||b.hour<0||b.hour>23||[b.quiet_start,b.quiet_end].some(x=>x!==null&&(!Number.isInteger(x)||x<0||x>23))||(b.quiet_start===null)!==(b.quiet_end===null)||b.quiet_start!==null&&b.quiet_start===b.quiet_end)throw new Error('Use complete digest settings and distinct quiet-hour endpoints');
   const zone=timezone(b.timezone);
+  if(b.destination&&await findTarget(c.env,p,b.destination))throw new Error('Notify targets are for alert rules; choose an email address for a digest');
   const testGuard=b.daily||b.weekly?await requireReviewedTest(c.env,p,b.destination,'mail'):null;
   if(b.destination!==null&&typeof b.destination!=='string')throw new Error('Use an email destination');
   await ownerBatch(c.env.DB,c.get('alertSession'),[s(c.env.DB,`INSERT INTO alert_digest_settings VALUES(?,?,?,?,?,?,?,?,?,?,?,?) ON CONFLICT(project) DO UPDATE SET timezone=excluded.timezone,destination=excluded.destination,daily=excluded.daily,weekly=excluded.weekly,personal_daily=excluded.personal_daily,personal_weekly=excluded.personal_weekly,hour=excluded.hour,quiet_start=excluded.quiet_start,quiet_end=excluded.quiet_end,updated=excluded.updated`,p,zone,b.destination,Number(b.daily),Number(b.weekly),Number(b.personal_daily),Number(b.personal_weekly),b.hour,b.quiet_start,b.quiet_end,time,time),auditCommit(c.env.DB,'changes()>0'),...(testGuard?[testGuard]:[])]);

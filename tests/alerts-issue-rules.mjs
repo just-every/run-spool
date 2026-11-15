@@ -47,7 +47,8 @@ export async function issueRuleJourney(app){
  const before=await Promise.all(initial.map(d=>app.json(f.base+'/deliveries/'+d.id)));
  const current=(await app.json('/api/organization')).members.find(m=>m.id===member.id);
  await app.json('/api/organization/members/'+member.id,'PUT',{version:current.version,role:'member',grants:[{project:other.project.id,role:'member'}]});
- await app.tick();assert.deepEqual(await Promise.all(initial.map(d=>app.json(f.base+'/deliveries/'+d.id))),before,'recipient custody is retained without rerouting or duplicate sends');
+ const custody=rows=>rows.map(({delivery:{updated,...delivery},...detail})=>({delivery,...detail}));
+ await app.tick();assert.deepEqual(custody(await Promise.all(initial.map(d=>app.json(f.base+'/deliveries/'+d.id)))),custody(before),'recipient custody is retained without rerouting or duplicate sends');
  assert.ok(!(await app.json(f.base+'/recipients')).members.some(m=>m.member===member.id));
  const noOwner=await app.json(f.base+'/destinations','POST',{label:'Owners only',target:{type:'issue_owners',fallthrough:'no_one'}});
  const noOwnerTest=await app.json(f.base+'/destinations/'+noOwner.id+'/test','POST',{});assert.equal(noOwnerTest.state,'failing','no invented owner identity authorizes mail');

@@ -47,7 +47,7 @@ export async function intentRecipients(env:AlertEnvironment,intent:Intent,d:Targ
  let rows=await keptRecipients(env,intent);
  if(rows===null){
   const recipients=await resolveTarget(env,intent.project,d);
-  await s(env.DB,`INSERT INTO alert_intent_recipients SELECT ?,?,?,? WHERE EXISTS(SELECT 1 FROM alert_intents i JOIN alert_rules r ON r.id=i.rule_id AND r.project=i.project AND r.revision=i.rule_revision AND r.enabled=1 WHERE i.id=? AND i.project=? AND i.destination=? AND i.state IN ('pending','blocked') AND i.code IS NOT 'retention_removed') ON CONFLICT(intent) DO NOTHING`,intent.id,intent.project,JSON.stringify(recipients),time,intent.id,intent.project,d.id).run();
+  await s(env.DB,`INSERT INTO alert_intent_recipients SELECT ?,?,?,? WHERE EXISTS(SELECT 1 FROM alert_intents i JOIN alert_rules r ON r.id=i.rule_id AND r.project=i.project AND r.revision=i.rule_revision AND r.enabled=1 WHERE i.id=? AND i.project=? AND i.destination=? AND i.state IN ('pending','blocked') AND i.code IS NOT 'retention_removed') AND NOT EXISTS(SELECT 1 FROM json_each(?) candidate WHERE NOT EXISTS(SELECT 1 FROM (${authorizedMembers}) eligible WHERE eligible.member=json_extract(candidate.value,'$.member') AND eligible.email=json_extract(candidate.value,'$.email'))) ON CONFLICT(intent) DO NOTHING`,intent.id,intent.project,JSON.stringify(recipients),time,intent.id,intent.project,d.id,JSON.stringify(recipients),intent.project).run();
   rows=await keptRecipients(env,intent);
  }
  if(!rows?.length)throw new Error('no_recipients');

@@ -47,6 +47,10 @@ export async function metricJourney(app){
  await tick();assert.equal((await state(crash.id)).metric_status,'ok');assert.equal((await state(crash.id)).metric_value,99.5);
  assert.equal((await sentry(app,f.project,[['session',{...sessions[0][1],init:false,status:'crashed',errors:1,timestamp:new Date().toISOString()}]])).status,200);
  await tick();assert.equal((await state(crash.id)).metric_status,'warning');assert.equal((await state(crash.id)).metric_value,99);
+ assert.equal((await sentry(app,f.project,[['sessions',{attrs:{release:'r1',environment:'production'},aggregates:[{started,crashed:100}]}]])).status,200);
+ await tick();assert.equal((await state(crash.id)).metric_status,'critical');
+ assert.equal((await sentry(app,f.project,[['sessions',{attrs:{release:'r1',environment:'production'},aggregates:[{started,exited:100000}]}]])).status,200);
+ await tick();assert.equal((await state(crash.id)).metric_status,'ok');
  const count=await add('Server errors',metric('errors',{tags:{'http.status_code':{op:'glob',value:'5*'}}},{tagKeys:['http.status_code'],triggers:[{label:'critical',alertThreshold:2},{label:'warning',alertThreshold:1}],resolveThreshold:1}));
  for(let i=0;i<3;i++){
   const response=await sentry(app,f.project,[['event',{event_id:(sequence++).toString(16).padStart(32,'0'),release:'r1',dist:'b1',environment:'production',level:'error',tags:{'http.status_code':'503'},exception:{values:[{type:'CheckoutFailure'+i,value:'Service unavailable'}]}}]]);assert.equal(response.status,200);
