@@ -1,3 +1,4 @@
+import {ownerSetupFlow} from './owner-setup-flow.mjs';
 import {notificationPreferencesFlow} from './notification-preferences.mjs';
 import {discussionFlow} from './discussion-flow.mjs';
 import {reviewRule} from './alerts/preview-rule.mjs';
@@ -309,6 +310,7 @@ async function inertTeamArchive(owner,projects,formerCookie) {
 
 /** [TEAM-001] Membership lifecycle through the real emitted Worker and native mail proof. */
 export async function teamFlow() {
+ await ownerSetupFlow();
  await localMailFlow();
  const worker=await runtime();
  try {

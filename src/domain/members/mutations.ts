@@ -13,7 +13,13 @@ import type { Bindings } from '../../auth/bindings';
 
 export async function invite(request: Request, env: Bindings, session: NativeAuthority, organization: string, input: any) {
  fields(input,['email','name','role','grants']);
- const email=normalizeEmail(input.email), displayName=name(input.name), memberRole=role(input.role), access=await grants(env.DB,organization,input.grants);
+ // Source roles map to existing product authority, never native ownership.
+ // Only the installation owner can approve an imported authority mapping.
+ const imported=input.role==='owner'||input.role==='manager';
+ if(imported&&session.operator.role!=='owner')throw new AuthError('Only the owner can map imported roles',403);
+ const memberRole=role(input.role==='owner'?'admin':input.role==='manager'?'member':input.role);
+ const email=normalizeEmail(input.email), displayName=name(input.name), access=await grants(env.DB,organization,input.grants);
+ if(input.role==='manager'&&access.some(grant=>grant.role!=='maintainer'))throw new AuthError('Choose explicit maintainer projects for an imported manager',400);
  if (memberRole==='billing'&&access.length) throw new AuthError('Billing has no project grants',400);
  const existing=await s(env.DB,'SELECT * FROM spool_members WHERE email=?',email).first<any>();
  const native=await s(env.DB,'SELECT id,status,role FROM oa_operators WHERE email=?',email).first<any>();

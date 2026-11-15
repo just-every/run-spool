@@ -34,7 +34,11 @@ async function input(c:any) {
 }
 controlsRoutes(routes,input);
 teamControls(routes,input);
-routes.get('/recipients',async c=>c.json(await recipientChoices(c.env,c.req.param('project')!)));
+routes.get('/recipients',async c=>{
+ const session=c.get('alertSession');
+ if(session.operator.role!=='owner'&&session.membership?.role!=='admin'&&session.membership?.projectRole!=='maintainer')return c.json({error:'Project not found'},404);
+ c.header('Cache-Control','no-store');return c.json(await recipientChoices(c.env,c.req.param('project')!));
+});
 routes.get('/destinations',async c=>{try{return c.json({rows:await destinationChoices(c.env,c.req.param('project')!),configuration:'available'})}catch{return c.json({rows:[],configuration:'blocked'})}});
 routes.post('/destinations',async c=>c.json(await saveDestination(c.env,c.get('alertSession'),c.req.param('project')!,undefined,await input(c)),201));
 routes.put('/destinations/:destination',async c=>{const result=await saveDestination(c.env,c.get('alertSession'),c.req.param('project')!,c.req.param('destination'),await input(c));await synchronizeHistory(c.env,Date.now());return c.json(result)});

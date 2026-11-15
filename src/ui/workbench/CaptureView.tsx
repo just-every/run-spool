@@ -7,12 +7,13 @@ import { hrefFor } from './location';
 import { Field, useDraft, type Request, type Run } from './shared';
 import { captureStatus, type CaptureOutcomes } from './captureStatus';
 import { SdkSetup, SentryIntake } from './SdkSetup';
+import { ClientKeySetup } from './ClientKeySetup';
 import { SourceMapSetup } from './SourceMapSetup';
-export function CaptureView({ project, releases, issues, outcomes, busy, request, run, refresh, onReleases, onIssue, readOnly = false, manageProject = true, manageOrganization = true }: {
-  project: string; releases: any[]; issues: any[]; outcomes: CaptureOutcomes | null; busy: boolean; request: Request; run: Run; refresh: () => void; onReleases: () => void; onIssue: (id: string) => void; readOnly?: boolean; manageProject?: boolean; manageOrganization?: boolean;
+export function CaptureView({ project, releases, issues, outcomes, busy, request, run, refresh, onReleases, onIssue, readOnly = false, manageProject = true, manageOrganization = true, initialKey = '' }: {
+  initialKey?: string; project: string; releases: any[]; issues: any[]; outcomes: CaptureOutcomes | null; busy: boolean; request: Request; run: Run; refresh: () => void; onReleases: () => void; onIssue: (id: string) => void; readOnly?: boolean; manageProject?: boolean; manageOrganization?: boolean;
 }) {
   const [endpoint, setEndpoint] = useState('');
-  const [key, setKey] = useDraft(`${project}.capture-key`, ''), [releaseName, setReleaseName] = useDraft(`${project}.capture-release`, '');
+  const [key, setKey] = useDraft(`${project}.capture-key`, initialKey), [releaseName, setReleaseName] = useDraft(`${project}.capture-release`, '');
   const [preview, setPreview] = useDraft<any>(`${project}.capture-preview`, null), [outcome, setOutcome] = useDraft<any>(`${project}.capture-outcome`, null);
   const [lastCapture, setLastCapture] = useDraft<any>(`${project}.capture-retry`, null);
   const release = releases.find(row => row.name === releaseName) ?? releases[0];
@@ -29,9 +30,7 @@ export function CaptureView({ project, releases, issues, outcomes, busy, request
     <section className="evidence"><h2>1. Choose a release</h2><label className="form-field">Registered release<select value={release?.name ?? ''} onChange={e => setReleaseName(e.target.value)}><option value="">Choose a release</option>{releases.map(row => <option key={row.name}>{row.name}</option>)}</select></label><button className="text-button" onClick={onReleases}>{releases.length ? 'Manage releases and maps' : 'Register your first release'}</button></section>
     {manageProject && <BrowserOrigins key={project} project={project} busy={busy} request={request} run={run} />}
     <section className="evidence"><h2>{manageProject ? '3.' : '2.'} Connect your application</h2>
-      {endpoint ? <SdkSetup endpoint={endpoint} project={project} ingestKey="YOUR_INGEST_KEY" release={release?.name ?? 'REGISTERED_RELEASE'} build={release?.build ?? 'REGISTERED_BUILD'} /> : <p>Preparing your service endpoint…</p>}
-      <p className="muted">Use the ingest key shown when you created the project, or create one in <a className="inline-link" href={hrefFor(project, 'settings')}>Settings</a>.</p>
-      <SentryIntake />
+      {endpoint && manageProject ? <ClientKeySetup key={project} {...{ project, endpoint, request, run, busy, initialKey }} release={release?.name ?? 'spool-setup'} build={release?.build ?? 'browser-test'} onIssued={setKey} /> : endpoint ? <><SdkSetup endpoint={endpoint} project={project} ingestKey="YOUR_INGEST_KEY" release={release?.name ?? 'REGISTERED_RELEASE'} build={release?.build ?? 'REGISTERED_BUILD'} /><SentryIntake /></> : <p>Preparing your service endpoint…</p>}
     </section>
     <section className="evidence"><h2>{manageProject ? '4.' : '3.'} Verify capture</h2><p>Trigger an error in your application; it will appear above. Or send Spool’s sample error from this browser to check your key and release. The sample does not check your app’s SDK or source maps.</p><form className="form-grid" onSubmit={e => { e.preventDefault(); void run(async () => {
       if (!release) throw new Error('Register a release first.');
