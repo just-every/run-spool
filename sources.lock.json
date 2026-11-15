@@ -2901,6 +2901,10 @@
       "sha256": "fa1bb8de52aeea290f062c962a922f71d344929a57c893a34e3d558903c98d73",
       "executable": false
     },
+    "DIVERGENCE.md": {
+      "sha256": "43281cdcc04b4b05fdfc4504554a0c24a5440c49a17b8201974459e2b10deecd",
+      "executable": false
+    },
     "docs/AGENT-DOOR.md": {
       "sha256": "0432e148b45a568b085f0b9be6cf05352b6c368cc8b57fd52a523e3acbbff533",
       "executable": false
@@ -11054,7 +11058,7 @@
       "executable": false
     },
     "tests/commands.mjs": {
-      "sha256": "1997134008d1cc95b081fd5579f9e4a6bcfb2f26d9cf5938b11a41deb2633ab6",
+      "sha256": "fa86ab43572f7e7db6953624d9ccc76deca573e9d2af842cfe2fae30f13e9fe2",
       "executable": false
     },
     "tests/demo-capture.mjs": {
@@ -11251,6 +11255,10 @@
     },
     "tests/local-runtime.mjs": {
       "sha256": "39381a1541f88731c0d587d16bd6dcfc1ec9aade097dbd955b9bf9ca601e1653",
+      "executable": false
+    },
+    "tests/mail-off.mjs": {
+      "sha256": "489e81451b2064edc4391dc2ff4a50398d0ea36b862d64e638b16ce936b3db97",
       "executable": false
     },
     "tests/managed-sign-in.mjs": {

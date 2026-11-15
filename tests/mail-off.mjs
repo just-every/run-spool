@@ -11,6 +11,7 @@ import {secretBindings} from '@runeditrun/rer/internal/modules/deploy-kit/worker
 import {signinCommand} from '@runeditrun/rer/internal/cli/signin.mjs';
 import {validateConfiguration} from '../scripts/operations-config.mjs';
 import {commandAdapter} from '../scripts/installer/local.mjs';
+import {inspectRequiredLoops} from '@runeditrun/rer/internal/operations/project-operations.mjs';
 import {inspectOperations} from '@runeditrun/rer/operations';
 import {operatorMail} from '../src/auth/mail.server.mjs';
 import {admissionRuntime} from './admission-runtime.mjs';
@@ -27,6 +28,11 @@ export async function mailOffConfiguration() {
  const env={...input,SESSION_SECRET:'synthetic-spool-session-secret-long-enough',SETUP_TOKEN:testSetupToken,ALERT_DESTINATIONS:'[]',ALERT_DESTINATION_HASH_KEY:Buffer.alloc(32,45).toString('base64'),AUTH_LOCAL:'false',AUTH_ORIGIN:'https://spool.example'};
  await validateConfiguration(env);
  assert.equal((await inspectOperations(root,env)).ok,true,'native operations accepts mail off without a sender');
+ const operations=JSON.parse(await readFile('OPERATIONS.json','utf8'));
+ const mailLoop=operations.loops.find(loop=>loop.type==='mail');mailLoop.enabled=true;
+ assert.equal(inspectRequiredLoops(operations,env).find(loop=>loop.id===mailLoop.id).status,'optional-disabled','optional mail can be deliberately off');
+ mailLoop.required=true;
+ assert.equal(inspectRequiredLoops(operations,env).find(loop=>loop.id===mailLoop.id).status,'disabled-required','mail off never satisfies a required delivery loop');
  const context={root,declaration,env,setupManifest:manifest,adapter:commandAdapter,declarationPath:'deploy.json'};
  assert.equal((await requireProductionAuth(context)).mailOff.signIn,'rer signin');
  assert.equal((await requireProductionAuth({...context,options:{dryRun:true,verb:'deploy'}})).mailOff.signIn,'rer signin');
@@ -120,6 +126,7 @@ export async function mailOffSignIn(output) {
   const cookie=confirmed.headers.get('set-cookie').split(';')[0];
   assert.equal((await call('/auth/owner-signin',{token})).status,400,'the CLI grant is single-use');
   const project=await json('/api/projects',{id:'synthetic-spool-1',name:'Synthetic Spool'},cookie),base='/api/projects/'+project.id;
+  await json(base+'/releases',{name:'r1',build:'b1'},cookie);
   await json('/api/organization',{id:'synthetic-spool-1',name:'Synthetic Spool'},cookie);
   const destination=await json(base+'/alerting/destinations',{label:'Synthetic Spool',recipient:'synthetic-spool-2@example.test'},cookie);
   const tested=await json(base+'/alerting/destinations/'+destination.id+'/test',{},cookie);assert.equal(tested.state,'passing');
@@ -127,28 +134,34 @@ export async function mailOffSignIn(output) {
   const r=rule('mail',{destination:destination.id});
   const preview=await json(base+'/alerting/rules/preview',r,cookie);
   await json(base+'/alerting/rules',{...r,previewToken:preview.token},cookie);
+  const invitedEmail='synthetic-spool-member@example.test';
+  await json('/api/organization/invites',{email:invitedEmail,name:'Synthetic member',role:'member',grants:[]},cookie);
+  const existingInvites=(await json('/api/organization',undefined,cookie)).invites;
+  assert.equal(existingInvites.length,1,'enabled mail still admits and sends a native invitation');
   console.log('mail-off: destination and alert rule prepared through HTTP');
   await app.setMailProvider('none');
   console.log('mail-off: runtime restarted with provider none');
   // A second CLI entry proves owner access after mail is actually off.
   const offEntry=await cli.run();const admitted=await call('/auth/owner-signin',{token:new URL(offEntry.link).searchParams.get('token')});assert.equal(admitted.status,303);
   const offCookie=admitted.headers.get('set-cookie').split(';')[0];
-  const emails=[testOwner,'synthetic-spool-unknown@example.test'];
+  const emails=[testOwner,invitedEmail,'synthetic-spool-unknown@example.test'];
   const mailResults=[],inviteResults=[];
   for(const email of emails){
    const response=await call('/auth/magic-link',{email});assert.equal(response.status,503);mailResults.push(await response.json());
    const invite=await call('/api/organization/invites',{email,name:'Synthetic Spool',role:'member',grants:[]},offCookie);assert.equal(invite.status,503);inviteResults.push(await invite.json());
   }
-  assert.deepEqual(mailResults[0],mailResults[1]);assert.deepEqual(mailResults[0],{error:'mail_unavailable'});
-  assert.deepEqual(inviteResults[0],inviteResults[1]);assert.deepEqual(inviteResults[0],{error:'mail_unavailable'});
+  for(const result of [...mailResults,...inviteResults])assert.deepEqual(result,{error:'mail_unavailable'},'known, invited and unknown addresses receive the same unavailable result');
   assert.equal((await app.DB.prepare('SELECT COUNT(*) n FROM spool_local_invite_links').first()).n,0,'hosted mail-off never exposes a local invitation link');
   for(const path of ['/auth/dev/enter?as=owner','/auth/local/cli-session','/__dev/key']){
-   const response=await call(path,{},undefined);assert.ok([400,401,403,404,405].includes(response.status),'no hosted local entry');assert.equal(response.headers.get('set-cookie'),null);await response.body?.cancel();
+   for(const value of [undefined,{}]){
+    const response=await app.call(path,value,{'x-rer-dev-key':testDevKey});
+    assert.ok([400,401,403,404,405].includes(response.status),'no hosted local entry, even with a dev key');assert.equal(response.headers.get('set-cookie'),null);await response.body?.cancel();
+   }
   }
   const forged=await call('/auth/owner-signin',{token:randomBytes(32).toString('base64url')});assert.equal(forged.status,400);assert.equal(forged.headers.get('set-cookie'),null);
   console.log('mail-off: uniform auth and shortcut refusals passed');
   const before=(await app.DB.prepare('SELECT COUNT(*) n FROM rer_mail_development_outbox').first()).n;
-  const ingest=await app.call('/api/ingest/'+project.id,event('synthetic-spool-off-1'),{Authorization:'Bearer '+project.ingestKey});assert.ok(ingest.ok);await ingest.body?.cancel();
+  const ingest=await app.call('/api/ingest/'+project.id,event('synthetic-spool-off-1'),{Authorization:'Bearer '+project.ingestKey});assert.ok(ingest.ok,'capture HTTP '+ingest.status);await ingest.body?.cancel();
   // Drain native scheduled work and inspect its public delivery history.
   assert.equal((await call('/__fixture/schedule',{time:Date.now()})).status,200);
   const issues=await json(base+'/issues',undefined,offCookie);assert.equal(issues.length,1,'capture and issue reads work without mail');
@@ -156,7 +169,7 @@ export async function mailOffSignIn(output) {
   assert.ok(history.some(row=>row.channel==='mail'&&row.state==='blocked'&&row.attempts===0),'mail alert is visibly held before sending');
   assert.ok(history.every(row=>!['accepted','delivered'].includes(row.state)),'no alert is reported as sent');
   assert.equal((await app.DB.prepare('SELECT COUNT(*) n FROM rer_mail_development_outbox').first()).n,before,'mail-off makes no provider send');
-  assert.equal((await json('/api/organization',undefined,offCookie)).invites.length,0);
+  assert.deepEqual((await json('/api/organization',undefined,offCookie)).invites,existingInvites,'refused mail-off invitations change no invitation or expose a local link');
   for(const path of [base+'/issues','/api/projects'])assert.equal((await call(path)).status,401,'private APIs stay protected');
   for(const path of ['/app','/projects/'+project.id+'/settings'])assert.equal((await call(path)).status,303,'private documents stay protected');
   console.log('mail-off: blocked delivery and non-mail work passed');
@@ -166,6 +179,7 @@ export async function mailOffSignIn(output) {
    assert.equal(await page.getByRole('textbox').count(),0,'mail-off offers no email-link form');
    assert.equal(await page.locator('main').innerText().then(text=>text.includes('rer signin')),true,'the deploying owner gets the guarded CLI guidance');
    assert.equal(await page.locator('a[href*="/auth/dev/"]').count(),0);
+   assert.equal(await page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth+1),true,'mail-off guidance fits the sign-in screen');
    await page.evaluate(()=>document.fonts.ready);
    await page.screenshot({path:resolve(output,'sign-in-mail-off-1440.png'),fullPage:true});
    await page.setViewportSize({width:390,height:900});await page.screenshot({path:resolve(output,'sign-in-mail-off-390.png'),fullPage:true});

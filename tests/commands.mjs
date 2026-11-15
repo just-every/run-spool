@@ -47,7 +47,17 @@ const put=(path,value)=>writeFile(resolve(root,path),value,{mode:0o600});
  await put('scripts/installer/local.mjs',delayed);
  const slow=checkout.start(['setup','--owner-email',testOwner,'--port','15530']);
  for(let i=0;i<1200&&!slow.output().includes('Still starting');i++){assert.equal(slow.child.exitCode,null);await new Promise(r=>setTimeout(r,250));}
- assert.ok(slow.output().includes('Still starting'),'slow startup reports diagnostics before success');assert.equal((await fetch(origin+'/health')).status,200,'readiness waits on the real application');
+ assert.ok(slow.output().includes('Still starting'),'slow startup reports diagnostics before success');
+ // The diagnostic can precede completion of the production build on a slower
+ // host. Wait for the public health door while the fixture's readiness hook
+ // still refuses completion; the setup must remain pending throughout.
+ let healthy=false;
+ for(let i=0;i<240&&!healthy;i++){
+  assert.equal(slow.child.exitCode,null,'setup cannot complete before readiness is released');
+  healthy=await fetch(origin+'/health',{signal:AbortSignal.timeout(1000)}).then(async response=>{await response.body?.cancel();return response.status===200},()=>false);
+  if(!healthy)await new Promise(resolve=>setTimeout(resolve,250));
+ }
+ assert.equal(healthy,true,'readiness waits on the real application');
  process.kill(slow.child.pid,'SIGINT');assert.equal((await slow.closed).code,130);assert.equal(await fetch(origin+'/health').then(()=>true,()=>false),false,'cancellation stops the real runtime');
  assert.ok((await get('.dev.vars'))===initialSettings,'private settings preserved byte for byte');await put('scripts/installer/local.mjs',adapterText);
  diagnostics.stage('setup');
