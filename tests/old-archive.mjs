@@ -35,7 +35,7 @@ try {
  const modulePath = resolve(temporary, 'portability.mjs');
  await build({entryPoints: ['src/domain/portability.ts'], outfile: modulePath, bundle: true, platform: 'node', format: 'esm'});
  const transfer = await import(pathToFileURL(modulePath));
- runtime = new Miniflare(convertV4MiniflareOptions({modules: true, script: 'export default {}', log: new Log(LogLevel.ERROR), d1Databases: {FRESH: 'fresh', OCCUPIED: 'occupied', MISMATCH: 'mismatch', ROUNDTRIP: 'roundtrip', UPGRADE: 'upgrade', CURRENT_UPGRADE: 'current-upgrade'}}));
+ runtime = new Miniflare(convertV4MiniflareOptions({modules: true, script: 'export default {}', log: new Log(LogLevel.ERROR), d1Databases: {FRESH: 'fresh', OCCUPIED: 'occupied', MISMATCH: 'mismatch', ROUNDTRIP: 'roundtrip', UPGRADE: 'upgrade', CURRENT_UPGRADE: 'current-upgrade', PRE_METRIC: 'pre-metric', RECENT: 'recent'}}));
  const ledgerTable = manifest.tables.find(t => t.name === 'rer_migrations');
  async function target(binding, schema = migrations) {
   const db = await runtime.getD1Database(binding);
@@ -117,6 +117,16 @@ try {
  }
  console.log('PASS populated 0068 upgrade: ' + currentTables.length + ' tables preserved; five additive migrations applied');
 
+ // Backups made immediately before project metrics carry complete behavior and
+ // hashed migration history, unlike the earlier table-only fixture above.
+ const preMetric=await target('PRE_METRIC',migrations.filter(m=>m.name<'0106'));
+ transfer.portabilityPolicy.validateStaged=context=>stagedValidation({...context,read:table=>table==='sentry_transactions'?Promise.resolve([]):context.read(table)});
+ try{await transfer.restoreStream(await transfer.portability(preMetric),new Response(archive).body)}finally{transfer.portabilityPolicy.validateStaged=stagedValidation}
+ const recentArchive=await new Response(await transfer.archiveStream(await transfer.portability(preMetric))).text(),recent=await target('RECENT');
+ await transfer.restoreStream(await transfer.portability(recent),new Response(recentArchive).body);
+ for(const [table,data] of Object.entries(expected))assert.deepEqual(canonicalRows(await rows(recent,`SELECT * FROM "${table}"`)),canonicalRows(data),'pre-metric native archive preserves '+table);
+ assert.deepEqual(await rows(recent,'SELECT * FROM sentry_transactions'),[],'an old backup invents no transactions');
+ console.log('PASS pre-metric archive with complete native objects and hashed ledger restores into the metric schema');
  const fresh = await target('FRESH');
  const ledger = await rows(fresh, 'SELECT * FROM rer_migrations ORDER BY name');
  await transfer.restoreStream(await transfer.portability(fresh), new Response(archive).body);
