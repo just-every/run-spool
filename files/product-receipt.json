@@ -1,0 +1,14 @@
+{
+  "repository": "just-every/run-spool",
+  "branch": "cloud/main-spool-mail-off-1",
+  "head": "428560c3aa2d6c3eb984a751aff9aa5c0e706c42",
+  "pushStatus": "success",
+  "pushedAtUnix": 1794762416.3246102,
+  "baseMain": "74b7105bd756ac76a2e90086928a44af5e8cb5d1",
+  "candidateCommits": [
+    "428560c3aa2d6c3eb984a751aff9aa5c0e706c42",
+    "85615a4ca3d5aa576f54fd95070277ee57fdb086"
+  ],
+  "identityCheck": "all candidate author/committer names and emails verified, trailers absent",
+  "pullRequest": null
+}

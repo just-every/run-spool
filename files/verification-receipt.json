@@ -1,0 +1,72 @@
+{
+  "repository": "just-every/run-spool",
+  "date": "2026-11-15",
+  "checks": [
+    {
+      "command": [
+        "pnpm",
+        "typecheck"
+      ],
+      "exitCode": 0,
+      "seconds": 18.591
+    },
+    {
+      "command": [
+        "pnpm",
+        "exec",
+        "rer",
+        "check",
+        "--profile",
+        "first-party"
+      ],
+      "exitCode": 0,
+      "seconds": 2.196
+    },
+    {
+      "command": [
+        "node",
+        "scripts/sync-integration.mjs",
+        "--check"
+      ],
+      "exitCode": 0,
+      "seconds": 0.134
+    },
+    {
+      "command": [
+        "node",
+        "scripts/edition-authoring/cli.mjs",
+        "verify-base",
+        "--offline"
+      ],
+      "exitCode": 0,
+      "seconds": 0.32
+    },
+    {
+      "command": [
+        "node",
+        "scripts/edition-authoring/cli.mjs",
+        "lock"
+      ],
+      "exitCode": 0,
+      "seconds": 0.477
+    },
+    {
+      "command": [
+        "pnpm",
+        "source:check"
+      ],
+      "exitCode": 0,
+      "seconds": 0.677
+    },
+    {
+      "command": [
+        "git",
+        "diff",
+        "--check"
+      ],
+      "exitCode": 0,
+      "seconds": 0.009
+    }
+  ],
+  "productHead": "428560c3aa2d6c3eb984a751aff9aa5c0e706c42"
+}

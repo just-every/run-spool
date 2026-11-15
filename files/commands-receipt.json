@@ -1,0 +1,20 @@
+{
+  "repository": "just-every/run-spool",
+  "head": "428560c3aa2d6c3eb984a751aff9aa5c0e706c42",
+  "command": [
+    "node",
+    "tests/commands.mjs"
+  ],
+  "exitCode": 0,
+  "status": "passed",
+  "coverage": [
+    "public rer install/setup/dev, preserved owner and unsafe answers",
+    "startup diagnostic, public health, cancellation and pending readiness",
+    "desktop/mobile and no-JS development and preview",
+    "native portability export/reset/import and retained ownership records",
+    "unconfigured, enabled-mail and explicit mail-off deployment dry runs with a no-provider network interceptor",
+    "fresh owner and phone restart"
+  ],
+  "sourceSha256": "fa86ab43572f7e7db6953624d9ccc76deca573e9d2af842cfe2fae30f13e9fe2",
+  "resultLog": "commands-final.log"
+}

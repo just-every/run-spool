@@ -1,0 +1,41 @@
+{
+  "author": "Run Edit Run fleet",
+  "date": "2026-11-15",
+  "repository": "just-every/run-spool",
+  "scenarioEntry": "tests/managed-sign-in.mjs",
+  "helpers": [
+    "tests/mail-off.mjs#mailOffConfiguration",
+    "tests/mail-off.mjs#mailOffSignIn"
+  ],
+  "status": "passed",
+  "proof": [
+    "setup and operations accept explicit none without sender, API key or DKIM",
+    "owner declaration binds none to the runtime and binds no mail API key",
+    "all four enabled providers retain missing-input refusals",
+    "none conflicts with sending inputs; missing/later/direct never means off",
+    "real rer signin command with provider-edge fake checks Worker, account, project, environment and receipt; invalid custody never mints a grant",
+    "native CLI grant opens an owner session and cannot be replayed; forged grants and dev entry attempts do not sign in",
+    "email-link and invitation requests return identical 503 mail_unavailable for known and unknown addresses",
+    "capture and issue reads work; configured mail alert becomes blocked without a send",
+    "anonymous APIs and private documents refuse; owner project settings returns 200",
+    "sign-in page asserts at 1440 and screenshots at 1440 and 390"
+  ],
+  "providerQualification": "network-edge fake only; no real deployment or live email",
+  "sourceFilesSha256": {
+    "tests/mail-off.mjs": "489e81451b2064edc4391dc2ff4a50398d0ea36b862d64e638b16ce936b3db97",
+    "tests/managed-sign-in.mjs": "0e79e66c30c5fef2de14e73bd045e7416588f0c3c419104803269520afe08f4e",
+    "tests/admission-runtime.mjs": "4d0f17b847f6f383d81afc0e0d165371685903b21d26e7dfb4054993182fe8be",
+    "src/auth/mail.server.mjs": "daa754f5c27ad3d041bb72d66aee3f884ba4cda732f6d0a59b464932e1e05840",
+    "src/auth/session.server.ts": "be82c69396ae74c66a3c70f12c55387fbf1511e2f16d0f6bd0e25666cd1884d9",
+    "src/auth/sign-in.server.ts": "598367ddae9b227f91ae4e4dfd2f468af961b412f8b10d07be059a862ccddfb1",
+    "src/domain/members/mutations.ts": "58e56997516f9993e650366f26996348b694e042753f4bef6e05b2a4a9f09f61",
+    "rer-setup.json": "f6edca8868764a1a476d8635c06d7b40e4fcbe293c6dc5d1c9ae40de969ea256",
+    "deploy.json": "4d63be4f2c033c1ff8f747d59869ba94679ae1866be2154149ec8e274f2566a4"
+  },
+  "additionalProof": [
+    "enabled native invitation remains available before mail-off; pending, owner and unknown addresses then receive identical 503 results with invitation ledger unchanged",
+    "GET and POST hosted development shortcuts refuse even when a synthetic development key is presented",
+    "optional mail loop accepts explicit none, while required mail reports disabled-required"
+  ],
+  "productHead": "428560c3aa2d6c3eb984a751aff9aa5c0e706c42"
+}
