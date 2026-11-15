@@ -1,0 +1,21 @@
+{
+  "checkedAt": "2026-11-15T22:51:25.207493+00:00",
+  "command": [
+    "gh",
+    "api",
+    "repos/just-every/run-spool/actions/runs?head_sha=cd5d0aa417c3518133f35bac2671fec7b94b2d1b&per_page=100"
+  ],
+  "head": "cd5d0aa417c3518133f35bac2671fec7b94b2d1b",
+  "runs": [
+    {
+      "id": 43771563859,
+      "name": "Verify",
+      "status": "in_progress",
+      "conclusion": null,
+      "head_sha": "cd5d0aa417c3518133f35bac2671fec7b94b2d1b",
+      "html_url": "https://github.com/just-every/run-spool/actions/runs/43771563859",
+      "event": "push",
+      "created_at": "2026-11-15T22:51:04Z"
+    }
+  ]
+}

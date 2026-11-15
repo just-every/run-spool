@@ -1,0 +1,9 @@
+{
+  "head": "cd5d0aa417c3518133f35bac2671fec7b94b2d1b",
+  "bundle": "/home/agent/rer-consolidation/work/gr-mt-spool-dep-9/recovery/seroval-candidate.bundle",
+  "sha256": "41d9c4d0b9a397f131f0bf9b5d7b129bf232358bcd620a2ae0ed239098203244",
+  "verified": true,
+  "requiredBase": "adc3de69b9ae0ff60e41897f8ff7662fd656d560",
+  "scope": "origin/main..HEAD incremental recovery only",
+  "publicationOrReadyProof": false
+}

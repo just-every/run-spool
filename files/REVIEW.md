@@ -1,0 +1,14 @@
+# Dependency boundary investigation and candidate review
+Author: Run Edit Run fleet (Codex), 2026-11-15 UTC.
+
+The fix-finding skill requested independent read-only investigation and one independent candidate review. Both completed without editing files.
+
+Facts: pnpm-lock.yaml on main resolved seroval 1.6.7 through @tanstack/router-core, @tanstack/start-client-core, @tanstack/start-plugin-core and @tanstack/start-server-core. seroval-plugins peers against Seroval. Installed parent manifests accept ^1.6.7 and the plugin accepts ^1.0. There is no application-level direct Seroval import and no Seroval entry in src/modules/mail/pnpm-lock.yaml.
+
+Boundary: src/server.ts delegates authenticated document rendering to TanStack Start. src/routes/__root.tsx emits Scripts, and the generated router registers SSR. src/ui/workbench/client.ts and useWorkspace.ts fetch private workbench data using ordinary JSON after mount. Framework serialization remains an affected dependency boundary; dependency inclusion alone is not proof that attacker-controlled application input reaches every upstream exploit.
+
+Compatibility requirements: preserve SSR hydration, owner document loads, client navigation, reload/history, ordinary typed-array/RegExp/Map/sparse/cyclic value serialization, existing plugin support and all application contracts. No application API, route, authentication or archive code changed.
+
+Candidate review: git diff origin/main..HEAD changes only package.json's exact Seroval override, root lock resolution/peer identities, and the two associated source provenance hashes. Every active consumer resolves 1.6.11. Old package-store directories left by the initial installation are unused; they are not lockfile or installed-consumer dependency routes. Installed patched implementation derives typed-array names from intrinsic brands, selects constructors through an allowlist, encodes RegExp '<' syntax, validates array node lists, validates sequence indexes and checks internal Sequence/Stream identity. No source-backed surviving vulnerable dependency route or compatibility regression was identified. Provenance hashes match the changed files; whitespace check passed. The reviewer did not assume application tests passed.
+
+Focused probes: ordinary values pass on both baseline and patched packages. Typed-array constructor naming, RegExp HTML delimiter encoding, malformed array-shaped nodes and invalid sequence indexes fail the probe's security assertions on baseline 1.6.7 and pass on 1.6.11. A forged-stream rejection probe passes on both versions: it is an alternate-path refusal control, not a demonstrated regression reproduction for GHSA-7rv5-mrxv-xcr9. That advisory's remediation is established by its supplied patched-version boundary and the resolved 1.6.11 dependency, with source inspection of the new Stream identity checks. No large allocation or event-loop exhaustion was attempted.

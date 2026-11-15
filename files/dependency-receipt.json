@@ -1,0 +1,63 @@
+{
+  "author": "Run Edit Run fleet (Codex)",
+  "date": "2026-11-15",
+  "head": "cd5d0aa417c3518133f35bac2671fec7b94b2d1b",
+  "before": {
+    "seroval": "1.6.7",
+    "affectedAdvisories": 5,
+    "resolvedVersions": 1
+  },
+  "after": {
+    "seroval": "1.6.11",
+    "affectedListedAdvisories": 0,
+    "resolvedVersions": 1
+  },
+  "packageEntries": {
+    "before": 492,
+    "after": 492,
+    "removed": [
+      "seroval@1.6.7"
+    ],
+    "added": [
+      "seroval@1.6.11"
+    ]
+  },
+  "otherPackageMetadataUnchanged": true,
+  "consumers": [
+    {
+      "consumer": "@tanstack/router-core@1.171.34",
+      "version": "1.6.11"
+    },
+    {
+      "consumer": "@tanstack/start-client-core@1.170.34",
+      "version": "1.6.11"
+    },
+    {
+      "consumer": "@tanstack/start-plugin-core@1.171.49(@tanstack/react-router@1.170.41(react-dom@19.2.8(react@19.2.8))(react@19.2.8))(esbuild@0.28.2)(rolldown@1.2.8)(rollup@4.64.12)(vite@8.2.4(@types/node@22.20.5)(esbuild@0.28.2)(jiti@2.7.0)(terser@5.51.2))(webpack@5.112.0(esbuild@0.28.2))",
+      "version": "1.6.11"
+    },
+    {
+      "consumer": "@tanstack/start-server-core@1.169.39",
+      "version": "1.6.11"
+    },
+    {
+      "consumer": "seroval-plugins@1.6.7(seroval@1.6.11)",
+      "version": "1.6.11"
+    }
+  ],
+  "contractCounts": {
+    "before": {
+      "done": 23,
+      "partial": 54,
+      "missing": 28,
+      "total": 105
+    },
+    "after": {
+      "done": 23,
+      "partial": 54,
+      "missing": 28,
+      "total": 105
+    }
+  },
+  "clauseChanges": []
+}

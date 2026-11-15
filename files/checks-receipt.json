@@ -1,0 +1,85 @@
+{
+  "author": "Run Edit Run fleet (Codex)",
+  "date": "2026-11-15",
+  "head": "cd5d0aa417c3518133f35bac2671fec7b94b2d1b",
+  "runtime": {
+    "node": "22.20.0",
+    "pnpm": "10.12.4"
+  },
+  "checks": [
+    {
+      "command": "pnpm install --frozen-lockfile",
+      "exit": 0,
+      "result": "pass"
+    },
+    {
+      "command": "cloud_run npx -y @runeditrun/rer setup --owner-email fleet@runeditrun.com --non-interactive",
+      "exit": 0,
+      "result": "pass",
+      "log": "/tmp/spool-setup.log",
+      "localLogSha256": "9f321aba372f6277becbc78dcd9587ef4559594b185e7e767badd4bbf65c9a60",
+      "logRetainedLocally": true
+    },
+    {
+      "command": "cloud_run npx -y @runeditrun/rer build",
+      "exit": 0,
+      "result": "pass",
+      "log": "/tmp/spool-build.log",
+      "localLogSha256": "a3873ca4b5712a41455284791e9812e7d348aff13080c7535c6e7a49b561da50",
+      "logRetainedLocally": true
+    },
+    {
+      "command": "cloud_run pnpm typecheck",
+      "exit": 0,
+      "result": "pass",
+      "log": "/tmp/spool-typecheck.log",
+      "localLogSha256": "954fda5666c692185bb4aeb7979dfb0c981a3b78d8f44bbbff10b1554c54dab4",
+      "logRetainedLocally": true
+    },
+    {
+      "command": "pnpm source:check",
+      "exit": 0,
+      "result": "pass",
+      "log": "/tmp/spool-source-check.log",
+      "localLogSha256": "6349cc97c73922294b1ad4c6653bebd896f63e58c2e3fc105737a29d657c167b",
+      "logRetainedLocally": true
+    },
+    {
+      "command": "node serializer-probe.mjs <installed patched module> --require-pass",
+      "exit": 0,
+      "result": "pass",
+      "receipt": "probe-after.json"
+    },
+    {
+      "command": "RER_CHROMIUM_EXECUTABLE_PATH=/usr/bin/chromium cloud_run pnpm test:ui",
+      "exit": 0,
+      "result": "pass",
+      "groups": 22,
+      "viewports": [
+        1440,
+        390
+      ],
+      "captures": 101,
+      "localLogSha256": "d042ad3375842b032b6186a5baf75d8746ae2146d622d275a43a851a8ae44146"
+    },
+    {
+      "command": "cloud_run python3 publication-driver.py (Base publish-check, 1800-second bound)",
+      "exit": 0,
+      "result": "pass",
+      "receipt": "publication-scan.json",
+      "complete": true,
+      "findings": 0,
+      "preExistingFindings": 17
+    }
+  ],
+  "fullSuite": "not run locally; exact-SHA Verify is the full CI gate",
+  "browser": "pass",
+  "publication": "COMPLETE/PASS",
+  "ci": {
+    "runId": 43771563859,
+    "status": "in_progress",
+    "conclusion": null,
+    "head": "cd5d0aa417c3518133f35bac2671fec7b94b2d1b",
+    "receipt": "ci-status.json"
+  }
+}

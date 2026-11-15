@@ -1,0 +1,35 @@
+{
+  "module": "patched",
+  "checks": [
+    {
+      "name": "legitimate typed-array, RegExp, sparse array, cyclic object and Map round trip",
+      "pass": true
+    },
+    {
+      "name": "legitimate completed stream retains buffered events",
+      "pass": true
+    },
+    {
+      "name": "typed-array constructor name is derived from intrinsic brand",
+      "pass": true
+    },
+    {
+      "name": "RegExp script delimiters and HTML comment syntax remain encoded",
+      "pass": true
+    },
+    {
+      "name": "array-shaped JSON objects are refused before length iteration",
+      "pass": true
+    },
+    {
+      "name": "out-of-range and fractional sequence termination indexes are refused",
+      "pass": true
+    },
+    {
+      "name": "forged stream object cannot invoke an attacker-selected on callable",
+      "pass": true
+    }
+  ],
+  "passed": 7,
+  "total": 7
+}

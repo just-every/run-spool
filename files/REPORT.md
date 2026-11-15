@@ -1,0 +1,32 @@
+# gr-mt-spool-dep-9 — Seroval security maintenance
+Author: Run Edit Run fleet (Codex), 2026-11-15 UTC.
+
+Product: just-every/run-spool; branch cloud/gr-mt-spool-dep-9; candidate cd5d0aa417c3518133f35bac2671fec7b94b2d1b; base adc3de69b9ae0ff60e41897f8ff7662fd656d560. No PR is required by the repository's instructions and none was created. Product branch pushed successfully. Exact-SHA Verify 43771563859 remains in progress; READY is not claimed. The bounded watcher stopped after three five-minute polls within the shared ten-call GitHub budget.
+
+Outcome: dependency patch implemented and locally validated. package.json adds the repository-native exact pnpm override seroval=1.6.11. pnpm-lock.yaml was regenerated using pnpm 10.12.4. sources.lock.json was regenerated last and checked. No application, contract, generated view, test, UI or unrelated dependency changes were committed.
+
+Before/after: one resolved Seroval version, 1.6.7 → 1.6.11; affected supplied advisory ranges 5 → 0; package entries 492 → 492. Four TanStack consumers plus the Seroval plugin peer all resolve 1.6.11. Other package metadata is unchanged; plugin version remains 1.6.7. Direct TanStack dependencies retain their versions. Target clause changes: none. Contract totals remain 23 done, 54 partial, 28 missing, 105 total.
+
+The invariant is that framework SSR, client and plugin serialization paths use the patched Seroval implementation while ordinary value serialization and owner navigation still work. src/server.ts delegates documents to Start, src/routes/__root.tsx emits hydration scripts, and private workbench JSON fetches remain unchanged. The manifest override covers every installed parent, whose existing ranges permit 1.6.11. Targeted transitive pnpm update attempts preserved 1.6.7, so the exact override ensures a patched resolution without upgrading parent packages.
+
+Ordered verification: frozen install passed; Node 22.20.0 and pnpm 10.12.4 used for final install, setup, build, typecheck and browser checks. cloud_run npx -y @runeditrun/rer setup --owner-email fleet@runeditrun.com --non-interactive passed. cloud_run npx -y @runeditrun/rer build passed. cloud_run pnpm typecheck passed. pnpm source:check and git diff --check passed.
+
+Focused serializer probes: baseline 3/7, patched 7/7. The same ordinary typed-array/RegExp/Map/sparse/cyclic round trip and completed stream replay pass on both. Four security assertions distinguish the patched implementation: intrinsic typed-array constructor naming, RegExp HTML-syntax encoding, array-shaped-node rejection and malformed sequence-index rejection. A forged Stream refusal control passes on both: that sample does not reproduce GHSA-7rv5-mrxv-xcr9, whose resolved-version remediation and new identity enforcement were separately inspected. No application-level exploit of all five advisories is claimed; patched dependency resolution is established for all five supplied ranges.
+
+Existing RER_CHROMIUM_EXECUTABLE_PATH=/usr/bin/chromium cloud_run pnpm test:ui passed: 22 groups, 101 JPG captures at 1440 and 390, including owner documents, hydration, client navigation, reload/history and page-error assertions. Browser and Worker processes closed. Screenshots remain local because this maintenance changes no UI. The actual non-secret journey manifest and log are in the packet.
+
+Independent read-only investigation and one candidate review found no concrete surviving dependency route or compatibility regression. See REVIEW.md. No tests were added, removed or weakened. The full suite was not run locally; exact-candidate Verify is the full CI gate.
+
+Publication: the first attempt was incomplete because the clean mirror did not inherit promisor metadata; the second reached its 300-second default deadline while inspecting 2,533 commits. The third attempt, with correct promisor metadata, explicit project/repository identity and 1,800-second limit, completed in 414.295 seconds: COMPLETE/PASS, zero findings, environment matching checked. It inspected 957 commits reachable from candidate/public-base plus 21 tag messages, 947 trees and 8,058 unique blobs. The 2,533 figure described all local refs; the selected-and-public-base scope has 957 commits. Its 17 pre-existing findings (16 SEC-3, one hygiene.email) remain reported in the scanner artifact and do not affect the PASS result. The scan preceded the product push.
+
+The full plan is PLAN.md; dependency, check, probe, browser and publication receipts are explicitly selected for evidence publication. Credentials, settings, environment dumps, raw setup output, browser state and private held-out material are excluded.
+
+Custody: all candidate author/committer names and emails and all trailers inspected before push; one candidate with fleet identities and no trailers. The fleet cloud-push.py guard published cloud/gr-mt-spool-dep-9 on its first attempt. No default branch update, force push, PR, release or deploy. Verify push run: https://github.com/just-every/run-spool/actions/runs/43771563859 on the exact candidate SHA. The one REST watcher waits at least 300 seconds between status reads.
+
+Recovery: a verified incremental bundle is retained outside the clone at /home/agent/rer-consolidation/work/gr-mt-spool-dep-9/recovery/seroval-candidate.bundle. It requires base adc3de69b9ae0ff60e41897f8ff7662fd656d560; SHA-256 41d9c4d0b9a397f131f0bf9b5d7b129bf232358bcd620a2ae0ed239098203244. This is recovery data, not READY or a publication receipt.
+
+Terminal product custody: PUSHED branch=cloud/gr-mt-spool-dep-9 head=cd5d0aa417c3518133f35bac2671fec7b94b2d1b. Exact-SHA Verify 43771563859 remains in progress; READY is not claimed. The bounded watcher stopped after three five-minute polls within the shared ten-call GitHub budget.
+
+CI run IDs: 43771563859. No clause statuses changed, and no acceptance claims are made by this maintenance. No owner ruling, account, local check or publication blocker remains. Evidence publication is separate from product READY, acceptance and landing; the fleet independently reruns its gates.
+
+The explicit packet includes this report, the plan, boundary/review notes, result.json, dependency/check/push/recovery receipts, serializer probe source and before/after outcomes, non-secret browser manifest/log, typecheck output, actual publication reports and the exact-SHA CI discovery/status receipts. Private setup output and credential metadata are excluded.

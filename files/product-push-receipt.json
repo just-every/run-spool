@@ -1,0 +1,15 @@
+{
+  "branch": "cloud/gr-mt-spool-dep-9",
+  "head": "cd5d0aa417c3518133f35bac2671fec7b94b2d1b",
+  "repository": "just-every/run-spool",
+  "command": "python3 $HOME/rer-consolidation/.tools/cloud-push.py origin cloud/gr-mt-spool-dep-9",
+  "exit": 0,
+  "attempts": 1,
+  "identityAndTrailers": "pass, all candidate commits including side parents inspected; one candidate; fleet author and committer; no trailers",
+  "publicationScan": "complete/pass with zero findings on exact commit",
+  "pr": null,
+  "ciRunId": 43771563859,
+  "ciStatus": "in_progress",
+  "ciConclusion": null,
+  "terminalCustody": "PUSHED"
+}

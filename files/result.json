@@ -1,0 +1,7 @@
+{
+  "status": "done",
+  "sha": "cd5d0aa417c3518133f35bac2671fec7b94b2d1b",
+  "summary": "Pinned transitive seroval to 1.6.11 for all TanStack and plugin paths, regenerating pnpm and source locks without unrelated upgrades; the patched version covers the five supplied advisories.",
+  "tests": "Node 22.20.0 / pnpm 10.12.4: frozen install, rer setup, rer build, typecheck, source:check and diff check passed; serializer probes 7/7 passed; existing UI journey passed 22 groups at 1440 and 390; exact-tree publication scan COMPLETE/PASS with zero findings. Product branch pushed. Exact-SHA Verify 43771563859 remains in progress; READY is not claimed. The bounded watcher stopped after three five-minute polls within the shared ten-call GitHub budget.",
+  "security": true
+}
