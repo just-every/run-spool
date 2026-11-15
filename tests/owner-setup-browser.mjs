@@ -55,3 +55,34 @@ export async function ownerSetupBrowser(app, cookie, project, json) {
   assert.deepEqual(errors,[]);return grant;
  }finally{await browser.close();}
 }
+
+// A project member retains deployment writes without receiving alert contacts.
+export async function deploymentMemberBrowser(app,cookie,project,json) {
+ const base='/api/projects/'+project.id,sha='a'.repeat(40),folder='.artifacts/owner-setup';
+ const destination=await json(base+'/alerting/destinations','POST',{label:'Private release contact',recipient:'synthetic-spool-private-release@example.test'});
+ await json(base+'/releases','POST',{name:'member-proof',build:'web-1'});
+ await json(base+'/deployments','POST',{id:'synthetic-spool-existing',release:'member-proof',build:'web-1',environment:'production',repository:'https://example.test/cedar/checkout',commitSha:sha,includedCommits:[sha],startedAt:new Date().toISOString(),deadline:new Date(Date.now()+3600000).toISOString(),destination:destination.id});
+ const browser=await launchBrowser();
+ try{
+  const context=await browser.newContext({viewport:{width:1440,height:1000},timezoneId:'UTC'}),split=cookie.indexOf('=');
+  await context.addCookies([{name:cookie.slice(0,split),value:cookie.slice(split+1),url:app.origin.replace('http:','https:'),secure:true}]);
+  const page=await context.newPage(),errors=[],contactReads=[];page.setDefaultTimeout(20000);
+  page.on('pageerror',error=>errors.push(error.message));page.on('request',request=>{if(request.url().endsWith('/alerting/destinations'))contactReads.push(request.url())});
+  await page.goto(app.origin+'/projects/'+project.id+'/releases');const panel=page.locator('#deployment-history');
+  await page.waitForFunction(()=>{const panel=document.querySelector('#deployment-history');return panel&&(panel.querySelector('.deployment-record')||panel.querySelector('[role=alert]'))});
+  await mkdir(folder,{recursive:true});
+  for(const width of [1440,390]){await page.setViewportSize({width,height:1000});assert.ok(await page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth+1));await panel.screenshot({path:`${folder}/member-deployments-${width}.png`});}
+  assert.equal(await panel.locator('.deployment-record').count(),1,'member can inspect existing deployment history');
+  assert.deepEqual(contactReads,[],'deployment tracking does not request the contact directory');
+  await expect(panel).not.toContainText('Private release contact');await expect(panel).not.toContainText('synthetic-spool-private-release@example.test');
+  await panel.getByLabel('Deployment ID',{exact:true}).fill('synthetic-spool-member');await panel.getByLabel('Deployment release',{exact:true}).selectOption('member-proof');
+  await panel.getByLabel('Repository HTTPS URL',{exact:true}).fill('https://example.test/cedar/checkout');await panel.getByLabel('Deployment commit SHA',{exact:true}).fill(sha);await panel.getByLabel('Included commit SHAs, oldest first',{exact:true}).fill(sha);
+  await panel.getByLabel('Owner deadline',{exact:true}).fill(new Date(Date.now()+3600000).toISOString().slice(0,16));await panel.getByLabel('Deadline email destination',{exact:true}).selectOption(destination.id);
+  await panel.getByRole('button',{name:'Start deployment',exact:true}).click();await expect(panel.getByRole('status')).toHaveText('Deployment started.');
+  await panel.getByLabel('Deployment to update',{exact:true}).selectOption('synthetic-spool-member');await panel.getByLabel('Deployment outcome',{exact:true}).selectOption('succeeded');await panel.getByLabel('Exposure percent',{exact:true}).fill('100');
+  await panel.getByRole('button',{name:'Record deployment outcome',exact:true}).click();await expect(panel.getByRole('status')).toHaveText('Deployment outcome recorded.');
+  const history=await json(base+'/deployments');assert.equal(history.rows.find(row=>row.id==='synthetic-spool-member').steps.at(-1).state,'succeeded');
+  for(const width of [1440,390]){await page.setViewportSize({width,height:1000});await panel.screenshot({path:`${folder}/member-outcome-${width}.png`});}
+  assert.deepEqual(errors,[]);
+ }finally{await browser.close();}
+}

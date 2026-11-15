@@ -3,7 +3,7 @@ import {fileURLToPath} from 'node:url';
 import {admissionRuntime} from './admission-runtime.mjs';
 import {signIn} from './auth.mjs';
 import {confirmLatest} from './owner-erasure/helpers.mjs';
-import {ownerSetupBrowser} from './owner-setup-browser.mjs';
+import {ownerSetupBrowser,deploymentMemberBrowser} from './owner-setup-browser.mjs';
 
 // Extends TEAM-001's existing owner journey; native sessions and real HTTP doors.
 export async function ownerSetupFlow() {
@@ -36,7 +36,11 @@ export async function ownerSetupFlow() {
     const delegated=await json(root+'/keys','POST',{kind:'ingest'},actor);assert.ok(delegated.key,'native project members retain their existing credential delegation');
     await json(root+'/keys/'+delegated.hash,'DELETE',undefined,actor);
     await denied(req('/api/projects/'+foreign.id+'/keys','POST',{kind:'ingest'},actor));
-   }else{await denied(req(root+'/keys','POST',{kind:'ingest'},actor));await denied(req(root+'/keys/'+grant.hash,'DELETE',undefined,actor));}
+    await deploymentMemberBrowser(app,actor,project,json);
+    const choices=await json(root+'/alerting/deployment-options','GET',undefined,actor);
+    assert.ok(choices.rows.length);assert.ok(choices.rows.every(row=>Object.keys(row).sort().join() === 'id,label'));
+    assert.ok(!JSON.stringify(choices).includes('Private release contact')&&!JSON.stringify(choices).includes('synthetic-spool-private-release@example.test'));
+   }else{await denied(req(root+'/keys','POST',{kind:'ingest'},actor));await denied(req(root+'/keys/'+grant.hash,'DELETE',undefined,actor));await denied(req(root+'/alerting/deployment-options','GET',undefined,actor));}
    for(const tail of ['/recipients','/destinations','/deliveries/synthetic-spool-unknown'])await denied(req(root+'/alerting'+tail,'GET',undefined,actor));await denied(req('/api/organization','GET',undefined,actor));
   }
   await denied(req(root+'/keys','POST',{kind:'ingest'},''));
