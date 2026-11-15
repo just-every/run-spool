@@ -9,7 +9,7 @@ import {beforeProjectMetrics} from './archive-before-project-metrics.mjs';
 // holds it; SQLite records a trigger as `CREATE TRIGGER <name> ...` without IF NOT EXISTS.
 export async function beforeRelayPrivacy(manifest){
  beforeProjectMetrics(manifest);
- if(manifest.migrations)manifest.migrations=manifest.migrations.filter(name=>!['0102_agent_retired_refs.sql','0103_agent_door_relay_privacy.sql','0104_business_retired.sql'].includes(name));
+ if(manifest.migrations)manifest.migrations=manifest.migrations.filter(name=>!['0102_agent_retired_refs.sql','0103_agent_door_relay_privacy.sql','0104_business_retired.sql','0105_local_invitation_links.sql'].includes(name));
  // The two tombstone tables of 0102 and 0104 had no place in an archive before them.
  manifest.tables=manifest.tables.filter(table=>!['agent_door_retired_refs','bs_retired'].includes(table.name));
  if(!manifest.schemaObjects)return;
@@ -21,11 +21,11 @@ export async function beforeRelayPrivacy(manifest){
 
 // The archive an earlier release exports: the same items under a manifest edited by `edit`, with its schema,
 // content and archive hashes signed again (the schema as the table-only identity every earlier archive carries).
-// The previous release's own format: no ledger, its tables and complete object inventory (relay triggers as 0103 wrote
-// them) and none of the two erasure tombstone tables that 0102 and 0104 added to the archive.
+// The previous release's no-ledger format carries its complete earlier object inventory
+// and none of the erasure tombstones or transaction stores introduced afterward.
 export async function beforeTombstoneTables(manifest){
- beforeProjectMetrics(manifest);
- manifest.tables=manifest.tables.filter(table=>!['agent_door_retired_refs','bs_retired'].includes(table.name));
+ await beforeRelayPrivacy(manifest);
+ delete manifest.migrations;delete manifest.migrationLedger;
 }
 
 export async function rebuiltArchive(text,edit,{objectIdentity=false}={}){
