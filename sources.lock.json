@@ -6550,7 +6550,7 @@
       "executable": false
     },
     "src/domain/project-key-authority.ts": {
-      "sha256": "60110c5766c4b47696c288514ca855ae655f7cf9f324a1554fcec320bd00d534",
+      "sha256": "a841600994f127d66574c8b439605129c6620897f55cd27cd717d963a00ade3d",
       "executable": false
     },
     "src/domain/proposals/archive.ts": {
@@ -11346,7 +11346,7 @@
       "executable": false
     },
     "tests/owner-setup-flow.mjs": {
-      "sha256": "3c20626a2f52e95e842bd9bf97dd9c263b35c74aba774d646c88933b7806aa5c",
+      "sha256": "2a4a60ba8efd55a16505178c6b060540f3e74cb354c322313399b64764e8bd84",
       "executable": false
     },
     "tests/preview-session.mjs": {
