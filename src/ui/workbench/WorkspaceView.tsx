@@ -60,7 +60,7 @@ export function WorkspaceView({ workspace, data, renderAlerts }: { workspace: Re
   } else if (route.view === 'reports') {
     content = <ReportsView key={`reports-${project}`} project={project} projects={projects} configure={manageProject && !readOnly} />;
   } else if (route.view === 'capture') {
-    content = <CaptureView key={`capture-${project}`} initialKey={freshKey?.project === project && freshKey.kind === 'ingest' ? freshKey.value : ''} {...controls} readOnly={readOnly} manageProject={manageProject} manageOrganization={manageOrganization} onIssue={onIssue} releases={data.releases} issues={data.issues} outcomes={data.outcomes} onReleases={() => route.go(project, 'releases')} />;
+    content = <CaptureView key={`capture-${project}`} onKeyDismiss={() => setFreshKey(null)} initialKey={freshKey && freshKey.project === project && freshKey.kind === 'ingest' ? freshKey.value : ''} {...controls} readOnly={readOnly} manageProject={manageProject} manageOrganization={manageOrganization} onIssue={onIssue} releases={data.releases} issues={data.issues} outcomes={data.outcomes} onReleases={() => route.go(project, 'releases')} />;
   } else {
     content = manageProject ? renderAlerts(project, onIssue) : <section className="evidence"><h2>Alerts</h2><p>Ask a project maintainer or administrator to manage alert rules and delivery.</p></section>;
   }
