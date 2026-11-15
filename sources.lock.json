@@ -5746,7 +5746,7 @@
       "executable": false
     },
     "src/domain/alerts/routes.ts": {
-      "sha256": "174e58a54d2918ec822413b44b19eb43340ef1c37613544029c2c3ea585e42db",
+      "sha256": "c253431e95ee7987acddce7ed992d9f6dcfe0f0de168bb20aeb7316964147c07",
       "executable": false
     },
     "src/domain/alerts/rules.ts": {
@@ -10318,7 +10318,7 @@
       "executable": false
     },
     "src/ui/workbench/DeploymentHistory.tsx": {
-      "sha256": "234f0dc98c8ebe9ad884cf200e00e8b05f96899732c2bcd969984aa83b57f57f",
+      "sha256": "1c2c4a00c72f5503ef490a7d482bce7e38f0c8321ac3ea62e623d638c058bd01",
       "executable": false
     },
     "src/ui/workbench/Details.tsx": {
@@ -10790,7 +10790,7 @@
       "executable": false
     },
     "tests/agent-door/protocol-contract.mjs": {
-      "sha256": "dcb2e84fb24d3bf1fb31410a92510b07b38015c1086ce0a248865283d4305ab5",
+      "sha256": "f89ed40f765aa96f0dec6d584947fbf4651b22b629755696cd254805319ee994",
       "executable": false
     },
     "tests/agent-door/replay-horizon.mjs": {
@@ -11342,11 +11342,11 @@
       "executable": false
     },
     "tests/owner-setup-browser.mjs": {
-      "sha256": "2c92068e41738a23a6398ea818ea0a2d518e974b9558a9a2c5fa569b99d23da0",
+      "sha256": "45279558eb369a3d1d7b1847decc93121bc0c51215891cbba5f5060933ce4d52",
       "executable": false
     },
     "tests/owner-setup-flow.mjs": {
-      "sha256": "2a4a60ba8efd55a16505178c6b060540f3e74cb354c322313399b64764e8bd84",
+      "sha256": "647d453162253ff67a6df0f795d4d1249e129778c3dfe01894be6eb5716af405",
       "executable": false
     },
     "tests/preview-session.mjs": {

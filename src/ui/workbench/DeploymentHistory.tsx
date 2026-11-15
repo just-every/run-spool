@@ -8,7 +8,7 @@ export function DeploymentHistory({project,releases,request,run,busy}:{project:s
  const [id,setId]=useState(''),[release,setRelease]=useState(''),[environment,setEnvironment]=useState('production'),[commit,setCommit]=useState(''),[previous,setPrevious]=useState(''),[commits,setCommits]=useState(''),[repository,setRepository]=useState(''),[destination,setDestination]=useState(''),[deadline,setDeadline]=useState('');
  const [selected,setSelected]=useState(''),[state,setState]=useState('progress'),[exposure,setExposure]=useState('10'),[rollback,setRollback]=useState(''),[message,setMessage]=useState('');
  const base=`/api/projects/${encodeURIComponent(project)}/deployments`;
- async function load(){try{const [history,choices]=await Promise.all([request(base+'?display=readable'),request(`/api/projects/${encodeURIComponent(project)}/alerting/destinations`)]);setRows(history.rows);setDestinations(choices.rows.filter((r:any)=>r.channel==='mail'));setError('');setLoaded(true)}catch(e){setError((e as Error).message)}}
+ async function load(){try{const [history,choices]=await Promise.all([request(base+'?display=readable'),request(`/api/projects/${encodeURIComponent(project)}/alerting/deployment-options`)]);setRows(history.rows);setDestinations(choices.rows);setError('');setLoaded(true)}catch(e){setError((e as Error).message)}}
  useEffect(()=>{setLoaded(false);void load()},[project]);
  const target=releases.find(r=>r.name===release);
  return <section className="evidence" id="deployment-history"><h2>Deployment history</h2><Details title="Deployment tracking"><p>Record deployment observations from CI or by hand. If no final outcome arrives by the deadline, Spool marks it overdue and tries to notify the selected email destination once.</p></Details>

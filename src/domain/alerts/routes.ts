@@ -42,6 +42,14 @@ routes.use('*',async(c,next)=>{
  c.header('Cache-Control','no-store');await next();
 });
 routes.get('/recipients',async c=>c.json(await recipientChoices(c.env,c.req.param('project')!)));
+// Deployment writers can select a configured mail target, but cannot inspect
+// its contacts, custom label, test results or recipient membership.
+routes.get('/deployment-options',async c=>{
+ const session=c.get('alertSession'),contacts=session.operator.role==='owner'||session.membership?.role==='admin'||session.membership?.projectRole==='maintainer';
+ if(!contacts&&!(session.membership?.role==='member'&&session.membership.projectRole==='member'))return c.json({error:'Project not found'},404);
+ const rows=(await destinationChoices(c.env,c.req.param('project')!)).filter(row=>row.channel==='mail');
+ return c.json({rows:rows.map((row,index)=>({id:row.id,label:contacts?row.label:`Configured email destination ${index+1}`}))});
+});
 routes.get('/destinations',async c=>{try{return c.json({rows:await destinationChoices(c.env,c.req.param('project')!),configuration:'available'})}catch{return c.json({rows:[],configuration:'blocked'})}});
 routes.post('/destinations',async c=>c.json(await saveDestination(c.env,c.get('alertSession'),c.req.param('project')!,undefined,await input(c)),201));
 routes.put('/destinations/:destination',async c=>{const result=await saveDestination(c.env,c.get('alertSession'),c.req.param('project')!,c.req.param('destination'),await input(c));await synchronizeHistory(c.env,Date.now());return c.json(result)});
