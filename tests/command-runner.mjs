@@ -10,6 +10,8 @@ import {legacyCheckout} from './legacy-mail.mjs';
 import {commandCustody} from '@runeditrun/rer/internal/onboarding/command-custody.mjs';
 import {createProcessBaseline,createProcessScope,processScopeEnvironment} from '@runeditrun/rer/process-scope';
 
+export const commandDeadlineMilliseconds=15*60*1000;
+
 // Use the installed consumer bin: its launcher installs the checkout's pin
 // with the frozen lockfile before checking a fresh, dependency-free clone.
 const rerPackage=new URL(import.meta.resolve('@runeditrun/rer/package.json'));
@@ -81,7 +83,7 @@ export async function commandCheckout(diagnostics=journeyDiagnostics()) {
   }
   async function command(args,expected=0){
    const item=start(args);let timeout;
-   const expired=new Promise((_,reject)=>{timeout=setTimeout(()=>{item.diagnostic.timedOut=true;reject(new Error('Command deadline exceeded'));},15*60*1000);});
+   const expired=new Promise((_,reject)=>{timeout=setTimeout(()=>{item.diagnostic.timedOut=true;reject(new Error('Command deadline exceeded'));},commandDeadlineMilliseconds);});
    try{
     const result=await Promise.race([item.closed,expired]);if(item.item.spawnError)throw item.item.spawnError;
     if(expected!==null)assert.equal(result.code,expected,'seed command exits with the expected status: '+JSON.stringify(classifyCommandOutput(result.output,args[0])));return result;

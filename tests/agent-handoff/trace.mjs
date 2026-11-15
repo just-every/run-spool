@@ -29,7 +29,7 @@ export function traceBrowser(value){
  for(const context of value.contexts())watchContext(context);
  return value;
 }
-export async function traceStep(name,action){
+export async function traceStep(name,action,deadlineMilliseconds=90000){
  const label=stage+'/'+name,start=performance.now();let timer;
  console.log('STEP '+label);
  try{
@@ -39,7 +39,7 @@ export async function traceStep(name,action){
     // A stuck browser or dev child must not strand cleanup until the job limit.
     setTimeout(()=>process.exit(1),10000).unref();
     reject(new Error('STALL '+label));
-   },90000);
+   },deadlineMilliseconds);
   })]);
  }finally{clearTimeout(timer);console.log('END '+label+' seconds='+((performance.now()-start)/1000).toFixed(3));}
 }
