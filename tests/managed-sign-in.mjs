@@ -1,3 +1,4 @@
+import {mailOffConfiguration,mailOffSignIn} from './mail-off.mjs';
 import assert from 'node:assert/strict';
 import {mkdir, readFile} from 'node:fs/promises';
 import {resolve} from 'node:path';
@@ -64,3 +65,6 @@ try {
  }
  console.log('Managed Open app sign-in passed: declared path, owner email prefill, no-JS email delivery and native confirmation at 1440/390.');
 } finally {await browser?.close(); await app?.close()}
+
+await mailOffConfiguration();
+await mailOffSignIn(output);

@@ -19,8 +19,7 @@
     "SETUP_TOKEN",
     "AUTH_ORIGIN",
     "AUTH_LOCAL",
-    "MAIL_PROVIDER",
-    "MAIL_FROM"
+    "MAIL_PROVIDER"
   ],
   "seedContract": {
     "version": 1,
@@ -238,8 +237,37 @@
       "type": "mail",
       "required": false,
       "enabled": false,
-      "provider": "sendgrid"
+      "binding": {
+        "providerEnvironment": "MAIL_PROVIDER",
+        "providers": {
+          "none": {
+            "requiredEnvironment": []
+          },
+          "sendgrid": {
+            "apiKeyEnvironment": "MAIL_API_KEY",
+            "requiredEnvironment": [
+              "MAIL_FROM"
+            ]
+          },
+          "resend": {
+            "apiKeyEnvironment": "MAIL_API_KEY",
+            "requiredEnvironment": [
+              "MAIL_FROM"
+            ]
+          },
+          "cloudflare": {
+            "apiKeyEnvironment": "MAIL_API_KEY",
+            "accountIdEnvironment": "MAIL_ACCOUNT_ID",
+            "requiredEnvironment": [
+              "MAIL_FROM"
+            ]
+          }
+        }
+      }
     }
   ],
-  "authentication": "Base operator-auth: active owner sessions rechecked for private APIs and documents; ordinary development outbox sign-in; project-scoped ingest and read grants unchanged. Optional signed first-owner claim shares native admission and permanently refuses a second owner; editor configuration rechecks owner sessions. Additional operator invitations remain disabled."
+  "authentication": "Base operator-auth: active owner sessions rechecked for private APIs and documents; ordinary development outbox sign-in; project-scoped ingest and read grants unchanged. Optional signed first-owner claim shares native admission and permanently refuses a second owner; editor configuration rechecks owner sessions. Additional operator invitations remain disabled.",
+  "configuration": {
+    "module": "scripts/operations-config.mjs"
+  }
 }

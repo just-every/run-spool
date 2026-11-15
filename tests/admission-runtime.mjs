@@ -20,7 +20,7 @@ export async function freePort() {
 }
 
 /** Run the emitted application with real local D1 and all committed migrations. */
-export async function admissionRuntime(extra = {}, {port, deferClaimMigration = false, deferAgentUpgrade = false, hostedMail = false, https = false, networkEdge} = {}) {
+export async function admissionRuntime(extra = {}, {port, deferClaimMigration = false, deferAgentUpgrade = false, hostedMail = false, mailProvider = 'resend', https = false, networkEdge} = {}) {
  // Hosted auth has a fixed trusted origin, so let workerd bind its transport
  // atomically instead of releasing a probe port before startup or restart.
  port ??= hostedMail ? 0 : await freePort();
@@ -31,7 +31,7 @@ export async function admissionRuntime(extra = {}, {port, deferClaimMigration = 
  const trustedOrigin=hostedMail?'https://spool.example':origin;
  // Hosted mail is independent of owner-claim pairing. Paired fixtures supply
  // their complete claim ring through extra; do not manufacture partial trust.
- const mailBindings=hostedMail?{AUTH_ORIGIN:trustedOrigin,AUTH_LOCAL:'false',MAIL_PROVIDER:'resend',MAIL_API_KEY:'synthetic-provider-key'}:{};
+ const mailBindings=hostedMail?{AUTH_ORIGIN:trustedOrigin,AUTH_LOCAL:'false',MAIL_PROVIDER:mailProvider,MAIL_API_KEY:mailProvider==='none'?'':'synthetic-provider-key',...(mailProvider==='none'?{MAIL_FROM:''}:{})}:{};
  if(hostedMail){
   const entry=resolve(temporary,'hosted-mail.mjs');hostedEntry=entry;
   await writeFile(entry,`import application from ${JSON.stringify(emitted.modules[1].path)};
@@ -86,6 +86,11 @@ export default {...application,async scheduled(event,env,ctx){try{return await a
     if(!hostedEntry||!Number.isFinite(value))throw new Error('A hosted fixture clock is required');
     const clock=`const NativeDate=Date;globalThis.Date=class extends NativeDate{constructor(...args){super(...(args.length?args:[${value}]))}static now(){return ${value}}};\n`;
     await worker.dispose();await writeFile(hostedEntry,clock+hostedSource);await start();runtime.DB=await worker.getD1Database(database.binding);registerLegacyMail(origin,runtime.DB);
+   },
+   setMailProvider: async provider => {
+    if(!hostedMail)throw new Error('Hosted configuration required');
+    mailBindings.MAIL_PROVIDER=provider;mailBindings.MAIL_API_KEY=provider==='none'?'':'synthetic-provider-key';mailBindings.MAIL_FROM=provider==='none'?'':'auth@localhost.test';
+    await runtime.restart();
    },
    restart: async () => {await worker.dispose(); await start(); runtime.DB = await worker.getD1Database(database.binding);registerLegacyMail(origin,runtime.DB);},
    close: async () => {await worker.dispose(); await rm(temporary, {recursive: true, force: true});},

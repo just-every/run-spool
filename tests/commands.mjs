@@ -114,8 +114,15 @@ const put=(path,value)=>writeFile(resolve(root,path),value,{mode:0o600});
  assert.ok(unconfiguredResult.neededForRealDeploy.some(item=>/^CLOUDFLARE_ACCOUNT_ID and CLOUDFLARE_API_TOKEN/.test(item)),'dry run names the Cloudflare inputs');assert.ok(unconfiguredResult.neededForRealDeploy.some(item=>/^production sign-in mail: [^\n]*MAIL_API_KEY/.test(item)),'dry run names the sign-in mail a real deploy needs');
  const localSettings=await get('.dev.vars');
  // rer 0.2.80 refuses reserved/placeholder senders (exit 4) before building; use a real-shaped synthetic sender.
- await put('.test-deploy.env','MAIL_FROM=synthetic-spool-1@mail.runeditrun.com\nMAIL_API_KEY=synthetic-dry-run-provider-key\n');
- try { const mailed=await command(['deploy','--dry-run','--env-file','.test-deploy.env'],0);const mailedResult=dryResult(mailed.output);assert.equal(mailedResult.deployed,false);assert.equal(mailedResult.providerChecked,false);assert.ok(mailedResult.neededForRealDeploy.some(item=>/^CLOUDFLARE_ACCOUNT_ID and CLOUDFLARE_API_TOKEN/.test(item)),'mail settings alone do not reach the target');assert.ok(!mailedResult.neededForRealDeploy.some(item=>/^production sign-in mail:/.test(item)),'supplied sign-in mail is no longer named as missing'); } finally {await rm(resolve(root,'.test-deploy.env'));if(previousNodeOptions===undefined)delete checkout.env.NODE_OPTIONS;else checkout.env.NODE_OPTIONS=previousNodeOptions;delete checkout.env.SPOOL_PROVIDER_ATTEMPTS;}
+ await put('.test-deploy.env','MAIL_PROVIDER=sendgrid\nMAIL_FROM=synthetic-spool-1@mail.runeditrun.com\nMAIL_API_KEY=synthetic-dry-run-provider-key\n');
+ try { const mailed=await command(['deploy','--dry-run','--env-file','.test-deploy.env'],0);const mailedResult=dryResult(mailed.output);assert.equal(mailedResult.deployed,false);assert.equal(mailedResult.providerChecked,false);assert.ok(mailedResult.neededForRealDeploy.some(item=>/^CLOUDFLARE_ACCOUNT_ID and CLOUDFLARE_API_TOKEN/.test(item)),'mail settings alone do not reach the target');assert.ok(!mailedResult.neededForRealDeploy.some(item=>/^production sign-in mail:/.test(item)),'supplied sign-in mail is no longer named as missing'); } finally {await rm(resolve(root,'.test-deploy.env'));}
+ await put('.test-mail-off.env','MAIL_PROVIDER=none\n');
+ try {
+  const off=await command(['deploy','--dry-run','--env-file','.test-mail-off.env'],0),result=dryResult(off.output);
+  assert.equal(result.deployed,false);assert.equal(result.providerChecked,false);
+  assert.ok(!result.neededForRealDeploy.some(item=>/^production sign-in mail:/.test(item)),'deliberate mail-off needs no sender or mail credential');
+ } finally {await rm(resolve(root,'.test-mail-off.env'));}
+ if(previousNodeOptions===undefined)delete checkout.env.NODE_OPTIONS;else checkout.env.NODE_OPTIONS=previousNodeOptions;delete checkout.env.SPOOL_PROVIDER_ATTEMPTS;
  assert.equal(await get('.dev.vars'),localSettings,'production dry-run preserves local settings');
  assert.equal(await exists('.test-provider-attempts'),false,'deploy dry-run performs no provider HTTP calls');await rm(resolve(root,'.test-no-provider.cjs'));
  assert.equal(await get('.rer/deploy/owner-kept.txt'),'owner custody');

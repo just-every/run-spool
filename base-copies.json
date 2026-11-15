@@ -651,7 +651,16 @@
       },
       "originFiles": [
         "modules/delivery-producer/spec.mjs"
-      ]
+      ],
+      "adapted": {
+        "scripts/delivery/base/spec.mjs": "c2efb501cbc148c2aee4d5e1107ebdba81469006"
+      },
+      "acknowledged": {
+        "scripts/delivery/base/spec.mjs": {
+          "sha256": "a82b78191d2e0da3510c608ef3a1ef9cbd0cfb50adc0f7db1ba1a63111d863c7",
+          "mode": "100644"
+        }
+      }
     },
     {
       "path": "scripts/delivery/base/sql-statements.mjs",
@@ -1182,7 +1191,16 @@
       },
       "originFiles": [
         "foundation/template/scripts/operations-config.mjs"
-      ]
+      ],
+      "adapted": {
+        "scripts/operations-config.mjs": "c2efb501cbc148c2aee4d5e1107ebdba81469006"
+      },
+      "acknowledged": {
+        "scripts/operations-config.mjs": {
+          "sha256": "dd567be6d3f572711a7f262236e11be784e5899066bbfdbf84b6c26da9a2ce6a",
+          "mode": "100644"
+        }
+      }
     },
     {
       "path": "scripts/verify-app.mjs",

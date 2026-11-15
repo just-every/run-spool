@@ -51,8 +51,8 @@ importers:
         specifier: 1.63.0
         version: 1.63.0
       '@runeditrun/rer':
-        specifier: 0.2.113
-        version: 0.2.113
+        specifier: 0.2.118
+        version: 0.2.118
       '@sentry/browser':
         specifier: 11.6.0
         version: 11.6.0
@@ -1154,8 +1154,8 @@ packages:
     cpu: [x64]
     os: [win32]
 
-  '@runeditrun/rer@0.2.113':
-    resolution: {integrity: sha512-f4xK3+cPFW2ahC11FyFPs6SBl0TFmoDhsjjBAeh+jOiHWwV4B58Ss5bO7C+uLCtvvpYY3FoNnX2ygNeqMlfOYw==}
+  '@runeditrun/rer@0.2.118':
+    resolution: {integrity: sha512-bRR06ezNrbkyDYiyOFdQpKEkeBZZfql9OqYm+Nm625u6HcKE8PzUTghjQsIfkdDKjVxc3LzP10RrBiazTyELAg==}
     engines: {node: '>=22'}
     hasBin: true
 
@@ -3331,7 +3331,7 @@ snapshots:
   '@rollup/rollup-win32-x64-msvc@4.64.12':
     optional: true
 
-  '@runeditrun/rer@0.2.113': {}
+  '@runeditrun/rer@0.2.118': {}
 
   '@sentry/browser-utils@11.6.0':
     dependencies:

@@ -1,7 +1,7 @@
 import { AuthError } from '../../modules/operator-auth/index.mjs';
 import { normalizeEmail } from '../../modules/operator-auth/policy.mjs';
 import type { MailMessage } from '../../modules/operator-auth/index.mjs';
-import { operatorMail } from '../../auth/mail.server.mjs';
+import { operatorMail, mailSuppressed } from '../../auth/mail.server.mjs';
 import { localInvitation } from './local-invitations';
 import { operatorAuth } from '../../auth/session.server';
 import { ownerBatch } from '../owner-authority';
@@ -21,6 +21,7 @@ export async function invite(request: Request, env: Bindings, session: NativeAut
  const email=normalizeEmail(input.email), displayName=name(input.name), access=await grants(env.DB,organization,input.grants);
  if(input.role==='manager'&&access.some(grant=>grant.role!=='maintainer'))throw new AuthError('Choose explicit maintainer projects for an imported manager',400);
  if (memberRole==='billing'&&access.length) throw new AuthError('Billing has no project grants',400);
+ if (env.MAIL_PROVIDER === 'none' && !mailSuppressed(env)) throw new AuthError('mail_unavailable',503);
  const existing=await s(env.DB,'SELECT * FROM spool_members WHERE email=?',email).first<any>();
  const native=await s(env.DB,'SELECT id,status,role FROM oa_operators WHERE email=?',email).first<any>();
  if (existing?.state==='active') throw new AuthError(native?.status==='invited'
