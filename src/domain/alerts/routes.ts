@@ -43,7 +43,7 @@ routes.post('/destinations/:destination/test',async c=>c.json(await testDestinat
 routes.post('/destinations/:destination/review',async c=>c.json(await reviewTest(c.env,c.get('alertSession'),c.req.param('project')!,c.req.param('destination'),(await input(c)).testId)));
 routes.post('/rules/preview',async c=>c.json(await previewRule(c.env,c.get('alertSession'),c.req.param('project')!,await input(c))));
 routes.get('/decisions',async c=>c.json((await s(c.env.DB,`SELECT d.*,i.title issue_title,${primaryShortIdSql('i')} issue_short_id FROM alert_decisions d LEFT JOIN issues i ON i.id=d.issue AND i.project=d.project WHERE d.project=? ORDER BY d.end DESC,d.id LIMIT 100`,c.req.param('project')!).all()).results));
-routes.get('/rules',async c=>c.json((await s(c.env.DB,`SELECT r.*,${configSql} config FROM alert_rules r WHERE project=? ORDER BY created,id`,c.req.param('project')!).all()).results));
+routes.get('/rules',async c=>c.json((await s(c.env.DB,`SELECT r.*,${configSql} config,m.status metric_status,m.value metric_value,m.reason metric_reason,m.window_end metric_window_end FROM alert_rules r LEFT JOIN alert_metric_states m ON m.rule_id=r.id AND m.revision=r.revision WHERE r.project=? ORDER BY created,id`,c.req.param('project')!).all()).results));
 routes.post('/rules',async c=>{
  const p=c.req.param('project')!,b=ruleInput(await input(c),c.env,p,false),id=crypto.randomUUID(),time=Date.now();
  await findDestination(c.env,p,b.destination,b.channel);

@@ -3,7 +3,7 @@ export const destinationLabel=(destination:any)=>destination?`${destination.labe
 export const ruleConfig=(rule:any)=>typeof rule.config==='string'?JSON.parse(rule.config):rule.config??{metric:'count',filters:{},tagKeys:[]};
 export function filterSummary(filters:any){return [filters.environment&&`Environment: ${filters.environment}`,filters.level&&`Severity: ${filters.level}`,filters.release!==undefined&&`Release: ${filters.release||'No release'}`,...Object.entries(filters.tags??{}).map(([key,value])=>`${key}: ${typeof value==='object'&&value?`${(value as any).op} ${(value as any).value??''}`:value}`)].filter(Boolean).join(' · ')}
 export function metricSummary(rule:any){
- const c=ruleConfig(rule);if(c.metric==='aggregate')return `${c.aggregate.replaceAll('_',' ')} · ${c.triggers.map((t:any)=>t.label+' '+(c.thresholdType==='above'?'>':'<')+' '+t.alertThreshold).join(' · ')} · ${rule.window_ms/60000} minutes`;
+ const c=ruleConfig(rule);if(c.metric==='aggregate')return `${rule.metric_status?rule.metric_status+' · ':''}${c.aggregate.replaceAll('_',' ')} · ${c.triggers.map((t:any)=>t.label+' '+(c.thresholdType==='above'?'>':'<')+' '+t.alertThreshold).join(' · ')} · ${rule.window_ms/60000} minutes`;
  if(!JSON.parse(rule.kinds).includes('spike'))return '';
  const metric=ruleConfig(rule).metric,n=rule.threshold;
  return `${metric==='users'?`More than ${n} affected users`:metric==='session_percent'?`At least ${n}% of observed sessions affected`:metric==='baseline'?`At least ${n} times the historical rate`:`At least ${n} accepted occurrences`} in ${rule.window_ms/60000} minutes`;

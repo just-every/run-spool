@@ -49,7 +49,7 @@ export function AlertRules({ project, rules, destinations, refresh }: Props) {
  const allowedKeys = keys(tagKeys), config = configFor(draft);
  const filterLabels = [environment && `Environment: ${environment}`, level && `Severity: ${level}`,
   releaseMode !== 'any' && `Release: ${releaseMode === 'none' ? 'No release' : release}`,
-  ...Object.entries(config.filters.tags ?? {}).map(([key, value]) => `${key}: ${typeof value==='object'?value.op+' '+(value.value??''):value}`)].filter(Boolean);
+  ...Object.entries((config.filters as any).tags ?? {}).map(([key, value]) => `${key}: ${typeof value==='object'&&value?(value as any).op+' '+((value as any).value??''):value}`)].filter(Boolean);
  function change(update: Partial<Draft>) {
   version.current++; setPreview(null); setError(''); setDraft(previous => ({ ...initial, ...previous, ...update }));
  }
