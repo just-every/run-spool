@@ -1,3 +1,5 @@
+import { TagFilters } from './TagFilters';
+import { MetricFields,initialMetric,type MetricDraft } from './MetricFields';
 import {destinationLabel,ruleConfig,ruleSummary} from './RuleSummary';
 import {RuleDecisions} from './RuleDecisions';
 import { useRef, useState } from 'react';
@@ -9,12 +11,12 @@ import { RulePreview, type Preview } from './RulePreview';
 type Props = { project: string; rules: any[]; destinations: any[]; refresh: () => void };
 type Metric = 'count' | 'users' | 'session_percent' | 'baseline';
 type Draft = {
- editing: any; name: string; destination: string; kinds: string[]; enabled: boolean;
+ metricDraft:MetricDraft;levelMatch:string;actionInterval:string;editing: any; name: string; destination: string; kinds: string[]; enabled: boolean;
  windowMinutes: number; threshold: number; metric: Metric; environment: string; level: string;
- releaseMode: 'any' | 'none' | 'named'; release: string; tagKeys: string; tags: Record<string, string>;
+ releaseMode: 'any' | 'none' | 'named'; release: string; tagKeys: string; tags: Record<string, any>;
 };
 const initial: Draft = {
- editing: null, name: '', destination: '', kinds: ['new_issue', 'regression'], enabled: true,
+ metricDraft:initialMetric,levelMatch:'eq',actionInterval:'',editing: null, name: '', destination: '', kinds: ['new_issue', 'regression'], enabled: true,
  windowMinutes: 5, threshold: 10, metric: 'count', environment: '', level: '',
  releaseMode: 'any', release: '', tagKeys: '', tags: {},
 };
@@ -23,12 +25,13 @@ const metrics: Record<Metric, string> = {
 };
 const keys = (value: string) => [...new Set(value.split(/[\n,]/).map(key => key.trim()).filter(Boolean))];
 function configFor(draft: Draft) {
- const tagKeys = keys(draft.tagKeys), tags = Object.fromEntries(tagKeys.filter(key => Object.hasOwn(draft.tags, key) && draft.tags[key]).map(key => [key, draft.tags[key]]));
+ const tagKeys=keys(draft.tagKeys),tags=Object.fromEntries(tagKeys.filter(key=>{const v=draft.tags[key];return typeof v==='object'?['is_set','not_set'].includes(v.op)||v.value:!!v}).map(key=>[key,draft.tags[key]]));
+ if(draft.kinds.includes('metric')){const m=draft.metricDraft;return {metric:'aggregate',dataset:m.dataset,aggregate:{errors:'count',transactions:'p95_duration',sessions:'crash_free_rate'}[m.dataset],filters:draft.environment?{environment:draft.environment}:{},query:m.dataset==='errors'?{tags}:m.dataset==='transactions'&&m.transaction?{transaction:{op:'glob',value:m.transaction}}:{},thresholdType:m.thresholdType,triggers:[{label:'critical',alertThreshold:Number(m.critical)},...(m.warning?[{label:'warning',alertThreshold:Number(m.warning)}]:[])],resolveThreshold:m.resolve?Number(m.resolve):null,tagKeys};}
  return {
-  metric: draft.metric,
+  metric: draft.metric,...draft.actionInterval?{actionIntervalMinutes:Number(draft.actionInterval)}:{},
   filters: {
    ...(draft.environment ? { environment: draft.environment } : {}),
-   ...(draft.level ? { level: draft.level } : {}),
+   ...(draft.level ? { level: draft.level,levelMatch:draft.levelMatch } : {}),
    ...(draft.releaseMode === 'none' ? { release: '' } : draft.releaseMode === 'named' ? { release: draft.release } : {}),
    ...(Object.keys(tags).length ? { tags } : {}),
   },
@@ -41,12 +44,12 @@ export function AlertRules({ project, rules, destinations, refresh }: Props) {
  const { editing, name, destination, kinds, enabled, windowMinutes, threshold, metric, environment, level, releaseMode, release, tagKeys, tags } = draft;
  const [busy, setBusy] = useState<'save' | 'preview' | null>(null), [error, setError] = useState('');
  const [preview, setPreview] = useState<Preview | null>(null), version = useRef(0);
- const selected = destinations.find(d => d.id === destination), spike = kinds.includes('spike');
+ const projectMetric=kinds.includes('metric'),selected = destinations.find(d => d.id === destination), spike = kinds.includes('spike');
  const needsTest = (d: any) => d?.test?.state !== 'passing' || !d.test.reviewed_at;
  const allowedKeys = keys(tagKeys), config = configFor(draft);
  const filterLabels = [environment && `Environment: ${environment}`, level && `Severity: ${level}`,
   releaseMode !== 'any' && `Release: ${releaseMode === 'none' ? 'No release' : release}`,
-  ...Object.entries(config.filters.tags ?? {}).map(([key, value]) => `${key}: ${value}`)].filter(Boolean);
+  ...Object.entries(config.filters.tags ?? {}).map(([key, value]) => `${key}: ${typeof value==='object'?value.op+' '+(value.value??''):value}`)].filter(Boolean);
  function change(update: Partial<Draft>) {
   version.current++; setPreview(null); setError(''); setDraft(previous => ({ ...initial, ...previous, ...update }));
  }
@@ -55,9 +58,10 @@ export function AlertRules({ project, rules, destinations, refresh }: Props) {
   change({
    editing: rule, name: rule.name, destination: rule.destination, kinds: JSON.parse(rule.kinds), enabled: !!rule.enabled,
    windowMinutes: rule.window_ms / 60000, threshold: rule.threshold, metric: config.metric,
+   metricDraft:config.metric==='aggregate'?{dataset:config.dataset,thresholdType:config.thresholdType,critical:String(config.triggers.find((t:any)=>t.label==='critical')?.alertThreshold??''),warning:String(config.triggers.find((t:any)=>t.label==='warning')?.alertThreshold??''),resolve:config.resolveThreshold===null?'':String(config.resolveThreshold),transaction:config.query.transaction?.value??''}:initialMetric,levelMatch:filters.levelMatch??'eq',actionInterval:config.actionIntervalMinutes?String(config.actionIntervalMinutes):'',
    environment: filters.environment ?? '', level: filters.level ?? '',
    releaseMode: filters.release === undefined ? 'any' : filters.release === '' ? 'none' : 'named',
-   release: filters.release ?? '', tagKeys: (config.tagKeys ?? []).join(', '), tags: filters.tags ?? {},
+   release: filters.release ?? '', tagKeys: (config.tagKeys ?? []).join(', '), tags: config.metric==='aggregate'?config.query.tags??{}:filters.tags ?? {},
   });
  }
  function clear() { change({ ...initial, kinds: [] }); }
@@ -108,9 +112,13 @@ export function AlertRules({ project, rules, destinations, refresh }: Props) {
     {editing && !selected && destination && <option value={destination}>{destinationLabel(undefined)}</option>}
     {destinations.map(d => <option key={d.id} value={d.id}>{destinationLabel(d)}</option>)}
    </select></label>
-   <fieldset><legend>Alert events</legend>{[['new_issue', 'New issue'], ['regression', 'Regression'], ['reactivation', 'Reactivation'], ['spike', 'Volume spike']].map(([kind, label]) => <label className="alert-check" key={kind}>
+   <label className="form-field">Rule scope<select aria-label="Rule scope" value={projectMetric?'metric':'issue'} disabled={!!busy} onChange={e=>change({kinds:e.target.value==='metric'?['metric']:['new_issue','regression'],tags:{}})}><option value="issue">Issue events</option><option value="metric">Project metric</option></select></label>
+   {!projectMetric&&<fieldset><legend>Alert events</legend>{[['new_issue', 'New issue'], ['regression', 'Regression'], ['reactivation', 'Reactivation'], ['spike', 'Volume spike']].map(([kind, label]) => <label className="alert-check" key={kind}>
     <input type="checkbox" checked={kinds.includes(kind)} disabled={!!busy} onChange={e => change({ kinds: e.target.checked ? [...kinds, kind] : kinds.filter(k => k !== kind) })}/>{label}
-   </label>)}</fieldset>
+   </label>)}</fieldset>}
+   {projectMetric&&<MetricFields value={draft.metricDraft} disabled={!!busy} onChange={metricDraft=>change({metricDraft})}/>}
+   {projectMetric&&<Field label="Metric window (minutes)" type="number" required min={1} max={1440} value={windowMinutes} disabled={!!busy} onChange={e=>change({windowMinutes:Number(e.target.value)})}/>}
+   {!projectMetric&&<Field label="Action interval (minutes)" type="number" min={1} max={43200} value={draft.actionInterval} disabled={!!busy} placeholder="No interval" onChange={e=>change({actionInterval:e.target.value})}/>}
    {spike && <>
     <label className="form-field">Spike metric<select aria-label="Spike metric" value={metric} disabled={!!busy} onChange={e => change({ metric: e.target.value as Metric, threshold: e.target.value === 'session_percent' ? Math.min(threshold, 100) : threshold })}>
      {Object.entries(metrics).map(([value, label]) => <option key={value} value={value}>{label}</option>)}
@@ -121,15 +129,18 @@ export function AlertRules({ project, rules, destinations, refresh }: Props) {
    </>}
    <details className="form-more"><summary>Filters{filterLabels.length ? ` (${filterLabels.length})` : ''}</summary><div className="form-grid">
     <Field label="Environment" maxLength={100} value={environment} disabled={!!busy} placeholder="Any environment" onChange={e => change({ environment: e.target.value })}/>
-    <label className="form-field">Severity<select aria-label="Severity" value={level} disabled={!!busy} onChange={e => change({ level: e.target.value })}>
+    {!projectMetric&&<><label className="form-field">Severity<select aria-label="Severity" value={level} disabled={!!busy} onChange={e => change({ level: e.target.value })}>
      <option value="">Any severity</option>{['debug', 'info', 'warning', 'error', 'fatal', 'log'].map(value => <option key={value} value={value}>{status(value)}</option>)}
     </select></label>
+    {level&&<label className="form-field">Severity comparison<select aria-label="Severity comparison" value={draft.levelMatch} disabled={!!busy} onChange={e=>change({levelMatch:e.target.value})}><option value="eq">Equals</option><option value="gte">At least</option><option value="lte">At most</option></select></label>}
     <label className="form-field">Release filter<select aria-label="Release filter" value={releaseMode} disabled={!!busy} onChange={e => change({ releaseMode: e.target.value as Draft['releaseMode'] })}>
      <option value="any">Any release</option><option value="none">No release</option><option value="named">Specific release</option>
     </select></label>
     {releaseMode === 'named' && <Field label="Release name" required value={release} disabled={!!busy} onChange={e => change({ release: e.target.value })}/>}
-    <Field label="Allowed tag keys" value={tagKeys} disabled={!!busy} placeholder="tenant, region" onChange={e => change({ tagKeys: e.target.value })}/>
-    {allowedKeys.map(key => <Field key={key} label={`Tag ${key}`} value={Object.hasOwn(tags, key) ? tags[key] : ''} disabled={!!busy} placeholder="Any value" onChange={e => change({ tags: { ...tags, [key]: e.target.value } })}/>)}
+    </>}
+    {(!projectMetric||draft.metricDraft.dataset==='errors')&&<><Field label="Allowed tag keys" value={tagKeys} disabled={!!busy} placeholder="tenant, region" onChange={e => change({ tagKeys: e.target.value })}/>
+    <TagFilters keys={allowedKeys} tags={tags} disabled={!!busy} ops={projectMetric?['eq','prefix','glob']:undefined} onChange={tags=>change({tags})}/></>}
+
    </div></details>
    {filterLabels.length > 0 && <p aria-label="Applied rule filters">{filterLabels.map(label => <span className="state-chip" style={{ whiteSpace: 'normal', overflowWrap: 'anywhere', margin: '0 8px 8px 0' }} key={String(label)}>{label}</span>)}</p>}
    <label className="alert-check"><input type="checkbox" checked={enabled} disabled={!!busy} onChange={e => change({ enabled: e.target.checked })}/>Enabled</label>
