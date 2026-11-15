@@ -1,0 +1,28 @@
+{
+  "author": "Run Edit Run fleet",
+  "recorded_at": "2026-11-15T09:46:01Z",
+  "main": "9ef8c42fe095ccf349b9d013894f99df4e63ce78",
+  "previous_tag": "v0.7.11",
+  "previous_tag_commit": "b9e7e575097e0dd0fc0662ce1ed507fa0d41f0d8",
+  "main_commits_ahead": 28,
+  "latest_published_release": "https://github.com/just-every/run-spool/releases/tag/v0.7.11",
+  "next_tag_absent": true,
+  "next_release_absent_including_drafts": true,
+  "competing_release_prs": [],
+  "competing_0_7_12_branches_before_edit": [],
+  "main_verify": [
+    43693624323,
+    43686060752
+  ],
+  "main_run_site": 43693624304,
+  "main_checks": "completed/success on exact main SHA",
+  "receipts": [
+    "RELEASE-LATEST.json",
+    "RELEASES.json",
+    "OPEN-PRS.json",
+    "MAIN-CI.json",
+    "MAIN-COMMITS.txt",
+    "MAIN-CHANGES.txt",
+    "MIGRATIONS.diff"
+  ]
+}

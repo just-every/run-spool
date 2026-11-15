@@ -1,0 +1,58 @@
+{
+  "author": "Run Edit Run fleet",
+  "checked_at": "2026-11-15T09:42:35Z",
+  "result": "PASS",
+  "base": "9ef8c42fe095ccf349b9d013894f99df4e63ce78",
+  "previous_tag": "v0.7.11",
+  "previous_tag_commit": "b9e7e575097e0dd0fc0662ce1ed507fa0d41f0d8",
+  "commits_since_tag": 28,
+  "version_before": "0.7.11",
+  "version_after": "0.7.12",
+  "rer_pin_before": "0.2.113",
+  "rer_pin_after": "0.2.113",
+  "paths": [
+    "CHANGELOG.md",
+    "RELEASE.json",
+    "package.json",
+    "seed.json",
+    "sources.lock.json"
+  ],
+  "lock_entries_changed": [
+    "CHANGELOG.md",
+    "package.json",
+    "RELEASE.json",
+    "seed.json"
+  ],
+  "migrations_before": [],
+  "migrations_after": [
+    "migrations/core/0106_project_metric_alerts.sql",
+    "migrations/core/0107_sentry_transactions.sql",
+    "migrations/core/0108_alert_notify_targets.sql"
+  ],
+  "product_code_changes": 0,
+  "test_changes": 0,
+  "clause_status_changes": 0,
+  "checks": [
+    "package/seed/release versions agree",
+    "release previous version matches published tag",
+    "release notes exactly equal changelog section",
+    "previous changelog unchanged",
+    "migrations equal actual tag-to-main additions; existing migrations unchanged",
+    "rer pin unchanged",
+    "lock changes limited to four metadata entries",
+    "all source provenance identities unchanged",
+    "contract, generated views, dependency lock and published-tag guidance unchanged",
+    "candidate paths restricted to release lease"
+  ],
+  "package_lock": "absent: repository uses pnpm-lock.yaml",
+  "contract_status_counts_before": {
+    "done": 23,
+    "partial": 54,
+    "missing": 28
+  },
+  "contract_status_counts_after": {
+    "done": 23,
+    "partial": 54,
+    "missing": 28
+  }
+}

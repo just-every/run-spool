@@ -1,0 +1,81 @@
+{
+  "author": "Run Edit Run fleet",
+  "recorded_at": "2026-11-15T09:59:58Z",
+  "repository": "just-every/run-spool",
+  "branch": "cloud/sd-spool-release-0-7-12",
+  "head": "cc086904fd942175d18c60082b10c459c343dc78",
+  "base": "9ef8c42fe095ccf349b9d013894f99df4e63ce78",
+  "status": "PUSHED",
+  "product_push": {
+    "attempts": 1,
+    "result": "success",
+    "receipt": "PRODUCT-PUSH.log"
+  },
+  "checks": [
+    {
+      "command": "pnpm install --frozen-lockfile",
+      "exit": 0,
+      "receipt": "DEPENDENCIES.log",
+      "detail": "pnpm 10.12.4; existing lock unchanged; optional Sentry CLI build script ignored by pnpm policy"
+    },
+    {
+      "command": "pnpm run check -- --profile first-party",
+      "exit": 0,
+      "receipt": "METADATA-CHECK.log"
+    },
+    {
+      "command": "pnpm typecheck",
+      "exit": 0,
+      "receipt": "TYPECHECK.log"
+    },
+    {
+      "command": "node scripts/edition-authoring/cli.mjs lock",
+      "exit": 0,
+      "receipt": "SOURCE-LOCK.json",
+      "detail": "regenerated after final source edits and fresh-main rebase"
+    },
+    {
+      "command": "pnpm source:check",
+      "exit": 0,
+      "receipt": "SOURCE-CHECK.log"
+    },
+    {
+      "command": "git diff --check",
+      "exit": 0
+    },
+    {
+      "command": "one-time metadata inspection",
+      "exit": 0,
+      "receipt": "METADATA-RECEIPT.json"
+    },
+    {
+      "command": "all candidate identity/trailer and full-message inspection",
+      "exit": 0,
+      "receipt": "IDENTITY-RECEIPT.json"
+    }
+  ],
+  "ci": {
+    "run_id": 43700561623,
+    "name": "Verify",
+    "head_sha": "cc086904fd942175d18c60082b10c459c343dc78",
+    "status": "in_progress",
+    "conclusion": null,
+    "url": "https://github.com/just-every/run-spool/actions/runs/43700561623",
+    "discovery": "2026-11-15T09:44:14Z",
+    "poll_minimum_seconds": 300,
+    "last_observed_at": "2026-11-15T09:59:18Z",
+    "observation_files": [
+      "CANDIDATE-CI-DISCOVERY.json",
+      "CANDIDATE-CI-POLL-1.json",
+      "CANDIDATE-CI-POLL-2.json",
+      "CANDIDATE-CI-POLL-3.json"
+    ]
+  },
+  "publication_scan": "Deferred to fleet Mac lander by cloud task instructions; not run in cloud",
+  "release_publication": "Not authorized or performed; no tag, GitHub Release, producer, signing or deployment",
+  "clause_status_changes": [],
+  "test_changes": 0,
+  "github_api_calls_used": 8,
+  "github_api_budget": 10,
+  "follow_up": "Fleet must observe exact-SHA Verify success before READY/landing; two calls reserved for failure diagnostics. Pending CI is not a blocker or a green result."
+}

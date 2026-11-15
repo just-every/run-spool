@@ -1,0 +1,28 @@
+9ef8c42fe095ccf349b9d013894f99df4e63ce78 Refresh source lock after native timestamp precision and restore setup fixes
+e4ebf82fac4ef84069b7016770b96873d2b15e5b Preserve mixed numeric and ISO microseconds from native Sentry transactions
+0a34896436f98f26f45cd3875076b942b974ad3e Use the native CLI command deadline for fresh restore setup tracing
+f796e5fccc4f119d3356686678512fa16fee37d7 Refresh source lock after native archive and SDK compatibility fixes
+2be2a2afc75a9ff602fab0b276a82dea674d0dfe Compare translated native history using canonical schema identity
+4d08a1f7a35998ed642a4fd34f7a3265b6988f53 Retain manifest-owned ledger shape in historical fixture projection
+8801d5bdb9e873596058f2f63ee7fe8838c8e000 Describe preceding archive fixtures with their original migration prefix and object inventory
+da6fa22701a13a27691426b10bcc14eb3a871203 Keep SDK outcome reconciliation and historical archive fixtures truthful after native transaction intake
+9105dae9d385de16f8ef9745155d0db4ae6140ae Refresh source lock for native alert custody and archive compatibility
+c960f20418b2fc4ac0046889b9254b0b2e7d01b3 Accept manifest-owned native migration ledgers during verified archive translation
+83ce666db42cac8e59ba34536f6d0063750db2d6 Qualify immediately preceding native archives through the metric schema upgrade
+4c53f1cea193abcc4782a42cf8fa0e162c0a1412 Pass the native archive policy unchanged to migration history replay
+31644473cbce78fb1e0e14e877a83784193f86fe Repack verified legacy bookkeeping parts before atomic native restore
+93457cdb5220b2fb139a08fbdd1ec1356e5aaba8 Verify original native archive history before translating metric feed schema
+2e70c35358811b0a365a188ba885935cc3bda1a9 Leave migration authority guards unchanged after the metric feed rebuild
+96339fcbfec1ac319e575ace94bd6fec8547ef3e Keep archive validation independent of Worker intake and cover transaction buckets
+b7c785c3bed527cb870e68bb2cce02f3d3f74138 Complete alert erasure, archive compatibility and metric follow-up custody
+b8608dac53b43389f944a68e99dd905661d34fe9 Retain scrubbed transactions in native archives and refresh source lock
+84ad5c549f65558ff1029676780e61b02ea1d9fe Show resolved recipients and severity comparisons in alert details
+614c75ca343e4b4626a534d4445d1603cd5c6f58 Preserve native archive validation and stable recipient custody
+fa1941c8e85e9c45762c27fcaf20c176df76eeec Select the captured issue through its native issue read
+1e240a2a8d7c128ade0e1684fa98c6e195b112f5 Exercise metrics and authorized target custody through native Sentry and rule doors
+e2cb97d9655d3e87d8e5a269d1c9c0cb7b0d27f0 Expose project metric rules and authorized notify targets in alerting
+30cf92d4256a7034948534076d1ca1a633d23dc6 Add native project metrics, notify targets and issue filter semantics
+f651887172e7d74a09af89f9eb059cfd13d72c61 Constrain inbound-filter fixture forwarding to loopback
+f773e85edf527a1e790f763a6da9a91c71aa8f73 Patch vulnerable transitive dependencies in both pnpm lockfiles
+e206a1ca9a631059818333837062a90bd225443d Upgrade Vite to 8.2.4
+1c649c2de4f783d31b2733b4c9bdb7843f754e69 Upgrade Ruby runtime fixture to Rack 3.2.6

@@ -1,0 +1,27 @@
+Spool 0.7.12 adds project metric alerts, project-aware notification targets and more precise issue alert filters, and improves compatibility when restoring native backups.
+
+### What changed
+
+- **Watch project metrics.** Create alert rules for error counts, p95 transaction duration or crash-free session rate, with critical, optional warning and recovery thresholds. Rules show their current state and threshold comparisons. Retained Sentry transaction observations supply duration measurements, including SDK timestamps that mix numeric seconds and ISO fractions.
+- **Choose project recipients.** Email alert destinations can select a project team or an authorized project member. Choose whether an empty target should notify active project members or no one, and inspect resolved recipients in delivery details. Issue ownership is not available yet; its destination uses the selected fallback. Changing a target disables affected rules until they are reviewed and enabled again.
+- **Refine issue alerts.** Match severity exactly, at least or at most; use tag equality, presence, contains, prefix and suffix conditions; and set an action interval. Tag keys still need owner approval.
+- **Restore preceding native backups across the metric upgrade.** Spool verifies the original migration history and translates supported preceding native archives into the current schema, including archives with bookkeeping-only parts. New native archives retain scrubbed transaction observations and alert recipient history; restored deliveries remain quarantined.
+- **Update bundled dependencies.** Refresh the build tooling and transitive dependency fixes already on main, including Vite 8.2.4. The rer version remains 0.2.113.
+
+### Updating
+
+From 0.7.11: Back up first: download a private archive in Settings, or stop local dev and run `rer export --output exports/spool.jsonl`. From 0.7.11 on main, update with `git pull --ff-only` and `rer dev`; from a tag, run `git fetch --tags && git checkout v0.7.12` and `rer dev` once that tag is published. For a hosted installation, use `rer deploy` from the original deploying checkout. Keep the database, private settings, project keys and deployment receipt. This update applies migrations 0106_project_metric_alerts.sql, 0107_sentry_transactions.sql and 0108_alert_notify_targets.sql for project metric alerts, retained transaction observations and alert recipients. Previously applied migration files are unchanged; do not reset. Import private archives only into an empty destination. The application still pins rer exactly to 0.2.113. This application release does not publish the Spool SDK.
+
+### Known limits
+
+- Transaction measurements are bounded retained observations, not full distributed tracing: spans, transaction tags and request data are not stored.
+- Issue-owner notification selection uses its explicit fallback until verified issue ownership is available. Local development still suppresses mail; live provider delivery needs separate qualification.
+- Local development sends no email. Email verification for ownership transfer remains unavailable there; only an owner session opened through the local access link uses local confirmation.
+- Browser restore is limited to 16 MiB. Larger current JSONL archives need the CLI; legacy JSON archives over 16 MiB remain refused. A refused legacy JSON upload over 16 MiB can still end in a connection reset: the fix drains only what the restore engine has not already begun reading. Refused requests on the agent-door `/mcp` route are not covered by this fix.
+- Agent setup still requires an owner to save all six policy answers and create a project agent key. The agent CLI runs from a Spool checkout; it is not an npm-published package. Local agent calls also require the private dev gate described in the panel.
+- Erasing the owner is held while other stored agent text contains a different address that ends with the owner's address. The erasure match is case-sensitive.
+- Before the first project is created, opening a missing project URL as the owner redirects to setup instead of showing a not-found page.
+- Retained hosted archives still require separate Managed-to-native release qualification. If an archive is refused with `schema_mismatch`, restore into the release you exported from. Retrying a cut-off hosted restore can be refused until its five-minute lease expires; wait before retrying.
+- Bugsnag, Rollbar and Sentry imports remain bounded to 2 MiB and 500 records; larger sets are refused rather than partly applied. A real-account migration and live mail delivery through Cloudflare remain unqualified.
+
+Product screenshot: .github/assets/release/spool-issue-page-1600.png
