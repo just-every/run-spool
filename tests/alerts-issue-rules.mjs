@@ -52,6 +52,6 @@ export async function issueRuleJourney(app){
  assert.ok(!(await app.json(f.base+'/recipients')).members.some(m=>m.member===member.id));
  const noOwner=await app.json(f.base+'/destinations','POST',{label:'Owners only',target:{type:'issue_owners',fallthrough:'no_one'}});
  const noOwnerTest=await app.json(f.base+'/destinations/'+noOwner.id+'/test','POST',{});assert.equal(noOwnerTest.state,'failing','no invented owner identity authorizes mail');
- return f;
+ return {...f,retiredDestination:destinations[1]};
 }
 if(process.argv[1]===fileURLToPath(import.meta.url)){const app=await nativeAlertRuntime();try{await issueRuleJourney(app);console.log('Authorized recipient custody, issue filters and action intervals passed')}finally{await app.close()}}

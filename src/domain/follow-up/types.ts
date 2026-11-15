@@ -13,7 +13,7 @@ export const followUpExcludedTables = ['follow_up_settings','follow_up_feed_cust
 // discards in the existing loss path, including unknown unsupported item types.
 export const nonLossOutcomes = [
  'accepted','duplicate','feedback_accepted','feedback_duplicate','feedback_withdrawn',
- 'session_stored','check_in_routed',
+ 'session_stored','check_in_routed','transaction_stored','transaction_duplicate',
  'sentry_release_invalid_release_name','sentry_release_automatic_release_pattern',
 ] as const;
 export const isCaptureLoss = (reason:string) => !(nonLossOutcomes as readonly string[]).includes(reason);

@@ -260,6 +260,20 @@ function beforeAgentAttribution(table:any,manifest:any){
 }
 for(const later of laterTables)later.migrations.push('0105_local_invitation_links.sql');
 laterTables.unshift({tables:[],migrations:['0105_local_invitation_links.sql']});
+// Project metrics rebuild only the feed's issue nullability; old archives retain
+// the exact earlier declaration and column descriptor until translation.
+const projectMetricMigrations=['0106_project_metric_alerts.sql','0107_sentry_transactions.sql','0108_alert_notify_targets.sql'];
+for(const later of laterTables){later.tables.push('sentry_transactions');later.migrations.push(...projectMetricMigrations)}
+laterTables.unshift({tables:['sentry_transactions'],migrations:projectMetricMigrations});
+function beforeProjectMetricObjects(objects:any[],manifest:any){
+ const added=[['0106_project_metric_alerts.sql',['alert_metric_states','alert_metric_events']],['0107_sentry_transactions.sql',['sentry_transactions']],['0108_alert_notify_targets.sql',['alert_target_destinations','alert_intent_recipients']]] as const;
+ const missing:string[]=added.filter(([migration])=>!manifest.migrations?.includes(migration)).flatMap(([,tables])=>[...tables]);
+ return objects.filter(object=>!missing.includes(object.table));
+}
+function beforeProjectMetrics(table:any,manifest:any){
+ if(table.name!=='alerts'||manifest.migrations?.includes('0106_project_metric_alerts.sql'))return table;
+ return {...table,sql:table.sql.replace('issue TEXT REFERENCES issues(id)','issue TEXT NOT NULL REFERENCES issues(id)').replace(", CHECK((kind='metric' AND issue IS NULL) OR (kind<>'metric' AND issue IS NOT NULL))",''),columns:table.columns.map((column:any)=>column.name==='issue'?{...column,notnull:1}:column)};
+}
 async function earlierManifest(db: D1Database, manifest: any) {
  const current = await catalogue(db, policy(portabilityPolicy));
  if (manifest?.kind !== 'manifest') return null;
@@ -282,7 +296,7 @@ async function earlierManifest(db: D1Database, manifest: any) {
   if(later.tables.length&&!missing.length)continue;
   // An archive that records no migration list is either older than 0054 (issue_resolutions in its first form) or a current
   // format that carries none: try the recorded reading first, then today's form of that table.
-  const earlierWith = (before0054: boolean) => current.tables.filter((table: any) => !missing.includes(table.name)).map((table:any)=>beforeAgentAttribution(table,manifest)).map((table:any)=>table.name==='issue_resolutions'&&before0054?{...table,sql:table.sql.replace('CREATE TABLE \"issue_resolutions\"','CREATE TABLE issue_resolutions').replace("('plain','current','next','named')","('plain','current')")}:table);
+  const earlierWith = (before0054: boolean) => current.tables.filter((table: any) => !missing.includes(table.name)).map((table:any)=>beforeProjectMetrics(beforeAgentAttribution(table,manifest),manifest)).map((table:any)=>table.name==='issue_resolutions'&&before0054?{...table,sql:table.sql.replace('CREATE TABLE \"issue_resolutions\"','CREATE TABLE issue_resolutions').replace("('plain','current','next','named')","('plain','current')")}:table);
   let earlier: any[] | undefined;
   for (const before0054 of new Set([!manifest.migrations?.includes('0054_release_resolution_dist.sql'), false])) {
    const candidate = earlierWith(before0054);
@@ -293,7 +307,7 @@ async function earlierManifest(db: D1Database, manifest: any) {
   // A recognized native table upgrade must retain a complete, known object
   // inventory. An unrecorded index/trigger is never installed or acknowledged.
   // Archives without an object inventory still require Base's legacy replay.
-  if(product.schemaObjects!==undefined && canonicalJson(product.schemaObjects)!==canonicalJson(previousRelayPrivacyObjects(previousNativeSymbolObjects(current.schemaObjects,manifest),manifest)))throw new PortabilityError('legacy_schema_object_inventory');
+  if(product.schemaObjects!==undefined && canonicalJson(product.schemaObjects)!==canonicalJson(beforeProjectMetricObjects(previousRelayPrivacyObjects(previousNativeSymbolObjects(current.schemaObjects,manifest),manifest),manifest)))throw new PortabilityError('legacy_schema_object_inventory');
   const migrations = Array.isArray(manifest.migrations) ? { migrations: [...manifest.migrations, ...later.migrations.filter(name => !manifest.migrations.includes(name))] } : {};
   // Parts still carry the original bookkeeping rows. Keep their descriptors so
   // Base can validate and skip them while restoring only the current product.
@@ -345,7 +359,7 @@ async function templateManifest(service:any){
 }
 async function legacyRecords(input: any, value: unknown) {
  const service=await portability(input.db,false,input.migrationProvider),legacy=await validateArchive(value);
- const data:Record<string,any[]>={...legacy,...Object.fromEntries(deliveryTables.map(table=>[table,[]])),alerts:legacy.alerts.map((row:any)=>({...row,payload:null})),alert_rules:[],alert_history:[],repairs:[],repair_checks:[],rer_erasure_operations:[],...emptyLinkTables(),...emptyExecutionTables()};
+ const data:Record<string,any[]>={sentry_transactions:[],...legacy,...Object.fromEntries(deliveryTables.map(table=>[table,[]])),alerts:legacy.alerts.map((row:any)=>({...row,payload:null})),alert_rules:[],alert_history:[],repairs:[],repair_checks:[],rer_erasure_operations:[],...emptyLinkTables(),...emptyExecutionTables()};
  const template=await templateManifest(service);
  return restoreRows(service,data,{...template,sourceIdentity:crypto.randomUUID(),epoch:0,journal:[],exportedAt:new Date().toISOString()});
 }

@@ -36,7 +36,7 @@ export async function scanFollowUp(env:Environment,time:number) {
    CASE WHEN h.state='accepted' THEN h.created+86400000 ELSE h.created+300000 END due,
    CASE WHEN h.state='uncertain' THEN 'uncertain' WHEN h.state='blocked' THEN 'blocked' WHEN h.state='rejected' THEN 'failed' ELSE 'overdue' END state,
    CASE WHEN h.state='accepted' THEN 'unacknowledged' WHEN h.state IN ('pending','queued','sending','retrying') THEN 'send_overdue' ELSE COALESCE(h.code,'delivery_failed') END reason
-  FROM alert_history h JOIN alerts a ON a.id=h.alert_id JOIN issues i ON i.id=a.issue AND i.project=h.project
+  FROM alert_history h JOIN alerts a ON a.id=h.alert_id LEFT JOIN issues i ON i.id=a.issue AND i.project=h.project
   WHERE h.historical=0 AND (h.state IN ('blocked','rejected','uncertain') OR
    (h.state IN ('pending','queued','sending','retrying') AND h.created+300000<=?) OR
    (h.state='accepted' AND i.state='open' AND h.created+86400000<=?))
@@ -107,7 +107,7 @@ export async function scanFollowUp(env:Environment,time:number) {
  await s(env.DB,`UPDATE follow_up_attention SET state='completed',updated=?,revision=revision+1 WHERE historical=0 AND state NOT IN ('completed','canceled','uncertain') AND (
   (source='alert' AND source_id LIKE 'suppression:%' AND EXISTS(SELECT 1 FROM issue_suppressions z JOIN issues i ON i.id=z.issue AND i.project=z.project WHERE 'suppression:'||z.id=source_id AND z.project=follow_up_attention.project AND i.state<>'open')) OR
   (source='alert' AND source_id LIKE 'feed:%' AND EXISTS(SELECT 1 FROM alerts a JOIN issues i ON i.id=a.issue WHERE 'feed:'||a.id=source_id AND i.state<>'open')) OR
-  (source='alert' AND EXISTS(SELECT 1 FROM alert_history h JOIN alerts a ON a.id=h.alert_id JOIN issues i ON i.id=a.issue WHERE h.id=source_id AND h.project=follow_up_attention.project AND (h.state='cancelled' OR (h.state='accepted' AND (reason<>'unacknowledged' OR i.state<>'open'))))) OR
+  (source='alert' AND EXISTS(SELECT 1 FROM alert_history h JOIN alerts a ON a.id=h.alert_id LEFT JOIN issues i ON i.id=a.issue WHERE h.id=source_id AND h.project=follow_up_attention.project AND (h.state='cancelled' OR (h.state='accepted' AND (reason<>'unacknowledged' OR i.state<>'open'))))) OR
   (source='deployment' AND (SELECT state FROM deployment_steps WHERE project=follow_up_attention.project AND deployment=source_id ORDER BY sequence DESC LIMIT 1) IN ('succeeded','failed','rolled_back'))
  )`,time).run();
 }

@@ -1,3 +1,5 @@
+import { ownerAlertCustody } from './alerts/owner-custody.mjs';
+import { alertCustodyTables } from './alerts/lifecycle-journey.mjs';
 import { assertAuditAppendOnly } from './owner-erasure/helpers.mjs';
 import {queuedEntrypoint} from '@runeditrun/rer/queued-entry';
 const queuedExit=await queuedEntrypoint(import.meta.url);if(queuedExit!==null)process.exit(queuedExit);
@@ -102,6 +104,7 @@ try {
  const {hash:serviceHash}=await app.json('/api/organization/services/'+service.id+'/keys',{project:'personal-capture',kind:'ingest'},201);
  const otherService=await app.json('/api/organization/services',{name:'synthetic-spool-2',scopes:[{project:'personal-capture',kind:'agent'}]},201,{Cookie:otherCookies['quinn@spool.test']});
  const {hash:otherServiceHash}=await app.json('/api/organization/services/'+otherService.id+'/keys',{project:'personal-capture',kind:'agent'},201,{Cookie:otherCookies['quinn@spool.test']});
+ await ownerAlertCustody(app,project);
  const teamAlerts='/api/projects/personal-capture/alerting';
  const digest=await app.request(teamAlerts+'/team-digests',{member:ownerMember.id,timezone:'America/New_York',daily:true,weekly:true,hour:9},{},'PUT');assert.equal(digest.status,200);await digest.body?.cancel();
  await app.json(teamAlerts+'/team-snoozes',{scope:'team',target:'Default team',until:Date.now()+60000},201);
@@ -114,7 +117,8 @@ try {
  const otherPreference=await app.request(preferencePath,{revision:0,email:{...preference.email,comment:true}},{Cookie:otherCookies[['quinn','spool.test'].join('@')]},'PUT');assert.equal(otherPreference.status,200);await otherPreference.arrayBuffer();
  const pre=await archive(app),needles=[owner.id,'Test owner',testOwner,'personal-owner-subject'];
  const preview=await app.json('/api/owner/erasure');assert.equal(preview.hold,null,JSON.stringify(preview));
- assert.ok(preview.deleted.scrubbing_policies===2 && preview.deleted.scrubbing_changes===2 && preview.deleted.scrubbing_previews===1 && preview.deleted.alert_rule_configs===1 && preview.deleted.alert_rule_previews===1 && preview.deleted.identity_policies===1 && preview.deleted.event_identities===1 && preview.deleted.health_sessions===1 && preview.deleted.project_identity_keys===1 && preview.deleted.slack_destinations===1 && preview.deleted.suspect_decisions===1 && preview.deleted.oa_operators===1 && preview.deleted.grouping_proposals===1 && preview.redacted.events>0 && preview.redacted.artifacts>0 && preview.redacted.feedback>0 && preview.redacted.commits===1);
+ assert.ok(preview.deleted.scrubbing_policies===2 && preview.deleted.scrubbing_changes===2 && preview.deleted.scrubbing_previews===1 && preview.deleted.alert_rule_configs===3 && preview.deleted.alert_rule_previews===1 && preview.deleted.identity_policies===1 && preview.deleted.event_identities===1 && preview.deleted.health_sessions===1 && preview.deleted.project_identity_keys===1 && preview.deleted.slack_destinations===1 && preview.deleted.suspect_decisions===1 && preview.deleted.oa_operators===1 && preview.deleted.grouping_proposals===1 && preview.redacted.events>0 && preview.redacted.artifacts>0 && preview.redacted.feedback>0 && preview.redacted.commits===1);
+ for(const table of alertCustodyTables)assert.ok(preview.deleted[table]>0,'owner preview counts '+table);
  for(const needle of needles)assert.ok(!JSON.stringify(preview).includes(needle),'preview contains no identifier');
  before=await snapshot(app);
  for(const [headers,value,status] of [[{Cookie:''},eraseInput(preview),401],[{Authorization:'Bearer '+project.ingestKey},eraseInput(preview),403],[{Origin:'https://foreign.test'},eraseInput(preview),403],[{}, {...eraseInput(preview),subject:otherId},400],[{},{confirm:'no',planHash:preview.planHash},400]]) {
@@ -129,6 +133,7 @@ try {
  const receipt=await app.json('/api/owner/erasure',eraseInput(latest));assert.equal(receipt.phase,'complete');assert.equal((await app.DB.prepare('SELECT COUNT(*) count FROM suspect_decisions').first()).count,0,'REL-002 owner erasure removes authored judgments');assert.equal((await app.DB.prepare('SELECT COUNT(*) count FROM slack_destinations').first()).count,0,'ALERT-002 owner erasure removes Slack tokens');for(const table of ['scrubbing_policies','scrubbing_changes','scrubbing_previews','alert_rule_configs','alert_rule_previews','alert_decisions','alert_reactivation_markers','identity_policies','event_identities','health_sessions','health_aggregates','project_identity_keys'])assert.equal((await app.DB.prepare('SELECT COUNT(*) count FROM '+table).first()).count,0,'SDK-005 owner erasure removes session custody');
  for(const needle of needles)assert.ok(!JSON.stringify(receipt).includes(needle),'receipt contains no identifier');
  const after=await snapshot(app);
+ for(const table of alertCustodyTables)assert.equal(after[table].length,0,'owner erasure removes private alert custody: '+table);
  for(const table of ['follow_up_attention','follow_up_notices','follow_up_notice_meta','follow_up_attempts'])assert.equal(after[table].length,0,'owner erasure removes operational Slack custody: '+table);
  assert.equal(after.spool_reporting_items.find(row=>row.id===reporting.id).author,null,'Reporting author becomes erased without discarding the shared definition');
  assert.ok(after.spool_reporting_items.find(row=>row.id===reporting.id).name.includes('[erased]'));
