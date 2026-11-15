@@ -32,7 +32,12 @@ export async function ownerSetupFlow() {
   const roles=[['member','member'],['read-only','read-only'],['billing',null]];
   for(const [role,projectRole] of roles){
    const email='synthetic-spool-'+role+'@example.test';await json('/api/organization/invites','POST',{email,name:role,role,grants:projectRole?[{project:project.id,role:projectRole}]:[]});const actor=await confirmLatest(app,email);
-   await denied(req(root+'/keys','POST',{kind:'ingest'},actor));await denied(req(root+'/keys/'+grant.hash,'DELETE',undefined,actor));for(const tail of ['/recipients','/destinations','/deliveries/synthetic-spool-unknown'])await denied(req(root+'/alerting'+tail,'GET',undefined,actor));await denied(req('/api/organization','GET',undefined,actor));
+   if(role==='member'){
+    const delegated=await json(root+'/keys','POST',{kind:'ingest'},actor);assert.ok(delegated.key,'native project members retain their existing credential delegation');
+    await json(root+'/keys/'+delegated.hash,'DELETE',undefined,actor);
+    await denied(req('/api/projects/'+foreign.id+'/keys','POST',{kind:'ingest'},actor));
+   }else{await denied(req(root+'/keys','POST',{kind:'ingest'},actor));await denied(req(root+'/keys/'+grant.hash,'DELETE',undefined,actor));}
+   for(const tail of ['/recipients','/destinations','/deliveries/synthetic-spool-unknown'])await denied(req(root+'/alerting'+tail,'GET',undefined,actor));await denied(req('/api/organization','GET',undefined,actor));
   }
   await denied(req(root+'/keys','POST',{kind:'ingest'},''));
   const event={version:1,eventId:'synthetic-spool-revoked',release:'spool-setup',build:'browser-test',environment:'spool-test',type:'SyntheticSpoolError',message:'Synthetic key lifecycle',frames:[{file:'synthetic.js',line:1,column:0,function:'capture'}]};
