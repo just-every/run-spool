@@ -31,7 +31,13 @@ export async function ownerSetupBrowser(app, cookie, project, json) {
   await expect(dialog).not.toContainText('synthetic-spool-outsider@example.test');await screenshot('team-members');
   await page.keyboard.press('Escape');
   await page.goto(app.origin+'/projects/'+project.id+'/settings#settings-projects');await page.getByRole('link',{name:'Create, copy and test an ingest key',exact:true}).waitFor();await screenshot('settings-keys');
-  await page.getByRole('link',{name:'Create, copy and test an ingest key',exact:true}).click();
+  const firstIssued=page.waitForResponse(r=>new URL(r.url()).pathname==='/api/projects/'+project.id+'/keys'&&r.request().method()==='POST');
+  await page.getByRole('button',{name:'Create ingest key',exact:true}).click();assert.equal((await firstIssued).status(),201);
+  const firstKey=await page.getByLabel('Project key',{exact:true}).innerText();await page.getByRole('button',{name:'Copy Project key',exact:true}).click();
+  assert.equal(await page.evaluate(async key=>(await navigator.clipboard.readText())===key,firstKey),true);await page.evaluate(()=>navigator.clipboard.writeText(''));await screenshot('settings-issued');
+  await page.getByRole('link',{name:'open Capture to copy and test this key',exact:true}).click();
+  assert.equal((await page.getByLabel('Ingest key',{exact:true}).innerText())===firstKey,true,'navigation retains the same issued key in memory');
+  await page.getByRole('button',{name:'Dismiss ingest key',exact:true}).click();
   await page.getByRole('button',{name:'Create ingest key',exact:true}).waitFor();await screenshot('capture-reissue');
   const created=page.waitForResponse(r=>new URL(r.url()).pathname==='/api/projects/'+project.id+'/keys'&&r.request().method()==='POST');
   await page.getByRole('button',{name:'Create ingest key',exact:true}).click();const issued=await created;assert.equal(issued.status(),201);const grant=await issued.json();
