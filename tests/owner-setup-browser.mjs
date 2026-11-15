@@ -17,11 +17,11 @@ export async function ownerSetupBrowser(app, cookie, project, json) {
   const form=members.locator('form').filter({has:page.getByLabel('Email',{exact:true})});
   for(const [role,name,email] of [['owner','Imported owner','synthetic-spool-owner@example.test'],['manager','Imported manager','synthetic-spool-manager@example.test']]){
    await form.getByLabel('Email',{exact:true}).fill(email);await form.getByLabel('Name',{exact:true}).fill(name);
-   await form.getByLabel('Organization role',{exact:true}).selectOption(role);
-   await form.getByLabel(project.name,{exact:true}).selectOption('maintainer');
+   await form.getByLabel(/^Organization role/).selectOption(role);
+   await form.getByLabel(new RegExp('^'+project.name)).selectOption('maintainer');
    const invite=page.waitForResponse(r=>new URL(r.url()).pathname==='/api/organization/invites'&&r.request().method()==='POST');
    await form.getByRole('button',{name:'Send invitation',exact:true}).click();assert.equal((await invite).status(),202);
-   await expect(members.getByText(name,{exact:true})).toBeVisible();
+   await expect(members.getByText(name,{exact:true}).first()).toBeVisible();
   }
   await screenshot('import-roles');
   await members.locator('summary').filter({hasText:/^Team members$/}).click();
