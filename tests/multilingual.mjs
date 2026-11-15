@@ -19,6 +19,11 @@ try{
  app=await executionRuntime(state,15484);
  const project=await app.json('/api/projects','POST',{id:'languages',name:'Language evidence'}),other=await app.json('/api/projects','POST',{id:'elsewhere',name:'Other project'});
  const p='/api/projects/languages',release={name:'server-1',build:'b1'},headers={Cookie:'',Authorization:'Bearer '+project.ingestKey};
+ // This journey proves scrubbing, including the Sentry user interface.
+ const initialIdentity=await app.json(p+'/identity-policy');
+ assert.deepEqual(initialIdentity.policy,{id:'keep',email:'keep',username:'keep',ip_address:'keep'},'new projects keep identity as sent');
+ const identityPolicy=Object.fromEntries(Object.keys(initialIdentity.policy).map(field=>[field,'drop'])),identityPreview=await app.json(p+'/identity-policy/preview','POST',{policy:identityPolicy});
+ await app.json(p+'/identity-policy','PUT',{revision:initialIdentity.revision,policy:identityPolicy,token:identityPreview.token});
  await app.json(`${p}/releases`,'POST',release);
  const previous=await mappingArchive(await (await app.request('/api/archive')).text(),()=>{},true);
  const base={version:1,release:release.name,build:release.build,environment:'production',breadcrumbs:[]};

@@ -11266,7 +11266,7 @@
       "executable": false
     },
     "tests/multilingual.mjs": {
-      "sha256": "1cb33635dee16f4d1e40c211adc71c09ef0c616631d5b9a02c1c92f5c694dac9",
+      "sha256": "e5d3fa55970e2ed596b8378ede164b6e41b228b111fac2ed680a55decc8abf0a",
       "executable": false
     },
     "tests/multilingual/archive.mjs": {
