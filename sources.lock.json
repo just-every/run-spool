@@ -10694,7 +10694,7 @@
       "executable": false
     },
     "src/ui/workbench/WorkspaceView.tsx": {
-      "sha256": "8d9cb58eaf93faa0f37dde307ef6cfa3dea76989f37f9caba38d59bf59c9ac9e",
+      "sha256": "574a6eedbcf9b170e2409bac648e79333d037e5ca55179080e6020df047cc55c",
       "executable": false
     },
     "TARGET.md": {
@@ -11342,7 +11342,7 @@
       "executable": false
     },
     "tests/owner-setup-browser.mjs": {
-      "sha256": "55ff369d4a31a77d8efd49cdfcfc824dd13694337da1d41882cc31467cf4d0e6",
+      "sha256": "acde00c84e24cfb9fcbe2e1a1e468c6b9e88a94b324c011aec03a098e9e80f38",
       "executable": false
     },
     "tests/owner-setup-flow.mjs": {
