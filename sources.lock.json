@@ -4194,7 +4194,7 @@
       "executable": false
     },
     "package.json": {
-      "sha256": "cc86e9119cb8ba82f2cd43cc59d3d102746f3f6ea9a555b2436daa41bf792874",
+      "sha256": "c921e712da3247c665bc7de765eb255c40d321a3008964da7db06afd17278238",
       "executable": false
     },
     "packages/agent/bin/spool-agent.mjs": {
@@ -4366,7 +4366,7 @@
       "executable": false
     },
     "pnpm-lock.yaml": {
-      "sha256": "5453b680fd1c3af55bb579c638a44ed88b7f399a1d0d413cbcd57880d74ffa61",
+      "sha256": "3dde1502493a3d78150881c70a059744d6501f9e9eb8115a3d33752ee53f56a2",
       "executable": false
     },
     "pnpm-workspace.yaml": {
