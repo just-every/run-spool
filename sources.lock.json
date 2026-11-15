@@ -7034,7 +7034,7 @@
       "executable": false
     },
     "src/domain/sentry/transactions.ts": {
-      "sha256": "101fee7a3c93246d2c56308448e8e5a908ef84a9cc807bc6857a880ca79ac912",
+      "sha256": "4b01035ab9d8794cb993e351265e5d2a494b24fafbe84155cc8efdab1f553d42",
       "executable": false
     },
     "src/domain/sentry/wire.ts": {
@@ -10846,7 +10846,7 @@
       "executable": false
     },
     "tests/agent-handoff/runtime.mjs": {
-      "sha256": "f2d5a202fff864bac9be183321c55a8892a2c3ab435cac1fa93a17885a43dbee",
+      "sha256": "fd9aa240afb15de3ce45973be865ff02daeb1a5a5eff8e03cf16bd626d8721b6",
       "executable": false
     },
     "tests/agent-handoff/scope.mjs": {
@@ -10858,7 +10858,7 @@
       "executable": false
     },
     "tests/agent-handoff/trace.mjs": {
-      "sha256": "ea7992640749c5b5f92fb0738b91e91e5e1f74e18e367bd1f3815bbf316c1002",
+      "sha256": "dd1e6266706360bb4cf82f419b3395ede1dceeb58a062bc39aca991e9aee2752",
       "executable": false
     },
     "tests/agent-handoff/ui.mjs": {
@@ -11030,7 +11030,7 @@
       "executable": false
     },
     "tests/command-runner.mjs": {
-      "sha256": "f8a0b7ad83899b8d388b8d5d84176a6fe8a9b86678ba0ac91e94960f55c1ec20",
+      "sha256": "f1803595174065f2604cddc3c8f20ae4438da712e0fd2b8e8abb4ec97658acc2",
       "executable": false
     },
     "tests/commands.mjs": {
