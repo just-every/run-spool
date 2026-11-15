@@ -107,6 +107,9 @@
       "mail": {
         "providers": [
           "rer"
+        ],
+        "credentialSecretNames": [
+          "MAIL_API_KEY"
         ]
       }
     }

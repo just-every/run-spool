@@ -4,7 +4,7 @@
 
 With RER Managed hosting, Configure supplies and hides all four mail inputs: `MAIL_PROVIDER=rer`, `MAIL_FROM`, `MAIL_RELAY_URL` and the private `MAIL_API_KEY`. RER assigns the sender and relay URL and stores an installation/environment credential in encrypted private settings. You need no provider account and copy no mail key. The provider credential stays with RER. Spool uses Base's `rer` mail adapter for sign-in links and email alerts.
 
-This checkout uses the rer version pinned in [package.json](../package.json). Free and Assisted self hosting retain their existing provider choices and require the chosen provider's sender and credentials. The manual Cloudflare/SendGrid procedure below remains available for your own account.
+This checkout uses the rer version pinned in [package.json](../package.json). Free and Assisted self hosting can deliberately turn mail off or choose an enabled provider with its sender and credentials. The manual Cloudflare/SendGrid procedure below remains available for your own account.
 
 ## Run Spool on your Cloudflare account
 
@@ -14,7 +14,7 @@ For the Free or Assisted account procedure below, you need:
 
 - this checkout, set up as in the [README](../README.md#run-it-on-your-computer) (git is required; the installer brings rer, Node and pnpm);
 - a Cloudflare account with a workers.dev subdomain, its account ID, and an API token that can edit Workers scripts and D1;
-- a SendGrid API key that can send mail, and a sender address verified in SendGrid. Sign-in links are sent by email.
+- for enabled email, a SendGrid API key that can send mail and a verified sender address; alternatively select `MAIL_PROVIDER=none` and use the guarded owner sign-in below.
 
 The [Run page](https://run-spool.com/run) uses `curl -fsSL https://runeditrun.com/install.sh | sh -s -- dev just-every/run-spool` for the first local start. The `setup` form below installs rer and prepares Spool without leaving a dev runtime running. Node and pnpm do not need to be on PATH.
 
@@ -40,13 +40,14 @@ The [Run page](https://run-spool.com/run) uses `curl -fsSL https://runeditrun.co
    CLOUDFLARE_ACCOUNT_ID=
    CLOUDFLARE_API_TOKEN=
    OWNER_EMAIL=
+   MAIL_PROVIDER=sendgrid
    MAIL_FROM=
    MAIL_API_KEY=
    ALERT_DESTINATIONS=[]
    EOF
    ```
 
-   Open the generated `.rer/deploy/<environment>.env` in a text editor and fill in the first five lines: your Cloudflare account ID and API token, the email address you will sign in with, the verified SendGrid sender, and the SendGrid API key. Keep these values out of shell commands. The file can be read only by you. Git ignores it, and `rer reset` keeps it. Keep it for every later deploy of this environment.
+   Open the generated `.rer/deploy/<environment>.env` in a text editor and fill in the account, owner and mail lines: your Cloudflare account ID and API token, the email address you will sign in with, the verified SendGrid sender, and the SendGrid API key. To turn email off deliberately, set `MAIL_PROVIDER=none` and leave `MAIL_FROM` and every sending credential empty. Keep these values out of shell commands. The file can be read only by you. Git ignores it, and `rer reset` keeps it. Keep it for every later deploy of this environment.
 
 3. Stop local dev, then deploy and claim the hosted owner:
 
@@ -61,15 +62,25 @@ The [Run page](https://run-spool.com/run) uses `curl -fsSL https://runeditrun.co
 
 Alert destinations start empty. Add, edit and test email destinations from **Alerts → Rules** ([steps](ALERT-WEBHOOKS.md#manage-email-destinations)); no secret update or redeploy is needed. Webhooks remain operator-managed as described in that guide. Keep `ALERT_DESTINATION_HASH_KEY` unchanged while deliveries are active. Secrets are uploaded on the first deploy, and later deploys reuse the retained generated values.
 
+## Turn email off deliberately
+
+Set `MAIL_PROVIDER=none` in the private environment file for the deployment. Leave `MAIL_FROM`, `MAIL_API_KEY`, `MAIL_ACCOUNT_ID` and `MAIL_RELAY_URL` empty; sending credentials together with `none` refuse before build or upload. Spool needs no sender or DKIM setting while mail is off. A missing, `later` or `direct` selection never means off. Enabled Resend, SendGrid, Cloudflare or managed RER mail still requires its sender and API key; Cloudflare also requires its account ID and RER its assigned relay URL.
+
+Run the same `rer deploy` command for the selected environment. The deployment binds `none` to the runtime and reports the guarded sign-in command below. If mail credentials were already bound to that Worker, use `rer deploy --unset-secret MAIL_API_KEY --env-file .rer/deploy/"$SPOOL_ENV".env --environment "$SPOOL_ENV"` and remove any previously bound `MAIL_ACCOUNT_ID` and `MAIL_RELAY_URL` the same way. Deploy preflight reports existing bound credentials by name; selecting off alone does not delete a secret retained on the Worker.
+
+The sign-in page directs the deploying owner to `rer signin`. Email sign-in links and invitations return `503 mail_unavailable`, including known and unknown addresses. Alerts stay visibly blocked without a send or a provider acceptance. Capture, issues and project settings keep working after guarded owner admission; signed-out private pages remain protected. Hosted installs expose no local-development entry or invitation link. To enable mail later, select a provider and use `rer deploy --set-secret` for its configured provider inputs in the same environment, retaining its ownership receipt.
+
+— Run Edit Run fleet, 2026-11-15.
+
 ## Sign in without email
 
-If you cannot receive the sign-in email, run this from the original deploying checkout with its retained private deployment record and the same Cloudflare credentials:
+When email is off or you cannot receive the sign-in email, run this from the original deploying checkout with its retained private deployment record and the same Cloudflare credentials:
 
 ```sh
 rer signin --env-file .rer/deploy/"$SPOOL_ENV".env --environment "$SPOOL_ENV"
 ```
 
-`rer signin` prints a private owner sign-in link once, without sending email. Open it now: it works once, expires within 15 minutes and is never saved by rer. Its use is recorded in the owner's audit log. The command uses the Cloudflare credentials to issue the link for the already claimed owner; it does not create a second owner. Set `SPOOL_ENV` to the environment you deployed before running these commands in a new terminal; the rer default is `production`. You can also supply the account credentials through the environment. Keep this link private.
+`rer signin` prints a private owner sign-in link once, without sending email. Open it now: it works once, expires within 15 minutes and is never saved by rer. Its use is recorded in the owner's audit log. The command requires this deployment's recorded Worker, account, project, environment and ownership receipt, and checks that the live Worker still matches that receipt before issuing a grant. A different checkout, account or replaced Worker cannot mint access. The command uses the Cloudflare credentials to issue the link for the already claimed owner; it does not create a second owner. Set `SPOOL_ENV` to the environment you deployed before running these commands in a new terminal; the rer default is `production`. You can also supply the account credentials through the environment. Keep this link private.
 
 ## Update to a newer Spool
 

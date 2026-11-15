@@ -9,7 +9,7 @@
     {
       "id": "email",
       "label": "Sign-in email",
-      "help": "Local development suppresses mail. Hosted sign-in requires an email provider or linked Auth installation."
+      "help": "Choose a provider for email links and invitations, or turn email off and sign in with rer signin from the deploying checkout."
     },
     {
       "id": "alerts",
@@ -58,7 +58,7 @@
     {
       "name": "MAIL_PROVIDER",
       "label": "Email provider",
-      "help": "Managed hosting configures mail for you. Free and Assisted hosting use your email provider. Local development suppresses mail.",
+      "help": "Choose none deliberately to disable email. Hosted owner access then uses rer signin with deployment credentials. Local development suppresses mail.",
       "kind": "select",
       "required": true,
       "default": "resend",
@@ -82,6 +82,10 @@
         {
           "value": "cloudflare",
           "label": "Cloudflare Email Sending"
+        },
+        {
+          "value": "none",
+          "label": "Off (sign in with rer signin)"
         }
       ],
       "group": "email",
@@ -91,10 +95,40 @@
       "name": "MAIL_FROM",
       "label": "Sender email",
       "kind": "email",
-      "default": "auth@localhost.test",
-      "required": true,
+      "default": "",
+      "required": false,
       "group": "email",
-      "runtimeEditable": true
+      "runtimeEditable": true,
+      "presentations": [
+        {
+          "when": {
+            "field": "MAIL_PROVIDER",
+            "equals": "rer"
+          },
+          "required": true
+        },
+        {
+          "when": {
+            "field": "MAIL_PROVIDER",
+            "equals": "resend"
+          },
+          "required": true
+        },
+        {
+          "when": {
+            "field": "MAIL_PROVIDER",
+            "equals": "sendgrid"
+          },
+          "required": true
+        },
+        {
+          "when": {
+            "field": "MAIL_PROVIDER",
+            "equals": "cloudflare"
+          },
+          "required": true
+        }
+      ]
     },
     {
       "name": "MAIL_RELAY_URL",

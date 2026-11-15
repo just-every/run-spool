@@ -145,6 +145,12 @@ export async function deploymentSpec(root, options = {}) {
   const deployPath = await sourcePath(root, 'deploy.json', {optional:true});
   if (deployPath) {
     const declaration = JSON.parse(decodeUtf8(await readFile(deployPath), 'deploy declaration'));
+    // Public environment inputs can be bound by deploy.json without a fixed
+    // Wrangler default. Keep their empty slots in the managed candidate spec;
+    // the owner deployment supplies the selected value at runtime.
+    for (const name of publicVariableNames) {
+      if (!Object.hasOwn(publicVariables, name) && declaration.secrets?.some(item => item.binding === name)) publicVariables[name] = '';
+    }
     validateMailSenders([
       {source:'deploy.json vars.MAIL_FROM', value:declaration.vars?.MAIL_FROM},
       {source:`${wranglerFile} vars.MAIL_FROM`, value:publicVariables.MAIL_FROM},

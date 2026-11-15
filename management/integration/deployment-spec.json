@@ -627,9 +627,11 @@
   "durableObjects": [],
   "durableObjectMigrations": [],
   "publicVariables": {
-    "MAIL_PROVIDER": "resend",
     "MAIL_FROM": "",
-    "MAIL_RELAY_URL": ""
+    "OWNER_EMAIL": "",
+    "MAIL_PROVIDER": "",
+    "MAIL_RELAY_URL": "",
+    "MAIL_ACCOUNT_ID": ""
   },
   "secretNames": [
     "SESSION_SECRET",
@@ -673,6 +675,9 @@
   "mail": {
     "providers": [
       "rer"
+    ],
+    "credentialSecretNames": [
+      "MAIL_API_KEY"
     ]
   }
 }

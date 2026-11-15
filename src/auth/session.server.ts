@@ -10,7 +10,7 @@ import type { Session } from '../modules/operator-auth/index.mjs';
 import type { TeamSession } from '../domain/members/model';
 export function authConfig(env: Bindings) {
  return { origin: env.AUTH_ORIGIN, OWNER_EMAIL: env.OWNER_EMAIL, SESSION_SECRET: env.SESSION_SECRET,
-  SETUP_TOKEN: env.SETUP_TOKEN, MAIL_FROM: env.MAIL_FROM, local: env.AUTH_LOCAL === 'true', dependencies: true,
+  SETUP_TOKEN: env.SETUP_TOKEN, MAIL_FROM: env.MAIL_PROVIDER === 'none' ? undefined : env.MAIL_FROM, local: env.AUTH_LOCAL === 'true', dependencies: true,
   branding: { productName: 'Spool', accentColor: '#1C1C1B', signInPath: '/sign-in' } };
 }
 export function operatorAuth(env: Bindings, teamInvites = false, mailSender: MailSender | undefined = operatorMail(env)) {
