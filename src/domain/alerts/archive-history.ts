@@ -7,7 +7,9 @@ import { catalogue,policy } from '../../modules/portability/catalogue.mjs';
 // A native schema translation must not turn an unverified legacy ledger into
 // current authority. Replay only destination-owned history, never archive SQL.
 export async function verifyTranslatedHistory(service:any,manifest:any,ledgers:any){
- const source=await restorableManifest(manifest),hasHistory=(ledgers!==undefined&&Object.keys(ledgers).length)||manifest.migrationLedger||manifest.migrations?.length;
+ // Legacy table-only hashes can accompany a complete object inventory. Compare
+ // replay in its canonical form; readArchive already verified the raw binding.
+ const source=await restorableManifest(manifest,{canonical:true}),hasHistory=(ledgers!==undefined&&Object.keys(ledgers).length)||manifest.migrationLedger||manifest.migrations?.length;
  if(!hasHistory&&manifest.schemaObjects!==undefined)return;
  checkArchivedLedgers(manifest,ledgers);
  const history=archivedHistory(manifest,ledgers),config=policy(service.inputPolicy),factory=service.migrationProvider?()=>service.migrationProvider(service.db,service.inputPolicy):await libraryMigrations(service.db,service.inputPolicy);
