@@ -47,7 +47,7 @@ export function AlertRules({ project, rules, destinations, refresh }: Props) {
  const projectMetric=kinds.includes('metric'),selected = destinations.find(d => d.id === destination), spike = kinds.includes('spike');
  const needsTest = (d: any) => d?.test?.state !== 'passing' || !d.test.reviewed_at;
  const allowedKeys = keys(tagKeys), config = configFor(draft);
- const filterLabels = [environment && `Environment: ${environment}`, level && `Severity: ${level}`,
+ const filterLabels = [environment && `Environment: ${environment}`, level && `Severity: ${draft.levelMatch==='gte'?'at least ':draft.levelMatch==='lte'?'at most ':''}${level}`,
   releaseMode !== 'any' && `Release: ${releaseMode === 'none' ? 'No release' : release}`,
   ...Object.entries((config.filters as any).tags ?? {}).map(([key, value]) => `${key}: ${typeof value==='object'&&value?(value as any).op+' '+((value as any).value??''):value}`)].filter(Boolean);
  function change(update: Partial<Draft>) {

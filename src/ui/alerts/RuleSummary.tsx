@@ -1,7 +1,7 @@
 export const installationOwner='Installation owner';
 export const destinationLabel=(destination:any)=>destination?`${destination.label} · ${destination.kind==='slack'?'Slack':destination.channel==='mail'?'Email':'Webhook'}${destination.configured===false?' · blocked':''}`:'Removed destination';
 export const ruleConfig=(rule:any)=>typeof rule.config==='string'?JSON.parse(rule.config):rule.config??{metric:'count',filters:{},tagKeys:[]};
-export function filterSummary(filters:any){return [filters.environment&&`Environment: ${filters.environment}`,filters.level&&`Severity: ${filters.level}`,filters.release!==undefined&&`Release: ${filters.release||'No release'}`,...Object.entries(filters.tags??{}).map(([key,value])=>`${key}: ${typeof value==='object'&&value?`${(value as any).op} ${(value as any).value??''}`:value}`)].filter(Boolean).join(' · ')}
+export function filterSummary(filters:any){return [filters.environment&&`Environment: ${filters.environment}`,filters.level&&`Severity: ${filters.levelMatch==='gte'?'at least ':filters.levelMatch==='lte'?'at most ':''}${filters.level}`,filters.release!==undefined&&`Release: ${filters.release||'No release'}`,...Object.entries(filters.tags??{}).map(([key,value])=>`${key}: ${typeof value==='object'&&value?`${(value as any).op} ${(value as any).value??''}`:value}`)].filter(Boolean).join(' · ')}
 export function metricSummary(rule:any){
  const c=ruleConfig(rule);if(c.metric==='aggregate')return `${rule.metric_status?rule.metric_status+' · ':''}${c.aggregate.replaceAll('_',' ')} · ${c.triggers.map((t:any)=>t.label+' '+(c.thresholdType==='above'?'>':'<')+' '+t.alertThreshold).join(' · ')} · ${rule.window_ms/60000} minutes`;
  if(!JSON.parse(rule.kinds).includes('spike'))return '';
