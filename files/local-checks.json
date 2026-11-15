@@ -1,0 +1,107 @@
+{
+  "author": "Run Edit Run fleet",
+  "date": "2026-11-15",
+  "product_head": "5c2cfed43100970207638e6f29cf20141fae1c17",
+  "rows": [
+    {
+      "command": "pnpm install --frozen-lockfile",
+      "exit_code": 0,
+      "node": "24.19.0",
+      "pnpm": "10.12.4"
+    },
+    {
+      "command": "pnpm run build:app",
+      "exit_code": 0,
+      "node": "22.20.0",
+      "pnpm": "10.12.4",
+      "log": "build.log",
+      "head_at_start": "adc3de69b9ae0ff60e41897f8ff7662fd656d560"
+    },
+    {
+      "command": "pnpm typecheck",
+      "exit_code": 0,
+      "node": "24.19.0",
+      "log": "typecheck.log"
+    },
+    {
+      "command": "pnpm typecheck",
+      "exit_code": 0,
+      "node": "22.20.0",
+      "log": "typecheck-node22.log"
+    },
+    {
+      "command": "node tests/sdk-package.mjs",
+      "exit_code": 0,
+      "node": "22.20.0",
+      "browser": "/usr/bin/chromium; headless; --no-sandbox",
+      "log": "sdk-package.log",
+      "head_at_start": "adc3de69b9ae0ff60e41897f8ff7662fd656d560"
+    },
+    {
+      "command": "node tests/commands.mjs",
+      "exit_code": 1,
+      "node": "22.20.0",
+      "log": "commands.log",
+      "head_at_start": "adc3de69b9ae0ff60e41897f8ff7662fd656d560",
+      "failure": "slow-readiness: immediately asserted public health after progress diagnostic"
+    },
+    {
+      "command": "node .artifacts/slow-readiness-probe.mjs",
+      "exit_code": 0,
+      "node": "22.20.0",
+      "log": "slow-readiness-probe.log",
+      "observation": "Progress diagnostic observed, live child, health 404, SIGINT exit 130, listener stopped and settings preserved"
+    },
+    {
+      "command": "node .artifacts/slow-readiness-probe.mjs (bounded health wait)",
+      "exit_code": 0,
+      "node": "22.20.0",
+      "log": "slow-readiness-wait-probe.log",
+      "observation": "Progress diagnostic observed, live child, health changed from 404 to 200, SIGINT exit 130, listener stopped and settings preserved"
+    },
+    {
+      "command": "node --check tests/commands.mjs",
+      "exit_code": 0,
+      "node": "22.20.0"
+    },
+    {
+      "command": "pnpm typecheck (corrected tree)",
+      "exit_code": 0,
+      "node": "22.20.0",
+      "log": "typecheck-candidate.log"
+    },
+    {
+      "command": "node scripts/edition-authoring/cli.mjs lock",
+      "exit_code": 0,
+      "node": "22.20.0",
+      "log": "source-lock.log"
+    },
+    {
+      "command": "pnpm source:check",
+      "exit_code": 0,
+      "node": "22.20.0",
+      "log": "source-check.log"
+    },
+    {
+      "command": "git diff --check; git diff origin/main..HEAD --check",
+      "exit_code": 0
+    },
+    {
+      "command": "git bundle verify product-candidate.bundle",
+      "exit_code": 0,
+      "receipt": "bundle-receipt.json"
+    },
+    {
+      "command": "node tests/commands.mjs (corrected test bytes)",
+      "exit_code": 0,
+      "node": "22.20.0",
+      "browser": "/usr/bin/chromium; headless; --no-sandbox",
+      "log": "commands-after.log",
+      "test_file_sha256": "ad8eebb076fa31df7e21b12bf275535cbf05cc4020cfd00df64ba94f308bfcf6",
+      "product_head": "5c2cfed43100970207638e6f29cf20141fae1c17",
+      "head_at_start": "adc3de69b9ae0ff60e41897f8ff7662fd656d560",
+      "qualification": "Outer test used corrected bytes later committed as product_head. Its isolated clone contained unchanged application sources from the recorded base; no product code changed during this repair."
+    }
+  ],
+  "command_journey_after_status": "passed"
+}

@@ -1,0 +1,16 @@
+(node:1355) ExperimentalWarning: SQLite is an experimental feature and might change at any time
+(Use `node --trace-warnings ...` to show where the warning was created)
+verify
+Heavy job admitted: Spool verify:suite [b9ee63ee7212]
+(node:1384) ExperimentalWarning: SQLite is an experimental feature and might change at any time
+(Use `node --trace-warnings ...` to show where the warning was created)
+{"journey":"spool-commands","stage":"slow-readiness","stageOrdinal":7,"command":{"ordinal":7,"command":"setup","exitCode":null,"cliErrorCode":"unknown","refusalFamily":"unknown","lifecycleMarker":"starting","resourcePreflight":"not-requested","resourcePreflightRefusal":"unknown","spawned":true,"exited":false,"spawnFailed":false,"timedOut":false,"readinessObserved":false,"healthChecked":false,"outboxChecked":false},"error":{"type":"AssertionError","source":null,"line":null},"cleanup":{"browser":"not-started","children":"stopped","directory":"removed"}}
+file://[REDACTED]/tests/command-diagnostics.mjs:203
+  throw new Error('Spool command journey failed: '+JSON.stringify(report));
+        ^
+
+Error: Spool command journey failed: {"journey":"spool-commands","stage":"slow-readiness","stageOrdinal":7,"command":{"ordinal":7,"command":"setup","exitCode":null,"cliErrorCode":"unknown","refusalFamily":"unknown","lifecycleMarker":"starting","resourcePreflight":"not-requested","resourcePreflightRefusal":"unknown","spawned":true,"exited":false,"spawnFailed":false,"timedOut":false,"readinessObserved":false,"healthChecked":false,"outboxChecked":false},"error":{"type":"AssertionError","source":null,"line":null},"cleanup":{"browser":"not-started","children":"stopped","directory":"removed"}}
+    at finishJourney (file://[REDACTED]/tests/command-diagnostics.mjs:203:9)
+    at async file://[REDACTED]/tests/commands.mjs:135:59
+
+Node.js v22.20.0

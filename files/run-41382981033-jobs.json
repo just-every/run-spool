@@ -1,0 +1,1 @@
+{"jobs":[{"conclusion":"failure","id":125077593915,"name":"token-check","status":"completed","steps":[{"conclusion":"failure","name":"NPM_TOKEN reaches this repository","number":3}]},{"conclusion":"success","id":125077594248,"name":"build","status":"completed","steps":[]},{"conclusion":"skipped","id":125077815495,"name":"publish","status":"completed","steps":[]}]}

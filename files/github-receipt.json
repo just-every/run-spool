@@ -1,0 +1,72 @@
+{
+  "author": "Run Edit Run fleet",
+  "date": "2026-11-15",
+  "calls": 10,
+  "budget": 10,
+  "rows": [
+    {
+      "command": "gh api repos/just-every/run-spool/actions/runs/41387749236/jobs?per_page=100 --jq <failed-step-summary>",
+      "exit_code": 0,
+      "receipt": "run-41387749236-jobs.json"
+    },
+    {
+      "command": "gh api repos/just-every/run-spool/actions/runs/41382981130/jobs?per_page=100 --jq <failed-step-summary>",
+      "exit_code": 0,
+      "receipt": "run-41382981130-jobs.json"
+    },
+    {
+      "command": "gh api repos/just-every/run-spool/actions/runs/41382981033/jobs?per_page=100 --jq <failed-step-summary>",
+      "exit_code": 0,
+      "receipt": "run-41382981033-jobs.json"
+    },
+    {
+      "command": "gh api repos/just-every/run-spool/actions/runs/41344924986/jobs?per_page=100 --jq <failed-step-summary>",
+      "exit_code": 0,
+      "receipt": "run-41344924986-jobs.json"
+    },
+    {
+      "command": "gh run view 41387749236 --repo just-every/run-spool --job 125092307296 --log-failed",
+      "exit_code": 0,
+      "stdout_bytes": 0,
+      "stderr_bytes": 0,
+      "receipt": "run-41387749236-job-125092307296-failed.log",
+      "limitation": "No log text returned; no root-cause assertion can be inferred from this command."
+    },
+    {
+      "command": "gh run view 41382981130 --repo just-every/run-spool --job 125077921651 --log-failed",
+      "exit_code": 0,
+      "stdout_bytes": 0,
+      "stderr_bytes": 0,
+      "receipt": "run-41382981130-job-125077921651-failed.log",
+      "limitation": "No log text returned; no root-cause assertion can be inferred from this command."
+    },
+    {
+      "command": "gh run view 41382981033 --repo just-every/run-spool --job 125077593915 --log-failed",
+      "exit_code": 0,
+      "stdout_bytes": 0,
+      "stderr_bytes": 0,
+      "receipt": "run-41382981033-job-125077593915-failed.log",
+      "limitation": "No log text returned; no root-cause assertion can be inferred from this command."
+    },
+    {
+      "command": "gh run view 41344924986 --repo just-every/run-spool --job 124962798808 --log-failed",
+      "exit_code": 0,
+      "stdout_bytes": 0,
+      "stderr_bytes": 0,
+      "receipt": "run-41344924986-job-124962798808-failed.log",
+      "limitation": "No log text returned; no root-cause assertion can be inferred from this command."
+    },
+    {
+      "command": "gh api repos/just-every/run-spool/actions/runs?head_sha=adc3de69b9ae0ff60e41897f8ff7662fd656d560&per_page=100 --jq <run-summary>",
+      "exit_code": 0,
+      "receipt": "current-head-runs.json"
+    },
+    {
+      "command": "gh api repos/just-every/run-spool/actions/runs/43750723397/jobs?per_page=100 --jq <failed-step-summary>",
+      "exit_code": 0,
+      "receipt": "current-main-failed-jobs.json"
+    }
+  ],
+  "remaining_calls": 0,
+  "forbidden_log_download_retries": 0
+}

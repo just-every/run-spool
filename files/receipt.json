@@ -1,0 +1,56 @@
+{
+  "author": "Run Edit Run fleet",
+  "date": "2026-11-15",
+  "tag": "gr-mt-spool-ci-8",
+  "repository": "just-every/run-spool",
+  "status": "blocked",
+  "branch": "cloud/gr-mt-spool-ci-8",
+  "head": "5c2cfed43100970207638e6f29cf20141fae1c17",
+  "product_pushed": false,
+  "product_push_attempted": false,
+  "product_commits": 1,
+  "pr": null,
+  "working_tree": "clean",
+  "identity_and_trailers": "PASS; fleet author and committer; no trailers; one candidate including all parents inspected",
+  "local_checks": "PASS after the repaired test race; see local-checks.json for exact commands/base qualification",
+  "candidate_verify": "NOT RUN; no product push; GitHub budget 10/10",
+  "latest_main_verify": {
+    "id": 43750723397,
+    "head": "adc3de69b9ae0ff60e41897f8ff7662fd656d560",
+    "status": "completed",
+    "conclusion": "failure",
+    "primary_job": 132924276019,
+    "job_name": "runtime (ruby)",
+    "step": "Run ruby SDK journey"
+  },
+  "publication_scan": "NOT RUN; scanner absent, explicitly blocks product publication under the brief",
+  "bundle": {
+    "author": "Run Edit Run fleet",
+    "date": "2026-11-15",
+    "repository": "just-every/run-spool",
+    "branch": "cloud/gr-mt-spool-ci-8",
+    "head": "5c2cfed43100970207638e6f29cf20141fae1c17",
+    "bundle": "/home/agent/rer-consolidation/work/gr-mt-spool-ci-8/product-candidate.bundle",
+    "sha256": "ef3705a95c293d68b663a76bd082cd462536de56e7556fc1c1152c818cb26794",
+    "verified": true,
+    "prerequisite": "adc3de69b9ae0ff60e41897f8ff7662fd656d560",
+    "type": "incremental Git bundle; requires the recorded main base",
+    "product_push_attempted": false,
+    "reason": "The assignment requires Base publication scan COMPLETE/PASS before a public product push and explicitly blocks publication when its scanner is missing."
+  },
+  "clauses_before": {
+    "done": 23,
+    "partial": 54,
+    "missing": 28,
+    "total": 105
+  },
+  "clauses_after": {
+    "done": 23,
+    "partial": 54,
+    "missing": 28,
+    "total": 105
+  },
+  "clause_status_changes": [],
+  "test_registration_delta": 0,
+  "default": "Preserve candidate; fleet supplies scanner and renewed GitHub budget; no release or default-branch action from cloud."
+}

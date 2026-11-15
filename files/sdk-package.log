@@ -1,0 +1,11 @@
+(node:1342) ExperimentalWarning: SQLite is an experimental feature and might change at any time
+(Use `node --trace-warnings ...` to show where the warning was created)
+[33m▲ [43;33m[[43;30mWARNING[43;33m][0m [1mProxy environment variables detected. We'll use your proxy for fetch requests.[0m
+
+
+[SRC-004] Spool CLI 27 maps, indexed offsets/sourceRoot/large-map public issue lookup, byte cap, per-file refusal, owner-only setting, release UI 1440/390 passed; no icon-only control on touched section.
+[plugin spool-source-maps] Uploaded 2 source maps.
+[plugin spool-source-maps] Uploaded 2 source maps.
+[plugin spool-source-maps] Uploaded 2 source maps.
+[SRC-001] Packed Vite, Rollup, webpack and esbuild: two emitted maps used in each of three consecutive releases at b1; all 24 mapped failures and earlier artifact sets reconciled; withheld map fails all four without output; late artifacts complete unchanged identities; independent restore and erasure; checksum tampering refused by file; 1440/390 overflow and Axe passed.
+{"passed":true,"proof":"Packed tarball installed offline into a fresh app: browser init with plugin-mapped frame and scrubbed breadcrumb, the same page without crypto.randomUUID, a fetch wrapper reporting refused sends without a feedback loop, a noisy location capped while another location’s error arrives and every drop counted on its issue, Node uncaught exception (and an odd-shaped one) reported then exit 1 with the app error, even with a never-settling fetch and a second throw, Worker catch block kept with a missing option."}

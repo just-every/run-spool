@@ -1,0 +1,16 @@
+{
+  "author": "Run Edit Run fleet",
+  "date": "2026-11-15",
+  "publication_scanner": "Base publication scanner",
+  "status": "NOT RUN",
+  "findings": null,
+  "reason": "Required scanner is absent from the launcher, fleet tools and product checkout; no substitute was used.",
+  "product_publication": "BLOCKED by the brief; no product push attempted",
+  "product_head": "5c2cfed43100970207638e6f29cf20141fae1c17",
+  "checked_locations": [
+    "/workspace/rer-cloud-launcher",
+    "/home/agent/rer-consolidation/.tools",
+    "/home/agent/rer-consolidation/work/maint/gr-mt-spool-ci-8/repo"
+  ],
+  "evidence_transport": "Report-only transport explicitly required by cloud instructions; not a publication-scan receipt or READY signal."
+}

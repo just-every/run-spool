@@ -1,0 +1,28 @@
+{
+  "author": "Run Edit Run fleet",
+  "date": "2026-11-15",
+  "head": "5c2cfed43100970207638e6f29cf20141fae1c17",
+  "files": [
+    "tests/commands.mjs",
+    "sources.lock.json"
+  ],
+  "diff_sha256": "4db599036d43b2e2814901b383a3c412203fa0110529d35133efa7c47aae9f6b",
+  "insertions": 11,
+  "deletions": 2,
+  "test_registrations_added": 0,
+  "test_registrations_removed": 0,
+  "clauses_before": {
+    "done": 23,
+    "partial": 54,
+    "missing": 28,
+    "total": 105
+  },
+  "clauses_after": {
+    "done": 23,
+    "partial": 54,
+    "missing": 28,
+    "total": 105
+  },
+  "clause_status_changes": [],
+  "generated_views_committed": false
+}

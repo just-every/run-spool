@@ -1,0 +1,14 @@
+{
+  "branch": "cloud/gr-mt-spool-ci-8",
+  "head": "5c2cfed43100970207638e6f29cf20141fae1c17",
+  "tree": "9e9650b0908a4f95c9ac9c2bc2e7602735027989",
+  "origin_main": "adc3de69b9ae0ff60e41897f8ff7662fd656d560",
+  "status": "",
+  "candidate_identity_trailers": "Run Edit Run fleet <fleet@runeditrun.com>\nRun Edit Run fleet <fleet@runeditrun.com>",
+  "author": "Run Edit Run fleet",
+  "date": "2026-11-15",
+  "repository": "just-every/run-spool",
+  "product_commits_created": 1,
+  "product_pushes": 0,
+  "pr": null
+}

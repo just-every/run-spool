@@ -1,0 +1,14 @@
+{
+  "author": "Run Edit Run fleet",
+  "date": "2026-11-15",
+  "repository": "just-every/run-spool",
+  "branch": "cloud/gr-mt-spool-ci-8",
+  "head": "5c2cfed43100970207638e6f29cf20141fae1c17",
+  "bundle": "/home/agent/rer-consolidation/work/gr-mt-spool-ci-8/product-candidate.bundle",
+  "sha256": "ef3705a95c293d68b663a76bd082cd462536de56e7556fc1c1152c818cb26794",
+  "verified": true,
+  "prerequisite": "adc3de69b9ae0ff60e41897f8ff7662fd656d560",
+  "type": "incremental Git bundle; requires the recorded main base",
+  "product_push_attempted": false,
+  "reason": "The assignment requires Base publication scan COMPLETE/PASS before a public product push and explicitly blocks publication when its scanner is missing."
+}

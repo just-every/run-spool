@@ -1,0 +1,9 @@
+(node:4849) ExperimentalWarning: SQLite is an experimental feature and might change at any time
+(Use `node --trace-warnings ...` to show where the warning was created)
+{"probe":"diagnostic-marker","observed":true,"exit":null}
+{"probe":"health-after-wait","first":404,"status":200,"childExit":null}
+{"probe":"before-cancel","exit":null}
+{"probe":"cancel","code":130}
+{"probe":"after-cancel-health","reachable":false}
+{"probe":"settings-preserved","preserved":true}
+{"probe":"cleanup","children":"stopped","directory":"removed"}
