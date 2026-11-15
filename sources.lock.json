@@ -11342,7 +11342,7 @@
       "executable": false
     },
     "tests/owner-setup-browser.mjs": {
-      "sha256": "acde00c84e24cfb9fcbe2e1a1e468c6b9e88a94b324c011aec03a098e9e80f38",
+      "sha256": "2c92068e41738a23a6398ea818ea0a2d518e974b9558a9a2c5fa569b99d23da0",
       "executable": false
     },
     "tests/owner-setup-flow.mjs": {
