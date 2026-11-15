@@ -40,7 +40,8 @@ export async function ownerSetupBrowser(app, cookie, project, json) {
   assert.equal(await page.getByLabel('Sentry DSN',{exact:true}).innerText(),firstDsn,'navigation carries the matching DSN with the key');
   const prerequisites=page.getByRole('link',{name:'Node.js prerequisite setup steps',exact:true});
   const guide=await context.request.get(app.origin+await prerequisites.getAttribute('href'));assert.equal(guide.status(),200);
-  assert.match(await guide.text(),/node --version/);assert.match(await guide.text(),/npm --version/);
+  const fragment=new URL(await prerequisites.getAttribute('href'),app.origin).hash.slice(1);
+  assert.ok(fragment&&await page.evaluate(({html,fragment})=>!!new DOMParser().parseFromString(html,'text/html').getElementById(fragment),{html:await guide.text(),fragment}),'the prerequisite link reaches its actual guide section');
   const mapping=page.getByRole('heading',{name:'Set up original-source mapping',exact:true}).locator('..');
   for(const width of [1440,390]){await page.setViewportSize({width,height:1000});await mapping.screenshot({path:`${folder}/source-map-setup-${width}.png`});}await page.setViewportSize({width:1440,height:1000});
   await page.getByRole('button',{name:'Dismiss ingest key',exact:true}).click();
