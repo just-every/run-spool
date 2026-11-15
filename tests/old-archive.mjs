@@ -153,12 +153,19 @@ try {
  assert.deepEqual(await rows(roundtrip, 'SELECT * FROM projects'), []);
  console.log('PASS genuinely mismatched schema and corrupted original archive binding still refuse');
 
+ // Retained observations may arrive in different minutes while UUID ordering differs
+ // from receipt ordering. A current archive must preserve both complete buckets.
+ const transactionProject=(await rows(fresh,'SELECT id FROM projects ORDER BY id'))[0].id,minute=Math.floor(Date.now()/60000)*60000;
+ await fresh.prepare('INSERT INTO sentry_transactions VALUES(?,?,?,?,?,?,?,?,?,?)').bind(transactionProject,'f'.repeat(32),'production','','/v1/checkout',null,1000,minute-60000,minute-60000,'a'.repeat(64)).run();
+ await fresh.prepare(`INSERT INTO sentry_transactions SELECT ?,printf('%032x',CAST(value AS INTEGER)), 'production','','/v1/checkout',NULL,1000,?,?,? FROM json_each(?)`).bind(transactionProject,minute,minute,'b'.repeat(64),JSON.stringify(Array.from({length:600},(_,i)=>i))).run();
+ const transactionsBefore=await rows(fresh,'SELECT * FROM sentry_transactions ORDER BY project,id');
  const current = await new Response(await transfer.archiveStream(await transfer.portability(fresh))).text();
  await transfer.restoreStream(await transfer.portability(roundtrip), new Response(current).body);
  for (const [table, data] of Object.entries(expected)) assert.deepEqual(canonicalRows(await rows(roundtrip, `SELECT * FROM "${table}"`)), canonicalRows(data));
  for (const name of Object.keys(expected)) assert.equal(platformTable(name), false);
  for (const name of ['projects', 'releases', 'issues', 'events', 'artifacts', 'audit', 'alerts', 'alert_destinations', 'alert_mail_jobs', 'feedback', 'grouping_policies', 'grouping_proposals', 'repairs', 'repair_checks', 'rer_erasure_operations', 'rer_dependency_installation', 'rer_dependency_link']) assert.equal(platformTable(name), false, `${name} is person-owned`);
  assert.throws(() => policy({...transfer.portabilityPolicy, includeTables: ['rer_migrations']}));
+ assert.deepEqual(await rows(roundtrip,'SELECT * FROM sentry_transactions ORDER BY project,id'),transactionsBefore,'current archive retains transactions across complete receipt buckets, independently of UUID ordering');
  console.log('PASS current archive independently restores and mandatory bookkeeping exclusions retain person-owned tables');
 } finally {
  try { await runtime?.dispose(); } finally { await rm(temporary, {recursive: true, force: true}); }

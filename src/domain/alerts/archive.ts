@@ -1,4 +1,4 @@
-import { transactionOutcomes } from '../sentry/transactions';
+import { transactionOutcomes } from '../sentry/transaction-outcomes';
 import { metricConfig,validMetricAlert } from './metric-rules';
 import {validateDecision} from './decision-archive';
 import { ruleConfig } from './filters';

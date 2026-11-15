@@ -6,7 +6,7 @@ import { canonical,hash,scrub } from '../privacy';
 import { sentryRelease } from '../releases/identity';
 import { objectJson,type SentryItem } from './wire';
 import { receivedAtSql } from '../alerts/admission';
-export const transactionOutcomes=['transaction_stored','transaction_duplicate','transaction_conflict','transaction_invalid','transaction_capacity','transaction_rate_limited'];
+export { transactionOutcomes } from './transaction-outcomes';
 const timestamp=(v:unknown)=>{const n=typeof v==='number'?v*1000:typeof v==='string'?Date.parse(v):NaN;return Number.isFinite(n)&&n>=0&&n<=Date.now()+300000?n:null};
 const text=(v:unknown,max:number)=>typeof v==='string'&&v?scrub(v.replace(/[\x00-\x1f\x7f]/g,' ')).slice(0,max):null;
 function transaction(v:any,envelopeId?:unknown){
