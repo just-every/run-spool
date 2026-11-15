@@ -10,7 +10,7 @@ export async function verifyTranslatedHistory(service:any,manifest:any,ledgers:a
  const source=await restorableManifest(manifest),hasHistory=Object.keys(ledgers).length||manifest.migrationLedger||manifest.migrations?.length;
  if(!hasHistory&&manifest.schemaObjects!==undefined)return;
  checkArchivedLedgers(manifest,ledgers);
- const history=archivedHistory(manifest,ledgers),config=policy(service.inputPolicy),factory=service.migrationProvider?()=>service.migrationProvider(service.db,config):await libraryMigrations(service.db,config);
+ const history=archivedHistory(manifest,ledgers),config=policy(service.inputPolicy),factory=service.migrationProvider?()=>service.migrationProvider(service.db,service.inputPolicy):await libraryMigrations(service.db,service.inputPolicy);
  if(!history?.length&&manifest.schemaObjects===undefined)throw new PortabilityError('schema_mismatch:legacy_schema',409);
  if(manifest.schemaObjects===undefined&&history.some((entry:any)=>!entry.sha256))throw new PortabilityError('schema_mismatch:legacy_schema',409);
  const replay=await factory(),files=replay.names.map((name:string)=>({name,sha256:replay.sha256?.(name),aliases:replay.aliases?.(name)}));
