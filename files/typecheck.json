@@ -1,0 +1,12 @@
+{
+  "command": "pnpm typecheck",
+  "exit": 0,
+  "head": "8b4eff1b26e22be045ea4527e1d5263f74ddb0e7",
+  "working_changes": [
+    "tests/end-user-erasure-preview.mjs",
+    "tests/session-flow.mjs"
+  ],
+  "node": "24.19.0",
+  "pnpm": "10.12.4",
+  "date": "2026-11-15"
+}

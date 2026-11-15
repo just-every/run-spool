@@ -1,0 +1,7 @@
+{
+  "author": "Run Edit Run fleet",
+  "time": "2026-11-15T17:46:32.203563+00:00",
+  "head": "adc3de69b9ae0ff60e41897f8ff7662fd656d560",
+  "command": "node tests/multilingual.mjs",
+  "exit": 0
+}

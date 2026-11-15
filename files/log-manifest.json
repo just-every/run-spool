@@ -1,0 +1,44 @@
+[
+  {
+    "name": "owner-claim-cloud-browser",
+    "local_log": "/tmp/spool-check-owner-claim-cloud-browser.log",
+    "bytes": 8305,
+    "sha256": "027933cc8bf166a1acfb85925282cea55d2be9076589862185aa958e1c47f5b2"
+  },
+  {
+    "name": "sentry-sdk",
+    "local_log": "/tmp/spool-check-sentry-sdk.log",
+    "bytes": 5028,
+    "sha256": "163f2eeb3e29f0c70357ecb10d72ff627116f81929d7057f60a8fbb6ec493244"
+  },
+  {
+    "name": "sentry-http",
+    "local_log": "/tmp/spool-check-sentry-http.log",
+    "bytes": 7118,
+    "sha256": "d90fe6ae970733620b75cf73a6b3b61bb2321348d3e064f91db6cbb2f270c9da"
+  },
+  {
+    "name": "owner-erasure",
+    "local_log": "/tmp/spool-check-owner-erasure.log",
+    "bytes": 3916,
+    "sha256": "4fe52e8539a269160fd13c76c45fd7ee477a19e99a3a20cae4080fa200644045"
+  },
+  {
+    "name": "triage-journey",
+    "local_log": "/tmp/spool-check-triage-journey.log",
+    "bytes": 211,
+    "sha256": "9068e0b330589345fddfc8b63ac8070a98a0e4e9c47493a51b51c26e463b9769"
+  },
+  {
+    "name": "alerts-native",
+    "local_log": "/tmp/spool-check-alerts-native.log",
+    "bytes": 1529,
+    "sha256": "f909632d1197688bf18f9c044845c6a4b3b2779b3ccb55374890d636047f52ed"
+  },
+  {
+    "name": "spool-first-project",
+    "local_log": "/tmp/spool-check-spool-first-project.log",
+    "bytes": 80,
+    "sha256": "512dfefbad5aac7bd2e3291a9b3a62e33e28cdd8414a5ea4f7e682e021434580"
+  }
+]

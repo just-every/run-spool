@@ -1,0 +1,25 @@
+{
+  "repository": "just-every/run-spool",
+  "original_head": "8b4eff1b26e22be045ea4527e1d5263f74ddb0e7",
+  "original_touched_tests": [
+    "tests/alerts/conditions-journey.mjs",
+    "tests/fidelity-flow.mjs",
+    "tests/grouping-rules-flow.mjs",
+    "tests/identity-flow.mjs",
+    "tests/operator-ui.mjs",
+    "tests/owner-erasure-authority.mjs",
+    "tests/owner-setup-browser.mjs",
+    "tests/reports-flow.mjs",
+    "tests/setup-journey.mjs",
+    "tests/triage-journey.mjs"
+  ],
+  "continuation_files": [
+    "tests/end-user-erasure-preview.mjs",
+    "tests/session-flow.mjs",
+    "tests/multilingual.mjs",
+    "sources.lock.json"
+  ],
+  "clause_status_changes": [],
+  "test_registrations_added": 0,
+  "ci_exposed_followup": "tests/multilingual.mjs:100 discard PRIVATE_USER, hidden behind the previously failing session journey"
+}

@@ -1,0 +1,8 @@
+{
+  "author": "Run Edit Run fleet",
+  "date": "2026-11-15",
+  "command": "NODE_OPTIONS=--import=/tmp/rer-browser-preload.mjs RER_CHROMIUM_EXECUTABLE_PATH=/usr/bin/chromium node tests/owner-claim.mjs",
+  "exit": 0,
+  "resolution": "The original run stopped only because discussionFlow called chromium.launch directly and the Playwright-managed executable was absent. External preload supplies /usr/bin/chromium and --no-sandbox; no repository source change.",
+  "proof": "The restarted full owner-claim entrypoint completed, including endUserErasurePreviewFlow."
+}

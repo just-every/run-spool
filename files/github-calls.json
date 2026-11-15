@@ -1,0 +1,94 @@
+[
+  {
+    "time": "2026-11-15T17:27:51.125380+00:00",
+    "unix": 1794763671.1253932,
+    "command": [
+      "gh",
+      "api",
+      "repos/just-every/run-spool/actions/runs?head_sha=1e45483aaa1c08b77e32375d601e7c331697e784&per_page=100",
+      "--jq",
+      "[.workflow_runs[] | {id,name,event,status,conclusion,head_sha,html_url}]"
+    ]
+  },
+  {
+    "time": "2026-11-15T17:32:51.779512+00:00",
+    "unix": 1794763971.7795274,
+    "command": [
+      "gh",
+      "api",
+      "repos/just-every/run-spool/actions/runs/43739835617",
+      "--jq",
+      "{id,name,status,conclusion,head_sha,html_url}"
+    ]
+  },
+  {
+    "time": "2026-11-15T17:37:52.400783+00:00",
+    "unix": 1794764272.400796,
+    "command": [
+      "gh",
+      "api",
+      "repos/just-every/run-spool/actions/runs/43739835617",
+      "--jq",
+      "{id,name,status,conclusion,head_sha,html_url}"
+    ]
+  },
+  {
+    "time": "2026-11-15T17:38:15.082426+00:00",
+    "unix": 1794764295.0824375,
+    "command": [
+      "gh",
+      "api",
+      "repos/just-every/run-spool/actions/runs/43739835617/jobs?per_page=100",
+      "--jq",
+      "[.jobs[] | select(.conclusion == \"failure\") | {id,name,status,conclusion,steps:[.steps[] | select(.conclusion == \"failure\") | {name,number,conclusion}]}]"
+    ]
+  },
+  {
+    "time": "2026-11-15T17:38:25.664278+00:00",
+    "unix": 1794764305.6642928,
+    "command": [
+      "gh",
+      "run",
+      "view",
+      "43739835617",
+      "--repo",
+      "just-every/run-spool",
+      "--job",
+      "132890785238",
+      "--log-failed"
+    ]
+  },
+  {
+    "time": "2026-11-15T17:58:53.934670+00:00",
+    "unix": 1794765533.93468,
+    "command": [
+      "gh",
+      "api",
+      "repos/just-every/run-spool/actions/runs?head_sha=adc3de69b9ae0ff60e41897f8ff7662fd656d560&per_page=100",
+      "--jq",
+      "[.workflow_runs[] | {id,name,event,status,conclusion,head_sha,html_url}]"
+    ]
+  },
+  {
+    "time": "2026-11-15T18:03:54.583674+00:00",
+    "unix": 1794765834.5836856,
+    "command": [
+      "gh",
+      "api",
+      "repos/just-every/run-spool/actions/runs/43742749592",
+      "--jq",
+      "{id,name,status,conclusion,head_sha,html_url}"
+    ]
+  },
+  {
+    "time": "2026-11-15T18:13:53.937325+00:00",
+    "unix": 1794766433.9373348,
+    "command": [
+      "gh",
+      "api",
+      "repos/just-every/run-spool/actions/runs/43742749592",
+      "--jq",
+      "{id,name,status,conclusion,head_sha,html_url}"
+    ]
+  }
+]

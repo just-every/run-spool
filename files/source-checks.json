@@ -1,0 +1,18 @@
+{
+  "date": "2026-11-15",
+  "author": "Run Edit Run fleet",
+  "checks": [
+    {
+      "command": "node src/base/contract-docs.mjs check",
+      "exit": 0
+    },
+    {
+      "command": "node scripts/edition-authoring/cli.mjs lock",
+      "exit": 0
+    },
+    {
+      "command": "pnpm source:check",
+      "exit": 0
+    }
+  ]
+}

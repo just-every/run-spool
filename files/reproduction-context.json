@@ -1,0 +1,18 @@
+{
+  "original": "8b4eff1b26e22be045ea4527e1d5263f74ddb0e7",
+  "baseline": "74b7105bd756ac76a2e90086928a44af5e8cb5d1",
+  "chromium": "/usr/bin/chromium",
+  "initial_reproductions": {
+    "endUserErasurePreviewFlow": "3 project keys observed vs 2 expected at line 48",
+    "sessionFlow": "whole private archive includes synthetic user at line 46"
+  },
+  "setup": "Completed successfully: dependencies installed, build succeeded, 102 migrations applied and first owner claimed; setup temporary server stopped itself.",
+  "baseline_results": {
+    "endUserErasurePreviewFlow": true,
+    "sessionFlow": true
+  },
+  "causes": {
+    "endUserErasurePreviewFlow": "Assertion at original line 48 counts private project identity keys. The third fixture inherited keep instead of drop, so ingest rightly created a third key; event matching counts were unchanged.",
+    "sessionFlow": "The archive includes private event identities as well as health sessions. Unmodified SDK crash captures include user.id; under the new keep policy those error identities are rightly retained. Session DID ingestion always hashes through identityHash in src/domain/sessions/intake.ts."
+  }
+}

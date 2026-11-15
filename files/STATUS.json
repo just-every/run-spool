@@ -1,0 +1,41 @@
+{
+  "author": "Run Edit Run fleet",
+  "time": "2026-11-15T18:14:08.829275+00:00",
+  "repository": "just-every/run-spool",
+  "branch": "cloud/main-spool-stranger32-trips-1-c1",
+  "head": "adc3de69b9ae0ff60e41897f8ff7662fd656d560",
+  "product_status": "READY",
+  "verify": {
+    "conclusion": "success",
+    "head_sha": "adc3de69b9ae0ff60e41897f8ff7662fd656d560",
+    "html_url": "https://github.com/just-every/run-spool/actions/runs/43742749592",
+    "id": 43742749592,
+    "name": "Verify",
+    "status": "completed"
+  },
+  "github_calls": 8,
+  "assigned_regressions": {
+    "before": 2,
+    "after": 0
+  },
+  "additional_ci_exposed_regression": {
+    "before": 1,
+    "after": 0
+  },
+  "clause_status_changes": [],
+  "clause_counts_before_and_after": {
+    "done": 23,
+    "partial": 54,
+    "missing": 28,
+    "total": 105
+  },
+  "package_test_entrypoints_before_and_after": 28,
+  "new_test_registrations": 0,
+  "pr": null,
+  "remaining_fleet_gates": [
+    "independent Opus data/auth gate",
+    "full publication scan",
+    "guarded landing and exact-main checks"
+  ],
+  "evidence_ref": "refs/heads/evidence/main-spool-stranger32-trips-1-c1"
+}

@@ -1,0 +1,20 @@
+{
+  "author": "Run Edit Run fleet",
+  "date": "2026-11-15",
+  "screens": [
+    "screens/erasure-matching-1440.png",
+    "screens/erasure-matching-390.png",
+    "screens/erasure-unavailable-1440.png",
+    "screens/erasure-unavailable-390.png",
+    "screens/session-health-1440.png",
+    "screens/session-health-390.png",
+    "screens/project-policy-1440.png",
+    "screens/project-policy-390.png",
+    "screens/archive-preview-1440.png",
+    "screens/archive-preview-390.png",
+    "screens/evidence-summary-1440.png",
+    "screens/evidence-summary-390.png"
+  ],
+  "scope": "Synthetic local count-only erasure previews, release-health panel and project-creation identity policy. No credential panes selected.",
+  "assertions": "Existing journeys assert the privacy/default behaviors; screenshots include 1440 and 390."
+}

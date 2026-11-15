@@ -1,0 +1,62 @@
+{
+  "author": "Run Edit Run fleet",
+  "date": "2026-11-15",
+  "repository": "just-every/run-spool",
+  "branch": "cloud/main-spool-stranger32-trips-1-c1",
+  "head": "1e45483aaa1c08b77e32375d601e7c331697e784",
+  "main_base": "74b7105bd756ac76a2e90086928a44af5e8cb5d1",
+  "original_round": "8b4eff1b26e22be045ea4527e1d5263f74ddb0e7",
+  "original_round_retained": true,
+  "continuation_files": [
+    {
+      "path": "tests/end-user-erasure-preview.mjs",
+      "sha256": "5f07c34f4e5362e83c5372c7fff40b70a9c5b51c94724ea840c26f5b925bf858"
+    },
+    {
+      "path": "tests/session-flow.mjs",
+      "sha256": "ccd759d9b8fea0b484962095cf108caa46f6d90428ddb45b72247c0c7e87aef0"
+    },
+    {
+      "path": "sources.lock.json",
+      "sha256": "ae2001d3fcae483c59c11025ecd8240dd523942e845706c1b92e4ee8b5dd4570"
+    }
+  ],
+  "candidate_commits": [
+    "1e45483aaa1c08b77e32375d601e7c331697e784",
+    "8b4eff1b26e22be045ea4527e1d5263f74ddb0e7",
+    "a9c870ef57cfd1730221ad89c75ac4d2e96ab7a5",
+    "c9ac44abe66980b3537258615dcc330014a49940"
+  ],
+  "working_tree_clean": true,
+  "clause_counts_before": {
+    "done": 23,
+    "partial": 54,
+    "missing": 28,
+    "total": 105
+  },
+  "clause_counts_after": {
+    "done": 23,
+    "partial": 54,
+    "missing": 28,
+    "total": 105
+  },
+  "clause_status_changes": [],
+  "regressions_before": 2,
+  "regressions_after": 0,
+  "package_test_entrypoints_before": 28,
+  "package_test_entrypoints_after": 28,
+  "new_test_registrations": 0,
+  "pull_request": null,
+  "landing": "fleet guarded branch landing; Opus data/auth gate and publication scan pending",
+  "exact_head_journeys": {
+    "author": "Run Edit Run fleet",
+    "time": "2026-11-15T17:15:01.816224+00:00",
+    "head": "1e45483aaa1c08b77e32375d601e7c331697e784",
+    "command": "node /tmp/spool-two-journeys.mjs",
+    "journeys": [
+      "endUserErasurePreviewFlow",
+      "sessionFlow"
+    ],
+    "exit": 0
+  }
+}

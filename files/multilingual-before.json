@@ -1,0 +1,5 @@
+{
+  "head": "1e45483aaa1c08b77e32375d601e7c331697e784",
+  "command": "node tests/multilingual.mjs",
+  "exit": 1
+}

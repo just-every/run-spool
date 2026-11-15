@@ -1,0 +1,55 @@
+{
+  "author": "Run Edit Run fleet",
+  "date": "2026-11-15",
+  "head": "8b4eff1b26e22be045ea4527e1d5263f74ddb0e7",
+  "checks": [
+    {
+      "command": "node tests/owner-claim.mjs",
+      "exit": 1,
+      "seconds": 111.94,
+      "log_local": "/tmp/spool-check-owner-claim.log"
+    },
+    {
+      "command": "node tests/sentry-sdk.mjs",
+      "exit": 0,
+      "seconds": 328.3,
+      "log_local": "/tmp/spool-check-sentry-sdk.log"
+    },
+    {
+      "command": "node tests/sentry-http.mjs",
+      "exit": 0,
+      "seconds": 595.82,
+      "log_local": "/tmp/spool-check-sentry-http.log"
+    },
+    {
+      "command": "node tests/owner-erasure.mjs",
+      "exit": 0,
+      "seconds": 381.48,
+      "log_local": "/tmp/spool-check-owner-erasure.log"
+    },
+    {
+      "command": "node tests/triage-journey.mjs",
+      "exit": 0,
+      "seconds": 367.2,
+      "log_local": "/tmp/spool-check-triage-journey.log"
+    },
+    {
+      "command": "node tests/alerts-native.mjs",
+      "exit": 0,
+      "seconds": 172.53,
+      "log_local": "/tmp/spool-check-alerts-native.log"
+    },
+    {
+      "command": "node /tmp/spool-first-project.mjs",
+      "exit": 0,
+      "seconds": 182.13,
+      "log_local": "/tmp/spool-check-spool-first-project.log"
+    }
+  ],
+  "resolved_environment_failure": {
+    "original_command": "node tests/owner-claim.mjs",
+    "rerun_receipt": "owner-claim-rerun.json",
+    "rerun_exit": 0
+  },
+  "all_final_checks_passed": true
+}

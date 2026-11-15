@@ -1,0 +1,89 @@
+{
+  "author": "Run Edit Run fleet",
+  "date": "2026-11-15",
+  "repository": "just-every/run-spool",
+  "branch": "cloud/main-spool-stranger32-trips-1-c1",
+  "head": "adc3de69b9ae0ff60e41897f8ff7662fd656d560",
+  "main_base": "74b7105bd756ac76a2e90086928a44af5e8cb5d1",
+  "original_round": "8b4eff1b26e22be045ea4527e1d5263f74ddb0e7",
+  "original_round_retained": true,
+  "continuation_files": [
+    {
+      "path": "tests/end-user-erasure-preview.mjs",
+      "sha256": "5f07c34f4e5362e83c5372c7fff40b70a9c5b51c94724ea840c26f5b925bf858"
+    },
+    {
+      "path": "tests/session-flow.mjs",
+      "sha256": "ccd759d9b8fea0b484962095cf108caa46f6d90428ddb45b72247c0c7e87aef0"
+    },
+    {
+      "path": "tests/multilingual.mjs",
+      "sha256": "e5d3fa55970e2ed596b8378ede164b6e41b228b111fac2ed680a55decc8abf0a"
+    },
+    {
+      "path": "sources.lock.json",
+      "sha256": "95076cbb3e36ee81888c446305ee22cd0ecfeb415892ce030ffa05e356950e17"
+    }
+  ],
+  "candidate_commits": [
+    "adc3de69b9ae0ff60e41897f8ff7662fd656d560",
+    "1e45483aaa1c08b77e32375d601e7c331697e784",
+    "8b4eff1b26e22be045ea4527e1d5263f74ddb0e7",
+    "a9c870ef57cfd1730221ad89c75ac4d2e96ab7a5",
+    "c9ac44abe66980b3537258615dcc330014a49940"
+  ],
+  "working_tree_clean": true,
+  "clause_counts_before": {
+    "done": 23,
+    "partial": 54,
+    "missing": 28,
+    "total": 105
+  },
+  "clause_counts_after": {
+    "done": 23,
+    "partial": 54,
+    "missing": 28,
+    "total": 105
+  },
+  "clause_status_changes": [],
+  "regressions_before": 2,
+  "regressions_after": 0,
+  "package_test_entrypoints_before": 28,
+  "package_test_entrypoints_after": 28,
+  "new_test_registrations": 0,
+  "pull_request": null,
+  "landing": "fleet guarded branch landing; Opus data/auth gate and publication scan pending",
+  "additional_ci_regression": {
+    "journey": "tests/multilingual.mjs",
+    "before": 1,
+    "after_local_fix": 0
+  },
+  "product_src_tree": "345620ee27b86de42c59cf409441ec7597f6a93a",
+  "exact_head_journeys": {
+    "author": "Run Edit Run fleet",
+    "time": "2026-11-15T17:46:01.901720+00:00",
+    "head": "adc3de69b9ae0ff60e41897f8ff7662fd656d560",
+    "command": "node /tmp/spool-two-journeys.mjs",
+    "journeys": [
+      "endUserErasurePreviewFlow",
+      "sessionFlow"
+    ],
+    "exit": 0
+  },
+  "exact_head_multilingual": {
+    "author": "Run Edit Run fleet",
+    "time": "2026-11-15T17:46:32.203563+00:00",
+    "head": "adc3de69b9ae0ff60e41897f8ff7662fd656d560",
+    "command": "node tests/multilingual.mjs",
+    "exit": 0
+  },
+  "verify": {
+    "conclusion": "success",
+    "head_sha": "adc3de69b9ae0ff60e41897f8ff7662fd656d560",
+    "html_url": "https://github.com/just-every/run-spool/actions/runs/43742749592",
+    "id": 43742749592,
+    "name": "Verify",
+    "status": "completed"
+  },
+  "status": "READY"
+}

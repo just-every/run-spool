@@ -1,0 +1,15 @@
+[33m▲ [43;33m[[43;30mWARNING[43;33m][0m [1mProxy environment variables detected. We'll use your proxy for fetch requests.[0m
+
+
+[
+  {
+    "journey": "endUserErasurePreviewFlow",
+    "passed": false,
+    "error": "AssertionError [ERR_ASSERTION]: Expected values to be strictly equal:\n\n3 !== 2\n\n    at endUserErasurePreviewFlow (file:///workspace/run-spool/tests/end-user-erasure-preview.mjs:48:10)\n    at process.processTicksAndRejections (node:internal/process/task_queues:104:5)\n    at async file:///tmp/spool-two-journeys.mjs:9:6"
+  },
+  {
+    "journey": "sessionFlow",
+    "passed": false,
+    "error": "AssertionError [ERR_ASSERTION]: The expression evaluated to a falsy value:\n\n  assert.ok(!snapshot.text.includes(user))\n\n    at sessionFlow (file:///workspace/run-spool/tests/session-flow.mjs:46:84)\n    at async file:///tmp/spool-two-journeys.mjs:12:72"
+  }
+]

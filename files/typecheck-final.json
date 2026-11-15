@@ -1,0 +1,6 @@
+{
+  "author": "Run Edit Run fleet",
+  "date": "2026-11-15",
+  "command": "pnpm typecheck",
+  "exit": 0
+}
