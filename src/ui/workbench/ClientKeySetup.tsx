@@ -3,9 +3,9 @@ import { CodeBlock, SdkSetup, SendTestError, SentryIntake } from './SdkSetup';
 import type { Request, Run } from './shared';
 
 /** Native issuance is the only way back from a lost, hash-only credential. */
-export function ClientKeySetup({ project, endpoint, release, build, request, run, busy, onIssued, initialKey = '' }: {
+export function ClientKeySetup({ project, endpoint, release, build, request, run, busy, onIssued, onReceived, initialKey = '' }: {
   project: string; endpoint: string; release: string; build: string; request: Request; run: Run; busy: boolean;
-  onIssued?: (key: string) => void; initialKey?: string;
+  onReceived?: () => void; onIssued?: (key: string) => void; initialKey?: string;
 }) {
   const [grant, setGrant] = useState<{ key: string; dsn?: string } | null>(initialKey ? { key: initialKey } : null);
   return <div className="client-key-setup">
@@ -17,7 +17,7 @@ export function ClientKeySetup({ project, endpoint, release, build, request, run
       <div className="secret-key" data-secret="ingest-key"><CodeBlock label="Ingest key" code={grant.key} /></div>
       <SdkSetup {...{ endpoint, project, release, build }} ingestKey={grant.key} />
       <SentryIntake dsn={grant.dsn} />
-      <SendTestError {...{ project, release, build, request }} ingestKey={grant.key} />
+      <SendTestError {...{ project, release, build, request, onReceived }} ingestKey={grant.key} />
       <button className="text-button" onClick={() => { setGrant(null); onIssued?.(''); }}>Dismiss ingest key</button>
     </>}
   </div>;

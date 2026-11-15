@@ -76,7 +76,7 @@ export function SentryIntake({ dsn }: { dsn?: string }) {
 }
 
 /** Registers the release if it is new, then sends one real exception through the same capture code the SDK ships. */
-export function SendTestError({ project, ingestKey, release, build, request }: { project: string; ingestKey: string; release: string; build: string; request: Request }) {
+export function SendTestError({ project, ingestKey, release, build, request, onReceived }: { project: string; ingestKey: string; release: string; build: string; request: Request; onReceived?: () => void }) {
   const [busy, setBusy] = useState(false), [outcome, setOutcome] = useState<any>(null), [failure, setFailure] = useState('');
   async function send() {
     setBusy(true); setOutcome(null); setFailure('');
@@ -86,7 +86,8 @@ export function SendTestError({ project, ingestKey, release, build, request }: {
       try { const order: any = {}; order.customer.email; throw new Error('Unexpected test result'); } catch (error) { exception = error as Error; }
       // A distinct type labels the issue and keeps test captures out of real TypeError groups.
       exception.name = 'SpoolTestError';
-      setOutcome(await captureException(exception, { endpoint: location.origin, project, ingestKey, release, build, environment: 'spool-test', credentials: 'same-origin' }));
+      const received = await captureException(exception, { endpoint: location.origin, project, ingestKey, release, build, environment: 'spool-test', credentials: 'same-origin' });
+      setOutcome(received); if (received.outcome === 'accepted' || received.outcome === 'duplicate') onReceived?.();
     } catch (error) { setFailure((error as Error).message || 'The release could not be registered.'); }
     finally { setBusy(false); }
   }

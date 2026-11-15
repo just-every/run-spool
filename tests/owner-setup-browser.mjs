@@ -10,7 +10,7 @@ export async function ownerSetupBrowser(app, cookie, project, json) {
   const split=cookie.indexOf('=');await context.addCookies([{name:cookie.slice(0,split),value:cookie.slice(split+1),url:app.origin.replace('http:','https:'),secure:true}]);
   const page=await context.newPage();page.setDefaultTimeout(20000);const errors=[];page.on('pageerror',error=>errors.push(error.message));
   await mkdir(folder,{recursive:true});
-  const screenshot=async name=>{for(const width of [1440,390]){await page.setViewportSize({width,height:1000});assert.ok(await page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth+1),'owner setup reflows');await page.screenshot({path:`${folder}/${name}-${width}.png`,fullPage:true,mask:[page.locator('[data-secret]'),page.getByLabel('SDK init',{exact:true}),page.getByLabel('Browser helper init',{exact:true}),page.getByLabel('Sentry DSN',{exact:true})]});}await page.setViewportSize({width:1440,height:1000});};
+  const screenshot=async name=>{for(const width of [1440,390]){await page.setViewportSize({width,height:1000});assert.ok(await page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth+1),'owner setup reflows');await page.screenshot({path:`${folder}/${name}-${width}.png`,fullPage:true,mask:[page.locator('[data-secret] pre'),page.getByLabel('Project ingest key',{exact:true}),page.getByLabel('SDK init',{exact:true}),page.getByLabel('Browser helper init',{exact:true}),page.getByLabel('Sentry DSN',{exact:true})]});}await page.setViewportSize({width:1440,height:1000});};
   await page.goto(app.origin+'/projects/'+project.id+'/settings');
   const members=page.getByRole('region',{name:'Members',exact:true});
   await members.locator('summary').filter({hasText:/^Invite a member$/}).click();
@@ -30,7 +30,8 @@ export async function ownerSetupBrowser(app, cookie, project, json) {
   await expect(dialog).toContainText('Imported owner');await expect(dialog).toContainText('Imported manager');await expect(dialog).toContainText('Invitation pending');
   await expect(dialog).not.toContainText('synthetic-spool-outsider@example.test');await screenshot('team-members');
   await page.keyboard.press('Escape');
-  await page.goto(app.origin+'/projects/'+project.id+'/capture');
+  await page.goto(app.origin+'/projects/'+project.id+'/settings#settings-projects');await page.getByRole('link',{name:'Create, copy and test an ingest key',exact:true}).waitFor();await screenshot('settings-keys');
+  await page.getByRole('link',{name:'Create, copy and test an ingest key',exact:true}).click();
   await page.getByRole('button',{name:'Create ingest key',exact:true}).waitFor();await screenshot('capture-reissue');
   const created=page.waitForResponse(r=>new URL(r.url()).pathname==='/api/projects/'+project.id+'/keys'&&r.request().method()==='POST');
   await page.getByRole('button',{name:'Create ingest key',exact:true}).click();const issued=await created;assert.equal(issued.status(),201);const grant=await issued.json();
@@ -42,7 +43,7 @@ export async function ownerSetupBrowser(app, cookie, project, json) {
   assert.ok(!JSON.stringify(await json('/api/audit')).includes(grant.key),'audit never contains the credential');
   assert.ok(!page.url().includes(grant.key),'no key in navigation URLs');
   assert.equal(await page.evaluate(()=>JSON.stringify({...localStorage,...sessionStorage})).then(text=>text.includes(grant.key)),false);
-  await screenshot('capture-received');
+  await expect(page.getByRole('heading',{name:'Capture is receiving events',exact:true})).toBeVisible();await screenshot('capture-received');
   await page.getByRole('link',{name:'Open the test issue',exact:true}).click();await expect(page.getByRole('heading',{name:/SpoolTestError/})).toBeVisible();
   await page.goto(app.origin+'/projects/'+project.id+'/capture');await page.reload();await expect(page.getByRole('button',{name:'Create ingest key',exact:true})).toBeVisible();await expect(page.getByRole('button',{name:'Copy Ingest key',exact:true})).toHaveCount(0);
   assert.deepEqual(errors,[]);return grant;
