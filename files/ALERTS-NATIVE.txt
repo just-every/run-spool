@@ -1,0 +1,23 @@
+verify
+Heavy job admitted: Spool verify:suite [6179c8701e00]
+▲ [WARNING] Proxy environment variables detected. We'll use your proxy for fetch requests.
+
+
+ALERT-001 filters, retained-user windows, explicit session denominator, identity/session refusals, stale preview, durable deduplication, reactivation and plain Resolve passed
+ALERT-001 baseline journey: sample-scaled normal/burst, weekly seasonality, low traffic, current/historical loss, insufficient history, and durable once-only routing across restart
+Native metric failure/revocation, truthful capture-loss accounting and populated project alert custody erasure passed
+ALERT-001 archive round trip restores 45 alerts of kinds metric, new_issue, reactivation, regression, spike; unknown kind refused: {"error":"Invalid alert archive"}
+✔ native scheduled event delivers a new issue with silent local mail once (64661.118011ms)
+kj::getCaughtExceptionAsKj() = kj/async-io-unix.c++:186: disconnected: ::write(fd, buffer.begin(), buffer.size()): Broken pipe
+stack: [REDACTED]/node_modules/.pnpm/@cloudflare+workerd-linux-64@1.20260907.1/node_modules/@cloudflare/workerd-linux-64/bin/workerd@56a2038 [REDACTED]/node_modules/.pnpm/@cloudflare+workerd-linux-64@1.20260907.1/node_modules/@cloudflare/workerd-linux-64/bin/workerd@56a2ef1 [REDACTED]/node_modules/.pnpm/@cloudflare+workerd-linux-64@1.20260907.1/node_modules/@cloudflare/workerd-linux-64/bin/workerd@583f90f [REDACTED]/node_modules/.pnpm/@cloudflare+workerd-linux-64@1.20260907.1/node_modules/@cloudflare/workerd-linux-64/bin/workerd@583fb55 [REDACTED]/node_modules/.pnpm/@cloudflare+workerd-linux-64@1.20260907.1/node_modules/@cloudflare/workerd-linux-64/bin/workerd@5a392a8 [REDACTED]/node_modules/.pnpm/@cloudflare+workerd-linux-64@1.20260907.1/node_modules/@cloudflare/workerd-linux-64/bin/workerd@589bd33 [REDACTED]/node_modules/.pnpm/@cloudflare+workerd-linux-64@1.20260907.1/node_modules/@cloudflare/workerd-linux-64/bin/workerd@589fad7 [REDACTED]/node_modules/.pnpm/@cloudflare+workerd-linux-64@1.20260907.1/node_modules/@cloudflare/workerd-linux-64/bin/workerd@589fe48 [REDACTED]/node_modules/.pnpm/@cloudflare+workerd-linux-64@1.20260907.1/node_modules/@cloudflare/workerd-linux-64/bin/workerd@3343740 [REDACTED]/node_modules/.pnpm/@cloudflare+workerd-linux-64@1.20260907.1/node_modules/@cloudflare/workerd-linux-64/bin/workerd@247f477
+PROBE ALERT-001 acceptance-5: Sentry intake and plain Resolve on two distinct issues -> same-release and release-less recurrence each reopen once, retain the correct release identity and create two reviewed-rule intents; repeated capture and scheduling create no duplicate alert, intent or attempt.
+✔ native scheduled event delivers a later-release regression with silent local mail once (6760.006951ms)
+✔ native scheduled event completes a real spike window and completes with silent local mail once (86000.020867ms)
+ℹ tests 3
+ℹ suites 0
+ℹ pass 3
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 157430.950456

@@ -1,0 +1,27 @@
+[33m▲ [43;33m[[43;30mWARNING[43;33m][0m [1mProxy environment variables detected. We'll use your proxy for fetch requests.[0m
+
+
+groupingRulesFlow begin
+GROUP-001 grouping rules public flow passed: exact-project authority, preview/no mutation, future routing, revision conflicts, immutable explanations, archive policy and responsive save/detail.
+groupingRulesFlow passed
+identityFlow begin
+node:internal/modules/run_main:107
+    triggerUncaughtException(
+    ^
+
+AssertionError [ERR_ASSERTION]: Expected values to be strictly equal:
+
+400 !== 200
+
+    at identityFlow (file:///workspace/run-spool/tests/identity-flow.mjs:49:11)
+    at process.processTicksAndRejections (node:internal/process/task_queues:104:5)
+    at async file:///tmp/spool-touched.mjs:12:66 {
+  generatedMessage: true,
+  code: 'ERR_ASSERTION',
+  actual: 400,
+  expected: 200,
+  operator: 'strictEqual',
+  diff: 'simple'
+}
+
+Node.js v24.19.0

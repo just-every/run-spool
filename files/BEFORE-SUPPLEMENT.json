@@ -1,0 +1,47 @@
+[
+  {
+    "trip": "B9",
+    "policy": {
+      "id": "drop",
+      "email": "drop",
+      "username": "drop",
+      "ip_address": "drop"
+    }
+  },
+  {
+    "trip": "B1",
+    "status": 409,
+    "body": {
+      "error": "Revision or occurrence conflict; preview again"
+    }
+  },
+  {
+    "trip": "B3",
+    "raw": true
+  },
+  {
+    "trip": "B2",
+    "sql": true
+  },
+  {
+    "trip": "B5",
+    "error": "Unsupported grouping matcher: path"
+  },
+  {
+    "trip": "B6",
+    "observed": true
+  },
+  {
+    "trip": "B7",
+    "observed": true
+  },
+  {
+    "trip": "B8",
+    "observed": true
+  },
+  {
+    "trip": "B4",
+    "status": 201,
+    "definition": "Distinct retained SDK008 user keys in this project among the matching occurrences. Native Spool events use their bounded random client identifier. No identity values are exposed; null means no known retained users, and unattributed counts matching occurrences without a retained key."
+  }
+]

@@ -1,0 +1,22 @@
+{
+  "author": "Run Edit Run fleet",
+  "date": "2026-11-15T14:29:46.716377+00:00",
+  "repository": "just-every/run-spool",
+  "branch": "cloud/main-spool-stranger32-trips-1",
+  "head": "8b4eff1b26e22be045ea4527e1d5263f74ddb0e7",
+  "product_push": "success",
+  "verify": {
+    "conclusion": "failure",
+    "head_sha": "8b4eff1b26e22be045ea4527e1d5263f74ddb0e7",
+    "html_url": "https://github.com/just-every/run-spool/actions/runs/43720946539",
+    "id": 43720946539,
+    "status": "completed"
+  },
+  "github_calls_used": 10,
+  "github_calls_authorized": 10,
+  "failed_job_details": "not fetched: ten-call allowance exhausted",
+  "additional_call_request": "five extra calls requested; no approval received through local-check completion",
+  "custody": "product branch pushed; exact-SHA Verify failed; not READY",
+  "pr": null,
+  "final_local_http": "passed"
+}

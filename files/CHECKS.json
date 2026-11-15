@@ -1,0 +1,149 @@
+{
+  "author": "Run Edit Run fleet",
+  "date": "2026-11-15T13:45:49.033897+00:00",
+  "repository": "just-every/run-spool",
+  "branch": "cloud/main-spool-stranger32-trips-1",
+  "head": "8b4eff1b26e22be045ea4527e1d5263f74ddb0e7",
+  "checks": [
+    {
+      "name": "typecheck",
+      "command": [
+        "pnpm",
+        "typecheck"
+      ],
+      "exit_code": 0,
+      "output_file": "TYPECHECK.txt",
+      "output_sha256": "f8a3de40747d43e4b1a0dbcdce51059f35538b9751cd9359ac8bad9ba1f1e2fa",
+      "head": "8b4eff1b26e22be045ea4527e1d5263f74ddb0e7",
+      "completed_at": "2026-11-15T13:51:43.366227+00:00"
+    },
+    {
+      "name": "source-integrity",
+      "command": [
+        "pnpm",
+        "source:check"
+      ],
+      "exit_code": 0,
+      "output_file": "SOURCE-INTEGRITY.txt",
+      "output_sha256": "40c8ca5721c6ec5b1ceddc31df6dabedd843a80506d11d69d064c90392fa363d",
+      "head": "8b4eff1b26e22be045ea4527e1d5263f74ddb0e7",
+      "completed_at": "2026-11-15T13:51:44.242414+00:00"
+    },
+    {
+      "name": "triage",
+      "command": "node tests/triage-journey.mjs",
+      "exit_code": 0,
+      "output_file": "TRIAGE.txt",
+      "output_sha256": "9068e0b330589345fddfc8b63ac8070a98a0e4e9c47493a51b51c26e463b9769",
+      "custody": "exit 0 observed through the actual exec session; local toolchain/cloud_run"
+    },
+    {
+      "name": "owner-setup",
+      "command": "node tests/owner-setup-flow.mjs",
+      "exit_code": 0,
+      "output_file": "OWNER-SETUP.txt",
+      "output_sha256": "9d8fbff9cfc6a2b15228f907a7cffaa04279e650aaba9060126b2c6862f64ef9",
+      "custody": "exit 0 observed through the actual exec session; local toolchain/cloud_run"
+    },
+    {
+      "name": "reports",
+      "command": "node tests/reports-flow.mjs",
+      "exit_code": 0,
+      "output_file": "REPORTS.txt",
+      "output_sha256": "0bbb2219fc59888a20448dc357e7fa4cc68ebb16bad0e2c9e1ef6a64b24d506b",
+      "custody": "exit 0 observed through the actual exec session; local toolchain/cloud_run"
+    },
+    {
+      "name": "identity",
+      "command": "node /tmp/spool-identity-only.mjs (identityFlow with normal local policy)",
+      "exit_code": 0,
+      "output_file": "IDENTITY.txt",
+      "output_sha256": "ade1e07d7107ce29cda8d69415fa113bdcf68de41b6f9a704c82dd6ccf4f4e74",
+      "custody": "exit 0 observed through the actual exec session; local toolchain/cloud_run"
+    },
+    {
+      "name": "native-alerts",
+      "command": "node tests/alerts-native.mjs",
+      "exit_code": 0,
+      "output_file": "ALERTS-NATIVE.txt",
+      "output_sha256": "9913fba0c7bac187723b5bc8bafbe1d73db19ce260c4cb4bd2fba62197efd9c9",
+      "custody": "exit 0 observed through the actual exec session; local toolchain/cloud_run"
+    },
+    {
+      "name": "owner-erasure",
+      "command": "node tests/owner-erasure.mjs",
+      "exit_code": 0,
+      "output_file": "OWNER-ERASURE.txt",
+      "output_sha256": "4fe52e8539a269160fd13c76c45fd7ee477a19e99a3a20cae4080fa200644045",
+      "custody": "exit 0 observed through the actual exec session; local toolchain/cloud_run"
+    },
+    {
+      "name": "build",
+      "command": "npx -y @runeditrun/rer build",
+      "exit_code": 0,
+      "output_file": "BUILD.txt",
+      "output_sha256": "54a8b17012d50b9352466064aaf80adf65cad3b62a39ea7786b8a6b7a602e6e4",
+      "custody": "exit 0 observed through the actual exec session; local toolchain/cloud_run"
+    },
+    {
+      "name": "groupingRulesFlow",
+      "command": "groupingRulesFlow from node /tmp/spool-touched.mjs",
+      "helper_result": "passed",
+      "runner_exit_code": 1,
+      "output_file": "GROUPING-AND-FIXTURE-DIAGNOSTIC.txt",
+      "note": "The composed runner passed grouping before its identity fixture failed; the normal-policy identity runner was then corrected and passed independently.",
+      "output_sha256": "0471d615415a4a5c088c392b37af976757e57ab5ed079fe3ddf3e1533c5a343b"
+    },
+    {
+      "name": "candidate-browser-proof",
+      "command": "node /tmp/spool-candidate-proof.mjs through cloud_run",
+      "head": "8b4eff1b26e22be045ea4527e1d5263f74ddb0e7",
+      "exit_code": 0,
+      "output_file": "CANDIDATE-PROOF.json",
+      "output_sha256": "dbc04c9e03e29538972cde1f478fa765c7980d55e6876350e2ff8ad3bdb86477",
+      "assertion_width": 1440,
+      "capture_widths": [
+        1440,
+        390
+      ]
+    },
+    {
+      "name": "first-identity-intake",
+      "command": "node /tmp/spool-first-identity.mjs through cloud_run",
+      "head": "8b4eff1b26e22be045ea4527e1d5263f74ddb0e7",
+      "exit_code": 0,
+      "output_file": "FIRST-IDENTITY.txt",
+      "output_sha256": "9a7e9c50302e2b1e77ff82a6e76297912cff5e6522813c10a1d270085f702610",
+      "result": "three first Sentry event requests accepted; three retained events"
+    },
+    {
+      "name": "final-sentry-http",
+      "command": "node tests/sentry-http.mjs through cloud_run",
+      "head": "8b4eff1b26e22be045ea4527e1d5263f74ddb0e7",
+      "exit_code": 0,
+      "output_file": "FINAL-SENTRY-HTTP.txt",
+      "output_sha256": "fec9869b28cbb31f38dc30334f6d61d3ff1b155e9f28dda7beafac8fe623b552",
+      "completed_at": "2026-11-15T14:41:03.623153+00:00"
+    }
+  ],
+  "full_local_verify": false,
+  "provider_calls": "No real integration providers contacted; SDK reference collectors and test mail are local doubles.",
+  "test_script_entries_before": 28,
+  "test_script_entries_after": 28,
+  "added_journey_registrations": 0,
+  "contract_counts_before": {
+    "done": 23,
+    "partial": 54,
+    "missing": 28,
+    "total": 105
+  },
+  "contract_counts_after": {
+    "done": 23,
+    "partial": 54,
+    "missing": 28,
+    "total": 105
+  },
+  "note": "Local suites ran while building the changes; the focused candidate proof and final typecheck/source check are bound to the terminal head. Exact-SHA Verify is separately recorded.",
+  "github_calls_used": 10,
+  "github_calls_authorized": 10
+}

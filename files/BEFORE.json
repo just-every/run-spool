@@ -1,0 +1,48 @@
+[
+  {
+    "trip": "B9",
+    "policy": {
+      "id": "drop",
+      "email": "drop",
+      "username": "drop",
+      "ip_address": "drop"
+    }
+  },
+  {
+    "trip": "B1",
+    "status": 200,
+    "body": {
+      "issue": "8cb052a58fc4c10ac5a46aad9b808e351d67e03e900802f895a2e5717d3fad8e",
+      "label": "Synthetic assignee",
+      "revision": 3
+    }
+  },
+  {
+    "trip": "B3",
+    "raw": true
+  },
+  {
+    "trip": "B2",
+    "sql": true
+  },
+  {
+    "trip": "B5",
+    "error": "Unsupported grouping matcher: path"
+  },
+  {
+    "trip": "B6",
+    "observed": false
+  },
+  {
+    "trip": "B7",
+    "observed": true
+  },
+  {
+    "trip": "B8",
+    "observed": true
+  },
+  {
+    "trip": "B4",
+    "status": 400
+  }
+]
