@@ -9,8 +9,8 @@ import { scrub } from '../privacy';
 import { issueLink, publicOrigin } from './payload';
 import { isShortId } from '../short-ids/format';
 import { alertKinds } from './types';
-export const alertArchiveTables=['alert_rules','alert_history','alert_rule_configs',...deliveryArchiveTables,...slackHistoryTables];
-export const alertExcludedTables=['sentry_transactions','alert_target_destinations','alert_intent_recipients','alert_metric_states','alert_metric_events','alert_reactivation_markers','alert_rule_previews','alert_decisions','slack_destinations','alert_destination_tests','rer_mail_event_receipts','rer_mail_event_states','alert_destinations','alert_scheduler','alert_expansion_cursors','alert_intents','alert_cursors','alert_mail_jobs','alert_mail_attempts','integration_%'];
+export const alertArchiveTables=['sentry_transactions','alert_rules','alert_history','alert_rule_configs',...deliveryArchiveTables,...slackHistoryTables];
+export const alertExcludedTables=['alert_target_destinations','alert_intent_recipients','alert_metric_states','alert_metric_events','alert_reactivation_markers','alert_rule_previews','alert_decisions','slack_destinations','alert_destination_tests','rer_mail_event_receipts','rer_mail_event_states','alert_destinations','alert_scheduler','alert_expansion_cursors','alert_intents','alert_cursors','alert_mail_jobs','alert_mail_attempts','integration_%'];
 export function alertExportRow(table:string,row:any) {
  if(table==='alert_rules')return {...row,enabled:0};
  if(table==='alert_history')return {...row,historical:1};
@@ -36,6 +36,8 @@ export function validateAlertArchive(data:any) {
   const events=JSON.parse(r.kinds);assert(Array.isArray(events)&&events.length>0&&events.length<=kinds.length&&new Set(events).size===events.length&&events.every(k=>kinds.includes(k)));rules.set(r.id,r);
  }
  for(const p of projects)assert(data.alert_rules.filter((r:any)=>r.project===p).length<=20);
+ for(const row of data.sentry_transactions??[]){shape(row,['project','id','environment','release','name','op','duration_ms','started','received','digest']);assert(projects.has(row.project)&&/^[a-f0-9]{32}$/.test(row.id)&&/^[a-f0-9]{64}$/.test(row.digest));safe(row.environment,100);safe(row.release,200);safe(row.name,200);if(row.op!==null)safe(row.op,100);integer(row.started);integer(row.received);assert(typeof row.duration_ms==='number'&&Number.isFinite(row.duration_ms)&&row.duration_ms>=0&&row.duration_ms<=86400000);}
+ for(const project of projects)assert((data.sentry_transactions??[]).filter((row:any)=>row.project===project).length<=50000);
  for(const row of data.outcomes.filter((row:any)=>transactionOutcomes.includes(row.reason))){shape(row,['project','window','reason','count']);assert(projects.has(row.project));integer(row.count);integer(row.window);}
  for(const a of data.alerts){
   shape(a,['id','project','issue','kind','created','payload']);label(a.id);integer(a.created);assert(projects.has(a.project)&&(a.kind==='metric'?a.issue===null:issues.get(a.issue)?.project===a.project)&&kinds.includes(a.kind)&&!alerts.has(a.id));alerts.set(a.id,a);

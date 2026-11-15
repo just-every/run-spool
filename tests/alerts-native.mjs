@@ -1,3 +1,4 @@
+import assert from 'node:assert/strict';
 import { metricJourney } from './alerts-metric.mjs';
 import { issueRuleJourney } from './alerts-issue-rules.mjs';
 import {baselineJourney} from './alerts/baseline-journey.mjs';
@@ -11,9 +12,9 @@ import {plainResolvedRegressions} from './alerts/plain-resolve.mjs';
 
 await test('native scheduled event delivers a new issue with silent local mail once',async()=>{
  const app=await nativeAlertRuntime();let exported;
- try{const fixture=await prepareNativeAlerts(app,['new_issue']);await newIssue(app,fixture);await verifyNoReplay(app);await conditionsJourney(app,fixture);await baselineJourney(app,fixture);await metricJourney(app);await issueRuleJourney(app);exported=await exportAlertKinds(app)}finally{await app.close()}
+ try{const fixture=await prepareNativeAlerts(app,['new_issue']);await newIssue(app,fixture);await verifyNoReplay(app);await conditionsJourney(app,fixture);await baselineJourney(app,fixture);await metricJourney(app);await issueRuleJourney(app);exported=await exportAlertKinds(app);exported.transactions=(await app.db.prepare('SELECT * FROM sentry_transactions ORDER BY project,id').all()).results}finally{await app.close()}
  const fresh=await nativeAlertRuntime();
- try{await restoreAlertKinds(fresh,exported)}finally{await fresh.close()}
+ try{await restoreAlertKinds(fresh,exported);assert.deepEqual((await fresh.db.prepare('SELECT * FROM sentry_transactions ORDER BY project,id').all()).results,exported.transactions,'private archive retains the actual scrubbed transaction observations')}finally{await fresh.close()}
 });
 await test('native scheduled event delivers a later-release regression with silent local mail once',async()=>{
  const app=await nativeAlertRuntime();

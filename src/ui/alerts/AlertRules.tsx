@@ -25,13 +25,13 @@ const metrics: Record<Metric, string> = {
 };
 const keys = (value: string) => [...new Set(value.split(/[\n,]/).map(key => key.trim()).filter(Boolean))];
 function configFor(draft: Draft) {
- const tagKeys=keys(draft.tagKeys),tags=Object.fromEntries(tagKeys.filter(key=>{const v=draft.tags[key];return typeof v==='object'?['is_set','not_set'].includes(v.op)||v.value:!!v}).map(key=>[key,draft.tags[key]]));
+ const tagKeys=keys(draft.tagKeys),tags=Object.fromEntries(tagKeys.filter(key=>{const v=draft.tags[key];return typeof v==='object'?['is_set','not_set'].includes(v.op)||v.value:!!v}).map(key=>[key,typeof draft.tags[key]==='object'&&draft.tags[key].op==='eq'?draft.tags[key].value:draft.tags[key]]));
  if(draft.kinds.includes('metric')){const m=draft.metricDraft;return {metric:'aggregate',dataset:m.dataset,aggregate:{errors:'count',transactions:'p95_duration',sessions:'crash_free_rate'}[m.dataset],filters:draft.environment?{environment:draft.environment}:{},query:m.dataset==='errors'?{tags}:m.dataset==='transactions'&&m.transaction?{transaction:{op:'glob',value:m.transaction}}:{},thresholdType:m.thresholdType,triggers:[{label:'critical',alertThreshold:Number(m.critical)},...(m.warning?[{label:'warning',alertThreshold:Number(m.warning)}]:[])],resolveThreshold:m.resolve?Number(m.resolve):null,tagKeys};}
  return {
   metric: draft.metric,...draft.actionInterval?{actionIntervalMinutes:Number(draft.actionInterval)}:{},
   filters: {
    ...(draft.environment ? { environment: draft.environment } : {}),
-   ...(draft.level ? { level: draft.level,levelMatch:draft.levelMatch } : {}),
+   ...(draft.level ? { level: draft.level,...draft.levelMatch==='eq'?{}:{levelMatch:draft.levelMatch} } : {}),
    ...(draft.releaseMode === 'none' ? { release: '' } : draft.releaseMode === 'named' ? { release: draft.release } : {}),
    ...(Object.keys(tags).length ? { tags } : {}),
   },
