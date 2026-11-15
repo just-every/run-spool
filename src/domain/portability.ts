@@ -1,3 +1,5 @@
+import { verifyTranslatedHistory } from './alerts/archive-history';
+import { ledgerReader } from '../modules/portability/ledgers.mjs';
 import { nativeSymbolTables, nativeDebugFileTables } from './native-symbols/archive';
 import { previousNativeSymbolObjects, previousRelayPrivacyObjects } from './native-symbols/compat';
 import { notificationPreferenceTables, notificationPreferenceExportRow } from './notifications/archive';
@@ -90,7 +92,7 @@ export async function portability(db: D1Database, safeAudit = true, migrationPro
  const migrations = migrationProvider ? () => migrationProvider(db, policy) : undefined;
  const service = await createPortability({ db, policy, migrations });
  const exports=orderedReleaseExports(service.exports);
- return { ...service, db, migrationProvider, exports, status:async(id:string)=>{
+ return { ...service, db, migrationProvider, inputPolicy:policy, exports, status:async(id:string)=>{
   const status=await service.status(id);return status.kind==='export'?exports.status(id):status;
  }, imports: { ...service.imports,
   async finalize(id: string, options?: any) {
@@ -281,8 +283,7 @@ async function earlierManifest(db: D1Database, manifest: any) {
  // Base canonicalizes the product identity, including behavior objects.
  // Compare the known native table shape separately, then check the complete
  // behavior inventory before translating a format that declares it.
- const nativeTableIdentity=product.schemaObjects===undefined?product.schema
-  :await sha256(canonicalJson(product.tables.map(({name,sql}:any)=>({name,sql}))));
+ const nativeTableIdentity=await sha256(canonicalJson(product.tables.map(({name,sql}:any)=>({name,sql}))));
  // Reporting definitions can accompany an earlier core inventory. Retain only
  // the complete collection; its schema and column descriptors still match exactly.
  const carriedReporting=Array.isArray(product.tables)&&reportingNames.every(name=>product.tables.some((table:any)=>table.name===name));
@@ -308,19 +309,19 @@ async function earlierManifest(db: D1Database, manifest: any) {
   // inventory. An unrecorded index/trigger is never installed or acknowledged.
   // Archives without an object inventory still require Base's legacy replay.
   if(product.schemaObjects!==undefined && canonicalJson(product.schemaObjects)!==canonicalJson(beforeProjectMetricObjects(previousRelayPrivacyObjects(previousNativeSymbolObjects(current.schemaObjects,manifest),manifest),manifest)))throw new PortabilityError('legacy_schema_object_inventory');
-  const migrations = Array.isArray(manifest.migrations) ? { migrations: [...manifest.migrations, ...later.migrations.filter(name => !manifest.migrations.includes(name))] } : {};
-  // Parts still carry the original bookkeeping rows. Keep their descriptors so
-  // Base can validate and skip them while restoring only the current product.
-  const tables = [...manifest.tables.filter((table: any) => platformTable(table.name)), ...current.tables.map((table: any) => ({ ...table, count: product.tables.find((old: any) => old.name === table.name)?.count ?? 0 }))].sort((a, b) => a.name < b.name ? -1 : a.name > b.name ? 1 : 0);
-  const schema=product.schemaObjects===undefined
-   ? await sha256(canonicalJson(tables.map(({name,sql}:any)=>({name,sql}))))
-   : await schemaIdentityOf(tables,current.schemaObjects);
-  return {...manifest,...migrations,...(manifest.schemaObjects!==undefined?{schemaObjects:current.schemaObjects}:{}),schema,tables};
+  // Normalize this positively matched native inventory to the destination. The
+  // original binding and source history are checked before finalize; platform
+  // bookkeeping is never installed as product data or presented as new history.
+  const {migrations:sourceMigrations,migrationLedger:sourceLedger,...original}=manifest;
+  const tables=current.tables.map((table:any)=>({...table,count:product.tables.find((old:any)=>old.name===table.name)?.count??0}));
+  const excludedColumns=Object.fromEntries(Object.entries(manifest.excludedColumns).filter(([table])=>!platformTable(table)));
+  return {...original,schemaObjects:current.schemaObjects,schema:await schemaIdentityOf(tables,current.schemaObjects),tables,excludedColumns};
  }
  return null;
 }
 async function importRecords(service: any, source: ReadableStream<Uint8Array>, db?: D1Database, laterJournal?: LaterJournal) {
  let id, closing, binding: any, complete = false, rewritten = false;
+ let translated:any=null;const sourceLedger=ledgerReader();
  const attributionDefaults=new Map<string,Record<string,unknown>>();
  const archivedAttributionColumns=new Map<string,string[]>();
  try {
@@ -328,6 +329,7 @@ async function importRecords(service: any, source: ReadableStream<Uint8Array>, d
    if (record.kind === 'manifest') {
     const earlier=db ? await earlierManifest(db,record) : null;
     const manifest = retireArchiveSetupToken(earlier ?? record, portabilityPolicy.requiredConfiguration);
+    if(earlier){translated=record;sourceLedger.add(record);}
     if(earlier)for(const [table,field,value] of [['repairs','recorded_by','owner'],['grouping_proposals','prepared_by',null]] as const){
      const archived=record.tables.find((entry:any)=>entry.name===table);
      if(archived&&!archived.columns.some((column:any)=>column.name===field)){attributionDefaults.set(table,{[field]:value});archivedAttributionColumns.set(table,archived.columns.map((column:any)=>column.name).sort());}
@@ -337,7 +339,9 @@ async function importRecords(service: any, source: ReadableStream<Uint8Array>, d
    else if (record.kind === 'part') {
     // readArchive verifies the original bytes; bind translated parts to the
     // recognized current inventory using only this migration's exact defaults.
-    const part=attributionDefaults.size?await makePart(record.index,record.items.map((item:any)=>{
+    if(translated)sourceLedger.add(record);
+    const items=translated?record.items.filter((item:any)=>item.kind!=='row'||!platformTable(item.table)):record.items;
+    const part=translated||attributionDefaults.size?await makePart(record.index,items.map((item:any)=>{
      if(item.kind!=='row'||!attributionDefaults.has(item.table))return item;
      if(canonicalJson(Object.keys(item.row).sort())!==canonicalJson(archivedAttributionColumns.get(item.table)))throw new PortabilityError('legacy_column_inventory');
      return {...item,row:{...item.row,...attributionDefaults.get(item.table)}};
@@ -350,6 +354,7 @@ async function importRecords(service: any, source: ReadableStream<Uint8Array>, d
   // A migrated schema or retired setup token changes the content and archive hashes;
   // readArchive has already verified the original archive's closing hashes
   // above, and finalize binds the staged parts to the manifest actually created.
+  if(translated)await verifyTranslatedHistory(service,translated,sourceLedger.ledgers());
   await service.imports.finalize(id, { archiveHash: binding.digest(), ...(rewritten ? {} : { contentHash: closing.contentHash }), ...(laterJournal ? { laterJournal } : {}) }); complete = true;
  } finally { if (id && !complete) await service.imports.abort(id); }
 }
