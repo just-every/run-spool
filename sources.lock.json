@@ -11082,7 +11082,7 @@
       "executable": false
     },
     "tests/end-user-erasure-preview.mjs": {
-      "sha256": "2478e325c1041a01859a76c42cde037a7b46d27ffe61b7aee5a54a69b31ec0a7",
+      "sha256": "5f07c34f4e5362e83c5372c7fff40b70a9c5b51c94724ea840c26f5b925bf858",
       "executable": false
     },
     "tests/execution-journey.mjs": {
@@ -11806,7 +11806,7 @@
       "executable": false
     },
     "tests/session-flow.mjs": {
-      "sha256": "64386ef139c1f5223736f3a4d1e22524d12b6becbecba5a106d121e0a42fcd06",
+      "sha256": "ccd759d9b8fea0b484962095cf108caa46f6d90428ddb45b72247c0c7e87aef0",
       "executable": false
     },
     "tests/setup-flow.mjs": {

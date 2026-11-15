@@ -23,7 +23,7 @@ export async function endUserErasurePreviewFlow() {
   for(const id of ['synthetic-spool-preview-1','synthetic-spool-preview-2','synthetic-spool-preview-3'])projects.push(await owner.json('/api/projects','POST',{id,name:id}));
   const captureCanary='synthetic-spool-'+crypto.randomUUID(),eventIds=[];
   const [project,foreign,dropped]=projects,root=p=>'/api/projects/'+p.id,door=p=>root(p)+'/end-user-erasure/preview';
-  const configure=async(p,mode)=>{const current=await owner.json(root(p)+'/identity-policy'),policy={...current.policy,email:mode},preview=await owner.json(root(p)+'/identity-policy/preview','POST',{policy});await owner.json(root(p)+'/identity-policy','PUT',{revision:current.revision,policy,token:preview.token})};
+  const configure=async(p,mode)=>{const current=await owner.json(root(p)+'/identity-policy'),policy=Object.fromEntries(Object.keys(current.policy).map(field=>[field,mode])),preview=await owner.json(root(p)+'/identity-policy/preview','POST',{policy});await owner.json(root(p)+'/identity-policy','PUT',{revision:current.revision,policy,token:preview.token})};
   const capture=async(p,user)=>{
    const eventId=crypto.randomUUID().replaceAll('-','');eventIds.push(eventId);
    const dsn=new URL(p.dsn),response=await owner.req(`/api${dsn.pathname}/store/?sentry_key=${dsn.username}&sentry_version=7`,'POST',{
@@ -38,6 +38,9 @@ export async function endUserErasurePreviewFlow() {
    assert.deepEqual(value.unavailable.map(row=>row.store),['sessions','feedback','attachments','replays','search']);
    assert.ok(value.unavailable.every(row=>row.reason.length>0),'uncorrelatable stores explain unavailability instead of claiming zero');
   };
+  for(const p of projects)assert.deepEqual((await owner.json(root(p)+'/identity-policy')).policy,{id:'keep',email:'keep',username:'keep',ip_address:'keep'},'new projects keep identity as sent');
+  // This project proves the unavailable/drop branch, independent of the creation default.
+  await configure(dropped,'drop');
   await configure(project,'keep');await configure(foreign,'keep');
   await capture(project,email);await capture(project,email);await capture(project,other);await capture(project);
   await capture(foreign,email);await capture(dropped,email);
@@ -45,7 +48,7 @@ export async function endUserErasurePreviewFlow() {
   expectCount(await preview(project,owner,other),1,4,1);
   expectCount(await preview(project,owner,'synthetic-spool-missing'+String.fromCharCode(64)+'example.test'),0,4,1);
   const keys=(await app.DB.prepare('SELECT project,key FROM project_identity_keys ORDER BY project').all()).results;
-  assert.equal(keys.length,2);assert.notEqual(keys[0].key,keys[1].key,'project keys are independent');
+  assert.equal(keys.length,2,'only the two retaining projects need identity keys');assert.ok(!keys.some(row=>row.project===dropped.id),'explicit drop does not mint an identity key');assert.notEqual(keys[0].key,keys[1].key,'project keys are independent');
   const identities=(await app.DB.prepare('SELECT project,payload FROM event_identities WHERE project IN (?,?)').bind(project.id,foreign.id).all()).results;
   const hashes=p=>identities.filter(row=>row.project===p.id).map(row=>JSON.parse(row.payload).email).filter(row=>row?.value===email).map(row=>row.hash);
   assert.ok(hashes(project).length&&hashes(foreign).length);assert.notEqual(hashes(project)[0],hashes(foreign)[0]);
