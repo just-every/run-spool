@@ -12,7 +12,7 @@ export function ClientKeySetup({ project, endpoint, release, build, request, run
     {!grant ? <><p>Saved keys cannot be recovered: Spool stores their hashes. Create a new ingest key to copy it and test capture here. Existing keys keep working until you revoke them in Settings.</p><button className="primary-button" disabled={busy} onClick={() => void run(async () => {
       const created = await request(`/api/projects/${encodeURIComponent(project)}/keys`, 'POST', { kind: 'ingest' });
       setGrant(created); onIssued?.(created.key);
-    })}>Create ingest key</button></> : <>
+    })}>Create ingest key</button><SdkSetup {...{ endpoint, project, release, build }} ingestKey="YOUR_INGEST_KEY" /><SentryIntake /></> : <>
       <p>Copy this key now. It stays in this signed-in page’s memory until you dismiss it or reload.</p>
       <div className="secret-key" data-secret="ingest-key"><CodeBlock label="Ingest key" code={grant.key} /></div>
       <SdkSetup {...{ endpoint, project, release, build }} ingestKey={grant.key} />
