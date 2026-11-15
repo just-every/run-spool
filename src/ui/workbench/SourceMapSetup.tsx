@@ -55,7 +55,7 @@ export function SourceMapSetup({ project, releases, request, run, busy, refresh 
     })}>Create source-map deploy key</button>}
     <p className="muted">Copy the environment line into your build terminal before running the commands below. In CI, save the key as <code>SPOOL_DEPLOY_KEY</code>. Local dev keys work only with this local installation; create a fresh key on hosted Spool.</p>
     <h3>3. Build, stamp and upload</h3>
-    <p>Requires <a className="inline-link" href="https://nodejs.org/en/download">Node.js and npm</a> on your PATH in your application’s repository. Spool’s installer keeps its runtime private; it does not provide npm on your shell’s PATH. For browser capture without npm, use <a className="inline-link" href={hrefFor(project, 'capture')}>the browser helper on Capture</a>. For maps you already prepared, use the picker on Releases.</p>
+    <p>Requires <a className="inline-link" href="https://nodejs.org/en/download">Node.js and npm</a> on your PATH in your application’s repository. Spool’s installer keeps its runtime private; it does not provide npm on your shell’s PATH. For browser capture without npm, use <a className="inline-link" href={hrefFor(project, 'capture')}>the browser helper on Capture</a>. Follow the <a className="inline-link" href="/docs/framework-setup#prepare-nodejs-and-npm">Node.js prerequisite setup steps</a>, then return here. For maps built on another computer or CI, use the picker on Releases with the matching release, build and debug ID; the deployed bundle must be the same stamped build.</p>
     <CodeBlock label="Source-map SDK install" code={installCommand} />
     {ready ? <>
       <CodeBlock label={instructions.label} code={instructions.config} />

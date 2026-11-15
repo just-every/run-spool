@@ -1,3 +1,4 @@
+import {deploymentLabel} from './deployment-label';
 import { recipientChoices,keptRecipients } from './targets';
 import type { NativeAuthority } from '../agent-door/native-authority';
 import { resolveMembership } from '../members/resolver';
@@ -48,7 +49,7 @@ routes.get('/deployment-options',async c=>{
  const session=c.get('alertSession'),contacts=session.operator.role==='owner'||session.membership?.role==='admin'||session.membership?.projectRole==='maintainer';
  if(!contacts&&!(session.membership?.role==='member'&&session.membership.projectRole==='member'))return c.json({error:'Project not found'},404);
  const rows=(await destinationChoices(c.env,c.req.param('project')!)).filter(row=>row.channel==='mail');
- return c.json({rows:rows.map((row,index)=>({id:row.id,label:contacts?row.label:`Configured email destination ${index+1}`}))});
+ return c.json({rows:rows.map(row=>({id:row.id,label:contacts?row.label:deploymentLabel(row.id)}))});
 });
 routes.get('/destinations',async c=>{try{return c.json({rows:await destinationChoices(c.env,c.req.param('project')!),configuration:'available'})}catch{return c.json({rows:[],configuration:'blocked'})}});
 routes.post('/destinations',async c=>c.json(await saveDestination(c.env,c.get('alertSession'),c.req.param('project')!,undefined,await input(c)),201));

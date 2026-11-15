@@ -2,6 +2,7 @@ import { useRef } from 'react';
 import { Details } from './Details';
 import { download, useDraft, type Run } from './shared';
 import { restoreRefusal } from './restore-refusal';
+import { ArchivePreview } from './ArchivePreview';
 import { ownerFetch } from './client';
 export function ArchiveSettings({ busy, empty, run, refresh, allowDownload = true }: { busy: boolean; empty: boolean; run: Run; refresh: () => void; allowDownload?: boolean }) {
   const selection = useRef(0);
@@ -13,7 +14,7 @@ export function ArchiveSettings({ busy, empty, run, refresh, allowDownload = tru
         if (!(preview.kind === 'manifest' && preview.format === 'runeditrun-portability' && Array.isArray(preview.tables)) && !([1, 2].includes(preview.version) && Array.isArray(preview.data?.projects) && typeof preview.checksum === 'string')) throw new Error('This file is not a readable Spool archive. Choose a private archive downloaded from Spool, or download it again.');
         if (selection.current === current) setRestore({ text, name: file.name, preview });
       } catch (failure) { if (selection.current === current) setError((failure as Error).message); } })();
-    }} /></label>{error && <p role="alert" id="archive-error">{error}</p>}{restore && <><p>Ready to restore {restore.name}. The server will check its integrity and references before restoring.</p><Details title="Archive preview"><pre>{JSON.stringify(restore.preview, null, 2)}</pre></Details></>}
+    }} /></label>{error && <p role="alert" id="archive-error">{error}</p>}{restore && <><p>Selected {restore.name}. {empty ? 'This installation is empty and ready for server validation.' : 'This installation contains data. Restore requires an empty installation.'} The server checks integrity and references before restoring.</p><Details title="Archive preview"><ArchivePreview manifest={restore.preview} empty={empty} /><button className="text-button" onClick={() => download(restore.preview, 'spool-archive-manifest.json')}>Download raw manifest</button></Details></>}
     <button className="primary-button" disabled={busy || !restore || !empty} onClick={() => void run(async () => { const response = await ownerFetch('/api/restore', { method: 'POST', headers: { 'Content-Type': 'application/x-ndjson', 'X-Confirm-Restore': 'yes' }, body: restore.text }); if (!response.ok) { const failure: any = await response.json().catch(() => null); throw new Error(restoreRefusal(failure?.error, response.status)); } setRestore(null); setResult('Archive restored. Create new project keys before capture.'); refresh(); })}>Restore into empty installation</button>{result && <p role="status">{result}</p>}
   </section>;
 }

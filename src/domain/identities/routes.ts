@@ -9,7 +9,7 @@ import {identityPreview,convertedPayload,firstIdentityKey,previewFence} from './
 import {prepareIdentityKey} from './key';
 import {affectedUsers} from './read';
 export const identityPolicyRoutes=ownerProjectRouter();
-identityPolicyRoutes.get('/',async c=>c.json({...await readIdentityPolicy(c.env.DB,c.req.param('project')!),defaults:'All four fields drop. Keep and hash require an explicit owner choice. Other user fields remain dropped; sessions retain keyed DID hashes under SDK-005.',address:'{{auto}} is unavailable: this Worker exposes no connecting socket address. No forwarded header or tunnel is trusted.'}));
+identityPolicyRoutes.get('/',async c=>c.json({...await readIdentityPolicy(c.env.DB,c.req.param('project')!),defaults:'New projects keep the four supported user fields as sent, subject to installation scrubbing rules. Existing and restored policies stay unchanged. Other user fields remain dropped; session identifiers remain privately hashed.',address:'{{auto}} is unavailable: this Worker exposes no connecting socket address. No forwarded header or tunnel is trusted.'}));
 identityPolicyRoutes.post('/preview',async c=>{const b=await jsonBody(c.req.raw,2000),p=c.req.param('project')!,current=await readIdentityPolicy(c.env.DB,p),{snapshot,...preview}=await identityPreview(c.env.DB,p,current.revision,identityPolicy(b.policy));return c.json(preview)});
 identityPolicyRoutes.put('/',async c=>{
  const b=await jsonBody(c.req.raw,3000),p=c.req.param('project')!,policy=identityPolicy(b.policy),db=c.env.DB,current=await readIdentityPolicy(db,p),preview=await identityPreview(db,p,current.revision,policy);

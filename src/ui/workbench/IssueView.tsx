@@ -52,11 +52,13 @@ export function IssueView({ project, packet, panels, status, alert, busy, reques
   const [allFrames, setAllFrames] = useState(false), [copied, setCopied] = useState(false);
   const [agentCommandOpen, setAgentCommandOpen] = useState(false);
   const [resolution,setResolution]=useState('plain'),[resolutionRelease,setResolutionRelease]=useState('');
+  const [localRevision,setLocalRevision]=useState<{issue:string;revision:number}|null>(null);
   const [selectedEvent, setSelectedEvent] = useState<any>(null);
   useEffect(()=>setSelectedEvent(null),[project,packet?.issue.id]);
   useEffect(() => { if (packet && alert) onViewed(alert.id); }, [packet, alert?.id, onViewed]);
   if (!packet) return <section className="evidence">{status === 'loading' ? <p role="status">Loading issue evidence…</p> : <><h2>Issue evidence unavailable</h2><p>The issue may have been removed, or its evidence could not be loaded.</p><button className="text-button" onClick={refresh}>Retry evidence</button></>}</section>;
-  const group = packet.issue, event = selectedEvent ?? packet.events?.[0], hidden = hiddenSourceRows(event?.event);
+  const group = localRevision && localRevision.issue===packet.issue.id ? {...packet.issue,revision:Math.max(packet.issue.revision,localRevision.revision)} : packet.issue;
+  const event = selectedEvent ?? packet.events?.[0], hidden = hiddenSourceRows(event?.event);
   const frames: any[] = (event?.currentLookup ?? []).map((frame: any, sourceIndex: number) => ({...frame, sourceIndex})).filter((frame: any) => !hidden.has(frame.sourceIndex));
   const missing = frames.filter(frame => !['mapped','go_path_mapped','python_source'].includes(frame.status));
   const language = event?.event.language;
@@ -99,7 +101,7 @@ export function IssueView({ project, packet, panels, status, alert, busy, reques
       <Details title="Issue and source evidence"><p>Source maps and recorded repository path mappings enrich the current lookup. Original receipt records remain unchanged.</p><pre>{JSON.stringify({ issue: group, grouping: packet.grouping, events: packet.events }, null, 2)}</pre></Details>
     </section>
     <div className="issue-collaboration"><Suppression {...{project,request,run,busy,readOnly}} issue={group} onChange={refresh}/>
-    <Discussion project={project} issue={group.id} refresh={packet} request={request} onChanged={refresh}/></div>
+    <Discussion project={project} issue={group.id} refresh={packet} request={request} onChanged={revision=>{if(Number.isSafeInteger(revision))setLocalRevision({issue:group.id,revision:revision!});refresh();}}/></div>
     <CommitTimeline project={project} issue={group.id} shortId={group.short_id} refresh={packet} request={request}/>
     <IssueImpact key={`${project}:${group.id}`} project={project} issue={group.id} refresh={packet}/>
     <AffectedUsers project={project} issue={group.id} {...{request}} refresh={packet}/>
@@ -108,7 +110,7 @@ export function IssueView({ project, packet, panels, status, alert, busy, reques
     {rail}
     <section className="evidence recent-occurrence"><h2>Recent occurrence</h2><dl className="issue-facts"><div><dt>Language</dt><dd>{language ?? event?.event.sentry?.platform ?? 'javascript'}</dd></div><div><dt>Release</dt><dd>{releaseLabel(event?.event.release)}</dd></div><div><dt>Build</dt><dd>{buildLabel(event?.event.build)}</dd></div><div><dt>Environment</dt><dd>{event?.event.environment ?? 'Unavailable'}</dd></div><div><dt>Last received</dt><dd>{date(group.last_seen)}</dd></div>{group.client_dropped > 0 && <div><dt>Not sent by the SDK</dt><dd>{group.client_dropped} more at this location (rate cap or repeats)</dd></div>}</dl></section>
     <section className="evidence"><h2>Observed deployments</h2><Details title="Observed deployments"><p>First and last events by receipt time. Deployment details are supplied by you or your deploy key.</p></Details>{(['first','last'] as const).map(key=>{const d=packet.deployments?.[key];return <div key={key}><h3>{key==='first'?'First seen':'Last seen'}</h3><p>{d?`${releaseLabel(d.release)} · ${d.environment}`:'No retained occurrence'}</p>{d?.manifest?<p><a href={d.manifest.repository} rel="noreferrer" target="_blank">Repository</a> · <code>{d.manifest.commit_sha}</code> · {date(d.manifest.deployed_at)}</p>:<p>Deployment and commit unknown for this environment.</p>}</div>})}</section>
-    {manageProject && <OperatorPanel initial={panels?.operator} project={project} packet={packet} busy={busy} request={request} run={run} refresh={refresh}/>}
+    {manageProject && <OperatorPanel initial={panels?.operator} project={project} packet={{...packet,issue:group}} busy={busy} request={request} run={run} refresh={refresh}/>}
     {manageOrganization && <RepairPanel initial={panels?.repairs} project={project} issue={group} busy={busy} request={request} run={run} refresh={refresh} />}
     {manageOrganization && <ExecutionPanel initial={panels?.execution} project={project} issue={group} event={event} busy={busy} request={request} run={run} />}
   </>;

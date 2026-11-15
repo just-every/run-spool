@@ -66,14 +66,24 @@ Business overrides and stop the Business with its stored document cleared. A sig
 lists a retired person applies without them until it sends a larger invite number; a person whose
 native account an earlier release erased is retired the same way at the next revision.
 
-Repair create/check/fact transactions also recheck the original session and
-operator version, so a body withheld across the handoff cannot write later.
-The main API still has an in-flight authority boundary: already-admitted
-browser-origin, triage, retention and restore requests lack that transaction
-check. A delayed browser-origin write can reintroduce a predecessor identifier
-after completion. Full owner-erasure acceptance is blocked until those routes
-receive transaction-time session guards; the current workflow does not claim
-to fence all already-admitted requests.
+Run Edit Run fleet, 15 November 2026: repair create/check/fact transactions
+and the main API's browser-origin, assignment, triage, retention and restore
+writes recheck the admitting session and operator version at transaction time.
+Every guarded batch verifies that authority before and after its statements;
+a handoff makes the batch roll back with `409 authority_changed`. Restore and
+retention keep the same admitting authority across their batches. Already
+committed retention work is not undone, but no later predecessor write can
+commit or reintroduce an erased identifier. The portability engine's abort and
+cleanup still run after a refusal.
+
+The public HTTP journeys in `tests/owner-erasure-inflight.mjs` withhold request
+bodies after admission, complete the separate erasure handoff, then release
+the old writes. Browser-origin add/remove, assignment, triage and retention,
+alongside the other main API writes, return `409 authority_changed` and leave
+the post-erasure snapshot unchanged. The held restore does the same. These
+transaction guards already exist on the main revision tested for this round;
+this note corrects the stale boundary description, without claiming the
+remaining owner-erasure gaps are complete.
 
 The bootstrap singleton remains, with a retired claim marker. The managed
 claim retains installation/time/completion facts but loses email, operator,

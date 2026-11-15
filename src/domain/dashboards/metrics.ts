@@ -28,7 +28,7 @@ export async function widgetMetric(db:D1Database,project:string,input:MetricConf
   groups:group?results[1].results.slice(0,metricGroupLimit).map((row:any)=>({group:row.grouping===null?null:scrub(String(row.grouping)),value:value(row),count:row.count,...users?{unattributed:row.unattributed}:{}})):[],
   bounds:{from:config.from,to:config.to,groupLimit:metricGroupLimit,complete:!group||results[1].results.length<=metricGroupLimit},
   definition:sessions?'Observed individual SDK sessions plus aggregate session quantities, grouped by session start. SID updates deduplicate; repeated aggregate envelopes cannot be deduplicated. Session observations cannot be associated with arbitrary event predicates.':users?
-   'Distinct retained SDK008 user keys in this project among the matching occurrences. Native Spool events use their bounded random client identifier. No identity values are exposed; null means no known retained users, and unattributed counts matching occurrences without a retained key.':
+   'Affected users are counted when matching events contain a user identity allowed by the project’s privacy settings, or a random client identifier from the Spool SDK. The count is unavailable when no matching event has one. Events without an identity are listed as unattributed; personal identity values are excluded from this report.':
    config.metric==='rate'?'Retained matching occurrences per minute of the explicit requested window; every event predicate matches the same occurrence. This is an observed rate, with no estimate of unobserved events.':
    'Retained matching occurrences; every event predicate matches the same occurrence. Group totals omit no retained matching event except groups beyond the explicit display cap.',
  };

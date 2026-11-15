@@ -266,3 +266,16 @@ npx --no-install spool-setup --dsn "$SPOOL_DSN" --dir .
 ```
 
 Review the printed patch before applying it. The command writes nothing until `--apply`; add `--install` to install the packages. For Django, choose your virtual environment with `--python .venv/bin/python`. A test event must receive Spool’s own receipt before any patch is printed or written. The wizard runs on macOS, Linux and WSL2. It is not a step for the published npm 0.1.0 package.
+
+
+## Prepare Node.js and npm
+
+Run Edit Run fleet, 15 November 2026. The source-map build and upload commands need Node.js and npm in **your application’s repository**. The no-Node Spool installer supplies a private runtime for Spool, not for building your application.
+
+1. Install the current Node.js LTS from [the official download page](https://nodejs.org/en/download), following its instructions for your operating system. npm is included.
+2. Open a fresh terminal in your application’s repository and run `node --version` and `npm --version`. Both must succeed before continuing.
+3. Follow your application’s dependency-install instructions, then run `npm install @just-every/spool` there.
+4. Return to Capture → Set up original-source mapping. Choose your actual bundler, release and build, create a build-only key and copy its environment line into this terminal. Add the displayed configuration to the application, then run the displayed build and upload commands.
+5. Deploy those exact stamped bundles. Trigger a fresh exception and check Original source in the resulting Spool issue. Keep maps and build keys private.
+
+If another computer or CI builds the application, run these steps there instead. Bring its matching prepared map to Releases → Upload map, choose the same release/build, enter the bundle’s debug ID and select the file. The currently published picker accepts flat maps up to 256 KiB. Deploy the stamped bundle from that same build and trigger a new exception to check the mapping.

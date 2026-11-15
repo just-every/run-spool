@@ -33,10 +33,11 @@ export async function ownerSetupBrowser(app, cookie, project, json) {
   await page.goto(app.origin+'/projects/'+project.id+'/settings#settings-projects');await page.getByRole('link',{name:'Create, copy and test an ingest key',exact:true}).waitFor();await screenshot('settings-keys');
   const firstIssued=page.waitForResponse(r=>new URL(r.url()).pathname==='/api/projects/'+project.id+'/keys'&&r.request().method()==='POST');
   await page.getByRole('button',{name:'Create ingest key',exact:true}).click();assert.equal((await firstIssued).status(),201);
-  const firstKey=await page.locator('[data-secret="project-key"] pre').innerText();await page.getByRole('button',{name:'Copy Project key',exact:true}).click();
+  const firstKey=await page.locator('[data-secret="project-key"] pre').innerText(),firstDsn=await page.getByLabel('Sentry DSN',{exact:true}).innerText();await page.getByRole('button',{name:'Copy Project key',exact:true}).click();
   assert.equal(await page.evaluate(async key=>(await navigator.clipboard.readText())===key,firstKey),true);await page.evaluate(()=>navigator.clipboard.writeText(''));await screenshot('settings-issued');
   await page.getByRole('link',{name:'open Capture to copy and test this key',exact:true}).click();
   assert.equal((await page.getByLabel('Ingest key',{exact:true}).innerText())===firstKey,true,'navigation retains the same issued key in memory');
+  assert.equal(await page.getByLabel('Sentry DSN',{exact:true}).innerText(),firstDsn,'navigation carries the matching DSN with the key');
   await page.getByRole('button',{name:'Dismiss ingest key',exact:true}).click();
   await page.getByRole('button',{name:'Create ingest key',exact:true}).waitFor();await screenshot('capture-reissue');
   const created=page.waitForResponse(r=>new URL(r.url()).pathname==='/api/projects/'+project.id+'/keys'&&r.request().method()==='POST');
@@ -60,6 +61,12 @@ export async function ownerSetupBrowser(app, cookie, project, json) {
 export async function deploymentMemberBrowser(app,cookie,project,json) {
  const base='/api/projects/'+project.id,sha='a'.repeat(40),folder='.artifacts/owner-setup';
  const destination=await json(base+'/alerting/destinations','POST',{label:'Private release contact',recipient:'synthetic-spool-private-release@example.test'});
+ const otherDestination=await json(base+'/alerting/destinations','POST',{label:'Another private release contact',recipient:'synthetic-spool-other-release@example.test'});
+ const ownerRows=await json(base+'/alerting/destinations');
+ const memberChoices=await json(base+'/alerting/deployment-options','GET',undefined,cookie);
+ const routeNames=memberChoices.rows.filter(row=>[destination.id,otherDestination.id].includes(row.id));
+ assert.equal(new Set(routeNames.map(row=>row.label)).size,2,'member can distinguish two stable deadline routes');
+ assert.ok(routeNames.every(row=>!row.label.includes('@')&&!row.label.includes('Private')),'routing aliases reveal no contact');
  await json(base+'/releases','POST',{name:'member-proof',build:'web-1'});
  await json(base+'/deployments','POST',{id:'synthetic-spool-existing',release:'member-proof',build:'web-1',environment:'production',repository:'https://example.test/cedar/checkout',commitSha:sha,includedCommits:[sha],startedAt:new Date().toISOString(),deadline:new Date(Date.now()+3600000).toISOString(),destination:destination.id});
  const browser=await launchBrowser();
@@ -75,6 +82,11 @@ export async function deploymentMemberBrowser(app,cookie,project,json) {
   assert.equal(await panel.locator('.deployment-record').count(),1,'member can inspect existing deployment history');
   assert.deepEqual(contactReads,[],'deployment tracking does not request the contact directory');
   await expect(panel).not.toContainText('Private release contact');await expect(panel).not.toContainText('synthetic-spool-private-release@example.test');
+  await page.goto(app.origin+'/projects/'+project.id+'/capture');
+  await expect(page.locator('main')).toContainText(/maintainer.*administrator.*owner/i);
+  await expect(page.locator('main')).toContainText(/Settings.*Projects & keys/i);
+  await page.goto(app.origin+'/projects/'+project.id+'/releases');await panel.getByLabel('Deadline email destination',{exact:true}).waitFor();
+  for(const row of routeNames)await expect(panel.getByLabel('Deadline email destination',{exact:true}).locator(`option[value="${row.id}"]`)).toHaveText(row.label);
   await panel.getByLabel('Deployment ID',{exact:true}).fill('synthetic-spool-member');await panel.getByLabel('Deployment release',{exact:true}).selectOption('member-proof');
   await panel.getByLabel('Repository HTTPS URL',{exact:true}).fill('https://example.test/cedar/checkout');await panel.getByLabel('Deployment commit SHA',{exact:true}).fill(sha);await panel.getByLabel('Included commit SHAs, oldest first',{exact:true}).fill(sha);
   await panel.getByLabel('Owner deadline',{exact:true}).fill(new Date(Date.now()+3600000).toISOString().slice(0,16));await panel.getByLabel('Deadline email destination',{exact:true}).selectOption(destination.id);

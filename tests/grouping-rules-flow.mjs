@@ -117,6 +117,16 @@ export async function groupingRulesFlow({req,json,origin,cookie}){
  try{await mkdir('.artifacts/grouping-rules',{recursive:true});for(const width of [1440,390]){
   const context=await browser.newContext({viewport:{width,height:900}});await context.addCookies(cookie.split('; ').map(v=>({name:v.slice(0,v.indexOf('=')),value:v.slice(v.indexOf('=')+1),url:origin})));
   const page=await context.newPage();
+  if(width===1440){
+   await page.goto(origin+'/projects/group-rules/settings#settings-processing');
+   const rule=await page.getByLabel('Dependency stack rule',{exact:true}).innerText();
+   assert.equal((await fetch(origin+await page.getByRole('link',{name:'Grouping guide and matcher syntax',exact:true}).getAttribute('href'))).status,200);
+   await page.getByLabel('Stack trace rules',{exact:true}).fill(rule);
+   const result=page.waitForResponse(response=>response.url().endsWith('/grouping-rules/preview')&&response.request().method()==='POST');
+   await page.getByRole('button',{name:'Preview grouping rules',exact:true}).click();assert.equal((await result).status(),200);
+   await page.getByRole('button',{name:'Apply grouping rules',exact:true}).waitFor();assert.equal(await page.getByRole('button',{name:'Apply grouping rules',exact:true}).isEnabled(),true);
+  }
+
   await page.goto(origin+'/projects/'+hiddenProject.id+'/issues/'+hiddenFirst.issue);await page.locator('.metadata[data-event-id]').waitFor();
   await page.getByText('Frame 3 hidden by __traceback_hide__; excluded from grouping.',{exact:true}).waitFor();
   const shownStack=await page.locator('.exception-stack').innerText();assert.ok(!shownStack.includes('/app/other-hidden.py')&&!shownStack.includes('other_hidden'),'The hidden Python frame is absent from the rendered stack');

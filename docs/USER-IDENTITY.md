@@ -1,6 +1,8 @@
 # User identity policy
 
-New projects drop Sentry user fields. Impact by user is unavailable while the policy drops identity; it is not a count of zero users. Creating a project does not opt you into storing personal identity.
+New projects keep the user ID, email, username and IP address sent by the SDK, subject to installation scrubbing rules. The creation form states this policy before you create a project. Other user fields remain excluded, and automatic IP detection is unavailable. Existing projects, restored projects and saved drop choices keep their policy; this change does not recover or relax them. Impact by user is unavailable when the policy drops identity; it is not a count of zero users.
+
+Implementation note — Run Edit Run fleet, 15 November 2026: this default applies only to newly created projects. A dedicated organization identity floor and imported Sentry identity settings remain outside the implemented policy surface; the existing installation scrubbing floor continues to run before identity persistence.
 
 ## Change the policy
 

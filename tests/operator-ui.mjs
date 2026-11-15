@@ -41,8 +41,17 @@ export async function operatorUi({page,api,origin,project,issue,capture}){
  assert.equal(await assignment.getAttribute('aria-invalid'),'true');
  assert.deepEqual((await api(root+'/operator-state')).assignments,beforeAssignment.assignments,'Refused private data changes no assignment');
  }
+ if(page.viewportSize().width===1440){
+  // Hold the ordinary packet refresh so the comment receipt must advance
+  // the same loaded view; no reload or automatic conflict retry can hide it.
+  await page.route('**/issues/'+issue+'/packet',route=>new Promise(resolve=>{page.once('spool:assignment-saved',()=>{void route.continue().then(resolve)})}));
+  await page.getByLabel('Comment',{exact:true}).fill('Synthetic assignment follow-up');
+  await page.getByRole('button',{name:'Post comment',exact:true}).click();
+  await page.getByText('Synthetic assignment follow-up',{exact:true}).waitFor();
+ }
  await assignment.fill('Browser operator');
  const [assigned]=await Promise.all([page.waitForResponse(r=>r.url().endsWith('/assignment')&&r.request().method()==='PATCH'),page.getByRole('button',{name:'Save assignment',exact:true}).click()]);
+ if(page.viewportSize().width===1440){page.emit('spool:assignment-saved');await page.unroute('**/issues/'+issue+'/packet');}
  assert.equal(assigned.status(),200);assert.equal((await assigned.json()).label,'Browser operator');
  if(page.viewportSize().width===1440)await page.getByRole('status').filter({hasText:/assignment.*saved/i}).waitFor();
  await page.waitForFunction(()=>{const input=document.querySelector('input[maxlength="80"]');return input&&!input.disabled&&input.value==='Browser operator';});

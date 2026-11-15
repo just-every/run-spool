@@ -2,6 +2,8 @@ export const identityFields=['id','email','username','ip_address'] as const;
 export type IdentityField=typeof identityFields[number];
 export type Mode='keep'|'hash'|'drop';
 export type IdentityPolicy=Record<IdentityField,Mode>;
+export const newProjectIdentityPolicy=():IdentityPolicy=>({id:'keep',email:'keep',username:'keep',ip_address:'keep'});
+// Missing rows belong to legacy, restored or erased configuration: never relax them.
 export const defaultIdentityPolicy=():IdentityPolicy=>({id:'drop',email:'drop',username:'drop',ip_address:'drop'});
 export function identityPolicy(v:any):IdentityPolicy{
  if(!v||typeof v!=='object'||Object.keys(v).sort().join()!==[...identityFields].sort().join()||identityFields.some(f=>!['keep','hash','drop'].includes(v[f])))throw new Error('Choose keep, hash or drop for id, email, username and ip_address');

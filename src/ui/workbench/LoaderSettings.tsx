@@ -21,7 +21,7 @@ export function LoaderSettings({ project, keyHash, request, run, busy }: { proje
   </form>
   <Field label="Public capture key for script tag" value={publicKey} autoComplete="off" onChange={event => setPublicKey(event.target.value.trim())} />
   {publicKey && !matches && <p role="status">Paste the public capture key that matches this key record.</p>}
-  <p>Keys are shown once. Paste this key from your site’s DSN to fill the tag; this field is never saved.</p>
+  <p>New keys remain in this signed-in page’s memory until dismissed or reloaded; saved keys cannot be recovered. Paste this key from your site’s DSN to fill the tag; this field is never saved.</p>
   <pre><code>{`<script src="${endpoint}/sdk/${matches ? publicKey : 'YOUR_INGEST_KEY'}.min.js" crossorigin="anonymous"></script>`}</code></pre>
   <p>The default loader waits for a capture call or an uncaught error. Use <code>data-lazy="no"</code> to load immediately. Register <code>Sentry.onLoad(callback)</code> after the tag or define <code>window.sentryOnLoad</code> before it. Callbacks see an initialized client; use <code>Sentry.init</code> there to add your release and dist.</p>
  </section>;

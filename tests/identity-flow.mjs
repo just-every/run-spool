@@ -16,7 +16,30 @@ export async function identityFlow({origin,cookie,browser}){
  const app=api(origin,cookie),p=await app.json('/api/projects','POST',{id:'synthetic-spool-identity',name:'Checkout identity policy'}),root='/api/projects/'+p.id,dir=await mkdtemp(join(tmpdir(),'spool-identity-')),ref=await referenceCollector(),canary=crypto.randomUUID().replace(/[0-9]/g,d=>String.fromCharCode(97+Number(d)));
  const users=[{id:'synthetic-spool-id-'+canary},{email:'synthetic-spool-'+canary+'@example.test'},{username:'synthetic-spool-user-'+canary},{ip_address:'{{auto}}'},{ip_address:'{{auto}}'},{ip_address:'192.0.2.41'},{ip_address:'2001:db8::42'}],raw=users.flatMap(u=>Object.values(u)).filter(v=>v!=='{{auto}}');let server,restored;
  try{
-  const initial=await app.json(root+'/identity-policy');assert.deepEqual(Object.values(initial.policy),['drop','drop','drop','drop']);
+  const initial=await app.json(root+'/identity-policy');assert.deepEqual(Object.values(initial.policy),['keep','keep','keep','keep']);
+  // The default is recorded only for new projects. Old absent configuration
+  // and explicit drop survive subsequent project creation without relaxation.
+  const dbWorker=await startTestWorker(15672);
+  try{
+   const legacyCookie=await signIn(dbWorker.origin),legacy=api(dbWorker.origin,legacyCookie);
+   const old=await legacy.json('/api/projects','POST',{id:'synthetic-spool-old-policy',name:'Existing policy'}),db=await dbWorker.db();
+   await db.prepare('DELETE FROM identity_policies WHERE project=?').bind(old.id).run();
+   assert.ok(Object.values((await legacy.json('/api/projects/'+old.id+'/identity-policy')).policy).every(mode=>mode==='drop'));
+   const oldPolicy={id:'drop',email:'drop',username:'drop',ip_address:'drop'},preview=await legacy.json('/api/projects/'+old.id+'/identity-policy/preview','POST',{policy:oldPolicy});
+   await legacy.json('/api/projects/'+old.id+'/identity-policy','PUT',{policy:oldPolicy,revision:preview.revision,token:preview.token});
+   const created=await legacy.json('/api/projects','POST',{id:'synthetic-spool-new-policy',name:'New policy'});
+   assert.ok(Object.values((await legacy.json('/api/projects/'+created.id+'/identity-policy')).policy).every(mode=>mode==='keep'));
+   assert.deepEqual((await legacy.json('/api/projects/'+old.id+'/identity-policy')).policy,oldPolicy,'new creation never relaxes a stored drop');
+   // Installation scrubbing is the supported organization floor. It wins
+   // before the project policy can retain a sent email.
+   const floor={version:1,sensitiveFields:[],safeFields:[],rules:[{id:'synthetic-spool-floor',selector:'user.email',pattern:'email',method:'remove'}]},floorPreview=await legacy.json('/api/scrubbing/preview','POST',{policy:floor});
+   await legacy.json('/api/scrubbing','PUT',{revision:floorPreview.revision,policy:floor,token:floorPreview.token});
+   const dsn=new URL(created.dsn),result=await legacy.request(`/api/${dsn.pathname.slice(1)}/envelope/?sentry_key=${dsn.username}&sentry_version=7`,'POST','{}\n{"type":"event"}\n'+JSON.stringify({event_id:'1'.repeat(32),user:{email:'synthetic-spool-floor@example.test'},message:'Synthetic floor'}),{Cookie:''});
+   assert.equal(result.status,200);await result.body?.cancel();
+   const rows=(await db.prepare('SELECT payload FROM event_identities WHERE project=?').bind(created.id).all()).results;
+   assert.equal(rows.length,1);assert.ok(!JSON.stringify(rows).includes('synthetic-spool-floor@example.test'),'installation floor wins over new keep default');
+  }finally{await dbWorker.stop()}
+
   await runOk('python3',['-m','venv',join(dir,'venv')]);await runOk(join(dir,'venv/bin/pip'),['install','--quiet','--disable-pip-version-check','sentry-sdk==2.72.0']);
   const configure=async mode=>{const policy=Object.fromEntries(Object.keys(initial.policy).map(f=>[f,mode])),current=await app.json(root+'/identity-policy'),preview=await app.json(root+'/identity-policy/preview','POST',{policy});assert.ok(!raw.some(value=>JSON.stringify(preview).includes(value)));await app.json(root+'/identity-policy','PUT',{revision:current.revision,policy,token:preview.token});return preview};
   await configure('keep');

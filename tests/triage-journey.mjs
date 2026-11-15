@@ -75,6 +75,14 @@ try {
  const packet=await api('/api/projects/cedar/issues/'+admitted.issue+'/packet');assert.equal(packet.events[0].currentLookup[0].original.line,application.originalLine);const coordinate=packet.events[0].currentLookup[0].original;
  assert.equal(await page.locator('.frame-coordinate').first().innerText(),`${coordinate.file}:${coordinate.line}:${coordinate.column}`);
  assert.equal(await page.locator('.missing-map').count(),0);checked('Contextual map upload yields actual original path, line and column as first stack fact');
+ if(width===1440){
+  await page.getByRole('button',{name:'Details: Evidence summary',exact:true}).click();
+  const summary=page.getByRole('dialog',{name:'Evidence summary',exact:true});
+  await expect(summary).toContainText(packet.issue.short_id);await expect(summary).toContainText(packet.issue.title);
+  assert.doesNotMatch(await summary.innerText(),/\b[0-9a-f]{24,}\b|\b[0-9a-f]{8}(?:-[0-9a-f]{4}){3}-[0-9a-f]{12}\b|js-frame-v1|spool\.alert\.v1|CREATE TABLE|\{\s*"/i);
+  for(const screen of [1440,390]){await page.setViewportSize({width:screen,height:900});await summary.screenshot({path:output+`/evidence-summary-${screen}.png`});}await page.setViewportSize({width,height:900});
+  await page.getByRole('button',{name:'Close details',exact:true}).click();
+ }
  {await capture('mapped-issue',width);const audit=await new AxeBuilder({page}).withTags(['wcag2a','wcag2aa','wcag21aa']).analyze();assert.deepEqual(audit.violations.map(item=>item.id),[]);}
  await page.getByRole('button',{name:'Copy link',exact:true}).click();assert.equal(await page.evaluate(()=>navigator.clipboard.readText()),origin+issuePath);
  await page.reload();await page.locator('.mapped-frame').first().waitFor();assert.equal(new URL(page.url()).pathname,issuePath);
@@ -135,6 +143,18 @@ try {
  assert.ok(privateMap,'uploaded private map travels');assert.deepEqual(JSON.parse(privateMap.payload),application.map,'private source bytes survive the download');
  for(const credential of [project.ingestKey,cookie.slice(cookie.indexOf('=')+1)])assert.equal(downloaded.text.includes(credential),false,'active credential bytes never travel');
  for(const table of ['credentials','sessions','oa_sessions','oa_operators'])assert.equal(Object.hasOwn(downloaded.data,table),false,'private authority is excluded');
+ if(width===1440){
+  await page.getByLabel('Archive to restore · max 16 MiB',{exact:true}).setInputFiles({name:'synthetic-spool-archive.jsonl',mimeType:'application/x-ndjson',buffer:Buffer.from(downloaded.text)});
+  await page.getByRole('button',{name:'Details: Archive preview',exact:true}).click();
+  const preview=page.getByRole('dialog',{name:'Archive preview',exact:true});
+  assert.doesNotMatch(await preview.innerText(),/CREATE TABLE|\b[0-9a-f]{8}(?:-[0-9a-f]{4}){3}-[0-9a-f]{12}\b|\{\s*"|oa_sessions|event_identities/i);
+  await expect(preview).toContainText(String(downloaded.data.projects.length));
+  await expect(preview).toContainText(/empty installation/i);await expect(preview).toContainText(/sessions.*excluded/i);
+  const raw=page.waitForEvent('download');await preview.getByRole('button',{name:'Download raw manifest',exact:true}).click();
+  assert.deepEqual(JSON.parse(await readFile(await(await raw).path(),'utf8')),JSON.parse(downloaded.text.split('\n')[0]));
+  for(const screen of [1440,390]){await page.setViewportSize({width:screen,height:900});await preview.screenshot({path:output+`/archive-preview-${screen}.png`});}await page.setViewportSize({width,height:900});
+  await page.getByRole('button',{name:'Close details',exact:true}).click();
+ }
  const destination=await startTestWorker(15483);
  try{
   const destinationCookie=await signIn(destination.origin),headers={Cookie:destinationCookie,Origin:destination.origin};

@@ -4,7 +4,7 @@ import { date, type Request } from './shared';
 import type { ActivityRow, DiscussionData } from '../../domain/discussion/model';
 
 type Data=DiscussionData&{recurrence:{sameRelease:number;olderRelease:number};activity:ActivityRow[];next:string|null};
-export function Discussion({project,issue,refresh,request,onChanged}:{project:string;issue:string;refresh:unknown;request:Request;onChanged?:()=>void}) {
+export function Discussion({project,issue,refresh,request,onChanged}:{project:string;issue:string;refresh:unknown;request:Request;onChanged?:(revision?:number)=>void}) {
  const base=`/api/projects/${encodeURIComponent(project)}/issues/${encodeURIComponent(issue)}`;
  const [data,setData]=useState<Data|null>(null),[error,setError]=useState(''),[body,setBody]=useState(''),[editing,setEditing]=useState<{id:string;version:number}|null>(null),[editBody,setEditBody]=useState(''),[busy,setBusy]=useState(false);
  const loadedIssue=useRef('');
@@ -17,8 +17,10 @@ export function Discussion({project,issue,refresh,request,onChanged}:{project:st
   if(!data)return;
   setBusy(true);setError('');
   try {
-   await request(base+path,method,input);
-   setData(await request(base+'/discussion'));setBody('');setEditing(null);onChanged?.();
+   const result=await request(base+path,method,input);
+   // Publish our committed revision before showing the completed comment.
+   onChanged?.(result.revision);
+   setData(await request(base+'/discussion'));setBody('');setEditing(null);
   }catch(failure){setError((failure as Error).message);try{setData(await request(base+'/discussion'))}catch{setData(null)}}
   finally{setBusy(false)}
  }
