@@ -58,6 +58,7 @@ export function expectedOutcomes(sent){
  const expected=new Map(),add=(reason,n=1)=>expected.set(reason,(expected.get(reason)??0)+n);
  for(const item of sent){
   if(item.type==='event')add('accepted');
+  else if(item.type==='transaction')add('transaction_stored');
   else if(item.type==='client_report')continue;
   else if(item.type==='feedback'||item.type==='user_report')add('feedback_accepted');
   else if(item.type==='session'||item.type==='sessions')add('session_stored');

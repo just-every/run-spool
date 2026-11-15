@@ -2,11 +2,13 @@ import {readFile} from 'node:fs/promises';
 import {readArchive,makePart,canonicalJson,sha256} from '../../src/modules/portability/index.mjs';
 import {ContentVerifier,ArchiveVerifier} from '../../src/modules/portability/format.mjs';
 import {schemaIdentityOf} from '../../src/modules/portability/schema-identity.mjs';
+import {beforeProjectMetrics} from './archive-before-project-metrics.mjs';
 
 // The inventory an installation recorded before migrations 0102 (retired references), 0103 (which rewrote the two
 // relay audit triggers) and 0104 (roster digests). The earlier trigger text is read from migration 0099, which still
 // holds it; SQLite records a trigger as `CREATE TRIGGER <name> ...` without IF NOT EXISTS.
 export async function beforeRelayPrivacy(manifest){
+ beforeProjectMetrics(manifest);
  if(manifest.migrations)manifest.migrations=manifest.migrations.filter(name=>!['0102_agent_retired_refs.sql','0103_agent_door_relay_privacy.sql','0104_business_retired.sql'].includes(name));
  // The two tombstone tables of 0102 and 0104 had no place in an archive before them.
  manifest.tables=manifest.tables.filter(table=>!['agent_door_retired_refs','bs_retired'].includes(table.name));
@@ -22,6 +24,7 @@ export async function beforeRelayPrivacy(manifest){
 // The previous release's own format: no ledger, its tables and complete object inventory (relay triggers as 0103 wrote
 // them) and none of the two erasure tombstone tables that 0102 and 0104 added to the archive.
 export async function beforeTombstoneTables(manifest){
+ beforeProjectMetrics(manifest);
  manifest.tables=manifest.tables.filter(table=>!['agent_door_retired_refs','bs_retired'].includes(table.name));
 }
 
