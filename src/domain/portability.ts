@@ -1,4 +1,4 @@
-import { verifyTranslatedHistory } from './alerts/archive-history';
+import { restoreTranslatedProjection } from './alerts/archive-history';
 import { ledgerReader } from '../modules/portability/ledgers.mjs';
 import { nativeSymbolTables, nativeDebugFileTables } from './native-symbols/archive';
 import { previousNativeSymbolObjects, previousRelayPrivacyObjects } from './native-symbols/compat';
@@ -321,7 +321,7 @@ async function earlierManifest(db: D1Database, manifest: any) {
 }
 async function importRecords(service: any, source: ReadableStream<Uint8Array>, db?: D1Database, laterJournal?: LaterJournal) {
  let id, closing, binding: any, complete = false, rewritten = false;
- let translated:any=null;const sourceLedger=ledgerReader();
+ let translated:any=null,projection:any=null;const sourceLedger=ledgerReader(),translatedParts:any[]=[];
  const attributionDefaults=new Map<string,Record<string,unknown>>();
  const archivedAttributionColumns=new Map<string,string[]>();
  try {
@@ -334,19 +334,20 @@ async function importRecords(service: any, source: ReadableStream<Uint8Array>, d
      const archived=record.tables.find((entry:any)=>entry.name===table);
      if(archived&&!archived.columns.some((column:any)=>column.name===field)){attributionDefaults.set(table,{[field]:value});archivedAttributionColumns.set(table,archived.columns.map((column:any)=>column.name).sort());}
     }
-    rewritten = manifest !== record; binding = new ArchiveVerifier(manifest); id = await service.imports.create(manifest);
+    rewritten = manifest !== record;
+    if(translated)projection=manifest;else {binding = new ArchiveVerifier(manifest); id = await service.imports.create(manifest);}
    }
    else if (record.kind === 'part') {
     // readArchive verifies the original bytes; bind translated parts to the
     // recognized current inventory using only this migration's exact defaults.
     if(translated)sourceLedger.add(record);
     const items=translated?record.items.filter((item:any)=>item.kind!=='row'||!platformTable(item.table)):record.items;
-    const part=translated||attributionDefaults.size?await makePart(record.index,items.map((item:any)=>{
+    const part=translated||attributionDefaults.size?await makePart(translated?translatedParts.length:record.index,items.map((item:any)=>{
      if(item.kind!=='row'||!attributionDefaults.has(item.table))return item;
      if(canonicalJson(Object.keys(item.row).sort())!==canonicalJson(archivedAttributionColumns.get(item.table)))throw new PortabilityError('legacy_column_inventory');
      return {...item,row:{...item.row,...attributionDefaults.get(item.table)}};
     })):record;
-    binding.add(part); await service.imports.uploadPart(id, part.index, part);
+    if(translated){if(part.items.length)translatedParts.push(part)}else{binding.add(part); await service.imports.uploadPart(id, part.index, part);}
    }
    else closing = record;
   }
@@ -354,7 +355,7 @@ async function importRecords(service: any, source: ReadableStream<Uint8Array>, d
   // A migrated schema or retired setup token changes the content and archive hashes;
   // readArchive has already verified the original archive's closing hashes
   // above, and finalize binds the staged parts to the manifest actually created.
-  if(translated)await verifyTranslatedHistory(service,translated,sourceLedger.ledgers());
+  if(translated)return await restoreTranslatedProjection(service,translated,projection,translatedParts,sourceLedger.ledgers(),laterJournal);
   await service.imports.finalize(id, { archiveHash: binding.digest(), ...(rewritten ? {} : { contentHash: closing.contentHash }), ...(laterJournal ? { laterJournal } : {}) }); complete = true;
  } finally { if (id && !complete) await service.imports.abort(id); }
 }
