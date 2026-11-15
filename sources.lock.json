@@ -6550,7 +6550,7 @@
       "executable": false
     },
     "src/domain/project-key-authority.ts": {
-      "sha256": "8da1a57afc8e4c70855a87042d0434c4651853acdb08e65cc820a3da32c02f27",
+      "sha256": "60110c5766c4b47696c288514ca855ae655f7cf9f324a1554fcec320bd00d534",
       "executable": false
     },
     "src/domain/proposals/archive.ts": {
@@ -10298,7 +10298,7 @@
       "executable": false
     },
     "src/ui/workbench/ClientKeySetup.tsx": {
-      "sha256": "26974d3c363ae567d828f46fdd8f3e0a2effe5093868b4d3ae0b7b3048be8780",
+      "sha256": "820971f7a1b3423bbbdfddbeb600044ec0ede025de5ea9f3dbfe92e36b31da4b",
       "executable": false
     },
     "src/ui/workbench/CommitSharing.tsx": {
