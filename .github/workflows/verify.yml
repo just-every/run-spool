@@ -58,6 +58,22 @@ jobs:
           NIGHTLY_CACHE_HIT: ${{ steps.nightly.outputs.cache-hit }}
         run: node scripts/verify-ci.mjs --plan
 
+  contract-docs:
+    needs: plan
+    if: ${{ needs.plan.outputs.coverage == 'full' && (needs.plan.outputs.tier == 'push' || needs.plan.outputs.tier == 'all') }}
+    runs-on: ubuntu-24.04
+    timeout-minutes: 1
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+          # The prose reader resolves COVERAGE.json's recorded old commit.
+          fetch-depth: 0
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22.20.0
+      - run: node src/base/contract-docs.mjs check
+
   build:
     needs: plan
     if: ${{ needs.plan.outputs.coverage == 'full' && (needs.plan.outputs.tier == 'push' || needs.plan.outputs.tier == 'all') }}
@@ -87,7 +103,6 @@ jobs:
         run: |
           pnpm run check -- --profile first-party
           pnpm source:check
-          node src/base/contract-docs.mjs check
           node scripts/edition-authoring/cli.mjs verify-base --offline
       - name: Build application
         run: pnpm run build:app
@@ -506,7 +521,7 @@ jobs:
           key: nightly-green-${{ github.sha }}
 
   verify:
-    needs: [plan, shards, light, full-push-proof, nightly-proof]
+    needs: [plan, contract-docs, shards, light, full-push-proof, nightly-proof]
     if: ${{ always() }}
     runs-on: ubuntu-24.04
     timeout-minutes: 1
@@ -514,6 +529,7 @@ jobs:
       - name: Require the selected coverage and its proof
         env:
           PLAN: ${{ needs.plan.result }}
+          CONTRACT_DOCS: ${{ needs.contract-docs.result }}
           SHARDS: ${{ needs.shards.result }}
           LIGHT: ${{ needs.light.result }}
           PUSH_PROOF: ${{ needs.full-push-proof.result }}
@@ -524,7 +540,7 @@ jobs:
         run: |
           set -euo pipefail
           test "$PLAN" = success
-          case "$PUSH_PROOF:$NIGHTLY_PROOF" in
+          case "$CONTRACT_DOCS:$PUSH_PROOF:$NIGHTLY_PROOF" in
             *failure*|*cancelled*) exit 1 ;;
           esac
           case "$COVERAGE" in
