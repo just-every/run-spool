@@ -1,0 +1,40 @@
+{
+  "files": [
+    {
+      "blob": "654378e3d9a6ee5ab72784d0c9f8798888df0478",
+      "bytes": 8534,
+      "path": "REPORT.md",
+      "sha256": "84a8f4a0bab146a563bf2c967f1d427744c12f3c76337b349759f0efc111177b"
+    },
+    {
+      "blob": "5d6d1bbc6322223a9c512bf157cac47ac270cb4f",
+      "bytes": 2509,
+      "path": "ci-receipt.json",
+      "sha256": "9ed2a8b3ea112d928b46ee2f00c8112066534fabb0dfabdb435e70d6900b46d4"
+    },
+    {
+      "blob": "1779e97812651b16c416cb525219cbbf0a9ac776",
+      "bytes": 5744,
+      "path": "dependency-check.py",
+      "sha256": "ef17c746371dbc33be0d61c26d600b47b3b729181390bfe27b884ef84f057c34"
+    },
+    {
+      "blob": "5cd3c1af1843aae202a3bd2c850ebd5e6d988689",
+      "bytes": 5008,
+      "path": "dependency-receipt.json",
+      "sha256": "fb9adfa8c21106c65731b58f105266ae2b1687e3de1c6bfa3ff7995dba2ba236"
+    },
+    {
+      "blob": "4761a8da34dcb173b7e3a362f62a3e1721888d8b",
+      "bytes": 717,
+      "path": "result.json",
+      "sha256": "39a828ed3ce754559b8dd119ede2cf6bbeeecec868a090ab237aa9d7ce7e4e9d"
+    }
+  ],
+  "product_branch": "cloud/gr-mt-spool-dep-10",
+  "product_head": "adc3de69b9ae0ff60e41897f8ff7662fd656d560",
+  "ref": "refs/heads/evidence/gr-mt-spool-dep-10",
+  "repository": "just-every/run-spool",
+  "schema": 1,
+  "tag": "gr-mt-spool-dep-10"
+}

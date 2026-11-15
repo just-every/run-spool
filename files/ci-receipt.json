@@ -1,0 +1,70 @@
+{
+  "author": "Run Edit Run fleet",
+  "command": "gh api repos/just-every/run-spool/actions/runs?head_sha=adc3de69b9ae0ff60e41897f8ff7662fd656d560&per_page=100",
+  "github_calls": 1,
+  "head": "adc3de69b9ae0ff60e41897f8ff7662fd656d560",
+  "note": "Existing default-branch runs only. No new candidate, workflow dispatch, retry, or READY claim.",
+  "runs": [
+    {
+      "conclusion": "skipped",
+      "created_at": "2026-11-15T19:08:23Z",
+      "event": "push",
+      "head_branch": "main",
+      "head_sha": "adc3de69b9ae0ff60e41897f8ff7662fd656d560",
+      "html_url": "https://github.com/just-every/run-spool/actions/runs/43750723421",
+      "id": 43750723421,
+      "name": "Run demo",
+      "status": "completed",
+      "updated_at": "2026-11-15T19:08:24Z"
+    },
+    {
+      "conclusion": "success",
+      "created_at": "2026-11-15T19:08:23Z",
+      "event": "push",
+      "head_branch": "main",
+      "head_sha": "adc3de69b9ae0ff60e41897f8ff7662fd656d560",
+      "html_url": "https://github.com/just-every/run-spool/actions/runs/43750723300",
+      "id": 43750723300,
+      "name": "Run site",
+      "status": "completed",
+      "updated_at": "2026-11-15T19:08:57Z"
+    },
+    {
+      "conclusion": "failure",
+      "created_at": "2026-11-15T19:08:23Z",
+      "event": "push",
+      "head_branch": "main",
+      "head_sha": "adc3de69b9ae0ff60e41897f8ff7662fd656d560",
+      "html_url": "https://github.com/just-every/run-spool/actions/runs/43750723397",
+      "id": 43750723397,
+      "name": "Verify",
+      "status": "completed",
+      "updated_at": "2026-11-15T19:28:47Z"
+    },
+    {
+      "conclusion": "success",
+      "created_at": "2026-11-15T19:08:22Z",
+      "event": "dynamic",
+      "head_branch": "main",
+      "head_sha": "adc3de69b9ae0ff60e41897f8ff7662fd656d560",
+      "html_url": "https://github.com/just-every/run-spool/actions/runs/43750722053",
+      "id": 43750722053,
+      "name": "Push on main",
+      "status": "completed",
+      "updated_at": "2026-11-15T19:12:54Z"
+    },
+    {
+      "conclusion": "success",
+      "created_at": "2026-11-15T17:43:55Z",
+      "event": "push",
+      "head_branch": "cloud/main-spool-stranger32-trips-1-c1",
+      "head_sha": "adc3de69b9ae0ff60e41897f8ff7662fd656d560",
+      "html_url": "https://github.com/just-every/run-spool/actions/runs/43742749592",
+      "id": 43742749592,
+      "name": "Verify",
+      "status": "completed",
+      "updated_at": "2026-11-15T18:04:36Z"
+    }
+  ],
+  "timestamp_utc": "2026-11-15T22:17:52.193853+00:00"
+}

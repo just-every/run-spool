@@ -1,0 +1,150 @@
+{
+  "advisories": [
+    "GHSA-4w7w-5xrc-9h26",
+    "GHSA-2m5v-pch6-74hx",
+    "GHSA-qrxm-fqhp-jwvm",
+    "GHSA-9fm3-97px-rjf6"
+  ],
+  "affected_range_from_brief": ">=7.0.0 <7.30.1",
+  "author": "Run Edit Run fleet",
+  "branch": "cloud/gr-mt-spool-dep-10",
+  "candidate_commits": "0",
+  "conclusion": "no-change: the current remote default branch already resolves every undici edge to 7.30.1",
+  "contexts": [
+    {
+      "assertions": "PASS",
+      "current_vulnerable_versions": [],
+      "historical_pre_fix_versions": [
+        "undici@7.29.1"
+      ],
+      "historical_pre_fix_vulnerable_versions": [
+        "undici@7.29.1"
+      ],
+      "importer_paths": [
+        {
+          "importer": ".",
+          "path": [
+            "@cloudflare/vite-plugin@1.54.5(@types/node@22.20.5)(vite@8.2.4(@types/node@22.20.5)(esbuild@0.28.2)(jiti@2.7.0)(terser@5.51.2))(wrangler@4.129.1(@cloudflare/workers-types@5.20260908.1)(@types/node@22.20.5))",
+            "miniflare@5.20260907.0-alpha(@types/node@22.20.5)",
+            "undici@7.30.1"
+          ],
+          "section": "devDependencies"
+        },
+        {
+          "importer": ".",
+          "path": [
+            "@cloudflare/vite-plugin@1.54.5(@types/node@22.20.5)(vite@8.2.4(@types/node@22.20.5)(esbuild@0.28.2)(jiti@2.7.0)(terser@5.51.2))(wrangler@4.129.1(@cloudflare/workers-types@5.20260908.1)(@types/node@22.20.5))",
+            "wrangler@4.129.1(@cloudflare/workers-types@5.20260908.1)(@types/node@22.20.5)",
+            "miniflare@5.20260907.0-alpha(@types/node@22.20.5)",
+            "undici@7.30.1"
+          ],
+          "section": "devDependencies"
+        },
+        {
+          "importer": ".",
+          "path": [
+            "@sentry/cli@3.8.1",
+            "undici@7.30.1"
+          ],
+          "section": "devDependencies"
+        },
+        {
+          "importer": ".",
+          "path": [
+            "miniflare@5.20260907.0-alpha(@types/node@22.20.5)",
+            "undici@7.30.1"
+          ],
+          "section": "devDependencies"
+        },
+        {
+          "importer": ".",
+          "path": [
+            "wrangler@4.129.1(@cloudflare/workers-types@5.20260908.1)(@types/node@22.20.5)",
+            "miniflare@5.20260907.0-alpha(@types/node@22.20.5)",
+            "undici@7.30.1"
+          ],
+          "section": "devDependencies"
+        }
+      ],
+      "incoming_edges": [
+        {
+          "parent": "@sentry/cli@3.8.1",
+          "section": "dependencies",
+          "undici": "7.30.1"
+        },
+        {
+          "parent": "miniflare@5.20260907.0-alpha(@types/node@22.20.5)",
+          "section": "dependencies",
+          "undici": "7.30.1"
+        }
+      ],
+      "lockfile": "pnpm-lock.yaml",
+      "lockfile_blob": "7497b06c8b17c9045cbf45e38bf67561c767cca6",
+      "lockfile_sha256": "5453b680fd1c3af55bb579c638a44ed88b7f399a1d0d413cbcd57880d74ffa61",
+      "manifest": "package.json",
+      "manifest_blob": "17e1d3959646f82d887938934a9017475b9168b0",
+      "override": "7.30.1",
+      "package_versions": [
+        "undici@7.30.1"
+      ],
+      "snapshot_versions": [
+        "undici@7.30.1"
+      ],
+      "undici_engine": ">=20.18.1"
+    },
+    {
+      "assertions": "PASS",
+      "current_vulnerable_versions": [],
+      "historical_pre_fix_versions": [
+        "undici@7.29.1"
+      ],
+      "historical_pre_fix_vulnerable_versions": [
+        "undici@7.29.1"
+      ],
+      "importer_paths": [
+        {
+          "importer": ".",
+          "path": [
+            "miniflare@5.20260907.0-alpha",
+            "undici@7.30.1"
+          ],
+          "section": "devDependencies"
+        }
+      ],
+      "incoming_edges": [
+        {
+          "parent": "miniflare@5.20260907.0-alpha",
+          "section": "dependencies",
+          "undici": "7.30.1"
+        }
+      ],
+      "lockfile": "src/modules/mail/pnpm-lock.yaml",
+      "lockfile_blob": "fdf20548d3f137218a609dce2b9ffae80fb99401",
+      "lockfile_sha256": "65eea51d3f37f0ee7a4fadbda7c9d6d177fd6bfa1df844aa50a5afacfcf872a5",
+      "manifest": "src/modules/mail/package.json",
+      "manifest_blob": "b9693b1ded60fe77f184a75170aad98e2aac3f3e",
+      "override": "7.30.1",
+      "package_versions": [
+        "undici@7.30.1"
+      ],
+      "snapshot_versions": [
+        "undici@7.30.1"
+      ],
+      "undici_engine": ">=20.18.1"
+    }
+  ],
+  "existing_fix": "f773e85edf527a1e790f763a6da9a91c71aa8f73",
+  "existing_fix_is_ancestor": true,
+  "head": "adc3de69b9ae0ff60e41897f8ff7662fd656d560",
+  "origin_main": "adc3de69b9ae0ff60e41897f8ff7662fd656d560",
+  "remote_default_probe": [
+    "ref: refs/heads/main\tHEAD",
+    "adc3de69b9ae0ff60e41897f8ff7662fd656d560\tHEAD",
+    "adc3de69b9ae0ff60e41897f8ff7662fd656d560\trefs/heads/main"
+  ],
+  "repository": "just-every/run-spool",
+  "runtime_tests": "NOT RUN: no product changes or installed dependencies; this is committed-graph verification, not an exploit reproduction or runtime qualification",
+  "schema": 1,
+  "timestamp_utc": "2026-11-15T22:17:51.205928+00:00",
+  "worktree_clean": true
+}

@@ -1,0 +1,7 @@
+{
+  "status": "no-change",
+  "sha": "adc3de69b9ae0ff60e41897f8ff7662fd656d560",
+  "summary": "Current remote main already pins undici 7.30.1 in both manifests and lockfiles; ancestor f773e85edf527a1e790f763a6da9a91c71aa8f73 landed the fix, and every current undici dependency edge is patched.",
+  "tests": "PASS: committed YAML manifest/override/package/snapshot/edge checks for both lockfiles; exhaustive importer paths; remote default SHA; prior-fix ancestry; clean checkout. Build, typecheck, installs and runtime tests not rerun because no product changes are required. Existing exact-SHA branch Verify 43742749592 succeeded; main Verify 43750723397 failed; Run site 43750723300 succeeded.",
+  "security": true
+}
