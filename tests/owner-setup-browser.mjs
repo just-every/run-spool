@@ -38,6 +38,11 @@ export async function ownerSetupBrowser(app, cookie, project, json) {
   await page.getByRole('link',{name:'open Capture to copy and test this key',exact:true}).click();
   assert.equal((await page.getByLabel('Ingest key',{exact:true}).innerText())===firstKey,true,'navigation retains the same issued key in memory');
   assert.equal(await page.getByLabel('Sentry DSN',{exact:true}).innerText(),firstDsn,'navigation carries the matching DSN with the key');
+  const prerequisites=page.getByRole('link',{name:'Node.js prerequisite setup steps',exact:true});
+  const guide=await context.request.get(app.origin+await prerequisites.getAttribute('href'));assert.equal(guide.status(),200);
+  assert.match(await guide.text(),/node --version/);assert.match(await guide.text(),/npm --version/);
+  const mapping=page.getByRole('heading',{name:'Set up original-source mapping',exact:true}).locator('..');
+  for(const width of [1440,390]){await page.setViewportSize({width,height:1000});await mapping.screenshot({path:`${folder}/source-map-setup-${width}.png`});}await page.setViewportSize({width:1440,height:1000});
   await page.getByRole('button',{name:'Dismiss ingest key',exact:true}).click();
   await page.getByRole('button',{name:'Create ingest key',exact:true}).waitFor();await screenshot('capture-reissue');
   const created=page.waitForResponse(r=>new URL(r.url()).pathname==='/api/projects/'+project.id+'/keys'&&r.request().method()==='POST');
@@ -62,7 +67,6 @@ export async function deploymentMemberBrowser(app,cookie,project,json) {
  const base='/api/projects/'+project.id,sha='a'.repeat(40),folder='.artifacts/owner-setup';
  const destination=await json(base+'/alerting/destinations','POST',{label:'Private release contact',recipient:'synthetic-spool-private-release@example.test'});
  const otherDestination=await json(base+'/alerting/destinations','POST',{label:'Another private release contact',recipient:'synthetic-spool-other-release@example.test'});
- const ownerRows=await json(base+'/alerting/destinations');
  const memberChoices=await json(base+'/alerting/deployment-options','GET',undefined,cookie);
  const routeNames=memberChoices.rows.filter(row=>[destination.id,otherDestination.id].includes(row.id));
  assert.equal(new Set(routeNames.map(row=>row.label)).size,2,'member can distinguish two stable deadline routes');
@@ -85,6 +89,7 @@ export async function deploymentMemberBrowser(app,cookie,project,json) {
   await page.goto(app.origin+'/projects/'+project.id+'/capture');
   await expect(page.locator('main')).toContainText(/maintainer.*administrator.*owner/i);
   await expect(page.locator('main')).toContainText(/Settings.*Projects & keys/i);
+  for(const width of [1440,390]){await page.setViewportSize({width,height:1000});await page.screenshot({path:`${folder}/member-capture-${width}.png`,fullPage:true,mask:[page.getByLabel('Project ingest key',{exact:true})]});}await page.setViewportSize({width:1440,height:1000});
   await page.goto(app.origin+'/projects/'+project.id+'/releases');await panel.getByLabel('Deadline email destination',{exact:true}).waitFor();
   for(const row of routeNames)await expect(panel.getByLabel('Deadline email destination',{exact:true}).locator(`option[value="${row.id}"]`)).toHaveText(row.label);
   await panel.getByLabel('Deployment ID',{exact:true}).fill('synthetic-spool-member');await panel.getByLabel('Deployment release',{exact:true}).selectOption('member-proof');

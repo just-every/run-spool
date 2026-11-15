@@ -17,6 +17,17 @@ export async function identityFlow({origin,cookie,browser}){
  const users=[{id:'synthetic-spool-id-'+canary},{email:'synthetic-spool-'+canary+'@example.test'},{username:'synthetic-spool-user-'+canary},{ip_address:'{{auto}}'},{ip_address:'{{auto}}'},{ip_address:'192.0.2.41'},{ip_address:'2001:db8::42'}],raw=users.flatMap(u=>Object.values(u)).filter(v=>v!=='{{auto}}');let server,restored;
  try{
   const initial=await app.json(root+'/identity-policy');assert.deepEqual(Object.values(initial.policy),['keep','keep','keep','keep']);
+  const creationContext=await browser.newContext({viewport:{width:1440,height:1000}}),creationPage=await creationContext.newPage();
+  try{
+   await creationContext.addCookies(cookie.split('; ').map(pair=>({name:pair.slice(0,pair.indexOf('=')),value:pair.slice(pair.indexOf('=')+1),url:origin})));
+   await creationPage.goto(origin+'/projects/'+p.id+'/settings#settings-projects');
+   const form=creationPage.locator('form').filter({has:creationPage.getByRole('button',{name:'Create project',exact:true})});
+   await form.getByLabel('Project name',{exact:true}).fill('Synthetic form policy');await form.getByLabel('Project identifier',{exact:true}).fill('synthetic-spool-form-policy');
+   assert.match(await form.getByRole('note').innerText(),/keep.*user ID.*email.*username.*IP address/i,'creation discloses the supported keep policy');
+   await mkdir('.artifacts/c15/sdk008',{recursive:true});for(const width of [1440,390]){await creationPage.setViewportSize({width,height:1000});await form.screenshot({path:`.artifacts/c15/sdk008/creation-${width}.png`})}await creationPage.setViewportSize({width:1440,height:1000});
+   const saved=creationPage.waitForResponse(response=>new URL(response.url()).pathname==='/api/projects'&&response.request().method()==='POST');await form.getByRole('button',{name:'Create project',exact:true}).click();assert.equal((await saved).status(),201);
+   assert.ok(Object.values((await app.json('/api/projects/synthetic-spool-form-policy/identity-policy')).policy).every(mode=>mode==='keep'));
+  }finally{await creationContext.close()}
   // The default is recorded only for new projects. Old absent configuration
   // and explicit drop survive subsequent project creation without relaxation.
   const dbWorker=await startTestWorker(15672);
@@ -32,10 +43,10 @@ export async function identityFlow({origin,cookie,browser}){
    assert.deepEqual((await legacy.json('/api/projects/'+old.id+'/identity-policy')).policy,oldPolicy,'new creation never relaxes a stored drop');
    // Installation scrubbing is the supported organization floor. It wins
    // before the project policy can retain a sent email.
-   const floor={version:1,sensitiveFields:[],safeFields:[],rules:[{id:'synthetic-spool-floor',selector:'user.email',pattern:'email',method:'remove'}]},floorPreview=await legacy.json('/api/scrubbing/preview','POST',{policy:floor});
+   const floor={version:1,sensitiveFields:[],safeFields:[],rules:[{id:'synthetic-spool-floor',selector:'$user.email',pattern:'email',method:'remove'}]},floorPreview=await legacy.json('/api/scrubbing/preview','POST',{policy:floor});
    await legacy.json('/api/scrubbing','PUT',{revision:floorPreview.revision,policy:floor,token:floorPreview.token});
-   const dsn=new URL(created.dsn),result=await legacy.request(`/api/${dsn.pathname.slice(1)}/envelope/?sentry_key=${dsn.username}&sentry_version=7`,'POST','{}\n{"type":"event"}\n'+JSON.stringify({event_id:'1'.repeat(32),user:{email:'synthetic-spool-floor@example.test'},message:'Synthetic floor'}),{Cookie:''});
-   assert.equal(result.status,200);await result.body?.cancel();
+   const dsn=new URL(created.dsn),result=await fetch(dbWorker.origin+`/api/${dsn.pathname.slice(1)}/envelope/?sentry_key=${dsn.username}&sentry_version=7`,{method:'POST',headers:{'Content-Type':'text/plain'},body:'{}\n{"type":"event"}\n'+JSON.stringify({event_id:'1'.repeat(32),user:{email:'synthetic-spool-floor@example.test'},message:'Synthetic floor'})});
+   assert.equal(result.status,200,await result.clone().text());await result.body?.cancel();
    const rows=(await db.prepare('SELECT payload FROM event_identities WHERE project=?').bind(created.id).all()).results;
    assert.equal(rows.length,1);assert.ok(!JSON.stringify(rows).includes('synthetic-spool-floor@example.test'),'installation floor wins over new keep default');
   }finally{await dbWorker.stop()}

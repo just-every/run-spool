@@ -71,7 +71,7 @@ export function SentryIntake({ dsn }: { dsn?: string }) {
   return <div className="sentry-intake">
     <h3>Already using Sentry? Point your DSN here</h3>
     <p>Keep your Sentry browser or Node SDK and replace only its DSN. By default, events can arrive without a release, and an unseen release is created automatically. Settings shows the release ordering rule; choose registered sequence only there if your project requires registration first. An omitted dist is shown as <code>sentry-no-dist</code>. Spool keeps exceptions and stack traces; sessions, traces and replays remain unsupported.</p>
-    {dsn ? <CodeBlock label="Sentry DSN" code={dsn} /> : <p>Its DSN is shown once, next to each new ingest key created under Project keys in Settings.</p>}
+    {dsn ? <CodeBlock label="Sentry DSN" code={dsn} /> : <p>The DSN is available alongside a newly created ingest key in Settings → Projects & keys or Capture. Copy it before dismissing the key or reloading.</p>}
   </div>;
 }
 

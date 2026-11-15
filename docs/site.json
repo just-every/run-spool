@@ -55,6 +55,11 @@
       "title": "Installation settings",
       "pages": [
         {
+          "slug": "grouping-rules",
+          "source": "docs/GROUPING-RULES.md",
+          "label": "Stack and fingerprint rules"
+        },
+        {
           "slug": "user-identity",
           "source": "docs/USER-IDENTITY.md",
           "label": "User identity policy"

@@ -3718,7 +3718,7 @@
       "executable": false
     },
     "docs/site.json": {
-      "sha256": "d75b05d45f8dc997f0b3b75d302d5d4874bc78b878e82c3be06009d4b915dec7",
+      "sha256": "2ea8d6072829aa3cd9403f7e0a964246734dbf16e58765ddfee20895961c8efb",
       "executable": false
     },
     "docs/SOURCE-MAPS.md": {
@@ -5679,6 +5679,10 @@
     },
     "src/domain/alerts/delivery-archive.ts": {
       "sha256": "0df3a840566e588762308c1767a8dc82a06ba62d21219ab84c04c9b7bd308fb8",
+      "executable": false
+    },
+    "src/domain/alerts/deployment-label.ts": {
+      "sha256": "990fac4a270c7e38af4a1322068780f8f87ba8527099bd0421f576a30905148d",
       "executable": false
     },
     "src/domain/alerts/destination-management.server.ts": {
@@ -10245,6 +10249,10 @@
       "sha256": "f0aec872ed5f69fa8210aa974b7d134f40065f1ed771ab3013bfb8eac202b826",
       "executable": false
     },
+    "src/ui/workbench/ArchivePreview.tsx": {
+      "sha256": "21fc5453513f1ee1ec881d8e1a97000c78898b3225ada400d589f6541c4d4833",
+      "executable": false
+    },
     "src/ui/workbench/ArchiveSettings.tsx": {
       "sha256": "1530136c10f2e43e40af200f858e0879564557c8079038d731d60f50617058d9",
       "executable": false
@@ -10394,7 +10402,7 @@
       "executable": false
     },
     "src/ui/workbench/GroupingRules.tsx": {
-      "sha256": "09ee64a222545f069df5b262bb7449c7a32554a3ccf43603ab3ed3dba25c3eaa",
+      "sha256": "3f58afbbef76d97cb4177daa2a8dbf331bb6bd3e5ef1bb77ccf559b0852f09ae",
       "executable": false
     },
     "src/ui/workbench/IdentityPolicy.tsx": {
@@ -10622,7 +10630,7 @@
       "executable": false
     },
     "src/ui/workbench/SdkSetup.tsx": {
-      "sha256": "797585cc43759a6630d9ea1e97dc031d206228267761a79c45f26191646d1bc2",
+      "sha256": "89af1ec474a39d667c2f131ad4a6c1fd245265556eb8544ecd94167e5a062740",
       "executable": false
     },
     "src/ui/workbench/SentryEvent.tsx": {
@@ -10918,7 +10926,7 @@
       "executable": false
     },
     "tests/alerts/conditions-journey.mjs": {
-      "sha256": "cded4da7b8651f198a4d38b710ad55bdf157eadc352a2430e2bb12b9c95b881d",
+      "sha256": "15769cf5da7d60cebdde7c34ddd50ca3c52dc8d913aba8f2f32577b0633414a0",
       "executable": false
     },
     "tests/alerts/delivery-flow.mjs": {
@@ -11118,7 +11126,7 @@
       "executable": false
     },
     "tests/fidelity-flow.mjs": {
-      "sha256": "b2876ecc99ac925b692c18111daafff6ef450446f0a51aab1ba103b49cdd492f",
+      "sha256": "69275904ac634e4367711180e8cc69e726bad70a6eb9c91be7dcb0c765b5258e",
       "executable": false
     },
     "tests/fixtures/adblock/easyprivacy-sentry.txt": {
@@ -11206,7 +11214,7 @@
       "executable": false
     },
     "tests/identity-flow.mjs": {
-      "sha256": "019576adb660845f26a2b6f75fdbb7c9e1e13545e43ebbc29ca84926b6a02b2c",
+      "sha256": "68c4bcd00e97969b75aa51e735cce50acd9b1791bb75a46e40d01e2dd1b56ad0",
       "executable": false
     },
     "tests/inbound-filter-flow.mjs": {
@@ -11318,7 +11326,7 @@
       "executable": false
     },
     "tests/owner-erasure-authority.mjs": {
-      "sha256": "dfc85ab58560145fe533bf2b4d75aa9c395cd7b9195ee642e5dcd6169107b5fe",
+      "sha256": "246196871e63b1d80ce48f8c2d0aa8d4136aaf2d6ceb6934b54e105a6527c11b",
       "executable": false
     },
     "tests/owner-erasure-finalization.mjs": {
@@ -11342,7 +11350,7 @@
       "executable": false
     },
     "tests/owner-setup-browser.mjs": {
-      "sha256": "09976e87c70de4bd387484fda1d89bea1572011e79215e0cdb07e79a5fe56fe2",
+      "sha256": "bd70c0f4a73ce0a9a73ba87ff1a3c4a25b6fc48aec2c91b35b5c7e1db192fd0f",
       "executable": false
     },
     "tests/owner-setup-flow.mjs": {
@@ -11806,7 +11814,7 @@
       "executable": false
     },
     "tests/setup-journey.mjs": {
-      "sha256": "aaa4ca16eb33ed84ae02f65aa6893f7341bf288192a3172cf044f3059f1c55aa",
+      "sha256": "ea4c99f81040d2a6fae4ebdf7f11a93ff471e9629fb4c0fc3d5d25c2e2c90dc5",
       "executable": false
     },
     "tests/setup-prerequisites.mjs": {
@@ -11858,7 +11866,7 @@
       "executable": false
     },
     "tests/triage-journey.mjs": {
-      "sha256": "178520d24f61be72cd70fb57c24194691c8c1301b508076f81198748f5e2c138",
+      "sha256": "f6b77a7e8af0b05bab85cf559c9592160f1763f03960d82bb18eb2190ca4f89e",
       "executable": false
     },
     "tests/tunnel-flow.mjs": {

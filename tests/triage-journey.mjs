@@ -149,7 +149,7 @@ try {
   const preview=page.getByRole('dialog',{name:'Archive preview',exact:true});
   assert.doesNotMatch(await preview.innerText(),/CREATE TABLE|\b[0-9a-f]{8}(?:-[0-9a-f]{4}){3}-[0-9a-f]{12}\b|\{\s*"|oa_sessions|event_identities/i);
   await expect(preview).toContainText(String(downloaded.data.projects.length));
-  await expect(preview).toContainText(/empty installation/i);await expect(preview).toContainText(/sessions.*excluded/i);
+  await expect(preview).toContainText(/unavailable.*contains data/i);await expect(preview).toContainText(/sessions.*excluded/i);
   const raw=page.waitForEvent('download');await preview.getByRole('button',{name:'Download raw manifest',exact:true}).click();
   assert.deepEqual(JSON.parse(await readFile(await(await raw).path(),'utf8')),JSON.parse(downloaded.text.split('\n')[0]));
   for(const screen of [1440,390]){await page.setViewportSize({width:screen,height:900});await preview.screenshot({path:output+`/archive-preview-${screen}.png`});}await page.setViewportSize({width,height:900});

@@ -9,6 +9,10 @@ import {readScreens} from './runtimes/screens.mjs';
 export async function fidelityFlow({req,json,origin,cookie}) {
  await mappedFramesFlow({req,json,origin,cookie});
  const project=await json('/api/projects','POST',{id:'fidelity',name:'Cedar checkout diagnostics'}),base='/api/projects/fidelity';
+ // This privacy journey explicitly selects drop; new-project defaults are
+ // independently covered by identityFlow and the first-run creation journey.
+ const droppedPolicy={id:'drop',email:'drop',username:'drop',ip_address:'drop'},identityPreview=await json(base+'/identity-policy/preview','POST',{policy:droppedPolicy});
+ await json(base+'/identity-policy','PUT',{revision:identityPreview.revision,policy:droppedPolicy,token:identityPreview.token});
  await json(base+'/releases','POST',{name:'checkout@2.0.0',build:'web'});
  const dsn=new URL(project.dsn),path=`/api/${dsn.pathname.slice(1)}/envelope/?sentry_key=${dsn.username}&sentry_version=7`;
  let sequence=0;
@@ -31,7 +35,7 @@ export async function fidelityFlow({req,json,origin,cookie}) {
  const detail=await json(eventBase+'/'+list.oldest.id+'?occurrence='+list.oldest.occurrence);
  assert.equal(detail.grouping.variant,'exception chain','GROUP-001 shows the whole-chain variant');assert.equal(detail.grouping.exceptions[0].frames[0].contributes,true);assert.equal(detail.grouping.exceptions[0].frames[1].contributes,false,'GROUP-001 SDK not-in-app frame is excluded');assert.equal(detail.grouping.exceptions[0].frames[1].reason,'not in-app');
  // SDK-008: report excluded Sentry identity without retaining its value.
- assert.ok(detail.event.sentry.truncation.some(note=>note.path==='user'&&note.reason==='identity_policy_drop'),'SDK-008 names the default-drop identity policy at the owner detail door');
+ assert.ok(detail.event.sentry.truncation.some(note=>note.path==='user'&&note.reason==='identity_policy_drop'),'SDK-008 names the selected drop identity policy at the owner detail door');
  // SDK-010 request query strings are kept scrubbed and every exclusion is named.
  const query=new URLSearchParams(detail.event.sentry.request.query_string);
  assert.equal(query.get('page'),'2');assert.equal(query.get('filter'),'checkout failed');assert.deepEqual(query.getAll('tag'),['checkout','retry']);
@@ -73,7 +77,7 @@ export async function fidelityFlow({req,json,origin,cookie}) {
 
 async function impactJourney({req,json,origin,cookie}){
  const project=await json('/api/projects','POST',{id:'synthetic-spool-impact',name:'Synthetic issue impact'}),root='/api/projects/'+project.id;
- const policy={id:'hash',email:'drop',username:'drop',ip_address:'drop'},preview=await json(root+'/identity-policy/preview','POST',{policy});await json(root+'/identity-policy','PUT',{revision:0,policy,token:preview.token});
+ const policy={id:'hash',email:'drop',username:'drop',ip_address:'drop'},preview=await json(root+'/identity-policy/preview','POST',{policy});await json(root+'/identity-policy','PUT',{revision:preview.revision,policy,token:preview.token});
  const dsn=new URL(project.dsn),path=`/api/${dsn.pathname.slice(1)}/envelope/?sentry_key=${dsn.username}&sentry_version=7`;
  const send=async(type,value)=>{const response=await req(path,'POST','{}\n'+JSON.stringify({type})+'\n'+JSON.stringify(value));assert.equal(response.status,200);return response.json()};
  const sent=[],sids=Array.from({length:5},()=>crypto.randomUUID().replaceAll('-',''));
