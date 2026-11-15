@@ -1,6 +1,7 @@
 -- Project metrics have no synthetic issue. Preserve the populated feed and every
 -- current trigger while rebuilding its nullable issue reference, in the same transaction.
 INSERT INTO rer_portability_guard SELECT CASE WHEN NOT EXISTS(SELECT 1 FROM rer_portability_state WHERE id=1 AND import_job IS NOT NULL) THEN 1 ELSE 0 END;
+DELETE FROM rer_portability_guard WHERE rowid=last_insert_rowid();
 PRAGMA defer_foreign_keys=ON;
 CREATE TABLE spool_alerts_backup AS SELECT * FROM alerts;
 DELETE FROM alerts;
