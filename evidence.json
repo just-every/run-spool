@@ -1,0 +1,40 @@
+{
+  "files": [
+    {
+      "blob": "b61c48c26c1bdff20d7f0b704f1a61b1d6f2747d",
+      "bytes": 3903,
+      "path": "REPORT.md",
+      "sha256": "711e9fa041f900b5a4473f2c35839257098de30990f2d468b75d0e36ebcf9746"
+    },
+    {
+      "blob": "3495b4aa211b0166ee2b0f0117856acca1206bb9",
+      "bytes": 2937,
+      "path": "custody-receipt.json",
+      "sha256": "ab2506391912066762334ce86c27375681f2a8801ebc64f7586fd03aacfbe7cc"
+    },
+    {
+      "blob": "8b397759c3490f5d34b737e6b013a75c1929a9a8",
+      "bytes": 170,
+      "path": "identity-audit.txt",
+      "sha256": "c9f719ac04ee5a87f887bd38a32e08c08cd63abd5a2deb8c3e01856328b8b56d"
+    },
+    {
+      "blob": "51777add0dda40444c8e0faaa544da1f1d396da5",
+      "bytes": 426,
+      "path": "push-receipt.json",
+      "sha256": "7e26e1a5ea33e115c8435d2760c908bbc0e380f5d2974aee01b3bca45b2c24a1"
+    },
+    {
+      "blob": "34bc67fd7cb97c909b801815ed1ff05053becea9",
+      "bytes": 345,
+      "path": "verify-receipt.json",
+      "sha256": "dcea44ec739dec9ecf7b8397effeb6beb30ee2618eb1bc8e920a6fd25c796bf5"
+    }
+  ],
+  "product_branch": "cloud/main-spool-mail-off-1-c2",
+  "product_head": "428560c3aa2d6c3eb984a751aff9aa5c0e706c42",
+  "ref": "refs/heads/evidence/main-spool-mail-off-1-c2",
+  "repository": "just-every/run-spool",
+  "schema": 1,
+  "tag": "main-spool-mail-off-1-c2"
+}

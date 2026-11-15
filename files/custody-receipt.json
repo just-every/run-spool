@@ -1,0 +1,78 @@
+{
+  "tag": "main-spool-mail-off-1-c2",
+  "repository": "just-every/run-spool",
+  "branch": "cloud/main-spool-mail-off-1-c2",
+  "head": "428560c3aa2d6c3eb984a751aff9aa5c0e706c42",
+  "tree": "7b378c884556f99536b9f4ea6bc78a6d4d0c6144",
+  "origin_main": "adc3de69b9ae0ff60e41897f8ff7662fd656d560",
+  "original_branch_head": "428560c3aa2d6c3eb984a751aff9aa5c0e706c42",
+  "clean_worktree": true,
+  "new_product_commits": 0,
+  "candidate_commits": [
+    {
+      "sha": "428560c3aa2d6c3eb984a751aff9aa5c0e706c42",
+      "author_name": "Run Edit Run fleet",
+      "author_email": "fleet@runeditrun.com",
+      "committer_name": "Run Edit Run fleet",
+      "committer_email": "fleet@runeditrun.com",
+      "trailers": []
+    },
+    {
+      "sha": "85615a4ca3d5aa576f54fd95070277ee57fdb086",
+      "author_name": "Run Edit Run fleet",
+      "author_email": "fleet@runeditrun.com",
+      "committer_name": "Run Edit Run fleet",
+      "committer_email": "fleet@runeditrun.com",
+      "trailers": []
+    }
+  ],
+  "counts_before": {
+    "CONTRACT.md": [
+      "| Clauses | Done | Partial | Missing | Total |",
+      "| --- | ---: | ---: | ---: | ---: |",
+      "| Published | 9 | 3 | 0 | 12 |",
+      "| Target and push further | 14 | 51 | 28 | 93 |",
+      "| All | 23 | 54 | 28 | 105 |",
+      ""
+    ],
+    "ACCEPTANCE.md": [
+      "| Tier | Done | Partial | Missing | Total |",
+      "| --- | ---: | ---: | ---: | ---: |",
+      "| Core | 23 | 45 | 19 | 87 |",
+      "| Agent surface | 0 | 9 | 9 | 18 |",
+      "| Later | 0 | 0 | 0 | 0 |",
+      "| Full target | 23 | 54 | 28 | 105 |"
+    ]
+  },
+  "counts_after": {
+    "CONTRACT.md": [
+      "| Clauses | Done | Partial | Missing | Total |",
+      "| --- | ---: | ---: | ---: | ---: |",
+      "| Published | 9 | 3 | 0 | 12 |",
+      "| Target and push further | 14 | 51 | 28 | 93 |",
+      "| All | 23 | 54 | 28 | 105 |",
+      ""
+    ],
+    "ACCEPTANCE.md": [
+      "| Tier | Done | Partial | Missing | Total |",
+      "| --- | ---: | ---: | ---: | ---: |",
+      "| Core | 23 | 45 | 19 | 87 |",
+      "| Agent surface | 0 | 9 | 9 | 18 |",
+      "| Later | 0 | 0 | 0 | 0 |",
+      "| Full target | 23 | 54 | 28 | 105 |"
+    ]
+  },
+  "clause_status_before": {
+    "OPS-001": "Core \u00b7 published \u00b7 **partial** \u00b7 Cites BASE-ACCESS-001, BASE-INSTALL-001, BASE-DATA-001 \u00b7 Register R-20",
+    "ALERT-003": "Core \u00b7 target \u00b7 **partial** \u00b7 Cites BASE-MAIL-001 \u00b7 Rules D-4, D-6 \u00b7 Register R-8, R-9"
+  },
+  "clause_status_after": {
+    "OPS-001": "Core \u00b7 published \u00b7 **partial** \u00b7 Cites BASE-ACCESS-001, BASE-INSTALL-001, BASE-DATA-001 \u00b7 Register R-20",
+    "ALERT-003": "Core \u00b7 target \u00b7 **partial** \u00b7 Cites BASE-MAIL-001 \u00b7 Rules D-4, D-6 \u00b7 Register R-8, R-9"
+  },
+  "verify_run_id": 43739268265,
+  "verify_status": "completed",
+  "verify_conclusion": "success",
+  "github_api_calls": 1,
+  "no_product_changes": true
+}

@@ -1,0 +1,15 @@
+{
+  "command": "python3 $HOME/rer-consolidation/.tools/cloud-push.py origin cloud/main-spool-mail-off-1-c2",
+  "attempts": 1,
+  "result": "success",
+  "remote_refs": [
+    {
+      "head": "428560c3aa2d6c3eb984a751aff9aa5c0e706c42",
+      "ref": "refs/heads/cloud/main-spool-mail-off-1"
+    },
+    {
+      "head": "428560c3aa2d6c3eb984a751aff9aa5c0e706c42",
+      "ref": "refs/heads/cloud/main-spool-mail-off-1-c2"
+    }
+  ]
+}

@@ -1,0 +1,11 @@
+{
+  "conclusion": "success",
+  "event": "push",
+  "head_branch": "cloud/main-spool-mail-off-1",
+  "head_sha": "428560c3aa2d6c3eb984a751aff9aa5c0e706c42",
+  "html_url": "https://github.com/just-every/run-spool/actions/runs/43739268265",
+  "id": 43739268265,
+  "name": "Verify",
+  "path": ".github/workflows/verify.yml",
+  "status": "completed"
+}
