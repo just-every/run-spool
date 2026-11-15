@@ -1,3 +1,4 @@
+import { recipientChoices,keptRecipients } from './targets';
 import type { NativeAuthority } from '../agent-door/native-authority';
 import { resolveMembership } from '../members/resolver';
 import {primaryShortIdSql} from '../short-ids/lookup';
@@ -33,6 +34,7 @@ async function input(c:any) {
 }
 controlsRoutes(routes,input);
 teamControls(routes,input);
+routes.get('/recipients',async c=>c.json(await recipientChoices(c.env,c.req.param('project')!)));
 routes.get('/destinations',async c=>{try{return c.json({rows:await destinationChoices(c.env,c.req.param('project')!),configuration:'available'})}catch{return c.json({rows:[],configuration:'blocked'})}});
 routes.post('/destinations',async c=>c.json(await saveDestination(c.env,c.get('alertSession'),c.req.param('project')!,undefined,await input(c)),201));
 routes.put('/destinations/:destination',async c=>{const result=await saveDestination(c.env,c.get('alertSession'),c.req.param('project')!,c.req.param('destination'),await input(c));await synchronizeHistory(c.env,Date.now());return c.json(result)});
@@ -85,7 +87,7 @@ routes.get('/deliveries/:delivery',async c=>{
  const p=c.req.param('project')!,id=c.req.param('delivery');
  const row=await s(c.env.DB,'SELECT * FROM alert_history WHERE project=? AND id=?',p,id).first<any>();if(!row)return c.json({error:'Delivery not found'},404);
  const attempts=row.historical?[]:row.channel==='webhook'?await new IntegrationsRepository(new D1SqlDatabase(c.env.DB),namespace(p)).log(id):(await s(c.env.DB,`SELECT a.number,a.started,a.finished,a.state,a.code FROM alert_mail_attempts a JOIN alert_mail_jobs j ON j.id=a.delivery_id WHERE j.project=? AND j.id=? ORDER BY a.number`,p,id).all()).results;
- const events=(await s(c.env.DB,'SELECT * FROM alert_provider_events WHERE project=? AND delivery_id=? ORDER BY occurred_at,event_id',p,id).all()).results;const slack=await s(c.env.DB,'SELECT message_id FROM slack_delivery_meta WHERE project=? AND delivery_id=?',p,id).first();return c.json({delivery:row,attempts,events,...slack?{slack}:{}});
+ const events=(await s(c.env.DB,'SELECT * FROM alert_provider_events WHERE project=? AND delivery_id=? ORDER BY occurred_at,event_id',p,id).all()).results;const slack=await s(c.env.DB,'SELECT message_id FROM slack_delivery_meta WHERE project=? AND delivery_id=?',p,id).first();return c.json({delivery:row,attempts,events,recipients:await keptRecipients(c.env,{id:id!,project:p}),...slack?{slack}:{}});
 });
 routes.post('/deliveries/:delivery/resolve',async c=>{
  const p=c.req.param('project')!,id=c.req.param('delivery'),b=await input(c);

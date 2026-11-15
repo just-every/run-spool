@@ -1,3 +1,4 @@
+import { intentRecipients,keptRecipients,authorizeRecipients } from './targets';
 import { dispatchStanding } from '../agent-door/standing';
 import type { Bindings } from '../../auth/bindings';
 import { serviceActor,auditSubject } from '../audit/identity';
@@ -33,8 +34,9 @@ export function sender(env:AlertEnvironment) {
 }
 export async function expandMail(env:AlertEnvironment,intent:Intent,time:number) {
  const destination=await authorizedDestination(env,intent);sender(env);
- const message=mailMessage(intent.id,intent.body,env.MAIL_FROM!,destination.recipient!);validateMessage(message,env.MAIL_PROVIDER);
- const digest=await destinationHash(env,JSON.stringify([destination.recipient,env.MAIL_FROM,env.MAIL_PROVIDER]));
+ const recipients=destination.kind==='target'?(await intentRecipients(env,intent,destination,time)).map(r=>r.email):destination.recipient!;
+ const message=mailMessage(intent.id,intent.body,env.MAIL_FROM!,recipients);validateMessage(message,env.MAIL_PROVIDER);
+ const digest=await destinationHash(env,JSON.stringify([recipients,env.MAIL_FROM,env.MAIL_PROVIDER]));
  await s(env.DB,`INSERT INTO alert_mail_jobs(id,project,message,destination_hash,next_at) VALUES(?,?,?,?,?) ON CONFLICT(id) DO NOTHING`,intent.id,intent.project,JSON.stringify(message),digest,time).run();
  const stored=await s(env.DB,'SELECT message,destination_hash FROM alert_mail_jobs WHERE id=? AND project=?',intent.id,intent.project).first<any>();
  if(stored.message!==JSON.stringify(message)||stored.destination_hash!==digest)throw new Error('mail_identity_conflict');
@@ -55,7 +57,10 @@ export async function dispatchMail(env:AlertEnvironment,time:number,only?:string
   let mail;
   try {
    const destination=await authorizedDestination(env,job);mail=sender(env);
-   if(await destinationHash(env,JSON.stringify([destination.recipient,env.MAIL_FROM,env.MAIL_PROVIDER]))!==job.destination_hash)throw 0;
+   const kept=destination.kind==='target'?await keptRecipients(env,job):null;
+   if(destination.kind==='target'){if(!kept?.length)throw new Error('no_recipients');await authorizeRecipients(env,job.project,kept)}
+   const recipients=kept?kept.map(r=>r.email):destination.recipient!;
+   if(await destinationHash(env,JSON.stringify([recipients,env.MAIL_FROM,env.MAIL_PROVIDER]))!==job.destination_hash)throw 0;
    validateMessage(JSON.parse(job.message),env.MAIL_PROVIDER);
   } catch {
    await s(env.DB,`UPDATE alert_mail_jobs SET state='blocked',code='preflight_failed' WHERE id=? AND state='queued'`,job.id).run();continue;
@@ -71,6 +76,8 @@ export async function dispatchMail(env:AlertEnvironment,time:number,only?:string
   if(!authority||authority.claim_until<=clock()){
    await finishMail(env,job.id,claim,'blocked','rule_revoked',null,clock(),null);continue;
   }
+  const kept=await keptRecipients(env,job);
+  try{if(kept)await authorizeRecipients(env,job.project,kept)}catch{await finishMail(env,job.id,claim,'blocked','recipient_authority_changed',null,clock(),null);continue}
   let state='uncertain',code='response_unknown',receipt:string|null=null;
   try {const saved=await s(env.DB,'SELECT message,agent_attribution FROM alert_mail_jobs WHERE id=? AND claim=?',job.id,claim).first<{message:string;agent_attribution:string|null}>();if(!saved)throw new Error('claim_lost');const message=JSON.parse(saved.message);if(saved.agent_attribution){const source=JSON.parse(saved.agent_attribution);message.from=agentMailFrom(message.from,source);message.text+=`\n\nPrepared by ${source.preparedBy.label}.`+(source.approvers.length?` Approved by ${source.approvers.map((person:any)=>person.name).join(', ')}.`:'');}const result=await mail.send(message);state=result.status==='development'?'accepted':result.status==='rate_limited'?(job.attempts+1<job.max_attempts?'queued':'rejected'):result.status;code=result.code??`mail_${result.status}`;receipt=result.providerMessageId??null;} catch { /* A send started: the response cannot establish failure. */ }
   const finished=clock();

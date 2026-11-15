@@ -1,3 +1,4 @@
+import { levelTagSql } from './filters';
 import { configSql } from './preview';
 import { regressionSql } from '../releases/order';
 import { originalMembership } from '../operators/provenance';
@@ -27,10 +28,12 @@ export const receivedAtSql="CAST(strftime('%s','now') AS INTEGER)*1000+CAST(subs
 export function routeStatements(db:D1Database,alertId:string,time:number,onlyRule?:string,trigger?:{eventId:string;occurrence:string}) {
  return [s(db,`INSERT INTO alert_intents(id,project,alert_id,rule_id,rule_revision,channel,destination,body,event,created)
  SELECT a.id||'.'||r.id||'.'||r.revision,a.project,a.id,r.id,r.revision,r.channel,r.destination,a.payload,
- CASE a.kind WHEN 'new_issue' THEN 'spool.issue.new' WHEN 'regression' THEN 'spool.issue.regressed' WHEN 'reactivation' THEN 'spool.issue.reactivated' ELSE 'spool.issue.spike' END,?
+ CASE a.kind WHEN 'new_issue' THEN 'spool.issue.new' WHEN 'regression' THEN 'spool.issue.regressed' WHEN 'reactivation' THEN 'spool.issue.reactivated' WHEN 'metric' THEN 'spool.metric.changed' ELSE 'spool.issue.spike' END,?
  FROM alerts a JOIN alert_rules r ON r.project=a.project
- WHERE a.id=? AND r.enabled=1 AND a.payload IS NOT NULL AND (a.kind<>'spike' OR json_extract(a.payload,'$.rule.revision')=r.revision) AND EXISTS(SELECT 1 FROM json_each(r.kinds) WHERE value=a.kind)
- ${onlyRule?'AND r.id=?':''} ${trigger?`AND EXISTS(SELECT 1 FROM events e WHERE e.project=a.project AND e.id=? AND e.occurrence=? AND (json_extract(${configSql},'$.filters.environment') IS NULL OR e.environment=json_extract(${configSql},'$.filters.environment')) AND (json_extract(${configSql},'$.filters.release') IS NULL OR e.release=json_extract(${configSql},'$.filters.release')) AND (json_extract(${configSql},'$.filters.level') IS NULL OR COALESCE(json_extract(e.payload,'$.sentry.level'),'error')=json_extract(${configSql},'$.filters.level')) AND NOT EXISTS(SELECT 1 FROM json_each(${configSql},'$.filters.tags') t WHERE json_extract(e.payload,'$.sentry.tags.'||json_quote(t.key)) IS NOT t.value))`:''} ON CONFLICT(id) DO NOTHING`,time,alertId,...(onlyRule?[onlyRule]:[]),...(trigger?[trigger.eventId,trigger.occurrence]:[])),
+ WHERE a.id=? AND r.enabled=1 AND a.payload IS NOT NULL AND (a.kind NOT IN ('spike','metric') OR json_extract(a.payload,'$.rule.revision')=r.revision) AND EXISTS(SELECT 1 FROM json_each(r.kinds) WHERE value=a.kind)
+ ${onlyRule?'AND r.id=?':''} ${trigger?`AND EXISTS(SELECT 1 FROM events e WHERE e.project=a.project AND e.id=? AND e.occurrence=? AND (json_extract(${configSql},'$.filters.environment') IS NULL OR e.environment=json_extract(${configSql},'$.filters.environment')) AND (json_extract(${configSql},'$.filters.release') IS NULL OR e.release=json_extract(${configSql},'$.filters.release')) AND ${levelTagSql(configSql)})`:''}
+ AND (a.kind='metric' OR NOT EXISTS(SELECT 1 FROM alert_intents previous JOIN alerts prior ON prior.id=previous.alert_id WHERE previous.project=a.project AND previous.rule_id=r.id AND prior.issue=a.issue AND previous.created>? - COALESCE(json_extract(${configSql},'$.actionIntervalMinutes'),0)*60000 AND previous.created<=? AND previous.alert_id<>a.id))
+ ON CONFLICT(id) DO NOTHING`,time,alertId,...(onlyRule?[onlyRule]:[]),...(trigger?[trigger.eventId,trigger.occurrence]:[]),time,time),
  s(db,`INSERT INTO alert_suppressed(delivery_id,project,snooze_id,reason,created)
  SELECT i.id,i.project,z.id,'snooze',? FROM alert_intents i JOIN alerts a ON a.id=i.alert_id
  JOIN alert_snoozes z ON z.project=i.project AND z.historical=0 AND z.resumed_at IS NULL AND z.until>?

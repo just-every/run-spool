@@ -1,3 +1,4 @@
+import { metricConfig, metricMeasure } from './metric-rules';
 import type { NativeAuthority } from '../agent-door/native-authority';
 import {primaryShortIdSql} from '../short-ids/lookup';
 import {scrubbingSnapshot,scrubbingFence} from '../scrubbing/model';
@@ -12,7 +13,13 @@ import { decision } from './measure';
 export const configSql="COALESCE((SELECT config FROM alert_rule_configs cfg WHERE cfg.rule_id=r.id),'{\"metric\":\"count\",\"filters\":{},\"tagKeys\":[]}')";
 export async function ruleDigest(b:any,revisions?:unknown){const {previewToken,...value}=b;return hash(canonical({value,...revisions?{scrubbing:revisions}:{}}))}
 export async function previewRule(env:AlertEnvironment,session:NativeAuthority,project:string,raw:any){
- const {ruleId,...value}=raw,b=ruleInput(value,env,project,!!ruleId),config=ruleConfig(JSON.parse(b.config)),policy=await readIdentityPolicy(env.DB,project),time=Date.now(),end=Math.floor(time/b.windowMs)*b.windowMs,from=end-90*86400000;
+ const {ruleId,...value}=raw,b=ruleInput(value,env,project,!!ruleId),config=b.kinds==='["metric"]'?metricConfig(JSON.parse(b.config)):ruleConfig(JSON.parse(b.config)),policy=await readIdentityPolicy(env.DB,project),time=Date.now(),end=Math.floor(time/b.windowMs)*b.windowMs,from=end-90*86400000;
+ if(config.metric==='aggregate'){
+  const measurement=await metricMeasure(env.DB,project,config,end-b.windowMs,end);
+  const scrubbing=await scrubbingSnapshot(env.DB,project),revisions={project:scrubbing.revision,installation:scrubbing.installationRevision},token=crypto.randomUUID();
+  await ownerBatch(env.DB,session,[scrubbingFence(env.DB,project,revisions.project),scrubbingFence(env.DB,null,revisions.installation),identityPolicyFence(env.DB,project,policy.revision),s(env.DB,'DELETE FROM alert_rule_previews WHERE project=? AND created<?',project,time-86400000),s(env.DB,'INSERT INTO alert_rule_previews VALUES(?,?,?,?,?,?)',token,project,ruleId??null,await ruleDigest(b,revisions),policy.revision,time)]);
+  return {token,refusal:null,owner:'Installation owner',destination:b.destination,window:{from:end-b.windowMs,to:end,durationMs:b.windowMs},matchedEvents:measurement.samples,transitions:[],decisions:[{...measurement,start:end-b.windowMs,end,metric:config.aggregate,issue_title:'Project metric',fired:false}],coverage:'Project-wide retained observations only; missing transaction or session samples leave status unchanged. Error counts are not extrapolated.'};
+ }
  const f=eventFilter(config),rows=(await s(env.DB,`SELECT e.issue,CAST(e.received/? AS INTEGER)*? start,COUNT(*) count FROM events e WHERE e.project=? AND e.received>=? AND e.received<? AND ${eligibleEvent()} AND ${f.sql} GROUP BY e.issue,start ORDER BY start DESC,e.issue LIMIT 100`,b.windowMs,b.windowMs,project,from,end,...f.args).all<any>()).results;
  let refusal:string|null=null;
  if(config.metric==='users'){

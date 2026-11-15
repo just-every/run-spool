@@ -1,3 +1,4 @@
+import { metricConfig } from './metric-rules';
 import { ruleConfig } from './filters';
 import { scrub } from '../privacy';
 import { alertKinds, type AlertEnvironment } from './types';
@@ -9,6 +10,7 @@ export function ruleInput(input:unknown,env:AlertEnvironment,project:string,edit
  if(!Number.isSafeInteger(b.windowMs)||b.windowMs<60000||b.windowMs>86400000||b.windowMs%60000||!Number.isSafeInteger(b.threshold)||b.threshold<2||b.threshold>10000||editing&&(!Number.isSafeInteger(b.revision)||b.revision<1))throw new Error('Invalid alert window or revision');
  // Destination authority is checked asynchronously by the owner route.
  if(!/^[a-zA-Z0-9][a-zA-Z0-9._-]{0,100}$/.test(b.destination))throw new Error('Invalid destination identity');
- const config=ruleConfig(b.config);if(config.metric==='session_percent'&&b.threshold>100)throw new Error('Session percent threshold must be at most 100');
+ const metric=b.kinds.includes('metric');if(metric&&b.kinds.length!==1)throw new Error('Project metrics cannot be mixed with issue events');
+ const config=metric?metricConfig(b.config):ruleConfig(b.config);if(config.metric==='session_percent'&&b.threshold>100)throw new Error('Session percent threshold must be at most 100');
  return {...b,config:JSON.stringify(config),kinds:JSON.stringify([...b.kinds].sort())};
 }

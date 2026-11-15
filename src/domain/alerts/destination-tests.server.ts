@@ -1,3 +1,4 @@
+import { findTarget,resolveTarget } from './targets';
 import type { NativeAuthority } from '../agent-door/native-authority';
 import { savedSlack } from './slack-destinations.server';
 import { sendSlack } from './slack.server';
@@ -18,7 +19,7 @@ export async function requireReviewedTest(env:AlertEnvironment,project:string,id
 }
 export async function testDestination(env:AlertEnvironment,session:NativeAuthority,project:string,id:string){
  const saved=await s(env.DB,'SELECT 1 FROM alert_destinations WHERE project=? AND id=?',project,id).first();
- const {destinations}=await import('./destinations.server');const channel=saved?'mail':await savedSlack(env,project,id)?'webhook':destinations(env).find(d=>d.id===id&&d.project===project)?.channel;
+ const {destinations}=await import('./destinations.server');const channel=saved||await findTarget(env,project,id)?'mail':await savedSlack(env,project,id)?'webhook':destinations(env).find(d=>d.id===id&&d.project===project)?.channel;
  if(!channel)throw new Error('Destination not found');
  const destination=await findDestination(env,project,id,channel),fingerprint=await testFingerprint(env,project,id,channel),time=Date.now(),testId=crypto.randomUUID();
  // Claiming the operational send slot is not a second completed owner change.
@@ -31,7 +32,7 @@ export async function testDestination(env:AlertEnvironment,session:NativeAuthori
  try {
   if(channel==='mail'){
    await ownerBatch(env.DB,session,[]);
-   const result=await sender(env).send({deliveryId:testId,from:agentMailFrom(env.MAIL_FROM!,attribution),to:[destination.recipient!],subject:'Spool TEST — destination check',text:`This is a TEST of your Spool destination for project ${project}. No issue, alert, assignment or usage counter was changed.${label}`});
+   const result=await sender(env).send({deliveryId:testId,from:agentMailFrom(env.MAIL_FROM!,attribution),to:destination.kind==='target'?await resolveTarget(env,project,destination).then(rows=>{if(!rows.length)throw new Error('no_recipients');return rows.map(r=>r.email)}):[destination.recipient!],subject:'Spool TEST — destination check',text:`This is a TEST of your Spool destination for project ${project}. No issue, alert, assignment or usage counter was changed.${label}`});
    state=['accepted','development'].includes(result.status)?'passing':'failing';
    detail=result.status==='development'?'Local development suppresses mail; this passing local test sent no email.':result.status==='accepted'?'Provider accepted this TEST. Check the mailbox; acceptance does not confirm recipient receipt.':`TEST result: ${result.status}. Recipient receipt is unconfirmed.`;
   }else if(destination.kind==='slack'){

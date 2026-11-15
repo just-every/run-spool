@@ -1,3 +1,4 @@
+import { metricConfig,validMetricAlert } from './metric-rules';
 import {validateDecision} from './decision-archive';
 import { ruleConfig } from './filters';
 import { slackHistoryTables, validateSlackHistory } from './slack-archive';
@@ -8,7 +9,7 @@ import { issueLink, publicOrigin } from './payload';
 import { isShortId } from '../short-ids/format';
 import { alertKinds } from './types';
 export const alertArchiveTables=['alert_rules','alert_history','alert_rule_configs',...deliveryArchiveTables,...slackHistoryTables];
-export const alertExcludedTables=['alert_reactivation_markers','alert_rule_previews','alert_decisions','slack_destinations','alert_destination_tests','rer_mail_event_receipts','rer_mail_event_states','alert_destinations','alert_scheduler','alert_expansion_cursors','alert_intents','alert_cursors','alert_mail_jobs','alert_mail_attempts','integration_%'];
+export const alertExcludedTables=['sentry_transactions','alert_target_destinations','alert_intent_recipients','alert_metric_states','alert_metric_events','alert_reactivation_markers','alert_rule_previews','alert_decisions','slack_destinations','alert_destination_tests','rer_mail_event_receipts','rer_mail_event_states','alert_destinations','alert_scheduler','alert_expansion_cursors','alert_intents','alert_cursors','alert_mail_jobs','alert_mail_attempts','integration_%'];
 export function alertExportRow(table:string,row:any) {
  if(table==='alert_rules')return {...row,enabled:0};
  if(table==='alert_history')return {...row,historical:1};
@@ -22,7 +23,7 @@ function label(value:any){assert(typeof value==='string'&&/^[a-zA-Z0-9][a-zA-Z0-
 function safe(value:any,max=1000){assert(typeof value==='string'&&value.length<=max&&scrub(value)===value);}
 export function validateAlertArchive(data:any) {
  data.slack_delivery_meta??=[];data.alert_rule_configs??=[];
- for(const r of data.alert_rule_configs){shape(r,['rule_id','project','revision','config']);assert(data.alert_rules.some((v:any)=>v.id===r.rule_id&&v.project===r.project&&v.revision>=r.revision));ruleConfig(JSON.parse(r.config));}
+ for(const r of data.alert_rule_configs){shape(r,['rule_id','project','revision','config']);assert(data.alert_rules.some((v:any)=>v.id===r.rule_id&&v.project===r.project&&v.revision>=r.revision));(JSON.parse(r.config).metric==='aggregate'?metricConfig:ruleConfig)(JSON.parse(r.config));}
  validateDeliveryArchive(data);
  validateSlackHistory(data);
  const projects=new Set(data.projects.map((r:any)=>r.id)),issues=new Map<string,any>(data.issues.map((r:any)=>[r.id,r])),rules=new Map<string,any>(),alerts=new Map<string,any>();
@@ -31,11 +32,12 @@ export function validateAlertArchive(data:any) {
   shape(r,['id','project','revision','name','enabled','channel','destination','kinds','window_ms','threshold','created','updated']);
   label(r.id);label(r.destination);safe(r.name,100);assert(projects.has(r.project)&&!rules.has(r.id)&&r.enabled===0&&['mail','webhook'].includes(r.channel));
   integer(r.revision,1);integer(r.created);integer(r.updated);integer(r.window_ms,60000);assert(r.window_ms<=86400000&&r.window_ms%60000===0);integer(r.threshold,2);assert(r.threshold<=10000);
-  const events=JSON.parse(r.kinds);assert(Array.isArray(events)&&events.length>0&&events.length<=4&&new Set(events).size===events.length&&events.every(k=>kinds.includes(k)));rules.set(r.id,r);
+  const events=JSON.parse(r.kinds);assert(Array.isArray(events)&&events.length>0&&events.length<=kinds.length&&new Set(events).size===events.length&&events.every(k=>kinds.includes(k)));rules.set(r.id,r);
  }
  for(const p of projects)assert(data.alert_rules.filter((r:any)=>r.project===p).length<=20);
  for(const a of data.alerts){
-  shape(a,['id','project','issue','kind','created','payload']);label(a.id);integer(a.created);assert(projects.has(a.project)&&issues.get(a.issue)?.project===a.project&&kinds.includes(a.kind)&&!alerts.has(a.id));alerts.set(a.id,a);
+  shape(a,['id','project','issue','kind','created','payload']);label(a.id);integer(a.created);assert(projects.has(a.project)&&(a.kind==='metric'?a.issue===null:issues.get(a.issue)?.project===a.project)&&kinds.includes(a.kind)&&!alerts.has(a.id));alerts.set(a.id,a);
+  if(a.kind==='metric'){const payload=JSON.parse(a.payload);assert(validMetricAlert(a,payload,rules.get(payload.rule?.id)));continue;}
   if(a.payload===null){assert(a.kind!=='spike');continue;}
   assert(typeof a.payload==='string'&&a.payload.length<8192);const p=JSON.parse(a.payload);
   // TEAM-004 alerts name the issue's short ID and, after a commit resolution, its commit.
@@ -74,6 +76,6 @@ export function validateAlertArchive(data:any) {
  // Delegate the unchanged legacy rows to Spool's strict v1/v2 validator. Alert-specific
  // fields and new audit kinds were checked above, never accepted by the legacy reader.
  return {...Object.fromEntries(Object.entries(data).filter(([name])=>!alertArchiveTables.includes(name))),
-  alerts:data.alerts.filter((a:any)=>a.kind!=='spike').map(({payload,...row}:any)=>row),
+  alerts:data.alerts.filter((a:any)=>!['spike','metric'].includes(a.kind)).map(({payload,...row}:any)=>row),
   audit:data.audit.filter((r:any)=>!r.kind.startsWith('alert_'))};
 }

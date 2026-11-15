@@ -1,3 +1,4 @@
+import { admitTransactions } from './transactions';
 import {prepareScrubbing} from '../scrubbing/model';
 import {prepareLocatedLogs} from './located-log';
 import {prepareEventIdentity} from '../identities/intake';
@@ -51,7 +52,7 @@ routes.on('POST',paths,async c=>{
     const auth=await sentryAuthority(c,envelope.header);if('response' in auth)return auth.response;scope=auth.scope;
     type Privacy={jobs:D1PreparedStatement[]};
     let eventScrubbingKey:Awaited<ReturnType<typeof prepareScrubbing>>['key']=null;
-    const dropped=new Map<string,number>(),clientDiscarded=new Map<string,number>(),events:{event:any;digest:string;identity?:Awaited<ReturnType<typeof prepareEventIdentity>>;privacy?:Privacy}[]=[],feedback=[],checkIns:typeof envelope.items=[],sessions:typeof envelope.items=[];
+    const dropped=new Map<string,number>(),clientDiscarded=new Map<string,number>(),events:{event:any;digest:string;identity?:Awaited<ReturnType<typeof prepareEventIdentity>>;privacy?:Privacy}[]=[],feedback=[],checkIns:typeof envelope.items=[],sessions:typeof envelope.items=[],transactions:typeof envelope.items=[];
     let clientReports=0,invalidReports=0,filteredReports=0;
     for(const item of envelope.items){
       if(item.header.type==='client_report'){
@@ -63,6 +64,7 @@ routes.on('POST',paths,async c=>{
       if(item.header.type==='feedback'||item.header.type==='user_report'){
         feedback.push(await feedbackInput(objectJson(item.bytes),item.header.type,envelope.header.event_id));continue;
       }
+      if(item.header.type==='transaction'){transactions.push(item);continue}
       if(item.header.type==='session'||item.header.type==='sessions'){sessions.push(item);continue}
       if(item.header.type==='check_in'){checkIns.push(item);continue}
       if(item.header.type==='log'){
@@ -103,6 +105,7 @@ routes.on('POST',paths,async c=>{
       }
       id=event.eventId;
     }
+    const transactionCounts=transactions.length?await admitTransactions(c,scope,transactions,envelope.header.event_id):{};
     const receipts=[];
     // Admit errors first so feedback in the same envelope can bind their exact occurrence.
     for(const report of feedback){const response=await admitFeedback(c,scope,report),result=await response.json();if(!response.ok){c.header('X-Sentry-Error',String((result as any).reason??(result as any).outcome));return c.json(result,response.status as any)}receipts.push(result);id??=report.id}
@@ -112,7 +115,7 @@ routes.on('POST',paths,async c=>{
     if(retryAfter)c.header('X-Sentry-Rate-Limits',`${retryAfter}:session:project:session_rate_limited`);
     const checkInCounts=checkIns.length?await admitCheckIns(c,scope,checkIns):{};
     if(keyLimited)dropped.set('key_rate_limited',keyLimited);
-    return c.json({...(keyRefusal??{}),...id?{id}:{},dropped:Object.fromEntries(dropped),...dropped.has('invalid_item')?{refusedItems:[{type:'event',reason:'invalid_item',quantity:dropped.get('invalid_item')}]}:{},...clientReports?{clientReports:{received:clientReports-invalidReports-filteredReports,invalid:invalidReports,...filteredReports?{filtered:filteredReports}:{},discarded:Object.fromEntries(clientDiscarded)}}:{},...receipts.length?{feedback:receipts}:{},...checkIns.length?{checkIns:checkInCounts}:{},...sessions.length?{sessions:sessionCounts}:{},...registrationRequired?{register:`/projects/${encodeURIComponent(scope.project)}/releases`}:{}},keyLimited?429:200);
+    return c.json({...(keyRefusal??{}),...id?{id}:{},dropped:Object.fromEntries(dropped),...dropped.has('invalid_item')?{refusedItems:[{type:'event',reason:'invalid_item',quantity:dropped.get('invalid_item')}]}:{},...clientReports?{clientReports:{received:clientReports-invalidReports-filteredReports,invalid:invalidReports,...filteredReports?{filtered:filteredReports}:{},discarded:Object.fromEntries(clientDiscarded)}}:{},...receipts.length?{feedback:receipts}:{},...checkIns.length?{checkIns:checkInCounts}:{},...sessions.length?{sessions:sessionCounts}:{},...transactions.length?{transactions:transactionCounts}:{},...registrationRequired?{register:`/projects/${encodeURIComponent(scope.project)}/releases`}:{}},keyLimited?429:200);
   }catch(error){
     if(error instanceof SentryWireError){
       if(scope){try{await recordIngest(c,scope,error.status===415?'unsupported_content_encoding':error.reason.includes('feedback')?error.status===413?'feedback_oversized':'feedback_invalid':error.reason==='missing_release_register_required'?error.reason:error.status===413?'oversized':'invalid')}catch(failure){return ingestFailure(c,scope,failure)}}

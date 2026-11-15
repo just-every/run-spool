@@ -1,6 +1,6 @@
 import { SHARED_COMMIT_MARK } from './retention';
 import type { AlertKind } from './types';
-export const events:Record<AlertKind,string> = {new_issue:'spool.issue.new',regression:'spool.issue.regressed',reactivation:'spool.issue.reactivated',spike:'spool.issue.spike'};
+export const events:Record<AlertKind,string> = {new_issue:'spool.issue.new',regression:'spool.issue.regressed',reactivation:'spool.issue.reactivated',spike:'spool.issue.spike',metric:'spool.metric.changed'};
 export function publicOrigin(value?:string):string|null {
  if (!value) return null;
  try { const u=new URL(value); return u.protocol==='https:' && u.origin===value && !u.username && !u.password ? u.origin : null; } catch { return null; }
@@ -8,8 +8,8 @@ export function publicOrigin(value?:string):string|null {
 export function issueLink(origin:string|null,project:string,issue:string) {
  return origin ? `${origin}/projects/${encodeURIComponent(project)}/issues/${encodeURIComponent(issue)}` : null;
 }
-export function mailMessage(id:string,body:string,from:string,to:string) {
+export function mailMessage(id:string,body:string,from:string,to:string|string[]) {
  const alert=JSON.parse(body),resolution=alert.resolution,shared=resolution&&('author' in resolution||'message' in resolution);
- return {deliveryId:id,from,to:[to],subject:`Spool ${alert.kind.replaceAll('_',' ')}: ${alert.shortId?alert.shortId+' ':''}${String(alert.title).replace(/[\x00-\x1f\x7f]/g,' ').slice(0,160)}`,
-  text:`${alert.title}\n${alert.shortId?`Short ID: ${alert.shortId}\n`:''}Project: ${alert.projectId}\nIssue: ${alert.issueId}\nObserved: ${alert.occurredAt}\n${alert.window ? `Accepted occurrences: ${alert.window.count}; threshold: ${alert.window.threshold}; window: ${alert.window.start} – ${alert.window.end}\n` : `Release: ${alert.release.name}\n`}${resolution?`Resolved in release ${resolution.release} by commit ${resolution.commit}\n${resolution.citation?`Citation: ${resolution.citation}\n`:''}`:''}${alert.issueUrl ?? ''}\n\nSanitized telemetry. Capture before admission is unknown.${shared?`${SHARED_COMMIT_MARK}Author: ${resolution.author?[resolution.author.name,resolution.author.email&&`<${resolution.author.email}>`].filter(Boolean).join(' '):'not recorded'}\nMessage: ${String(resolution.message??'not recorded').split('\n')[0].slice(0,300)}`:''}`};
+ return {deliveryId:id,from,to:Array.isArray(to)?to:[to],subject:`Spool ${alert.kind.replaceAll('_',' ')}: ${alert.shortId?alert.shortId+' ':''}${String(alert.title).replace(/[\x00-\x1f\x7f]/g,' ').slice(0,160)}`,
+  text:`${alert.title}\n${alert.shortId?`Short ID: ${alert.shortId}\n`:''}Project: ${alert.projectId}\nIssue: ${alert.issueId}\nObserved: ${alert.occurredAt}\n${alert.metric ? `${alert.metric.reason}; ${alert.metric.from} → ${alert.metric.to}; window: ${alert.window.start} – ${alert.window.end}\n` : alert.window ? `Accepted occurrences: ${alert.window.count}; threshold: ${alert.window.threshold}; window: ${alert.window.start} – ${alert.window.end}\n` : `Release: ${alert.release.name}\n`}${resolution?`Resolved in release ${resolution.release} by commit ${resolution.commit}\n${resolution.citation?`Citation: ${resolution.citation}\n`:''}`:''}${alert.issueUrl ?? ''}\n\nSanitized telemetry. Capture before admission is unknown.${shared?`${SHARED_COMMIT_MARK}Author: ${resolution.author?[resolution.author.name,resolution.author.email&&`<${resolution.author.email}>`].filter(Boolean).join(' '):'not recorded'}\nMessage: ${String(resolution.message??'not recorded').split('\n')[0].slice(0,300)}`:''}`};
 }

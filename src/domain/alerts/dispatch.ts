@@ -1,3 +1,4 @@
+import { evaluateMetrics } from './metrics';
 import { findDestination } from './destinations.server';
 import { holdAlerts, expireSnoozes } from './snoozes';
 import { queueDigests } from './digests';
@@ -58,6 +59,7 @@ export async function runAlerts(env:AlertEnvironment,scheduledTime:number) {
  await holdAlerts(env,scheduledTime);
  await projectProviderEvents(env);
  await evaluateSpikes(env,scheduledTime);
+ await evaluateMetrics(env,scheduledTime);
  await holdAlerts(env,scheduledTime);
  const cursor=await s(env.DB,'SELECT last_project FROM alert_scheduler WHERE id=1').first<{last_project:string}>();
  const projects=(await s(env.DB,`SELECT project FROM (SELECT DISTINCT project FROM alert_intents WHERE expanded=0 AND state IN ('pending','blocked') UNION SELECT DISTINCT project FROM alert_mail_jobs WHERE state IN ('queued','sending') UNION SELECT DISTINCT substr(namespace,7) project FROM integration_deliveries WHERE state IN ('queued','sending')) ORDER BY CASE WHEN project>? THEN 0 ELSE 1 END,project LIMIT 20`,cursor?.last_project??'').all<{project:string}>()).results;

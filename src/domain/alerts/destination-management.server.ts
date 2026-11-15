@@ -1,3 +1,4 @@
+import { saveTarget } from './target-management.server';
 import type { NativeAuthority } from '../agent-door/native-authority';
 import { saveSlack } from './slack-destinations.server';
 import { parseAddress } from '../../modules/mail/src/core/validation.mjs';
@@ -9,6 +10,7 @@ import { findDestination } from './destinations.server';
 import { statement as s, type AlertEnvironment } from './types';
 
 export async function saveDestination(env:AlertEnvironment,session:NativeAuthority,project:string,previous:string|undefined,input:any) {
+ if(input?.target)return saveTarget(env,session,project,previous,input);
  if(input?.kind==='slack')return saveSlack(env,session,project,previous,input);
  if(!input||Object.keys(input).sort().join()!=='label,recipient'||typeof input.label!=='string'||!input.label.trim()||input.label.length>100||scrub(input.label)!==input.label||/[\x00-\x1f\x7f]/.test(input.label)||typeof input.recipient!=='string')throw new Error('Use a destination name and one email address');
  const recipient=parseAddress(input.recipient.trim()).email,id=`ui-${crypto.randomUUID()}`,time=Date.now();
