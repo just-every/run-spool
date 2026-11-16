@@ -1,5 +1,37 @@
 # Changelog
 
+## 0.7.13 — 2026-11-16
+
+Spool 0.7.13 supports deliberately mail-off hosted installations on rer 0.2.118, improves owner and capture setup, and tightens project access to alert contacts.
+
+### What changed
+
+- **Choose a hosted installation without email.** Free and Assisted self hosting can explicitly select email off. The deploying owner signs in with `rer signin` from the original checkout using its deployment credentials and saved ownership record. Sign-in links and invitations are unavailable, and email alerts stay visibly blocked without a send. Sending credentials conflict with the off selection; choosing off does not remove secrets already bound to a Worker.
+- **Create, copy and test capture keys in one flow.** Capture can issue a new ingest key, show its SDK configuration and Sentry DSN, and send a sample error. A key issued in Settings stays in the signed-in page's memory when opening Capture, until dismissal or reload. Successful sample capture refreshes the setup progress. Saved key hashes cannot recover a lost key; create a replacement and revoke the old one when appropriate.
+- **Inspect team access and map imported roles.** Owners can inspect the people with access to each team's projects. Imported owner roles map to organization admin, without transferring installation ownership; imported manager roles require explicit maintainer projects. Only the installation owner can approve these mappings.
+- **Preserve project-member key authority.** Authorized project members can manage ingest and agent keys within their project, alongside deploy keys. Read-only and billing roles gain no key-management authority.
+- **Protect alert contacts while tracking deployments.** Recipient choices, contact-bearing destination configuration and delivery details require the owner, organization admin or project maintainer. Project members can still select a configured email route for deployment tracking using a neutral route label without seeing its contacts.
+- **Make new-project identity defaults explicit.** New projects keep the supported user ID, email, username and IP-address fields as sent, subject to installation scrubbing rules. Existing and restored policies stay unchanged; missing legacy policies retain their conservative defaults. Review Settings before capture if those fields should be hashed or dropped.
+- **Read setup and evidence more easily.** Capture links to Node.js/npm prerequisites for source-map setup; grouping guidance includes a copyable dependency-frame rule. Archive previews show record counts and validation limits, and issue evidence shows a readable bounded summary. Comment changes refresh the issue revision so subsequent triage actions use the current state.
+
+### Updating
+
+From 0.7.12: Back up first: download a private archive in Settings, or stop local dev and run `rer export --output exports/spool.jsonl`. From 0.7.12 on main, update with `git pull --ff-only` and `rer dev`; from a tag, run `git fetch --tags && git checkout v0.7.13` and `rer dev` once that tag is published. For a hosted installation, use `rer deploy` from the original deploying checkout. Keep the database, private settings, project keys and deployment receipt. There are no new migrations or breaking changes after 0.7.12; previously applied migration files are unchanged, so do not reset. Import private archives only into an empty destination. The application pins rer exactly to 0.2.118, updated from 0.2.113 in 0.7.12. To turn hosted mail off deliberately, select `MAIL_PROVIDER=none`, leave sending credentials empty and remove any previously bound sending secrets as described in docs/HOSTED.md. Keep the original deployment credentials and ownership receipt for guarded `rer signin` access. This application release does not publish the Spool SDK.
+
+### Known limits
+
+- Transaction measurements are bounded retained observations, not full distributed tracing: spans, transaction tags and request data are not stored.
+- Issue-owner notification selection uses its explicit fallback until verified issue ownership is available. Live provider delivery needs separate qualification; deliberately mail-off hosted installations send no sign-in links, invitations or email alerts.
+- Local development sends no email. Email verification for ownership transfer remains unavailable there; only an owner session opened through the local access link uses local confirmation.
+- Browser restore is limited to 16 MiB. Larger current JSONL archives need the CLI; legacy JSON archives over 16 MiB remain refused. A refused legacy JSON upload over 16 MiB can still end in a connection reset: the fix drains only what the restore engine has not already begun reading. Refused requests on the agent-door `/mcp` route are not covered by this fix.
+- Agent setup still requires an owner to save all six policy answers and create a project agent key. The agent CLI runs from a Spool checkout; it is not an npm-published package. Local agent calls also require the private dev gate described in the panel.
+- Erasing the owner is held while other stored agent text contains a different address that ends with the owner's address. The erasure match is case-sensitive.
+- Before the first project is created, opening a missing project URL as the owner redirects to setup instead of showing a not-found page.
+- Retained hosted archives still require separate Managed-to-native release qualification. If an archive is refused with `schema_mismatch`, restore into the release you exported from. Retrying a cut-off hosted restore can be refused until its five-minute lease expires; wait before retrying.
+- Bugsnag, Rollbar and Sentry imports remain bounded to 2 MiB and 500 records; larger sets are refused rather than partly applied. A real-account migration and live mail delivery through Cloudflare remain unqualified.
+
+Product screenshot: .github/assets/release/spool-issue-page-1600.png
+
 ## 0.7.12 — 2026-11-15
 
 Spool 0.7.12 adds project metric alerts, project-aware notification targets and more precise issue alert filters, and improves compatibility when restoring native backups.
