@@ -185,7 +185,7 @@ export async function endUserErasurePreviewFlow() {
   const searchContext=await browser.newContext({viewport:{width:1440,height:1000}}),searchPage=await searchContext.newPage();
   try{
    const split=cookie.indexOf('=');await searchContext.addCookies([{name:cookie.slice(0,split),value:cookie.slice(split+1),url:origin.replace('http:','https:'),secure:true}]);
-   await searchPage.goto(origin+'/projects/'+project.id);
+   await searchPage.goto(origin+'/projects/'+project.id+'/issues');
    const field=searchPage.getByRole('searchbox',{name:'Search issues',exact:true});
    await field.fill(tagQuery);await field.press('Enter');
    await searchPage.getByText('No issues match',{exact:false}).waitFor();
