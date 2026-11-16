@@ -3062,7 +3062,7 @@
       "executable": false
     },
     "docs/OWNER-ERASURE.md": {
-      "sha256": "b081f47f544d3636353f24146e47637ffd88e87c682f4ea79cc406216e815fa7",
+      "sha256": "2e3d011b5434887cf6d717230d2c8f15e4d211bb3cd6c945ef0e24662f46539e",
       "executable": false
     },
     "docs/PROJECT-ERASURE.md": {
@@ -3742,7 +3742,7 @@
       "executable": false
     },
     "docs/USER-IDENTITY.md": {
-      "sha256": "98f017f188d8278abd630e52428aa04be06347be4f50add2d0a582639d14ae51",
+      "sha256": "25356689c04980e839f3ad3ce495f140ee51a18168d6895f090d29f46825511e",
       "executable": false
     },
     "docs/WITH-YOUR-AGENT.md": {
@@ -6042,7 +6042,7 @@
       "executable": false
     },
     "src/domain/erasure/archive.ts": {
-      "sha256": "5dc1ee8963fa984a51f81bd0434bed777592093383904b35300c3e84c2166394",
+      "sha256": "74428eaf6193c4cbca5abe9005084f4a226f7705d89b7bf5baf24137b4f406e2",
       "executable": false
     },
     "src/domain/erasure/audit-fact.ts": {
@@ -6055,6 +6055,10 @@
     },
     "src/domain/erasure/declaration.ts": {
       "sha256": "5a977aa592d6f39c6439432794435943bf1282e1b1a7fd6c0036ccfe1ee0f08b",
+      "executable": false
+    },
+    "src/domain/erasure/end-user.ts": {
+      "sha256": "02b571993060dc7c2a3fb94c5c7497cba5c1976e2cb5013848e9e4655e59fdb4",
       "executable": false
     },
     "src/domain/erasure/identifiers.ts": {
@@ -6094,7 +6098,7 @@
       "executable": false
     },
     "src/domain/erasure/service.ts": {
-      "sha256": "e349f9958719ae5823b345beb8d700224c1f4e840fe32a2cbee6b5d42381189d",
+      "sha256": "0a0e806d9736ff485d29fcc8b923ffe520d5a94622334ef71c7715cb52888d63",
       "executable": false
     },
     "src/domain/execution-archive.ts": {
@@ -6286,7 +6290,7 @@
       "executable": false
     },
     "src/domain/identities/erasure-preview.ts": {
-      "sha256": "0df8b69a82da8b63d0d6bb9c03b254185ef1afe386c7f9143ac57fc5575b4fa6",
+      "sha256": "14b63529a7ca442651094a0babebe3be4972148a67fd19084db4107d1bbf914e",
       "executable": false
     },
     "src/domain/identities/intake.ts": {
@@ -10358,7 +10362,7 @@
       "executable": false
     },
     "src/ui/workbench/EndUserErasurePreview.tsx": {
-      "sha256": "4fc631adf42f852342dcbce4252548e415031f8a02fac74b6d9a32753a45a742",
+      "sha256": "7c17108d11852a99d332add329625815f66d7658b2af0a0bf5537e046e2ddf4f",
       "executable": false
     },
     "src/ui/workbench/erasureLabels.ts": {
@@ -11098,7 +11102,11 @@
       "executable": false
     },
     "tests/end-user-erasure-preview.mjs": {
-      "sha256": "5f07c34f4e5362e83c5372c7fff40b70a9c5b51c94724ea840c26f5b925bf858",
+      "sha256": "4f61ccf3c464cd28eec2a391afd45e3135a5fa1967845c478a2fb8c1e5960847",
+      "executable": false
+    },
+    "tests/end-user-erasure-volume.mjs": {
+      "sha256": "8ea1cafeecebfa7596ce4ff380fd3a31b127af5dd9a95d7b0cd5eccf85fc252b",
       "executable": false
     },
     "tests/execution-journey.mjs": {

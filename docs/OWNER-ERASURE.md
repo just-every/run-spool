@@ -152,3 +152,27 @@ AI-005 owner erasure deletes `grouping_proposals` and its private server-compute
 The contract cleanup of 28 October 2026 moved this mechanism here from CONTRACT.md; the clause keeps the requirement.
 
 Deleted: the owner's operator row, tokens, sessions, external identities, provider session data, step-up challenges, agent and deploy keys they minted, development marks, setup links, pending dependency approvals and their auth outbox mail. Retired: the bootstrap and managed claim ledgers keep only installation, time and completion facts, so the installation stays claimed and cannot be reopened; auth audit actors become random unjoinable labels. Inert grouping proposals and their private review snapshots are deleted. Captured data: exact known identifiers (operator ID, email, display name, bound IdP subjects) are replaced inside project names, issue titles, event messages, breadcrumbs and context, map JSON, diagnostics, repair notes, links and checks, alert titles and development outbox JSON, leaving every other value in the row intact; they match only as whole tokens, and an identifier found only inside a longer word or address is a hold. Project ingest keys keep ingesting and stay listed with their minter attribution cleared, and any key stays revocable afterwards. Inviting a different successor retires the earlier invitation and invitee. Other people's operators, sessions, grants and captured values are unchanged. Retained import custody, an identifier inside a structural key, and a display name shared with another person are explicit holds that refuse without mutation; prose that names the owner without an exact identifier, unknown aliases and encoded text are outside the declared scope. Receipts carry counts and times only.
+
+## End-user erasure under owner authority
+
+Run Edit Run fleet, 16 November 2026: the separate end-user action in project
+Settings erases a retained captured identity rather than the installation
+owner's account. It uses the same `rer_erasure_operations` receipt table,
+counts/times receipt projection, safe `erasure.complete` audit and portability
+redaction checkpoint as ERASE-001. It has no parallel journal or subject store.
+Its native mutations and completion receipt commit together under the current
+owner-session fence. No raw user value or matching digest is saved in the
+operation's subject or label. The ordinary owner receipt read at
+`GET /api/erasures/<receipt id>` returns its counts and times.
+
+`POST /api/projects/<project>/end-user-erasure/preview` accepts either the
+existing `{ "email": "<email>" }` input or one `{ "field": "email", "value":
+"<email>", "action": "remove_identity" }` selection. Supported fields are
+`email`, `id`, `username` and `ip_address`; the alternative action is
+`delete_events`. `POST /api/projects/<project>/end-user-erasure/confirm` accepts
+the selection plus its `planHash` and `confirm: "ERASE USER DATA"`. It requires
+the installation owner and same origin. Preview, confirmation, session/key,
+policy, inventory and epoch checks protect the atomic write. Imported/staged
+custody that cannot be selectively withdrawn holds this action without removal.
+The receipt lists unavailable stores and literal-DID-only session attribution;
+see [User identity policy](USER-IDENTITY.md#erase-one-retained-user).

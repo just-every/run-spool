@@ -24,7 +24,11 @@ export async function projectErasureService(db: D1Database, secret: string) {
 // Counts, times and declared exceptions only: no label, subject or stored value.
 export function receiptView(receipt: any) {
  const { id, phase, planned, deleted, retained, blobs, requestedAt, committedAt, completedAt, seconds } = receipt;
- return { id, phase, planned, deleted, retained, blobs, requestedAt, committedAt, completedAt, seconds, exceptions: erasureExceptions };
+ return { id, phase, planned, deleted, retained, blobs, requestedAt, committedAt, completedAt, seconds, exceptions: receipt.entity === 'end-user' ? [
+  'Only exact retained event identities and literally equal session DIDs are matched; the retained-scope list names uncorrelatable stores.',
+  'The existing portability redaction checkpoint refuses pre-erasure archives here, or with a trusted later journal on a fresh installation.',
+  'Downloaded copies, delivered messages, provider backups and future captures are outside this operation.',
+ ] : erasureExceptions };
 }
 
 // A project created by Sentry organization import also keeps import-kit
