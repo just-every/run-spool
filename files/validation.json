@@ -1,0 +1,126 @@
+{
+  "repository": "just-every/run-spool",
+  "branch": "cloud/sd-spool-sdk027-1",
+  "head": "2011d4884e82800cccefbf4d0a7cdfa91384e47b",
+  "timestamp": "2026-11-16T14:40:27.342549+00:00",
+  "checks": [
+    {
+      "command": "pnpm typecheck",
+      "result": "passed"
+    },
+    {
+      "command": "cloud_run npx -y @runeditrun/rer build",
+      "result": "passed"
+    },
+    {
+      "command": "cloud_run env RER_CHROMIUM_EXECUTABLE_PATH=/usr/bin/chromium node tests/end-user-erasure-preview.mjs",
+      "result": "passed",
+      "proof": "public-journey.log",
+      "receipt": "journey-receipt.json",
+      "widthAssertions": 1440,
+      "screenshots": [
+        1440,
+        390
+      ]
+    },
+    {
+      "command": "cloud_run perl -e 'alarm 1200; exec @ARGV' -- node tests/end-user-erasure-volume.mjs",
+      "result": "passed at admitted volume; required 150000 case unproven",
+      "exactHead": "2011d4884e82800cccefbf4d0a7cdfa91384e47b",
+      "proof": "volume.log",
+      "receipt": "volume.json",
+      "completionMs": 221.04990499999985,
+      "admittedVolume": 10000,
+      "requiredVolume": 150000
+    },
+    {
+      "command": "node src/base/contract-docs.mjs check",
+      "result": "passed"
+    },
+    {
+      "command": "node scripts/edition-authoring/cli.mjs lock && pnpm source:check",
+      "result": "passed"
+    },
+    {
+      "command": "git diff --check origin/main",
+      "result": "passed"
+    },
+    {
+      "command": "git log origin/main..HEAD --format=\"%an <%ae>%n%cn <%ce>%n%(trailers:only,unfold)\"",
+      "result": "passed; fleet authors/committers, no co-author trailers"
+    },
+    {
+      "command": "python3 $HOME/rer-consolidation/.tools/cloud-push.py origin cloud/sd-spool-sdk027-1",
+      "result": "pushed successfully on first attempt",
+      "head": "2011d4884e82800cccefbf4d0a7cdfa91384e47b"
+    }
+  ],
+  "claim": {
+    "clause": "SDK-027",
+    "status": "PARTIAL",
+    "points": [
+      1,
+      3,
+      4
+    ],
+    "unproven": [
+      2,
+      5
+    ]
+  },
+  "contractCounts": {
+    "before": {
+      "done": 23,
+      "partial": 54,
+      "missing": 28
+    },
+    "after": {
+      "done": 23,
+      "partial": 54,
+      "missing": 28
+    }
+  },
+  "independentGate": "required: Codex Sol high; not performed by this builder",
+  "publicationScan": "Mac-only; not run by cloud builder",
+  "syntheticFixturesOnly": true,
+  "ci": {
+    "head": "2011d4884e82800cccefbf4d0a7cdfa91384e47b",
+    "discoveredAt": "2026-11-16T14:39:03.659355+00:00",
+    "apiCallsUsed": 10,
+    "runs": [
+      {
+        "conclusion": "failure",
+        "event": "push",
+        "head_branch": "cloud/sd-spool-sdk027-1",
+        "head_sha": "2011d4884e82800cccefbf4d0a7cdfa91384e47b",
+        "html_url": "https://github.com/just-every/run-spool/actions/runs/43887905458",
+        "id": 43887905458,
+        "name": "Verify",
+        "status": "completed"
+      }
+    ],
+    "polledAt": "2026-11-16T15:04:58.025297+00:00",
+    "failedJobLogCommand": "gh run view 43887905458 --repo just-every/run-spool --job 133371916493 --log-failed",
+    "failedJobLogExit": 0
+  },
+  "terminalCustody": {
+    "state": "BLOCKED",
+    "branch": "cloud/sd-spool-sdk027-1",
+    "head": "2011d4884e82800cccefbf4d0a7cdfa91384e47b",
+    "prerequisite": "Successful exact-SHA Verify",
+    "blocker": "Ruby SDK outcome reconciliation found extra client-discarded network_error reports in unchanged tests/sdk-runtimes.mjs:41; aggregate jobs fail with it.",
+    "failedJob": 133371916493,
+    "failureLog": "ci-ruby-failure.log",
+    "relevantSuccessfulJobs": [
+      "build",
+      "contract-docs",
+      "verify (owner-ui)",
+      "verify (project-erasure)",
+      "verify (project-erasure-cap)",
+      "verify (owner-erasure)"
+    ],
+    "apiBudgetUsed": 10,
+    "workflowRerun": false,
+    "rubyLocalProbe": "not run; Ruby is not installed in this cloud VM and runtime changes are outside the declared lease"
+  }
+}

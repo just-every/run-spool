@@ -1,0 +1,80 @@
+Command: gh run view 43887905458 --repo just-every/run-spool --job 133371916493 --log-failed
+Exit: 0
+runtime (ruby)	Run ruby SDK journey	﻿2026-11-16T14:41:00.1663389Z ##[group]Run if [ "ruby" = electron ]; then
+runtime (ruby)	Run ruby SDK journey	2026-11-16T14:41:00.1663699Z [36;1mif [ "ruby" = electron ]; then[0m
+runtime (ruby)	Run ruby SDK journey	2026-11-16T14:41:00.1663988Z [36;1m  xvfb-run -a node tests/sdk-runtimes.mjs electron[0m
+runtime (ruby)	Run ruby SDK journey	2026-11-16T14:41:00.1664262Z [36;1melse[0m
+runtime (ruby)	Run ruby SDK journey	2026-11-16T14:41:00.1664455Z [36;1m  node tests/sdk-runtimes.mjs "ruby"[0m
+runtime (ruby)	Run ruby SDK journey	2026-11-16T14:41:00.1664688Z [36;1mfi[0m
+runtime (ruby)	Run ruby SDK journey	2026-11-16T14:41:00.1682069Z shell: /usr/bin/bash -e {0}
+runtime (ruby)	Run ruby SDK journey	2026-11-16T14:41:00.5933727Z (node:2495) ExperimentalWarning: SQLite is an experimental feature and might change at any time
+runtime (ruby)	Run ruby SDK journey	2026-11-16T14:41:00.5934964Z (Use `node --trace-warnings ...` to show where the warning was created)
+runtime (ruby)	Run ruby SDK journey	2026-11-16T14:41:27.1998485Z node:internal/modules/run_main:123
+runtime (ruby)	Run ruby SDK journey	2026-11-16T14:41:27.1998888Z     triggerUncaughtException(
+runtime (ruby)	Run ruby SDK journey	2026-11-16T14:41:27.1999122Z     ^
+runtime (ruby)	Run ruby SDK journey	2026-11-16T14:41:27.1999215Z 
+runtime (ruby)	Run ruby SDK journey	2026-11-16T14:41:27.1999504Z AssertionError [ERR_ASSERTION]: ruby: Spool outcomes reconcile with SDK-sent items
+runtime (ruby)	Run ruby SDK journey	2026-11-16T14:41:27.1999881Z + actual - expected
+runtime (ruby)	Run ruby SDK journey	2026-11-16T14:41:27.2000113Z ... Skipped lines
+runtime (ruby)	Run ruby SDK journey	2026-11-16T14:41:27.2000226Z 
+runtime (ruby)	Run ruby SDK journey	2026-11-16T14:41:27.2000299Z   [
+runtime (ruby)	Run ruby SDK journey	2026-11-16T14:41:27.2000468Z     [
+runtime (ruby)	Run ruby SDK journey	2026-11-16T14:41:27.2002545Z       'accepted',
+runtime (ruby)	Run ruby SDK journey	2026-11-16T14:41:27.2002872Z       3
+runtime (ruby)	Run ruby SDK journey	2026-11-16T14:41:27.2003160Z     ],
+runtime (ruby)	Run ruby SDK journey	2026-11-16T14:41:27.2003436Z ...
+runtime (ruby)	Run ruby SDK journey	2026-11-16T14:41:27.2003739Z     [
+runtime (ruby)	Run ruby SDK journey	2026-11-16T14:41:27.2004070Z +     'client_discarded:error:network_error',
+runtime (ruby)	Run ruby SDK journey	2026-11-16T14:41:27.2004458Z +     1
+runtime (ruby)	Run ruby SDK journey	2026-11-16T14:41:27.2004726Z +   ],
+runtime (ruby)	Run ruby SDK journey	2026-11-16T14:41:27.2004889Z +   [
+runtime (ruby)	Run ruby SDK journey	2026-11-16T14:41:27.2005122Z +     'client_discarded:log_byte:network_error',
+runtime (ruby)	Run ruby SDK journey	2026-11-16T14:41:27.2005386Z +     521
+runtime (ruby)	Run ruby SDK journey	2026-11-16T14:41:27.2005551Z +   ],
+runtime (ruby)	Run ruby SDK journey	2026-11-16T14:41:27.2005706Z +   [
+runtime (ruby)	Run ruby SDK journey	2026-11-16T14:41:27.2005937Z +     'client_discarded:log_item:network_error',
+runtime (ruby)	Run ruby SDK journey	2026-11-16T14:41:27.2006178Z +     1
+runtime (ruby)	Run ruby SDK journey	2026-11-16T14:41:27.2006345Z +   ],
+runtime (ruby)	Run ruby SDK journey	2026-11-16T14:41:27.2006497Z +   [
+runtime (ruby)	Run ruby SDK journey	2026-11-16T14:41:27.2006728Z +     'client_discarded:monitor:network_error',
+runtime (ruby)	Run ruby SDK journey	2026-11-16T14:41:27.2006958Z +     1
+runtime (ruby)	Run ruby SDK journey	2026-11-16T14:41:27.2007362Z +   ],
+runtime (ruby)	Run ruby SDK journey	2026-11-16T14:41:27.2007523Z +   [
+runtime (ruby)	Run ruby SDK journey	2026-11-16T14:41:27.2007714Z       'sentry_unsupported_attachment',
+runtime (ruby)	Run ruby SDK journey	2026-11-16T14:41:27.2007948Z       7
+runtime (ruby)	Run ruby SDK journey	2026-11-16T14:41:27.2008100Z     ],
+runtime (ruby)	Run ruby SDK journey	2026-11-16T14:41:27.2008283Z     [
+runtime (ruby)	Run ruby SDK journey	2026-11-16T14:41:27.2008482Z       'sentry_unsupported_other_telemetry',
+runtime (ruby)	Run ruby SDK journey	2026-11-16T14:41:27.2008646Z 
+runtime (ruby)	Run ruby SDK journey	2026-11-16T14:41:27.2008871Z     at file:///home/runner/work/run-spool/run-spool/tests/sdk-runtimes.mjs:41:10
+runtime (ruby)	Run ruby SDK journey	2026-11-16T14:41:27.2009367Z     at process.processTicksAndRejections (node:internal/process/task_queues:105:5) {
+runtime (ruby)	Run ruby SDK journey	2026-11-16T14:41:27.2009755Z   generatedMessage: false,
+runtime (ruby)	Run ruby SDK journey	2026-11-16T14:41:27.2009968Z   code: 'ERR_ASSERTION',
+runtime (ruby)	Run ruby SDK journey	2026-11-16T14:41:27.2010172Z   actual: [
+runtime (ruby)	Run ruby SDK journey	2026-11-16T14:41:27.2010345Z     [ 'accepted', 3 ],
+runtime (ruby)	Run ruby SDK journey	2026-11-16T14:41:27.2010560Z     [ 'check_in_unrouted', 2 ],
+runtime (ruby)	Run ruby SDK journey	2026-11-16T14:41:27.2010819Z     [ 'client_discarded:error:before_send', 2 ],
+runtime (ruby)	Run ruby SDK journey	2026-11-16T14:41:27.2011117Z     [ 'client_discarded:error:network_error', 1 ],
+runtime (ruby)	Run ruby SDK journey	2026-11-16T14:41:27.2011429Z     [ 'client_discarded:log_byte:network_error', 521 ],
+runtime (ruby)	Run ruby SDK journey	2026-11-16T14:41:27.2011738Z     [ 'client_discarded:log_item:network_error', 1 ],
+runtime (ruby)	Run ruby SDK journey	2026-11-16T14:41:27.2012044Z     [ 'client_discarded:monitor:network_error', 1 ],
+runtime (ruby)	Run ruby SDK journey	2026-11-16T14:41:27.2012570Z     [ 'sentry_unsupported_attachment', 7 ],
+runtime (ruby)	Run ruby SDK journey	2026-11-16T14:41:27.2013028Z     [ 'sentry_unsupported_other_telemetry', 3 ],
+runtime (ruby)	Run ruby SDK journey	2026-11-16T14:41:27.2013332Z     [ 'session_stored', 1 ],
+runtime (ruby)	Run ruby SDK journey	2026-11-16T14:41:27.2013620Z     [ 'transaction_stored', 4 ]
+runtime (ruby)	Run ruby SDK journey	2026-11-16T14:41:27.2013852Z   ],
+runtime (ruby)	Run ruby SDK journey	2026-11-16T14:41:27.2014030Z   expected: [
+runtime (ruby)	Run ruby SDK journey	2026-11-16T14:41:27.2014283Z     [ 'accepted', 3 ],
+runtime (ruby)	Run ruby SDK journey	2026-11-16T14:41:27.2014726Z     [ 'check_in_unrouted', 2 ],
+runtime (ruby)	Run ruby SDK journey	2026-11-16T14:41:27.2014996Z     [ 'client_discarded:error:before_send', 2 ],
+runtime (ruby)	Run ruby SDK journey	2026-11-16T14:41:27.2015275Z     [ 'sentry_unsupported_attachment', 7 ],
+runtime (ruby)	Run ruby SDK journey	2026-11-16T14:41:27.2015555Z     [ 'sentry_unsupported_other_telemetry', 3 ],
+runtime (ruby)	Run ruby SDK journey	2026-11-16T14:41:27.2015794Z     [ 'session_stored', 1 ],
+runtime (ruby)	Run ruby SDK journey	2026-11-16T14:41:27.2016025Z     [ 'transaction_stored', 4 ]
+runtime (ruby)	Run ruby SDK journey	2026-11-16T14:41:27.2016232Z   ],
+runtime (ruby)	Run ruby SDK journey	2026-11-16T14:41:27.2016437Z   operator: 'deepStrictEqual',
+runtime (ruby)	Run ruby SDK journey	2026-11-16T14:41:27.2016654Z   diff: 'simple'
+runtime (ruby)	Run ruby SDK journey	2026-11-16T14:41:27.2016825Z }
+runtime (ruby)	Run ruby SDK journey	2026-11-16T14:41:27.2016920Z 
+runtime (ruby)	Run ruby SDK journey	2026-11-16T14:41:27.2017003Z Node.js v22.20.0
+runtime (ruby)	Run ruby SDK journey	2026-11-16T14:41:27.2248455Z ##[error]Process completed with exit code 1.

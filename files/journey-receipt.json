@@ -1,0 +1,151 @@
+{
+  "removal": {
+    "id": "db81be909d304d1b92e391439adfc3f0",
+    "phase": "complete",
+    "planned": {
+      "event_identities": 4,
+      "health_sessions": 0
+    },
+    "deleted": {
+      "event_identities": 4,
+      "health_sessions": 0
+    },
+    "retained": [
+      {
+        "table": "feedback",
+        "reason": "Feedback contact is discarded at intake. Retained scrubbed messages have no user identity index; they cannot be matched to this value. Event deletion also deletes feedback attached to those exact occurrences."
+      },
+      {
+        "table": "attachments",
+        "reason": "Attachment ingestion and identity metadata are not retained; there is no attachment identity matching store."
+      },
+      {
+        "table": "replays",
+        "reason": "Replay ingestion and identity metadata are not retained; there is no replay identity matching store."
+      },
+      {
+        "table": "search",
+        "reason": "Identity search indexes and facets are unavailable. No separate identity search entries are retained."
+      },
+      {
+        "table": "health_sessions",
+        "reason": "Only session DID hashes equal to the supplied value are matched. Different aliases and anonymous session aggregates cannot be correlated."
+      },
+      {
+        "table": "external_copies",
+        "reason": "Downloaded archives, delivered messages, provider backups and future incoming captures are outside this installation. A fresh destination needs the later archive as its trusted erasure journal."
+      }
+    ],
+    "blobs": {
+      "total": 0,
+      "deleted": 0
+    },
+    "requestedAt": "2026-11-16T14:36:56.251Z",
+    "committedAt": "2026-11-16T14:36:56.251Z",
+    "completedAt": "2026-11-16T14:36:56.255Z",
+    "seconds": 0.004,
+    "exceptions": [
+      "Only exact retained event identities and literally equal session DIDs are matched; the retained-scope list names uncorrelatable stores.",
+      "The existing portability redaction checkpoint refuses pre-erasure archives here, or with a trusted later journal on a fresh installation.",
+      "Downloaded copies, delivered messages, provider backups and future captures are outside this operation."
+    ]
+  },
+  "deletion": {
+    "id": "b909acaa34ac4a2cadd4b5e2e06eb3f2",
+    "phase": "complete",
+    "planned": {
+      "event_identities": 1,
+      "health_sessions": 1,
+      "events": 1,
+      "feedback": 1,
+      "event_grouping": 0,
+      "event_suppressions": 0
+    },
+    "deleted": {
+      "event_identities": 1,
+      "health_sessions": 1,
+      "events": 1,
+      "feedback": 1,
+      "event_grouping": 0,
+      "event_suppressions": 0
+    },
+    "retained": [
+      {
+        "table": "feedback",
+        "reason": "Feedback contact is discarded at intake. Retained scrubbed messages have no user identity index; they cannot be matched to this value. Event deletion also deletes feedback attached to those exact occurrences."
+      },
+      {
+        "table": "attachments",
+        "reason": "Attachment ingestion and identity metadata are not retained; there is no attachment identity matching store."
+      },
+      {
+        "table": "replays",
+        "reason": "Replay ingestion and identity metadata are not retained; there is no replay identity matching store."
+      },
+      {
+        "table": "search",
+        "reason": "Identity search indexes and facets are unavailable. No separate identity search entries are retained."
+      },
+      {
+        "table": "health_sessions",
+        "reason": "Only session DID hashes equal to the supplied value are matched. Different aliases and anonymous session aggregates cannot be correlated."
+      },
+      {
+        "table": "external_copies",
+        "reason": "Downloaded archives, delivered messages, provider backups and future incoming captures are outside this installation. A fresh destination needs the later archive as its trusted erasure journal."
+      }
+    ],
+    "blobs": {
+      "total": 0,
+      "deleted": 0
+    },
+    "requestedAt": "2026-11-16T14:37:04.236Z",
+    "committedAt": "2026-11-16T14:37:04.236Z",
+    "completedAt": "2026-11-16T14:37:04.241Z",
+    "seconds": 0.005,
+    "exceptions": [
+      "Only exact retained event identities and literally equal session DIDs are matched; the retained-scope list names uncorrelatable stores.",
+      "The existing portability redaction checkpoint refuses pre-erasure archives here, or with a trusted later journal on a fresh installation.",
+      "Downloaded copies, delivered messages, provider backups and future captures are outside this operation."
+    ]
+  },
+  "restore": {
+    "same": "erasure_epoch",
+    "freshPost": "restored",
+    "freshOld": "erasure_epoch"
+  },
+  "before": {
+    "events": 6,
+    "matching": 4
+  },
+  "after": {
+    "events": 5,
+    "matching": 0
+  },
+  "limitations": [
+    {
+      "table": "feedback",
+      "reason": "Feedback contact is discarded at intake. Retained scrubbed messages have no user identity index; they cannot be matched to this value. Event deletion also deletes feedback attached to those exact occurrences."
+    },
+    {
+      "table": "attachments",
+      "reason": "Attachment ingestion and identity metadata are not retained; there is no attachment identity matching store."
+    },
+    {
+      "table": "replays",
+      "reason": "Replay ingestion and identity metadata are not retained; there is no replay identity matching store."
+    },
+    {
+      "table": "search",
+      "reason": "Identity search indexes and facets are unavailable. No separate identity search entries are retained."
+    },
+    {
+      "table": "health_sessions",
+      "reason": "Only session DID hashes equal to the supplied value are matched. Different aliases and anonymous session aggregates cannot be correlated."
+    },
+    {
+      "table": "external_copies",
+      "reason": "Downloaded archives, delivered messages, provider backups and future incoming captures are outside this installation. A fresh destination needs the later archive as its trusted erasure journal."
+    }
+  ]
+}

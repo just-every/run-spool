@@ -1,0 +1,20 @@
+{
+  "head": "2011d4884e82800cccefbf4d0a7cdfa91384e47b",
+  "discoveredAt": "2026-11-16T14:39:03.659355+00:00",
+  "apiCallsUsed": 10,
+  "runs": [
+    {
+      "conclusion": "failure",
+      "event": "push",
+      "head_branch": "cloud/sd-spool-sdk027-1",
+      "head_sha": "2011d4884e82800cccefbf4d0a7cdfa91384e47b",
+      "html_url": "https://github.com/just-every/run-spool/actions/runs/43887905458",
+      "id": 43887905458,
+      "name": "Verify",
+      "status": "completed"
+    }
+  ],
+  "polledAt": "2026-11-16T15:04:58.025297+00:00",
+  "failedJobLogCommand": "gh run view 43887905458 --repo just-every/run-spool --job 133371916493 --log-failed",
+  "failedJobLogExit": 0
+}

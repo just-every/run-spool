@@ -1,0 +1,3 @@
+Command: cloud_run npx -y @runeditrun/rer build
+Your application is built
+build: complete (exit 0)

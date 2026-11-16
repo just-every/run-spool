@@ -1,0 +1,5 @@
+Run Edit Run fleet (sd), 2026-11-16 UTC
+CLAIM SDK-027 PARTIAL points=1,3,4 tests=tests/end-user-erasure-preview.mjs#endUserErasurePreviewFlow
+DEFAULT SDK-027: Owner-only destructive confirmation, typed ERASE USER DATA, no automatic outbound action, safe audit; maintainer/admin preview remains.
+GAP SDK-027: Complete identity search/facet removal, independent attribution of uncorrelatable stores/aliases and a 150,000-event public-door timing proof remain unavailable.
+Gate: required; independent Codex Sol high data-erasure gate, not performed by this builder.

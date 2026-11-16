@@ -1,0 +1,3 @@
+node scripts/edition-authoring/cli.mjs lock: exit 0
+pnpm source:check: exit 0; returned ok=true
+Regenerated last, then committed with all touched sources.
