@@ -1,0 +1,83 @@
+{
+  "schema": 1,
+  "tag": "sd-spool-sdk027-5",
+  "repository": "just-every/run-spool",
+  "branch": "cloud/sd-spool-sdk027-5",
+  "head": "c5570fd9cdd52208ce39acbb41a46e19d666f043",
+  "main": "e29a9f44ad44315d65b4e12d7f2e69b739f67233",
+  "completedAt": "2026-11-16T23:59:23.200955+00:00",
+  "decision": "BLOCKED",
+  "blocker": "VERIFY REPAIR rule: neither starting head nor main reproduces the reported failure; no speculative repair permitted",
+  "productPushed": false,
+  "newProductCommits": 0,
+  "changedProductFiles": 0,
+  "testRegistrationsChanged": 0,
+  "clauseStatusChanges": [],
+  "repairRounds": 0,
+  "reproduced": false,
+  "headReproduction": {
+    "schema": 1,
+    "head": "c5570fd9cdd52208ce39acbb41a46e19d666f043",
+    "job": "verify (owner-ui)",
+    "command": "pnpm test:accessibility",
+    "test": "tests/triage-journey.mjs -> tests/operator-ui.mjs#assertProvenance",
+    "exit": 0,
+    "failure": null,
+    "reproduced": false,
+    "node": "22.20.0",
+    "pnpm": "10.12.4",
+    "browser": "/usr/bin/chromium --no-sandbox",
+    "buildCommand": "pnpm run build:app",
+    "buildExit": 0,
+    "completedAt": "2026-11-16T23:51:56.585452+00:00",
+    "groups": 22,
+    "captures": 102,
+    "stdout": "reproduce-head.log",
+    "widths": [
+      1440,
+      390
+    ]
+  },
+  "mainReproduction": {
+    "schema": 1,
+    "head": "e29a9f44ad44315d65b4e12d7f2e69b739f67233",
+    "job": "verify (owner-ui)",
+    "command": "pnpm test:accessibility",
+    "test": "tests/triage-journey.mjs -> tests/operator-ui.mjs#assertProvenance",
+    "exit": 0,
+    "failure": null,
+    "reproduced": false,
+    "node": "22.20.0",
+    "pnpm": "10.12.4",
+    "browser": "/usr/bin/chromium --no-sandbox",
+    "buildCommand": "pnpm run build:app",
+    "buildExit": 0,
+    "completedAt": "2026-11-16T23:58:45.787628+00:00",
+    "groups": 22,
+    "captures": 102,
+    "stdout": "reproduce-main.log",
+    "widths": [
+      1440,
+      390
+    ]
+  },
+  "sourceCheck": {
+    "command": "pnpm source:check",
+    "head": "c5570fd9cdd52208ce39acbb41a46e19d666f043",
+    "exit": 0,
+    "ok": true,
+    "stdout": "source-check.log"
+  },
+  "historicalCI": {
+    "run": 43971228356,
+    "attempt": 2,
+    "job": 133683872556,
+    "conclusion": "failure",
+    "error": "UND_ERR_SOCKET"
+  },
+  "githubCallsUsed": 1,
+  "scaleRerun": false,
+  "pr": null,
+  "remoteProductCustody": "refs/heads/cloud/sd-spool-sdk027-4",
+  "workingTreeClean": true
+}

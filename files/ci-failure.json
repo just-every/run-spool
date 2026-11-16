@@ -1,0 +1,21 @@
+{
+  "schema": 1,
+  "repository": "just-every/run-spool",
+  "head": "c5570fd9cdd52208ce39acbb41a46e19d666f043",
+  "job": "verify (owner-ui)",
+  "ciRun": 43971228356,
+  "ciAttempt": 2,
+  "ciJob": 133683872556,
+  "command": "pnpm test:accessibility",
+  "test": "tests/triage-journey.mjs -> tests/operator-ui.mjs#assertProvenance at operatorUi:179",
+  "exit": 1,
+  "failure": {
+    "name": "TypeError",
+    "message": "fetch failed",
+    "cause": "SocketError: other side closed",
+    "code": "UND_ERR_SOCKET",
+    "bytesRead": 3089470
+  },
+  "source": "prior-owner-ui.log",
+  "githubCallsUsed": 1
+}

@@ -1,0 +1,50 @@
+verify (owner-ui)	Run suites	﻿2026-11-16T23:12:18.0090559Z ##[group]Run pnpm test:accessibility && pnpm test:admission
+verify (owner-ui)	Run suites	2026-11-16T23:12:18.0091385Z [36;1mpnpm test:accessibility && pnpm test:admission[0m
+verify (owner-ui)	Run suites	2026-11-16T23:12:18.0109730Z shell: /usr/bin/bash -e {0}
+verify (owner-ui)	Run suites	2026-11-16T23:12:18.0110106Z env:
+verify (owner-ui)	Run suites	2026-11-16T23:12:18.0110442Z   PLAYWRIGHT_SKIP_BROWSER_GC: 1
+verify (owner-ui)	Run suites	2026-11-16T23:12:18.0110790Z   RER_SERVERS_DISK_FLOOR_GIB: 4
+verify (owner-ui)	Run suites	2026-11-16T23:12:18.0111187Z   NODE_DEBUG: @cloudflare:vite-plugin
+verify (owner-ui)	Run suites	2026-11-16T23:12:18.0111620Z   PNPM_HOME: /home/runner/setup-pnpm/node_modules/.bin
+verify (owner-ui)	Run suites	2026-11-16T23:12:18.0112093Z   PLAYWRIGHT_BROWSERS_PATH: /home/runner/work/_temp/ms-playwright
+verify (owner-ui)	Run suites	2026-11-16T23:12:18.0112550Z ##[endgroup]
+verify (owner-ui)	Run suites	2026-11-16T23:12:18.2416701Z 
+verify (owner-ui)	Run suites	2026-11-16T23:12:18.2417542Z > @errors/errors-workbench@0.7.13 test:accessibility /home/runner/work/run-spool/run-spool
+verify (owner-ui)	Run suites	2026-11-16T23:12:18.2418012Z > node tests/triage-journey.mjs
+verify (owner-ui)	Run suites	2026-11-16T23:12:18.2418171Z 
+verify (owner-ui)	Run suites	2026-11-16T23:12:18.7172673Z (node:2492) ExperimentalWarning: SQLite is an experimental feature and might change at any time
+verify (owner-ui)	Run suites	2026-11-16T23:12:18.7173662Z (Use `node --trace-warnings ...` to show where the warning was created)
+verify (owner-ui)	Run suites	2026-11-16T23:15:15.8967597Z node:internal/deps/undici/undici:13510
+verify (owner-ui)	Run suites	2026-11-16T23:15:15.8969576Z       Error.captureStackTrace(err);
+verify (owner-ui)	Run suites	2026-11-16T23:15:15.8969996Z             ^
+verify (owner-ui)	Run suites	2026-11-16T23:15:15.8970207Z 
+verify (owner-ui)	Run suites	2026-11-16T23:15:15.8971901Z TypeError: fetch failed
+verify (owner-ui)	Run suites	2026-11-16T23:15:15.8972396Z     at node:internal/deps/undici/undici:13510:13
+verify (owner-ui)	Run suites	2026-11-16T23:15:15.8973054Z     at async api (file:///home/runner/work/run-spool/run-spool/tests/triage-journey.mjs:23:61)
+verify (owner-ui)	Run suites	2026-11-16T23:15:15.8973832Z     at async assertProvenance (file:///home/runner/work/run-spool/run-spool/tests/operator-ui.mjs:24:17)
+verify (owner-ui)	Run suites	2026-11-16T23:15:15.8974659Z     at async operatorUi (file:///home/runner/work/run-spool/run-spool/tests/operator-ui.mjs:179:2)
+verify (owner-ui)	Run suites	2026-11-16T23:15:15.8975409Z     at async journey (file:///home/runner/work/run-spool/run-spool/tests/triage-journey.mjs:273:2)
+verify (owner-ui)	Run suites	2026-11-16T23:15:15.8976239Z     at async file:///home/runner/work/run-spool/run-spool/tests/triage-journey.mjs:277:31 {
+verify (owner-ui)	Run suites	2026-11-16T23:15:15.8976779Z   [cause]: SocketError: other side closed
+verify (owner-ui)	Run suites	2026-11-16T23:15:15.8977320Z       at Socket.<anonymous> (node:internal/deps/undici/undici:6294:28)
+verify (owner-ui)	Run suites	2026-11-16T23:15:15.8977804Z       at Socket.emit (node:events:531:35)
+verify (owner-ui)	Run suites	2026-11-16T23:15:15.8978196Z       at Socket.emit (node:domain:489:12)
+verify (owner-ui)	Run suites	2026-11-16T23:15:15.8978671Z       at endReadableNT (node:internal/streams/readable:1698:12)
+verify (owner-ui)	Run suites	2026-11-16T23:15:15.8979816Z       at process.processTicksAndRejections (node:internal/process/task_queues:90:21) {
+verify (owner-ui)	Run suites	2026-11-16T23:15:15.8980376Z     code: 'UND_ERR_SOCKET',
+verify (owner-ui)	Run suites	2026-11-16T23:15:15.8980703Z     socket: {
+verify (owner-ui)	Run suites	2026-11-16T23:15:15.8981032Z       localAddress: '127.0.0.1',
+verify (owner-ui)	Run suites	2026-11-16T23:15:15.8981377Z       localPort: 60838,
+verify (owner-ui)	Run suites	2026-11-16T23:15:15.8981717Z       remoteAddress: '127.0.0.1',
+verify (owner-ui)	Run suites	2026-11-16T23:15:15.8982065Z       remotePort: 15482,
+verify (owner-ui)	Run suites	2026-11-16T23:15:15.8982391Z       remoteFamily: 'IPv4',
+verify (owner-ui)	Run suites	2026-11-16T23:15:15.8982712Z       timeout: undefined,
+verify (owner-ui)	Run suites	2026-11-16T23:15:15.8983044Z       bytesWritten: 8122,
+verify (owner-ui)	Run suites	2026-11-16T23:15:15.8983353Z       bytesRead: 3089470
+verify (owner-ui)	Run suites	2026-11-16T23:15:15.8983645Z     }
+verify (owner-ui)	Run suites	2026-11-16T23:15:15.8983885Z   }
+verify (owner-ui)	Run suites	2026-11-16T23:15:15.8984122Z }
+verify (owner-ui)	Run suites	2026-11-16T23:15:15.8984261Z 
+verify (owner-ui)	Run suites	2026-11-16T23:15:15.8984391Z Node.js v22.20.0
+verify (owner-ui)	Run suites	2026-11-16T23:15:15.9434211Z  ELIFECYCLE  Command failed with exit code 1.
+verify (owner-ui)	Run suites	2026-11-16T23:15:15.9623517Z ##[error]Process completed with exit code 1.

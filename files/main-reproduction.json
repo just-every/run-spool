@@ -1,0 +1,23 @@
+{
+  "schema": 1,
+  "head": "e29a9f44ad44315d65b4e12d7f2e69b739f67233",
+  "job": "verify (owner-ui)",
+  "command": "pnpm test:accessibility",
+  "test": "tests/triage-journey.mjs -> tests/operator-ui.mjs#assertProvenance",
+  "exit": 0,
+  "failure": null,
+  "reproduced": false,
+  "node": "22.20.0",
+  "pnpm": "10.12.4",
+  "browser": "/usr/bin/chromium --no-sandbox",
+  "buildCommand": "pnpm run build:app",
+  "buildExit": 0,
+  "completedAt": "2026-11-16T23:58:45.787628+00:00",
+  "groups": 22,
+  "captures": 102,
+  "stdout": "reproduce-main.log",
+  "widths": [
+    1440,
+    390
+  ]
+}

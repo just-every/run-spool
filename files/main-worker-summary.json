@@ -1,0 +1,27 @@
+{
+  "failed": false,
+  "cleanupFailures": [],
+  "worker": {
+    "redacted": true,
+    "lines": 1070,
+    "networkConnectionLost": false,
+    "d1Error": false,
+    "sqliteError": false,
+    "mentions": {
+      "typeError": false,
+      "referenceError": false,
+      "rangeError": false,
+      "syntaxError": false,
+      "invalidProject": false,
+      "instanceofOperand": false,
+      "temporalDeadZone": false,
+      "undefinedAccess": false,
+      "notDefined": false,
+      "internalError": false,
+      "scriptNoResponse": false,
+      "contextNotFinalized": false,
+      "scrub": false,
+      "apiErrorHandler": false
+    }
+  }
+}
