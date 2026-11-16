@@ -1,0 +1,82 @@
+{
+  "files": [
+    {
+      "blob": "2760d585ae021e4f455ae33ece7789f36994ae3a",
+      "bytes": 6701,
+      "path": "REPORT.md",
+      "sha256": "a4d30d0db8bf90e348ae9f5cf76f0d5f1be34c75c40c044c4e4b4b3db8b62e47"
+    },
+    {
+      "blob": "c9a43ef34d0401180f48f06105422bb460d74679",
+      "bytes": 12155,
+      "path": "build-node24.log",
+      "sha256": "369288c9d8fb68d9973de2ac8356ef14dffd9db5560a4267803007cda4ee575b"
+    },
+    {
+      "blob": "5d78636682e0e13b4031a677676ecb04cce3e6de",
+      "bytes": 12272,
+      "path": "build.log",
+      "sha256": "a19132ff9014f7be466651c937763fab16368c01dcb329248fc6f47378339146"
+    },
+    {
+      "blob": "e92148a3e109783cb4024c27ad8469b6ff87fb3c",
+      "bytes": 178,
+      "path": "exact-sha-verify.json",
+      "sha256": "00ba36b990ceb0e433e73fedb871fe7593329b189c5fddaadb4a800da1c4e81b"
+    },
+    {
+      "blob": "e69de29bb2d1d6434b8b29ae775ad8c2e48c5391",
+      "bytes": 0,
+      "path": "failed-owner-ui.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "blob": "e69de29bb2d1d6434b8b29ae775ad8c2e48c5391",
+      "bytes": 0,
+      "path": "failed-ruby.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "blob": "723ed994e442adae56e515a13c6b10db50d31929",
+      "bytes": 170883,
+      "path": "failed-run-jobs.json",
+      "sha256": "adf158006a02382a160b66635b9faa490bf6f1c709e6ee1e35d8ea3cdb8d75ca"
+    },
+    {
+      "blob": "803ee0fd1843202c3b3f9186ee677e4daf03e19b",
+      "bytes": 73287,
+      "path": "main-runs.json",
+      "sha256": "b067f4e7b80bbec48ae123a984797c596ba65bdd83d0168412533c7739af8fd4"
+    },
+    {
+      "blob": "ba8efbbf704b2deabcf42d07e7f7105a0577866e",
+      "bytes": 176595,
+      "path": "main-verify-jobs.json",
+      "sha256": "ddfe1c53b4b9ce670b6234dc1d740d8b1437c40b70eb9544abaaaec7187e570d"
+    },
+    {
+      "blob": "b243c493fe99d375f9634a9112c7d1ba49f7e915",
+      "bytes": 26110,
+      "path": "receipt.json",
+      "sha256": "a4ddb0bf7a600883dfb0bc73da07360b4789eb324f1947ebe21417b4ec2ec046"
+    },
+    {
+      "blob": "e27357b1c2d16e1b70b3c351d11e306cb4bb9953",
+      "bytes": 457,
+      "path": "result.json",
+      "sha256": "38aad15c7eba92d78ae506a0fcb775dab25cb0762d970174da265b5065dfab83"
+    },
+    {
+      "blob": "ec12ab235243120b4e71e125089517f04e95eb29",
+      "bytes": 125,
+      "path": "typecheck.log",
+      "sha256": "6c183f2026f6784185e4e82087fb839831c9a7af5cb8c5b250686d599e900964"
+    }
+  ],
+  "product_branch": "cloud/gr-mt-spool-ci-11",
+  "product_head": "e29a9f44ad44315d65b4e12d7f2e69b739f67233",
+  "ref": "refs/heads/evidence/gr-mt-spool-ci-11",
+  "repository": "just-every/run-spool",
+  "schema": 1,
+  "tag": "gr-mt-spool-ci-11"
+}

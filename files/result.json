@@ -1,0 +1,7 @@
+{
+  "status": "no-change",
+  "sha": "e29a9f44ad44315d65b4e12d7f2e69b739f67233",
+  "summary": "Already fixed on current main: Verify 43966152100 succeeds on this exact SHA, including runtime (ruby) and verify (owner-ui).",
+  "tests": "pnpm install --frozen-lockfile PASS; rer build PASS; pnpm typecheck PASS; exact-main Verify 43966152100 PASS (28 jobs successful, zero failed). Historical failed-job log reads returned empty output.",
+  "security": false
+}
