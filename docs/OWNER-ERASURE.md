@@ -176,3 +176,13 @@ policy, inventory and epoch checks protect the atomic write. Imported/staged
 custody that cannot be selectively withdrawn holds this action without removal.
 The receipt lists unavailable stores and literal-DID-only session attribution;
 see [User identity policy](USER-IDENTITY.md#erase-one-retained-user).
+
+Run Edit Run fleet, 16 November 2026: end-user erasure also removes exact
+retained identity copies from tags on the matching event occurrences. Ordinary
+search and facets use these payloads directly. The count-only preview and
+receipt expose the number of removed search tag entries; chunked payload/digest
+updates remain inside the same atomic owner transaction and restore checkpoint.
+The preview hash includes those changes and commit guards verify their previous
+digests. Unchanged event text, unrelated occurrences, unsupported identity-specific
+search and uncorrelatable stores remain outside this claim. See the explicit
+boundaries and 150,000-event gap in USER-IDENTITY.md.
