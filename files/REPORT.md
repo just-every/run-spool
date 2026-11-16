@@ -204,13 +204,26 @@ are not represented as having run here. READY, if achieved, is custody of a
 pushed exact-SHA green candidate with a PARTIAL clause claim, not acceptance or
 landing. Separate evidence publication is report transport only.
 
+## Terminal CI and product custody
+
+Run Edit Run fleet (sd), 2026-11-16T19:03:10.066650+00:00: push Verify 43931474874 completed
+successfully on the exact final candidate e29a9f44ad44315d65b4e12d7f2e69b739f67233.
+Six total GitHub calls were used, including the prior report, discovery and four
+run observations; observations were at least 300 seconds apart. No failed-job
+log calls, dispatches or reruns were needed.
+
+The named product branch is verified pushed and READY for the fleet's guarded
+landing review with a PARTIAL SDK-027 claim. This cloud did not push main,
+submit itself, open a PR, land, tag, release or deploy. Contract counts and
+judgments are unchanged. Mac publication scanning, landing and exact-main Run
+site remain fleet gates; green branch Verify does not claim they ran here.
+
+The complete actual nonsecret packet is published separately to
+evidence/sd-spool-sdk027-3. Evidence publication is report transport, not
+acceptance, landing or a substitute for the exact product Verify. The product
+checkout/head/index remain unchanged by report publication.
+
 CLAIM SDK-027 PARTIAL points=1,3,4 tests=tests/end-user-erasure-preview.mjs#endUserErasurePreviewFlow
 DEFAULT SDK-027: Owner-only destructive confirmation and focused identity reads; typed ERASE USER DATA, no outbound action and value-free audit.
 GAP SDK-027: Ordinary user.* search UI, independent feedback, absent/uncorrelatable stores, unsupported/partial/grouping-sensitive captured copies and admitted 150,000-event timing remain unproven.
-
-## Terminal CI and product custody
-
-Run Edit Run fleet (sd), 2026-11-16T18:53:37.324495+00:00: exact-candidate push Verify
-43931474874 is in progress on e29a9f44ad44315d65b4e12d7f2e69b739f67233.
-The branch is verified pushed; READY is not yet claimed. CI observations and
-terminal-custody.json will be updated after the required bounded observation.
+EVIDENCE SDK-027: Exact-SHA push Verify 43931474874; tests/end-user-erasure-preview.mjs#endUserErasurePreviewFlow and its eight 1440/390 screenshots; scale run sd-spool-sdk027-3-20261116T184055Z on the same SHA, admitted 10,000 events in 2.390173 seconds, with the requested 150,000-event restore refused HTTP 400 Archive event budget.

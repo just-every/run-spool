@@ -1,7 +1,7 @@
 {
   "repository": "just-every/run-spool",
   "candidate": "e29a9f44ad44315d65b4e12d7f2e69b739f67233",
-  "githubCalls": 4,
+  "githubCalls": 6,
   "priorReportCalls": 1,
   "observations": [
     {
@@ -36,6 +36,24 @@
       "head_sha": "e29a9f44ad44315d65b4e12d7f2e69b739f67233",
       "html_url": "https://github.com/just-every/run-spool/actions/runs/43931474874",
       "status": "in_progress"
+    },
+    {
+      "at": "2026-11-16T18:57:32.820530+00:00",
+      "kind": "run",
+      "id": 43931474874,
+      "conclusion": null,
+      "head_sha": "e29a9f44ad44315d65b4e12d7f2e69b739f67233",
+      "html_url": "https://github.com/just-every/run-spool/actions/runs/43931474874",
+      "status": "in_progress"
+    },
+    {
+      "at": "2026-11-16T19:02:32.821125+00:00",
+      "kind": "run",
+      "id": 43931474874,
+      "conclusion": "success",
+      "head_sha": "e29a9f44ad44315d65b4e12d7f2e69b739f67233",
+      "html_url": "https://github.com/just-every/run-spool/actions/runs/43931474874",
+      "status": "completed"
     }
   ]
 }

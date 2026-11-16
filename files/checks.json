@@ -56,5 +56,13 @@
     "largeRestoreError": "Archive event budget",
     "receipt": "scale-receipt.json",
     "log": "scale-journey.log"
+  },
+  "exactShaVerify": {
+    "runId": 43931474874,
+    "event": "push",
+    "status": "completed",
+    "conclusion": "success",
+    "head": "e29a9f44ad44315d65b4e12d7f2e69b739f67233",
+    "url": "https://github.com/just-every/run-spool/actions/runs/43931474874"
   }
 }
