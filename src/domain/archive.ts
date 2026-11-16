@@ -47,6 +47,9 @@ export const tables:Record<string,string[]>= {
   artifacts:['project','release','build','debug','payload','digest','created','occurrence'],
   outcomes:['project','window','reason','count'],audit:['id','project','kind','detail','created'],alerts:['id','project','issue','kind','created'],browser_origins:['project','origin','created'],...nativeSymbolTables,...nativeDebugFileTables,...tombstoneArchiveTables,...importedTables,...operatorTables,...bundleTables,...inboundFilterTables,...feedbackTables,...groupingTables,...releaseTables,...deploymentTables,...proposalTables,...shortIdTables,...commitTables,...sentryCliTables,...loaderTables,...artifactStorageTables,...sourceMapBuildTables,...suspectTables,...sessionTables,...identityTables,...retentionTables,...reviewTables,...memberTables,...teamAlertTables,...lifecycleTables,...reportingTables,...notificationPreferenceTables,...scrubbingTables
 };
+// GOV-003's archive/restore acceptance corpus; intake capacity is a separate policy.
+// Keep restore validation bounded while admitting the published 150,000-event proof.
+const archiveEventsPerProject=160000;
 const fieldsHaveProject=(table:string)=>tables[table]?.includes('project');
 function shape(value:any, fields:string[]){if(!value||typeof value!=='object'||Array.isArray(value)||Object.keys(value).sort().join()!==[...fields].sort().join())throw new Error('Archive derived field shape');}
 function safeText(value:any){if(typeof value!=='string'||scrub(value)!==value)throw new Error('Archive unsanitized text');}
@@ -82,7 +85,7 @@ export async function validateArchive(v:any) {
   const inputTables=legacy?Object.fromEntries(Object.entries(oldTables).filter(([name])=>name!=='browser_origins')):oldTables;
   if(Object.keys(v.data).sort().join()!==Object.keys(inputTables).sort().join())throw new Error('Archive tables mismatch');
   for(const [table,fields] of Object.entries(inputTables)) {
-    const rows=v.data[table];if(!Array.isArray(rows)||rows.length>10000)throw new Error('Archive row budget');
+    const rows=v.data[table];if(!Array.isArray(rows)||rows.length>(table==='events'?archiveEventsPerProject:10000))throw new Error('Archive row budget');
     for(const row of rows){if(!row||Object.keys(row).sort().join()!==[...fields].sort().join()||Object.values(row).some(x=>x!==null&&typeof x!=='string'&&typeof x!=='number')||Object.entries(row).some(([key,x])=>typeof x==='string'&&x.length>(table==='events'&&key==='payload'?4*1024*1024:['artifacts','native_symbols','native_debug_files'].includes(table)&&key==='payload'?1024*1024:table==='grouping_proposals'&&['revisions','explanation'].includes(key)?2*1024*1024:300000)))throw new Error('Archive row shape');}
   }
   const upgraded=Object.fromEntries(Object.entries(v.data).map(([table,rows])=>[table,(rows as Record<string,unknown>[]).map(row=>upgradeOccurrence(table,row))]));
@@ -103,6 +106,9 @@ export async function validateArchiveRows(data:any,legacy=false,alertRules:any[]
     if(!Array.isArray(data[table]))throw new Error('Archive row budget');
     for(const row of data[table]){shape(row,table==='grouping_proposals'&&'prepared_by' in row?[...fields,'prepared_by']:fields);if(Object.values(row).some(x=>x!==null&&typeof x!=='string'&&typeof x!=='number')||Object.entries(row).some(([key,x])=>typeof x==='string'&&x.length>(table==='events'&&key==='payload'?4*1024*1024:['artifacts','native_symbols','native_debug_files'].includes(table)&&key==='payload'?1024*1024:table==='grouping_proposals'&&['revisions','explanation'].includes(key)?2*1024*1024:300000)))throw new Error('Archive row shape');}
   }
+  // Count before payload hashing and identity verification; no project-by-event rescans.
+  const eventCounts=new Map<string,number>();
+  for(const row of data.events){const count=(eventCounts.get(row.project)??0)+1;if(count>archiveEventsPerProject)throw new Error('Archive event budget');eventCounts.set(row.project,count)}
   for(const row of v.data.projects){safeText(row.name);if(!Number.isSafeInteger(row.created)||row.created<0)throw new Error('Archive timestamp');}
   for(const row of v.data.releases){releaseIdentity(row.name);storedBuild(row.build);if(!Number.isSafeInteger(row.seq)||row.seq<1)throw new Error('Archive release ordering');}
   const projects=new Set(v.data.projects.map((r:any)=>identity(r.id,'project')));
@@ -129,7 +135,7 @@ export async function validateArchiveRows(data:any,legacy=false,alertRules:any[]
   for(const row of v.data.audit.filter((r:any)=>!operatorAuditKinds.includes(r.kind)&&!inboundAuditKinds.includes(r.kind)&&r.kind!=='grouping_rules_changed'&&r.kind!=='release_policy_changed'&&r.kind!=='recurrence_policy_changed'&&r.kind!=='scrubbing_policy_changed')){if(!kinds[row.kind]||!Number.isSafeInteger(row.created))throw new Error('Archive audit kind');const detail=JSON.parse(row.detail);shape(detail,kinds[row.kind]);for(const [field,value] of Object.entries(detail)){if(field==='origin'&&row.kind.startsWith('browser_origin_')){if(typeof row.project!=='string'||!projects.has(row.project))throw new Error('Archive origin audit project');browserOrigin(value);}else if(row.kind==='artifact_uploaded'&&field==='debug'){identity(value,'debug ID');}else if(typeof value==='string')safeText(value);else if(typeof value!=='number'||!Number.isSafeInteger(value))throw new Error('Archive audit value');}}
   const originIdentities=new Set<string>();
   if(!legacy)for(const row of v.data.browser_origins){if(typeof row.project!=='string'||!projects.has(row.project))throw new Error('Archive origin project');browserOrigin(row.origin);const key=row.project+'\n'+row.origin;if(originIdentities.has(key))throw new Error('Archive duplicate origin');originIdentities.add(key);if(!Number.isSafeInteger(row.created)||row.created<0)throw new Error('Archive origin timestamp');}
-  for(const project of projects){if(v.data.events.filter((r:any)=>r.project===project).length>10000)throw new Error('Archive event budget');if(!legacy&&v.data.browser_origins.filter((r:any)=>r.project===project).length>20)throw new Error('Archive origin budget');}
+  for(const project of projects){if(!legacy&&v.data.browser_origins.filter((r:any)=>r.project===project).length>20)throw new Error('Archive origin budget');}
   validateMemberArchive(v.data,alertRules);
   validateReportingArchive(v.data);
   validateProposalArchive(v.data);

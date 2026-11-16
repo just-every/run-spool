@@ -7,13 +7,13 @@ import { archiveText } from './agent-handoff/caps.mjs';
 
 // Run the committed journey outside push Verify under a hard 2400-second alarm.
 // A restore admission refusal is not an erasure-fence proof. Keep the requested
-// corpus and fallback explicit; never plant product rows or bypass capacity.
-const requestedVolume=150000,profileOnly=process.argv.includes('--profile-10000');
+// corpus explicit; admission must succeed, never fall back or plant product rows.
+const archiveOnly=process.argv.includes('--archive-160000'),requestedVolume=archiveOnly?160000:150000;
 const candidate=execFileSync('git',['rev-parse','HEAD'],{encoding:'utf8'}).trim();
 if(process.env.RER_CANDIDATE_SHA)assert.equal(candidate,process.env.RER_CANDIDATE_SHA,'scale receipt must name the checked-out candidate');
-const runId=process.env.RER_SCALE_RUN_ID??'sd-spool-sdk027-3-'+new Date().toISOString().replace(/[-:]/g,'');
+const runId=process.env.RER_SCALE_RUN_ID??'sd-spool-sdk027-4-'+new Date().toISOString().replace(/[-:]/g,'');
 const startedAt=new Date().toISOString();
-let retainedVolume=10000;
+const retainedVolume=requestedVolume;
 let source,destination;
 try {
  source=await runtime();
@@ -33,14 +33,29 @@ try {
  };
  destination=await runtime();
  const restoreStart=performance.now();
- const requested=profileOnly?null:await restore(destination,await grow(requestedVolume));
+ const requested=await restore(destination,await grow(requestedVolume));
  const requestedRestoreMs=performance.now()-restoreStart;
- if(requested?.status===200)retainedVolume=requestedVolume;
- else {
-  if(requested){assert.equal(requested.status,400,JSON.stringify(requested));assert.deepEqual(await destination.json('/api/projects'),[],'refused large restore leaves no project')}
-  const restored=await restore(destination,await grow(retainedVolume));assert.equal(restored.status,200,JSON.stringify(restored));
- }
- console.log('SCALE_ADMISSION '+JSON.stringify({candidate,runId,requestedVolume,attempted:!profileOnly,status:requested?.status??null,error:requested?.body.error??null,requestedRestoreMs,retainedVolume}));
+ assert.equal(requested.status,200,'the entire contract-volume corpus must be admitted: '+JSON.stringify(requested));
+ const restoredIssues=await destination.json('/api/projects/'+project+'/issues');
+ assert.equal(restoredIssues.reduce((n,row)=>n+row.count,0),requestedVolume,'public issue counts reconcile after full-volume restore');
+ const restoredIdentity=await destination.json('/api/projects/'+project+'/identity-search?field=user.email&value='+encodeURIComponent(value));
+ assert.equal(restoredIdentity.matchingEvents,requestedVolume,'public identity counts reconcile after full-volume restore');
+ console.log('SCALE_ADMISSION '+JSON.stringify({candidate,runId,requestedVolume,status:requested.status,requestedRestoreMs,retainedVolume}));
+ if(archiveOnly){
+  const exported=await archive(destination);
+  assert.equal(exported.data.events.length,requestedVolume,'whole-project archive includes every retained event');
+  assert.equal(exported.data.event_identities.length,requestedVolume,'whole-project archive includes every identity');
+  assert.equal(exported.data.issues.reduce((n,row)=>n+row.count,0),requestedVolume,'archived aggregates reconcile');
+  // A valid checksummed archive above the supported budget is refused before commit.
+  const over=await runtime();try{
+   const refused=await restore(over,await grow(requestedVolume+1));
+   assert.equal(refused.status,400);assert.equal(refused.body.error,'Archive event budget','capacity refusal remains distinct from erasure_epoch');
+   assert.deepEqual(await over.json('/api/projects'),[],'over-budget restore leaves the destination empty');
+  }finally{await over.close()}
+  const result={candidate,runId,startedAt,completedAt:new Date().toISOString(),requestedVolume,admittedVolume:retainedVolume,requestedRestoreMs,archivedEvents:exported.data.events.length,archivedIdentities:exported.data.event_identities.length,overBudget:{volume:requestedVolume+1,status:400,error:'Archive event budget'}};
+  await mkdir('.artifacts/erasure-preview',{recursive:true});await writeFile('.artifacts/erasure-preview/archive-volume.json',JSON.stringify(result,null,2)+'\n');
+  console.log('PROBE GOV-003 archive volume: '+JSON.stringify(result));
+ }else{
  const root='/api/projects/'+project+'/end-user-erasure',selection={field:'email',value,action:'remove_identity'};
  const preview=await destination.json(root+'/preview',selection);assert.equal(preview.events.count,retainedVolume);assert.equal(preview.events.retained,retainedVolume);assert.equal(preview.search.count,retainedVolume);assert.equal(preview.capturedText.count,retainedVolume);
  const start=performance.now(),receipt=await destination.json(root+'/confirm',{...selection,planHash:preview.planHash,confirm:'ERASE USER DATA'}),completionMs=performance.now()-start;
@@ -49,8 +64,9 @@ try {
  const issues=await destination.json('/api/projects/'+project+'/issues');assert.equal(issues.reduce((n,row)=>n+row.count,0),retainedVolume);
  const visible=await destination.json('/api/projects/'+project+'/issues/'+seed.issue+'/affected-users');assert.equal(visible.affectedUsers,null);assert.equal(visible.unattributed,retainedVolume);
  const identitySearch=await destination.json('/api/projects/'+project+'/identity-search?field=user.email&value='+encodeURIComponent(value));assert.equal(identitySearch.matchingEvents,0);assert.deepEqual(identitySearch.facets,[]);
- const result={candidate,runId,startedAt,completedAt:new Date().toISOString(),requestedVolume,requestedVolumeProof:retainedVolume===requestedVolume?'admitted and timed':profileOnly?'not attempted in focused profiling run':'unavailable: public restore refuses corpus above retained cap',overCap:{attempted:!profileOnly,volume:requestedVolume,status:requested?.status??null,error:requested?.body.error??null,requestedRestoreMs},admittedVolume:retainedVolume,before:{retained:preview.events.retained,matched:preview.events.count},after:{retained:after.events.retained,matched:after.events.count},completionMs,receipt};
+ const result={candidate,runId,startedAt,completedAt:new Date().toISOString(),requestedVolume,requestedVolumeProof:'admitted and timed',overCap:{attempted:true,volume:requestedVolume,status:requested?.status??null,error:requested?.body.error??null,requestedRestoreMs},admittedVolume:retainedVolume,before:{retained:preview.events.retained,matched:preview.events.count},after:{retained:after.events.retained,matched:after.events.count},completionMs,receipt};
  assert.ok(!JSON.stringify(result).includes(value));
  await mkdir('.artifacts/erasure-preview',{recursive:true});await writeFile('.artifacts/erasure-preview/volume.json',JSON.stringify(result,null,2)+'\n');
  console.log('PROBE SDK-027 volume: '+JSON.stringify({requestedVolume,admittedVolume:retainedVolume,overCapStatus:requested?.status??null,completionMs,receiptSeconds:receipt.seconds,claim:retainedVolume===requestedVolume?'acceptance point 5 timed; other gaps remain':'PARTIAL; acceptance point 5 unproven'}));
+ }
 } finally {await destination?.close();await source?.close()}

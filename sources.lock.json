@@ -5822,7 +5822,7 @@
       "executable": false
     },
     "src/domain/archive.ts": {
-      "sha256": "bd112e0948abef261d96761c958ed6214fab17868001cf6209682c0e8fae6da9",
+      "sha256": "4c84165646392491169623f81a416687b77c1099afb2c9809f7e84038eac6308",
       "executable": false
     },
     "src/domain/artifacts.ts": {
@@ -6270,7 +6270,7 @@
       "executable": false
     },
     "src/domain/identities/archive.ts": {
-      "sha256": "b0c8bea831284521b8658690686ada2d0dffd64c710236d06f41f294323003d2",
+      "sha256": "2298897734caf6c1835f41dfb07568c3b1fd501c5e998ff6ed005db591b3c7af",
       "executable": false
     },
     "src/domain/identities/conversion.ts": {
@@ -11106,7 +11106,7 @@
       "executable": false
     },
     "tests/end-user-erasure-volume.mjs": {
-      "sha256": "7098d3919dc78cacab6922c5bfd7e9c72c3926d7133fafa87e23f39dbcf9e9c4",
+      "sha256": "433150a091c2ce5cfd14a8874ef3d386f7b6675836c32037ada74c1749be6e3f",
       "executable": false
     },
     "tests/execution-journey.mjs": {
