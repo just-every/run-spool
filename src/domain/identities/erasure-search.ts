@@ -44,9 +44,9 @@ export function erasureSearchStatements(db:D1Database,project:string,changes:Awa
    SELECT CASE WHEN COUNT(*)=json_array_length(?) THEN 1 ELSE 0 END
    FROM json_each(?) c JOIN events e ON e.project=? AND e.id=json_extract(c.value,'$.id')
     AND e.occurrence=json_extract(c.value,'$.occurrence') AND e.digest=json_extract(c.value,'$.before')`).bind(text,text,project),
-  db.prepare(`WITH changes AS MATERIALIZED (SELECT value FROM json_each(?))
-   UPDATE events SET (payload,digest)=(SELECT json_extract(value,'$.payload'),json_extract(value,'$.digest')
-    FROM changes WHERE json_extract(value,'$.id')=events.id)
-   WHERE project=? AND id IN (SELECT json_extract(value,'$.id') FROM changes)`).bind(text,project),
+  db.prepare(`WITH changes AS MATERIALIZED (
+    SELECT json_extract(value,'$.id') id,json_extract(value,'$.payload') payload,json_extract(value,'$.digest') digest FROM json_each(?))
+   UPDATE events SET payload=changes.payload,digest=changes.digest FROM changes
+   WHERE events.project=? AND events.id=changes.id`).bind(text,project),
  ]);
 }
