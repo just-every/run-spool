@@ -1,0 +1,47 @@
+{
+  "source_head": "0f6c5523e3b4974544a3f73883f9182295bee364",
+  "main": "e29a9f44ad44315d65b4e12d7f2e69b739f67233",
+  "merge_base": "a037966cccf2f232e8c098d62607ba36cca7f777",
+  "original_changed_files": 21,
+  "exact_original_files": 19,
+  "exact_original_paths": [
+    "docs/FEEDBACK.md",
+    "management/integration/deployment-spec.json",
+    "migrations/core/0109_feedback_review.sql",
+    "src/domain/feedback/admission.ts",
+    "src/domain/feedback/archive.ts",
+    "src/domain/feedback/input.ts",
+    "src/domain/feedback/private.ts",
+    "src/domain/feedback/review.ts",
+    "src/domain/feedback/routes.ts",
+    "src/domain/members/resolver.ts",
+    "src/domain/portability.ts",
+    "src/ui/workbench/FeedbackPanel.tsx",
+    "src/ui/workbench/SettingsView.tsx",
+    "src/ui/workbench/feedback.css",
+    "tests/feedback-flow.mjs",
+    "tests/old-archive.mjs",
+    "tests/repair-recovery/archive.mjs",
+    "tests/runtimes/browser.mjs",
+    "tests/runtimes/feedback-proof.mjs"
+  ],
+  "only_main_newer_paths": [
+    "docs/OWNER-ERASURE.md",
+    "docs/USER-IDENTITY.md",
+    "src/domain/identities/erasure-search.ts",
+    "src/domain/identities/erasure-text.ts",
+    "src/domain/identities/routes.ts",
+    "src/domain/identities/search.ts",
+    "src/ui/workbench/EndUserErasurePreview.tsx",
+    "tests/end-user-erasure-preview.mjs",
+    "tests/end-user-erasure-volume.mjs"
+  ],
+  "combined_erasure_file": "src/domain/erasure/end-user.ts",
+  "remaining_difference": "sources.lock.json regenerated from the combined tree",
+  "old_merge_resolution_paths": [
+    "docs/FEEDBACK.md",
+    "sources.lock.json",
+    "src/domain/erasure/end-user.ts",
+    "tests/feedback-flow.mjs"
+  ]
+}

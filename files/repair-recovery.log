@@ -1,0 +1,28 @@
+verify
+Heavy job admitted: Spool verify:suite [6179c8701e00]
+STEP setup/startDev
+STEP setup/dev-ready
+END setup/dev-ready seconds=40.822
+END setup/startDev seconds=40.889
+STEP setup/stopDev
+STEP setup/dev-stop
+END setup/dev-stop seconds=0.211
+END setup/stopDev seconds=0.215
+STEP setup/reset
+END setup/reset seconds=2.149
+STEP setup/setup
+END setup/setup seconds=87.167
+STEP setup/startDev
+STEP setup/dev-ready
+END setup/dev-ready seconds=41.071
+END setup/startDev seconds=41.122
+STEP setup/stopDev
+STEP setup/dev-stop
+END setup/dev-stop seconds=0.185
+END setup/stopDev seconds=0.190
+STEP setup/reset
+END setup/reset seconds=1.826
+STEP setup/setup
+END setup/setup seconds=82.879
+STEP setup/startDev
+STEP setup/dev-ready

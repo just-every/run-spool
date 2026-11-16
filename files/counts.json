@@ -1,0 +1,27 @@
+{
+  "status_counts": {
+    "before": {
+      "done": 23,
+      "partial": 48,
+      "missing": 21
+    },
+    "after": {
+      "done": 23,
+      "partial": 48,
+      "missing": 21
+    }
+  },
+  "note": "Counted the clause judgment table in unchanged CONTRACT.md; no status, gap or evidence edits.",
+  "previous_candidate": {
+    "commits_above_current_main": 8,
+    "merges_above_current_main": 2,
+    "feedback_flows": 3,
+    "erasure_preview_flows": 1
+  },
+  "linear_candidate": {
+    "commits_above_current_main": 1,
+    "merges_above_current_main": 0,
+    "feedback_flows": 3,
+    "erasure_preview_flows": 1
+  }
+}

@@ -1,0 +1,721 @@
+diff --git a/docs/OWNER-ERASURE.md b/docs/OWNER-ERASURE.md
+index bde11a7..d26a2a1 100644
+--- a/docs/OWNER-ERASURE.md
++++ b/docs/OWNER-ERASURE.md
+@@ -177,12 +177,15 @@ custody that cannot be selectively withdrawn holds this action without removal.
+ The receipt lists unavailable stores and literal-DID-only session attribution;
+ see [User identity policy](USER-IDENTITY.md#erase-one-retained-user).
+ 
+-Run Edit Run fleet, 16 November 2026: end-user erasure also removes exact
+-retained identity copies from tags on the matching event occurrences. Ordinary
+-search and facets use these payloads directly. The count-only preview and
+-receipt expose the number of removed search tag entries; chunked payload/digest
+-updates remain inside the same atomic owner transaction and restore checkpoint.
+-The preview hash includes those changes and commit guards verify their previous
+-digests. Unchanged event text, unrelated occurrences, unsupported identity-specific
+-search and uncorrelatable stores remain outside this claim. See the explicit
+-boundaries and 150,000-event gap in USER-IDENTITY.md.
++Run Edit Run fleet (sd), 16 November 2026: end-user erasure removes supported
++exact identity copies from project event tags, messages and breadcrumbs and
++matching issue and alert titles. The count-only preview and receipt name changed event
++text, titles and tag entries, plus partial-token and grouping-sensitive copies
++that remain. Ordinary search/facets read payloads; the owner-only identity
++search/facet API reads the identity projection itself. Payload/digest and title
++updates use bounded set-based statements inside the existing atomic transaction.
++Their JSON-first guard order performs indexed occurrence lookups rather than
++rescanning the project per chunk. There is still one value-free journal
++checkpoint and completion receipt. Uncorrelatable aliases, independent derived
++snapshots and the public 150,000-event admission/timing gap remain explicit in
++[User identity policy](USER-IDENTITY.md#erase-one-retained-user).
+diff --git a/docs/USER-IDENTITY.md b/docs/USER-IDENTITY.md
+index 9af87ec..d43a762 100644
+--- a/docs/USER-IDENTITY.md
++++ b/docs/USER-IDENTITY.md
+@@ -35,8 +35,7 @@ Individual sessions are de-identified only when their privately hashed DID is
+ literally equal to the supplied value; Spool cannot infer relationships between
+ different aliases or attribute anonymous aggregate sessions. Feedback contact is
+ already discarded at intake; scrubbed feedback messages have no independent
+-user index. Attachments, replays and identity search indexes/facets have no
+-retained matching store. The preview and receipt state those limitations rather
++user index. Attachments and replays have no retained matching store. The preview and receipt state those limitations rather
+ than claiming zero matches or complete erasure of those stores.
+ 
+ The completed receipt contains counts, times and retained-scope explanations.
+@@ -47,33 +46,68 @@ and private archives omit the removed fields. This installation, or a fresh
+ installation given its later archive/journal, refuses a pre-erasure archive.
+ An empty installation given only an old archive cannot know about a later
+ erasure. Downloaded copies, provider backups and future captures are outside
+-this operation. This is not a promise of complete SDK-027 acceptance: identity
+-search/facets and the public 150,000-event volume remain unavailable.
+-
+-### Search tags and other stores
+-
+-Run Edit Run fleet, 16 November 2026: ordinary search predicates and tag facets
+-read retained event payloads directly. The erasure preview now counts exact
+-copies of the supplied value, its project hash, and the matching occurrence's
+-retained identity values and hashes in tag keys or values. Candidate tags are
+-also hashed privately to match raw copies of hash-policy identities. Confirmation removes
+-those tag entries with the identity, recomputes event digests and leaves other
+-tags and unrelated occurrences intact. Event deletion removes those projections
+-with the events. The receipt's `search_tags` count describes removed tag entries,
+-not a separate database table. Counts, payload updates and receipt share the
+-same owner transaction; the plan binds the changed search payloads.
+-
+-There is still no identity-specific `user.email`, `user.id`, `user.username`
+-or `user.ip` search/facet door. An alias discarded without a retained matching hash
+-cannot be reconstructed, and text or tags on unrelated events cannot
+-be attributed to a user merely because they contain a similar value. Session
+-DIDs match only literal equality with the supplied identity, using the existing
+-project HMAC. Unknown aliases and anonymous aggregates remain uncorrelatable.
+-Attachments and replays have no retained matching store; their absence is
+-reported as unavailable, rather than a successful zero-record erasure. Feedback
+-contact and independently matching feedback remain outside this slice.
+-
+-The public retained-event and archive limits still refuse 150,000-event projects.
+-The focused scale journey probes that exact requested corpus, records the refusal,
+-and times the changed search-tag path at the admitted 10,000-event volume. That
+-timing does not establish the required 150,000-event acceptance point.
++this operation. Complete SDK-027 acceptance, including the public 150,000-event
++volume and independently matching feedback, remains unproven.
++
++### Identity search and facets
++
++Run Edit Run fleet (sd), 16 November 2026: the installation owner can read
++`GET /api/projects/<project>/identity-search`. Its count, first 25 occurrence
++references and first 1,000 facet values come directly from the retained identity
++projection. The response names truncation. Add `field=user.email&value=<value>`
++to find an exact email; `user.id`, `user.username`, `user.ip` and `ip_address`
++are also supported. A raw supplied value matches its project hash under hash
++policy. A stored hash can also be searched directly. Facet values are raw only
++under keep, hashed under hash, and absent under drop. Private match hashes for
++keep fields and the project key never enter this response.
++
++This focused API is owner-only. Agent grants, members and administrators do not
++inherit access; ordinary issue-search syntax still does not support `user.*`.
++No additional identity index or persistent query is created. Erasure clears the
++same projection, so both raw-input and stored-hash queries and their facets lose
++the erased identity while other users and projects remain. The existing
++ordinary search, issue export and tag facets read the changed event payloads.
++
++### Captured copies and remaining stores
++
++Run Edit Run fleet (sd), 16 November 2026: erasure now also scans project events
++for exact retained identity copies in messages, tags and breadcrumbs, including
++copies on occurrences with no retained identity. It recognizes the supplied
++value and its private project hash, the matched occurrences' retained values
++and hashes, and raw tag values whose project hash matches those aliases. Whole
++tag entries are removed for exact matches; complete tokens inside captured
++sentences are removed without changing neighboring text. Matching issue title
++text and its retained attention-alert title copy are removed too. Digests are recomputed and previous occurrence/digest and
++issue revision/title guards commit with identity removal, the receipt and one
++existing portability redaction checkpoint in the same owner transaction.
++
++The preview and receipt separately count changed text events, issue titles and alert titles.
++A substring inside a longer identifier cannot be attributed safely. Text used
++by an immutable grouping key cannot be removed by this door without changing
++its provenance and breaking restore; those event payloads remain intact and
++are explicitly counted in the preview and explained in the receipt. Identity
++removal still completes, and the owner can instead choose to delete the exact
++identity-matched events. Unknown aliases, encoded text, exception/stack/context
++copies and independent derived snapshots remain outside this focused matcher.
++An absence claim applies only to the supported copies actually removed.
++
++Individual session DIDs still match only literal equality with the supplied
++value. Anonymous aggregates, discarded aliases and absent attachment/replay
++stores cannot be correlated. Feedback matching awaits its separate round.
++Downloaded copies and future captures remain outside this installation.
++
++### Performance and volume boundary
++
++Run Edit Run fleet (sd), 16 November 2026: bounded JSON batches use an indexed
++occurrence lookup for each changed row. The JSON rows run first in each guard,
++avoiding a full project scan and JSON reparse for every chunk. Payload and
++identity updates, transfer invalidation, one journal checkpoint, audit and
++receipt retain their existing atomic semantics; there is no per-event round
++trip or journal entry.
++
++The public retained-event and archive limits still refuse a 150,000-event
++project. The committed scale journey records that refusal separately from an
++`erasure_epoch` refusal of an older archive, then times the admitted 10,000-event
++project. This does not prove the 150,000-event timing requirement. GOV-003 and
++ERR-009 require whole-project streaming restore at that volume; SDK-027's older
++archive refusal does not excuse an unrelated archive-budget refusal.
+diff --git a/sources.lock.json b/sources.lock.json
+index f4578c2..4966682 100644
+--- a/sources.lock.json
++++ b/sources.lock.json
+@@ -3062,7 +3062,7 @@
+       "executable": false
+     },
+     "docs/OWNER-ERASURE.md": {
+-      "sha256": "f4fef9e5059c3ab249db1be342ca8ad4af95cbcb4bbbffd597e46f0b654f7393",
++      "sha256": "a309e2c1331a4ede1bc2fc65e02eae8517c932d85972a4cb7a18675fc611c482",
+       "executable": false
+     },
+     "docs/PROJECT-ERASURE.md": {
+@@ -3742,7 +3742,7 @@
+       "executable": false
+     },
+     "docs/USER-IDENTITY.md": {
+-      "sha256": "3770bb67261eabf519e422628c25b8c2b37d06bbe356f082857fa48e8e02274b",
++      "sha256": "54de6563067f0548ed6fe1685ebf08b5aec1df1d9cf8b11580cbc21a67a7839d",
+       "executable": false
+     },
+     "docs/WITH-YOUR-AGENT.md": {
+@@ -6058,7 +6058,7 @@
+       "executable": false
+     },
+     "src/domain/erasure/end-user.ts": {
+-      "sha256": "97552fb8ca1cb8d6016f3dd9deb01c63b88128d2ed20614bff504b1cadc12b93",
++      "sha256": "dc3bd8bac90d8ff1438d17adc1fb5b116a657b5b6f9191a4fcdd33f42a4d2f64",
+       "executable": false
+     },
+     "src/domain/erasure/identifiers.ts": {
+@@ -6294,7 +6294,11 @@
+       "executable": false
+     },
+     "src/domain/identities/erasure-search.ts": {
+-      "sha256": "e661a7c7d09d647ffcc93c45875ecf3e6dd18b5c8884490d89df32ef94649b45",
++      "sha256": "f43d368dc898ed059c8a5a64a5f274f99a7d64e316f2e975b5599504260aa02f",
++      "executable": false
++    },
++    "src/domain/identities/erasure-text.ts": {
++      "sha256": "5ac2c14c33627efb15c5813fbe24f9ee726ec8a7853171a7f9a2aca85bd94d3d",
+       "executable": false
+     },
+     "src/domain/identities/intake.ts": {
+@@ -6314,7 +6318,11 @@
+       "executable": false
+     },
+     "src/domain/identities/routes.ts": {
+-      "sha256": "ba5720e27041215a403e50d7b8afd91d62ef83eec28bb047fdd2ffc2a452dc5f",
++      "sha256": "c0d87d2db272b2d289c9f7b819f318941ab8dc060ce04d1a7f06460393ff3747",
++      "executable": false
++    },
++    "src/domain/identities/search.ts": {
++      "sha256": "09a662b73afcee830a2ee08bd4bc8cb76124097cc4ceb1bf7d96702b16cb204e",
+       "executable": false
+     },
+     "src/domain/identities/values.ts": {
+@@ -10366,7 +10374,7 @@
+       "executable": false
+     },
+     "src/ui/workbench/EndUserErasurePreview.tsx": {
+-      "sha256": "0cf747e5472d2ee5e2a009d56ac65ffdf34803a0c8f3d37b7252c154dcab2f30",
++      "sha256": "51a162f78b099809d1f45f922087d967ac7122470e3ea7770486875e8aa3d021",
+       "executable": false
+     },
+     "src/ui/workbench/erasureLabels.ts": {
+@@ -11106,11 +11114,11 @@
+       "executable": false
+     },
+     "tests/end-user-erasure-preview.mjs": {
+-      "sha256": "0854ce9b781de02cfdee67f3172c86b3fb928c2d41135be7de8173bf381e2a03",
++      "sha256": "0598b8efd4392e00f1d55e58cfb12f7adc25899a61ef3a9e2a478491e2df5a64",
+       "executable": false
+     },
+     "tests/end-user-erasure-volume.mjs": {
+-      "sha256": "77d033dbcc8fec498ce2900e47a92ddf3c208002895eb59efad26e2c12f09be0",
++      "sha256": "7098d3919dc78cacab6922c5bfd7e9c72c3926d7133fafa87e23f39dbcf9e9c4",
+       "executable": false
+     },
+     "tests/execution-journey.mjs": {
+diff --git a/src/domain/erasure/end-user.ts b/src/domain/erasure/end-user.ts
+index 7834271..f73c705 100644
+--- a/src/domain/erasure/end-user.ts
++++ b/src/domain/erasure/end-user.ts
+@@ -1,5 +1,5 @@
+ import { canonical, hash } from '../privacy';
+-import { erasureSearchPlan, erasureSearchStatements } from '../identities/erasure-search';
++import { erasureSearchPlan, erasureSearchStatements, erasureIssueStatements, erasureAlertStatements } from '../identities/erasure-search';
+ import { identityHash } from '../identities/key';
+ import { readIdentityPolicy, identityPolicyFence, type IdentityField } from '../identities/policy';
+ import { portability } from '../portability';
+@@ -20,7 +20,6 @@ export const endUserExceptions = [
+  {table:'feedback',reason:'Consented feedback contact, screenshots and replies stay in the feedback inbox. End-user erasure does not match feedback by contact or remove these details by the supplied identity. To remove them, the installation owner must withdraw the report in the feedback inbox. Deleting matching events also deletes reports attached to those exact occurrences.'},
+  {table:'attachments',reason:'Attachment ingestion and identity metadata are not retained; there is no attachment identity matching store.'},
+  {table:'replays',reason:'Replay ingestion and identity metadata are not retained; there is no replay identity matching store.'},
+- {table:'identity_search',reason:'Identity-specific search keys and facets are unavailable. Ordinary search and tag facets read event payloads directly; exact identity copies in tags on matching events are removed.'},
+ ];
+ 
+ export async function endUserPlan(db: D1Database, project: string, selection: EndUserSelection) {
+@@ -41,7 +40,7 @@ export async function endUserPlan(db: D1Database, project: string, selection: En
+   (SELECT COUNT(*) FROM event_grouping WHERE project=? AND event IN (${predicate})) grouping,
+   (SELECT COUNT(*) FROM event_suppressions WHERE project=? AND event IN (${predicate})) suppressions`)
+  .bind(project,project,project,digest,project,digest,project,project,project,digest,project,project,digest,project,project,digest);
+- const search=await erasureSearchPlan(db,project,predicate,digest,value,secret?.key??null);
++ const search=await erasureSearchPlan(db,project,predicate,digest,value,secret?.key??null,action==='delete_events');
+  const counts=(await query.first()) as {retained:number;correlatable:number;matched:number;sessions:number;sessionRetained:number;feedback:number;grouping:number;suppressions:number};
+  const unavailable=current.policy[field]==='drop'?'This field is dropped by the current policy; discarded identities cannot be recovered.':!secret?'No retained project identity key is available.':null;
+  const fence=await db.prepare('SELECT source_identity,epoch,import_job FROM rer_portability_state WHERE id=1').first<{source_identity:string;epoch:number;import_job:string|null}>();
+@@ -50,6 +49,7 @@ export async function endUserPlan(db: D1Database, project: string, selection: En
+   !(await db.prepare(`SELECT ${noImportCustody} AS clear`).first<{clear:number}>())!.clear?'Shared import custody cannot be selectively erased by this door.':null;
+  const planHash=await hash(canonical([project,field,digest,action,current.revision,counts,search.fingerprint,fence?.source_identity??null,fence?.epoch??0,copies?.inventory??null,hold]));
+  const retained=[...endUserExceptions,
++  {table:'captured_text',reason:`${search.ambiguousEvents} event records contain only ambiguous partial-token copies; ${search.groupingHeld} event records contain matching content that cannot be redacted without changing immutable grouping provenance. Those copies stay. Unknown aliases, encoded text, exception/stack/context copies and independent derived snapshots cannot be fully correlated by this door.`},
+   {table:'health_sessions',reason:'Only session DID hashes equal to the supplied value are matched. Different aliases and anonymous session aggregates cannot be correlated.'},
+   {table:'external_copies',reason:'Downloaded archives, delivered messages, provider backups and future incoming captures are outside this installation. A fresh destination needs the later archive as its trusted erasure journal.'},
+  ];
+@@ -59,7 +59,8 @@ export async function endUserPlan(db: D1Database, project: string, selection: En
+    explanation:unavailable??'Exact retained identity matches only. All four identity fields on matching events are removed; events without this field cannot be correlated.'},
+   sessions:{status:unavailable?'unavailable':'available',count:unavailable?null:counts.sessions,retained:counts.sessionRetained,
+    explanation:'Exact session DID equality only; other aliases and anonymous session aggregates cannot be attributed.'},
+-  search:{status:unavailable?'unavailable':'available',count:unavailable?null:search.count,explanation:'Exact retained identity values and hashes copied into event tags on matching occurrences. Search predicates and facets read these same tags; no separate index is retained.'},
++  search:{status:unavailable?'unavailable':'available',count:unavailable?null:search.count,explanation:'Exact retained identity copies in project event tags. Ordinary search/facets read those payloads; identity search/facets read the identity projection cleared by this operation.'},
++  capturedText:{status:unavailable?'unavailable':'available',count:unavailable?null:search.textEvents,issueTitles:search.issueChanges.length,alertTitles:search.alertChanges.length,ambiguousEvents:search.ambiguousEvents,groupingHeld:search.groupingHeld,explanation:'Whole-token copies in messages, tags and breadcrumbs and captured issue/alert titles are removed where grouping stays valid. Partial identifiers, grouping-sensitive content and unsupported copies remain explicitly listed.'},
+   feedback:{status:action==='delete_events'?'attached_records_only':'unavailable',count:action==='delete_events'?counts.feedback:null},
+   unavailable:endUserExceptions.map(({table,reason})=>({store:table,reason})),retained}};
+ }
+@@ -70,7 +71,7 @@ export async function endUserPlan(db: D1Database, project: string, selection: En
+ export async function endUserStatements(db: D1Database, project: string, selection: EndUserSelection, plan: Awaited<ReturnType<typeof endUserPlan>>) {
+  const transfer=await portability(db), before=await state(db), id=crypto.randomUUID().replaceAll('-',''),now=new Date().toISOString();
+  const {counts,predicate,digest}=plan, deleting=selection.action==='delete_events';
+- const deleted={event_identities:counts.matched,health_sessions:counts.sessions,search_tags:plan.search.count,...deleting?{events:counts.matched,feedback:counts.feedback,event_grouping:counts.grouping,event_suppressions:counts.suppressions}:{}};
++ const deleted={event_identities:counts.matched,health_sessions:counts.sessions,search_tags:plan.search.count,captured_text_events:plan.search.textEvents,issue_titles:plan.search.issueChanges.length,alert_titles:plan.search.alertChanges.length,...deleting?{events:counts.matched,feedback:counts.feedback,event_grouping:counts.grouping,event_suppressions:counts.suppressions}:{}};
+  return {id,statements:[
+   identityPolicyFence(db,project,plan.current.revision),
+   guard(db,'EXISTS(SELECT 1 FROM rer_portability_state WHERE id=1 AND source_identity=? AND epoch=? AND import_job IS NULL)',before.source_identity,plan.fence?.epoch??0),
+@@ -82,6 +83,7 @@ export async function endUserStatements(db: D1Database, project: string, selecti
+   guard(db,`(SELECT COUNT(*) FROM events WHERE project=?)=? AND (SELECT COUNT(*) FROM (${predicate}))=? AND (SELECT COUNT(*) FROM health_sessions WHERE project=? AND user_hash=?)=? AND (SELECT COUNT(*) FROM feedback WHERE project=? AND event_id IN (${predicate}))=?`,project,counts.retained,project,digest,counts.matched,project,digest,counts.sessions,project,project,digest,counts.feedback),
+   ...await transfer.invalidateTransfersStatements(),
+   ...await transfer.redactionStatements(),
++  ...erasureAlertStatements(db,project,plan.search.alertChanges),
+   db.prepare('UPDATE health_sessions SET user_hash=NULL WHERE project=? AND user_hash=?').bind(project,digest),
+   ...deleting?[
+    db.prepare(`DELETE FROM sentry_import_targets WHERE kind='event' AND id IN (SELECT json_array(?,event) FROM (${predicate}))`).bind(project,project,digest),
+@@ -92,7 +94,7 @@ export async function endUserStatements(db: D1Database, project: string, selecti
+     title=COALESCE((SELECT json_extract(payload,'$.type')||': '||json_extract(payload,'$.message') FROM events WHERE project=issues.project AND issue=issues.id AND id NOT IN (SELECT event FROM victims) ORDER BY received,id LIMIT 1),'[no retained events]'),revision=revision+1
+     WHERE project=? AND id IN (SELECT issue FROM events WHERE project=? AND id IN (SELECT event FROM victims))`).bind(project,digest,project,project),
+    db.prepare(`DELETE FROM events WHERE project=? AND id IN (${predicate})`).bind(project,project,digest),
+-  ]:[...erasureSearchStatements(db,project,plan.search.changes),db.prepare(`UPDATE event_identities SET payload='{}',user_key=NULL,reason='sdk_sent_no_permitted_identity' WHERE project=? AND event IN (${predicate})`).bind(project,project,digest)],
++  ]:[...erasureSearchStatements(db,project,plan.search.changes),...erasureIssueStatements(db,project,plan.search.issueChanges),db.prepare(`UPDATE event_identities SET payload='{}',user_key=NULL,reason='sdk_sent_no_permitted_identity' WHERE project=? AND event IN (${predicate})`).bind(project,project,digest)],
+   guard(db,`NOT EXISTS(SELECT 1 FROM (${predicate})) AND NOT EXISTS(SELECT 1 FROM health_sessions WHERE project=? AND user_hash=?)`,project,digest,project,digest),
+   db.prepare(`INSERT INTO rer_erasure_operations(id,entity,subject,label,phase,step,planned,deleted,retained,requested_at,committed_at,completed_at)
+    VALUES(?,'end-user',NULL,?,'complete',1,?,?,?,?,?,strftime('%Y-%m-%dT%H:%M:%fZ','now'))`).bind(id,'erased:'+crypto.randomUUID().replaceAll('-',''),JSON.stringify(deleted),JSON.stringify(deleted),JSON.stringify(plan.public.retained),now,now),
+diff --git a/src/domain/identities/erasure-search.ts b/src/domain/identities/erasure-search.ts
+index 7fbdc18..1f83690 100644
+--- a/src/domain/identities/erasure-search.ts
++++ b/src/domain/identities/erasure-search.ts
+@@ -1,48 +1,96 @@
+-import { hash, canonical } from '../privacy';
++import { hash, canonical, grouping, normalize } from '../privacy';
+ import { identityHash } from './key';
++import { capturedTextRedactor } from './erasure-text';
+ 
+-// FIND-001 reads its tag predicates and facets directly from event payloads.
+-// Remove exact copies of retained identity fields, never guess from substrings
+-// or edit another occurrence. Candidate tag values can be matched to retained
+-// private hashes without recovering or exporting the original identity.
+-export async function erasureSearchPlan(db: D1Database, project: string, predicate: string, digest: string | null, value: string, key: string | null) {
+- const rows=(await db.prepare(`SELECT e.id,e.occurrence,e.digest,e.payload,i.payload AS identity
+-  FROM events e JOIN event_identities i ON i.project=e.project AND i.event=e.id AND i.occurrence=e.occurrence
+-  WHERE e.project=? AND e.id IN (${predicate}) AND EXISTS(SELECT 1 FROM json_each(e.payload,'$.sentry.tags')) ORDER BY e.id`)
+-  .bind(project,project,digest).all<{id:string;occurrence:string;digest:string;payload:string;identity:string}>()).results;
++type EventChange={id:string;occurrence:string;before:string;payload:string;digest:string};
++type IssueChange={id:string;before:string;revision:number;title:string};
++type AlertChange={id:string;before:string;payload:string};
++
++// FIND-001 reads event payloads; identity search reads event_identities itself.
++// There is no second sensitive index to journal or restore independently.
++export async function erasureSearchPlan(db: D1Database, project: string, predicate: string, digest: string | null, value: string, key: string | null, deleting=false) {
++ const identities=(await db.prepare(`SELECT DISTINCT payload FROM event_identities WHERE project=? AND event IN (${predicate})`).bind(project,project,digest).all<{payload:string}>()).results;
++ const tokens=new Set<string>([value,...digest?[digest]:[]]),privateHashes=new Set<string>();
++ for(const row of identities)for(const field of Object.values(JSON.parse(row.payload)) as {value:string;hash:string}[]){tokens.add(field.value);tokens.add(field.hash);privateHashes.add(field.hash)}
+  const hashes=new Map<string,Promise<string>>();
+  const tagHash=(text:string)=>{if(!hashes.has(text))hashes.set(text,identityHash(key!,text));return hashes.get(text)!};
+- let count=0;
+- const changes=await Promise.all(rows.map(async row=>{
+-  const fields=Object.values(JSON.parse(row.identity)) as {value:string;hash:string}[],tokens=new Set([value,digest,...fields.flatMap(field=>[field.value,field.hash])]),privateHashes=new Set(fields.map(field=>field.hash));
+-  const payload=JSON.parse(row.payload),tags=payload.sentry.tags;
+-  const retained=[];
+-  for(const [name,item] of Object.entries(tags)){
+-   const text=String(item),remove=tokens.has(name)||tokens.has(text)||!!key&&(privateHashes.has(await tagHash(name))||privateHashes.has(await tagHash(text)));
+-   if(remove)count++;else retained.push([name,item]);
++ const discover=async(content:any):Promise<void>=>{
++  if(!key||!privateHashes.size)return;
++  if(typeof content==='string'){
++   const candidates=new Set([content,...content.match(/[\p{L}\p{M}\p{N}_@.+-]+/gu)??[]]);
++   for(const candidate of [...candidates])candidates.add(candidate.replace(/^[.+@-]+|[.+@-]+$/g,''));
++   for(const candidate of candidates)if(candidate&&candidate.length<=320&&!tokens.has(candidate)&&privateHashes.has(await tagHash(candidate)))tokens.add(candidate);
++  }else if(Array.isArray(content))for(const item of content)await discover(item);
++  else if(content&&typeof content==='object')for(const [name,item] of Object.entries(content)){await discover(name);await discover(item)}
++ };
++ const redactor=capturedTextRedactor(tokens),changes:EventChange[]=[],issueChanges:IssueChange[]=[];
++ let count=0,textEvents=0,ambiguousEvents=0,groupingHeld=0,cursor='';
++ // Page the read, and keep only actual mutations in the plan. Repeated strings
++ // share HMAC work. No per-event database call, write or journal entry.
++ for(;;){
++  const rows=(await db.prepare(`SELECT id,occurrence,digest,payload FROM events WHERE project=? AND id>? ${deleting?`AND id IN (${predicate})`:''} ORDER BY id LIMIT 500`).bind(project,cursor,...deleting?[project,digest]:[]).all<{id:string;occurrence:string;digest:string;payload:string}>()).results;
++  for(const row of rows){
++   const payload=JSON.parse(row.payload),previous=redactor.counts();let removedTags=0;
++   // A raw alias can survive keep->hash inside a sentence as well as a tag.
++   // Match candidate whole tokens to retained HMACs without recovering an
++   // unknown alias or persisting any match material.
++   await discover([payload.message,payload.breadcrumbs,payload.sentry?.message,payload.sentry?.logentry,payload.sentry?.breadcrumbs,payload.sentry?.tags]);
++   if(payload.sentry?.tags){const retained=[];
++    for(const [name,item] of Object.entries(payload.sentry.tags)){
++     const text=String(item),remove=tokens.has(name)||tokens.has(text)||!!key&&(privateHashes.has(await tagHash(name))||privateHashes.has(await tagHash(text)));
++     // Whole tag entries are removed, including an exact raw copy of a
++     // hash-policy alias. Partial tag content uses the same token rules.
++     if(remove)removedTags++;else retained.push([name,item]);
++    }
++    payload.sentry.tags=Object.fromEntries(retained);
++   }
++   payload.message=redactor.text(payload.message);
++   payload.breadcrumbs=redactor.content(payload.breadcrumbs);
++   if(payload.sentry)for(const field of ['message','logentry','breadcrumbs','tags'] as const)if(payload.sentry[field]!==undefined)payload.sentry[field]=redactor.content(payload.sentry[field]);
++   const current=redactor.counts();
++   if(current.ambiguous>previous.ambiguous)ambiguousEvents++;
++   // Content used as an immutable grouping key needs a separate migration of
++   // its provenance. Do not make the next archive unrestorable or move events
++   // silently. The preview and receipt name these retained copies.
++   // Do not normalize or rewrite legacy captures that contain no supported
++   // mutation. Their unrelated payload bytes remain unchanged.
++   if(JSON.stringify(payload)===row.payload)continue;
++   const encoded=JSON.stringify(normalize(payload));
++   if(encoded===row.payload)continue;
++   if(!deleting&&grouping(JSON.parse(row.payload)).basis!==grouping(JSON.parse(encoded)).basis){groupingHeld++;continue}
++   count+=removedTags;
++   if(current.removed>previous.removed)textEvents++;
++   changes.push({id:row.id,occurrence:row.occurrence,before:row.digest,payload:encoded,digest:await hash(encoded)});
+   }
+-  payload.sentry.tags=Object.fromEntries(retained);
+-  const encoded=JSON.stringify(payload);
+-  if(Object.keys(tags).length===retained.length)return null;
+-  return {id:row.id,occurrence:row.occurrence,before:row.digest,payload:encoded,digest:await hash(encoded)};
+- }));
+- const changed=changes.filter((row):row is NonNullable<typeof row>=>row!==null);
+- return {count,changes:changed,fingerprint:await hash(canonical(changed))};
++  if(rows.length<500)break;cursor=rows.at(-1)!.id;
++ }
++ const issues=deleting?[]:(await db.prepare('SELECT id,title,revision FROM issues WHERE project=? ORDER BY id').bind(project).all<{id:string;title:string;revision:number}>()).results;
++ for(const issue of issues){const title=redactor.text(issue.title);if(title!==issue.title)issueChanges.push({id:issue.id,before:issue.title,revision:issue.revision,title})}
++ // Issue search/exports also expose the retained attention alert's captured
++ // title. Redact that copy without changing its trigger, release or history.
++ const alertChanges:AlertChange[]=[];
++ const alerts=(await db.prepare('SELECT id,payload FROM alerts WHERE project=? AND payload IS NOT NULL ORDER BY id').bind(project).all<{id:string;payload:string}>()).results;
++ for(const alert of alerts){const payload=JSON.parse(alert.payload);if(typeof payload.title!=='string')continue;const title=redactor.text(payload.title);if(title!==payload.title)alertChanges.push({id:alert.id,before:alert.payload,payload:JSON.stringify({...payload,title})})}
++ return {count,textEvents,ambiguousEvents,groupingHeld,changes,issueChanges,alertChanges,fingerprint:await hash(canonical([changes,issueChanges,alertChanges,ambiguousEvents,groupingHeld]))};
+ }
+ 
+-export function erasureSearchStatements(db:D1Database,project:string,changes:Awaited<ReturnType<typeof erasureSearchPlan>>['changes']) {
+- // Bounded JSON parameters keep this one atomic owner batch proportional to
+- // the changed tag data, rather than one D1 statement per retained event.
+- const chunks:string[]=[];let chunk:typeof changes=[],bytes=2;
++function chunks<T>(changes:T[]) {
++ const chunks:string[]=[];let chunk:T[]=[],bytes=2;
+  for(const row of changes){const size=new TextEncoder().encode(JSON.stringify(row)).length+1;
+   if(chunk.length&&bytes+size>262144){chunks.push(JSON.stringify(chunk));chunk=[];bytes=2}
+   chunk.push(row);bytes+=size;
+  }
+  if(chunk.length)chunks.push(JSON.stringify(chunk));
+- return chunks.flatMap(text=>[
++ return chunks;
++}
++export function erasureSearchStatements(db:D1Database,project:string,changes:EventChange[]) {
++ return chunks(changes).flatMap(text=>[
++  // CROSS JOIN fixes the loop order: one JSON row then an indexed exact
++  // occurrence lookup. An ordinary JOIN scans the entire project for every
++  // chunk and reparses its JSON once per event, making the guard quadratic.
+   db.prepare(`INSERT INTO rer_portability_guard(value)
+    SELECT CASE WHEN COUNT(*)=json_array_length(?) THEN 1 ELSE 0 END
+-   FROM json_each(?) c JOIN events e ON e.project=? AND e.id=json_extract(c.value,'$.id')
++   FROM json_each(?) c CROSS JOIN events e ON e.project=? AND e.id=json_extract(c.value,'$.id')
+     AND e.occurrence=json_extract(c.value,'$.occurrence') AND e.digest=json_extract(c.value,'$.before')`).bind(text,text,project),
+   db.prepare(`WITH changes AS MATERIALIZED (
+     SELECT json_extract(value,'$.id') id,json_extract(value,'$.payload') payload,json_extract(value,'$.digest') digest FROM json_each(?))
+@@ -50,3 +98,22 @@ export function erasureSearchStatements(db:D1Database,project:string,changes:Awa
+    WHERE events.project=? AND events.id=changes.id`).bind(text,project),
+  ]);
+ }
++export function erasureIssueStatements(db:D1Database,project:string,changes:IssueChange[]) {
++ return chunks(changes).flatMap(text=>[
++  db.prepare(`INSERT INTO rer_portability_guard(value)
++   SELECT CASE WHEN COUNT(*)=json_array_length(?) THEN 1 ELSE 0 END
++   FROM json_each(?) c CROSS JOIN issues i ON i.project=? AND i.id=json_extract(c.value,'$.id')
++    AND i.title=json_extract(c.value,'$.before') AND i.revision=json_extract(c.value,'$.revision')`).bind(text,text,project),
++  db.prepare(`WITH changes AS MATERIALIZED (SELECT json_extract(value,'$.id') id,json_extract(value,'$.title') title FROM json_each(?))
++   UPDATE issues SET title=changes.title,revision=revision+1 FROM changes WHERE issues.project=? AND issues.id=changes.id`).bind(text,project),
++ ]);
++}
++export function erasureAlertStatements(db:D1Database,project:string,changes:AlertChange[]) {
++ return chunks(changes).flatMap(text=>[
++  db.prepare(`INSERT INTO rer_portability_guard(value)
++   SELECT CASE WHEN COUNT(*)=json_array_length(?) THEN 1 ELSE 0 END
++   FROM json_each(?) c CROSS JOIN alerts a ON a.project=? AND a.id=json_extract(c.value,'$.id') AND a.payload=json_extract(c.value,'$.before')`).bind(text,text,project),
++  db.prepare(`WITH changes AS MATERIALIZED (SELECT json_extract(value,'$.id') id,json_extract(value,'$.payload') payload FROM json_each(?))
++   UPDATE alerts SET payload=changes.payload FROM changes WHERE alerts.project=? AND alerts.id=changes.id`).bind(text,project),
++ ]);
++}
+diff --git a/src/domain/identities/erasure-text.ts b/src/domain/identities/erasure-text.ts
+new file mode 100644
+index 0000000..8d0eb91
+--- /dev/null
++++ b/src/domain/identities/erasure-text.ts
+@@ -0,0 +1,29 @@
++// Match complete captured tokens, including a token embedded in a sentence.
++// A substring of another identifier is not an attributable copy. Never apply
++// this to structural event IDs, release identities or grouping configuration.
++const before=/(?:[\p{L}\p{M}\p{N}_]|[\p{L}\p{M}\p{N}_][.+@-])$/u;
++const after=/^(?:[\p{L}\p{M}\p{N}_]|[.+@-][\p{L}\p{M}\p{N}_])/u;
++export function capturedTextRedactor(tokens: Set<string>) {
++ // Empty replacement cannot itself retain a short supplied identity or be
++ // mistaken for a new alias. Message and breadcrumb strings may be empty.
++ let size=-1,expression:RegExp|null=null;
++ let ambiguous=0,removed=0;
++ const text=(input:string)=>{
++  if(size!==tokens.size){size=tokens.size;const ordered=[...tokens].filter(Boolean).sort((a,b)=>b.length-a.length);expression=ordered.length?new RegExp(ordered.map(token=>token.replace(/[.*+?^${}()|[\]\\]/g,'\\$&')).join('|'),'gu'):null}
++  return expression?input.replace(expression,(match:string,offset:number)=>{
++  if(before.test(input.slice(Math.max(0,offset-3),offset))||after.test(input.slice(offset+match.length,offset+match.length+3))){ambiguous++;return match}
++  removed++;return '';
++ }):input;
++ };
++ const content=(value:any):any=>{
++  if(typeof value==='string')return text(value);
++  if(Array.isArray(value))return value.map(content);
++  if(value&&typeof value==='object')return Object.fromEntries(Object.entries(value).map(([key,item])=>{
++   // Captured map keys are content too. Drop an exactly attributable entry,
++   // rather than inventing a key or colliding with another retained entry.
++   const cleaned=text(key);return cleaned===key?[key,content(item)]:null;
++  }).filter((entry):entry is [string,any]=>entry!==null));
++  return value;
++ };
++ return {text,content,counts:()=>({ambiguous,removed})};
++}
+diff --git a/src/domain/identities/routes.ts b/src/domain/identities/routes.ts
+index 92de14b..b8b42d5 100644
+--- a/src/domain/identities/routes.ts
++++ b/src/domain/identities/routes.ts
+@@ -8,6 +8,7 @@ import {identityPolicy,readIdentityPolicy,identityPolicyFence,identityFields} fr
+ import {identityPreview,convertedPayload,firstIdentityKey,previewFence} from './conversion';
+ import {prepareIdentityKey} from './key';
+ import {affectedUsers} from './read';
++import {searchIdentities} from './search';
+ export const identityPolicyRoutes=ownerProjectRouter();
+ identityPolicyRoutes.get('/',async c=>c.json({...await readIdentityPolicy(c.env.DB,c.req.param('project')!),defaults:'New projects keep the four supported user fields as sent, subject to installation scrubbing rules. Existing and restored policies stay unchanged. Other user fields remain dropped; session identifiers remain privately hashed.',address:'{{auto}} is unavailable: this Worker exposes no connecting socket address. No forwarded header or tunnel is trusted.'}));
+ identityPolicyRoutes.post('/preview',async c=>{const b=await jsonBody(c.req.raw,2000),p=c.req.param('project')!,current=await readIdentityPolicy(c.env.DB,p),{snapshot,...preview}=await identityPreview(c.env.DB,p,current.revision,identityPolicy(b.policy));return c.json(preview)});
+@@ -24,6 +25,14 @@ identityPolicyRoutes.put('/',async c=>{
+  return c.json({revision,policy,converted:preview.converted});
+ });
+ export const identityReadRoutes=new Hono<any>();
++identityReadRoutes.get('/:project/identity-search',async c=>{
++ c.header('Cache-Control','no-store');c.header('X-Content-Type-Options','nosniff');
++ const owner=await ownerSession(c.req.raw,c.env,resolveMembership);
++ if(!owner||owner.operator.role!=='owner'||owner.membership||agentAuthority(c.req.raw)||c.req.header('authorization'))return c.json({error:'Installation owner session required'},403);
++ const project=c.req.param('project');
++ if(!await c.env.DB.prepare('SELECT 1 FROM projects WHERE id=?').bind(project).first())return c.json({error:'Project not found'},404);
++ return c.json(await searchIdentities(c.env.DB,project,c.req.query('field'),c.req.query('value')));
++});
+ identityReadRoutes.get('/:project/issues/:issue/affected-users',async c=>{
+  c.header('Cache-Control','no-store');c.header('X-Content-Type-Options','nosniff');const p=c.req.param('project'),issue=c.req.param('issue'),grant=await agentProject(c.req.raw,c.env.DB),owner=await ownerSession(c.req.raw,c.env,resolveMembership);
+  if(grant!==p&&!owner||grant&&grant!==p)return c.json({error:'Sign in required'},401);
+diff --git a/src/domain/identities/search.ts b/src/domain/identities/search.ts
+new file mode 100644
+index 0000000..d98e1de
+--- /dev/null
++++ b/src/domain/identities/search.ts
+@@ -0,0 +1,22 @@
++import { identityFields, type IdentityField } from './policy';
++import { identityHash } from './key';
++import { permittedValue } from './values';
++
++// This is the retained identity projection itself, not a second index. Keep
++// private match hashes server-side; facet values follow the saved keep/hash
++// policy. The router admits installation owners only.
++export async function searchIdentities(db: D1Database, project: string, field: string | undefined, value: string | undefined) {
++ const selected=field==='user.ip'?'ip_address':field?.replace(/^user\./,'');
++ if(selected!==undefined&&!identityFields.includes(selected as IdentityField)||selected===undefined&&value!==undefined||selected!==undefined&&(value===undefined||!/^[a-f0-9]{64}$/.test(value)&&permittedValue(value,selected,false)!==value))throw new Error('Choose a supported identity field and value');
++ const key=selected?await db.prepare('SELECT key FROM project_identity_keys WHERE project=?').bind(project).first<{key:string}>():null;
++ const digest=key&&value!==undefined?await identityHash(key.key,value):null;
++ const predicate=selected?`AND (json_extract(i.payload,'$.${selected}.value')=? OR json_extract(i.payload,'$.${selected}.hash')=?)`:'';
++ const args=selected?[value!,digest]:[];
++ const from=`FROM event_identities i JOIN events e ON e.project=i.project AND e.id=i.event AND e.occurrence=i.occurrence WHERE i.project=? ${predicate}`;
++ const total=await db.prepare(`SELECT COUNT(*) count ${from}`).bind(project,...args).first<{count:number}>();
++ const rows=(await db.prepare(`SELECT e.id event,e.occurrence,e.issue ${from} ORDER BY e.received DESC,e.id LIMIT 25`).bind(project,...args).all()).results;
++ const facets=(await db.prepare(`SELECT j.key field,json_extract(j.value,'$.mode') mode,json_extract(j.value,'$.value') value,COUNT(*) events
++  FROM event_identities i JOIN events e ON e.project=i.project AND e.id=i.event AND e.occurrence=i.occurrence,json_each(i.payload) j
++  WHERE i.project=? ${predicate} GROUP BY j.key,mode,value ORDER BY j.key,events DESC,value LIMIT 1001`).bind(project,...args).all()).results;
++ return {version:1,matchingEvents:total!.count,rows,facets:facets.slice(0,1000),bounds:{events:25,facets:1000,facetsComplete:facets.length<=1000},coverage:'Retained identity projection only. Dropped fields and unknown aliases cannot be searched.'};
++}
+diff --git a/src/ui/workbench/EndUserErasurePreview.tsx b/src/ui/workbench/EndUserErasurePreview.tsx
+index 70b11ae..a411408 100644
+--- a/src/ui/workbench/EndUserErasurePreview.tsx
++++ b/src/ui/workbench/EndUserErasurePreview.tsx
+@@ -8,6 +8,7 @@ type Preview = {
+  events: {status:string;count:number|null;retained:number;withoutRetainedIdentity:number;explanation:string};
+  sessions: {status:string;count:number|null;explanation:string};
+  search: {status:string;count:number|null;explanation:string};
++ capturedText: {count:number|null;issueTitles:number;alertTitles:number;ambiguousEvents:number;groupingHeld:number;explanation:string};
+  feedback: {status:string;count:number|null};
+  unavailable: {store:string;reason:string}[];
+ };
+@@ -44,6 +45,8 @@ export function EndUserErasurePreview({project,request,run,busy}:{project:string
+     <p>{preview.events.explanation}</p>
+     <p>{preview.sessions.count===null?'Session matching unavailable':`${preview.sessions.count} matching ${plural(preview.sessions.count,'session')}`}. {preview.sessions.explanation}</p>
+     <p>{preview.search.count===null?'Search tag matching unavailable':`${preview.search.count} matching search tag entries`}. {preview.search.explanation}</p>
++    <p>{preview.capturedText.count===null?'Captured text matching unavailable':`${preview.capturedText.count} events with removable captured text · ${preview.capturedText.issueTitles} issue titles · ${preview.capturedText.alertTitles} alert titles`}. {preview.capturedText.explanation}</p>
++    {(preview.capturedText.ambiguousEvents>0||preview.capturedText.groupingHeld>0)&&<p>{preview.capturedText.ambiguousEvents} events with ambiguous partial copies · {preview.capturedText.groupingHeld} events with copies that affect grouping. These copies will remain.</p>}
+     {action==='delete_events'&&<p>{preview.feedback.count} attached feedback records will also be deleted.</p>}
+     <ul>{preview.unavailable.map(row=><li key={row.store}>{row.store}: unavailable. {row.reason}</li>)}</ul>
+     {preview.hold&&<p>{preview.hold} Nothing will be erased.</p>}
+@@ -61,6 +64,7 @@ export function EndUserErasurePreview({project,request,run,busy}:{project:string
+   {receipt&&<div className="callout" role="status">
+    <h3>Erasure complete</h3>
+    <p>{receipt.deleted.event_identities} event identities removed · {receipt.deleted.health_sessions} session identities removed · {receipt.deleted.search_tags} search tag entries removed{receipt.deleted.events!==undefined?` · ${receipt.deleted.events} events deleted`:''}.</p>
++   <p>{receipt.deleted.captured_text_events} events with captured text removed · {receipt.deleted.issue_titles} issue titles · {receipt.deleted.alert_titles} alert titles cleared of matching text.</p>
+    <p>Started {receipt.requestedAt} · completed {receipt.completedAt} · {receipt.seconds} seconds.</p>
+    <p>Receipt {receipt.id}. Older archives are refused when this installation or a trusted later journal knows the erasure.</p>
+    <ul>{receipt.retained.map(row=><li key={row.table}>{row.table}: {row.reason}</li>)}</ul>
+diff --git a/tests/end-user-erasure-preview.mjs b/tests/end-user-erasure-preview.mjs
+index bf7b286..5ec0b3c 100644
+--- a/tests/end-user-erasure-preview.mjs
++++ b/tests/end-user-erasure-preview.mjs
+@@ -27,8 +27,9 @@ export async function endUserErasurePreviewFlow() {
+   let hashTag=null;
+   const capture=async(p,user)=>{
+    const eventId=crypto.randomUUID().replaceAll('-','');eventIds.push(eventId);
++   const copied=user===other?'synthetic-spool-person-28':'synthetic-spool-person-27';
+    const dsn=new URL(p.dsn),response=await owner.req(`/api${dsn.pathname}/store/?sentry_key=${dsn.username}&sentry_version=7`,'POST',{
+-    event_id:eventId,message:captureCanary,tags:{ordinary:'synthetic-spool-safe',...user?{identity_copy:user===email?'synthetic-spool-person-27':'synthetic-spool-person-28',...hashTag&&user===email?{identity_hash:hashTag}:{}}:{}},...user===undefined?{}:{user:{email:user,id:user===email?'synthetic-spool-person-27':'synthetic-spool-person-28',username:user===email?'synthetic-spool-name-27':'synthetic-spool-name-28',ip_address:user===email?'192.0.2.27':'192.0.2.28'}},
++    event_id:eventId,message:captureCanary+' saw '+copied,fingerprint:['synthetic-spool-fixed-27'],breadcrumbs:[{message:'captured '+copied,data:{identity:copied}}],tags:{captured_copy:'captured '+copied,ordinary:'synthetic-spool-safe',...user?{identity_copy:user===email?'synthetic-spool-person-27':'synthetic-spool-person-28',...hashTag&&user===email?{identity_hash:hashTag}:{}}:{}},...user===undefined?{}:{user:{email:user,id:user===email?'synthetic-spool-person-27':'synthetic-spool-person-28',username:user===email?'synthetic-spool-name-27':'synthetic-spool-name-28',ip_address:user===email?'192.0.2.27':'192.0.2.28'}},
+    },{Cookie:''});
+    assert.equal(response.status,200,await response.text());
+   };
+@@ -145,13 +146,20 @@ export async function endUserErasurePreviewFlow() {
+   assertAuditAppendOnly(await snapshot(app),deniedBefore,'confirmation refusals preserve product state');
+   await capture(project,email);
+   const stale=await owner.req(eraseDoor,'POST',acceptedInput());assert.equal(stale.status,409);await stale.arrayBuffer();
++  const identitySearch=async(p,field,value)=>owner.json(root(p)+'/identity-search'+(field?'?field='+encodeURIComponent(field)+'&value='+encodeURIComponent(value):''));
++  const rawIdentity=await identitySearch(foreign,'user.email',email);assert.equal(rawIdentity.matchingEvents,2);assert.ok(rawIdentity.facets.some(row=>row.field==='email'&&row.mode==='keep'&&row.value===email));
++  for(const [field,value] of [['user.id','synthetic-spool-person-27'],['user.email',email],['user.username','synthetic-spool-name-27'],['user.ip','192.0.2.27']])assert.equal((await identitySearch(project,field,value)).matchingEvents,4,'raw input matches the retained project hash');
++  const storedIdentity=await identitySearch(project,'user.email',hashTag);assert.equal(storedIdentity.matchingEvents,4);assert.ok(storedIdentity.facets.some(row=>row.value===hashTag&&row.mode==='hash'));
++  const foreignIdentities=await identitySearch(foreign);
++  for(const actor of [client(''),maintainer,member,reader,foreignMember,removed,admin]){const denied=await actor.req(root(project)+'/identity-search');assert.ok([401,403,404].includes(denied.status));await denied.arrayBuffer()}
++  for(const credential of credentials){const denied=await owner.req(root(project)+'/identity-search','GET',undefined,{Authorization:'Bearer '+credential.key});assert.ok([401,403,404].includes(denied.status));await denied.arrayBuffer()}
+   const search=async(p,q='')=>owner.json(root(p)+'/issue-search?eventTotals=1&q='+encodeURIComponent(q));
+   const tagQuery='identity_copy:synthetic-spool-person-27',hashQuery='identity_hash:'+hashTag;
+   const beforeSearch=await search(project,tagQuery),beforeHash=await search(project,hashQuery);
+-  assert.equal(beforeSearch.matchingEvents,4);assert.equal(beforeHash.matchingEvents,2);
++  assert.equal(beforeSearch.matchingEvents,4);assert.equal(beforeHash.matchingEvents,2);assert.equal((await search(project,'message:synthetic-spool-person-27')).matchingEvents,5);
+   assert.ok(beforeSearch.facets.tags.some(row=>row.value==='synthetic-spool-person-27'));
+   const foreignTags=await search(foreign,tagQuery);
+-  const searchPlan=await owner.json(door(project),'POST',selected);assert.equal(searchPlan.search.count,6);
++  const searchPlan=await owner.json(door(project),'POST',selected);assert.equal(searchPlan.search.count,6);assert.equal(searchPlan.capturedText.count,5);assert.equal(searchPlan.capturedText.issueTitles,1);assert.equal(searchPlan.capturedText.alertTitles,1);assert.equal(searchPlan.capturedText.groupingHeld,0);
+   const pre=await archive(app),foreignBefore=(await preview(foreign)).events.count;
+   const context=await browser.newContext({viewport:{width:1440,height:1000}}),page=await context.newPage();
+   let removalReceipt;
+@@ -168,7 +176,11 @@ export async function endUserErasurePreviewFlow() {
+    await region.getByRole('heading',{name:'Erasure complete',exact:true}).waitFor();await assertScreen(page,region);
+    for(const width of [1440,390]){await page.setViewportSize({width,height:1000});await region.screenshot({path:`.artifacts/erasure-preview/complete-${width}.png`})}
+   }finally{await context.close()}
+-  assert.equal(removalReceipt.phase,'complete');assert.equal(removalReceipt.deleted.event_identities,4);assert.equal(removalReceipt.deleted.search_tags,6);
++  assert.equal(removalReceipt.phase,'complete');assert.equal(removalReceipt.deleted.event_identities,4);assert.equal(removalReceipt.deleted.search_tags,6);assert.equal(removalReceipt.deleted.captured_text_events,5);assert.equal(removalReceipt.deleted.issue_titles,1);assert.equal(removalReceipt.deleted.alert_titles,1);
++  for(const [field,value] of [['user.id','synthetic-spool-person-27'],['user.email',email],['user.email',hashTag],['user.username','synthetic-spool-name-27'],['user.ip','192.0.2.27']]){const after=await identitySearch(project,field,value);assert.equal(after.matchingEvents,0);assert.deepEqual(after.rows,[]);assert.deepEqual(after.facets,[])}
++  const identityFacets=await identitySearch(project);for(const value of [email,hashTag,...hashes(project)])assert.ok(!JSON.stringify(identityFacets).includes(value));assert.ok(identityFacets.facets.length>0,'other identity facets remain populated');
++  assert.deepEqual(await identitySearch(foreign),foreignIdentities,'other project identity queries and facets are unchanged');
++  const textSearch=await search(project,'message:synthetic-spool-person-27');assert.equal(textSearch.matchingEvents,0);assert.equal((await search(project,'message:synthetic-spool-person-28')).matchingEvents,1);
+   for(const q of [tagQuery,hashQuery]){
+    const result=await search(project,q);assert.equal(result.total,0);assert.equal(result.matchingEvents,0);
+    const exported=await owner.json(root(project)+'/issue-export?format=json&q='+encodeURIComponent(q));assert.equal(exported.total,0);assert.deepEqual(exported.rows,[]);
+@@ -198,7 +210,8 @@ export async function endUserErasurePreviewFlow() {
+   for(const issue of issues){const visible=await owner.json(root(project)+'/issues/'+issue.id+'/affected-users');for(const row of visible.rows??[])assert.ok(!Object.keys(row.values).length||row.values.email?.value!==email);assert.ok(!JSON.stringify(visible).includes('synthetic-spool-person-27'))}
+   const post=await archive(app);
+   const retainedEvents=post.data.events.filter(row=>row.project===project.id);
+-  for(const token of ['synthetic-spool-person-27',hashTag])assert.ok(!JSON.stringify(retainedEvents).includes(token),'archive payloads omit erased search tags');
++  for(const token of ['synthetic-spool-person-27',hashTag])assert.ok(!JSON.stringify(retainedEvents).includes(token),'archive messages, tags and breadcrumbs omit exact copies, including an occurrence with no retained identity');
++  for(const row of retainedEvents){const data=JSON.parse(row.payload);assert.ok(data.message.includes(captureCanary),'unrelated captured text remains');if(row.id!==eventIds[2])assert.ok(!JSON.stringify([data.message,data.breadcrumbs,data.sentry.tags,data.sentry.breadcrumbs]).includes('synthetic-spool-person-27'))}
+   const projection=post.data.event_identities.filter(row=>row.project===project.id);
+   assert.ok(!JSON.stringify(projection).includes('synthetic-spool-person-27'));assert.ok(!JSON.stringify(projection).includes(hashes(project)[0]));
+   assert.equal((await restore(app,pre.text)).body.error,'erasure_epoch');
+@@ -232,12 +245,20 @@ export async function endUserErasurePreviewFlow() {
+    const after=await owner.json(door(foreign),'POST',input);assert.equal(after.events.count,0);assert.equal(after.sessions.count,0);
+    for(const row of erased.retained)assert.ok(row.reason,'receipt explains unavailable and uncorrelatable stores');
+   }
++  const heldProject=await owner.json('/api/projects','POST',{id:'synthetic-spool-text-27',name:'Synthetic text boundary'}),heldDsn=new URL(heldProject.dsn),heldValue='synthetic-spool-sensitive-27';
++  const heldCapture=await owner.req(`/api${heldDsn.pathname}/store/?sentry_key=${heldDsn.username}&sentry_version=7`,'POST',{event_id:crypto.randomUUID().replaceAll('-',''),message:'captured '+heldValue,user:{id:heldValue},tags:{ordinary:'synthetic-spool-safe'}},{Cookie:''});assert.equal(heldCapture.status,200);await heldCapture.arrayBuffer();
++  const ambiguousCapture=await owner.req(`/api${heldDsn.pathname}/store/?sentry_key=${heldDsn.username}&sentry_version=7`,'POST',{event_id:crypto.randomUUID().replaceAll('-',''),message:'captured '+heldValue+'0',fingerprint:['synthetic-spool-ambiguous-27']},{Cookie:''});assert.equal(ambiguousCapture.status,200);await ambiguousCapture.arrayBuffer();
++  const heldSelection={field:'id',value:heldValue,action:'remove_identity'},heldPlan=await owner.json(door(heldProject),'POST',heldSelection);assert.equal(heldPlan.capturedText.groupingHeld,1);assert.equal(heldPlan.capturedText.ambiguousEvents,1);assert.equal(heldPlan.capturedText.count,0);
++  const heldReceipt=await owner.json(root(heldProject)+'/end-user-erasure/confirm','POST',{...heldSelection,planHash:heldPlan.planHash,confirm:'ERASE USER DATA'});assert.equal(heldReceipt.deleted.captured_text_events,0);assert.ok(heldReceipt.retained.find(row=>row.table==='captured_text').reason.includes('1 event records'));
++  const heldArchive=await archive(app);assert.ok(heldArchive.data.events.filter(row=>row.project===heldProject.id).every(row=>JSON.parse(row.payload).message.includes(heldValue)),'uncorrelatable/grouping-sensitive copies remain and are reported');
++  const heldFresh=await runtime();try{const restored=await restore(heldFresh,heldArchive.text);assert.equal(restored.status,200,JSON.stringify(restored))}finally{await heldFresh.close()}
+   await writeFile('.artifacts/erasure-preview/results.json',JSON.stringify({removal:removalReceipt,deletion,restore:{same:'erasure_epoch',freshPost:'restored',freshOld:'erasure_epoch'},before:{events:6,matching:4},after:{events:5,matching:0},limitations:deletion.retained},null,2)+'\n');
+   console.log('PROBE SDK-027 confirmed: owner keyboard confirmation removes all fields from 4 matching events, preserves other projects, receipts and audit omit values; event deletion removes 1 event and exact DID identity; current archive restores and old archives refuse.');
+   console.log('PROBE SDK-027 email-preview: public Sentry captures -> 2 matching of 4 keep events; conversion plus hash capture -> 3 of 5; foreign key and captures -> unchanged 3.');
+-  console.log('PROBE SDK-027 unavailable: dropped email -> unavailable, 1 unattributable; feedback, attachments, replays and identity-specific search explicitly unavailable; session DID literal equality counted separately.');
++  console.log('PROBE SDK-027 unavailable: dropped email -> unavailable, 1 unattributable; feedback, attachments and replays explicitly unavailable; session DID literal equality counted separately.');
+   console.log('PROBE SDK-027 authority-and-privacy: repeated owner, admin and maintainer POSTs -> counts only, unchanged product rows; anonymous, member, read-only, valid or revoked grant, foreign, removed and cross-origin requests refuse; safe audits omit values and keys.');
+   console.log('PROBE SDK-027 search-tags: 4 raw-ID tag matches and 2 private hash tag matches -> 0 search results and header-only CSV exports; nonempty JSON export, facets, issue views and next archive omit erased tokens; other user/project tags preserved; id, username and IP confirmations remove matching events and exact session DID identities.');
++  console.log('PROBE SDK-027 identity-search and captured text: owner-only populated raw/hash identity queries and facets -> zero for erased values; 5 captured message/tag/breadcrumb records and one issue title and its captured alert title redacted; another user/project unchanged; ambiguous and grouping-sensitive copies retained with explicit counts; post-erasure archives restore.');
+   console.log('PROBE SDK-027 settings: keyboard preview, refusal, Axe, text size and reflow passed; matching screens recorded at 1440 and 390.');
+  } finally {await browser?.close();await app.close()}
+ }
+diff --git a/tests/end-user-erasure-volume.mjs b/tests/end-user-erasure-volume.mjs
+index df1e336..957fc27 100644
+--- a/tests/end-user-erasure-volume.mjs
++++ b/tests/end-user-erasure-volume.mjs
+@@ -1,20 +1,25 @@
+ import assert from 'node:assert/strict';
+ import { createHash } from 'node:crypto';
++import { execFileSync } from 'node:child_process';
+ import { mkdir, writeFile } from 'node:fs/promises';
+ import { runtime, archive, restore } from './owner-erasure/helpers.mjs';
+ import { archiveText } from './agent-handoff/caps.mjs';
+ 
+-// Run directly, outside push Verify, under the brief's 1800-second alarm.
+-// GOV-003's 150,000-event door is absent on this main. Probe the requested 150,000-event corpus through restore
+-// and record its honest refusal, then time erasure at the largest admitted corpus. Never
+-// plant rows in D1, disable an admission trigger or call erasure internals.
+-const requestedVolume=150000,retainedVolume=10000;
++// Run the committed journey outside push Verify under a hard 2400-second alarm.
++// A restore admission refusal is not an erasure-fence proof. Keep the requested
++// corpus and fallback explicit; never plant product rows or bypass capacity.
++const requestedVolume=150000,profileOnly=process.argv.includes('--profile-10000');
++const candidate=execFileSync('git',['rev-parse','HEAD'],{encoding:'utf8'}).trim();
++if(process.env.RER_CANDIDATE_SHA)assert.equal(candidate,process.env.RER_CANDIDATE_SHA,'scale receipt must name the checked-out candidate');
++const runId=process.env.RER_SCALE_RUN_ID??'sd-spool-sdk027-3-'+new Date().toISOString().replace(/[-:]/g,'');
++const startedAt=new Date().toISOString();
++let retainedVolume=10000;
+ let source,destination;
+ try {
+  source=await runtime();
+  const project='synthetic-spool-volume-27',value='synthetic-spool-volume-27'+String.fromCharCode(64)+'example.test';
+  const created=await source.json('/api/projects',{id:project,name:'Synthetic volume'} ,201),dsn=new URL(created.dsn);
+- const capture=await source.call(`/api${dsn.pathname}/store/?sentry_key=${dsn.username}&sentry_version=7`,{event_id:'a'.repeat(32),message:'synthetic-spool-volume',user:{id:'synthetic-spool-volume-person',email:value},tags:{identity_copy:'synthetic-spool-volume-person',ordinary:'synthetic-spool-safe'}},{});
++ const capture=await source.call(`/api${dsn.pathname}/store/?sentry_key=${dsn.username}&sentry_version=7`,{event_id:'a'.repeat(32),message:'synthetic-spool-volume saw synthetic-spool-volume-person',fingerprint:['synthetic-spool-volume-27'],breadcrumbs:[{message:'captured synthetic-spool-volume-person'}],user:{id:'synthetic-spool-volume-person',email:value},tags:{identity_copy:'synthetic-spool-volume-person',ordinary:'synthetic-spool-safe'}},{});
+  assert.equal(capture.status,200);await capture.arrayBuffer();
+  const snapshot=await archive(source);
+  for(const table of snapshot.manifest.tables)snapshot.data[table.name]??=[];
+@@ -27,19 +32,25 @@ try {
+   return archiveText(snapshot,data);
+  };
+  destination=await runtime();
+- const refused=await restore(destination,await grow(requestedVolume));
+- assert.equal(refused.status,400,'the requested 150,000-event corpus remains refused by the public restore');
+- assert.deepEqual(await destination.json('/api/projects'),[],'refused over-cap restore leaves no project');
+- const restored=await restore(destination,await grow(retainedVolume));assert.equal(restored.status,200,JSON.stringify(restored));
++ const restoreStart=performance.now();
++ const requested=profileOnly?null:await restore(destination,await grow(requestedVolume));
++ const requestedRestoreMs=performance.now()-restoreStart;
++ if(requested?.status===200)retainedVolume=requestedVolume;
++ else {
++  if(requested){assert.equal(requested.status,400,JSON.stringify(requested));assert.deepEqual(await destination.json('/api/projects'),[],'refused large restore leaves no project')}
++  const restored=await restore(destination,await grow(retainedVolume));assert.equal(restored.status,200,JSON.stringify(restored));
++ }
++ console.log('SCALE_ADMISSION '+JSON.stringify({candidate,runId,requestedVolume,attempted:!profileOnly,status:requested?.status??null,error:requested?.body.error??null,requestedRestoreMs,retainedVolume}));
+  const root='/api/projects/'+project+'/end-user-erasure',selection={field:'email',value,action:'remove_identity'};
+- const preview=await destination.json(root+'/preview',selection);assert.equal(preview.events.count,retainedVolume);assert.equal(preview.events.retained,retainedVolume);assert.equal(preview.search.count,retainedVolume);
++ const preview=await destination.json(root+'/preview',selection);assert.equal(preview.events.count,retainedVolume);assert.equal(preview.events.retained,retainedVolume);assert.equal(preview.search.count,retainedVolume);assert.equal(preview.capturedText.count,retainedVolume);
+  const start=performance.now(),receipt=await destination.json(root+'/confirm',{...selection,planHash:preview.planHash,confirm:'ERASE USER DATA'}),completionMs=performance.now()-start;
+- assert.equal(receipt.phase,'complete');assert.equal(receipt.deleted.event_identities,retainedVolume);assert.equal(receipt.deleted.search_tags,retainedVolume);assert.ok(completionMs<300000&&receipt.seconds<300,'admitted-volume erasure completes within five minutes');
++ assert.equal(receipt.phase,'complete');assert.equal(receipt.deleted.event_identities,retainedVolume);assert.equal(receipt.deleted.search_tags,retainedVolume);assert.equal(receipt.deleted.captured_text_events,retainedVolume);assert.ok(completionMs<300000&&receipt.seconds<300,'admitted-volume erasure completes within five minutes');
+  const after=await destination.json(root+'/preview',selection);assert.equal(after.events.count,0);assert.equal(after.events.retained,retainedVolume);
+  const issues=await destination.json('/api/projects/'+project+'/issues');assert.equal(issues.reduce((n,row)=>n+row.count,0),retainedVolume);
+  const visible=await destination.json('/api/projects/'+project+'/issues/'+seed.issue+'/affected-users');assert.equal(visible.affectedUsers,null);assert.equal(visible.unattributed,retainedVolume);
+- const result={candidate:process.env.RER_CANDIDATE_SHA??null,runId:process.env.RER_SCALE_RUN_ID??null,requestedVolume,requestedVolumeProof:'unavailable: public restore refuses corpus above retained cap',overCap:{attempted:requestedVolume,status:refused.status,error:refused.body.error},admittedVolume:retainedVolume,before:{retained:preview.events.retained,matched:preview.events.count},after:{retained:after.events.retained,matched:after.events.count},completionMs,receipt};
++ const identitySearch=await destination.json('/api/projects/'+project+'/identity-search?field=user.email&value='+encodeURIComponent(value));assert.equal(identitySearch.matchingEvents,0);assert.deepEqual(identitySearch.facets,[]);
++ const result={candidate,runId,startedAt,completedAt:new Date().toISOString(),requestedVolume,requestedVolumeProof:retainedVolume===requestedVolume?'admitted and timed':profileOnly?'not attempted in focused profiling run':'unavailable: public restore refuses corpus above retained cap',overCap:{attempted:!profileOnly,volume:requestedVolume,status:requested?.status??null,error:requested?.body.error??null,requestedRestoreMs},admittedVolume:retainedVolume,before:{retained:preview.events.retained,matched:preview.events.count},after:{retained:after.events.retained,matched:after.events.count},completionMs,receipt};
+  assert.ok(!JSON.stringify(result).includes(value));
+  await mkdir('.artifacts/erasure-preview',{recursive:true});await writeFile('.artifacts/erasure-preview/volume.json',JSON.stringify(result,null,2)+'\n');
+- console.log('PROBE SDK-027 volume: '+JSON.stringify({requestedVolume,admittedVolume:retainedVolume,overCapStatus:refused.status,completionMs,receiptSeconds:receipt.seconds,claim:'PARTIAL; acceptance point 5 unproven'}));
++ console.log('PROBE SDK-027 volume: '+JSON.stringify({requestedVolume,admittedVolume:retainedVolume,overCapStatus:requested?.status??null,completionMs,receiptSeconds:receipt.seconds,claim:retainedVolume===requestedVolume?'acceptance point 5 timed; other gaps remain':'PARTIAL; acceptance point 5 unproven'}));
+ } finally {await destination?.close();await source?.close()}

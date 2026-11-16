@@ -1,0 +1,12 @@
+{
+  "repository": "just-every/run-spool",
+  "branch": "cloud/sd-spool-sdk004-4",
+  "head": "3308d2c15143af65c448e8d8494fb052adbf459e",
+  "ref": "refs/heads/cloud/sd-spool-sdk004-4",
+  "command": "python3 $HOME/rer-consolidation/.tools/cloud-push.py origin cloud/sd-spool-sdk004-4",
+  "attempts": 1,
+  "result": "PUSH_OK",
+  "remote_advertisement_verified_utc": "2026-11-16T23:41:56.198328+00:00",
+  "product_push_count": 1,
+  "evidence_custody": "separate report-only ref; not product readiness"
+}

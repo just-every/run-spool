@@ -1,0 +1,93 @@
+{
+  "author": "Run Edit Run fleet",
+  "recorded_utc": "2026-11-16T23:36:41.128107+00:00",
+  "branch": "cloud/sd-spool-sdk004-4",
+  "head": "3308d2c15143af65c448e8d8494fb052adbf459e",
+  "node": "v24.19.0",
+  "pnpm": "10.12.4",
+  "checks": [
+    {
+      "command": "cloud_run timeout 600 npx -y @runeditrun/rer setup --owner-email fleet@runeditrun.com --non-interactive",
+      "exit": 0,
+      "result": "103 local migrations applied; temporary setup runtime stopped"
+    },
+    {
+      "command": "cloud_run timeout --kill-after=10s 300 npx -y @runeditrun/rer build",
+      "exit": 0
+    },
+    {
+      "command": "pnpm typecheck",
+      "exit": 0,
+      "log": "typecheck.log"
+    },
+    {
+      "command": "node scripts/edition-authoring/cli.mjs lock",
+      "exit": 0,
+      "result": "Regenerated last from the combined source; sources.lock.json committed"
+    },
+    {
+      "command": "pnpm source:check",
+      "exit": 0,
+      "ok": true
+    },
+    {
+      "command": "node src/base/contract-docs.mjs check",
+      "exit": 0,
+      "log": "contract-check.log"
+    },
+    {
+      "command": "cloud_run timeout --kill-after=10s 420 node tests/feedback-flow.mjs",
+      "exit": 0,
+      "browser": "/usr/bin/chromium --no-sandbox",
+      "log": "feedback-flow.log",
+      "flows": [
+        "feedbackFlow",
+        "privateFeedbackFlow",
+        "feedbackMailFlow"
+      ],
+      "screens": [
+        "screens/feedback-review-1440.png",
+        "screens/feedback-review-390.png"
+      ]
+    },
+    {
+      "command": "cloud_run timeout --kill-after=10s 420 node tests/end-user-erasure-preview.mjs",
+      "exit": 0,
+      "browser": "/usr/bin/chromium --no-sandbox",
+      "log": "erasure-preview.log",
+      "result_file": "erasure-preview-results.json",
+      "screens": [
+        "screens/erasure-preview-1440.png",
+        "screens/erasure-preview-390.png"
+      ]
+    },
+    {
+      "command": "cloud_run timeout --kill-after=10s 300 node tests/old-archive.mjs",
+      "exit": 0,
+      "log": "old-archive.log",
+      "observed": "176-table released upgrade preserves 118 rows; 201-table populated 0068 upgrade; legacy/current archive restore and schema/integrity refusals pass"
+    },
+    {
+      "command": "cloud_run timeout --kill-after=10s 480 node tests/sentry-sdk.mjs",
+      "exit": 0,
+      "browser": "/usr/bin/chromium --no-sandbox",
+      "log": "sentry-sdk.log",
+      "observed": "Sentry browser and Node SDK 11.6.0; actual widget reports reconcile with inbox/archive and exact occurrences at 1440/390; feedback_accepted=4 at each width"
+    },
+    {
+      "command": "cloud_run timeout --kill-after=10s 600 node tests/repair-recovery.mjs",
+      "exit": 124,
+      "log": "repair-recovery.log",
+      "result": "Supplemental journey reached archive reset/restore; exceeded the local 600-second hard timeout. No assertion failure reported. Not claimed as a local pass. Required brief feedback/erasure journeys passed separately.",
+      "cleanup": "cloud_run returned after its subreaper finished waiting for all descendants"
+    }
+  ],
+  "initial_attempt": {
+    "command": "node tests/feedback-flow.mjs",
+    "exit": 1,
+    "cause": "Missing default Playwright cached browser; corrected invocation to use /usr/bin/chromium. No product changes."
+  },
+  "source_check_stdout_sha256": "280e5b2247f5fcd86f9e09921601ec6b0e37afafeb132e9db7f5323824aff5db",
+  "publication_scan": "The fleet cloud preamble reserves the full publication scan for the Mac lander. Candidate identities/messages and exact diff were inspected locally.",
+  "last_updated_utc": "2026-11-16T23:50:58.389475+00:00"
+}

@@ -1,0 +1,1112 @@
+diff --git a/docs/FEEDBACK.md b/docs/FEEDBACK.md
+index b2cee21..4ff4c58 100644
+--- a/docs/FEEDBACK.md
++++ b/docs/FEEDBACK.md
+@@ -1,4 +1,4 @@
+-# Text feedback
++# Feedback and private review
+ 
+ Spool receives text descriptions from Sentry's `captureFeedback`, modern feedback items and legacy `user_report` items. A report can reference an existing event or arrive independently. Feedback does not create an error occurrence or an error alert, and does not require a registered release.
+ 
+@@ -15,7 +15,7 @@ Sentry.captureFeedback({
+ await Sentry.flush(5000);
+ ```
+ 
+-Only description text and the event reference are retained. Spool applies its text scrubber before storage and again on reads and exports. Names, email, URLs, user context and attachments are excluded. Free text may still contain personal information; review it before sharing. Contact, replies, screenshot review, Spool's own localized widget and general end-user identity erasure are not available yet.
++Without the explicit consent extension below, only description text and the event reference are retained. Spool applies its text scrubber before storage and again on reads and exports. Names, email, URLs, user context and attachments are excluded. Free text may still contain personal information; review it before sharing. Spool's own localized widget and general end-user identity erasure remain incomplete.
+ 
+ Open an issue's **User feedback** panel to read reports linked to its retained occurrences. **Settings → Feedback inbox** includes every report for the project, including standalone reports and unavailable event references. Use **Load more feedback** to continue through the bounded pages. A report never links to another project's event. Association follows the original retained occurrence; an event ID reused after retention does not acquire the old report. Reports sent before their referenced event remain explicitly unlinked.
+ 
+@@ -31,6 +31,85 @@ The unmodified browser SDK's `Sentry.showReportDialog({eventId})`, including the
+ 
+ Spool's own modal asks for a description and explicit consent: “I consent to sharing this description and the error reference with this application’s team. Name and email are not kept.” It submits a legacy `user_report` to the same DSN envelope intake; the existing Origin rules, scrubber, 1,000-character limit, 60-per-project-per-minute limit, exact-occurrence association, withdrawal, retention, archive and erasure handling apply. Empty descriptions, absent consent, send failures and minute-limit refusals are visible. A successful send is acknowledged in the modal. Close and Escape restore focus and invoke the SDK close hook.
+ 
+-Only description text and the event reference enter feedback custody. The SDK sends name/email options in the script request URL, but Spool ignores them and exposes no such fields; avoid supplying personal options in the first place. Bounded wording overrides (`title`, `subtitle`, `labelComments`, `labelSubmit`, `labelClose`, `errorFormEntry`, `errorGeneric`, `successMessage`, each at most 240 characters) render as text. Contact/replies, screenshot/attachment review, Spool's independent localized widget and end-user identity erasure remain unavailable. Default ADOPTED: description-only qualifies this crash-report modal; contact remains a named gap.
++Only description text and the event reference enter feedback custody. The SDK sends name/email options in the script request URL, but Spool ignores them and exposes no such fields; avoid supplying personal options in the first place. Bounded wording overrides (`title`, `subtitle`, `labelComments`, `labelSubmit`, `labelClose`, `errorFormEntry`, `errorGeneric`, `successMessage`, each at most 240 characters) render as text. This crash-report modal remains description-only. Consented contact, screenshot review and replies are available through the separate extension and private inbox described below. Unmodified attachment intake, Spool's independent localized widget and feedback contact matching for end-user erasure remain incomplete.
+ 
+ For bounded read-only integrations, the separate version-1 `feedback-reports` API in [INVESTIGATION.md](INVESTIGATION.md) allows an exact-project agent/service grant to paginate scrubbed descriptions and association state. It confers no withdrawal or inbox/settings authority.
++
++## Consented private details and replies
++
++An application can add `contexts.feedback.spool` to a modern feedback payload
++(or `spool` to a legacy `user_report`) **only after explicit consent**:
++
++```js
++spool: {
++  consent: true,
++  contactEmail: 'synthetic-spool-1@example.test', // optional
++  screenshotPng: pngBase64, // optional, raw base64 PNG, no data URL
++}
++```
++
++This opt-in extension is distinct from Sentry's ordinary `contact_email`, name,
++URL and attachment fields, which remain discarded. The unchanged Sentry widget
++and crash dialog retain their description-only path. No consent means no private
++details. PNGs are bounded to 128 KiB and 4096 by 4096 pixels; only rendering
++chunks survive, removing EXIF and text metadata. SVG, HTML and external image
++URLs are refused. Pixels may still contain personal information: the reporter
++must review them before submission. The inbox explains this again during review.
++
++Open **Settings → Issue processing → Feedback inbox → Review report privately**.
++Only the owner, organization administrators and assigned project members or
++maintainers can open private review, see contact, review screenshots or reply.
++Read-only members, unrelated teams, ingest/deploy/service/agent credentials and
++unauthenticated callers cannot. Contact, screenshots and replies do not appear
++in issue feedback or agent evidence. Screenshot bytes are fetched from the
++session-authorized `feedback/:id/screenshot` route with `private, no-store`, PNG
++content type, `nosniff`, same-origin resource policy and a sandbox policy. There
++is no public URL. Review reads and changes are audited without private values.
++
++**Mark report reviewed** records the review. **Send reply** is an explicit action
++to the consented contact; it never sends automatically on intake or review. Each
++reply records a queued, sent, failed or never-sent state. Sent means the configured
++email provider accepted the message, not confirmed mailbox delivery. Uncertain
++attempts show failed/delivery unconfirmed and are never replayed automatically.
++A repeated request ID cannot send twice. Replies are scrubbed, bounded to 2,000
++characters and capped at 20 per report. The shared approved mail sender handles
++provider validation and the attempt audit. No provider credentials or raw
++provider diagnostics enter feedback storage.
++
++With `MAIL_PROVIDER=none`, the control says email is off and is disabled. The API
++can record an explicit attempted reply as never sent (`mail_off`), without
++constructing a remote sender. Local suppression and missing mail configuration
++also record never sent, with their own reason. Tests use the existing provider
++network fake, never a real provider.
++
++Private details and the reply ledger share the feedback row, so withdrawal,
++linked occurrence deletion, retention and complete project erasure remove them
++with the report. Private installation archives retain the consented details and
++ledger; restoring never queues a new send. The withdrawal journal and active
++transfer invalidation fence older copies as for description text. Additive
++migration 0109 preserves historical reports with no private details; prior
++native archives translate that exact missing column to null.
++Current archive rows without consent carry `private_data: null`, including
++unmodified widget, `captureFeedback` and `user_report` submissions. This nullable
++column stores no contact, URL, screenshot or other metadata without consent.
++Archives without a migration list can also declare the current private column;
++restore checks their complete inventory before preserving it.
++An archive's recorded migration history must match its schema. Restore refuses
++a history that skips migrations.
++
++DEFAULT SDK-004: explicit consent, deny by default, owner and assigned project
++team review only, no automatic outbound action, audited changes; private details
++are not issue evidence. Organization administrators retain their existing
++project authority and private archive authority.
++GAP SDK-004: unmodified Sentry attachment intake, the independent Spanish
++widget, broader abuse policy and identity-based selective erasure are not proven.
++End-user erasure does not match consented feedback contact or remove its
++screenshot and replies by the supplied identity. The preview lists feedback as
++unavailable for identity matching, and the saved receipt repeats this limit.
++To remove these details, the installation owner must withdraw the report in the
++feedback inbox. Deleting matching events also deletes reports attached to those
++exact occurrences. Withdrawal removes the entire report, including contact,
++screenshot and replies, from this installation and future exports; downloaded
++archives and external copies remain outside the action.
++
++Signed: Run Edit Run fleet, 2026-11-16 (UTC).
+diff --git a/management/integration/deployment-spec.json b/management/integration/deployment-spec.json
+index b9e04c8..733d00d 100644
+--- a/management/integration/deployment-spec.json
++++ b/management/integration/deployment-spec.json
+@@ -618,6 +618,12 @@
+       "name": "0108_alert_notify_targets.sql",
+       "sha256": "561af8c0b4ed29ad8af56615139f5a8eb6b12daf0d74c8021f31a7789d814a9b",
+       "sql": "CREATE TABLE alert_target_destinations(id TEXT PRIMARY KEY,project TEXT NOT NULL REFERENCES projects(id),label TEXT NOT NULL,target_type TEXT NOT NULL CHECK(target_type IN ('team','member','issue_owners')),target TEXT,fallthrough TEXT NOT NULL CHECK(fallthrough IN ('active_members','no_one')),created INTEGER NOT NULL);\nCREATE INDEX alert_target_destinations_project ON alert_target_destinations(project);\nCREATE TRIGGER alert_targets_capacity BEFORE INSERT ON alert_target_destinations WHEN (SELECT COUNT(*) FROM alert_target_destinations WHERE project=NEW.project)>=20 BEGIN SELECT RAISE(ABORT,'alert_destination_budget'); END;\n-- A row (including an empty resolution) is immutable custody for one real intent.\nCREATE TABLE alert_intent_recipients(intent TEXT PRIMARY KEY REFERENCES alert_intents(id),project TEXT NOT NULL REFERENCES projects(id),recipients TEXT NOT NULL CHECK(json_valid(recipients)),resolved INTEGER NOT NULL);\nCREATE TRIGGER portability_alert_target_destinations_insert BEFORE INSERT ON alert_target_destinations WHEN EXISTS(SELECT 1 FROM rer_portability_state WHERE id=1 AND import_job IS NOT NULL) BEGIN SELECT RAISE(ABORT,'restore_in_progress'); END;\nCREATE TRIGGER portability_alert_target_destinations_update BEFORE UPDATE ON alert_target_destinations WHEN EXISTS(SELECT 1 FROM rer_portability_state WHERE id=1 AND import_job IS NOT NULL) BEGIN SELECT RAISE(ABORT,'restore_in_progress'); END;\nCREATE TRIGGER portability_alert_target_destinations_delete BEFORE DELETE ON alert_target_destinations WHEN EXISTS(SELECT 1 FROM rer_portability_state WHERE id=1 AND import_job IS NOT NULL) BEGIN SELECT RAISE(ABORT,'restore_in_progress'); END;\nCREATE TRIGGER spool_owner_erasure_alert_target_destinations_insert BEFORE INSERT ON alert_target_destinations WHEN EXISTS(SELECT 1 FROM rer_erasure_operations WHERE entity='installation-owner' AND phase<>'complete') AND NOT EXISTS(SELECT 1 FROM rer_erasure_guard) BEGIN SELECT RAISE(ABORT,'owner_erasure_in_progress'); END;\nCREATE TRIGGER spool_owner_erasure_alert_target_destinations_update BEFORE UPDATE ON alert_target_destinations WHEN EXISTS(SELECT 1 FROM rer_erasure_operations WHERE entity='installation-owner' AND phase<>'complete') AND NOT EXISTS(SELECT 1 FROM rer_erasure_guard) BEGIN SELECT RAISE(ABORT,'owner_erasure_in_progress'); END;\nCREATE TRIGGER portability_alert_intent_recipients_insert BEFORE INSERT ON alert_intent_recipients WHEN EXISTS(SELECT 1 FROM rer_portability_state WHERE id=1 AND import_job IS NOT NULL) BEGIN SELECT RAISE(ABORT,'restore_in_progress'); END;\nCREATE TRIGGER portability_alert_intent_recipients_update BEFORE UPDATE ON alert_intent_recipients WHEN EXISTS(SELECT 1 FROM rer_portability_state WHERE id=1 AND import_job IS NOT NULL) BEGIN SELECT RAISE(ABORT,'restore_in_progress'); END;\nCREATE TRIGGER portability_alert_intent_recipients_delete BEFORE DELETE ON alert_intent_recipients WHEN EXISTS(SELECT 1 FROM rer_portability_state WHERE id=1 AND import_job IS NOT NULL) BEGIN SELECT RAISE(ABORT,'restore_in_progress'); END;\nCREATE TRIGGER spool_owner_erasure_alert_intent_recipients_insert BEFORE INSERT ON alert_intent_recipients WHEN EXISTS(SELECT 1 FROM rer_erasure_operations WHERE entity='installation-owner' AND phase<>'complete') AND NOT EXISTS(SELECT 1 FROM rer_erasure_guard) BEGIN SELECT RAISE(ABORT,'owner_erasure_in_progress'); END;\nCREATE TRIGGER spool_owner_erasure_alert_intent_recipients_update BEFORE UPDATE ON alert_intent_recipients WHEN EXISTS(SELECT 1 FROM rer_erasure_operations WHERE entity='installation-owner' AND phase<>'complete') AND NOT EXISTS(SELECT 1 FROM rer_erasure_guard) BEGIN SELECT RAISE(ABORT,'owner_erasure_in_progress'); END;\n"
++    },
++    {
++      "binding": "DB",
++      "name": "0109_feedback_review.sql",
++      "sha256": "991615f887a895a3d6be01b805dc543a8a05c8274312b02788b170b73b52c06f",
++      "sql": "-- Consent-scoped contact, raster screenshot and bounded reply ledger share the\n-- report's existing custody: one row, one withdrawal/retention/erasure fence.\nALTER TABLE feedback ADD COLUMN private_data TEXT DEFAULT NULL\n CHECK(private_data IS NULL OR (json_valid(private_data) AND length(private_data)<=240000));\n"
+     }
+   ],
+   "compatibilityDate": "2026-09-08",
+diff --git a/migrations/core/0109_feedback_review.sql b/migrations/core/0109_feedback_review.sql
+new file mode 100644
+index 0000000..30c2031
+--- /dev/null
++++ b/migrations/core/0109_feedback_review.sql
+@@ -0,0 +1,4 @@
++-- Consent-scoped contact, raster screenshot and bounded reply ledger share the
++-- report's existing custody: one row, one withdrawal/retention/erasure fence.
++ALTER TABLE feedback ADD COLUMN private_data TEXT DEFAULT NULL
++ CHECK(private_data IS NULL OR (json_valid(private_data) AND length(private_data)<=240000));
+diff --git a/sources.lock.json b/sources.lock.json
+index a2c29b4..4966682 100644
+--- a/sources.lock.json
++++ b/sources.lock.json
+@@ -2994,7 +2994,7 @@
+       "executable": false
+     },
+     "docs/FEEDBACK.md": {
+-      "sha256": "f631e109fa5d6a0357b737c0203d783006f890abe630e698e9ac8b5db85a3b6d",
++      "sha256": "4a9d51aa14938631cb3ac3248727e6b25885b70c69635c9fec7a191e698427fd",
+       "executable": false
+     },
+     "docs/FRAMEWORK-SETUP.md": {
+@@ -3774,7 +3774,7 @@
+       "executable": false
+     },
+     "management/integration/deployment-spec.json": {
+-      "sha256": "cfbd5f55f800f762dea4314b49e831777084769da1660631292b21c4e4d84404",
++      "sha256": "9cb724769d3a23af6117224233f9965ac00113bb1ef8121c2eb34940f3e5e0b2",
+       "executable": false
+     },
+     "migrations/core/0001_errors.sql": {
+@@ -4185,6 +4185,10 @@
+       "sha256": "561af8c0b4ed29ad8af56615139f5a8eb6b12daf0d74c8021f31a7789d814a9b",
+       "executable": false
+     },
++    "migrations/core/0109_feedback_review.sql": {
++      "sha256": "991615f887a895a3d6be01b805dc543a8a05c8274312b02788b170b73b52c06f",
++      "executable": false
++    },
+     "ONBOARDING.md": {
+       "sha256": "2b201e837e3caa66d4181b8955360372cd215f8288c108a81c383146a5806467",
+       "executable": false
+@@ -6054,7 +6058,7 @@
+       "executable": false
+     },
+     "src/domain/erasure/end-user.ts": {
+-      "sha256": "833b2b6f370a74db9ffcb3f1b3524c852d2ebe8edefc6b85bf005843d616d23e",
++      "sha256": "dc3bd8bac90d8ff1438d17adc1fb5b116a657b5b6f9191a4fcdd33f42a4d2f64",
+       "executable": false
+     },
+     "src/domain/erasure/identifiers.ts": {
+@@ -6122,11 +6126,11 @@
+       "executable": false
+     },
+     "src/domain/feedback/admission.ts": {
+-      "sha256": "d434a8a15c124a5987b527681624e794fb79f1dbb510da2083df8d0921c7d0bd",
++      "sha256": "195a114f34dcaa5cf73db7d472645a7919ee9d377bd956caf11748f358574999",
+       "executable": false
+     },
+     "src/domain/feedback/archive.ts": {
+-      "sha256": "447027d2b6bc7421760df61f7acc1bdd75aee5cea9a56dba07fddf26f3063ebd",
++      "sha256": "6c1bb67b6d217188d8068847921c9f6f405c315006f9c461dc833f480adae69e",
+       "executable": false
+     },
+     "src/domain/feedback/custody.ts": {
+@@ -6134,11 +6138,19 @@
+       "executable": false
+     },
+     "src/domain/feedback/input.ts": {
+-      "sha256": "47f61621c90ce6007620383a017afd32cd29a151a833b2d0c128cf5a39547ad0",
++      "sha256": "22b8959844ece0897abe3e44c01401bdc0e03636e8b6fb25f5db03f05cd15839",
++      "executable": false
++    },
++    "src/domain/feedback/private.ts": {
++      "sha256": "588967f9368453032e315b7d94c94a9e53f5ac2471b5655c906b057818d35cb9",
++      "executable": false
++    },
++    "src/domain/feedback/review.ts": {
++      "sha256": "5e359a2398bc85a6ec1e3c0bf04d41af2ef383d9e58c4c5e726899889090b1b3",
+       "executable": false
+     },
+     "src/domain/feedback/routes.ts": {
+-      "sha256": "bec9b61763306e0c4af553c7d7ba582a3f92e87ed43ead22ace349dda46a6902",
++      "sha256": "fcae3e5d5066dea92caa682ffd2238c12a8e5314068c55d96a4e01128af03e0a",
+       "executable": false
+     },
+     "src/domain/filters/archive.ts": {
+@@ -6422,7 +6434,7 @@
+       "executable": false
+     },
+     "src/domain/members/resolver.ts": {
+-      "sha256": "7d45a90a07b8a89cdf40604862f7f58fee61099c9aa6c767c1adbee4cdac1310",
++      "sha256": "684256c33889455747378e969f3f0992b4f79b05171316997dde894ca73dcbae",
+       "executable": false
+     },
+     "src/domain/members/routes.ts": {
+@@ -6566,7 +6578,7 @@
+       "executable": false
+     },
+     "src/domain/portability.ts": {
+-      "sha256": "e98ccbebec4c46b9b73233ab3c8ce60a001a38beff8973b3698f844e5ae434db",
++      "sha256": "325b5fcc89a59e30a55a7de7fb26d87dbe52a32304bce5222a40669cb9ea85f8",
+       "executable": false
+     },
+     "src/domain/privacy.ts": {
+@@ -10394,11 +10406,11 @@
+       "executable": false
+     },
+     "src/ui/workbench/feedback.css": {
+-      "sha256": "d58557e5c4dcd140864f3655275f7794da08b7469d4fe1fb32f6f067c8e81821",
++      "sha256": "02ad945f0055003250a9c48b80e338e3c49db43b6acc045e7dc55db2436fdd9c",
+       "executable": false
+     },
+     "src/ui/workbench/FeedbackPanel.tsx": {
+-      "sha256": "174c8430ddb486e083dcd04014f9a0ae13c39cb02a4505c73141ff537ed6bbb7",
++      "sha256": "ed2cbb282a4e89693c663bf4d7b96cb7e39ac2dab02e5698cf8f115fc7c8e33b",
+       "executable": false
+     },
+     "src/ui/workbench/FixWorkflowCard.tsx": {
+@@ -10662,7 +10674,7 @@
+       "executable": false
+     },
+     "src/ui/workbench/SettingsView.tsx": {
+-      "sha256": "217a7138bebb21422f0f09b6010ad8a2ef4978284560e90f42c9b2c81a52ba68",
++      "sha256": "a5620674a34286637bf36c3d5b42f9b6945de2d6c6a0f8154c6ec1f15ff50e14",
+       "executable": false
+     },
+     "src/ui/workbench/shared.tsx": {
+@@ -11146,7 +11158,7 @@
+       "executable": false
+     },
+     "tests/feedback-flow.mjs": {
+-      "sha256": "27c5cd42bc5852a7b0cdc7f48c24959a063ab7c9352e415c79fba4ebda4192f6",
++      "sha256": "16d204f24b38480cd0f71c4a382659e06a3140eab2f2ef4eb52378496b3eadd2",
+       "executable": false
+     },
+     "tests/fidelity-flow.mjs": {
+@@ -11322,7 +11334,7 @@
+       "executable": false
+     },
+     "tests/old-archive.mjs": {
+-      "sha256": "5973a8e6f8ea3aab5da16db1f4eef4d3a68becbaaaf95e75b212fb35e77abc9e",
++      "sha256": "578e127b0d1c9bfa2fb71fb8f206655e79550e21f2df98634a7980d8855c7633",
+       "executable": false
+     },
+     "tests/operator-archive.mjs": {
+@@ -11470,7 +11482,7 @@
+       "executable": false
+     },
+     "tests/repair-recovery/archive.mjs": {
+-      "sha256": "5454939cceba7e67b4f5ed0e7a0621770bc96fab15b62b55e2df656f3493601e",
++      "sha256": "056416522a0c51f2772cc8eb78cce3b4f938cccc9b543d1da27d371c98f225c8",
+       "executable": false
+     },
+     "tests/repair-recovery/capture.mjs": {
+@@ -11550,7 +11562,7 @@
+       "executable": false
+     },
+     "tests/runtimes/browser.mjs": {
+-      "sha256": "439f871ecc3203feeaf8a973fa6b8bc751761e7e035a6bde666753c74e49b1ef",
++      "sha256": "2e22513f4e46d8d5eb5606bd859f246144ed43b0e40d00f9fc23a8189ad2d661",
+       "executable": false
+     },
+     "tests/runtimes/browser/app.js": {
+@@ -11614,7 +11626,7 @@
+       "executable": false
+     },
+     "tests/runtimes/feedback-proof.mjs": {
+-      "sha256": "67ce84ebe3445d4823146f253ced03a7c48fce98c6c94ae30fcabdb04e05d0f9",
++      "sha256": "8cd07ea28bf2749bfa0cd6315c34a56d03df723efe5d4d993a286a2ec90ee481",
+       "executable": false
+     },
+     "tests/runtimes/go.mjs": {
+diff --git a/src/domain/erasure/end-user.ts b/src/domain/erasure/end-user.ts
+index 6ec2b78..f73c705 100644
+--- a/src/domain/erasure/end-user.ts
++++ b/src/domain/erasure/end-user.ts
+@@ -17,7 +17,7 @@ const matches = (field: IdentityField) => `SELECT i.event FROM event_identities
+ const noImportCustody=importCustodyRoots.map(table=>`NOT EXISTS(SELECT 1 FROM ${table})`).join(' AND ');
+ const inventory = "SELECT json_group_array(name) AS inventory FROM (SELECT name FROM sqlite_master WHERE type='table' AND (name GLOB 'rer_portability_snap_*' OR name GLOB 'rer_portability_stage_*') ORDER BY name)";
+ export const endUserExceptions = [
+- {table:'feedback',reason:'Feedback contact is discarded at intake. Retained scrubbed messages have no user identity index; they cannot be matched to this value. Event deletion also deletes feedback attached to those exact occurrences.'},
++ {table:'feedback',reason:'Consented feedback contact, screenshots and replies stay in the feedback inbox. End-user erasure does not match feedback by contact or remove these details by the supplied identity. To remove them, the installation owner must withdraw the report in the feedback inbox. Deleting matching events also deletes reports attached to those exact occurrences.'},
+  {table:'attachments',reason:'Attachment ingestion and identity metadata are not retained; there is no attachment identity matching store.'},
+  {table:'replays',reason:'Replay ingestion and identity metadata are not retained; there is no replay identity matching store.'},
+ ];
+diff --git a/src/domain/feedback/admission.ts b/src/domain/feedback/admission.ts
+index 8039682..161cfc8 100644
+--- a/src/domain/feedback/admission.ts
++++ b/src/domain/feedback/admission.ts
+@@ -30,9 +30,9 @@ export async function admitFeedback(c: any, scope: IngestScope, input: FeedbackI
+   // or by following an event ID again on a later read.
+   await ingestBatch(c, scope, [...privacy.jobs,
+    stmt(db, `INSERT INTO spool_authority_guards(ok) SELECT CASE WHEN EXISTS(SELECT 1 FROM rer_portability_state WHERE id=1 AND source_identity=? AND epoch=?) AND NOT EXISTS(SELECT 1 FROM rer_portability_journal WHERE source=? AND tombstone=?) THEN 1 ELSE 0 END`, before.source_identity, before.epoch, before.source_identity, key),
+-   stmt(db, `INSERT INTO feedback(project,id,message,digest,received,event_id,occurrence)
++   stmt(db, `INSERT INTO feedback(project,id,message,digest,received,event_id,occurrence,private_data)
+     VALUES(?,?,?,?,CAST(strftime('%s','now') AS INTEGER)*1000+CAST(substr(strftime('%f','now'),4,3) AS INTEGER),?,
+-     (SELECT occurrence FROM events WHERE project=? AND id=?))`, project, input.id, input.message, input.digest, input.eventId, project, input.eventId),
++     (SELECT occurrence FROM events WHERE project=? AND id=?),?)`, project, input.id, input.message, input.digest, input.eventId, project, input.eventId, input.privateData?JSON.stringify(input.privateData):null),
+    outcomeStatement(db, project, 'feedback_accepted'),
+   ]);
+   return c.json({ id: input.id, outcome: 'accepted', coverage: feedbackCoverage }, 201);
+diff --git a/src/domain/feedback/archive.ts b/src/domain/feedback/archive.ts
+index 4850339..59c329e 100644
+--- a/src/domain/feedback/archive.ts
++++ b/src/domain/feedback/archive.ts
+@@ -1,14 +1,16 @@
++import { validatePrivate } from './private';
+ import { scrub } from '../privacy';
+ import { validateOccurrence } from '../occurrences';
+ import { feedbackLimits } from './input';
+ 
+-export const feedbackTables = { feedback: ['project', 'id', 'message', 'digest', 'received', 'event_id', 'occurrence'] };
++export const feedbackTables = { feedback: ['project', 'id', 'message', 'digest', 'received', 'event_id', 'occurrence', 'private_data'] };
+ export const feedbackOutcomes = ['feedback_accepted', 'feedback_duplicate', 'feedback_conflict', 'feedback_invalid', 'feedback_oversized', 'feedback_budget', 'feedback_rate_limited', 'feedback_withdrawn'];
+-export const feedbackDefaults = (data: any) => ({ feedback: [], ...data });
++export const feedbackDefaults = (data: any) => ({ ...data, feedback: (data.feedback??[]).map((row:any)=>({private_data:null,...row})) });
+ export function validateFeedbackArchive(data: any) {
+  const identities = new Set<string>(), counts = new Map<string, number>();
+  const events = new Set(data.events.map((row: any) => JSON.stringify([row.project, row.id, row.occurrence])));
+  for (const row of data.feedback) {
++  validatePrivate(row.private_data);
+   const key = JSON.stringify([row.project, row.id]);
+   if (!/^(?:[a-f0-9]{32}|user-report-[a-f0-9]{32})$/.test(row.id) || identities.has(key)) throw new Error('Archive feedback identity');
+   identities.add(key);
+@@ -26,3 +28,13 @@ export function validateFeedbackArchive(data: any) {
+   if (Object.keys(detail).join() !== 'count' || detail.count !== 1) throw new Error('Archive feedback withdrawal audit');
+  }
+ }
++
++/** Exact additive-column translation for archives made before private review. */
++export function beforeFeedbackReview(table:any,manifest:any){
++ if(table.name!=='feedback'||manifest.migrations?.includes('0109_feedback_review.sql'))return table;
++ // Unrecorded inventories may already carry private review. Preserve the
++ // current descriptor only when the archive declares that column; the caller
++ // still compares the complete SQL, columns and behavior inventory exactly.
++ if(!manifest.migrations?.length&&manifest.schemaObjects!==undefined&&manifest.tables?.find((entry:any)=>entry.name==='feedback')?.columns?.some((column:any)=>column.name==='private_data'))return table;
++ return {...table,sql:table.sql.replace(/, private_data TEXT DEFAULT NULL\s+CHECK\(private_data IS NULL OR \(json_valid\(private_data\) AND length\(private_data\)<=240000\)\)/,''),columns:table.columns.filter((column:any)=>column.name!=='private_data')};
++}
+diff --git a/src/domain/feedback/input.ts b/src/domain/feedback/input.ts
+index 5001e1d..3a61757 100644
+--- a/src/domain/feedback/input.ts
++++ b/src/domain/feedback/input.ts
+@@ -1,14 +1,15 @@
++import { privateInput, type PrivateFeedback } from './private';
+ import type { CategoryFields } from '../filters/categories';
+ import { canonical, hash, scrub } from '../privacy';
+ import { SentryWireError, type WireObject } from '../sentry/wire';
+ 
+ export const feedbackLimits = { message: 1000, retained: 1000, perMinute: 60 };
+ export const feedbackCoverage = {
+- retained: 'scrubbed description only',
++ retained: 'scrubbed description; explicit consent extension for private contact and PNG review',
+  discarded: ['contact', 'name', 'url', 'screenshots', 'attachments', 'other_metadata'],
+  association: 'Only an event retained when feedback arrives can be attached; unknown references are never reassociated.',
+ };
+-export type FeedbackInput = CategoryFields & { id: string; message: string; eventId: string | null; digest: string };
++export type FeedbackInput = CategoryFields & { id: string; message: string; eventId: string | null; digest: string; privateData: PrivateFeedback|null };
+ const eventId = (value: unknown): string => {
+  if (typeof value !== 'string' || !/^[a-fA-F0-9]{32}$/.test(value)) throw new SentryWireError('invalid_feedback_event_id', 422);
+  return value.toLowerCase();
+@@ -34,5 +35,5 @@ export async function feedbackInput(raw: WireObject, kind: 'feedback' | 'user_re
+  if (message.length > feedbackLimits.message) throw new SentryWireError('feedback_message_too_large', 413);
+  const clean = scrub(message);
+  if (!clean.trim()) throw new SentryWireError('invalid_feedback_message', 422);
+- return { id, eventId: reference, message: clean, browser: raw.contexts?.browser, urls: [raw.request?.url, raw.contexts?.feedback?.url].filter((url): url is string => typeof url === 'string'), ...(typeof raw.release === 'string' ? { release: raw.release } : {}), ...(typeof raw.environment === 'string' ? { environment: raw.environment } : {}), digest: await hash(canonical({ kind, value: raw })) };
++ return { id, eventId: reference, message: clean, privateData: privateInput(kind==='feedback'?raw.contexts?.feedback?.spool:raw.spool), browser: raw.contexts?.browser, urls: [raw.request?.url, raw.contexts?.feedback?.url].filter((url): url is string => typeof url === 'string'), ...(typeof raw.release === 'string' ? { release: raw.release } : {}), ...(typeof raw.environment === 'string' ? { environment: raw.environment } : {}), digest: await hash(canonical({ kind, value: raw })) };
+ }
+diff --git a/src/domain/feedback/private.ts b/src/domain/feedback/private.ts
+new file mode 100644
+index 0000000..81adcca
+--- /dev/null
++++ b/src/domain/feedback/private.ts
+@@ -0,0 +1,76 @@
++import { SentryWireError } from '../sentry/wire';
++import { scrub } from '../privacy';
++
++export const privateLimits = { screenshotBytes: 131072, replyCharacters: 2000, replies: 20 };
++export type Reply = { id:string; message:string; created:number; state:'queued'|'sent'|'failed'|'never_sent'; code:string };
++export type PrivateFeedback = { version:1; consent:true; contact:string|null; screenshot:string|null; review:'pending'|'reviewed'; replies:Reply[] };
++const invalid = ():never => { throw new SentryWireError('invalid_feedback_private_data',422); };
++export function contactEmail(value:unknown):string {
++ if(typeof value!=='string'||value.length>254||! /^[A-Za-z0-9.!#$%&'*+/=?^_`{|}~-]+@[A-Za-z0-9](?:[A-Za-z0-9-]*[A-Za-z0-9])?(?:\.[A-Za-z0-9](?:[A-Za-z0-9-]*[A-Za-z0-9])?)+$/.test(value))return invalid();
++ return value;
++}
++const crc32=(bytes:Uint8Array)=>{
++ let crc=0xffffffff;
++ for(const byte of bytes){crc^=byte;for(let bit=0;bit<8;bit++)crc=(crc>>>1)^((crc&1)?0xedb88320:0)}
++ return (crc^0xffffffff)>>>0;
++};
++/** Raster PNG only. Retain rendering chunks, discarding EXIF, text, filenames,
++ * URLs and every ancillary metadata chunk. Never render reporter-supplied HTML/SVG. */
++export function screenshotPng(value:unknown):string {
++ if(typeof value!=='string'||value.length>Math.ceil(privateLimits.screenshotBytes/3)*4||! /^(?:[A-Za-z0-9+/]{4})*(?:[A-Za-z0-9+/]{2}==|[A-Za-z0-9+/]{3}=)?$/.test(value))return invalid();
++ let bytes:Uint8Array;
++ try{bytes=Uint8Array.from(atob(value),char=>char.charCodeAt(0))}catch{return invalid()}
++ if(bytes.length>privateLimits.screenshotBytes||bytes.length<45||![137,80,78,71,13,10,26,10].every((byte,i)=>bytes[i]===byte))return invalid();
++ const view=new DataView(bytes.buffer),kept=[bytes.slice(0,8)];
++ let offset=8,header=false,data=false,ended=false,palette=false,depth=0,color=0;
++ while(offset+12<=bytes.length){
++  const length=view.getUint32(offset),end=offset+12+length;
++  if(end>bytes.length||ended)return invalid();
++  const type=String.fromCharCode(...bytes.slice(offset+4,offset+8));
++  if(!/^[A-Za-z]{4}$/.test(type)||crc32(bytes.slice(offset+4,end-4))!==view.getUint32(end-4))return invalid();
++  if(!header&&type!=='IHDR')return invalid();
++  if(type==='IHDR'){
++   if(header||length!==13)return invalid();
++   const width=view.getUint32(offset+8),height=view.getUint32(offset+12);depth=bytes[offset+16];color=bytes[offset+17];
++   if(!width||!height||width>4096||height>4096||!({0:[1,2,4,8,16],2:[8,16],3:[1,2,4,8],4:[8,16],6:[8,16]} as Record<number,number[]>)[color]?.includes(depth)||bytes[offset+18]!==0||bytes[offset+19]!==0||bytes[offset+20]>1)return invalid();
++   header=true;
++  }else if(type==='IDAT'){if(color===3&&!palette)return invalid();data=true}
++  else if(type==='IEND'){if(length!==0||!data||end!==bytes.length)return invalid();ended=true}
++  else if(type==='PLTE'){if(palette||data||!length||length%3||length>768)return invalid();palette=true}
++  else if(type==='tRNS'){if(data||length>256)return invalid()}
++  else if(type[0]===type[0].toUpperCase())return invalid();
++  if(['IHDR','PLTE','IDAT','IEND','tRNS'].includes(type))kept.push(bytes.slice(offset,end));
++  offset=end;
++ }
++ if(!ended||offset!==bytes.length)return invalid();
++ return btoa(kept.map(chunk=>Array.from(chunk,byte=>String.fromCharCode(byte)).join('')).join(''));
++}
++/** Standard Sentry contact/attachments remain excluded without this explicit
++ * consent extension. An absent extension preserves the description-only path. */
++export function privateInput(value:unknown):PrivateFeedback|null {
++ if(value===undefined)return null;
++ if(!value||typeof value!=='object'||Array.isArray(value))return invalid();
++ const input=value as Record<string,unknown>;
++ if(input.consent!==true||Object.keys(input).some(key=>!['consent','contactEmail','screenshotPng'].includes(key)))return invalid();
++ return {version:1,consent:true,contact:input.contactEmail==null?null:contactEmail(input.contactEmail),screenshot:input.screenshotPng==null?null:screenshotPng(input.screenshotPng),review:'pending',replies:[]};
++}
++export function privateData(value:string|null):PrivateFeedback|null {
++ return value===null?null:JSON.parse(value);
++}
++export function privateSummary(value:PrivateFeedback|null){
++ return value?{consent:true,contact:value.contact,screenshot:!!value.screenshot,review:value.review,
++  replies:value.replies.map(reply=>({...reply,message:scrub(reply.message),...(reply.state==='queued'&&Date.now()-reply.created>60000?{state:'failed',code:'delivery_unconfirmed'}:{})}))}:null;
++}
++export function validatePrivate(value:string|null){
++ if(value===null)return;
++ const data=privateData(value)!;
++ if(!data||Object.keys(data).sort().join()!=='consent,contact,replies,review,screenshot,version'||data.version!==1||data.consent!==true||!['pending','reviewed'].includes(data.review))return invalid();
++ if(data.contact!==null)contactEmail(data.contact);
++ if(data.screenshot!==null&&screenshotPng(data.screenshot)!==data.screenshot)return invalid();
++ if(!Array.isArray(data.replies)||data.replies.length>privateLimits.replies)return invalid();
++ const ids=new Set<string>();
++ for(const reply of data.replies){
++  if(Object.keys(reply).sort().join()!=='code,created,id,message,state'||! /^[a-f0-9-]{36}$/.test(reply.id)||ids.has(reply.id)||typeof reply.message!=='string'||!reply.message.trim()||reply.message.length>privateLimits.replyCharacters||scrub(reply.message)!==reply.message||!Number.isSafeInteger(reply.created)||reply.created<0||!['queued','sent','failed','never_sent'].includes(reply.state)||!['queued','provider_accepted','mail_off','mail_suppressed','mail_unconfigured','provider_failed','delivery_unconfirmed'].includes(reply.code))return invalid();
++  ids.add(reply.id);
++ }
++}
+diff --git a/src/domain/feedback/review.ts b/src/domain/feedback/review.ts
+new file mode 100644
+index 0000000..a7ab1ae
+--- /dev/null
++++ b/src/domain/feedback/review.ts
+@@ -0,0 +1,84 @@
++import { jsonBody, ownerWrites } from '../owner-router';
++import { recordAudit } from '../audit/record';
++import { currentAuditScope, auditCommit } from '../audit/context';
++import { sender } from '../alerts/mail';
++import { mailSuppressed } from '../../auth/mail.server.mjs';
++import { scrub } from '../privacy';
++import { prepareScrubbing } from '../scrubbing/model';
++import { privateData, privateLimits, privateSummary, type PrivateFeedback, type Reply } from './private';
++import type { feedbackRoutes } from './routes';
++
++// Private review never enters issue reads or read-only/service/agent evidence.
++export function mayReview(session:any){
++ return session.kind!=='agent'&&session.kind!=='reviewer'&&(session.operator.role==='owner'||session.membership?.role==='admin'||['maintainer','member'].includes(session.membership?.projectRole));
++}
++export function installReview(routes:typeof feedbackRoutes){
++ routes.use('/:id/*',async(c,next)=>{
++  if(!mayReview(c.get('ownerSession')))return c.json({error:'Feedback review not found'},404);
++  c.header('Cache-Control','private, no-store');
++  await next();
++  if(c.req.method==='GET'&&c.res.status<400)await recordAudit(c.env.DB,{...currentAuditScope(),source:'request',outcome:'succeeded',status:c.res.status});
++ });
++ const read=async(c:any):Promise<{private_data:string|null}|null>=>c.env.DB.prepare('SELECT private_data FROM feedback WHERE project=? AND id=?').bind(c.req.param('project'),c.req.param('id')).first();
++ const save=async(c:any,old:string|null,data:PrivateFeedback,jobs:D1PreparedStatement[]=[])=>{
++  await ownerWrites(c,[...jobs,c.env.DB.prepare('INSERT INTO spool_authority_guards(ok) SELECT CASE WHEN EXISTS(SELECT 1 FROM feedback WHERE project=? AND id=? AND private_data IS ?) THEN 1 ELSE 0 END').bind(c.req.param('project'),c.req.param('id'),old),
++   c.env.DB.prepare('UPDATE feedback SET private_data=? WHERE project=? AND id=?').bind(JSON.stringify(data),c.req.param('project'),c.req.param('id')),auditCommit(c.env.DB)]);
++ };
++ routes.get('/:id/private',async c=>{
++  const row=await read(c);if(!row)return c.json({error:'Feedback not found'},404);
++  return c.json({private:privateSummary(privateData(row.private_data)),mail:mailState(c.env)});
++ });
++ routes.get('/:id/screenshot',async c=>{
++  const row=await read(c),data=row&&privateData(row.private_data);
++  if(!data?.screenshot)return c.json({error:'Screenshot not found'},404);
++  return new Response(Uint8Array.from(atob(data.screenshot),char=>char.charCodeAt(0)),{headers:{
++   'Content-Type':'image/png','Cache-Control':'private, no-store','X-Content-Type-Options':'nosniff',
++   'Content-Security-Policy':"default-src 'none'; sandbox",'Cross-Origin-Resource-Policy':'same-origin',
++   'Content-Disposition':'inline; filename="screenshot.png"',
++  }});
++ });
++ routes.post('/:id/review',async c=>{
++  const row=await read(c),data=row&&privateData(row.private_data);
++  if(!data)return c.json({error:'No consented details to review'},404);
++  let body;try{body=await jsonBody(c.req.raw,1024)}catch{return c.json({error:'Invalid review'},400)}
++  if(body.reviewed!==true)return c.json({error:'Review confirmation required'},400);
++  await save(c,row.private_data,{...data,review:'reviewed'});
++  return c.json({private:privateSummary({...data,review:'reviewed'})});
++ });
++ routes.post('/:id/replies',async c=>{
++  let body;try{body=await jsonBody(c.req.raw,12000)}catch{return c.json({error:'Invalid reply'},400)}
++  if(body.consent!==true||typeof body.id!=='string'||! /^[a-f0-9]{8}-[a-f0-9]{4}-4[a-f0-9]{3}-[89ab][a-f0-9]{3}-[a-f0-9]{12}$/.test(body.id)||typeof body.message!=='string'||!body.message.trim()||body.message.length>privateLimits.replyCharacters)return c.json({error:'A reply, unique request ID and explicit send confirmation are required'},422);
++  const row=await read(c),data=row&&privateData(row.private_data);
++  if(!data?.contact)return c.json({error:'No consented contact for this report'},409);
++  const privacy=await prepareScrubbing(c.env.DB,c.req.param('project')!,{message:scrub(body.message)});
++  const existing=data.replies.find(reply=>reply.id===body.id);
++  if(existing)return existing.message===privacy.document.message?c.json({reply:privateSummary({...data,replies:[existing]})!.replies[0]}):c.json({error:'Reply request ID already used'},409);
++  if(data.replies.length>=privateLimits.replies)return c.json({error:'Reply limit reached for this report'},429);
++  if(!privacy.document.message.trim())return c.json({error:'Reply removed by privacy policy'},422);
++  const mail=mailState(c.env);
++  const reply:Reply={id:body.id,message:privacy.document.message,created:Date.now(),state:mail.enabled?'queued':'never_sent',code:mail.enabled?'queued':mail.code};
++  const queued={...data,replies:[...data.replies,reply]};
++  await save(c,row!.private_data,queued,privacy.jobs);
++  if(!mail.enabled)return c.json({reply},201);
++  // One explicit request starts at most one provider attempt. Repeated IDs only
++  // read the ledger; restore and uncertain results never replay mail.
++  let state:Reply['state']='failed',code='delivery_unconfirmed';
++  try{
++   const result=await sender(c.env).send({deliveryId:`feedback:${c.req.param('project')}:${c.req.param('id')}:${reply.id}`,from:c.env.MAIL_FROM!,to:[data.contact],subject:'Reply to your feedback',text:reply.message});
++   if(result.status==='accepted'){state='sent';code='provider_accepted'}
++   else if(result.status==='development'){state='never_sent';code='mail_suppressed'}
++   else if(result.status!=='uncertain')code='provider_failed';
++  }catch{/* A provider attempt may have started; never claim definite non-delivery. */}
++  const finished={...reply,state,code};
++  // Withdrawal wins: update only the same surviving consented report. No row
++  // is recreated, and no recipient/body is written to another product store.
++  const current=await read(c),kept=current&&privateData(current.private_data);
++  if(kept?.replies.some(item=>item.id===reply.id&&item.state==='queued'))await save(c,current!.private_data,{...kept,replies:kept.replies.map(item=>item.id===reply.id?finished:item)});
++  return c.json({reply:finished},201);
++ });
++}
++export function mailState(env:any):{enabled:boolean;code:'mail_off'|'mail_suppressed'|'mail_unconfigured'|'queued'}{
++ if(env.MAIL_PROVIDER==='none')return {enabled:false,code:'mail_off'};
++ if(mailSuppressed(env))return {enabled:false,code:'mail_suppressed'};
++ try{sender(env);return {enabled:true,code:'queued'}}catch{return {enabled:false,code:'mail_unconfigured'}}
++}
+diff --git a/src/domain/feedback/routes.ts b/src/domain/feedback/routes.ts
+index e6405e3..f946f25 100644
+--- a/src/domain/feedback/routes.ts
++++ b/src/domain/feedback/routes.ts
+@@ -1,3 +1,4 @@
++import { installReview, mayReview } from './review';
+ import { ownerProjectRouter, ownerWrites } from '../owner-router';
+ import { AuthError } from '../../modules/operator-auth/index.mjs';
+ import { scrub, hash } from '../privacy';
+@@ -32,6 +33,7 @@ feedbackRoutes.get('/', async c => {
+  const rows = page.results.slice(0, limit), last = rows.at(-1);
+  return c.json({
+   items: rows.map(row => ({ id: row.id, message: scrub(row.message), received: row.received, eventId: row.event_id, issueId: row.issue ?? null,
++   ...(mayReview(c.get('ownerSession'))&&!issue?{hasPrivate:row.private_data!==null}:{}),
+    association: row.occurrence ? 'attached' : row.event_id ? 'event_unavailable' : 'standalone' })),
+   total: total!.count, next: page.results.length > limit && last ? btoa(JSON.stringify({ signature, received: last.received, id: last.id })) : null,
+   bounds: { limit, retained: feedbackLimits.retained, perMinute: feedbackLimits.perMinute, messageCharacters: feedbackLimits.message }, coverage: feedbackCoverage,
+@@ -49,3 +51,5 @@ feedbackRoutes.delete('/:id', async c => {
+  }
+  return c.json({ withdrawn: true, externalCopies: 'Downloaded archives and external copies must be removed separately; an older archive requires the later erasure journal on a new installation.' });
+ });
++
++installReview(feedbackRoutes);
+diff --git a/src/domain/members/resolver.ts b/src/domain/members/resolver.ts
+index beff564..ddeb312 100644
+--- a/src/domain/members/resolver.ts
++++ b/src/domain/members/resolver.ts
+@@ -45,10 +45,11 @@ export async function resolveMembership<T extends Pick<Session, 'operator'>>(req
+  if (member.role!=='admin' && (operational || policy && role!=='maintainer')) return missing();
+  if (!isRead && role!=='admin') {
+   if (role==='read-only') return missing();
++  const feedbackReply=request.method==='POST' && /^feedback\/[^/]+\/(?:replies|review)$/.test(tail);
+   const triage=/^(?:issues\/[^/]+(?:\/(?:assignment|priority|suppression|discussion|comments(?:\/[^/]+)?|subscription))?|bulk-triage|review\/views(?:\/[^/]+)?|suspects\/issues\/[^/]+)$/.test(tail);
+   const deployment=/^(?:releases|artifacts|artifact-builds\/verify|deployments(?:\/[^/]+\/callbacks)?|keys(?:\/[^/]+)?)$/.test(tail);
+   const maintain=role==='maintainer' && /^(?:inbound-filters|grouping-rules|identity-policy|end-user-erasure|scrubbing|recurrence-policy|release-policy|browser-origins|check-in-routes|retention-policy|retention|commits\/sharing|grouping-proposals|corrections|suppression-policies|alerting|follow-up|keys)(?:\/|$)/.test(tail);
+-  if (!triage&&!deployment&&!maintain) return missing();
++  if (!feedbackReply&&!triage&&!deployment&&!maintain) return missing();
+  }
+  if (document && !isRead) return missing();
+  return { ...result, membership: { ...member, project, projectRole: role==='admin'?undefined:role } };
+diff --git a/src/domain/portability.ts b/src/domain/portability.ts
+index 3ca4132..8fc6d98 100644
+--- a/src/domain/portability.ts
++++ b/src/domain/portability.ts
+@@ -26,7 +26,7 @@ import { releaseTables } from './releases/archive';
+ import { orderedReleaseExports } from './releases/archive-order';
+ import { groupingTables } from './grouping/archive';
+ import {inboundFilterTables} from './filters/archive';
+-import { feedbackTables } from './feedback/archive';
++import { feedbackTables, beforeFeedbackReview } from './feedback/archive';
+ import { bundleTables } from './bundle-grouping';
+ import { operatorTables } from './operators/archive';
+ import { projectAgentArtifacts } from './agent-door/artifact-map.mjs';
+@@ -267,6 +267,8 @@ laterTables.unshift({tables:[],migrations:['0105_local_invitation_links.sql']});
+ const projectMetricMigrations=['0106_project_metric_alerts.sql','0107_sentry_transactions.sql','0108_alert_notify_targets.sql'];
+ for(const later of laterTables){later.tables.push('sentry_transactions');later.migrations.push(...projectMetricMigrations)}
+ laterTables.unshift({tables:['sentry_transactions'],migrations:projectMetricMigrations});
++for(const later of laterTables)later.migrations.push('0109_feedback_review.sql');
++laterTables.unshift({tables:[],migrations:['0109_feedback_review.sql']});
+ function beforeProjectMetricObjects(objects:any[],manifest:any){
+  const added=[['0106_project_metric_alerts.sql',['alert_metric_states','alert_metric_events']],['0107_sentry_transactions.sql',['sentry_transactions']],['0108_alert_notify_targets.sql',['alert_target_destinations','alert_intent_recipients']]] as const;
+  const missing:string[]=added.filter(([migration])=>!manifest.migrations?.includes(migration)).flatMap(([,tables])=>[...tables]);
+@@ -292,12 +294,13 @@ async function earlierManifest(db: D1Database, manifest: any) {
+  const tableless = [...new Set(laterTables.filter(later => !later.tables.length).flatMap(later => later.migrations))];
+  for (const later of laterTables) {
+   // A set that adds no archived table matches today's schema, so it applies only to an archive missing its migrations.
+-  if (!later.tables.length && !(Array.isArray(manifest.migrations) && later.migrations.some(name => !manifest.migrations.includes(name)) && tableless.every(name => manifest.migrations.includes(name) || later.migrations.includes(name)))) continue;
++  if (!later.tables.length && !(Array.isArray(manifest.migrations) && later.migrations.some(name => !manifest.migrations.includes(name)) && tableless.every(name => manifest.migrations.includes(name) || later.migrations.includes(name))) && !(later.migrations.length===1 && later.migrations[0]==='0109_feedback_review.sql' && !manifest.migrations?.length)) continue;
+   const missing=later.tables.filter(name=>!carriedReporting||!reportingNames.includes(name));
+   if(later.tables.length&&!missing.length)continue;
+   // An archive that records no migration list is either older than 0054 (issue_resolutions in its first form) or a current
+   // format that carries none: try the recorded reading first, then today's form of that table.
+-  const earlierWith = (before0054: boolean) => current.tables.filter((table: any) => !missing.includes(table.name)).map((table:any)=>beforeProjectMetrics(beforeAgentAttribution(table,manifest),manifest)).map((table:any)=>table.name==='issue_resolutions'&&before0054?{...table,sql:table.sql.replace('CREATE TABLE \"issue_resolutions\"','CREATE TABLE issue_resolutions').replace("('plain','current','next','named')","('plain','current')")}:table);
++  const reviewOnly=later.tables.length===0 && later.migrations.length===1 && later.migrations[0]==='0109_feedback_review.sql';
++  const earlierWith = (before0054: boolean) => reviewOnly ? current.tables.map((table:any)=>beforeFeedbackReview(table,manifest)) : current.tables.filter((table: any) => !missing.includes(table.name)).map((table:any)=>beforeFeedbackReview(beforeProjectMetrics(beforeAgentAttribution(table,manifest),manifest),manifest)).map((table:any)=>table.name==='issue_resolutions'&&before0054?{...table,sql:table.sql.replace('CREATE TABLE \"issue_resolutions\"','CREATE TABLE issue_resolutions').replace("('plain','current','next','named')","('plain','current')")}:table);
+   let earlier: any[] | undefined;
+   for (const before0054 of new Set([!manifest.migrations?.includes('0054_release_resolution_dist.sql'), false])) {
+    const candidate = earlierWith(before0054);
+@@ -308,7 +311,7 @@ async function earlierManifest(db: D1Database, manifest: any) {
+   // A recognized native table upgrade must retain a complete, known object
+   // inventory. An unrecorded index/trigger is never installed or acknowledged.
+   // Archives without an object inventory still require Base's legacy replay.
+-  if(product.schemaObjects!==undefined && canonicalJson(product.schemaObjects)!==canonicalJson(beforeProjectMetricObjects(previousRelayPrivacyObjects(previousNativeSymbolObjects(current.schemaObjects,manifest),manifest),manifest)))throw new PortabilityError('legacy_schema_object_inventory');
++  if(product.schemaObjects!==undefined && canonicalJson(product.schemaObjects)!==canonicalJson(reviewOnly?current.schemaObjects:beforeProjectMetricObjects(previousRelayPrivacyObjects(previousNativeSymbolObjects(current.schemaObjects,manifest),manifest),manifest)))throw new PortabilityError('legacy_schema_object_inventory');
+   // Normalize this positively matched native inventory to the destination. The
+   // original binding and source history are checked before finalize; platform
+   // bookkeeping is never installed as product data or presented as new history.
+@@ -330,7 +333,7 @@ async function importRecords(service: any, source: ReadableStream<Uint8Array>, d
+     const earlier=db ? await earlierManifest(db,record) : null;
+     const manifest = retireArchiveSetupToken(earlier ?? record, portabilityPolicy.requiredConfiguration);
+     if(earlier){translated=record;sourceLedger.add(record);}
+-    if(earlier)for(const [table,field,value] of [['repairs','recorded_by','owner'],['grouping_proposals','prepared_by',null]] as const){
++    if(earlier)for(const [table,field,value] of [['repairs','recorded_by','owner'],['grouping_proposals','prepared_by',null],['feedback','private_data',null]] as const){
+      const archived=record.tables.find((entry:any)=>entry.name===table);
+      if(archived&&!archived.columns.some((column:any)=>column.name===field)){attributionDefaults.set(table,{[field]:value});archivedAttributionColumns.set(table,archived.columns.map((column:any)=>column.name).sort());}
+     }
+diff --git a/src/ui/workbench/FeedbackPanel.tsx b/src/ui/workbench/FeedbackPanel.tsx
+index ebcd864..bfd4516 100644
+--- a/src/ui/workbench/FeedbackPanel.tsx
++++ b/src/ui/workbench/FeedbackPanel.tsx
+@@ -6,7 +6,7 @@ import {date, type Request, type Run} from './shared';
+ import {hrefFor} from './location';
+ import './feedback.css';
+ 
+-type Feedback = {id:string; message:string; received:number; eventId:string|null; issueId:string|null; association:string};
++type Feedback = {id:string; message:string; received:number; eventId:string|null; issueId:string|null; association:string; hasPrivate?:boolean};
+ type FeedbackPage = {items:Feedback[]; next?:string|null; total:number; bounds:{retained:number;perMinute:number;messageCharacters:number}};
+ 
+ export function FeedbackPanel({project, issue, request, run, busy}: {
+@@ -42,14 +42,14 @@ export function FeedbackPanel({project, issue, request, run, busy}: {
+   try {
+    await request(`${root}/${encodeURIComponent(id)}`,'DELETE');
+    setPage(current=>current?{...current,items:current.items.filter(item=>item.id!==id),total:Math.max(0,current.total-1)}:null);
+-   setConfirm(null);setNotice('Feedback withdrawn. Its description is removed from this installation and future exports.');
++   setConfirm(null);setNotice('Feedback withdrawn. Its description, contact, screenshot and replies are removed from this installation and future exports.');
+    await load();
+   } catch(error) {setFailure((error as Error).message)}
+  });
+  return <section className="evidence feedback-panel" aria-label={issue?'Issue feedback':'Project feedback inbox'}>
+   <div className="feedback-heading"><h2>{issue?'User feedback':'Feedback inbox'}</h2>{!issue&&<button className="text-button" disabled={busy||loading} onClick={()=>void load()}>Refresh feedback</button>}</div>
+-  {issue?<Details title="User feedback"><p>Reports linked to events in this issue. Contact details and attachments are excluded.</p></Details>:<p>All text reports received for this project, including reports sent without an event. Contact details and attachments are not retained.</p>}
+-  {!issue&&<p className="muted">Use your application’s consent form before sending feedback through Sentry’s captureFeedback or feedback widget. Spool currently receives text only; replies and screenshot review are unavailable.</p>}
++  {issue?<Details title="User feedback"><p>Reports linked to events in this issue. Consented contact, screenshots and replies are available only in the private feedback inbox.</p></Details>:<p>Reports received for this project, including reports sent without an event. Review consented details and reply privately to the reporter.</p>}
++  {!issue&&<p className="muted">Private details require explicit consent from the reporter. Email is sent only when you choose Send reply. Replies stay out of the issue and agent evidence.</p>}
+   {!issue&&page&&<p className="muted">Current limits: {page.bounds.messageCharacters.toLocaleString()} characters per report, {page.bounds.perMinute} reports per minute and {page.bounds.retained.toLocaleString()} retained reports per project. Larger or excess submissions are refused with a reason.</p>}
+   {failure&&<div role="alert"><p>Feedback could not be loaded: {failure}</p><button className="text-button" disabled={loading} onClick={()=>void load()}>Retry feedback</button></div>}
+   {failure&&page&&<p className="muted">Showing the last successful refresh. New reports may be unavailable.</p>}
+@@ -60,9 +60,47 @@ export function FeedbackPanel({project, issue, request, run, busy}: {
+    <p className="feedback-message">{item.message}</p>
+    <p className="metadata">Received {date(item.received)}</p>
+    <p className="metadata">{item.issueId?<>{!issue&&<><Link to={hrefFor(project,'issues',item.issueId) as any}>Open related issue</Link> · </>}Linked event <code>{item.eventId}</code></>:item.eventId?<>Referenced event unavailable · <code>{item.eventId}</code></>:'Standalone report · no event reference'}</p>
++   {!issue&&item.hasPrivate&&<FeedbackReview key={item.id} root={`${root}/${encodeURIComponent(item.id)}`} {...{request,run,busy}}/>}
+    {confirm===item.id?<div className="feedback-confirm"><p>Withdraw this report? Downloaded archives and copies outside this installation remain outside this action.</p><div className="button-row"><button className="danger-button" disabled={busy} onClick={()=>withdraw(item.id)}>Confirm withdrawal</button><button className="text-button" disabled={busy} onClick={()=>setConfirm(null)}>Keep feedback</button></div></div>:<button className="text-button" disabled={busy} onClick={()=>setConfirm(item.id)}>Withdraw feedback</button>}
+   </li>)}</ul>
+   {page?.next&&<button className="text-button" disabled={busy||loading} onClick={()=>void load(page.next!)}>Load more feedback</button>}
+   {notice&&<p role="status">{notice}</p>}
+  </section>;
+ }
++
++type PrivateReview = {consent:true;contact:string|null;screenshot:boolean;review:string;replies:{id:string;message:string;state:string;code:string;created:number}[]};
++function FeedbackReview({root,request,run,busy}:{root:string;request:Request;run:Run;busy:boolean}){
++ const [open,setOpen]=useState(false),[detail,setDetail]=useState<{private:PrivateReview|null;mail:{enabled:boolean;code:string}}|null>(null);
++ const [failure,setFailure]=useState(''),[message,setMessage]=useState(''),[screenshot,setScreenshot]=useState(false),[imageFailed,setImageFailed]=useState(false);
++ const [requestId,setRequestId]=useState(()=>crypto.randomUUID());
++ const load=async()=>{try{setDetail(await request(root+'/private'));setFailure('')}catch(error){setFailure((error as Error).message)}};
++ const send=()=>void run(async()=>{
++  try{await request(root+'/replies','POST',{id:requestId,message,consent:true});setMessage('');setRequestId(crypto.randomUUID());await load()}
++  catch(error){setFailure((error as Error).message)}
++ });
++ return <div className="feedback-review">
++  <button className="text-button" aria-expanded={open} disabled={busy} onClick={()=>{setOpen(!open);if(!open)void load()}}>{open?'Close private review':'Review report privately'}</button>
++  {open&&<div className="feedback-private">
++   {failure&&<p role="alert">Private review could not be completed: {failure}</p>}
++   {!detail&&!failure&&<p role="status">Loading private details…</p>}
++   {detail?.private&&<>
++    <p>Reporter consent recorded · {detail.private.review==='reviewed'?'Reviewed':'Awaiting review'}</p>
++    <p className="feedback-contact">{detail.private.contact?<>Private contact: <span>{detail.private.contact}</span></>:'No contact shared. Email replies are unavailable.'}</p>
++    {detail.private.screenshot&&<>
++     <button className="text-button" aria-expanded={screenshot} onClick={()=>{setScreenshot(!screenshot);setImageFailed(false)}}>{screenshot?'Hide screenshot':'Review screenshot'}</button>
++     {screenshot&&<>{imageFailed?<p role="alert">Screenshot unavailable. Refresh private review before trying again.</p>:<img className="feedback-screenshot" src={root+'/screenshot'} alt="Screenshot shared by the reporter with consent" onError={()=>setImageFailed(true)}/>}<p className="muted">Image metadata is stripped. Visible pixels can still contain personal information.</p></>}
++    </>}
++    {detail.private.review!=='reviewed'&&<button className="text-button" disabled={busy} onClick={()=>void run(async()=>{try{await request(root+'/review','POST',{reviewed:true});await load()}catch(error){setFailure((error as Error).message)}})}>Mark report reviewed</button>}
++    <div className="feedback-replies" aria-label="Private replies">
++     {detail.private.replies.map(reply=><div className="feedback-reply" key={reply.id}><p>{reply.message}</p><p className="metadata">{date(reply.created)} · {reply.state==='sent'?'Sent · accepted by email provider; mailbox delivery unconfirmed':reply.state==='never_sent'?'Never sent':reply.state==='failed'?'Failed · delivery not confirmed':'Queued · awaiting provider result'}</p></div>)}
++    </div>
++    {!detail.mail.enabled&&<p role="status">{detail.mail.code==='mail_off'?'Email is off for this installation. Replies will not be sent.':detail.mail.code==='mail_suppressed'?'This local installation suppresses email. Replies will not be sent.':'Email is not configured for this installation. Replies will not be sent.'}</p>}
++    {detail.private.contact&&<form onSubmit={event=>{event.preventDefault();send()}}>
++     <label>Reply to reporter<textarea value={message} onChange={event=>{setMessage(event.target.value);setRequestId(crypto.randomUUID())}} maxLength={2000} rows={3} disabled={busy||!detail.mail.enabled}/></label>
++     <p className="muted">Send this message to the private contact above. A sent state means the email provider accepted it.</p>
++     <button className="primary-button" type="submit" disabled={busy||!detail.mail.enabled||!message.trim()||detail.private.replies.length>=20}>Send reply</button>
++    </form>}
++   </>}
++  </div>}
++ </div>;
++}
+diff --git a/src/ui/workbench/SettingsView.tsx b/src/ui/workbench/SettingsView.tsx
+index 5e9bd9e..6530dc5 100644
+--- a/src/ui/workbench/SettingsView.tsx
++++ b/src/ui/workbench/SettingsView.tsx
+@@ -64,6 +64,7 @@ export function SettingsView({ project, projects, keys, releases, request, run,
+     if (section.id === 'organization') return true;
+     if (section.id === 'projects') return organizationManager || !!project;
+     if (section.id === 'alerts') return !!project || access.role === 'owner';
++    if (section.id === 'processing') return !!project && (configure || projectRole === 'member');
+     if (section.id === 'data') return access.role === 'owner' || !!project && configure;
+     if (section.id === 'audit') return organizationManager;
+     return !!project && configure;
+@@ -105,7 +106,7 @@ export function SettingsView({ project, projects, keys, releases, request, run,
+     {!!project&&configure&&<RecurrencePolicy key={`recurrence:${project}`} {...{project,request,run,busy}}/>}
+     {!!project&&configure&&<ReleasePolicy key={`release-policy:${project}`} {...{project,request,run,busy}}/>}
+     {!!project&&configure&&<CommitSharing key={`commit-sharing:${project}`} {...{project,request,run,busy}}/>}
+-    {!!project&&organizationManager&&<FeedbackPanel key={`feedback:${project}`} {...{project,request,run,busy}}/>}
++    {!!project&&(organizationManager||['maintainer','member'].includes(projectRole))&&<FeedbackPanel key={`feedback:${project}`} {...{project,request,run,busy}}/>}
+     </div>
+     <div id="settings-alerts" className="settings-section" hidden={active !== 'alerts'} tabIndex={-1}>
+       {!!project && configure && <p><a className="inline-link" href={hrefFor(project, 'alerts')}>Alert rules and delivery</a></p>}
+diff --git a/src/ui/workbench/feedback.css b/src/ui/workbench/feedback.css
+index 957ddb2..218b76a 100644
+--- a/src/ui/workbench/feedback.css
++++ b/src/ui/workbench/feedback.css
+@@ -6,3 +6,9 @@
+ .feedback-list code{overflow-wrap:anywhere;word-break:break-word}
+ .feedback-confirm{padding:1rem;background:var(--paper-sunk);border-left:3px solid currentColor}
+ .feedback-panel .metadata{overflow-wrap:anywhere}
++
++.feedback-private{margin:.75rem 0 1rem;padding:1rem;background:var(--paper-sunk);min-width:0}
++.feedback-private textarea{display:block;width:100%;box-sizing:border-box;margin:.5rem 0;font:inherit;min-height:6rem}
++.feedback-screenshot{display:block;max-width:100%;max-height:32rem;object-fit:contain;margin:1rem 0}
++.feedback-contact,.feedback-reply p{overflow-wrap:anywhere;white-space:pre-wrap}
++.feedback-reply{margin:.75rem 0;padding:.5rem 0;border-top:var(--hairline-border)}
+diff --git a/tests/feedback-flow.mjs b/tests/feedback-flow.mjs
+index 54dbeac..1ad994f 100644
+--- a/tests/feedback-flow.mjs
++++ b/tests/feedback-flow.mjs
+@@ -2,7 +2,7 @@ import assert from 'node:assert/strict';
+ import { archiveProjection } from './archive.mjs';
+ import { startTestWorker } from './worker.mjs';
+ import { freePort } from './admission-runtime.mjs';
+-import { signIn } from './auth.mjs';
++import { signIn, confirmEmailLink } from './auth.mjs';
+ 
+ async function restoreFeedback(before, after, expected) {
+  const destination = await startTestWorker(await freePort());
+@@ -84,6 +84,10 @@ export async function feedbackFlow({ req, json, origin }) {
+  assert.equal((await json(`${root}/alerts`)).length, alerts.length, 'feedback never makes an error alert');
+  assert.equal((await json(`${root}/issues`))[0].count, issue.count + 1, 'feedback never increments error occurrences');
+  const snapshot = await archiveProjection(await req('/api/archive'));
++ const ordinaryReports = snapshot.data.feedback.filter(row => row.project === project.id);
++ assert.equal(ordinaryReports.length, rows.total + 1, 'the additional browser report is also retained');
++ assert.ok(ordinaryReports.every(row => row.private_data === null), 'captureFeedback, feedback items and user_report without consent retain no private metadata');
++ assert.ok(rows.items.every(row => row.hasPrivate === false), 'the authorized inbox marks every ordinary report as having no private details');
+  for (const canary of ['FEEDBACK_PRIVATE_CONTACT', 'FEEDBACK_PRIVATE_NAME', 'FEEDBACK_PRIVATE_URL', 'FEEDBACK_PRIVATE_EXTRA', 'FEEDBACK_PRIVATE_TOKEN', 'FEEDBACK_PRIVATE_LEGACY', 'FEEDBACK_CHANGED_PRIVATE']) {
+   assert.ok(!JSON.stringify(rows).includes(canary)); assert.ok(!snapshot.text.includes(canary), 'discarded/scrubbed feedback fields never enter archive custody');
+  }
+@@ -107,4 +111,196 @@ export async function feedbackFlow({ req, json, origin }) {
+  assert.ok(!retained.data.feedback.some(row => row.project === project.id));
+  assert.equal((await send('event', error(errorId))).status, 200);
+  assert.deepEqual((await json(`${root}/feedback?issue=${issue.id}`)).items, [], 'reused event IDs never resurrect feedback');
++ await privateFeedbackFlow();
++}
++
++// The consented inbox path supplements (and never replaces) the unmodified SDK
++// description-only journey above. All writes and reads use real HTTP doors.
++export async function privateFeedbackFlow() {
++ const worker=await startTestWorker(await freePort(),{MAIL_PROVIDER:'development',RER_DEV_ORIGIN:''});
++ try {
++  const cookie=await signIn(worker.origin),origin=worker.origin;
++  const req=(path,method='GET',body,headers={})=>fetch(origin+path,{method,redirect:'manual',headers:{Connection:'close',Origin:origin,Cookie:cookie,...body?{'Content-Type':'application/json'}:{},...headers},...body?{body:typeof body==='string'?body:JSON.stringify(body)}:{}});
++  const json=async(...args)=>{const response=await req(...args);assert.ok(response.ok,args[0]+': '+response.status+' '+(!response.ok?await response.text():''));return response.json()};
++  const project=await json('/api/projects','POST',{id:'synthetic-spool-review',name:'Synthetic Spool feedback'}),dsn=new URL(project.dsn),root='/api/projects/'+project.id;
++  const id='a1'.repeat(16),event='b1'.repeat(16),contact='synthetic-spool-1@example.test',metadata='synthetic-spool-sensitive-metadata';
++  const png=await screenshotFixture(metadata);
++  const envelope=(type,value)=>'{}\n'+JSON.stringify({type})+'\n'+JSON.stringify(value);
++  const intake=`/api/${dsn.pathname.slice(1)}/envelope/?sentry_key=${dsn.username}&sentry_version=7`;
++  const report={event_id:id,type:'feedback',contexts:{feedback:{message:'synthetic-spool-1 checkout report',associated_event_id:event,spool:{consent:true,contactEmail:contact,screenshotPng:png.toString('base64')}}}};
++  const send=body=>req(intake,'POST',envelope('feedback',body),{Cookie:''});
++  assert.ok((await req(intake,'POST',envelope('event',{event_id:event,user:{email:contact},exception:{values:[{type:'Error',value:'synthetic-spool-1 checkout failed'}]}}),{Cookie:''})).ok);
++  assert.ok((await send(report)).ok);
++  const issue=(await json(root+'/issues'))[0],privateRoot=root+'/feedback/'+id;
++  for(const invalid of [false,undefined]){
++   const candidate=structuredClone(report);candidate.event_id='c1'.repeat(16);candidate.contexts.feedback.spool.consent=invalid;
++   assert.equal((await send(candidate)).status,422,'private details require explicit consent');
++  }
++  for(const bad of [Buffer.from('<svg onload="alert(1)"></svg>').toString('base64'),'https://example.test/private.png','a'.repeat(180000)]){
++   const candidate=structuredClone(report);candidate.event_id='c1'.repeat(16);candidate.contexts.feedback.spool.screenshotPng=bad;
++   assert.equal((await send(candidate)).status,422,'active, remote and oversized image inputs are refused');
++  }
++  const review=await json(privateRoot+'/private');
++  assert.equal(review.private.contact,contact);assert.equal(review.private.screenshot,true);assert.equal(review.private.review,'pending');assert.equal(review.mail.enabled,false);assert.equal(review.mail.code,'mail_suppressed');
++  const image=await req(privateRoot+'/screenshot');assert.equal(image.status,200);assert.equal(image.headers.get('content-type'),'image/png');assert.match(image.headers.get('cache-control'),/no-store/);assert.equal(image.headers.get('x-content-type-options'),'nosniff');
++  const cleanPng=Buffer.from(await image.arrayBuffer());assert.ok(!cleanPng.includes(Buffer.from(metadata)));assert.ok(cleanPng.length<png.length,'ancillary metadata is stripped, not just hidden');
++  const grant=await json(root+'/keys','POST',{kind:'agent'});
++  for(const headers of [{Cookie:''},{Cookie:'',Authorization:'Bearer '+project.ingestKey},{Cookie:'',Authorization:'Bearer '+grant.key}])for(const path of ['/private','/screenshot','/replies','/review']){
++   const method=path==='/replies'||path==='/review'?'POST':'GET';const response=await req(privateRoot+path,method,method==='POST'?{id:crypto.randomUUID(),message:'synthetic-spool-1 unauthorized',consent:true,reviewed:true}:undefined,headers);
++   assert.ok([401,403,404].includes(response.status),'private review rejects anonymous and credential reads/writes');
++  }
++  assert.equal((await req(privateRoot+'/replies','POST',{id:crypto.randomUUID(),message:'synthetic-spool-1 cross origin',consent:true},{Origin:'https://foreign.example'})).status,403);
++  // Native local invitations provide real member sessions without provider mail.
++  const org=await json('/api/organization');if(!org.organization)await json('/api/organization','POST',{id:'synthetic-spool-review',name:'Synthetic Spool team'});
++  const actors=[];
++  for(const [n,role,grants] of [[2,'member',[{project:project.id,role:'member'}]],[3,'read-only',[{project:project.id,role:'read-only'}]],[4,'member',[]]]){
++   const email=`synthetic-spool-${n}@example.test`;
++   await json('/api/organization/invites','POST',{email,name:`Synthetic Spool ${n}`,role,grants});
++   const roster=await json('/api/organization'),person=roster.members.find(row=>row.email===email),invitation=roster.invites.find(row=>row.member===person?.id&&row.localLink);assert.ok(invitation,'native pending link available only to owner');
++   const confirmed=await req('/auth/confirm','POST',{token:new URL(invitation.localLink).searchParams.get('token')},{Cookie:''});assert.equal(confirmed.status,303);
++   actors.push(confirmed.headers.getSetCookie().map(value=>value.split(';')[0]).join('; '));await confirmed.arrayBuffer();
++  }
++  const [member,reader,unrelated]=actors;
++  for(const actor of [reader,unrelated])for(const suffix of ['/private','/screenshot'])assert.equal((await req(privateRoot+suffix,'GET',undefined,{Cookie:actor})).status,404,'read-only and unrelated members cannot see private data');
++  assert.equal((await json(privateRoot+'/private','GET',undefined,{Cookie:member})).private.contact,contact,'assigned teammate sees consented contact');
++  assert.equal((await json(privateRoot+'/review','POST',{reviewed:true},{Cookie:member})).private.review,'reviewed');
++  const attempted={id:crypto.randomUUID(),message:'synthetic-spool-1 reply canary',consent:true};
++  const unsent=await json(privateRoot+'/replies','POST',attempted,{Cookie:member});assert.equal(unsent.reply.state,'never_sent');assert.equal(unsent.reply.code,'mail_suppressed');
++  assert.deepEqual(await json(privateRoot+'/replies','POST',attempted,{Cookie:member}),unsent,'same request reads the ledger without another attempt');
++  for(const actor of [reader,unrelated])assert.equal((await req(privateRoot+'/replies','POST',{...attempted,id:crypto.randomUUID()},{Cookie:actor})).status,404,'no reply authority for unrelated/read-only members');
++  const issueRead=await json(root+'/feedback?issue='+issue.id);assert.ok(!JSON.stringify(issueRead).includes(contact));assert.ok(!JSON.stringify(issueRead).includes(attempted.message));assert.ok(!('hasPrivate' in issueRead.items[0]),'issue reads never publish private details');
++  // Feedback contact matching is explicitly unavailable at the end-user door.
++  // Event identity removal must not imply that private reporter data was erased.
++  const selection={field:'email',value:contact,action:'remove_identity'};
++  const plan=await json(root+'/end-user-erasure/preview','POST',selection);
++  assert.equal(plan.events.count,1);assert.equal(plan.feedback.status,'unavailable');assert.equal(plan.feedback.count,null);
++  const feedbackLimit=plan.unavailable.find(row=>row.store==='feedback');assert.ok(feedbackLimit?.reason);
++  const erasure=await json(root+'/end-user-erasure/confirm','POST',{...selection,planHash:plan.planHash,confirm:'ERASE USER DATA'});
++  assert.equal(erasure.deleted.event_identities,1);assert.ok(!('feedback' in erasure.deleted));
++  assert.equal(erasure.retained.find(row=>row.table==='feedback')?.reason,feedbackLimit.reason,'saved receipt carries the preview limitation');
++  assert.deepEqual(await json('/api/erasures/'+erasure.id),erasure,'the ordinary receipt door preserves the limitation');
++  assert.ok(!JSON.stringify(erasure).includes(contact),'count-only receipt never saves the supplied value');
++  const stillPrivate=(await json(privateRoot+'/private')).private;
++  assert.equal(stillPrivate.contact,contact);assert.equal(stillPrivate.replies[0].message,attempted.message);
++  assert.equal((await req(privateRoot+'/screenshot')).status,200);
++  assert.ok((await json(root+'/feedback')).items.some(row=>row.id===id));
++  const snapshot=await archiveProjection(await req('/api/archive'));
++  assert.ok(!JSON.stringify(snapshot.data.event_identities).includes(contact),'event identity is removed while feedback remains an explicit exception');
++  assert.ok(!JSON.stringify(snapshot.data.audit).includes(contact),'audit never retains the supplied identity');
++  const storedPrivate=JSON.parse(snapshot.data.feedback.find(row=>row.project===project.id&&row.id===id).private_data);
++  assert.equal(storedPrivate.consent,true,'private archive values carry explicit consent');
++  assert.equal(storedPrivate.contact,contact,'only the consented contact enters private custody');
++  assert.equal(storedPrivate.screenshot,cleanPng.toString('base64'),'only the reviewed PNG rendering bytes enter private custody');
++  assert.ok(snapshot.text.includes(contact)&&snapshot.text.includes(attempted.message));assert.ok(!snapshot.text.includes(metadata));
++  const destination=await startTestWorker(await freePort(),{MAIL_PROVIDER:'none',RER_DEV_ORIGIN:''});
++  try{
++   const restoredCookie=await signIn(destination.origin),restored=await fetch(destination.origin+'/api/restore',{method:'POST',headers:{Connection:'close',Origin:destination.origin,Cookie:restoredCookie,'X-Confirm-Restore':'yes'},body:snapshot.text});
++   assert.equal(restored.status,200,await restored.clone().text());await restored.arrayBuffer();
++   const kept=await fetch(destination.origin+privateRoot+'/private',{headers:{Connection:'close',Cookie:restoredCookie}});assert.equal((await kept.json()).private.replies[0].state,'never_sent','restore retains history and never queues a send');
++   const off=await fetch(destination.origin+privateRoot+'/replies',{method:'POST',headers:{Connection:'close',Origin:destination.origin,Cookie:restoredCookie,'Content-Type':'application/json'},body:JSON.stringify({id:crypto.randomUUID(),message:'synthetic-spool-1 mail-off attempt',consent:true})});assert.equal(off.status,201);const offReply=await off.json();assert.equal(offReply.reply.state,'never_sent');assert.equal(offReply.reply.code,'mail_off');
++   await feedbackScreens({origin:destination.origin,cookie:restoredCookie,project,id,contact,reply:attempted.message});
++  }finally{await destination.stop()}
++  const minuteBound=(await json(root+'/feedback')).bounds.perMinute;let boundedAttempt=false;
++  // Cross at most one wall-clock minute while filling the public bound.
++  for(let n=0;n<minuteBound*2+1;n++){
++   const bounded=structuredClone(report);bounded.event_id=(100+n).toString(16).padStart(32,'0');bounded.contexts.feedback={message:'synthetic-spool-1 bounded report'};
++   const response=await send(bounded);if(response.status===429){assert.equal((await response.json()).reason,'feedback_rate_limited');boundedAttempt=true;break}assert.ok(response.ok);
++  }
++  assert.ok(boundedAttempt,'anonymous submissions meet an explicit rate refusal');
++  await json(privateRoot,'DELETE');
++  for(const suffix of ['/private','/screenshot'])assert.equal((await req(privateRoot+suffix)).status,404);
++  const withdrawn=await archiveProjection(await req('/api/archive'));
++  for(const canary of [contact,attempted.message,'synthetic-spool-1 checkout report',cleanPng.toString('base64')])assert.ok(!withdrawn.text.includes(canary),'withdrawal removes contact, reply, description and screenshot from storage-backed exports');
++  assert.equal((await send(report)).status,409,'withdrawn private report cannot be replayed');
++  console.log('feedback private review: consent, safe PNG, member fences, mail-off, archive restore and withdrawal passed');
++ }finally{await worker.stop()}
++ await feedbackMailFlow();
++}
++async function screenshotFixture(metadata){
++ const {launchBrowser}=await import('./browser-launch.mjs'),{crc32}=await import('node:zlib');
++ const browser=await launchBrowser();let screenshot;
++ try{
++  const context=await browser.newContext({viewport:{width:360,height:220}}),page=await context.newPage();
++  await page.setContent('<!doctype html><html lang="en"><body style="margin:0;padding:24px;background:#f5f3ee;color:#242420;font:16px Georgia"><p style="margin-top:0">Synthetic Spool checkout</p><h1 style="font-size:23px">Payment could not finish</h1><p>Your basket is saved. Please try again.</p><button style="padding:8px 16px;font:inherit">Try again</button></body></html>');
++  screenshot=await page.screenshot();
++ }finally{await browser.close()}
++ const name=Buffer.from('tEXt'),text=Buffer.from('Comment\0'+metadata),size=Buffer.alloc(4),crc=Buffer.alloc(4);size.writeUInt32BE(text.length);crc.writeUInt32BE(crc32(Buffer.concat([name,text])));
++ return Buffer.concat([screenshot.subarray(0,-12),size,name,text,crc,screenshot.subarray(-12)]);
++}
++async function feedbackScreens({origin,cookie,project,contact,reply}){
++ const {launchBrowser}=await import('./browser-launch.mjs'),{mkdir}=await import('node:fs/promises');
++ const {expect}=await import('@playwright/test'),{default:AxeBuilder}=await import('@axe-core/playwright');
++ const output=process.env.SPOOL_FEEDBACK_EVIDENCE??'.artifacts/feedback-review';await mkdir(output,{recursive:true});
++ const browser=await launchBrowser();
++ try{
++  const context=await browser.newContext({viewport:{width:1440,height:1000}}),separator=cookie.indexOf('=');
++  await context.addCookies([{name:cookie.slice(0,separator),value:cookie.slice(separator+1),url:origin}]);
++  const page=await context.newPage();page.setDefaultTimeout(20000);
++  await page.goto(origin+'/projects/'+project.id+'/settings#settings-processing');
++  const panel=page.getByRole('region',{name:'Project feedback inbox'});
++  await panel.getByRole('button',{name:'Review report privately',exact:true}).click();
++  await expect(panel.getByText(contact,{exact:true})).toBeVisible();
++  await expect(panel.getByRole('status')).toContainText(/Email is off/);
++  await expect(panel.getByRole('button',{name:'Send reply',exact:true})).toBeDisabled();
++  await expect(panel.getByRole('textbox',{name:'Reply to reporter'})).toBeDisabled();
++  await expect(panel.getByText(reply,{exact:true})).toBeVisible();
++  await panel.getByRole('button',{name:'Review screenshot',exact:true}).click();
++  const image=panel.getByRole('img',{name:'Screenshot shared by the reporter with consent'});await expect(image).toBeVisible();
++  assert.equal(await image.evaluate(image=>image.complete&&image.naturalWidth===360),true,'stripped image actually decodes in built UI');
++  assert.equal(await page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth+1),true);
++  const axe=await new AxeBuilder({page}).include('.feedback-panel').analyze();assert.deepEqual(axe.violations.filter(item=>['serious','critical'].includes(item.impact)),[]);
++  for(const width of [1440,390]){
++   await page.setViewportSize({width,height:1000});await panel.screenshot({path:output+`/feedback-review-${width}.png`});
++  }
++ }finally{await browser.close()}
++}
++async function feedbackMailFlow(){
++ const {receiver}=await import('./alerts/receiver.mjs'),{alertRuntime}=await import('./alerts/runtime.mjs');
++ const {mkdtemp,rm}=await import('node:fs/promises'),{tmpdir}=await import('node:os'),{join}=await import('node:path');
++ const directory=await mkdtemp(join(tmpdir(),'spool-feedback-mail-')),edge=await receiver(join(directory,'mail.sqlite'));let app,releaseMail;
++ const {createServer}=await import('node:http');let holdMail=false,mailArrived;
++ // Hold one response at the existing fake's network edge to observe durable
++ // queued state through HTTP before the provider accepts the same attempt.
++ const bridge=createServer(async(request,response)=>{
++  const chunks=[];for await(const chunk of request)chunks.push(chunk);
++  if(holdMail&&request.url==='/mail'){holdMail=false;mailArrived();await new Promise(resolve=>{releaseMail=resolve})}
++  const result=await fetch(edge.url+request.url,{method:request.method,headers:{'Content-Type':'application/json'},body:Buffer.concat(chunks)});
++  response.writeHead(result.status,Object.fromEntries(result.headers));response.end(Buffer.from(await result.arrayBuffer()));
++ });
++ await new Promise(resolve=>bridge.listen(0,'127.0.0.1',resolve));
++ const providerEdge={url:'http://127.0.0.1:'+bridge.address().port};
++ try{
++  app=await alertRuntime(providerEdge,{mail:'resend',configure:false});
++  const project=await app.json('/api/projects','POST',{id:'synthetic-spool-mail',name:'Synthetic Spool mail'}),dsn=new URL(project.dsn),id='e1'.repeat(16),root=`/api/projects/${project.id}/feedback/${id}`;
++  const report={event_id:id,type:'feedback',contexts:{feedback:{message:'synthetic-spool-1 email report',spool:{consent:true,contactEmail:'synthetic-spool-1@example.test'}}}};
++  assert.ok((await app.request(`/api/${dsn.pathname.slice(1)}/envelope/?sentry_key=${dsn.username}&sentry_version=7`,'POST','{}\n{"type":"feedback"}\n'+JSON.stringify(report),{Cookie:''})).ok);
++  await app.json('/api/organization','POST',{id:'synthetic-spool-mail',name:'Synthetic Spool mail team'});
++  const teammate='synthetic-spool-2@example.test';await app.json('/api/organization/invites','POST',{email:teammate,name:'Synthetic Spool teammate',role:'member',grants:[{project:project.id,role:'member'}]});
++  const memberCookie=await confirmEmailLink(app.origin,teammate),memberHeaders={Cookie:memberCookie};
++  const prior=edge.mailCount,attempt={id:crypto.randomUUID(),message:'synthetic-spool-1 provider reply token=synthetic-spool-private-reply',consent:true};
++  const arrived=new Promise(resolve=>{mailArrived=resolve});holdMail=true;
++  const sending=app.request(root+'/replies','POST',attempt,memberHeaders);await arrived;
++  try{const queued=await app.json(root+'/private');assert.equal(queued.private.replies.at(-1).state,'queued','pending provider attempt has durable queued state')}finally{releaseMail()}
++  const accepted=await sending;assert.equal(accepted.status,201);const sent=await accepted.json();assert.equal(sent.reply.state,'sent');assert.equal(sent.reply.code,'provider_accepted');
++  assert.equal(edge.mailCount,prior+1);assert.ok(!sent.reply.message.includes('synthetic-spool-private-reply'),'reply scrubbed before storage and dispatch');
++  await app.json(root+'/replies','POST',attempt,memberHeaders);assert.equal(edge.mailCount,prior+1,'retry does not dispatch a duplicate');
++  edge.mailStatuses.push(403);const failed=await app.json(root+'/replies','POST',{...attempt,id:crypto.randomUUID()},memberHeaders);assert.equal(failed.reply.state,'failed');assert.equal(failed.reply.code,'provider_failed');
++  edge.mailStatuses.push(503);const uncertain=await app.json(root+'/replies','POST',{...attempt,id:crypto.randomUUID()},memberHeaders);assert.equal(uncertain.reply.state,'failed');assert.equal(uncertain.reply.code,'delivery_unconfirmed');
++  const before=edge.mailCount;const unconfigured=await app.json(root+'/replies','POST',{...attempt,id:crypto.randomUUID()},{...memberHeaders,'x-fixture-unconfigured':'mail'});assert.equal(unconfigured.reply.state,'never_sent');assert.equal(edge.mailCount,before);
++  const kept=await app.json(root+'/private');assert.deepEqual(kept.private.replies.map(row=>row.state),['sent','failed','failed','never_sent']);
++  await app.json(root,'DELETE');assert.equal((await app.request(root+'/private')).status,404);
++  const archive=await archiveProjection(await app.request('/api/archive'));assert.ok(!archive.text.includes(attempt.message),'sent/failed reply ledger is removed on withdrawal');
++  console.log('feedback mail: approved sender fake accepted, rejected, uncertain and unconfigured states; no duplicate sends');
++ }finally{releaseMail?.();await app?.close();bridge.closeAllConnections();await new Promise(resolve=>bridge.close(resolve));await edge.close();await rm(directory,{recursive:true,force:true})}
++}
++
++if(process.argv[1]&&(await import('node:url')).pathToFileURL(process.argv[1]).href===import.meta.url){
++ const worker=await startTestWorker(await freePort());
++ try{
++  const cookie=await signIn(worker.origin);const {chooseLocalAgentPolicy}=await import('./agent-door/local-policy.mjs');await chooseLocalAgentPolicy(worker.origin,cookie);
++  const req=(path,method='GET',body,headers={})=>fetch(worker.origin+path,{method,headers:{Connection:'close',Origin:worker.origin,Cookie:cookie,...body?{'Content-Type':'application/json'}:{},...headers},...body?{body:typeof body==='string'?body:JSON.stringify(body)}:{}});
++  const json=async(...args)=>{const response=await req(...args);assert.ok(response.ok,args[0]+': '+response.status);return response.json()};
++  await feedbackFlow({req,json,origin:worker.origin});
++  console.log('feedbackFlow passed');
++ }finally{await worker.stop()}
+ }
+diff --git a/tests/old-archive.mjs b/tests/old-archive.mjs
+index 79e3b47..fbe8a40 100644
+--- a/tests/old-archive.mjs
++++ b/tests/old-archive.mjs
+@@ -8,6 +8,23 @@ import {build} from 'esbuild';
+ import {readArchive} from '../src/modules/portability/index.mjs';
+ import {platformTable} from '../src/modules/portability/bookkeeping.mjs';
+ import {policy} from '../src/modules/portability/catalogue.mjs';
++// Compare inherited DDL while permitting a declared additive column; all
++// inherited constraints and bytes must still match the released schema.
++function withoutColumn(sql,name){
++ const start=sql.indexOf('('),end=sql.lastIndexOf(')'),parts=[];let depth=0,quote='',from=start+1;
++ for(let index=from;index<end;index++){
++  const char=sql[index];
++  if(quote){if(char===quote){if(sql[index+1]===quote)index++;else quote=''}continue}
++  if(["'",'"','`'].includes(char)){quote=char;continue}
++  if(char==='(')depth++;else if(char===')')depth--;
++  else if(char===','&&depth===0){parts.push(sql.slice(from,index));from=index+1}
++ }
++ parts.push(sql.slice(from,end));
++ const kept=parts.filter(part=>part.trim().split(/\s+/)[0]!==name);
++ assert.equal(kept.length,parts.length-1,'exactly the declared new column is removed for inherited-DDL comparison');
++ return sql.slice(0,start+1)+kept.join(',')+sql.slice(end);
++}
++
+ // TEAM-004 stores (migration 0059) and SRC-003's release/deploy stores (migration 0060) that the released schema lacks.
+ const membershipTables = ['spool_reporting_items','spool_reporting_projects','spool_reporting_widgets','spool_reporting_shares','spool_team_digest_settings','spool_team_snoozes','spool_team_mail','spool_organizations','spool_members','spool_project_teams','spool_project_grants','spool_member_invites','spool_service_accounts','spool_service_scopes'];
+ const citationTables = ['sentry_transactions','agent_door_retired_refs','bs_retired','native_symbols','native_debug_files','spool_notification_preferences','scrubbing_policies','scrubbing_changes','alert_rule_configs','issue_recurrence_boundaries','issue_priorities','issue_activity','issue_comments','issue_subscriptions','recurrence_policies','issue_suppressions',...membershipTables,'review_stamps','review_views','retention_policies','identity_policies','event_identities','project_identity_keys','health_sessions','health_aggregates','slack_delivery_meta','suspect_decisions','source_map_builds','source_map_build_files','artifact_storage_settings','loader_settings','short_id_prefixes','issue_short_ids','issue_short_id_moves','commits','release_commits','commit_links','repository_link_log','commit_sharing','sentry_releases','sentry_deploys'];
+@@ -66,8 +83,9 @@ try {
+  await upgrade.batch(additions.map(sql => upgrade.prepare(sql)));
+  for (const {name,sql} of oldTables) {
+   const upgradedRows=await rows(upgrade, `SELECT * FROM "${name}"`);
++  if(name==='feedback')assert.ok(upgradedRows.every(row=>row.private_data===null),'upgrade invents no contact, screenshot or reply consent for historical feedback');
+   if(name==='alert_mail_jobs')assert.ok(upgradedRows.every(row=>row.agent_attribution===null),'upgrade never invents a first-send agent identity for historical mail');
+-  assert.deepEqual(canonicalRows(name==='alert_mail_jobs'?upgradedRows.map(({agent_attribution,...row})=>row):upgradedRows), beforeUpgrade.get(name), `populated upgrade preserves every pre-existing row: ${name}`);
++  assert.deepEqual(canonicalRows(name==='feedback'?upgradedRows.map(({private_data,...row})=>row):name==='alert_mail_jobs'?upgradedRows.map(({agent_attribution,...row})=>row):upgradedRows), beforeUpgrade.get(name), `populated upgrade preserves every pre-existing row: ${name}`);
+   const currentSql=(await upgrade.prepare("SELECT sql FROM sqlite_master WHERE type='table' AND name=?").bind(name).first()).sql;
+   if(name==='audit_context'){
+    assert.equal(currentSql,sql.replace(/\)\s*$/,', native_start INTEGER NOT NULL DEFAULT 0)'), 'native audit attribution adds only its declared default-zero cursor to the released context');
+@@ -79,6 +97,10 @@ try {
+    assert.equal(currentSql.replace(', agent_attribution TEXT',''),sql,'first-send attribution preserves every released mail column and constraint');
+    const attribution=(await rows(upgrade,"PRAGMA table_info('alert_mail_jobs')")).find(column=>column.name==='agent_attribution');
+    assert.deepEqual({type:attribution.type,notnull:attribution.notnull,default:attribution.dflt_value},{type:'TEXT',notnull:0,default:null});
++  }else if(name==='feedback'){
++   assert.equal(withoutColumn(currentSql,'private_data'),sql,'private review preserves all released feedback columns and constraints');
++   const column=(await rows(upgrade,"PRAGMA table_info('feedback')")).find(column=>column.name==='private_data');
++   assert.deepEqual({type:column.type,notnull:column.notnull,default:column.dflt_value},{type:'TEXT',notnull:0,default:'NULL'});
+   }else if(name==='alerts'){
+    assert.equal(currentSql.replace('issue TEXT REFERENCES issues(id)','issue TEXT NOT NULL REFERENCES issues(id)').replace(", CHECK((kind='metric' AND issue IS NULL) OR (kind<>'metric' AND issue IS NOT NULL))",''),sql,'metric feed changes only issue nullability and its kind constraint');
+   }else if(name!=='spool_audit_events')assert.equal(currentSql,sql,`populated upgrade preserves released table schema: ${name}`);
+diff --git a/tests/repair-recovery/archive.mjs b/tests/repair-recovery/archive.mjs
+index b3ba336..fc26c57 100644
+--- a/tests/repair-recovery/archive.mjs
++++ b/tests/repair-recovery/archive.mjs
+@@ -41,6 +41,16 @@ export async function preRepairArchive(text){
+  return [earlier,...parts,{kind:'closing',partCount:parts.length,contentHash:verifier.digest(),archiveHash:binding.digest()}].map(record=>canonicalJson(record)+'\n').join('');
+ }
+ const withoutRepairs=data=>Object.fromEntries(Object.entries(data).filter(([table])=>![...lifecycleTables,...laterCustodyTables,...repairTables,...citationTables,...loaderTables,'grouping_policies','release_policies','release_metadata','release_builds','issue_resolutions','deployment_runs','deployment_steps','deployment_notices'].includes(table)).map(([table,rows])=>[table,(table==='audit'?rows.filter(row=>!row.kind.startsWith('repair_')):rows).map(canonical).sort()]));
++// A release before relay privacy also predates feedback review. Keep its
++// recorded migration prefix and table inventory consistent with that release.
++async function beforeFeedbackReviewRelease(manifest){
++ await beforeRelayPrivacy(manifest);
++ if(manifest.migrations)manifest.migrations=manifest.migrations.filter(name=>name!=='0109_feedback_review.sql');
++ if(manifest.migrationLedger)manifest.migrationLedger={...manifest.migrationLedger,entries:manifest.migrationLedger.entries.filter(entry=>entry.name!=='0109_feedback_review.sql')};
++ const migration=await readFile(new URL('../../migrations/core/0040_feedback.sql',import.meta.url),'utf8');
++ const sql=/CREATE TABLE feedback \([\s\S]*?\n\);/.exec(migration)[0].replace(/;$/,'');
++ manifest.tables=manifest.tables.map(table=>table.name==='feedback'?{...table,sql,columns:table.columns.filter(column=>column.name!=='private_data')}:table);
++}
+ // Part 4: a pre-repair archive restores with empty repair tables; a populated
+ // archive restores repairs, checks and every verdict input intact.
+ export async function archiveProof(app,{issue,repair,cutoff,credentials}){
+@@ -57,7 +67,7 @@ export async function archiveProof(app,{issue,repair,cutoff,credentials}){
+  // A previous release's own archive (ledger through 0101, relay triggers as 0099 wrote them) restores whole; the
+  // same inventory with one foreign trigger is refused by the public door and mutates nothing.
+  const foreignObject={name:'foreign_inventory_trigger',type:'trigger',table:'issues',sql:'CREATE TRIGGER foreign_inventory_trigger AFTER INSERT ON issues BEGIN SELECT 1; END'};
+- const previousRelease=await rebuiltArchive(source.text,beforeRelayPrivacy),foreignInventory=await rebuiltArchive(source.text,async manifest=>{await beforeRelayPrivacy(manifest);manifest.schemaObjects.push(foreignObject);});
++ const previousRelease=await rebuiltArchive(source.text,beforeFeedbackReviewRelease),foreignInventory=await rebuiltArchive(source.text,async manifest=>{await beforeFeedbackReviewRelease(manifest);manifest.schemaObjects.push(foreignObject);});
+  await app.resetRestore(previousRelease,foreignInventory);restored=await app.archive();
+  for(const table of Object.keys(source.data))assert.deepEqual(restored.data[table].map(canonical).sort(),source.data[table].map(canonical).sort(),'previous-release archive restores '+table);
+  // The previous release's current-format archive carries every table but the two erasure tombstone tables.
+diff --git a/tests/runtimes/browser.mjs b/tests/runtimes/browser.mjs
+index 58a87a2..aea86b8 100644
+--- a/tests/runtimes/browser.mjs
++++ b/tests/runtimes/browser.mjs
+@@ -154,7 +154,9 @@ export async function qualifyBrowser({browser,origin,cookie,request,applicationO
+    assert.equal(stored.message,report.message);
+    assert.equal(stored.event_id,report.eventId);
+    assert.equal(stored.occurrence,occurrence.occurrence,'archive custody binds the exact retained occurrence');
+-   assert.deepEqual(Object.keys(stored).sort(),['project','id','message','digest','received','event_id','occurrence'].sort(),'widget contact, URL, screenshot and other metadata have no stored fields');
++   assert.equal(stored.private_data,null,'an unmodified widget without explicit consent stores no contact, URL, screenshot or other private metadata');
++   assert.equal(row.hasPrivate,false,'the authorized inbox offers no private details for unmodified widget reports');
++   assert.deepEqual(Object.keys(stored).sort(),['project','id','message','digest','received','event_id','occurrence','private_data'].sort(),'widget rows contain only the description, association and empty consent extension');
+    issueReports.set(intended.issue.id,[...(issueReports.get(intended.issue.id)??[]),report]);
+   }
+   for(const detail of details){
+diff --git a/tests/runtimes/feedback-proof.mjs b/tests/runtimes/feedback-proof.mjs
+index 14a2620..33142d3 100644
+--- a/tests/runtimes/feedback-proof.mjs
++++ b/tests/runtimes/feedback-proof.mjs
+@@ -28,6 +28,7 @@ export async function feedbackProof({app,project,details,referenceSent}){
+  const retained=archive.data.feedback.filter(row=>row.project===project.id);
+  assert.deepEqual(retained.map(row=>row.id).sort(),feedback.items.map(row=>row.id).sort(),'archive custody includes exactly the public feedback reports');
+  for(const report of feedback.items){
++  assert.equal(report.hasPrivate,false,'ordinary SDK feedback has no consented private details in the authorized inbox');
+   const match=events.find(({event})=>event.id===report.eventId);
+   assert.ok(match,'each report references a retained SDK occurrence');
+   assert.ok(typeof match.event.occurrence==='string'&&match.event.occurrence.length>0,'the linked SDK event has a retained occurrence identity');
+@@ -40,7 +41,8 @@ export async function feedbackProof({app,project,details,referenceSent}){
+   eventIdentity(event.event.sentry.exceptions),feedback.items.filter(report=>report.eventId===event.id).map(report=>report.message).sort(),
+  ])),ordered(expected),'every SDK error retains exactly its own feedback descriptions and handled state');
+  for(const {issue} of details){
+-  const page=await app.json(root+`/feedback?issue=${issue.id}`),expected=feedback.items.filter(report=>report.issueId===issue.id);
++  // The authorized inbox adds its private-review marker; issue evidence omits it.
++  const page=await app.json(root+`/feedback?issue=${issue.id}`),expected=feedback.items.filter(report=>report.issueId===issue.id).map(({hasPrivate,...report})=>report);
+   assert.equal(page.total,expected.length,'the issue feedback count equals its retained reports');
+   assert.deepEqual(page.items,expected,'the issue read preserves every report and association');
+  }

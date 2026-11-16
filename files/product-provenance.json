@@ -1,0 +1,10 @@
+{
+  "branch": "cloud/sd-spool-sdk004-4",
+  "head": "3308d2c15143af65c448e8d8494fb052adbf459e",
+  "tree": "c7bac4621acda9c18a18a7d8ebe8efa40e4eed2b",
+  "base": "e29a9f44ad44315d65b4e12d7f2e69b739f67233",
+  "commits_above_main": 1,
+  "merges_above_main": 0,
+  "changed_files": 21,
+  "date": "2026-11-16T23:32:43Z"
+}
