@@ -1,13 +1,13 @@
 import assert from 'node:assert/strict';
-import { mkdir } from 'node:fs/promises';
+import { mkdir, writeFile } from 'node:fs/promises';
 import { pathToFileURL } from 'node:url';
 import AxeBuilder from '@axe-core/playwright';
 import { launchBrowser } from './browser-launch.mjs';
 import { confirmEmailLink } from './auth.mjs';
-import { snapshot, runtime } from './owner-erasure/helpers.mjs';
+import { snapshot, runtime, archive, restore } from './owner-erasure/helpers.mjs';
 import { assertAuditAppendOnly } from './audit-state.mjs';
 
-/** One public journey: exact retained counts, current authority and no erasure. */
+/** Public counts, confirmed identity removal, event deletion and restore fences. */
 export async function endUserErasurePreviewFlow() {
  const app = await runtime();
  let browser;
@@ -27,15 +27,15 @@ export async function endUserErasurePreviewFlow() {
   const capture=async(p,user)=>{
    const eventId=crypto.randomUUID().replaceAll('-','');eventIds.push(eventId);
    const dsn=new URL(p.dsn),response=await owner.req(`/api${dsn.pathname}/store/?sentry_key=${dsn.username}&sentry_version=7`,'POST',{
-    event_id:eventId,message:captureCanary,...user===undefined?{}:{user:{email:user}},
+    event_id:eventId,message:captureCanary,...user===undefined?{}:{user:{email:user,id:user===email?'synthetic-spool-person-27':'synthetic-spool-person-28',username:user===email?'synthetic-spool-name-27':'synthetic-spool-name-28',ip_address:user===email?'192.0.2.27':'192.0.2.28'}},
    },{Cookie:''});
    assert.equal(response.status,200,await response.text());
   };
   const preview=async(p,actor=owner,value=email)=>actor.json(door(p),'POST',{email:value});
   const expectCount=(value,count,total,absent)=>{
-   assert.equal(value.operation,'preview_only');assert.equal(value.events.status,'available');assert.equal(value.events.count,count);
+   assert.ok(value.planHash);assert.equal(value.hold,null);assert.equal(value.events.status,'available');assert.equal(value.events.count,count);
    assert.equal(value.events.retained,total);assert.equal(value.events.withoutRetainedEmail,absent);
-   assert.deepEqual(value.unavailable.map(row=>row.store),['sessions','feedback','attachments','replays','search']);
+   assert.equal(value.sessions.status,'available');assert.ok(Number.isSafeInteger(value.sessions.count));
    assert.ok(value.unavailable.every(row=>row.reason.length>0),'uncorrelatable stores explain unavailability instead of claiming zero');
   };
   for(const p of projects)assert.deepEqual((await owner.json(root(p)+'/identity-policy')).policy,{id:'keep',email:'keep',username:'keep',ip_address:'keep'},'new projects keep identity as sent');
@@ -127,8 +127,70 @@ export async function endUserErasurePreviewFlow() {
     await unavailableRegion.screenshot({path:`.artifacts/erasure-preview/unavailable-${width}.png`});
    } finally {await context.close()}
   }
+  // Owner-only confirmation is a separate destructive door. The existing
+  // maintainer preview remains available, but never grants erase authority.
+  const eraseDoor=root(project)+'/end-user-erasure/confirm';
+  const selected={field:'email',value:email,action:'remove_identity'};
+  let plan=await owner.json(door(project),'POST',selected);
+  const acceptedInput=()=>({...selected,planHash:plan.planHash,confirm:'ERASE USER DATA'});
+  const deniedBefore=await snapshot(app);
+  for(const actor of [client(''),maintainer,member,reader,foreignMember,removed,admin]){
+   const response=await actor.req(eraseDoor,'POST',acceptedInput());assert.ok([401,403,404].includes(response.status));await response.arrayBuffer();
+  }
+  for(const credential of credentials){const response=await owner.req(eraseDoor,'POST',acceptedInput(),{Authorization:'Bearer '+credential.key});assert.ok([401,403,404].includes(response.status));await response.arrayBuffer()}
+  for(const body of [{...acceptedInput(),confirm:email},{...acceptedInput(),extra:true}]){const response=await owner.req(eraseDoor,'POST',body);assert.equal(response.status,400);await response.arrayBuffer()}
+  const cross=await owner.req(eraseDoor,'POST',acceptedInput(),{Origin:'https://synthetic-spool-foreign.test'});assert.equal(cross.status,403);await cross.arrayBuffer();
+  assertAuditAppendOnly(await snapshot(app),deniedBefore,'confirmation refusals preserve product state');
+  await capture(project,email);
+  const stale=await owner.req(eraseDoor,'POST',acceptedInput());assert.equal(stale.status,409);await stale.arrayBuffer();
+  const pre=await archive(app),foreignBefore=(await preview(foreign)).events.count;
+  const context=await browser.newContext({viewport:{width:1440,height:1000}}),page=await context.newPage();
+  let removalReceipt;
+  try{
+   const split=cookie.indexOf('=');await context.addCookies([{name:cookie.slice(0,split),value:cookie.slice(split+1),url:origin.replace('http:','https:'),secure:true}]);
+   await page.goto(origin+'/projects/'+project.id+'/settings#settings-privacy');
+   const region=page.getByRole('region',{name:'End-user erasure preview',exact:true});
+   await region.getByLabel('Email to match').fill(email);await region.getByRole('button',{name:'Preview matching records'}).click();
+   await region.getByRole('status').getByText('4 matching events',{exact:false}).waitFor();
+   const button=region.getByRole('button',{name:'Confirm user erasure'});assert.equal(await button.isDisabled(),true);
+   await region.getByLabel('Type ERASE USER DATA').fill('ERASE USER DATA');
+   const responsePromise=page.waitForResponse(response=>response.url().endsWith('/end-user-erasure/confirm'));
+   await button.click();const response=await responsePromise;assert.equal(response.status(),200);removalReceipt=await response.json();
+   await region.getByRole('heading',{name:'Erasure complete',exact:true}).waitFor();await assertScreen(page,region);
+   for(const width of [1440,390]){await page.setViewportSize({width,height:1000});await region.screenshot({path:`.artifacts/erasure-preview/complete-${width}.png`})}
+  }finally{await context.close()}
+  assert.equal(removalReceipt.phase,'complete');assert.equal(removalReceipt.deleted.event_identities,4);
+  expectCount(await preview(project),0,6,5);assert.equal((await preview(foreign)).events.count,foreignBefore);
+  const issues=await owner.json(root(project)+'/issues');
+  for(const issue of issues){const visible=await owner.json(root(project)+'/issues/'+issue.id+'/affected-users');for(const row of visible.rows??[])assert.ok(!Object.keys(row.values).length||row.values.email?.value!==email);assert.ok(!JSON.stringify(visible).includes('synthetic-spool-person-27'))}
+  const post=await archive(app);
+  const projection=post.data.event_identities.filter(row=>row.project===project.id);
+  assert.ok(!JSON.stringify(projection).includes('synthetic-spool-person-27'));assert.ok(!JSON.stringify(projection).includes(hashes(project)[0]));
+  assert.equal((await restore(app,pre.text)).body.error,'erasure_epoch');
+  const fresh=await runtime();try{const answer=await restore(fresh,post.text);assert.equal(answer.status,200,JSON.stringify(answer));assert.equal((await restore(fresh,pre.text)).body.error,'erasure_epoch')}finally{await fresh.close()}
+  // Exact DID equality is the only honest cross-store match. A different DID
+  // remains anonymous with respect to this email; it is never guessed.
+  const sessionValue=other,dsn=new URL(project.dsn);
+  const envelope='{}\n{"type":"session"}\n'+JSON.stringify({sid:crypto.randomUUID().replaceAll('-',''),did:sessionValue,started:new Date().toISOString(),status:'exited',attrs:{release:'synthetic-spool-27'}});
+  const sessionResponse=await owner.req(`/api${dsn.pathname}/envelope/?sentry_key=${dsn.username}&sentry_version=7`,'POST',envelope,{Cookie:'','Content-Type':'text/plain'});assert.equal(sessionResponse.status,200);await sessionResponse.arrayBuffer();
+  const deleteSelection={field:'email',value:other,action:'delete_events'},deletionPlan=await owner.json(door(project),'POST',deleteSelection);
+  assert.equal(deletionPlan.events.count,1);assert.equal(deletionPlan.sessions.count,1);
+  const deletion=await owner.json(eraseDoor,'POST',{...deleteSelection,planHash:deletionPlan.planHash,confirm:'ERASE USER DATA'});
+  assert.equal(deletion.deleted.events,1);assert.equal(deletion.deleted.health_sessions,1);assert.equal((await preview(project,owner,other)).events.count,0);
+  assert.equal((await owner.json(root(project)+'/issues')).reduce((n,row)=>n+row.count,0),5);
+  const finalArchive=await archive(app);assert.ok(finalArchive.data.health_sessions.every(row=>row.project!==project.id||row.user_hash===null));
+  const safeAudit=await owner.json('/api/audit/export?format=json');assert.ok(safeAudit.rows.some(row=>row.action==='erasure.complete'&&row.outcome==='succeeded'));
+  const nativeAudit=(await app.DB.prepare('SELECT * FROM audit').all()).results;
+  for(const value of [email,other,...hashes(project),...keys.map(row=>row.key),'synthetic-spool-person-27'])assert.ok(!JSON.stringify([removalReceipt,deletion,safeAudit,nativeAudit]).includes(value),'receipts and audits omit user identity and private match material');
+  // A retained id, username or literal IP uses the same exact matcher. Drop
+  // stays unavailable and a confirmation can never resurrect dropped data.
+  for(const [field,value] of [['id','synthetic-spool-person-27'],['username','synthetic-spool-name-27'],['ip_address','192.0.2.27']]){
+   const input={field,value,action:'remove_identity'},current=await owner.json(door(foreign),'POST',input);assert.equal(current.events.count,2);
+  }
+  await writeFile('.artifacts/erasure-preview/results.json',JSON.stringify({removal:removalReceipt,deletion,restore:{same:'erasure_epoch',freshPost:'restored',freshOld:'erasure_epoch'},before:{events:6,matching:4},after:{events:5,matching:0},limitations:deletion.retained},null,2)+'\n');
+  console.log('PROBE SDK-027 confirmed: owner keyboard confirmation removes all fields from 4 matching events, preserves other projects, receipts and audit omit values; event deletion removes 1 event and exact DID identity; current archive restores and old archives refuse.');
   console.log('PROBE SDK-027 email-preview: public Sentry captures -> 2 matching of 4 keep events; conversion plus hash capture -> 3 of 5; foreign key and captures -> unchanged 3.');
-  console.log('PROBE SDK-027 unavailable: dropped email -> unavailable, 1 unattributable; sessions, feedback, attachments, replays and search explicitly unavailable.');
+  console.log('PROBE SDK-027 unavailable: dropped email -> unavailable, 1 unattributable; feedback, attachments, replays and search explicitly unavailable; session DID literal equality counted separately.');
   console.log('PROBE SDK-027 authority-and-privacy: repeated owner, admin and maintainer POSTs -> counts only, unchanged product rows; anonymous, member, read-only, valid or revoked grant, foreign, removed and cross-origin requests refuse; safe audits omit values and keys.');
   console.log('PROBE SDK-027 settings: keyboard preview, refusal, Axe, text size and reflow passed; matching screens recorded at 1440 and 390.');
  } finally {await browser?.close();await app.close()}

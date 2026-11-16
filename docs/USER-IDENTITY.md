@@ -16,3 +16,36 @@ Implementation note — Run Edit Run fleet, 15 November 2026: this default appli
 The user key uses the first retained `id`, `email`, `username` or `ip_address`, in that order. A hash counts as itself and a dropped field is skipped. If the SDK sent no usable identity, the impact figure also stays unavailable. Agent packets and read-only grants receive counts only.
 
 The project form links here before creation. Configuration remains under Settings, after the project exists. Changing this policy does not change the separate server scrubbing rules, and does not recover past identity or promise complete user search or end-user erasure.
+
+## Erase one retained user
+
+Run Edit Run fleet, 16 November 2026: **Settings → End-user erasure** now
+previews an exact email, user ID, username or literal IP address under the
+retained keep/hash policy. Previewing shows counts only and does not erase.
+The installation owner chooses **Remove identity; keep events** or **Delete
+matching events**, reviews the counts and limitations, then types
+`ERASE USER DATA` and selects **Confirm user erasure**. Project maintainers
+and administrators may preview; this destructive door requires the installation
+owner. A changed preview must be read and confirmed again.
+
+Identity removal clears all four retained user fields and the derived user key
+on each matching event. Other users and other projects stay intact. Event
+deletion also removes exact occurrence children, including attached feedback.
+Individual sessions are de-identified only when their privately hashed DID is
+literally equal to the supplied value; Spool cannot infer relationships between
+different aliases or attribute anonymous aggregate sessions. Feedback contact is
+already discarded at intake; scrubbed feedback messages have no independent
+user index. Attachments, replays and identity search indexes/facets have no
+retained matching store. The preview and receipt state those limitations rather
+than claiming zero matches or complete erasure of those stores.
+
+The completed receipt contains counts, times and retained-scope explanations.
+The safe audit records completion without the supplied value or private hash.
+The same atomic owner transaction invalidates pending archive copies and
+advances the ERASE-001 portability redaction checkpoint. Later identity reads
+and private archives omit the removed fields. This installation, or a fresh
+installation given its later archive/journal, refuses a pre-erasure archive.
+An empty installation given only an old archive cannot know about a later
+erasure. Downloaded copies, provider backups and future captures are outside
+this operation. This is not a promise of complete SDK-027 acceptance: identity
+search/facets and the public 150,000-event volume remain unavailable.

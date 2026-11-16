@@ -15,7 +15,7 @@ export const erasedAudit = (row: any) => row.project === null && typeof row.deta
 export function validateErasureArchive(data: Record<string, any[]>) {
  for (const row of data.rer_erasure_operations ?? []) {
   // An archive made while an erasure was still deleting would carry its subject.
-  assert(['project','installation-owner'].includes(row.entity) && row.subject === null && row.phase === 'complete', 'Archive erasure in progress');
+  assert(['project','installation-owner','end-user'].includes(row.entity) && row.subject === null && row.phase === 'complete', 'Archive erasure in progress');
   assert(/^[0-9a-f]{32}$/.test(row.id) && /^erased:[0-9a-f]{32}$/.test(row.label) && counts(row.planned) && counts(row.deleted), 'Archive erasure receipt');
   assert(Number.isSafeInteger(row.step) && Number.isSafeInteger(row.blobs_total) && Number.isSafeInteger(row.blobs_deleted) && time(row.requested_at) && time(row.committed_at) && time(row.completed_at), 'Archive erasure receipt');
   const retained = JSON.parse(row.retained);
