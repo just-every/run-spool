@@ -25,7 +25,10 @@ export async function executionRuntime(state,port,extra={}){
    await db.batch(unstable_splitSqlQuery(sql).filter(q=>!/^PRAGMA foreign_keys\s*=\s*ON;?$/i.test(q.trim())).map(q=>db.prepare(q)));
   }
   const cookie=await signIn(origin);await chooseLocalAgentPolicy(origin,cookie);
-  const request=(path,method='GET',body,headers={})=>fetch(origin+path,{method,redirect:'manual',headers:{Origin:origin,Cookie:cookie,...(body!==undefined?{'content-type':typeof body==='string'?'application/x-ndjson':'application/json'}:{}),...headers},...(body!==undefined?{body:typeof body==='string'?body:JSON.stringify(body)}:{})});
+  // Archive/erasure work can outlast another pooled socket's idle lifetime.
+  // Close each request's connection, including across same-port restarts, so
+  // a continuation cannot reuse an idle socket workerd has already closed.
+  const request=(path,method='GET',body,headers={})=>fetch(origin+path,{method,redirect:'manual',headers:{Connection:'close',Origin:origin,Cookie:cookie,...(body!==undefined?{'content-type':typeof body==='string'?'application/x-ndjson':'application/json'}:{}),...headers},...(body!==undefined?{body:typeof body==='string'?body:JSON.stringify(body)}:{})});
   const json=async(path,method,body,headers,status)=>{const r=await request(path,method,body,headers);const value=await r.json();assert.ok(status?r.status===status:r.ok,`${method??'GET'} ${path}: HTTP ${r.status} ${value.error??''}`);return value;};
   return {origin,db,cookie,request,json,schedule:time=>json('/__fixture/schedule','POST',{time}),stop:()=>runtime.dispose()};
  }catch(error){await runtime.dispose();throw error;}
