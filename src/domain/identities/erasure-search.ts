@@ -52,6 +52,9 @@ export async function erasureSearchPlan(db: D1Database, project: string, predica
    // Content used as an immutable grouping key needs a separate migration of
    // its provenance. Do not make the next archive unrestorable or move events
    // silently. The preview and receipt name these retained copies.
+   // Do not normalize or rewrite legacy captures that contain no supported
+   // mutation. Their unrelated payload bytes remain unchanged.
+   if(JSON.stringify(payload)===row.payload)continue;
    const encoded=JSON.stringify(normalize(payload));
    if(encoded===row.payload)continue;
    if(!deleting&&grouping(JSON.parse(row.payload)).basis!==grouping(JSON.parse(encoded)).basis){groupingHeld++;continue}

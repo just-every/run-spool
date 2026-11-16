@@ -6282,7 +6282,7 @@
       "executable": false
     },
     "src/domain/identities/erasure-search.ts": {
-      "sha256": "5dfb7648b5c86e613bf6391ef7e57986fb3d6a126a10a6ea609a7ab412c21f7d",
+      "sha256": "f43d368dc898ed059c8a5a64a5f274f99a7d64e316f2e975b5599504260aa02f",
       "executable": false
     },
     "src/domain/identities/erasure-text.ts": {
@@ -11106,7 +11106,7 @@
       "executable": false
     },
     "tests/end-user-erasure-volume.mjs": {
-      "sha256": "c20192f3f497413f919b8e0cf02311a130bfe6c07e987d1e7c15bff5cc98a096",
+      "sha256": "7098d3919dc78cacab6922c5bfd7e9c72c3926d7133fafa87e23f39dbcf9e9c4",
       "executable": false
     },
     "tests/execution-journey.mjs": {

@@ -12,6 +12,7 @@ const requestedVolume=150000,profileOnly=process.argv.includes('--profile-10000'
 const candidate=execFileSync('git',['rev-parse','HEAD'],{encoding:'utf8'}).trim();
 if(process.env.RER_CANDIDATE_SHA)assert.equal(candidate,process.env.RER_CANDIDATE_SHA,'scale receipt must name the checked-out candidate');
 const runId=process.env.RER_SCALE_RUN_ID??'sd-spool-sdk027-3-'+new Date().toISOString().replace(/[-:]/g,'');
+const startedAt=new Date().toISOString();
 let retainedVolume=10000;
 let source,destination;
 try {
@@ -48,7 +49,7 @@ try {
  const issues=await destination.json('/api/projects/'+project+'/issues');assert.equal(issues.reduce((n,row)=>n+row.count,0),retainedVolume);
  const visible=await destination.json('/api/projects/'+project+'/issues/'+seed.issue+'/affected-users');assert.equal(visible.affectedUsers,null);assert.equal(visible.unattributed,retainedVolume);
  const identitySearch=await destination.json('/api/projects/'+project+'/identity-search?field=user.email&value='+encodeURIComponent(value));assert.equal(identitySearch.matchingEvents,0);assert.deepEqual(identitySearch.facets,[]);
- const result={candidate,runId,requestedVolume,requestedVolumeProof:retainedVolume===requestedVolume?'admitted and timed':profileOnly?'not attempted in focused profiling run':'unavailable: public restore refuses corpus above retained cap',overCap:{attempted:!profileOnly,volume:requestedVolume,status:requested?.status??null,error:requested?.body.error??null,requestedRestoreMs},admittedVolume:retainedVolume,before:{retained:preview.events.retained,matched:preview.events.count},after:{retained:after.events.retained,matched:after.events.count},completionMs,receipt};
+ const result={candidate,runId,startedAt,completedAt:new Date().toISOString(),requestedVolume,requestedVolumeProof:retainedVolume===requestedVolume?'admitted and timed':profileOnly?'not attempted in focused profiling run':'unavailable: public restore refuses corpus above retained cap',overCap:{attempted:!profileOnly,volume:requestedVolume,status:requested?.status??null,error:requested?.body.error??null,requestedRestoreMs},admittedVolume:retainedVolume,before:{retained:preview.events.retained,matched:preview.events.count},after:{retained:after.events.retained,matched:after.events.count},completionMs,receipt};
  assert.ok(!JSON.stringify(result).includes(value));
  await mkdir('.artifacts/erasure-preview',{recursive:true});await writeFile('.artifacts/erasure-preview/volume.json',JSON.stringify(result,null,2)+'\n');
  console.log('PROBE SDK-027 volume: '+JSON.stringify({requestedVolume,admittedVolume:retainedVolume,overCapStatus:requested?.status??null,completionMs,receiptSeconds:receipt.seconds,claim:retainedVolume===requestedVolume?'acceptance point 5 timed; other gaps remain':'PARTIAL; acceptance point 5 unproven'}));
