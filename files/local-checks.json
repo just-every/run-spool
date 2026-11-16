@@ -1,0 +1,87 @@
+{
+  "results": [
+    {
+      "command": "pnpm run build:app",
+      "exit": 0,
+      "log": "repair-build.log"
+    },
+    {
+      "command": "pnpm typecheck",
+      "exit": 0,
+      "log": "typecheck.log"
+    },
+    {
+      "command": "node tests/sdk-runtimes.mjs java && node tests/sdk-runtimes.mjs dotnet",
+      "exit": 0,
+      "log": "repair-runtimes.log"
+    },
+    {
+      "command": "node tests/feedback-flow.mjs",
+      "exit": 0,
+      "log": "repair-feedback.log"
+    },
+    {
+      "command": "node /tmp/sd-spool-archive-probe.mjs",
+      "exit": 0,
+      "log": "repair-archive-diagnostic.log"
+    },
+    {
+      "command": "node scripts/edition-authoring/cli.mjs lock && pnpm source:check",
+      "exit": 0,
+      "log": "source-lock.log"
+    },
+    {
+      "command": "pnpm test:tunnel && pnpm test:sentry:sdk && pnpm test:sdk && pnpm test:languages",
+      "exit": 0,
+      "log": "repair-tunnel.log"
+    },
+    {
+      "command": "pnpm typecheck",
+      "exit": 0,
+      "log": "typecheck-final.log"
+    },
+    {
+      "command": "node scripts/edition-authoring/cli.mjs lock && pnpm source:check",
+      "exit": 0,
+      "log": "source-lock-attempt-2.log"
+    },
+    {
+      "command": "pnpm test:repair-recovery",
+      "exit": 0,
+      "log": "repair-attempt-2.log",
+      "attempt": 2
+    },
+    {
+      "command": "pnpm typecheck",
+      "exit": 0,
+      "log": "merged-typecheck.log",
+      "context": "integrated main"
+    },
+    {
+      "command": "node scripts/edition-authoring/cli.mjs lock && pnpm source:check",
+      "exit": 0,
+      "log": "final-source-lock.log",
+      "context": "final candidate"
+    }
+  ],
+  "pending": [],
+  "source": "Scoped code/test bytes verified through the listed journeys; subsequent changes were main integration, final archive documentation and generated source lock. Exact-SHA Verify covers the integrated head.",
+  "attempts": [
+    {
+      "attempt": 1,
+      "tree": "400403ed6bfec628c330de3625f412e22ea36442",
+      "command": "pnpm test:repair-recovery",
+      "exit": 1,
+      "failure": "POST /api/restore: HTTP 409 other",
+      "log": "repair-attempt-1.log"
+    },
+    {
+      "attempt": 2,
+      "tree": "f7ddcc02bfcb00567b370df1b9d6821c8ecf2cad",
+      "command": "pnpm test:repair-recovery",
+      "log": "repair-attempt-2.log",
+      "exit": 0
+    }
+  ],
+  "final_head": "c1920a0db12fa2684b415e4e2fae68e59d726d0b"
+}

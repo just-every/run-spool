@@ -1,0 +1,46 @@
+verify (repair-recovery)	Run suites	﻿2026-11-16T16:11:54.5563424Z ##[group]Run pnpm test:repair-recovery
+verify (repair-recovery)	Run suites	2026-11-16T16:11:54.5563722Z [36;1mpnpm test:repair-recovery[0m
+verify (repair-recovery)	Run suites	2026-11-16T16:11:54.5579582Z shell: /usr/bin/bash -e {0}
+verify (repair-recovery)	Run suites	2026-11-16T16:11:54.5581520Z ##[endgroup]
+verify (repair-recovery)	Run suites	2026-11-16T16:11:54.7168089Z 
+verify (repair-recovery)	Run suites	2026-11-16T16:11:54.7168817Z > @errors/errors-workbench@0.7.13 test:repair-recovery /home/runner/work/run-spool/run-spool
+verify (repair-recovery)	Run suites	2026-11-16T16:11:54.7169191Z > node tests/repair-recovery.mjs
+verify (repair-recovery)	Run suites	2026-11-16T16:11:54.7169300Z 
+verify (repair-recovery)	Run suites	2026-11-16T16:11:55.0840009Z (node:2452) ExperimentalWarning: SQLite is an experimental feature and might change at any time
+verify (repair-recovery)	Run suites	2026-11-16T16:11:55.0840694Z (Use `node --trace-warnings ...` to show where the warning was created)
+verify (repair-recovery)	Run suites	2026-11-16T16:13:09.2331112Z STEP setup/startDev
+verify (repair-recovery)	Run suites	2026-11-16T16:13:09.2335803Z STEP setup/dev-ready
+verify (repair-recovery)	Run suites	2026-11-16T16:13:34.8316043Z END setup/dev-ready seconds=25.598
+verify (repair-recovery)	Run suites	2026-11-16T16:13:34.8863652Z END setup/startDev seconds=25.653
+verify (repair-recovery)	Run suites	2026-11-16T16:17:07.7302003Z STEP setup/stopDev
+verify (repair-recovery)	Run suites	2026-11-16T16:17:07.7302721Z STEP setup/dev-stop
+verify (repair-recovery)	Run suites	2026-11-16T16:17:07.9026862Z END setup/dev-stop seconds=0.172
+verify (repair-recovery)	Run suites	2026-11-16T16:17:07.9038719Z END setup/stopDev seconds=0.174
+verify (repair-recovery)	Run suites	2026-11-16T16:17:07.9038949Z STEP setup/reset
+verify (repair-recovery)	Run suites	2026-11-16T16:17:08.6812156Z END setup/reset seconds=0.777
+verify (repair-recovery)	Run suites	2026-11-16T16:17:08.6812521Z STEP setup/setup
+verify (repair-recovery)	Run suites	2026-11-16T16:18:07.2295786Z END setup/setup seconds=58.548
+verify (repair-recovery)	Run suites	2026-11-16T16:18:07.2305713Z STEP setup/startDev
+verify (repair-recovery)	Run suites	2026-11-16T16:18:07.2316950Z STEP setup/dev-ready
+verify (repair-recovery)	Run suites	2026-11-16T16:18:32.8154839Z END setup/dev-ready seconds=25.584
+verify (repair-recovery)	Run suites	2026-11-16T16:18:32.8521107Z END setup/startDev seconds=25.621
+verify (repair-recovery)	Run suites	2026-11-16T16:18:42.9576688Z STEP setup/stopDev
+verify (repair-recovery)	Run suites	2026-11-16T16:18:42.9578381Z STEP setup/dev-stop
+verify (repair-recovery)	Run suites	2026-11-16T16:18:43.1988001Z END setup/dev-stop seconds=0.241
+verify (repair-recovery)	Run suites	2026-11-16T16:18:43.1995579Z END setup/stopDev seconds=0.242
+verify (repair-recovery)	Run suites	2026-11-16T16:18:43.1995906Z STEP setup/reset
+verify (repair-recovery)	Run suites	2026-11-16T16:18:43.9667871Z END setup/reset seconds=0.767
+verify (repair-recovery)	Run suites	2026-11-16T16:18:43.9668192Z STEP setup/setup
+verify (repair-recovery)	Run suites	2026-11-16T16:19:40.8880269Z END setup/setup seconds=56.921
+verify (repair-recovery)	Run suites	2026-11-16T16:19:40.8885147Z STEP setup/startDev
+verify (repair-recovery)	Run suites	2026-11-16T16:19:40.8888998Z STEP setup/dev-ready
+verify (repair-recovery)	Run suites	2026-11-16T16:20:06.4775944Z END setup/dev-ready seconds=25.589
+verify (repair-recovery)	Run suites	2026-11-16T16:20:06.5198413Z END setup/startDev seconds=25.631
+verify (repair-recovery)	Run suites	2026-11-16T16:20:11.6707708Z {"journey":"repair-recovery","stage":"archive","type":"Error","message":"POST /api/restore: HTTP 409 other","stack":["    at json (file:///home/runner/work/run-spool/run-spool/tests/agent-handoff/runtime.mjs:43:238)","    at async Object.resetRestore (file:///home/runner/work/run-spool/run-spool/tests/agent-handoff/runtime.mjs:44:1073)","    at async archiveProof (file:///home/runner/work/run-spool/run-spool/tests/repair-recovery/archive.mjs:61:2)","    at async file:///home/runner/work/run-spool/run-spool/tests/repair-recovery.mjs:43:32"]}
+verify (repair-recovery)	Run suites	2026-11-16T16:20:11.6709141Z STEP setup/stopDev
+verify (repair-recovery)	Run suites	2026-11-16T16:20:11.6709297Z STEP setup/dev-stop
+verify (repair-recovery)	Run suites	2026-11-16T16:20:11.9060138Z END setup/dev-stop seconds=0.235
+verify (repair-recovery)	Run suites	2026-11-16T16:20:11.9065869Z END setup/stopDev seconds=0.236
+verify (repair-recovery)	Run suites	2026-11-16T16:20:12.7799071Z Repair recovery cleanup: [{"name":"capture","outcome":"stopped"},{"name":"browser","outcome":"stopped"},{"name":"checkout","outcome":"stopped","children":"stopped","directory":"removed"}]
+verify (repair-recovery)	Run suites	2026-11-16T16:20:12.8060734Z  ELIFECYCLE  Command failed with exit code 1.
+verify (repair-recovery)	Run suites	2026-11-16T16:20:12.8219370Z ##[error]Process completed with exit code 1.

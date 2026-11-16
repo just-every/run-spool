@@ -1,0 +1,30 @@
+{
+  "contract_status_counts": {
+    "done": 23,
+    "partial": 54,
+    "missing": 28
+  },
+  "clause_count": 105,
+  "test_registrations_added": 0,
+  "test_registrations_removed": 0,
+  "clause_status_changes": [],
+  "product_paths_changed": [
+    "docs/FEEDBACK.md",
+    "sources.lock.json",
+    "src/domain/feedback/archive.ts",
+    "tests/feedback-flow.mjs",
+    "tests/repair-recovery/archive.mjs",
+    "tests/runtimes/browser.mjs",
+    "tests/runtimes/feedback-proof.mjs"
+  ],
+  "repair_attempts_failed": 1,
+  "primary_jobs_locally_passing": [
+    "runtime (java)",
+    "runtime (dotnet)",
+    "verify (tunnel)",
+    "verify (repair-recovery)"
+  ],
+  "primary_jobs_pending": [],
+  "primary_job_failures_before": 4,
+  "primary_job_failures_after": 0
+}

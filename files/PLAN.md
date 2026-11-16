@@ -1,0 +1,12 @@
+# sd-spool-sdk004-2 repair plan
+
+Author: Run Edit Run fleet (sd), 2026-11-16 UTC.
+
+1. Initialize the fleet launcher, bundle-only Git helper, clone-local commit hooks and pinned tools. Clone only just-every/run-spool, fetch the complete original cloud/sd-spool-sdk004-1 history and create cloud/sd-spool-sdk004-2 at cde6912af309f5fcf24bd8239d7e6684cb0dc6e5.
+2. Before editing, build the original tree and execute the exact failing job commands with their workflow environment: node tests/sdk-runtimes.mjs java; node tests/sdk-runtimes.mjs dotnet; the tunnel shard's pnpm test:tunnel && pnpm test:sentry:sdk && pnpm test:sdk && pnpm test:languages; pnpm test:repair-recovery. Retain logs, exit status, failing assertion and original job IDs. Stop if a named failure does not reproduce.
+3. Repair only reproduced blocking failures within the lease. Keep strict report/association comparisons and all runtime callers. Keep the unmodified SDK/widget/user_report path description-only; assert absent private data separately from the consented contact/screenshot path. Trace the repair-recovery restore refusal to its actual schema or fixture cause and retain its foreign-inventory and complete-row checks.
+4. Run the touched Java/.NET journeys, complete tunnel shard, complete repair-recovery journey, feedback journey and typecheck. Preserve SDK-004's existing partial claim and all stated defaults/gaps; do not change acceptance status or generated views. Do not redesign UI.
+5. Integrate fresh origin/main without rewriting any original published commit. Keep main's newer contract judgments. Regenerate sources.lock.json last and run the source check. Inspect every candidate's author, committer and trailers; commit with the explicit fleet environment and active clone hooks. Push the first real commit via cloud-push.py, with no skipped final candidate.
+6. Discover and poll exact-SHA Verify through REST with one watcher, at least 300 seconds between calls for that run and a ten-call GitHub budget. Never dispatch/rerun a SHA. Stop after two failed candidate repairs. Publish the explicit non-secret report/receipt packet only to evidence/sd-spool-sdk004-2, preserve terminal product provenance, and report READY/PUSHED/BLOCKED honestly. Relay all inbox entries in the final response.
+
+Runtime environment: Node 22.20.0, pnpm 10.12.4, Java 21, .NET SDK 8.0.x; system Chromium /usr/bin/chromium with --no-sandbox as required by the cloud task. No provider credentials or held-out gates are used. All product fixtures remain synthetic.

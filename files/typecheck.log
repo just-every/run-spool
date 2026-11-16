@@ -1,0 +1,4 @@
+
+> @errors/errors-workbench@0.7.13 typecheck /home/agent/rer-consolidation/work/sd-spool-sdk004-2/repo
+> tsc --noEmit
+

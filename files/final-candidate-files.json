@@ -1,0 +1,34 @@
+{
+  "head": "c1920a0db12fa2684b415e4e2fae68e59d726d0b",
+  "tree": "96473b65fb796d5cf0b99d97aa582732fa2dfc98",
+  "files": [
+    {
+      "path": "docs/FEEDBACK.md",
+      "sha256": "fa647fec3feb18ec387de7a6a2af7d30aa2f60d8e7bc6442d44c0005b8735b10"
+    },
+    {
+      "path": "sources.lock.json",
+      "sha256": "0b349a4670f69ca0a5070959b458f34126f337b21b3e3c133f5c62523027eaed"
+    },
+    {
+      "path": "src/domain/feedback/archive.ts",
+      "sha256": "6c1bb67b6d217188d8068847921c9f6f405c315006f9c461dc833f480adae69e"
+    },
+    {
+      "path": "tests/feedback-flow.mjs",
+      "sha256": "3cef044cc231d591b5c22b4e2b58829940ecc0712c717c07006f3c25c09f8942"
+    },
+    {
+      "path": "tests/repair-recovery/archive.mjs",
+      "sha256": "056416522a0c51f2772cc8eb78cce3b4f938cccc9b543d1da27d371c98f225c8"
+    },
+    {
+      "path": "tests/runtimes/browser.mjs",
+      "sha256": "2e22513f4e46d8d5eb5606bd859f246144ed43b0e40d00f9fc23a8189ad2d661"
+    },
+    {
+      "path": "tests/runtimes/feedback-proof.mjs",
+      "sha256": "8cd07ea28bf2749bfa0cd6315c34a56d03df723efe5d4d993a286a2ec90ee481"
+    }
+  ]
+}

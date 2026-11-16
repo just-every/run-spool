@@ -1,0 +1,98 @@
+
+> @errors/errors-workbench@0.7.13 test:tunnel /home/agent/rer-consolidation/work/sd-spool-sdk004-2/repo
+> node tests/tunnel-flow.mjs
+
+(node:1527) ExperimentalWarning: SQLite is an experimental feature and might change at any time
+(Use `node --trace-warnings ...` to show where the warning was created)
+npm warn Unknown env config "verify-deps-before-run". This will stop working in the next major version of npm.
+npm warn Unknown env config "_jsr-registry". This will stop working in the next major version of npm.
+[33m▲ [43;33m[[43;30mWARNING[43;33m][0m [1mProxy environment variables detected. We'll use your proxy for fetch requests.[0m
+
+
+⨯ TypeError: 'TRACE' HTTP method is unsupported.
+    at new ta (.next/server/chunks/[root-of-the-server]__0lgrtlrvdjxsy._.js:1:31787)
+    at tl.fromNodeNextRequest (.next/server/chunks/[root-of-the-server]__0lgrtlrvdjxsy._.js:1:33057)
+    at Module.S [as handler] (.next/server/chunks/_1m5vp8hb3q0y3._.js:1:5452)
+⨯ Error: aborted
+    at ignore-listed frames {
+  code: 'ECONNRESET'
+}
+{"passed":true,"memory":{"platform":"linux","source":"/proc/<pid>/status VmHWM after minus VmRSS before (KiB)","hosts":[{"host":"node","pid":1759,"residentBeforeKiB":56376,"peakBeforeKiB":56376,"peakAfterKiB":60580,"costKiB":4204},{"host":"python","pid":1766,"residentBeforeKiB":17408,"peakBeforeKiB":17408,"peakAfterKiB":19636,"costKiB":2228},{"host":"next","pid":2665,"residentBeforeKiB":93224,"peakBeforeKiB":93224,"peakAfterKiB":96868,"costKiB":3644}]},"proof":"Unmodified @sentry/browser with only DSN/tunnel changed: EasyPrivacy Sentry rules (Ghostery engine) block the default route; Node, real Next.js (build/start) and Python tunnels deliver; Spool origin enforcement, project fence and forwarded fields asserted; hosts survive TRACE and aborted uploads, follow no redirect, and refuse a decompression bomb within 32 MiB of peak memory on each of the three hosts."}
+
+> @errors/errors-workbench@0.7.13 test:sentry:sdk /home/agent/rer-consolidation/work/sd-spool-sdk004-2/repo
+> node tests/sentry-sdk.mjs
+
+(node:2771) ExperimentalWarning: SQLite is an experimental feature and might change at any time
+(Use `node --trace-warnings ...` to show where the warning was created)
+[33m▲ [43;33m[[43;30mWARNING[43;33m][0m [1mProxy environment variables detected. We'll use your proxy for fetch requests.[0m
+
+
+{"stage":"browser-qualification","width":1440,"target":"reference"}
+{"stage":"browser-round","width":1440,"target":"reference","round":0}
+[SDK-001] lifecycle: original session
+[SDK-001] lifecycle: focus released
+[SDK-001] lifecycle: window minimized
+[SDK-001] lifecycle: report sent
+{"stage":"browser-round","width":1440,"target":"reference","round":1}
+[SDK-001] lifecycle: original session
+[SDK-001] lifecycle: focus released
+[SDK-001] lifecycle: window minimized
+[SDK-001] lifecycle: report sent
+{"stage":"browser-qualification","width":1440,"target":"qualification"}
+{"stage":"browser-round","width":1440,"target":"qualification","round":0}
+[SDK-001] lifecycle: original session
+[SDK-001] lifecycle: focus released
+[SDK-001] lifecycle: window minimized
+[SDK-001] lifecycle: report sent
+{"stage":"browser-round","width":1440,"target":"qualification","round":1}
+[SDK-001] lifecycle: original session
+[SDK-001] lifecycle: focus released
+[SDK-001] lifecycle: window minimized
+[SDK-001] lifecycle: report sent
+node:internal/modules/run_main:123
+    triggerUncaughtException(
+    ^
+
+AssertionError [ERR_ASSERTION]: widget contact, URL, screenshot and other metadata have no stored fields
++ actual - expected
+
+  [
+    'digest',
+    'event_id',
+    'id',
+    'message',
+    'occurrence',
++   'private_data',
+    'project',
+    'received'
+  ]
+
+    at qualifyBrowser (file:///home/agent/rer-consolidation/work/sd-spool-sdk004-2/repo/tests/runtimes/browser.mjs:157:11)
+    at async file:///home/agent/rer-consolidation/work/sd-spool-sdk004-2/repo/tests/sentry-sdk.mjs:92:3 {
+  generatedMessage: false,
+  code: 'ERR_ASSERTION',
+  actual: [
+    'digest',
+    'event_id',
+    'id',
+    'message',
+    'occurrence',
+    'private_data',
+    'project',
+    'received'
+  ],
+  expected: [
+    'digest',
+    'event_id',
+    'id',
+    'message',
+    'occurrence',
+    'project',
+    'received'
+  ],
+  operator: 'deepStrictEqual',
+  diff: 'simple'
+}
+
+Node.js v22.20.0
+ ELIFECYCLE  Command failed with exit code 1.

@@ -1,0 +1,48 @@
+{
+  "repository": "just-every/run-spool",
+  "branch": "cloud/sd-spool-sdk004-2",
+  "head": "c1920a0db12fa2684b415e4e2fae68e59d726d0b",
+  "tree": "96473b65fb796d5cf0b99d97aa582732fa2dfc98",
+  "main_integrated": "2011d4884e82800cccefbf4d0a7cdfa91384e47b",
+  "base": "cde6912af309f5fcf24bd8239d7e6684cb0dc6e5",
+  "preservation_heads": [
+    "70ebcf25343d7fba0c9a79d3389a5f289c1346af",
+    "ac684a8abd3f53f461884be0fcf06b64d688e7f4"
+  ],
+  "pushed": true,
+  "ready": false,
+  "ci_run": 43919292718,
+  "ci_status": "in_progress",
+  "ci_url": "https://github.com/just-every/run-spool/actions/runs/43919292718",
+  "pr": null,
+  "contract_status_changes": [],
+  "counts_before": {
+    "done": 23,
+    "partial": 54,
+    "missing": 28,
+    "primary_failures": 4
+  },
+  "counts_after_local": {
+    "done": 23,
+    "partial": 54,
+    "missing": 28,
+    "primary_failures": 0
+  },
+  "test_registrations_added": 0,
+  "test_registrations_removed": 0,
+  "repair_attempts": [
+    {
+      "attempt": 1,
+      "exit": 1,
+      "failure": "POST /api/restore: HTTP 409 other",
+      "underlying_failure": "schema_mismatch:migration_history"
+    },
+    {
+      "attempt": 2,
+      "exit": 0
+    }
+  ],
+  "timestamp": "2026-11-16T17:42:17.664382+00:00",
+  "ci_conclusion": null,
+  "github_calls_used": 4
+}

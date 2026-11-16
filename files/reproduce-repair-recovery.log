@@ -1,0 +1,45 @@
+
+> @errors/errors-workbench@0.7.13 test:repair-recovery /home/agent/rer-consolidation/work/sd-spool-sdk004-2/repo
+> node tests/repair-recovery.mjs
+
+(node:1598) ExperimentalWarning: SQLite is an experimental feature and might change at any time
+(Use `node --trace-warnings ...` to show where the warning was created)
+verify
+Heavy job admitted: Spool verify:suite [a9c6f79a5502]
+(node:1620) ExperimentalWarning: SQLite is an experimental feature and might change at any time
+(Use `node --trace-warnings ...` to show where the warning was created)
+STEP setup/startDev
+STEP setup/dev-ready
+END setup/dev-ready seconds=56.330
+END setup/startDev seconds=56.403
+STEP setup/stopDev
+STEP setup/dev-stop
+END setup/dev-stop seconds=0.154
+END setup/stopDev seconds=0.158
+STEP setup/reset
+END setup/reset seconds=1.775
+STEP setup/setup
+END setup/setup seconds=107.613
+STEP setup/startDev
+STEP setup/dev-ready
+END setup/dev-ready seconds=53.565
+END setup/startDev seconds=53.628
+STEP setup/stopDev
+STEP setup/dev-stop
+END setup/dev-stop seconds=0.198
+END setup/stopDev seconds=0.201
+STEP setup/reset
+END setup/reset seconds=1.193
+STEP setup/setup
+END setup/setup seconds=107.736
+STEP setup/startDev
+STEP setup/dev-ready
+END setup/dev-ready seconds=51.478
+END setup/startDev seconds=51.542
+{"journey":"repair-recovery","stage":"archive","type":"Error","message":"POST /api/restore: HTTP 409 other","stack":["    at json (file://[REDACTED]/tests/agent-handoff/runtime.mjs:43:238)","    at async Object.resetRestore (file://[REDACTED]/tests/agent-handoff/runtime.mjs:44:1073)","    at async archiveProof (file://[REDACTED]/tests/repair-recovery/archive.mjs:61:2)","    at async file://[REDACTED]/tests/repair-recovery.mjs:43:32"]}
+STEP setup/stopDev
+STEP setup/dev-stop
+END setup/dev-stop seconds=0.150
+END setup/stopDev seconds=0.152
+Repair recovery cleanup: [{"name":"capture","outcome":"stopped"},{"name":"browser","outcome":"stopped"},{"name":"checkout","outcome":"stopped","children":"stopped","directory":"removed"}]
+ ELIFECYCLE  Command failed with exit code 1.

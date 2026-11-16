@@ -1,0 +1,46 @@
+
+> @errors/errors-workbench@0.7.13 test:repair-recovery /home/agent/rer-consolidation/work/sd-spool-sdk004-2/repo
+> node tests/repair-recovery.mjs
+
+(node:8317) ExperimentalWarning: SQLite is an experimental feature and might change at any time
+(Use `node --trace-warnings ...` to show where the warning was created)
+verify
+Heavy job admitted: Spool verify:suite [a9c6f79a5502]
+(node:8339) ExperimentalWarning: SQLite is an experimental feature and might change at any time
+(Use `node --trace-warnings ...` to show where the warning was created)
+STEP setup/startDev
+STEP setup/dev-ready
+END setup/dev-ready seconds=67.355
+END setup/startDev seconds=67.431
+STEP setup/stopDev
+STEP setup/dev-stop
+END setup/dev-stop seconds=0.208
+END setup/stopDev seconds=0.215
+STEP setup/reset
+END setup/reset seconds=2.657
+STEP setup/setup
+END setup/setup seconds=128.146
+STEP setup/startDev
+STEP setup/dev-ready
+END setup/dev-ready seconds=57.073
+END setup/startDev seconds=57.150
+STEP setup/stopDev
+STEP setup/dev-stop
+END setup/dev-stop seconds=0.234
+END setup/stopDev seconds=0.237
+STEP setup/reset
+END setup/reset seconds=1.284
+STEP setup/setup
+END setup/setup seconds=124.106
+STEP setup/startDev
+STEP setup/dev-ready
+END setup/dev-ready seconds=61.242
+END setup/startDev seconds=61.313
+{"journey":"repair-recovery","stage":"archive","type":"Error","message":"POST /api/restore: HTTP 409 other","stack":["    at json (file://[REDACTED]/tests/agent-handoff/runtime.mjs:43:238)","    at async Object.resetRestore (file://[REDACTED]/tests/agent-handoff/runtime.mjs:44:1073)","    at async archiveProof (file://[REDACTED]/tests/repair-recovery/archive.mjs:61:2)","    at async file://[REDACTED]/tests/repair-recovery.mjs:43:32"]}
+STEP setup/stopDev
+STEP setup/dev-stop
+END setup/dev-stop seconds=0.179
+END setup/stopDev seconds=0.182
+Repair recovery cleanup: [{"name":"capture","outcome":"stopped"},{"name":"browser","outcome":"stopped"},{"name":"checkout","outcome":"stopped","children":"stopped","directory":"removed"}]
+Job queue uses 2 slots (this client requested 1); set "slots" in /home/agent/.rer/jobs/config.json to change the shared limit.
+ ELIFECYCLE  Command failed with exit code 1.

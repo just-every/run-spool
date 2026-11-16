@@ -1,0 +1,30 @@
+{
+  "limit": 10,
+  "calls": [
+    {
+      "sequence": 1,
+      "command": "gh run view 43892572351 --repo just-every/run-spool --job 133430386080 --log-failed",
+      "exit": 0,
+      "purpose": "completed original repair-recovery failed-job log"
+    },
+    {
+      "sequence": 2,
+      "command": "gh api repos/just-every/run-spool/actions/runs?head_sha=c1920a0db12fa2684b415e4e2fae68e59d726d0b&per_page=100 --jq {workflow_runs:[.workflow_runs[]|{id,name,status,conclusion,head_sha,head_branch,event,html_url}]}",
+      "exit": 0,
+      "timestamp": "2026-11-16T17:31:49.441796+00:00"
+    },
+    {
+      "sequence": 3,
+      "command": "gh api repos/just-every/run-spool/actions/runs/43919292718 --jq {status,conclusion,head_sha,html_url}",
+      "exit": 0,
+      "timestamp": "2026-11-16T17:36:59.088027+00:00"
+    },
+    {
+      "sequence": 4,
+      "command": "gh api repos/just-every/run-spool/actions/runs/43919292718 --jq {status,conclusion,head_sha,html_url}",
+      "exit": 0,
+      "timestamp": "2026-11-16T17:41:59.979604+00:00"
+    }
+  ],
+  "last_ci_call_epoch": 1794850919.9797134
+}

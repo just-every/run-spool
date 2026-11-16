@@ -1,0 +1,8 @@
+{
+  "contract_status_counts": {
+    "done": 23,
+    "partial": 54,
+    "missing": 28
+  },
+  "clause_count": 105
+}

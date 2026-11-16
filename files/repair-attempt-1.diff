@@ -1,0 +1,142 @@
+diff --git a/docs/FEEDBACK.md b/docs/FEEDBACK.md
+index 710d7fb..6e2a527 100644
+--- a/docs/FEEDBACK.md
++++ b/docs/FEEDBACK.md
+@@ -89,6 +89,11 @@ ledger; restoring never queues a new send. The withdrawal journal and active
+ transfer invalidation fence older copies as for description text. Additive
+ migration 0109 preserves historical reports with no private details; prior
+ native archives translate that exact missing column to null.
++Current archive rows without consent carry `private_data: null`, including
++unmodified widget, `captureFeedback` and `user_report` submissions. This nullable
++column stores no contact, URL, screenshot or other metadata without consent.
++Archives without a migration list can also declare the current private column;
++restore checks their complete inventory before preserving it.
+ 
+ DEFAULT SDK-004: explicit consent, deny by default, owner and assigned project
+ team review only, no automatic outbound action, audited changes; private details
+diff --git a/sources.lock.json b/sources.lock.json
+index b694a68..04a977f 100644
+--- a/sources.lock.json
++++ b/sources.lock.json
+@@ -2994,7 +2994,7 @@
+       "executable": false
+     },
+     "docs/FEEDBACK.md": {
+-      "sha256": "2554a77ac284ced7a1c5b71f00d16ea84bc3a0bc6d6556aa1601237a3787c043",
++      "sha256": "13cfd6657249641c3a572c20bbb6998fb854d422a296974501744d3f7ca1b040",
+       "executable": false
+     },
+     "docs/FRAMEWORK-SETUP.md": {
+@@ -6126,7 +6126,7 @@
+       "executable": false
+     },
+     "src/domain/feedback/archive.ts": {
+-      "sha256": "d93a7a3e63f8709afecd98ea7dc443aec717aa93ee8970d788d435a3eab2b83e",
++      "sha256": "6c1bb67b6d217188d8068847921c9f6f405c315006f9c461dc833f480adae69e",
+       "executable": false
+     },
+     "src/domain/feedback/custody.ts": {
+@@ -11138,7 +11138,7 @@
+       "executable": false
+     },
+     "tests/feedback-flow.mjs": {
+-      "sha256": "bdf637214f865301566fe4de761887599390d86811c79d8dc0e2f6dd156bc95d",
++      "sha256": "3cef044cc231d591b5c22b4e2b58829940ecc0712c717c07006f3c25c09f8942",
+       "executable": false
+     },
+     "tests/fidelity-flow.mjs": {
+@@ -11542,7 +11542,7 @@
+       "executable": false
+     },
+     "tests/runtimes/browser.mjs": {
+-      "sha256": "439f871ecc3203feeaf8a973fa6b8bc751761e7e035a6bde666753c74e49b1ef",
++      "sha256": "2e22513f4e46d8d5eb5606bd859f246144ed43b0e40d00f9fc23a8189ad2d661",
+       "executable": false
+     },
+     "tests/runtimes/browser/app.js": {
+@@ -11606,7 +11606,7 @@
+       "executable": false
+     },
+     "tests/runtimes/feedback-proof.mjs": {
+-      "sha256": "67ce84ebe3445d4823146f253ced03a7c48fce98c6c94ae30fcabdb04e05d0f9",
++      "sha256": "8cd07ea28bf2749bfa0cd6315c34a56d03df723efe5d4d993a286a2ec90ee481",
+       "executable": false
+     },
+     "tests/runtimes/go.mjs": {
+diff --git a/src/domain/feedback/archive.ts b/src/domain/feedback/archive.ts
+index 37ebc81..59c329e 100644
+--- a/src/domain/feedback/archive.ts
++++ b/src/domain/feedback/archive.ts
+@@ -32,5 +32,9 @@ export function validateFeedbackArchive(data: any) {
+ /** Exact additive-column translation for archives made before private review. */
+ export function beforeFeedbackReview(table:any,manifest:any){
+  if(table.name!=='feedback'||manifest.migrations?.includes('0109_feedback_review.sql'))return table;
++ // Unrecorded inventories may already carry private review. Preserve the
++ // current descriptor only when the archive declares that column; the caller
++ // still compares the complete SQL, columns and behavior inventory exactly.
++ if(!manifest.migrations?.length&&manifest.schemaObjects!==undefined&&manifest.tables?.find((entry:any)=>entry.name==='feedback')?.columns?.some((column:any)=>column.name==='private_data'))return table;
+  return {...table,sql:table.sql.replace(/, private_data TEXT DEFAULT NULL\s+CHECK\(private_data IS NULL OR \(json_valid\(private_data\) AND length\(private_data\)<=240000\)\)/,''),columns:table.columns.filter((column:any)=>column.name!=='private_data')};
+ }
+diff --git a/tests/feedback-flow.mjs b/tests/feedback-flow.mjs
+index 7f60e74..527693e 100644
+--- a/tests/feedback-flow.mjs
++++ b/tests/feedback-flow.mjs
+@@ -84,6 +84,10 @@ export async function feedbackFlow({ req, json, origin }) {
+  assert.equal((await json(`${root}/alerts`)).length, alerts.length, 'feedback never makes an error alert');
+  assert.equal((await json(`${root}/issues`))[0].count, issue.count + 1, 'feedback never increments error occurrences');
+  const snapshot = await archiveProjection(await req('/api/archive'));
++ const ordinaryReports = snapshot.data.feedback.filter(row => row.project === project.id);
++ assert.equal(ordinaryReports.length, rows.total + 1, 'the additional browser report is also retained');
++ assert.ok(ordinaryReports.every(row => row.private_data === null), 'captureFeedback, feedback items and user_report without consent retain no private metadata');
++ assert.ok(rows.items.every(row => row.hasPrivate === false), 'the authorized inbox marks every ordinary report as having no private details');
+  for (const canary of ['FEEDBACK_PRIVATE_CONTACT', 'FEEDBACK_PRIVATE_NAME', 'FEEDBACK_PRIVATE_URL', 'FEEDBACK_PRIVATE_EXTRA', 'FEEDBACK_PRIVATE_TOKEN', 'FEEDBACK_PRIVATE_LEGACY', 'FEEDBACK_CHANGED_PRIVATE']) {
+   assert.ok(!JSON.stringify(rows).includes(canary)); assert.ok(!snapshot.text.includes(canary), 'discarded/scrubbed feedback fields never enter archive custody');
+  }
+@@ -166,6 +170,10 @@ export async function privateFeedbackFlow() {
+   for(const actor of [reader,unrelated])assert.equal((await req(privateRoot+'/replies','POST',{...attempted,id:crypto.randomUUID()},{Cookie:actor})).status,404,'no reply authority for unrelated/read-only members');
+   const issueRead=await json(root+'/feedback?issue='+issue.id);assert.ok(!JSON.stringify(issueRead).includes(contact));assert.ok(!JSON.stringify(issueRead).includes(attempted.message));assert.ok(!('hasPrivate' in issueRead.items[0]),'issue reads never publish private details');
+   const snapshot=await archiveProjection(await req('/api/archive'));
++  const storedPrivate=JSON.parse(snapshot.data.feedback.find(row=>row.project===project.id&&row.id===id).private_data);
++  assert.equal(storedPrivate.consent,true,'private archive values carry explicit consent');
++  assert.equal(storedPrivate.contact,contact,'only the consented contact enters private custody');
++  assert.equal(storedPrivate.screenshot,cleanPng.toString('base64'),'only the reviewed PNG rendering bytes enter private custody');
+   assert.ok(snapshot.text.includes(contact)&&snapshot.text.includes(attempted.message));assert.ok(!snapshot.text.includes(metadata));
+   const destination=await startTestWorker(await freePort(),{MAIL_PROVIDER:'none',RER_DEV_ORIGIN:''});
+   try{
+diff --git a/tests/runtimes/browser.mjs b/tests/runtimes/browser.mjs
+index 58a87a2..aea86b8 100644
+--- a/tests/runtimes/browser.mjs
++++ b/tests/runtimes/browser.mjs
+@@ -154,7 +154,9 @@ export async function qualifyBrowser({browser,origin,cookie,request,applicationO
+    assert.equal(stored.message,report.message);
+    assert.equal(stored.event_id,report.eventId);
+    assert.equal(stored.occurrence,occurrence.occurrence,'archive custody binds the exact retained occurrence');
+-   assert.deepEqual(Object.keys(stored).sort(),['project','id','message','digest','received','event_id','occurrence'].sort(),'widget contact, URL, screenshot and other metadata have no stored fields');
++   assert.equal(stored.private_data,null,'an unmodified widget without explicit consent stores no contact, URL, screenshot or other private metadata');
++   assert.equal(row.hasPrivate,false,'the authorized inbox offers no private details for unmodified widget reports');
++   assert.deepEqual(Object.keys(stored).sort(),['project','id','message','digest','received','event_id','occurrence','private_data'].sort(),'widget rows contain only the description, association and empty consent extension');
+    issueReports.set(intended.issue.id,[...(issueReports.get(intended.issue.id)??[]),report]);
+   }
+   for(const detail of details){
+diff --git a/tests/runtimes/feedback-proof.mjs b/tests/runtimes/feedback-proof.mjs
+index 14a2620..33142d3 100644
+--- a/tests/runtimes/feedback-proof.mjs
++++ b/tests/runtimes/feedback-proof.mjs
+@@ -28,6 +28,7 @@ export async function feedbackProof({app,project,details,referenceSent}){
+  const retained=archive.data.feedback.filter(row=>row.project===project.id);
+  assert.deepEqual(retained.map(row=>row.id).sort(),feedback.items.map(row=>row.id).sort(),'archive custody includes exactly the public feedback reports');
+  for(const report of feedback.items){
++  assert.equal(report.hasPrivate,false,'ordinary SDK feedback has no consented private details in the authorized inbox');
+   const match=events.find(({event})=>event.id===report.eventId);
+   assert.ok(match,'each report references a retained SDK occurrence');
+   assert.ok(typeof match.event.occurrence==='string'&&match.event.occurrence.length>0,'the linked SDK event has a retained occurrence identity');
+@@ -40,7 +41,8 @@ export async function feedbackProof({app,project,details,referenceSent}){
+   eventIdentity(event.event.sentry.exceptions),feedback.items.filter(report=>report.eventId===event.id).map(report=>report.message).sort(),
+  ])),ordered(expected),'every SDK error retains exactly its own feedback descriptions and handled state');
+  for(const {issue} of details){
+-  const page=await app.json(root+`/feedback?issue=${issue.id}`),expected=feedback.items.filter(report=>report.issueId===issue.id);
++  // The authorized inbox adds its private-review marker; issue evidence omits it.
++  const page=await app.json(root+`/feedback?issue=${issue.id}`),expected=feedback.items.filter(report=>report.issueId===issue.id).map(({hasPrivate,...report})=>report);
+   assert.equal(page.total,expected.length,'the issue feedback count equals its retained reports');
+   assert.deepEqual(page.items,expected,'the issue read preserves every report and association');
+  }

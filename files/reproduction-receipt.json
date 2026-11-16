@@ -1,0 +1,46 @@
+{
+  "run": 43892572351,
+  "results": [
+    {
+      "head": "cde6912af309f5fcf24bd8239d7e6684cb0dc6e5",
+      "job": 133430385600,
+      "command": "node tests/sdk-runtimes.mjs java",
+      "test": "tests/runtimes/feedback-proof.mjs#feedbackProof",
+      "exit": 1,
+      "failure": "AssertionError [ERR_ASSERTION]: the issue read preserves every report and association"
+    },
+    {
+      "head": "cde6912af309f5fcf24bd8239d7e6684cb0dc6e5",
+      "job": 133430387103,
+      "command": "node tests/sdk-runtimes.mjs dotnet",
+      "test": "tests/runtimes/feedback-proof.mjs#feedbackProof",
+      "exit": 1,
+      "failure": "AssertionError [ERR_ASSERTION]: the issue read preserves every report and association"
+    },
+    {
+      "head": "cde6912af309f5fcf24bd8239d7e6684cb0dc6e5",
+      "job": 133430385911,
+      "command": "pnpm test:tunnel && pnpm test:sentry:sdk && pnpm test:sdk && pnpm test:languages",
+      "test": "tests/runtimes/browser.mjs#qualifyBrowser",
+      "exit": 1,
+      "failure": "AssertionError [ERR_ASSERTION]: widget contact, URL, screenshot and other metadata have no stored fields"
+    },
+    {
+      "head": "cde6912af309f5fcf24bd8239d7e6684cb0dc6e5",
+      "job": 133430386080,
+      "command": "pnpm test:repair-recovery",
+      "test": "tests/repair-recovery/archive.mjs#archiveProof",
+      "exit": 1,
+      "failure": "POST /api/restore: HTTP 409 other",
+      "stage": "archive",
+      "detail": "Real-dev archive fixture retains migration 0109 after dropping 0102-0108; a separate unrecorded current-column probe also returned schema_mismatch:legacy_evidence on the baseline.",
+      "underlying_failure": "schema_mismatch:migration_history",
+      "recorded_probe": "recorded-archive-diagnostic-2.log"
+    }
+  ],
+  "environment_notes": [
+    "System Chromium with --no-sandbox per cloud instruction; Node 22.20.0 and pnpm 10.12.4.",
+    "Java 21 and .NET 8.0.x installed under task-owned toolchain; Maven dependency preparation required ordinary cloud proxy and CA trust. No product edits occurred before reproductions."
+  ],
+  "VERIFY_REPRODUCED": true
+}

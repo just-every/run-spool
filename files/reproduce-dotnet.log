@@ -1,0 +1,80 @@
+(node:2079) ExperimentalWarning: SQLite is an experimental feature and might change at any time
+(Use `node --trace-warnings ...` to show where the warning was created)
+[33m▲ [43;33m[[43;30mWARNING[43;33m][0m [1mProxy environment variables detected. We'll use your proxy for fetch requests.[0m
+
+
+node:internal/modules/run_main:123
+    triggerUncaughtException(
+    ^
+
+AssertionError [ERR_ASSERTION]: the issue read preserves every report and association
++ actual - expected
+... Skipped lines
+
+  [
+    {
+      association: 'attached',
+      eventId: 'f64a9874cb73445ca2c444a460e1d17d',
+-     hasPrivate: false,
+      id: '78d2708eebe54bc3be99d2d8e8433ea3',
+      issueId: 'aea1a9692e5f50bc65a79b9b5f4425e314166ee4f7c25af36dfc099191b05146',
+      message: 'synthetic-spool-feedback',
+      received: 1794846631553
+    },
+...
+      eventId: 'b64ce5676c2d45f18f3465db2393c1bd',
+-     hasPrivate: false,
+      id: '6ca08fcdcf8043f897960ebb2b8753d4',
+      issueId: 'aea1a9692e5f50bc65a79b9b5f4425e314166ee4f7c25af36dfc099191b05146',
+      message: 'synthetic-spool-feedback',
+      received: 1794846630142
+    }
+
+    at feedbackProof (file:///home/agent/rer-consolidation/work/sd-spool-sdk004-2/repo/tests/runtimes/feedback-proof.mjs:45:10)
+    at process.processTicksAndRejections (node:internal/process/task_queues:105:5)
+    at async file:///home/agent/rer-consolidation/work/sd-spool-sdk004-2/repo/tests/sdk-runtimes.mjs:70:15 {
+  generatedMessage: false,
+  code: 'ERR_ASSERTION',
+  actual: [
+    {
+      id: '78d2708eebe54bc3be99d2d8e8433ea3',
+      message: 'synthetic-spool-feedback',
+      received: 1794846631553,
+      eventId: 'f64a9874cb73445ca2c444a460e1d17d',
+      issueId: 'aea1a9692e5f50bc65a79b9b5f4425e314166ee4f7c25af36dfc099191b05146',
+      association: 'attached'
+    },
+    {
+      id: '6ca08fcdcf8043f897960ebb2b8753d4',
+      message: 'synthetic-spool-feedback',
+      received: 1794846630142,
+      eventId: 'b64ce5676c2d45f18f3465db2393c1bd',
+      issueId: 'aea1a9692e5f50bc65a79b9b5f4425e314166ee4f7c25af36dfc099191b05146',
+      association: 'attached'
+    }
+  ],
+  expected: [
+    {
+      id: '78d2708eebe54bc3be99d2d8e8433ea3',
+      message: 'synthetic-spool-feedback',
+      received: 1794846631553,
+      eventId: 'f64a9874cb73445ca2c444a460e1d17d',
+      issueId: 'aea1a9692e5f50bc65a79b9b5f4425e314166ee4f7c25af36dfc099191b05146',
+      hasPrivate: false,
+      association: 'attached'
+    },
+    {
+      id: '6ca08fcdcf8043f897960ebb2b8753d4',
+      message: 'synthetic-spool-feedback',
+      received: 1794846630142,
+      eventId: 'b64ce5676c2d45f18f3465db2393c1bd',
+      issueId: 'aea1a9692e5f50bc65a79b9b5f4425e314166ee4f7c25af36dfc099191b05146',
+      hasPrivate: false,
+      association: 'attached'
+    }
+  ],
+  operator: 'deepStrictEqual',
+  diff: 'simple'
+}
+
+Node.js v22.20.0
