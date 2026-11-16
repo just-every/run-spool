@@ -1,0 +1,94 @@
+{
+  "schema": 1,
+  "tag": "sd-spool-sdk004-3",
+  "repository": "just-every/run-spool",
+  "branch": "cloud/sd-spool-sdk004-3",
+  "head": "0f6c5523e3b4974544a3f73883f9182295bee364",
+  "integrated_main": "a037966cccf2f232e8c098d62607ba36cca7f777",
+  "required_start": "c1920a0db12fa2684b415e4e2fae68e59d726d0b",
+  "recorded_at": "2026-11-16T20:32:27.773372+00:00",
+  "checks": [
+    {
+      "command": "pnpm typecheck",
+      "exit": 0,
+      "log": "TYPECHECK.log"
+    },
+    {
+      "command": "node src/base/contract-docs.mjs check",
+      "exit": 0,
+      "log": "CONTRACT-CHECK.log"
+    },
+    {
+      "command": "node scripts/edition-authoring/cli.mjs check",
+      "exit": 0,
+      "log": "SOURCE-CHECK.log"
+    },
+    {
+      "command": "cloud_run npx -y @runeditrun/rer build",
+      "exit": 0,
+      "log": "BUILD.log"
+    },
+    {
+      "command": "cloud_run timeout 360 node tests/feedback-flow.mjs",
+      "exit": 0,
+      "log": "FEEDBACK-FLOW.log",
+      "covers": [
+        "feedbackFlow",
+        "privateFeedbackFlow",
+        "feedbackMailFlow"
+      ]
+    },
+    {
+      "command": "cloud_run timeout 480 node tests/end-user-erasure-preview.mjs",
+      "exit": 0,
+      "log": "ERASURE-PREVIEW.log",
+      "covers": [
+        "endUserErasurePreviewFlow"
+      ]
+    },
+    {
+      "command": "cloud_run timeout 420 node --input-type=module -e \"import { privateFeedbackFlow } from './tests/feedback-flow.mjs'; await privateFeedbackFlow();\"",
+      "exit": 247,
+      "log": "DUPLICATE-STARTUP.log",
+      "status": "stopped",
+      "reason": "Unnecessary duplicate: full feedbackFlow had already completed privateFeedbackFlow and feedbackMailFlow successfully. Direct module startup stalled before assertions; stopped only its own process group, then removed its scratch directory. No product assertion failure or retry substituted for a failure."
+    }
+  ],
+  "new_test_registrations": 0,
+  "clause_counts_before": {
+    "done": 23,
+    "partial": 54,
+    "missing": 28
+  },
+  "clause_counts_after": {
+    "done": 23,
+    "partial": 54,
+    "missing": 28
+  },
+  "claim": "SDK-004 PARTIAL points=2,3,4",
+  "selected_gate_fix": 2,
+  "product_publication_scan": "deferred to fleet Mac per cloud instructions; not run here",
+  "product_push": {
+    "status": "pushed",
+    "attempts": 1,
+    "ref": "refs/heads/cloud/sd-spool-sdk004-3",
+    "head": "0f6c5523e3b4974544a3f73883f9182295bee364",
+    "remote_ref_verified_at": "2026-11-16T20:34:21.180255+00:00"
+  },
+  "ci": {
+    "id": 43950756529,
+    "head_sha": "0f6c5523e3b4974544a3f73883f9182295bee364",
+    "status": "completed",
+    "conclusion": "failure",
+    "html_url": "https://github.com/just-every/run-spool/actions/runs/43950756529",
+    "api_calls_used": 10,
+    "jobs_receipt": "CI-JOBS.json",
+    "failed_logs_receipt": "CI-LOG-RECEIPT.json"
+  },
+  "terminal_custody": "BLOCKED",
+  "blocker": {
+    "reason": "Exact-SHA Verify failure: sentry-cli job 133593240362; TypeError fetch failed, UND_ERR_SOCKET other side closed on the state snapshot uploads read after archive projection, tests/sentry-cli/debug-flow.mjs:62,70 via tests/sentry-cli-compat.mjs:26. This unchanged path is outside the FIX lease.",
+    "prerequisite": "Successful exact-SHA Verify",
+    "product_pushed": true
+  }
+}

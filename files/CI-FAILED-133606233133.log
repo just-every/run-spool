@@ -1,0 +1,16 @@
+verify	Require the selected coverage and its proof	﻿2026-11-16T20:55:31.8860222Z ##[group]Run set -euo pipefail
+verify	Require the selected coverage and its proof	2026-11-16T20:55:31.8861057Z [36;1mset -euo pipefail[0m
+verify	Require the selected coverage and its proof	2026-11-16T20:55:31.8861622Z [36;1mtest "$PLAN" = success[0m
+verify	Require the selected coverage and its proof	2026-11-16T20:55:31.8862439Z [36;1mcase "$CONTRACT_DOCS:$PUSH_PROOF:$NIGHTLY_PROOF" in[0m
+verify	Require the selected coverage and its proof	2026-11-16T20:55:31.8863156Z [36;1m  *failure*|*cancelled*) exit 1 ;;[0m
+verify	Require the selected coverage and its proof	2026-11-16T20:55:31.8863758Z [36;1mesac[0m
+verify	Require the selected coverage and its proof	2026-11-16T20:55:31.8864489Z [36;1mcase "$COVERAGE" in[0m
+verify	Require the selected coverage and its proof	2026-11-16T20:55:31.8865221Z [36;1m  reuse) test "$SKIP" = true && test "$SHARDS" = skipped && test "$LIGHT" = skipped ;;[0m
+verify	Require the selected coverage and its proof	2026-11-16T20:55:31.8866731Z [36;1m  light) test "$SKIP" = false && test "$LIGHT" = success && test "$SHARDS" = skipped ;;[0m
+verify	Require the selected coverage and its proof	2026-11-16T20:55:31.8867868Z [36;1m  full) test "$LIGHT" = skipped && { test "$SHARDS" = success || { test "$HAS_SHARDS" = false && test "$SHARDS" = skipped; }; } ;;[0m
+verify	Require the selected coverage and its proof	2026-11-16T20:55:31.8868800Z [36;1m  *) exit 1 ;;[0m
+verify	Require the selected coverage and its proof	2026-11-16T20:55:31.8869349Z [36;1mesac[0m
+verify	Require the selected coverage and its proof	2026-11-16T20:55:32.3067152Z shell: /usr/bin/bash -e {0}
+[CI environment section omitted from public evidence]
+verify	Require the selected coverage and its proof	2026-11-16T20:55:32.3146747Z ##[endgroup]
+verify	Require the selected coverage and its proof	2026-11-16T20:55:32.3299010Z ##[error]Process completed with exit code 1.

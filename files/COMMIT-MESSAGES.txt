@@ -1,0 +1,26 @@
+0f6c5523e3b4974544a3f73883f9182295bee364
+Disclose retained private feedback in end-user erasure
+
+Use SDK-004 gate fix option 2: feedback contact matching remains unavailable. Preview and saved receipts explain that consented contact, screenshots and replies remain in the inbox and require owner withdrawal. Extend the public feedback journey to prove this boundary and correct the crash-dialog documentation. Preserve the published SDK-004 ancestry and main's SDK-027 search-tag erasure through a merge.
+
+c1920a0db12fa2684b415e4e2fae68e59d726d0b
+Document verified feedback archive recovery and migration history
+
+ac684a8abd3f53f461884be0fcf06b64d688e7f4
+Merge current owner-erasure main into SDK-004 repair [skip ci]
+
+70ebcf25343d7fba0c9a79d3389a5f289c1346af
+Preserve SDK-004 Verify repair for final recovery check [skip ci]
+
+cde6912af309f5fcf24bd8239d7e6684cb0dc6e5
+Preserve released feedback schema checks across private review upgrade
+
+f18a605cbed5cf19e68929ec41cd488d2db1e0df
+Register feedback review migration in managed integration
+
+717793521d928a9f7279b40c1ca3cbe0b5b69a43
+Prove private feedback replies, mail-off review and withdrawal
+
+2518c0c0f170443e38fa2092710f9816001c7877
+Add consented private feedback review and reply ledger [skip ci]
+

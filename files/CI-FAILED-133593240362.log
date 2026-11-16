@@ -1,0 +1,88 @@
+verify (sentry-cli)	Run suites	﻿2026-11-16T20:34:10.0422318Z ##[group]Run pnpm test:sentry:cli
+verify (sentry-cli)	Run suites	2026-11-16T20:34:10.0422691Z [36;1mpnpm test:sentry:cli[0m
+verify (sentry-cli)	Run suites	2026-11-16T20:34:10.0436959Z shell: /usr/bin/bash -e {0}
+[CI environment section omitted from public evidence]
+verify (sentry-cli)	Run suites	2026-11-16T20:34:10.0439443Z ##[endgroup]
+verify (sentry-cli)	Run suites	2026-11-16T20:34:10.3158119Z 
+verify (sentry-cli)	Run suites	2026-11-16T20:34:10.3159500Z > @errors/errors-workbench@0.7.13 test:sentry:cli /home/runner/work/run-spool/run-spool
+verify (sentry-cli)	Run suites	2026-11-16T20:34:10.3160108Z > node tests/sentry-cli-compat.mjs
+verify (sentry-cli)	Run suites	2026-11-16T20:34:10.3160314Z 
+verify (sentry-cli)	Run suites	2026-11-16T20:34:10.8857537Z (node:2605) ExperimentalWarning: SQLite is an experimental feature and might change at any time
+verify (sentry-cli)	Run suites	2026-11-16T20:34:10.8858796Z (Use `node --trace-warnings ...` to show where the warning was created)
+verify (sentry-cli)	Run suites	2026-11-16T20:34:19.8530730Z Sentry authority: bearer only; ingest; 15 doors=401
+verify (sentry-cli)	Run suites	2026-11-16T20:34:20.0213870Z Sentry authority: bearer only; agent; 15 doors=403
+verify (sentry-cli)	Run suites	2026-11-16T20:34:20.1689106Z Sentry authority: bearer only; revoked; 15 doors=401
+verify (sentry-cli)	Run suites	2026-11-16T20:34:20.2989322Z Sentry authority: bearer only; unknown; 15 doors=401
+verify (sentry-cli)	Run suites	2026-11-16T20:34:20.3924739Z Sentry authority: bearer only; absent; 15 doors=401
+verify (sentry-cli)	Run suites	2026-11-16T20:34:20.4760984Z Sentry authority: bearer only; malformed; 15 doors=401
+verify (sentry-cli)	Run suites	2026-11-16T20:34:20.5356377Z Sentry authority: bearer only; cross-project; 5 project-bearing doors=403
+verify (sentry-cli)	Run suites	2026-11-16T20:34:20.7182618Z Sentry authority: owner cookie and Origin; ingest; 15 doors=401
+verify (sentry-cli)	Run suites	2026-11-16T20:34:20.8907133Z Sentry authority: owner cookie and Origin; agent; 15 doors=403
+verify (sentry-cli)	Run suites	2026-11-16T20:34:21.0861498Z Sentry authority: owner cookie and Origin; revoked; 15 doors=401
+verify (sentry-cli)	Run suites	2026-11-16T20:34:21.2543113Z Sentry authority: owner cookie and Origin; unknown; 15 doors=401
+verify (sentry-cli)	Run suites	2026-11-16T20:34:21.3950081Z Sentry authority: owner cookie and Origin; absent; 15 doors=401
+verify (sentry-cli)	Run suites	2026-11-16T20:34:21.5204238Z Sentry authority: owner cookie and Origin; malformed; 15 doors=401
+verify (sentry-cli)	Run suites	2026-11-16T20:34:21.5955356Z Sentry authority: owner cookie and Origin; cross-project; 5 project-bearing doors=403
+verify (sentry-cli)	Run suites	2026-11-16T20:34:29.0097767Z ZIP refusal: symlink; upload=200 assemble=200/error; artifacts=0 releases=0 staged-chunks=0
+verify (sentry-cli)	Run suites	2026-11-16T20:34:31.0173253Z ZIP refusal: drive absolute; upload=200 assemble=200/error; artifacts=0 releases=0 staged-chunks=0
+verify (sentry-cli)	Run suites	2026-11-16T20:34:33.0485379Z ZIP refusal: traversal directory; upload=200 assemble=200/error; artifacts=0 releases=0 staged-chunks=0
+verify (sentry-cli)	Run suites	2026-11-16T20:34:35.0368690Z ZIP refusal: drive relative; upload=200 assemble=200/error; artifacts=0 releases=0 staged-chunks=0
+verify (sentry-cli)	Run suites	2026-11-16T20:34:37.5249689Z ZIP refusal: UNC; upload=200 assemble=200/error; artifacts=0 releases=0 staged-chunks=0
+verify (sentry-cli)	Run suites	2026-11-16T20:34:39.4464229Z ZIP refusal: mixed traversal directory; upload=200 assemble=200/error; artifacts=0 releases=0 staged-chunks=0
+verify (sentry-cli)	Run suites	2026-11-16T20:34:41.3677732Z ZIP refusal: backslash; upload=200 assemble=200/error; artifacts=0 releases=0 staged-chunks=0
+verify (sentry-cli)	Run suites	2026-11-16T20:34:43.4856152Z ZIP refusal: FIFO; upload=200 assemble=200/error; artifacts=0 releases=0 staged-chunks=0
+verify (sentry-cli)	Run suites	2026-11-16T20:34:45.5609870Z ZIP refusal: symlink directory; upload=200 assemble=200/error; artifacts=0 releases=0 staged-chunks=0
+verify (sentry-cli)	Run suites	2026-11-16T20:34:47.6046193Z ZIP refusal: parent traversal; upload=200 assemble=200/error; artifacts=0 releases=0 staged-chunks=0
+verify (sentry-cli)	Run suites	2026-11-16T20:34:49.5644397Z ZIP refusal: absolute; upload=200 assemble=200/error; artifacts=0 releases=0 staged-chunks=0
+verify (sentry-cli)	Run suites	2026-11-16T20:34:51.5618656Z ZIP refusal: duplicate; upload=200 assemble=200/error; artifacts=0 releases=0 staged-chunks=0
+verify (sentry-cli)	Run suites	2026-11-16T20:34:53.8214822Z ZIP refusal: control name; upload=200 assemble=200/error; artifacts=0 releases=0 staged-chunks=0
+verify (sentry-cli)	Run suites	2026-11-16T20:34:55.7928135Z ZIP refusal: deflate underdeclared; upload=200 assemble=200/error; artifacts=0 releases=0 staged-chunks=0
+verify (sentry-cli)	Run suites	2026-11-16T20:34:57.9954704Z ZIP refusal: deflate overdeclared; upload=200 assemble=200/error; artifacts=0 releases=0 staged-chunks=0
+verify (sentry-cli)	Run suites	2026-11-16T20:34:59.9721750Z ZIP refusal: stored mismatch; upload=200 assemble=200/error; artifacts=0 releases=0 staged-chunks=0
+verify (sentry-cli)	Run suites	2026-11-16T20:35:01.9639667Z ZIP refusal: false declaration over 4 MiB; upload=200 assemble=200/error; artifacts=0 releases=0 staged-chunks=0
+verify (sentry-cli)	Run suites	2026-11-16T20:35:08.7864207Z [sentry-vite-plugin] Info: Successfully uploaded source maps to Sentry
+verify (sentry-cli)	Run suites	2026-11-16T20:35:10.6090463Z [sentry-esbuild-plugin] Info: Successfully uploaded source maps to Sentry
+verify (sentry-cli)	Run suites	2026-11-16T20:35:12.5182740Z [sentry-rollup-plugin] Info: Successfully uploaded source maps to Sentry
+verify (sentry-cli)	Run suites	2026-11-16T20:35:15.1193539Z [sentry-webpack-plugin] Info: Successfully uploaded source maps to Sentry
+verify (sentry-cli)	Run suites	2026-11-16T20:35:19.2151351Z Sentry integrity: wrong chunk checksum=400; wrong bundle checksum=200/error; missing chunk=200/not_found; oversize chunk=400; no added artifacts/releases/staging
+verify (sentry-cli)	Run suites	2026-11-16T20:35:44.3493727Z PROBE API-002 POST /api/0/organizations/acme/releases/: extra fields -> 400, bounded named error, safe audit, unchanged populated state; auth first
+verify (sentry-cli)	Run suites	2026-11-16T20:36:03.4027203Z PROBE API-002 POST /api/0/projects/acme/web/releases/: extra fields -> 400, bounded named error, safe audit, unchanged populated state; auth first
+verify (sentry-cli)	Run suites	2026-11-16T20:36:22.6820021Z PROBE API-002 PUT /api/0/organizations/acme/releases/checkout@1.0.0/: extra fields -> 400, bounded named error, safe audit, unchanged populated state; auth first
+verify (sentry-cli)	Run suites	2026-11-16T20:36:41.9541589Z PROBE API-002 POST /api/0/organizations/acme/releases/checkout@1.0.0/deploys/: extra fields -> 400, bounded named error, safe audit, unchanged populated state; auth first
+verify (sentry-cli)	Run suites	2026-11-16T20:36:46.7926871Z PROBE API-002 refs and endpoint: named 501; read-only, revoked and foreign grants: auth refusal; no product changes
+verify (sentry-cli)	Run suites	2026-11-16T20:36:51.4508851Z PROBE API-002 staging control: permitted assembly -> 200/error [malformed_bundle]; control chunk consumed; pre-existing staging and product rows unchanged
+verify (sentry-cli)	Run suites	2026-11-16T20:37:23.9932659Z PROBE API-002 acceptance-3: GET /api/0/organizations/acme/projects/ with deploy authority -> 501 naming the method and path; product and upload state unchanged
+verify (sentry-cli)	Run suites	2026-11-16T20:37:31.1375335Z PROBE API-002 acceptance-3: POST /api/0/organizations/acme/unsupported/ with deploy authority -> 501 naming the method and path; product and upload state unchanged
+verify (sentry-cli)	Run suites	2026-11-16T20:37:41.1731339Z node:internal/deps/undici/undici:13510
+verify (sentry-cli)	Run suites	2026-11-16T20:37:41.1731826Z       Error.captureStackTrace(err);
+verify (sentry-cli)	Run suites	2026-11-16T20:37:41.1732148Z             ^
+verify (sentry-cli)	Run suites	2026-11-16T20:37:41.1732284Z 
+verify (sentry-cli)	Run suites	2026-11-16T20:37:41.1732409Z TypeError: fetch failed
+verify (sentry-cli)	Run suites	2026-11-16T20:37:41.1732721Z     at node:internal/deps/undici/undici:13510:13
+verify (sentry-cli)	Run suites	2026-11-16T20:37:41.1733274Z     at async api (file:///home/runner/work/run-spool/run-spool/tests/sentry-cli-compat.mjs:26:52)
+verify (sentry-cli)	Run suites	2026-11-16T20:37:41.1733974Z     at async state (file:///home/runner/work/run-spool/run-spool/tests/sentry-cli/debug-flow.mjs:62:107)
+verify (sentry-cli)	Run suites	2026-11-16T20:37:41.1734705Z     at async debugFlow (file:///home/runner/work/run-spool/run-spool/tests/sentry-cli/debug-flow.mjs:70:19)
+verify (sentry-cli)	Run suites	2026-11-16T20:37:41.1735370Z     at async file:///home/runner/work/run-spool/run-spool/tests/sentry-cli-compat.mjs:40:2 {
+verify (sentry-cli)	Run suites	2026-11-16T20:37:41.1735861Z   [cause]: SocketError: other side closed
+verify (sentry-cli)	Run suites	2026-11-16T20:37:41.1736314Z       at Socket.<anonymous> (node:internal/deps/undici/undici:6294:28)
+verify (sentry-cli)	Run suites	2026-11-16T20:37:41.1736722Z       at Socket.emit (node:events:531:35)
+verify (sentry-cli)	Run suites	2026-11-16T20:37:41.1737044Z       at Socket.emit (node:domain:489:12)
+verify (sentry-cli)	Run suites	2026-11-16T20:37:41.1737773Z       at endReadableNT (node:internal/streams/readable:1698:12)
+verify (sentry-cli)	Run suites	2026-11-16T20:37:41.1738320Z       at process.processTicksAndRejections (node:internal/process/task_queues:90:21) {
+verify (sentry-cli)	Run suites	2026-11-16T20:37:41.1738775Z     code: 'UND_ERR_SOCKET',
+verify (sentry-cli)	Run suites	2026-11-16T20:37:41.1739404Z     socket: {
+verify (sentry-cli)	Run suites	2026-11-16T20:37:41.1739753Z       localAddress: '127.0.0.1',
+verify (sentry-cli)	Run suites	2026-11-16T20:37:41.1740179Z       localPort: 42244,
+verify (sentry-cli)	Run suites	2026-11-16T20:37:41.1740500Z       remoteAddress: undefined,
+verify (sentry-cli)	Run suites	2026-11-16T20:37:41.1740979Z       remotePort: undefined,
+verify (sentry-cli)	Run suites	2026-11-16T20:37:41.1741262Z       remoteFamily: undefined,
+verify (sentry-cli)	Run suites	2026-11-16T20:37:41.1741546Z       timeout: undefined,
+verify (sentry-cli)	Run suites	2026-11-16T20:37:41.1741807Z       bytesWritten: 3385,
+verify (sentry-cli)	Run suites	2026-11-16T20:37:41.1742068Z       bytesRead: 11135022
+verify (sentry-cli)	Run suites	2026-11-16T20:37:41.1742302Z     }
+verify (sentry-cli)	Run suites	2026-11-16T20:37:41.1742514Z   }
+verify (sentry-cli)	Run suites	2026-11-16T20:37:41.1742709Z }
+verify (sentry-cli)	Run suites	2026-11-16T20:37:41.1742821Z 
+verify (sentry-cli)	Run suites	2026-11-16T20:37:41.1742923Z Node.js v22.20.0
+verify (sentry-cli)	Run suites	2026-11-16T20:37:41.2171159Z  ELIFECYCLE  Command failed with exit code 1.
+verify (sentry-cli)	Run suites	2026-11-16T20:37:41.2929366Z ##[error]Process completed with exit code 1.

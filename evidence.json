@@ -1,0 +1,184 @@
+{
+  "files": [
+    {
+      "blob": "a6612b8c41474aec62497f64364abc68786acdc3",
+      "bytes": 1837,
+      "path": "ANCESTRY.txt",
+      "sha256": "a62828f5335a7348b0a13ed03253d6cb2f8398795ad40b610e4b4d323d53d680"
+    },
+    {
+      "blob": "2936d5ccf0f5e3373c2a58d03b754e29f83ede84",
+      "bytes": 12089,
+      "path": "BUILD.log",
+      "sha256": "a1e3d3321bc80aaca3cccba50fd654d79c2484711c4429c672267b5580bc61ab"
+    },
+    {
+      "blob": "4027cfb5e547b094b43a7e217f8a787aa3df962f",
+      "bytes": 3269,
+      "path": "CHECK-RECEIPT.json",
+      "sha256": "0c20b539710e85ba0d3d816166f4574cfc802b0a5d9ca2c7cbbdca54870794ce"
+    },
+    {
+      "blob": "2090c965f780afaa627a41e23c8e97a456f32ba2",
+      "bytes": 11213,
+      "path": "CI-FAILED-133593240362.log",
+      "sha256": "53aa98cee86eae1d0bf98bd003e7f0a91aae40b69219d2735979c322a8fc4101"
+    },
+    {
+      "blob": "ccf130982a61442449e3a0d1e0fc30b8e1868d1a",
+      "bytes": 1320,
+      "path": "CI-FAILED-133606172192.log",
+      "sha256": "0cc4063a29d5b29c9c1ea3fc4aceea2fc0308f3d2589fff0179b1900030ef718"
+    },
+    {
+      "blob": "212ab290739b8339d768bac51e843b617160c543",
+      "bytes": 1974,
+      "path": "CI-FAILED-133606233133.log",
+      "sha256": "7edcc81db1b42c791dd5286fb41a417b31a7417313c8c48ac6a4e510535ed29b"
+    },
+    {
+      "blob": "8d668d07055a1c63115118a199ae30d5965b1f79",
+      "bytes": 205,
+      "path": "CI-FAILURE-SCOPE.txt",
+      "sha256": "a13373dd769e77649b5e01caaa6c60f11a8c13f95ff67b0c5057c013ba256db2"
+    },
+    {
+      "blob": "0c9ba02cee2d3c8f93885f49d69273eb6f181999",
+      "bytes": 187806,
+      "path": "CI-JOBS.json",
+      "sha256": "a0c71122eac9926e23a95f850a18454809dcf9955c76e8e91867709d87e256a1"
+    },
+    {
+      "blob": "170278886732add416cc68e1732591e3f4d91f6b",
+      "bytes": 955,
+      "path": "CI-LOG-RECEIPT.json",
+      "sha256": "d1cdb82e3380dae9c6eef54505da34eb543a97e160243d33d9db0d085e6d24d0"
+    },
+    {
+      "blob": "35cf16d9ad30845aae6e62c56aace03f41fa61e3",
+      "bytes": 80651,
+      "path": "CI-REST.json",
+      "sha256": "e13a16105fa9deb858bd1af54a056d871818e664d8e655905548b171fa94e2e1"
+    },
+    {
+      "blob": "9575e31fc26b7beec1757911a90c9d676993b5d9",
+      "bytes": 1252,
+      "path": "COMMIT-MESSAGES.txt",
+      "sha256": "b05df9521d5e123d429b2f390d8c1b88a9f1d140eaeae8bb24792221ce04bbf5"
+    },
+    {
+      "blob": "b59d39532e8a030ff74f6339019ab7870ef51548",
+      "bytes": 70,
+      "path": "CONTRACT-CHECK.log",
+      "sha256": "b04031901cfff3e9bc42a429b52cbc14c2442ffb68817fd62a245ac52847b422"
+    },
+    {
+      "blob": "e0746d82caf17348cdc04c253bcde3312f0717a8",
+      "bytes": 136,
+      "path": "DUPLICATE-STARTUP.log",
+      "sha256": "6205e22497347c74bf6517d7c67792b17cc2051d7b12f33098353c4b1b9bed4a"
+    },
+    {
+      "blob": "326ac571bb493e59abaad87c1b6ab2e026acfc88",
+      "bytes": 1488,
+      "path": "ERASURE-PREVIEW.log",
+      "sha256": "8544f8d3785a3c35050c8f67a1c5f883600fffa51a850e5bd7cbff26a011a48e"
+    },
+    {
+      "blob": "fcfd1f4c73b0c768e1c7156cb928201471c85e00",
+      "bytes": 6824,
+      "path": "ERASURE-RECEIPTS.json",
+      "sha256": "35af802ca1500c8299dccd4f96d3e01f2900a9a5a8d9eb540cd0e3b48784403e"
+    },
+    {
+      "blob": "51b6430ceb3f8e2afa4bc2b4d1d3c702016efbf3",
+      "bytes": 373,
+      "path": "FEEDBACK-FLOW.log",
+      "sha256": "4f46ac3dcf03b46e67da160d150d2b796fb80356e20edd74c948958de0b46f6a"
+    },
+    {
+      "blob": "340dbdd69ee22f822de0cd0bf0e0c364a7381f7b",
+      "bytes": 1008,
+      "path": "IDENTITIES.txt",
+      "sha256": "71dff0df284104e56e1129ec4e2036ad7de3c9ad7362327034c1aba65c7d0467"
+    },
+    {
+      "blob": "225f2a910f5f20993e1051831dbc29f198b9a7e0",
+      "bytes": 3145,
+      "path": "PLAN.md",
+      "sha256": "daf7cb1387687d1d8937cbf62ca213318b07a08614a8b3e4d03d02e56c187331"
+    },
+    {
+      "blob": "c83bce0096374e66d4566466bff2abba0e83d1d6",
+      "bytes": 907,
+      "path": "PUSH.log",
+      "sha256": "fd417e6b97dcc7ee129102489fe2fd72c9fe1c76b0441d1e4c3092725d87595c"
+    },
+    {
+      "blob": "2cc2ef3a8ac73a34b37878a8330d5e41e8565ab0",
+      "bytes": 76,
+      "path": "REMOTE-REF.txt",
+      "sha256": "f5aaaedc46c6528dde9bfc5af9d2188703083ec6a871945e660384d71373df43"
+    },
+    {
+      "blob": "55663b5c2f00c88370b588aeb4580bf12605603b",
+      "bytes": 10007,
+      "path": "REPORT.md",
+      "sha256": "811ee0bd905df18559947ff56b95c77a78f8e549203cabb381976e6d70f5e795"
+    },
+    {
+      "blob": "2a4bf4ef1a55fc089552d5e411711a266fcdcb66",
+      "bytes": 478082,
+      "path": "SOURCE-CHECK.log",
+      "sha256": "8ee3cd0d05297251e639c17e512309e58e0d42305e3709a539fb9eddc0a5cd3b"
+    },
+    {
+      "blob": "dd64b2e08ff7446f626f50219a4fdf1eeeaa23c1",
+      "bytes": 230,
+      "path": "TYPECHECK.log",
+      "sha256": "fd9f133ec2997a44e6932cac70bd55d88b9ac61ce29ab5cce8e601df9af4c3e7"
+    },
+    {
+      "blob": "f3160f303ba1b39aa47c4fd18c5d089a66e162f6",
+      "bytes": 139241,
+      "path": "erasure-complete-1440.png",
+      "sha256": "a4596c743ba3ed9f8edee64995c88e21dbd7e2690afabb118309e9edded781e9"
+    },
+    {
+      "blob": "ff49fbbfb3fd9555c7eb313780db19fba18e76eb",
+      "bytes": 141646,
+      "path": "erasure-complete-390.png",
+      "sha256": "3d881abd77bc093d065e9e83eb3f42771fe285948bce444c6a7e57ee7587657c"
+    },
+    {
+      "blob": "e121c5a65d20b5f85d501f1b8ebb2032d616a4b7",
+      "bytes": 153563,
+      "path": "erasure-matching-1440.png",
+      "sha256": "7f89ddb3c4c95cef032d3fd925e042f1258f3274f3f9b9e18af2f0610d41098d"
+    },
+    {
+      "blob": "0ccc736e8dd3e5b77da50215268f8777a8b711b5",
+      "bytes": 150029,
+      "path": "erasure-matching-390.png",
+      "sha256": "48d92872d358ac88e7c856acc330b72019d5f7357e2b649b96c25be5246cca51"
+    },
+    {
+      "blob": "5bb2b305f5b8d09d72131cb28cccaca5a64d7059",
+      "bytes": 120021,
+      "path": "feedback-review-1440.png",
+      "sha256": "7990fd2c5ee7bc31816861aa579c9d1e0186cc1e381842b02c09334d3712cfc2"
+    },
+    {
+      "blob": "c5f41c8897a558e89631aeca29af569cd4361419",
+      "bytes": 108932,
+      "path": "feedback-review-390.png",
+      "sha256": "0ee50971261c742a80b5c4827f728e7ccd25ff2e8c7ea58f210519b987343812"
+    }
+  ],
+  "product_branch": "cloud/sd-spool-sdk004-3",
+  "product_head": "0f6c5523e3b4974544a3f73883f9182295bee364",
+  "ref": "refs/heads/evidence/sd-spool-sdk004-3",
+  "repository": "just-every/run-spool",
+  "schema": 1,
+  "tag": "sd-spool-sdk004-3"
+}

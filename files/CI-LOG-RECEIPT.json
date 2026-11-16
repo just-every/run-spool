@@ -1,0 +1,53 @@
+[
+  {
+    "api_call": 8,
+    "command": [
+      "gh",
+      "run",
+      "view",
+      "43950756529",
+      "--repo",
+      "just-every/run-spool",
+      "--job",
+      "133593240362",
+      "--log-failed"
+    ],
+    "exit": 0,
+    "at": "2026-11-16T20:57:45.978207+00:00",
+    "log": "CI-FAILED-133593240362.log"
+  },
+  {
+    "api_call": 9,
+    "command": [
+      "gh",
+      "run",
+      "view",
+      "43950756529",
+      "--repo",
+      "just-every/run-spool",
+      "--job",
+      "133606172192",
+      "--log-failed"
+    ],
+    "exit": 0,
+    "at": "2026-11-16T20:57:47.129793+00:00",
+    "log": "CI-FAILED-133606172192.log"
+  },
+  {
+    "api_call": 10,
+    "command": [
+      "gh",
+      "run",
+      "view",
+      "43950756529",
+      "--repo",
+      "just-every/run-spool",
+      "--job",
+      "133606233133",
+      "--log-failed"
+    ],
+    "exit": 0,
+    "at": "2026-11-16T20:57:48.484899+00:00",
+    "log": "CI-FAILED-133606233133.log"
+  }
+]

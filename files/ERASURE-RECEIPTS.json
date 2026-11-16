@@ -1,0 +1,155 @@
+{
+  "removal": {
+    "id": "6e404edc20b64c9f9c8325c643eed0d0",
+    "phase": "complete",
+    "planned": {
+      "event_identities": 4,
+      "health_sessions": 0,
+      "search_tags": 6
+    },
+    "deleted": {
+      "event_identities": 4,
+      "health_sessions": 0,
+      "search_tags": 6
+    },
+    "retained": [
+      {
+        "table": "feedback",
+        "reason": "Consented feedback contact, screenshots and replies stay in the feedback inbox. End-user erasure does not match feedback by contact or remove these details by the supplied identity. To remove them, the installation owner must withdraw the report in the feedback inbox. Deleting matching events also deletes reports attached to those exact occurrences."
+      },
+      {
+        "table": "attachments",
+        "reason": "Attachment ingestion and identity metadata are not retained; there is no attachment identity matching store."
+      },
+      {
+        "table": "replays",
+        "reason": "Replay ingestion and identity metadata are not retained; there is no replay identity matching store."
+      },
+      {
+        "table": "identity_search",
+        "reason": "Identity-specific search keys and facets are unavailable. Ordinary search and tag facets read event payloads directly; exact identity copies in tags on matching events are removed."
+      },
+      {
+        "table": "health_sessions",
+        "reason": "Only session DID hashes equal to the supplied value are matched. Different aliases and anonymous session aggregates cannot be correlated."
+      },
+      {
+        "table": "external_copies",
+        "reason": "Downloaded archives, delivered messages, provider backups and future incoming captures are outside this installation. A fresh destination needs the later archive as its trusted erasure journal."
+      }
+    ],
+    "blobs": {
+      "total": 0,
+      "deleted": 0
+    },
+    "requestedAt": "2026-11-16T20:31:17.652Z",
+    "committedAt": "2026-11-16T20:31:17.652Z",
+    "completedAt": "2026-11-16T20:31:17.659Z",
+    "seconds": 0.007,
+    "exceptions": [
+      "Only exact retained event identities and literally equal session DIDs are matched; the retained-scope list names uncorrelatable stores.",
+      "The existing portability redaction checkpoint refuses pre-erasure archives here, or with a trusted later journal on a fresh installation.",
+      "Downloaded copies, delivered messages, provider backups and future captures are outside this operation."
+    ]
+  },
+  "deletion": {
+    "id": "d6bc63a7a51243cf957546c65f2102c0",
+    "phase": "complete",
+    "planned": {
+      "event_identities": 1,
+      "health_sessions": 1,
+      "search_tags": 1,
+      "events": 1,
+      "feedback": 1,
+      "event_grouping": 0,
+      "event_suppressions": 0
+    },
+    "deleted": {
+      "event_identities": 1,
+      "health_sessions": 1,
+      "search_tags": 1,
+      "events": 1,
+      "feedback": 1,
+      "event_grouping": 0,
+      "event_suppressions": 0
+    },
+    "retained": [
+      {
+        "table": "feedback",
+        "reason": "Consented feedback contact, screenshots and replies stay in the feedback inbox. End-user erasure does not match feedback by contact or remove these details by the supplied identity. To remove them, the installation owner must withdraw the report in the feedback inbox. Deleting matching events also deletes reports attached to those exact occurrences."
+      },
+      {
+        "table": "attachments",
+        "reason": "Attachment ingestion and identity metadata are not retained; there is no attachment identity matching store."
+      },
+      {
+        "table": "replays",
+        "reason": "Replay ingestion and identity metadata are not retained; there is no replay identity matching store."
+      },
+      {
+        "table": "identity_search",
+        "reason": "Identity-specific search keys and facets are unavailable. Ordinary search and tag facets read event payloads directly; exact identity copies in tags on matching events are removed."
+      },
+      {
+        "table": "health_sessions",
+        "reason": "Only session DID hashes equal to the supplied value are matched. Different aliases and anonymous session aggregates cannot be correlated."
+      },
+      {
+        "table": "external_copies",
+        "reason": "Downloaded archives, delivered messages, provider backups and future incoming captures are outside this installation. A fresh destination needs the later archive as its trusted erasure journal."
+      }
+    ],
+    "blobs": {
+      "total": 0,
+      "deleted": 0
+    },
+    "requestedAt": "2026-11-16T20:31:40.299Z",
+    "committedAt": "2026-11-16T20:31:40.299Z",
+    "completedAt": "2026-11-16T20:31:40.310Z",
+    "seconds": 0.011,
+    "exceptions": [
+      "Only exact retained event identities and literally equal session DIDs are matched; the retained-scope list names uncorrelatable stores.",
+      "The existing portability redaction checkpoint refuses pre-erasure archives here, or with a trusted later journal on a fresh installation.",
+      "Downloaded copies, delivered messages, provider backups and future captures are outside this operation."
+    ]
+  },
+  "restore": {
+    "same": "erasure_epoch",
+    "freshPost": "restored",
+    "freshOld": "erasure_epoch"
+  },
+  "before": {
+    "events": 6,
+    "matching": 4
+  },
+  "after": {
+    "events": 5,
+    "matching": 0
+  },
+  "limitations": [
+    {
+      "table": "feedback",
+      "reason": "Consented feedback contact, screenshots and replies stay in the feedback inbox. End-user erasure does not match feedback by contact or remove these details by the supplied identity. To remove them, the installation owner must withdraw the report in the feedback inbox. Deleting matching events also deletes reports attached to those exact occurrences."
+    },
+    {
+      "table": "attachments",
+      "reason": "Attachment ingestion and identity metadata are not retained; there is no attachment identity matching store."
+    },
+    {
+      "table": "replays",
+      "reason": "Replay ingestion and identity metadata are not retained; there is no replay identity matching store."
+    },
+    {
+      "table": "identity_search",
+      "reason": "Identity-specific search keys and facets are unavailable. Ordinary search and tag facets read event payloads directly; exact identity copies in tags on matching events are removed."
+    },
+    {
+      "table": "health_sessions",
+      "reason": "Only session DID hashes equal to the supplied value are matched. Different aliases and anonymous session aggregates cannot be correlated."
+    },
+    {
+      "table": "external_copies",
+      "reason": "Downloaded archives, delivered messages, provider backups and future incoming captures are outside this installation. A fresh destination needs the later archive as its trusted erasure journal."
+    }
+  ]
+}
