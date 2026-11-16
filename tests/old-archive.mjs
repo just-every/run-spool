@@ -8,6 +8,23 @@ import {build} from 'esbuild';
 import {readArchive} from '../src/modules/portability/index.mjs';
 import {platformTable} from '../src/modules/portability/bookkeeping.mjs';
 import {policy} from '../src/modules/portability/catalogue.mjs';
+// Compare inherited DDL while permitting a declared additive column; all
+// inherited constraints and bytes must still match the released schema.
+function withoutColumn(sql,name){
+ const start=sql.indexOf('('),end=sql.lastIndexOf(')'),parts=[];let depth=0,quote='',from=start+1;
+ for(let index=from;index<end;index++){
+  const char=sql[index];
+  if(quote){if(char===quote){if(sql[index+1]===quote)index++;else quote=''}continue}
+  if(["'",'"','`'].includes(char)){quote=char;continue}
+  if(char==='(')depth++;else if(char===')')depth--;
+  else if(char===','&&depth===0){parts.push(sql.slice(from,index));from=index+1}
+ }
+ parts.push(sql.slice(from,end));
+ const kept=parts.filter(part=>part.trim().split(/\s+/)[0]!==name);
+ assert.equal(kept.length,parts.length-1,'exactly the declared new column is removed for inherited-DDL comparison');
+ return sql.slice(0,start+1)+kept.join(',')+sql.slice(end);
+}
+
 // TEAM-004 stores (migration 0059) and SRC-003's release/deploy stores (migration 0060) that the released schema lacks.
 const membershipTables = ['spool_reporting_items','spool_reporting_projects','spool_reporting_widgets','spool_reporting_shares','spool_team_digest_settings','spool_team_snoozes','spool_team_mail','spool_organizations','spool_members','spool_project_teams','spool_project_grants','spool_member_invites','spool_service_accounts','spool_service_scopes'];
 const citationTables = ['sentry_transactions','agent_door_retired_refs','bs_retired','native_symbols','native_debug_files','spool_notification_preferences','scrubbing_policies','scrubbing_changes','alert_rule_configs','issue_recurrence_boundaries','issue_priorities','issue_activity','issue_comments','issue_subscriptions','recurrence_policies','issue_suppressions',...membershipTables,'review_stamps','review_views','retention_policies','identity_policies','event_identities','project_identity_keys','health_sessions','health_aggregates','slack_delivery_meta','suspect_decisions','source_map_builds','source_map_build_files','artifact_storage_settings','loader_settings','short_id_prefixes','issue_short_ids','issue_short_id_moves','commits','release_commits','commit_links','repository_link_log','commit_sharing','sentry_releases','sentry_deploys'];
@@ -66,8 +83,9 @@ try {
  await upgrade.batch(additions.map(sql => upgrade.prepare(sql)));
  for (const {name,sql} of oldTables) {
   const upgradedRows=await rows(upgrade, `SELECT * FROM "${name}"`);
+  if(name==='feedback')assert.ok(upgradedRows.every(row=>row.private_data===null),'upgrade invents no contact, screenshot or reply consent for historical feedback');
   if(name==='alert_mail_jobs')assert.ok(upgradedRows.every(row=>row.agent_attribution===null),'upgrade never invents a first-send agent identity for historical mail');
-  assert.deepEqual(canonicalRows(name==='alert_mail_jobs'?upgradedRows.map(({agent_attribution,...row})=>row):upgradedRows), beforeUpgrade.get(name), `populated upgrade preserves every pre-existing row: ${name}`);
+  assert.deepEqual(canonicalRows(name==='feedback'?upgradedRows.map(({private_data,...row})=>row):name==='alert_mail_jobs'?upgradedRows.map(({agent_attribution,...row})=>row):upgradedRows), beforeUpgrade.get(name), `populated upgrade preserves every pre-existing row: ${name}`);
   const currentSql=(await upgrade.prepare("SELECT sql FROM sqlite_master WHERE type='table' AND name=?").bind(name).first()).sql;
   if(name==='audit_context'){
    assert.equal(currentSql,sql.replace(/\)\s*$/,', native_start INTEGER NOT NULL DEFAULT 0)'), 'native audit attribution adds only its declared default-zero cursor to the released context');
@@ -79,6 +97,10 @@ try {
    assert.equal(currentSql.replace(', agent_attribution TEXT',''),sql,'first-send attribution preserves every released mail column and constraint');
    const attribution=(await rows(upgrade,"PRAGMA table_info('alert_mail_jobs')")).find(column=>column.name==='agent_attribution');
    assert.deepEqual({type:attribution.type,notnull:attribution.notnull,default:attribution.dflt_value},{type:'TEXT',notnull:0,default:null});
+  }else if(name==='feedback'){
+   assert.equal(withoutColumn(currentSql,'private_data'),sql,'private review preserves all released feedback columns and constraints');
+   const column=(await rows(upgrade,"PRAGMA table_info('feedback')")).find(column=>column.name==='private_data');
+   assert.deepEqual({type:column.type,notnull:column.notnull,default:column.dflt_value},{type:'TEXT',notnull:0,default:'NULL'});
   }else if(name==='alerts'){
    assert.equal(currentSql.replace('issue TEXT REFERENCES issues(id)','issue TEXT NOT NULL REFERENCES issues(id)').replace(", CHECK((kind='metric' AND issue IS NULL) OR (kind<>'metric' AND issue IS NOT NULL))",''),sql,'metric feed changes only issue nullability and its kind constraint');
   }else if(name!=='spool_audit_events')assert.equal(currentSql,sql,`populated upgrade preserves released table schema: ${name}`);

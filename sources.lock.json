@@ -11314,7 +11314,7 @@
       "executable": false
     },
     "tests/old-archive.mjs": {
-      "sha256": "5973a8e6f8ea3aab5da16db1f4eef4d3a68becbaaaf95e75b212fb35e77abc9e",
+      "sha256": "578e127b0d1c9bfa2fb71fb8f206655e79550e21f2df98634a7980d8855c7633",
       "executable": false
     },
     "tests/operator-archive.mjs": {
