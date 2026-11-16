@@ -95,7 +95,9 @@ Deployed Spool refuses every dev-minted key, including ingest and deploy keys. S
 
 ## Already using Sentry? Point your DSN here
 
-Spool also accepts JavaScript errors from the unmodified Sentry browser and Node SDKs. Replace only the DSN with the one Spool shows for your project, and keep your release and dist settings. Spool keeps the exceptions and their stack traces; it does not keep sessions, traces, replays or attachments. The [switching guide](SENTRY-SWITCHING.md) has the details.
+Spool also accepts JavaScript errors from the unmodified Sentry browser and Node SDKs. Replace only the DSN with the one Spool shows for your project, and keep your release and dist settings. Spool keeps exceptions and stack traces, [observed sessions and release health](SENTRY-SESSIONS.md), bounded transaction timing summaries, text feedback and SDK-reported client-discard counts. Full traces and individual spans, replays, profiles, attachments, logs and metrics are not retained; unsupported items are counted by category. Feedback contact and screenshots are excluded. Cron check-ins route to a connected Uptime heartbeat or are counted as unrouted. The [switching guide](SENTRY-SWITCHING.md) has the details.
+
+Capture support summary updated by Run Edit Run fleet, 16 November 2026.
 
 See [supported languages](SUPPORTED-LANGUAGES.md) for the exact native/Sentry Python and Go grammars, limits, repository path mapping, privacy and unavailable symbolication.
 

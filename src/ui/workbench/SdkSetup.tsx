@@ -70,7 +70,14 @@ export function OriginStep({ project, request }: { project: string; request: Req
 export function SentryIntake({ dsn }: { dsn?: string }) {
   return <div className="sentry-intake">
     <h3>Already using Sentry? Point your DSN here</h3>
-    <p>Keep your Sentry browser or Node SDK and replace only its DSN. By default, events can arrive without a release, and an unseen release is created automatically. Settings shows the release ordering rule; choose registered sequence only there if your project requires registration first. An omitted dist is shown as <code>sentry-no-dist</code>. Spool keeps exceptions and stack traces; sessions, traces and replays remain unsupported.</p>
+    <p>Keep your Sentry browser or Node SDK and replace only its DSN. By default, events can arrive without a release, and an unseen release is created automatically. Settings shows the release ordering rule; choose registered sequence only there if your project requires registration first. An omitted dist is shown as <code>sentry-no-dist</code>.</p>
+    <ul aria-label="Sentry capture support">
+      <li><strong>Errors:</strong> exceptions and stack traces are retained.</li>
+      <li><strong>Sessions:</strong> individual updates and server aggregates provide observed session health in Releases. Missing-release sessions are counted as invalid; device/OS cohorts and Spool-SDK sessions remain unavailable.</li>
+      <li><strong>Transactions:</strong> bounded timing summaries are retained. Full traces and individual spans are unavailable.</li>
+      <li><strong>Feedback and loss:</strong> text feedback and SDK-reported client-discard counts are retained; feedback contact and screenshots are excluded. Cron check-ins route to a connected Uptime heartbeat or are counted as unrouted.</li>
+      <li><strong>Other telemetry:</strong> replays, profiles, attachments, logs and metrics are counted as unsupported and are not retained.</li>
+    </ul>
     {dsn ? <CodeBlock label="Sentry DSN" code={dsn} /> : <p>The DSN is available alongside a newly created ingest key in Settings → Projects & keys or Capture. Copy it before dismissing the key or reloading.</p>}
   </div>;
 }

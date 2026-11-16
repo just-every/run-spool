@@ -25,6 +25,11 @@ try {
   await page.getByRole('combobox',{name:'Project',exact:true}).selectOption('empty-alerts');await page.getByRole('button',{name:'Rules',exact:true}).click();await page.getByText('No destinations yet. Add your first email destination below.').waitFor();await page.screenshot({path:`docs/retained-verification/alert003/destinations-empty-${width}.png`,fullPage:true});await page.getByRole('button',{name:'Delivery log',exact:true}).click();await page.screenshot({path:`docs/retained-verification/alert003/deliveries-empty-${width}.png`,fullPage:true});await page.getByRole('combobox',{name:'Project',exact:true}).selectOption('web');await page.getByRole('button',{name:'Rules',exact:true}).click();
   await page.screenshot({path:`docs/retained-verification/alert003/destinations-initial-${width}.png`,fullPage:true});
   await page.getByLabel('Destination name',{exact:true}).fill(`On call ${width}`);await page.getByLabel('Destination email',{exact:true}).fill(`oncall-${width}@example.com`);await page.getByRole('button',{name:'Add destination',exact:true}).click();
+  if(width===1440){
+   const destination=page.locator('.alert-records > li').filter({has:page.getByRole('button',{name:`Edit On call ${width}`,exact:true})});
+   assert.equal(await destination.locator('strong').first().innerText(),`On call ${width}`,'The destination uses the name just entered');
+   assert.doesNotMatch(await destination.innerText(),/Email route \w+ [A-F0-9]{8}|Member deadline label/i,'Everyday destination details expose no generated routing alias');
+  }
   await page.getByRole('button',{name:`Test On call ${width}`,exact:true}).click();await page.getByRole('status').filter({hasText:'Local development suppresses mail'}).waitFor();
   if(width===1440){
    await page.getByLabel('Rule name',{exact:true}).fill(`Browser mail ${width}`);await page.getByRole('combobox',{name:'Destination',exact:true}).selectOption({label:`On call ${width} · Email`});

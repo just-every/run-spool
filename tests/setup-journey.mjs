@@ -48,6 +48,7 @@ export async function firstProjectJourney(browser, origin, width) {
   if(width===1440){const saved=await (await request.get(origin+'/api/projects/journey/identity-policy')).json();assert.ok(Object.values(saved.policy).every(mode=>mode==='keep'),'project creation preserves the disclosed privacy default');}
   const key=page.getByLabel('Ingest key',{exact:true});await key.waitFor();assert.equal((await key.inputValue()).length>0,true);
   const init=page.getByLabel('SDK init',{exact:true}),initText=await init.innerText();assert.equal(initText.includes(await key.inputValue())&&initText.includes(JSON.stringify(origin)),true,'first-run SDK init carries this installation and the new ingest key');
+  if(width===1440){const support=page.getByRole('list',{name:'Sentry capture support',exact:true});await support.waitFor();}
   const dsn=page.getByLabel('Sentry DSN',{exact:true});assert.equal((await dsn.innerText()).includes(await key.inputValue()),true,'first-run setup still shows the Sentry DSN for the new ingest key');
   assert.deepEqual(consoleErrors,[],'setup form patterns compile without console errors');
   await context.grantPermissions(['clipboard-read','clipboard-write'],{origin});
