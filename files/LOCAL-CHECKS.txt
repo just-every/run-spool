@@ -1,0 +1,13 @@
+Commands run from run-spool with /tmp/rer-cloud-toolchain.sh sourced and cloud_run:
+npx -y @runeditrun/rer setup --owner-email fleet@runeditrun.com --non-interactive: exit 0
+npx -y @runeditrun/rer build: exit 0
+node --import /tmp/spool-socket-trace.mjs tests/execution-journey.mjs, unmodified main: exit 0
+node /tmp/spool-focused-race.mjs, before: exit 1; after: exit 0
+node tests/execution-journey.mjs, candidate: exit 0
+pnpm typecheck: exit 0
+git diff --check: exit 0
+Journey browsers: /usr/bin/chromium, headless, --no-sandbox.
+No new permanent test, product mock, retry, skip, timeout raise or weakened assertion.
+Runtime: Node 24.19.0 and pnpm 10.12.4 from the supplied toolchain setup; CI pins Node 22.20.0.
+
+ALERT-004 an interrupted send, an expired lease and a lost provider response each leave one durable follow-up and never a duplicate. Execution journey passed: outcomes reproduced,not_reproduced,failed,failed,not_reproduced,unsupported; module loading syntax finished failed load_failed,unresolved finished failed load_failed; workflow approved_awaiting_connection then deployed; exposure inconclusive,inconclusive,inconclusive,reached,inconclusive,recurred; 4 captures.

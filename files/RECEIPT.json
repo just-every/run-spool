@@ -1,0 +1,152 @@
+{
+  "tag": "gr-ci-spool-flake-1",
+  "baseline": "adc3de69b9ae0ff60e41897f8ff7662fd656d560",
+  "focused": {
+    "before": {
+      "exit_code": 1,
+      "error": "TypeError: fetch failed",
+      "cause": "UND_ERR_SOCKET: other side closed",
+      "socket_reused": true
+    },
+    "after": {
+      "exit_code": 0,
+      "phase": "complete",
+      "socket_reused": false
+    },
+    "interleaving": "6000ms pause in undici:client:sendHeaders after connection selection; real Miniflare/workerd listener, no request retry and no product mock",
+    "scope": "Controlled idle-socket reproduction. The historical CI log did not preserve the underlying error cause; the baseline full journey passed locally."
+  },
+  "baseline_execution": {
+    "exit_code": 0,
+    "runs": 1
+  },
+  "clauses_changed": [],
+  "claim": "none",
+  "github_budget": {
+    "limit": 10,
+    "used": 5,
+    "calls": [
+      "gh run view 43775640016 attempt 1 --log-failed",
+      "gh run view 43775640016 attempt 2 --log",
+      "gh api repos/runeditrun/base/tarball/main",
+      "Base publication scanner repository visibility batch (at least one gh API call)",
+      "Exact-SHA runs REST discovery"
+    ]
+  },
+  "publication_scanner_source": {
+    "repository": "runeditrun/base",
+    "ref": "main",
+    "head": "418983385dcf713e85c98cf500dd244b1983e77a",
+    "transport": "gh api tarball, no clone",
+    "version": "0.2.118-dev.g41898338",
+    "version_stamp": "Supported vendored inventory, derived from API archive revision and global/package.json; scanner code unchanged"
+  },
+  "product_branch": "cloud/gr-ci-spool-flake-1",
+  "product_head": "b4e6caa9278811f09b1888bcab45a9b0db0b83f9",
+  "local_checks": {
+    "setup": {
+      "exit_code": 0
+    },
+    "build": {
+      "exit_code": 0
+    },
+    "execution": {
+      "exit_code": 0,
+      "runs": 1
+    },
+    "typecheck": {
+      "exit_code": 0
+    },
+    "diff_check": {
+      "exit_code": 0
+    }
+  },
+  "toolchain": {
+    "node": "24.19.0",
+    "pnpm": "10.12.4",
+    "ci_node": "22.20.0"
+  },
+  "counts_before": {
+    "Core": [
+      23,
+      45,
+      19
+    ],
+    "Agent surface": [
+      0,
+      9,
+      9
+    ],
+    "Full target": [
+      23,
+      54,
+      28
+    ]
+  },
+  "counts_after": {
+    "Core": [
+      23,
+      45,
+      19
+    ],
+    "Agent surface": [
+      0,
+      9,
+      9
+    ],
+    "Full target": [
+      23,
+      54,
+      28
+    ]
+  },
+  "working_tree_clean_after_commit": true,
+  "identity_audit": {
+    "candidate_commits": 1,
+    "all_authors_and_committers": "Run Edit Run fleet <fleet@runeditrun.com>",
+    "trailers": [],
+    "all_side_parents_included": true
+  },
+  "publication_scan_attempts": [
+    {
+      "deadline_seconds": 300,
+      "status": "INCOMPLETE",
+      "rule": "scan.deadline-exceeded",
+      "file": "PUBLICATION-SCAN-FIRST.json"
+    },
+    {
+      "deadline_seconds": 1200,
+      "status": "PASS",
+      "file": "PUBLICATION-SCAN.json"
+    }
+  ],
+  "publication_scan": {
+    "status": "PASS",
+    "complete": true,
+    "findings": 0,
+    "source": {
+      "commit": "b4e6caa9278811f09b1888bcab45a9b0db0b83f9",
+      "tree": "25d03c4317bda7aac4b6898e60cd1893af234584"
+    },
+    "implementation": {
+      "version": "0.2.118-dev.g41898338",
+      "sha256": "dace44a03ce03a9402975c82e7f6c62a84c21671674722cfa6841d2b25fd600a",
+      "python": "3.12.14"
+    }
+  },
+  "product_push": {
+    "status": "PUSHED",
+    "attempts": 1,
+    "branch": "cloud/gr-ci-spool-flake-1",
+    "head": "b4e6caa9278811f09b1888bcab45a9b0db0b83f9",
+    "command": "python3 $HOME/rer-consolidation/.tools/cloud-push.py origin cloud/gr-ci-spool-flake-1"
+  },
+  "ci": {
+    "run_id": 43782543825,
+    "status": "in_progress",
+    "conclusion": null,
+    "head_sha": "b4e6caa9278811f09b1888bcab45a9b0db0b83f9",
+    "html_url": "https://github.com/just-every/run-spool/actions/runs/43782543825",
+    "last_observed_epoch": 1794790116
+  }
+}

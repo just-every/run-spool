@@ -1,0 +1,5 @@
+accepted deleting
+{"send":true,"method":"POST","path":"/api/erasures/<id>/resume","socket":7,"bytesRead":2757,"destroyed":false}
+continuation socket reused: true
+{"socketTrace":true,"method":"POST","path":"/api/erasures/<id>/resume","elapsed":6004,"code":"UND_ERR_SOCKET","message":"other side closed"}
+FOCUSED TypeError fetch failed UND_ERR_SOCKET other side closed

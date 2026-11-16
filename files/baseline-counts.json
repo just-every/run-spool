@@ -1,0 +1,30 @@
+{
+  "archive": {
+    "reproducers": 11,
+    "runs": 20,
+    "workflows": 3,
+    "receipts": 236
+  },
+  "erasure": {
+    "before": {
+      "reproducers": 12,
+      "reproducer_runs": 21,
+      "reproducer_run_tokens": 2,
+      "fix_workflows": 3,
+      "fix_receipts": 236,
+      "exposures": 168,
+      "follow_up_attention": 3,
+      "follow_up_fix_steps": 227
+    },
+    "after": {
+      "reproducers": 0,
+      "reproducer_runs": 0,
+      "reproducer_run_tokens": 0,
+      "fix_workflows": 0,
+      "fix_receipts": 0,
+      "exposures": 0,
+      "follow_up_attention": 0,
+      "follow_up_fix_steps": 0
+    }
+  }
+}

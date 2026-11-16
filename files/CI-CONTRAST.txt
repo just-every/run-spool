@@ -1,0 +1,8 @@
+Source: GitHub Actions run 43775640016, attempt 1 and attempt 2.
+Original job: verify (execution).
+Bounded reads: gh run view 43775640016 -R just-every/run-spool --attempt 1 --log-failed; gh run view 43775640016 -R just-every/run-spool --attempt 2 --log.
+Only outcome lines selected; setup environment listings and unrelated jobs excluded.
+
+verify (execution)	Run suites	2026-11-15T23:39:33.2149608Z {"journey":"execution","stage":"archive","message":"fetch failed","stack":["    at async json (file:///home/runner/work/run-spool/run-spool/tests/execution/runtime.mjs:29:63)","    at async followErasure (file:///home/runner/work/run-spool/run-spool/tests/project-erasure/follow.mjs:9:13)","    at async file:///home/runner/work/run-spool/run-spool/tests/execution-journey.mjs:95:57"]}
+verify (execution)	Run suites	2026-11-15T23:39:33.3826111Z  ELIFECYCLE  Command failed with exit code 1.
+verify (execution)	Run suites	2026-11-16T00:07:33.2745797Z ALERT-004 an interrupted send, an expired lease and a lost provider response each leave one durable follow-up and never a duplicate. Execution journey passed: outcomes reproduced,not_reproduced,failed,failed,not_reproduced,unsupported; module loading syntax finished failed load_failed,unresolved finished failed load_failed; workflow approved_awaiting_connection then deployed; exposure inconclusive,inconclusive,inconclusive,reached,inconclusive,recurred; 4 captures.

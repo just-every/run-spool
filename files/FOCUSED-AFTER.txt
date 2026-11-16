@@ -1,0 +1,5 @@
+accepted deleting
+{"send":true,"method":"POST","path":"/api/erasures/<id>/resume","socket":9,"bytesRead":0,"destroyed":false}
+continuation socket reused: false
+{"response":true,"path":"/api/erasures/<id>/resume","status":200,"headers":[]}
+resume complete
