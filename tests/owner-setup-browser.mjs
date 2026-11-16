@@ -38,6 +38,13 @@ export async function ownerSetupBrowser(app, cookie, project, json) {
   await page.getByRole('link',{name:'open Capture to copy and test this key',exact:true}).click();
   assert.equal((await page.getByLabel('Ingest key',{exact:true}).innerText())===firstKey,true,'navigation retains the same issued key in memory');
   assert.equal(await page.getByLabel('Sentry DSN',{exact:true}).innerText(),firstDsn,'navigation carries the matching DSN with the key');
+  const support=page.getByRole('list',{name:'Sentry capture support',exact:true});
+  await expect(support).toBeVisible();
+  const dsn=new URL(firstDsn),stamp=new Date().toISOString();
+  const session=await context.request.post(app.origin+'/api'+dsn.pathname+'/envelope/?sentry_version=7&sentry_key='+dsn.username,{headers:{'Content-Type':'text/plain'},data:'{}\n'+JSON.stringify({type:'session'})+'\n'+JSON.stringify({sid:crypto.randomUUID().replaceAll('-',''),init:true,started:stamp,timestamp:stamp,status:'exited',errors:0,attrs:{release:'synthetic-spool-session',environment:'production'}})});
+  assert.equal(session.status(),200,'The advertised session category accepts real intake');
+  const health=await json('/api/projects/'+project.id+'/release-health');assert.equal(health.denominators.sessionsSeen,1,'Session intake becomes observed release health');
+  const releasePage=await context.newPage();try{await releasePage.goto(app.origin+'/projects/'+project.id+'/releases');await expect(releasePage.getByRole('region',{name:'Release health',exact:true})).toContainText('synthetic-spool-session');}finally{await releasePage.close();}
   const prerequisites=page.getByRole('link',{name:'Node.js prerequisite setup steps',exact:true});
   const guide=await context.request.get(app.origin+await prerequisites.getAttribute('href'));assert.equal(guide.status(),200);
   const fragment=new URL(await prerequisites.getAttribute('href'),app.origin).hash.slice(1);

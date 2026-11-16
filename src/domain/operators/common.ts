@@ -16,4 +16,4 @@ export async function body(c:any){
 }
 export const audit=(db:D1Database,project:string,kind:string,detail:any)=>s(db,'INSERT INTO audit VALUES(?,?,?,?,?)',crypto.randomUUID(),project,kind,JSON.stringify(detail),Date.now());
 export const write=(c:any,session:any,jobs:D1PreparedStatement[])=>ownerBatch(c.env.DB,session,[...jobs,s(c.env.DB,'DELETE FROM operator_guards')]);
-export function conflict(c:any,error:unknown){if(/operator_guards|operator_revision_or_occurrence_conflict/.test(String(error)))return c.json({error:'Revision or occurrence conflict; preview again'},409);if(/correction_history_full|suppression_policy_full/.test(String(error)))return c.json({error:'Operator history capacity reached'},409);throw error}
+export function conflict(c:any,error:unknown,message='Revision or occurrence conflict; preview again'){if(/operator_guards|operator_revision_or_occurrence_conflict/.test(String(error)))return c.json({error:message},409);if(/correction_history_full|suppression_policy_full/.test(String(error)))return c.json({error:'Operator history capacity reached'},409);throw error}

@@ -46,14 +46,41 @@ export async function operatorUi({page,api,origin,project,issue,capture}){
   // the same loaded view; no reload or automatic conflict retry can hide it.
   await page.route('**/issues/'+issue+'/packet',route=>new Promise(resolve=>{page.once('spool:assignment-saved',()=>{void route.continue().then(resolve)})}));
   await page.getByLabel('Comment',{exact:true}).fill('Synthetic assignment follow-up');
-  await page.getByRole('button',{name:'Post comment',exact:true}).click();
-  await page.getByText('Synthetic assignment follow-up',{exact:true}).waitFor();
+  const commented=page.waitForResponse(r=>r.url().endsWith('/comments')&&r.request().method()==='POST');
+  await page.getByRole('button',{name:'Post comment',exact:true}).click();assert.equal((await commented).status(),201);
+  await page.locator('.timeline').getByText('Synthetic assignment follow-up',{exact:true}).waitFor();
+ }
+ if(page.viewportSize().width===1440){
+  const status=page.locator('.triage select').first(),next=await status.inputValue()==='acknowledged'?'open':'acknowledged';
+  const changed=page.waitForResponse(r=>new URL(r.url()).pathname===root+'/issues/'+issue&&r.request().method()==='PATCH');
+  await status.selectOption(next);const statusResponse=await changed;assert.equal(statusResponse.status(),200,'The status write succeeds before an immediate assignment');
  }
  await assignment.fill('Browser operator');
  const [assigned]=await Promise.all([page.waitForResponse(r=>r.url().endsWith('/assignment')&&r.request().method()==='PATCH'),page.getByRole('button',{name:'Save assignment',exact:true}).click()]);
  if(page.viewportSize().width===1440){page.emit('spool:assignment-saved');await page.unroute('**/issues/'+issue+'/packet');}
  assert.equal(assigned.status(),200);assert.equal((await assigned.json()).label,'Browser operator');
- if(page.viewportSize().width===1440)await page.getByRole('status').filter({hasText:/assignment.*saved/i}).waitFor();
+
+ if(page.viewportSize().width===1440){
+  await page.getByRole('status').filter({hasText:/assignment.*saved/i}).waitFor();
+  await capture('operator-assignment');
+  await page.waitForFunction(()=>!document.querySelector('input[maxlength="80"]')?.disabled);
+  // Another writer really changes the issue while this loaded form stays stale.
+  const current=await api(root+'/issues/'+issue+'/packet');
+  await api(root+'/issues/'+issue+'/assignment','PATCH',{revision:current.issue.revision,label:'Another operator'});
+  await assignment.fill('Browser operator draft');
+  const refused=page.waitForResponse(r=>r.url().endsWith('/assignment')&&r.request().method()==='PATCH');
+  await page.getByRole('button',{name:'Save assignment',exact:true}).click();assert.equal((await refused).status(),409,'A real concurrent write is still fenced');
+  const feedback=page.locator('#'+await assignment.getAttribute('aria-describedby'));
+  assert.match(await feedback.innerText(),/reload/i,'The conflict names a recovery action available on this screen');
+  assert.doesNotMatch(await feedback.innerText(),/preview/i,'Assignment has no preview action');
+  assert.equal(await assignment.inputValue(),'Browser operator draft','A refused save preserves the draft');
+  assert.equal((await api(root+'/operator-state')).assignments.find(row=>row.issue===issue).label,'Another operator','A stale assignment cannot overwrite another writer');
+  await page.reload();await page.waitForFunction(()=>!document.querySelector('input[maxlength="80"]')?.disabled);
+  await assignment.fill('Browser operator');
+  const recovered=page.waitForResponse(r=>r.url().endsWith('/assignment')&&r.request().method()==='PATCH');
+  await page.getByRole('button',{name:'Save assignment',exact:true}).click();assert.equal((await recovered).status(),200,'Reloaded assignment saves with the current revision');
+ }
+
  await page.waitForFunction(()=>{const input=document.querySelector('input[maxlength="80"]');return input&&!input.disabled&&input.value==='Browser operator';});
  if(page.viewportSize().width===1440){await page.reload();await page.waitForFunction(()=>{const input=document.querySelector('input[maxlength="80"]');return input&&!input.disabled&&input.value==='Browser operator';});}
  const [unassigned]=await Promise.all([page.waitForResponse(r=>r.url().endsWith('/assignment')&&r.request().method()==='PATCH'),page.getByRole('button',{name:'Unassign',exact:true}).click()]);
