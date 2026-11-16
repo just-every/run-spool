@@ -1,0 +1,118 @@
+{
+  "files": [
+    {
+      "blob": "6e62f33ea6c1401bacca81af6844f76d37385805",
+      "bytes": 7540,
+      "path": "REPORT.md",
+      "sha256": "db64a4cb349d083fc54377fd3022a8e057aacb5965906c4a526cacd60b05d426"
+    },
+    {
+      "blob": "cb3f1c69cbc910f350481526aef3901ce2f334cb",
+      "bytes": 676760,
+      "path": "assignment-1440.png",
+      "sha256": "b5d04254a8052d281b43aa15e65d55f45308ed01dffcd6c5337b0c6608931953"
+    },
+    {
+      "blob": "9e59bd991ae878166e104e2c1b1417436c1807d4",
+      "bytes": 611464,
+      "path": "assignment-390.png",
+      "sha256": "b6c953ea0d1fef2c6c526cb66f439f0b8791c7aaefc1e57a0f5217e160cdd9db"
+    },
+    {
+      "blob": "9645d317f41090730a2a331a0706a83817fc95bf",
+      "bytes": 678284,
+      "path": "capture-1440.png",
+      "sha256": "8e5c49778c1ec483c9375a8e6ea810d952e91e4f36983da421ac89fa37929185"
+    },
+    {
+      "blob": "11fc50e1e3514f6bb19a7cd8995c160826458901",
+      "bytes": 591045,
+      "path": "capture-390.png",
+      "sha256": "7a75fa7267661b66a3ca226067a9592ad7add0294a82ff114735be6f29b343ac"
+    },
+    {
+      "blob": "38805cc60e493be20f2c5825bb437499a10782ca",
+      "bytes": 312,
+      "path": "ci-discovery.json",
+      "sha256": "67c1093570901cd8070383fcbc95fa3e2ab5a66fe2d49c0b0d485a0873bda63c"
+    },
+    {
+      "blob": "3a7b51b2b7de7f049985b8ea6b7dc5434c14adbf",
+      "bytes": 192,
+      "path": "ci-status.json",
+      "sha256": "886755eeac1c3dd83cd22c48948686bf9e128ab9fd7b0a03e744560f26663dc7"
+    },
+    {
+      "blob": "ff9059c4c7377e367d72928a7dffde988f2e9fd8",
+      "bytes": 250228,
+      "path": "destinations-1440.png",
+      "sha256": "b45aaa349a00a46113546daead0a16a182b90fef52702c08f5316a7238587c83"
+    },
+    {
+      "blob": "a8f7a76a42cab91652f40d28488cefb6bc585616",
+      "bytes": 209209,
+      "path": "destinations-390.png",
+      "sha256": "7e84cabe564a8739742d1b02f226b456cfb07f60bd510f48571b0bf18b6e07dc"
+    },
+    {
+      "blob": "39c05dece649e6f5816c831a6914e6e02d25eabc",
+      "bytes": 395100,
+      "path": "first-project-1440.png",
+      "sha256": "ec0a56c227146f29bea52136baa46e1709c990bcc1f3f847f8abc4bfe67e70b2"
+    },
+    {
+      "blob": "3e9f0a74ea500b0372bd210502d299bea98a49ef",
+      "bytes": 335842,
+      "path": "first-project-390.png",
+      "sha256": "e16c662b0df1133db1cfa666fc31907b7e9c299ef5dd8e5f001cc3ea6df3dca7"
+    },
+    {
+      "blob": "63da63f8cb916719e9b94516a81e5da6db1551e1",
+      "bytes": 1624,
+      "path": "post-fix.json",
+      "sha256": "e701e16ac46f6bb1d07d37acf8087227725046813d2d8cfaeeea4ab919182c47"
+    },
+    {
+      "blob": "061fcffb77a91be24fadc81a1fddebb3fc6cac97",
+      "bytes": 586,
+      "path": "push.json",
+      "sha256": "0c5d8e0e739ba6f3ada942fffc1d761f868c690e8fb3a8ca87c324ab7abeaa00"
+    },
+    {
+      "blob": "c24710a265651d4546994c8d4c796a45a3bd2188",
+      "bytes": 1723,
+      "path": "reproduction.json",
+      "sha256": "07ffb9016916f4015cf269de1a62c31a90685992990606e797088ac2d00d14a4"
+    },
+    {
+      "blob": "c269dd4b86a3e225d82a16ea73a329cb00885bd8",
+      "bytes": 308028,
+      "path": "source-map-1440.png",
+      "sha256": "fed57ff079add0f98e2d8b8507bc98d007c661d226cfce49edf346513c39e3a2"
+    },
+    {
+      "blob": "a96907967ef09a1cf2ac0d2428797296c87bd783",
+      "bytes": 292645,
+      "path": "source-map-390.png",
+      "sha256": "a5d837a126a84863cc9d80a6623c741c62824720ee42a0e028902099a4210d7e"
+    },
+    {
+      "blob": "41e131b131c1760963e25cdca84a28125ecc1c4e",
+      "bytes": 82273,
+      "path": "triage-1440.jpg",
+      "sha256": "d01ed2817d17683d18ef1d062e1ff691539859d56b355c80fe0f817029cf91ae"
+    },
+    {
+      "blob": "56cce2ab0fcba3cc811e7a8a620ea19f106e378c",
+      "bytes": 2688,
+      "path": "validation.json",
+      "sha256": "2dc9f0929452d372de389afb9df21fe7fc12e75908600daa7541740fb624a583"
+    }
+  ],
+  "product_branch": "cloud/main-spool-stranger35-trips-1",
+  "product_head": "242e038e96e7c68a06d637f11ba7cb21a2e0fa26",
+  "ref": "refs/heads/evidence/main-spool-stranger35-trips-1",
+  "repository": "just-every/run-spool",
+  "schema": 1,
+  "tag": "main-spool-stranger35-trips-1"
+}

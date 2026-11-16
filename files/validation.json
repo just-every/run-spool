@@ -1,0 +1,64 @@
+{
+  "author": "Run Edit Run fleet",
+  "date": "2026-11-16",
+  "repository": "just-every/run-spool",
+  "base": "adc3de69b9ae0ff60e41897f8ff7662fd656d560",
+  "checks": [
+    {
+      "name": "typecheck",
+      "command": "pnpm typecheck",
+      "exit_code": 0,
+      "result": "tsc --noEmit; process exited 0"
+    },
+    {
+      "name": "build",
+      "command": "cloud_run npx -y @runeditrun/rer build",
+      "exit_code": 0,
+      "result": "build: complete (exit 0)"
+    },
+    {
+      "name": "alerts",
+      "command": "RER_CHROMIUM_EXECUTABLE_PATH=/usr/bin/chromium cloud_run node tests/alerts-ui.mjs",
+      "exit_code": 0,
+      "result": "ALERT-003 destination tests, delivery states, timezone digests and snoozing never hide loss. Alert browser journeys passed at 1440 and 390: persisted rule create/edit/reload, real feed/delivery/webhook state, project isolation and keyboard navigation."
+    },
+    {
+      "name": "owner-setup",
+      "command": "RER_CHROMIUM_EXECUTABLE_PATH=/usr/bin/chromium cloud_run node tests/owner-setup-flow.mjs",
+      "exit_code": 0,
+      "result": "Owner setup: team roster and pending role mapping; exact project authority; denied contacts and ingest issuance/revocation; copied key and received native synthetic event; revoked key remains refused.\nOwner setup: archive restore preserves distinct native mapped roles and grants without creating identities, sessions or credentials."
+    },
+    {
+      "name": "first-project",
+      "command": "RER_CHROMIUM_EXECUTABLE_PATH=/usr/bin/chromium cloud_run node /tmp/spool-local-setup-proof.mjs",
+      "exit_code": 0,
+      "result": "Existing first-project journey passed at 1440; masked 1440/390 proof retained"
+    },
+    {
+      "name": "source-check",
+      "command": "pnpm source:check",
+      "exit_code": 0,
+      "result": "Source lock check returned ok=true"
+    },
+    {
+      "name": "triage",
+      "command": "RER_CHROMIUM_EXECUTABLE_PATH=/usr/bin/chromium cloud_run node tests/triage-journey.mjs",
+      "exit_code": 0,
+      "result": "Triage public journey passed: 22 groups; 102 JPG captures at 1440 and 390."
+    },
+    {
+      "name": "exact-candidate-browser",
+      "command": "RER_CHROMIUM_EXECUTABLE_PATH=/usr/bin/chromium cloud_run node /tmp/spool-candidate-proof.mjs",
+      "head": "242e038e96e7c68a06d637f11ba7cb21a2e0fa26",
+      "exit_code": 0,
+      "result": "status 200 then assignment 200 before packet refresh; no generated destination route alias; 1440/390 issue captures"
+    }
+  ],
+  "new_test_registrations": 0,
+  "browser": "/usr/bin/chromium --no-sandbox",
+  "widths": [
+    1440,
+    390
+  ],
+  "candidate_head": "242e038e96e7c68a06d637f11ba7cb21a2e0fa26"
+}

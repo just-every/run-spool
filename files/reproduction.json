@@ -1,0 +1,13 @@
+{
+  "setupNotice": "Keep your Sentry browser or Node SDK and replace only its DSN. By default, events can arrive without a release, and an unseen release is created automatically. Settings shows the release ordering rule; choose registered sequence only there if your project requires registration first. An omitted dist is shown as sentry-no-dist. Spool keeps exceptions and stack traces; sessions, traces and replays remain unsupported.",
+  "sourceMapPrerequisite": "Requires Node.js and npm on your PATH in your application’s repository. Spool’s installer keeps its runtime private; it does not provide npm on your shell’s PATH. For browser capture without npm, use the browser helper on Capture. Follow the Node.js prerequisite setup steps, then return here. For maps built on another computer or CI, use the picker on Releases with the matching release, build and debug ID; the deployed bundle must be the same stamped build.",
+  "sourceMapGuideReachable": true,
+  "captureNotice": "Keep your Sentry browser or Node SDK and replace only its DSN. By default, events can arrive without a release, and an unseen release is created automatically. Settings shows the release ordering rule; choose registered sequence only there if your project requires registration first. An omitted dist is shown as sentry-no-dist. Spool keeps exceptions and stack traces; sessions, traces and replays remain unsupported.",
+  "routingLabel": "Checkout on-call\n\nMember deadline label: Email route Pine CCA4E165\n\nEmail · synthetic-spool-1@example.test\n\nEdit Checkout on-call\nTest Checkout on-call",
+  "assignment": {
+    "status": 409,
+    "body": {
+      "error": "Revision or occurrence conflict; preview again"
+    }
+  }
+}
