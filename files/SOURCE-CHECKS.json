@@ -1,0 +1,37 @@
+[
+  {
+    "command": [
+      "pnpm",
+      "run",
+      "check",
+      "--",
+      "--profile",
+      "first-party"
+    ],
+    "exit_code": 0
+  },
+  {
+    "command": [
+      "pnpm",
+      "source:check"
+    ],
+    "exit_code": 0
+  },
+  {
+    "command": [
+      "node",
+      "src/base/contract-docs.mjs",
+      "check"
+    ],
+    "exit_code": 0
+  },
+  {
+    "command": [
+      "node",
+      "scripts/edition-authoring/cli.mjs",
+      "verify-base",
+      "--offline"
+    ],
+    "exit_code": 0
+  }
+]

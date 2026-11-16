@@ -5,3 +5,5 @@
 5. Update from current main before the first product publication, inspect all candidate authors, committers and trailers, and run the fresh Base publication scanner on the exact committed tree. Push only cloud/gr-ci-spool-flake-1 using the fleet guard.
 6. Observe exact-head Verify through REST, using one watcher, at least 300 seconds between observations and the ten-call budget. No rerun, dispatch or PR.
 7. Record full plan, diagnosis, actual results, counts and receipts outside the product repository. Publish explicitly selected non-secret files to evidence/gr-ci-spool-flake-1 and return product/evidence custody separately with the lane POST.
+
+CI follow-up: when the first exact-SHA run exposed the stale source-lock entry, inspect changes, regenerate only that entry, run all four source/contract step commands locally, commit the lock without rewriting the published save, rescan the new exact SHA and republish the named branch. Preserve both run identities and use the remaining observation budget for the final candidate.

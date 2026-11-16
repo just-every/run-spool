@@ -7,16 +7,64 @@
       "sha256": "4d924f55c8e4aadacba3577862da36b54045a73edab79882037b07d9b26434b6"
     },
     {
-      "blob": "192771fbc73be1e3075bbb6e81ae6288382ea249",
+      "blob": "ab907634d4097edd27d05a3fa880c3551b4e7771",
       "bytes": 244,
       "path": "CI-DISCOVERY.json",
+      "sha256": "8e724bddddca51c63d9ab9924a8d4dce5e0267ca009ab212b9bf292e1e68f365"
+    },
+    {
+      "blob": "e76aa2e5f270ec66a07e1f8da063ab9f62e677a6",
+      "bytes": 272,
+      "path": "CI-OBSERVATIONS.jsonl",
+      "sha256": "33f0e6d78cbebf8524b16cd667acf52ed937b16c3834ee41c45ad8559856b7b7"
+    },
+    {
+      "blob": "192771fbc73be1e3075bbb6e81ae6288382ea249",
+      "bytes": 244,
+      "path": "CI-PREVIOUS-DISCOVERY.json",
       "sha256": "3a352213129c91b209c65b631b64e738a4303c657581668f0d7f2d79f40566ed"
     },
     {
-      "blob": "0daa66f8943e0f7dbde8d96a99ce222114028399",
-      "bytes": 254,
+      "blob": "81cc90d1fbda68df9b4b055571ca09b537bfe34e",
+      "bytes": 780,
+      "path": "CI-PREVIOUS-FAILURE.txt",
+      "sha256": "2332e88d2dbaa1a36eaeddc1f9266a3da959e65922506ab94359bd8345516eac"
+    },
+    {
+      "blob": "2ac4d28ff3fda935fcc8c078776c3d6117139007",
+      "bytes": 1246,
+      "path": "CI-PREVIOUS-JOBS.json",
+      "sha256": "60f820d40c4d5cd0f484c4cb736f8272b57002570d7c8976ed41241772f751e4"
+    },
+    {
+      "blob": "e988636e4000bf68b7738efbeaf6b2c801c309c3",
+      "bytes": 243,
+      "path": "CI-PREVIOUS-OBSERVATIONS.jsonl",
+      "sha256": "4fb352cc7d4b8087e7e4a827cfc24985376b854cb8eda04abfbfb0d1ecb76a7d"
+    },
+    {
+      "blob": "b15c5b0ff58726132eaee4b805362f7dc20d3e39",
+      "bytes": 178,
+      "path": "CI-PREVIOUS-STATUS.json",
+      "sha256": "8907062b1a7fabfc6125fd396ad3229c4ce9c0e867a058b4685006ce7638f2cc"
+    },
+    {
+      "blob": "7552de430852f05e2922392e3ade0167577d0edb",
+      "bytes": 290,
       "path": "CI-STATUS.json",
-      "sha256": "ea4620c013413d5844946b159b59c8fb058c851109e0d4723e2d1ee40396dd2f"
+      "sha256": "dec7e5d3b3d7e3c2490c935854a79ca3e2285024dd09043f83acdbc8ae691323"
+    },
+    {
+      "blob": "63243cd71d5d0a3a7805af4c6d609f65b9398745",
+      "bytes": 3279,
+      "path": "EVIDENCE-SELF-CHECK.json",
+      "sha256": "7fb03c862118501ce6a4356786ecd4e1b0a30c56eb209be328e6f2c99de07de6"
+    },
+    {
+      "blob": "c8c13fb233dd8c8cd3e8cd606c3ed4392d304b06",
+      "bytes": 351,
+      "path": "EXPLORATORY-CONTROLS.txt",
+      "sha256": "4f8b99bc8e7ee7b0c6950ca1746ddbe738cc1fa123206e92038f73071143f0d1"
     },
     {
       "blob": "c3e2d5420a60cd9e0364bcffa6f462b21ff65357",
@@ -31,28 +79,34 @@
       "sha256": "986f757d836473ec6959175568755c05886cfc0a5fcaa7dfdbe2935bb43818d3"
     },
     {
-      "blob": "55bfeff023c4ae17dc59e12f86f446b1960e6b53",
-      "bytes": 85,
+      "blob": "8b397759c3490f5d34b737e6b013a75c1929a9a8",
+      "bytes": 170,
       "path": "IDENTITY-CHECK.txt",
-      "sha256": "148bad84b5b174568017df50d58e073566703d43c6c9fe7fa6f1af04420adf55"
+      "sha256": "c9f719ac04ee5a87f887bd38a32e08c08cd63abd5a2deb8c3e01856328b8b56d"
     },
     {
-      "blob": "4f1bdff86f558aa6400ccd576aeba86be3a52802",
-      "bytes": 1185,
+      "blob": "59affbeb7b7728b445501ec0a010e50f94808116",
+      "bytes": 1418,
       "path": "LOCAL-CHECKS.txt",
-      "sha256": "dccf92f97b52853a47ce55b876a401ef62a139f331007f451b63b06164aecb3a"
+      "sha256": "a2d1dc9704649fd6d75edae8dab6af893cd543ec69cf631630a35f6b207ce174"
     },
     {
-      "blob": "ed54cdb62baaaae6aa3f3f6f3f2835e833007b76",
-      "bytes": 1315,
+      "blob": "4f10b0e3250a1345df8f2a3f0995b618a22ad94a",
+      "bytes": 1699,
       "path": "PLAN.md",
-      "sha256": "cb6790b404679569f6e7d991f49dd6626f5f760b1f9be77c3a41bbdfd83a1d08"
+      "sha256": "3c8f1c765c99770d2d9525c6f05b4e464f94e7ab8c3f269d58cb06da894ac7b7"
     },
     {
       "blob": "cbdbcfdf6b3ef281a2d12bb29188d83b6ea2f4a9",
       "bytes": 918,
-      "path": "PRODUCT-PUSH.txt",
+      "path": "PRODUCT-PUSH-PREVIOUS.txt",
       "sha256": "7fd1d827f0d4846f86413fdf026ffcd1bb8686750d9d352ab04a04892c1c1ddc"
+    },
+    {
+      "blob": "f3034c4b568598acbf7ba606d76f63d2a54505b8",
+      "bytes": 726,
+      "path": "PRODUCT-PUSH.txt",
+      "sha256": "fb45799f7b6d20197bbb50885ffcfb1e276fc57b43ece94554946dba777dd2b8"
     },
     {
       "blob": "53fc252357262388077ad9ba18fe943a6b42a0a2",
@@ -63,20 +117,38 @@
     {
       "blob": "56f6a3a132ab1ed7f62d14c927e0a204a9fd6951",
       "bytes": 859083,
-      "path": "PUBLICATION-SCAN.json",
+      "path": "PUBLICATION-SCAN-PREVIOUS-CANDIDATE.json",
       "sha256": "ab6c570afa057ec217f84d28d93eaa1d34e4283ff096bd6c605606e72b1e2063"
     },
     {
-      "blob": "c782aa1357787912e76b10cac98716b46ff76b1e",
-      "bytes": 3892,
-      "path": "RECEIPT.json",
-      "sha256": "143651f0dc1eb8fc7b0064b2c63d6e41fe3ab4fe9e147c74ea2e19979528fbfa"
+      "blob": "77be7bcb5bd51fdf93d50703ed3f59e60c281dbb",
+      "bytes": 860061,
+      "path": "PUBLICATION-SCAN.json",
+      "sha256": "4d2cf9ab06a205aced2ab0204982e2db7de023a79b8f6354e267729de0678591"
     },
     {
-      "blob": "17c067a829443676e3065bd1a731cc6694e85392",
-      "bytes": 7168,
+      "blob": "3bcff30d49dc6740bd7fa30c14dd55cd1cfe5640",
+      "bytes": 6940,
+      "path": "RECEIPT.json",
+      "sha256": "e3eee525d484d69f28c636f414d958ccfe0399096b962040f8957009b90fd85a"
+    },
+    {
+      "blob": "acec93e137943beed73ba6a0f2ae6c392d547d9d",
+      "bytes": 9098,
       "path": "REPORT.md",
-      "sha256": "2c05189c6d2ab97c0fa556b9aab0846f9cf51c402e06ae6d3bbcea06aa2996cd"
+      "sha256": "6af634ac4e3e8d1f2bb3a52e8443073b03f8c5da090d5166867f8f72a721fccf"
+    },
+    {
+      "blob": "0cb10a8277166b6a64bbe4803fdabc8d0151d18d",
+      "bytes": 499,
+      "path": "SOURCE-CHECKS.json",
+      "sha256": "43a29fcb7c25909490eb91e8ef9d0b91c4754e9ae2f44bc59d13799954fad0ca"
+    },
+    {
+      "blob": "b313c5c41cc3f1f41c451bfbafbe468441ea9ff6",
+      "bytes": 523,
+      "path": "SOURCE-LOCK-CHANGES.json",
+      "sha256": "ffb0b96021e1005aae5f66f35126854d3145ec0e4dd35f1f5cad9f7d1904b7f4"
     },
     {
       "blob": "8775deae273f14bb076c4c5fc3161af8dbadf09b",
@@ -98,7 +170,7 @@
     }
   ],
   "product_branch": "cloud/gr-ci-spool-flake-1",
-  "product_head": "b4e6caa9278811f09b1888bcab45a9b0db0b83f9",
+  "product_head": "99cc280c93ba18eb534bc4f1685fff8ca351e15e",
   "ref": "refs/heads/evidence/gr-ci-spool-flake-1",
   "repository": "just-every/run-spool",
   "schema": 1,

@@ -1,0 +1,7 @@
+Run 43782543825, exact head b4e6caa9278811f09b1888bcab45a9b0db0b83f9, build job 133022823580.
+Only failure/outcome lines; setup environment listing excluded.
+build	Check source and portable contract	2026-11-16T00:49:06.4362597Z [36;1mpnpm source:check[0m
+build	Check source and portable contract	2026-11-16T00:49:06.4362822Z [36;1mnode src/base/contract-docs.mjs check[0m
+build	Check source and portable contract	2026-11-16T00:49:08.6250353Z Stale lock or source/tool integrity mismatch; run changes to inspect intentional edits before lock
+build	Check source and portable contract	2026-11-16T00:49:08.6540909Z  ELIFECYCLE  Command failed with exit code 1.
+build	Check source and portable contract	2026-11-16T00:49:08.7331233Z ##[error]Process completed with exit code 1.

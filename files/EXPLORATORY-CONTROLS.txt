@@ -1,0 +1,8 @@
+Pause before socket selection, default pool, 16 seconds
+accepted deleting
+resume complete
+
+Pause before socket selection, explicit longer-idle pool, 6 seconds
+accepted deleting
+resume complete
+Neither exploration reproduced the failure. The failing control moved the pause to after socket selection; see focused-reproducer.mjs and FOCUSED-BEFORE.txt.

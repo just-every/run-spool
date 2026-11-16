@@ -24,13 +24,18 @@
   "claim": "none",
   "github_budget": {
     "limit": 10,
-    "used": 5,
+    "used": 10,
     "calls": [
       "gh run view 43775640016 attempt 1 --log-failed",
       "gh run view 43775640016 attempt 2 --log",
       "gh api repos/runeditrun/base/tarball/main",
       "Base publication scanner repository visibility batch (at least one gh API call)",
-      "Exact-SHA runs REST discovery"
+      "Exact-SHA runs REST discovery",
+      "REST run status 43782543825, observation 2",
+      "Completed failed run diagnostic: REST jobs listing",
+      "gh run view 43782543825 --job 133022823580 --log-failed (one bounded archive read)",
+      "Final candidate Base publication scanner repository visibility batch",
+      "Final exact-SHA Verify discovery/status REST observation"
     ]
   },
   "publication_scanner_source": {
@@ -42,7 +47,7 @@
     "version_stamp": "Supported vendored inventory, derived from API archive revision and global/package.json; scanner code unchanged"
   },
   "product_branch": "cloud/gr-ci-spool-flake-1",
-  "product_head": "b4e6caa9278811f09b1888bcab45a9b0db0b83f9",
+  "product_head": "99cc280c93ba18eb534bc4f1685fff8ca351e15e",
   "local_checks": {
     "setup": {
       "exit_code": 0
@@ -59,6 +64,14 @@
     },
     "diff_check": {
       "exit_code": 0
+    },
+    "source_and_contract_checks": {
+      "file": "SOURCE-CHECKS.json",
+      "all_exit_codes": 0
+    },
+    "packet_secret_scan": {
+      "exit_code": 0,
+      "injected_credential_value_matches": 0
     }
   },
   "toolchain": {
@@ -102,7 +115,7 @@
   },
   "working_tree_clean_after_commit": true,
   "identity_audit": {
-    "candidate_commits": 1,
+    "candidate_commits": 2,
     "all_authors_and_committers": "Run Edit Run fleet <fleet@runeditrun.com>",
     "trailers": [],
     "all_side_parents_included": true
@@ -117,6 +130,13 @@
     {
       "deadline_seconds": 1200,
       "status": "PASS",
+      "file": "PUBLICATION-SCAN-PREVIOUS-CANDIDATE.json",
+      "head": "b4e6caa9278811f09b1888bcab45a9b0db0b83f9"
+    },
+    {
+      "deadline_seconds": 1200,
+      "status": "PASS",
+      "head": "99cc280c93ba18eb534bc4f1685fff8ca351e15e",
       "file": "PUBLICATION-SCAN.json"
     }
   ],
@@ -124,29 +144,85 @@
     "status": "PASS",
     "complete": true,
     "findings": 0,
+    "pre_existing": 17,
     "source": {
-      "commit": "b4e6caa9278811f09b1888bcab45a9b0db0b83f9",
-      "tree": "25d03c4317bda7aac4b6898e60cd1893af234584"
+      "commit": "99cc280c93ba18eb534bc4f1685fff8ca351e15e",
+      "tree": "1866cc90892ba62bce93617a694f894d5b40a605"
     },
     "implementation": {
       "version": "0.2.118-dev.g41898338",
       "sha256": "dace44a03ce03a9402975c82e7f6c62a84c21671674722cfa6841d2b25fd600a",
       "python": "3.12.14"
-    }
+    },
+    "seconds": 441.962015
   },
   "product_push": {
     "status": "PUSHED",
     "attempts": 1,
     "branch": "cloud/gr-ci-spool-flake-1",
-    "head": "b4e6caa9278811f09b1888bcab45a9b0db0b83f9",
+    "head": "99cc280c93ba18eb534bc4f1685fff8ca351e15e",
+    "pushed_at_epoch": 1794791092,
     "command": "python3 $HOME/rer-consolidation/.tools/cloud-push.py origin cloud/gr-ci-spool-flake-1"
   },
   "ci": {
-    "run_id": 43782543825,
-    "status": "in_progress",
     "conclusion": null,
-    "head_sha": "b4e6caa9278811f09b1888bcab45a9b0db0b83f9",
-    "html_url": "https://github.com/just-every/run-spool/actions/runs/43782543825",
-    "last_observed_epoch": 1794790116
-  }
+    "head_sha": "99cc280c93ba18eb534bc4f1685fff8ca351e15e",
+    "html_url": "https://github.com/just-every/run-spool/actions/runs/43784114100",
+    "id": 43784114100,
+    "name": "Verify",
+    "run_attempt": 1,
+    "status": "in_progress",
+    "last_observed_epoch": 1794791425
+  },
+  "evidence_initial": {
+    "repository": "just-every/run-spool",
+    "ref": "refs/heads/evidence/gr-ci-spool-flake-1",
+    "head": "74f4e4ab62c2dbc8ff093cb60e44570035ea670d",
+    "status": "published",
+    "kind": "interim packet; final packet will include terminal CI observation"
+  },
+  "runtime_cleanup": {
+    "active_worker_browser_servers": [],
+    "all_test_browsers_and_fixture_runtimes_stopped": true
+  },
+  "previous_candidates": [
+    {
+      "head": "b4e6caa9278811f09b1888bcab45a9b0db0b83f9",
+      "product_push": {
+        "status": "PUSHED",
+        "attempts": 1,
+        "branch": "cloud/gr-ci-spool-flake-1",
+        "head": "b4e6caa9278811f09b1888bcab45a9b0db0b83f9",
+        "command": "python3 $HOME/rer-consolidation/.tools/cloud-push.py origin cloud/gr-ci-spool-flake-1"
+      },
+      "publication_scan": {
+        "status": "PASS",
+        "complete": true,
+        "findings": 0,
+        "source": {
+          "commit": "b4e6caa9278811f09b1888bcab45a9b0db0b83f9",
+          "tree": "25d03c4317bda7aac4b6898e60cd1893af234584"
+        },
+        "implementation": {
+          "version": "0.2.118-dev.g41898338",
+          "sha256": "dace44a03ce03a9402975c82e7f6c62a84c21671674722cfa6841d2b25fd600a",
+          "python": "3.12.14"
+        }
+      },
+      "ci": {
+        "conclusion": "failure",
+        "head_sha": "b4e6caa9278811f09b1888bcab45a9b0db0b83f9",
+        "html_url": "https://github.com/just-every/run-spool/actions/runs/43782543825",
+        "status": "completed",
+        "run_id": 43782543825,
+        "last_observed_epoch": 1794790424
+      },
+      "failure": "Stale lock entry for tests/execution/runtime.mjs; source:check stopped the build before suites.",
+      "fix": "Regenerated sources.lock.json; exactly one recorded sha256 changed."
+    }
+  ],
+  "runtime_source_sha256": "759e31c96a99091b5e215645a41f3bbb4c9c4c3605659c4d6afb06fc20d45513",
+  "runtime_proof_note": "Full journey and focused after proof ran before the source-lock-only follow-up. Runtime helper bytes are unchanged in the final candidate.",
+  "remaining_ci_observations": 0,
+  "terminal_custody": "PUSHED"
 }

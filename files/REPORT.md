@@ -1,7 +1,7 @@
 # gr-ci-spool-flake-1
 
 Repository: just-every/run-spool. Product branch: cloud/gr-ci-spool-flake-1.
-Candidate: b4e6caa9278811f09b1888bcab45a9b0db0b83f9.
+Candidate: 99cc280c93ba18eb534bc4f1685fff8ca351e15e. Previous published save: b4e6caa9278811f09b1888bcab45a9b0db0b83f9.
 Base: adc3de69b9ae0ff60e41897f8ff7662fd656d560. PR: none, as instructed.
 
 ## Plan
@@ -22,7 +22,7 @@ Qualification: the original CI log includes only the top-level fetch failure and
 
 ## Change
 
-Only tests/execution/runtime.mjs changes: add Connection: close to helper requests and a three-line explanation. The helper now gives each application request an independent connection, covering archive/erasure work and its deliberate same-port restart. Endpoints, worker implementation, erasure progression, polling bounds and all assertions are unchanged. No retries, skips, raised timeouts or product mocks were added. No permanent test was added because the full public-door execution journey already exercises the flow.
+The behavior change is only in tests/execution/runtime.mjs: add Connection: close to helper requests and a three-line explanation. The helper now gives each application request an independent connection, covering archive/erasure work and its deliberate same-port restart. Endpoints, worker implementation, erasure progression, polling bounds and all assertions are unchanged. No retries, skips, raised timeouts or product mocks were added. No permanent test was added because the full public-door execution journey already exercises the flow.
 
 ## Local results
 
@@ -37,12 +37,20 @@ Actual compact results and row counts are in LOCAL-CHECKS.txt, baseline-counts.j
 
 ## Contract and claims
 
-Clause changes: none. CLAIM: none. Counts are unchanged: Core done/partial/missing 23/45/19 (87); Agent surface 0/9/9 (18); Full target 23/54/28 (105). CONTRACT.md, ACCEPTANCE.md, docs/CLAIMS.md and source locks are unchanged.
+Clause changes: none. CLAIM: none. Counts are unchanged: Core done/partial/missing 23/45/19 (87); Agent surface 0/9/9 (18); Full target 23/54/28 (105). CONTRACT.md, ACCEPTANCE.md and docs/CLAIMS.md are unchanged. sources.lock.json has exactly one regenerated SHA-256 entry for the edited runtime helper, with no other lock changes.
 
 ## Publication and custody
 
-Current main was fetched before committing; it remained adc3de69b9ae0ff60e41897f8ff7662fd656d560, so no rebase or merge was necessary. All candidate commits, including side parents, are audited for fleet author/committer identity and empty trailers before product push. The fresh Base scanner was obtained through the GitHub API from runeditrun/base main 418983385dcf713e85c98cf500dd244b1983e77a, without cloning another repository. Gitleaks 8.30.1 is used unchanged. The API archive has no Git metadata; the scanner supports a vendored inventory stamp, populated here with 0.2.118-dev.g41898338 derived from the unchanged global/package.json and archive commit. No scanner code or exclusions changed. Generated build output, local setup state and test artifacts were preserved in private-runtime-state outside the product clone before the scanner reached its working-files phase; only committed source plus excluded dependency directories remain in the publication working tree. No tracked source was removed. The initial scan reached its default 300-second deadline and returned INCOMPLETE; its actual report is PUBLICATION-SCAN-FIRST.json. The unchanged scanner was restarted with its documented --timeout-seconds 1200 option. PUBLICATION-SCAN.json records PASS, complete=true, zero new findings, 17 pre-existing findings, and the exact candidate commit. The completed scan inspected 957 commits, 947 trees, 8,056 blobs and 21 tag messages in 442.217212 seconds. No application/test timeout changed.
+Current main was fetched before committing; it remained adc3de69b9ae0ff60e41897f8ff7662fd656d560, so no rebase or merge was necessary. All candidate commits, including side parents, are audited for fleet author/committer identity and empty trailers before product push. The fresh Base scanner was obtained through the GitHub API from runeditrun/base main 418983385dcf713e85c98cf500dd244b1983e77a, without cloning another repository. Gitleaks 8.30.1 is used unchanged. The API archive has no Git metadata; the scanner supports a vendored inventory stamp, populated here with 0.2.118-dev.g41898338 derived from the unchanged global/package.json and archive commit. No scanner code or exclusions changed. Generated build output, local setup state and test artifacts were preserved in private-runtime-state outside the product clone before the scanner reached its working-files phase; only committed source plus excluded dependency directories remain in the publication working tree. No tracked source was removed. The initial scan reached its default 300-second deadline and returned INCOMPLETE; its actual report is PUBLICATION-SCAN-FIRST.json. The unchanged scanner was restarted with its documented --timeout-seconds 1200 option. PUBLICATION-SCAN-PREVIOUS-CANDIDATE.json records PASS, complete=true, zero new findings, 17 pre-existing findings, and previous candidate b4e6caa9278811f09b1888bcab45a9b0db0b83f9. PUBLICATION-SCAN.json is reserved for the new candidate’s scan. The completed scan inspected 957 commits, 947 trees, 8,056 blobs and 21 tag messages in 442.217212 seconds. No application/test timeout changed.
 
 Product push and exact-head CI outcomes are recorded in RECEIPT.json, PRODUCT-PUSH.txt and CI-STATUS.json when available. Evidence publication is separate report-only custody and does not signal acceptance, landing or READY. No default branch, PR, inbox or state file is written. The fleet must still perform its independent publication and landing gates.
 
-Product push succeeded on its first guarded attempt. Natural exact-SHA Verify run 43782543825 is in progress at https://github.com/just-every/run-spool/actions/runs/43782543825. No PR, rerun or dispatch.
+Product push succeeded on its first guarded attempt. The previous save’s exact-SHA Verify run 43782543825 failed in build job 133022823580 because the runtime helper source-lock entry had not been regenerated. This is not the generated-view exception. The build stopped before execution suites; dependent shard/final gates failed or skipped. The source lock was regenerated in a follow-up commit without rewriting published history. All four commands in the CI source/contract step subsequently passed locally (SOURCE-CHECKS.json). The full execution/focused proof applies to identical runtime helper bytes in the follow-up commit; only its lock entry changed. No PR, rerun or dispatch.
+
+The final candidate’s new publication scan completed PASS, complete=true, zero new findings, 17 unchanged pre-existing findings. It inspected 958 commits, 948 trees and 8057 blobs in 441.962015 seconds. The follow-up guarded product push succeeded on its first attempt, preserving the first published save. CI outcome for the previous save is retained explicitly and will not be claimed as proof for the final SHA.
+
+## Terminal candidate status
+
+Product: cloud/gr-ci-spool-flake-1 at 99cc280c93ba18eb534bc4f1685fff8ca351e15e, confirmed pushed. Final exact-SHA Verify run 43784114100: in_progress, conclusion None; https://github.com/just-every/run-spool/actions/runs/43784114100. The ten-call GitHub observation budget is exhausted. No rerun or dispatch was requested. READY is not claimed; fleet must observe the final run before landing.
+
+Terminal custody: PUSHED. Clause changes: none. CLAIM: none. Full target counts remain 23 done / 54 partial / 28 missing (105); Core 23/45/19 and Agent surface 0/9/9. The eight checked execution tables contained 672 rows before erasure and zero afterward. No default branch or PR was changed.
