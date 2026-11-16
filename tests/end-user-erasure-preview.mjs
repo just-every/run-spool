@@ -24,10 +24,11 @@ export async function endUserErasurePreviewFlow() {
   const captureCanary='synthetic-spool-'+crypto.randomUUID(),eventIds=[];
   const [project,foreign,dropped]=projects,root=p=>'/api/projects/'+p.id,door=p=>root(p)+'/end-user-erasure/preview';
   const configure=async(p,mode)=>{const current=await owner.json(root(p)+'/identity-policy'),policy=Object.fromEntries(Object.keys(current.policy).map(field=>[field,mode])),preview=await owner.json(root(p)+'/identity-policy/preview','POST',{policy});await owner.json(root(p)+'/identity-policy','PUT',{revision:current.revision,policy,token:preview.token})};
+  let hashTag=null;
   const capture=async(p,user)=>{
    const eventId=crypto.randomUUID().replaceAll('-','');eventIds.push(eventId);
    const dsn=new URL(p.dsn),response=await owner.req(`/api${dsn.pathname}/store/?sentry_key=${dsn.username}&sentry_version=7`,'POST',{
-    event_id:eventId,message:captureCanary,...user===undefined?{}:{user:{email:user,id:user===email?'synthetic-spool-person-27':'synthetic-spool-person-28',username:user===email?'synthetic-spool-name-27':'synthetic-spool-name-28',ip_address:user===email?'192.0.2.27':'192.0.2.28'}},
+    event_id:eventId,message:captureCanary,tags:{ordinary:'synthetic-spool-safe',...user?{identity_copy:user===email?'synthetic-spool-person-27':'synthetic-spool-person-28',...hashTag&&user===email?{identity_hash:hashTag}:{}}:{}},...user===undefined?{}:{user:{email:user,id:user===email?'synthetic-spool-person-27':'synthetic-spool-person-28',username:user===email?'synthetic-spool-name-27':'synthetic-spool-name-28',ip_address:user===email?'192.0.2.27':'192.0.2.28'}},
    },{Cookie:''});
    assert.equal(response.status,200,await response.text());
   };
@@ -52,6 +53,7 @@ export async function endUserErasurePreviewFlow() {
   const identities=(await app.DB.prepare('SELECT project,payload FROM event_identities WHERE project IN (?,?)').bind(project.id,foreign.id).all()).results;
   const hashes=p=>identities.filter(row=>row.project===p.id).map(row=>JSON.parse(row.payload).email).filter(row=>row?.value===email).map(row=>row.hash);
   assert.ok(hashes(project).length&&hashes(foreign).length);assert.notEqual(hashes(project)[0],hashes(foreign)[0]);
+  hashTag=hashes(project)[0];
   await configure(project,'hash');expectCount(await preview(project),2,4,1);
   await capture(project,email);expectCount(await preview(project),3,5,1);
   await capture(foreign,email);expectCount(await preview(project),3,5,1);expectCount(await preview(foreign),2,2,0);
@@ -143,6 +145,13 @@ export async function endUserErasurePreviewFlow() {
   assertAuditAppendOnly(await snapshot(app),deniedBefore,'confirmation refusals preserve product state');
   await capture(project,email);
   const stale=await owner.req(eraseDoor,'POST',acceptedInput());assert.equal(stale.status,409);await stale.arrayBuffer();
+  const search=async(p,q='')=>owner.json(root(p)+'/issue-search?eventTotals=1&q='+encodeURIComponent(q));
+  const tagQuery='identity_copy:synthetic-spool-person-27',hashQuery='identity_hash:'+hashTag;
+  const beforeSearch=await search(project,tagQuery),beforeHash=await search(project,hashQuery);
+  assert.equal(beforeSearch.matchingEvents,4);assert.equal(beforeHash.matchingEvents,2);
+  assert.ok(beforeSearch.facets.tags.some(row=>row.value==='synthetic-spool-person-27'));
+  const foreignTags=await search(foreign,tagQuery);
+  const searchPlan=await owner.json(door(project),'POST',selected);assert.equal(searchPlan.search.count,6);
   const pre=await archive(app),foreignBefore=(await preview(foreign)).events.count;
   const context=await browser.newContext({viewport:{width:1440,height:1000}}),page=await context.newPage();
   let removalReceipt;
@@ -159,12 +168,37 @@ export async function endUserErasurePreviewFlow() {
    await region.getByRole('heading',{name:'Erasure complete',exact:true}).waitFor();await assertScreen(page,region);
    for(const width of [1440,390]){await page.setViewportSize({width,height:1000});await region.screenshot({path:`.artifacts/erasure-preview/complete-${width}.png`})}
   }finally{await context.close()}
-  assert.equal(removalReceipt.phase,'complete');assert.equal(removalReceipt.deleted.event_identities,4);
+  assert.equal(removalReceipt.phase,'complete');assert.equal(removalReceipt.deleted.event_identities,4);assert.equal(removalReceipt.deleted.search_tags,6);
+  for(const q of [tagQuery,hashQuery]){
+   const result=await search(project,q);assert.equal(result.total,0);assert.equal(result.matchingEvents,0);
+   const exported=await owner.json(root(project)+'/issue-export?format=json&q='+encodeURIComponent(q));assert.equal(exported.total,0);assert.deepEqual(exported.rows,[]);
+   const csv=await owner.req(root(project)+'/issue-export?format=csv&q='+encodeURIComponent(q));assert.equal(csv.status,200);const text=await csv.text();assert.equal(text.split('\r\n').length,1);
+  }
+  const facets=await search(project);
+  for(const token of ['synthetic-spool-person-27',hashTag])assert.ok(!JSON.stringify(facets.facets).includes(token),'tag facets omit erased identities and hashes');
+  assert.ok(facets.facets.tags.some(row=>row.key==='ordinary'&&row.value==='synthetic-spool-safe'));
+  assert.ok(facets.facets.tags.some(row=>row.value==='synthetic-spool-person-28'),'another user stays searchable');
+  assert.deepEqual(await search(foreign,tagQuery),foreignTags,'another project retains its search and facet data');
+  const unfilteredExport=await owner.json(root(project)+'/issue-export?format=json');
+  assert.equal(unfilteredExport.total,1);assert.equal(unfilteredExport.rows[0].count,6);
+  for(const token of ['synthetic-spool-person-27',hashTag])assert.ok(!JSON.stringify(unfilteredExport).includes(token));
+  const searchContext=await browser.newContext({viewport:{width:1440,height:1000}}),searchPage=await searchContext.newPage();
+  try{
+   const split=cookie.indexOf('=');await searchContext.addCookies([{name:cookie.slice(0,split),value:cookie.slice(split+1),url:origin.replace('http:','https:'),secure:true}]);
+   await searchPage.goto(origin+'/projects/'+project.id+'/issues');
+   const field=searchPage.getByRole('searchbox',{name:'Search issues',exact:true});
+   await field.fill(tagQuery);await field.press('Enter');
+   await searchPage.getByText('No issues match',{exact:false}).waitFor();
+   await searchPage.screenshot({path:'.artifacts/erasure-preview/search-after-1440.png',fullPage:true});
+   await searchPage.setViewportSize({width:390,height:1000});await searchPage.screenshot({path:'.artifacts/erasure-preview/search-after-390.png',fullPage:true});
+  }finally{await searchContext.close()}
   assert.deepEqual(await owner.json('/api/erasures/'+removalReceipt.id),removalReceipt,'ordinary erasure receipt door preserves the completed counts and times');
   expectCount(await preview(project),0,6,5);assert.equal((await preview(foreign)).events.count,foreignBefore);
   const issues=await owner.json(root(project)+'/issues');
   for(const issue of issues){const visible=await owner.json(root(project)+'/issues/'+issue.id+'/affected-users');for(const row of visible.rows??[])assert.ok(!Object.keys(row.values).length||row.values.email?.value!==email);assert.ok(!JSON.stringify(visible).includes('synthetic-spool-person-27'))}
   const post=await archive(app);
+  const retainedEvents=post.data.events.filter(row=>row.project===project.id);
+  for(const token of ['synthetic-spool-person-27',hashTag])assert.ok(!JSON.stringify(retainedEvents).includes(token),'archive payloads omit erased search tags');
   const projection=post.data.event_identities.filter(row=>row.project===project.id);
   assert.ok(!JSON.stringify(projection).includes('synthetic-spool-person-27'));assert.ok(!JSON.stringify(projection).includes(hashes(project)[0]));
   assert.equal((await restore(app,pre.text)).body.error,'erasure_epoch');
@@ -189,13 +223,21 @@ export async function endUserErasurePreviewFlow() {
   // A retained id, username or literal IP uses the same exact matcher. Drop
   // stays unavailable and a confirmation can never resurrect dropped data.
   for(const [field,value] of [['id','synthetic-spool-person-27'],['username','synthetic-spool-name-27'],['ip_address','192.0.2.27']]){
-   const input={field,value,action:'remove_identity'},current=await owner.json(door(foreign),'POST',input);assert.equal(current.events.count,2);
+   if(field!=='id')await capture(foreign,email);
+   const input={field,value,action:'remove_identity'},current=await owner.json(door(foreign),'POST',input);assert.equal(current.events.count,field==='id'?2:1);
+   const session=await owner.req(`/api${new URL(foreign.dsn).pathname}/envelope/?sentry_key=${new URL(foreign.dsn).username}&sentry_version=7`,'POST','{}\n{"type":"session"}\n'+JSON.stringify({sid:crypto.randomUUID().replaceAll('-',''),did:value,started:new Date().toISOString(),status:'exited',attrs:{release:'synthetic-spool-27'}}),{Cookie:'','Content-Type':'text/plain'});assert.equal(session.status,200);await session.arrayBuffer();
+   const ready=await owner.json(door(foreign),'POST',input);assert.equal(ready.sessions.count,1);
+   const erased=await owner.json(root(foreign)+'/end-user-erasure/confirm','POST',{...input,planHash:ready.planHash,confirm:'ERASE USER DATA'});
+   assert.equal(erased.deleted.event_identities,current.events.count);assert.equal(erased.deleted.health_sessions,1);
+   const after=await owner.json(door(foreign),'POST',input);assert.equal(after.events.count,0);assert.equal(after.sessions.count,0);
+   for(const row of erased.retained)assert.ok(row.reason,'receipt explains unavailable and uncorrelatable stores');
   }
   await writeFile('.artifacts/erasure-preview/results.json',JSON.stringify({removal:removalReceipt,deletion,restore:{same:'erasure_epoch',freshPost:'restored',freshOld:'erasure_epoch'},before:{events:6,matching:4},after:{events:5,matching:0},limitations:deletion.retained},null,2)+'\n');
   console.log('PROBE SDK-027 confirmed: owner keyboard confirmation removes all fields from 4 matching events, preserves other projects, receipts and audit omit values; event deletion removes 1 event and exact DID identity; current archive restores and old archives refuse.');
   console.log('PROBE SDK-027 email-preview: public Sentry captures -> 2 matching of 4 keep events; conversion plus hash capture -> 3 of 5; foreign key and captures -> unchanged 3.');
-  console.log('PROBE SDK-027 unavailable: dropped email -> unavailable, 1 unattributable; feedback, attachments, replays and search explicitly unavailable; session DID literal equality counted separately.');
+  console.log('PROBE SDK-027 unavailable: dropped email -> unavailable, 1 unattributable; feedback, attachments, replays and identity-specific search explicitly unavailable; session DID literal equality counted separately.');
   console.log('PROBE SDK-027 authority-and-privacy: repeated owner, admin and maintainer POSTs -> counts only, unchanged product rows; anonymous, member, read-only, valid or revoked grant, foreign, removed and cross-origin requests refuse; safe audits omit values and keys.');
+  console.log('PROBE SDK-027 search-tags: 4 raw-ID tag matches and 2 private hash tag matches -> 0 search results and header-only CSV exports; nonempty JSON export, facets, issue views and next archive omit erased tokens; other user/project tags preserved; id, username and IP confirmations remove matching events and exact session DID identities.');
   console.log('PROBE SDK-027 settings: keyboard preview, refusal, Axe, text size and reflow passed; matching screens recorded at 1440 and 390.');
  } finally {await browser?.close();await app.close()}
 }

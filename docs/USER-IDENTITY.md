@@ -49,3 +49,31 @@ An empty installation given only an old archive cannot know about a later
 erasure. Downloaded copies, provider backups and future captures are outside
 this operation. This is not a promise of complete SDK-027 acceptance: identity
 search/facets and the public 150,000-event volume remain unavailable.
+
+### Search tags and other stores
+
+Run Edit Run fleet, 16 November 2026: ordinary search predicates and tag facets
+read retained event payloads directly. The erasure preview now counts exact
+copies of the supplied value, its project hash, and the matching occurrence's
+retained identity values and hashes in tag keys or values. Candidate tags are
+also hashed privately to match raw copies of hash-policy identities. Confirmation removes
+those tag entries with the identity, recomputes event digests and leaves other
+tags and unrelated occurrences intact. Event deletion removes those projections
+with the events. The receipt's `search_tags` count describes removed tag entries,
+not a separate database table. Counts, payload updates and receipt share the
+same owner transaction; the plan binds the changed search payloads.
+
+There is still no identity-specific `user.email`, `user.id`, `user.username`
+or `user.ip` search/facet door. An alias discarded without a retained matching hash
+cannot be reconstructed, and text or tags on unrelated events cannot
+be attributed to a user merely because they contain a similar value. Session
+DIDs match only literal equality with the supplied identity, using the existing
+project HMAC. Unknown aliases and anonymous aggregates remain uncorrelatable.
+Attachments and replays have no retained matching store; their absence is
+reported as unavailable, rather than a successful zero-record erasure. Feedback
+contact and independently matching feedback remain outside this slice.
+
+The public retained-event and archive limits still refuse 150,000-event projects.
+The focused scale journey probes that exact requested corpus, records the refusal,
+and times the changed search-tag path at the admitted 10,000-event volume. That
+timing does not establish the required 150,000-event acceptance point.

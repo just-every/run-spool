@@ -31,7 +31,7 @@ The unmodified browser SDK's `Sentry.showReportDialog({eventId})`, including the
 
 Spool's own modal asks for a description and explicit consent: “I consent to sharing this description and the error reference with this application’s team. Name and email are not kept.” It submits a legacy `user_report` to the same DSN envelope intake; the existing Origin rules, scrubber, 1,000-character limit, 60-per-project-per-minute limit, exact-occurrence association, withdrawal, retention, archive and erasure handling apply. Empty descriptions, absent consent, send failures and minute-limit refusals are visible. A successful send is acknowledged in the modal. Close and Escape restore focus and invoke the SDK close hook.
 
-Only description text and the event reference enter feedback custody. The SDK sends name/email options in the script request URL, but Spool ignores them and exposes no such fields; avoid supplying personal options in the first place. Bounded wording overrides (`title`, `subtitle`, `labelComments`, `labelSubmit`, `labelClose`, `errorFormEntry`, `errorGeneric`, `successMessage`, each at most 240 characters) render as text. Contact/replies, screenshot/attachment review, Spool's independent localized widget and end-user identity erasure remain unavailable. Default ADOPTED: description-only qualifies this crash-report modal; contact remains a named gap.
+Only description text and the event reference enter feedback custody. The SDK sends name/email options in the script request URL, but Spool ignores them and exposes no such fields; avoid supplying personal options in the first place. Bounded wording overrides (`title`, `subtitle`, `labelComments`, `labelSubmit`, `labelClose`, `errorFormEntry`, `errorGeneric`, `successMessage`, each at most 240 characters) render as text. This crash-report modal remains description-only. Consented contact, screenshot review and replies are available through the separate extension and private inbox described below. Unmodified attachment intake, Spool's independent localized widget and feedback contact matching for end-user erasure remain incomplete.
 
 For bounded read-only integrations, the separate version-1 `feedback-reports` API in [INVESTIGATION.md](INVESTIGATION.md) allows an exact-project agent/service grant to paginate scrubbed descriptions and association state. It confers no withdrawal or inbox/settings authority.
 
@@ -103,8 +103,13 @@ are not issue evidence. Organization administrators retain their existing
 project authority and private archive authority.
 GAP SDK-004: unmodified Sentry attachment intake, the independent Spanish
 widget, broader abuse policy and identity-based selective erasure are not proven.
-The parallel erasure round needs to match `feedback.private_data` contact and
-reply text, then remove the whole feedback row under its existing custody fence;
-this round does not edit `src/domain/erasure` or `src/domain/identities`.
+End-user erasure does not match consented feedback contact or remove its
+screenshot and replies by the supplied identity. The preview lists feedback as
+unavailable for identity matching, and the saved receipt repeats this limit.
+To remove these details, the installation owner must withdraw the report in the
+feedback inbox. Deleting matching events also deletes reports attached to those
+exact occurrences. Withdrawal removes the entire report, including contact,
+screenshot and replies, from this installation and future exports; downloaded
+archives and external copies remain outside the action.
 
 Signed: Run Edit Run fleet, 2026-11-16 (UTC).

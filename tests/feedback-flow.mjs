@@ -129,7 +129,7 @@ export async function privateFeedbackFlow() {
   const intake=`/api/${dsn.pathname.slice(1)}/envelope/?sentry_key=${dsn.username}&sentry_version=7`;
   const report={event_id:id,type:'feedback',contexts:{feedback:{message:'synthetic-spool-1 checkout report',associated_event_id:event,spool:{consent:true,contactEmail:contact,screenshotPng:png.toString('base64')}}}};
   const send=body=>req(intake,'POST',envelope('feedback',body),{Cookie:''});
-  assert.ok((await req(intake,'POST',envelope('event',{event_id:event,exception:{values:[{type:'Error',value:'synthetic-spool-1 checkout failed'}]}}),{Cookie:''})).ok);
+  assert.ok((await req(intake,'POST',envelope('event',{event_id:event,user:{email:contact},exception:{values:[{type:'Error',value:'synthetic-spool-1 checkout failed'}]}}),{Cookie:''})).ok);
   assert.ok((await send(report)).ok);
   const issue=(await json(root+'/issues'))[0],privateRoot=root+'/feedback/'+id;
   for(const invalid of [false,undefined]){
@@ -169,7 +169,24 @@ export async function privateFeedbackFlow() {
   assert.deepEqual(await json(privateRoot+'/replies','POST',attempted,{Cookie:member}),unsent,'same request reads the ledger without another attempt');
   for(const actor of [reader,unrelated])assert.equal((await req(privateRoot+'/replies','POST',{...attempted,id:crypto.randomUUID()},{Cookie:actor})).status,404,'no reply authority for unrelated/read-only members');
   const issueRead=await json(root+'/feedback?issue='+issue.id);assert.ok(!JSON.stringify(issueRead).includes(contact));assert.ok(!JSON.stringify(issueRead).includes(attempted.message));assert.ok(!('hasPrivate' in issueRead.items[0]),'issue reads never publish private details');
+  // Feedback contact matching is explicitly unavailable at the end-user door.
+  // Event identity removal must not imply that private reporter data was erased.
+  const selection={field:'email',value:contact,action:'remove_identity'};
+  const plan=await json(root+'/end-user-erasure/preview','POST',selection);
+  assert.equal(plan.events.count,1);assert.equal(plan.feedback.status,'unavailable');assert.equal(plan.feedback.count,null);
+  const feedbackLimit=plan.unavailable.find(row=>row.store==='feedback');assert.ok(feedbackLimit?.reason);
+  const erasure=await json(root+'/end-user-erasure/confirm','POST',{...selection,planHash:plan.planHash,confirm:'ERASE USER DATA'});
+  assert.equal(erasure.deleted.event_identities,1);assert.ok(!('feedback' in erasure.deleted));
+  assert.equal(erasure.retained.find(row=>row.table==='feedback')?.reason,feedbackLimit.reason,'saved receipt carries the preview limitation');
+  assert.deepEqual(await json('/api/erasures/'+erasure.id),erasure,'the ordinary receipt door preserves the limitation');
+  assert.ok(!JSON.stringify(erasure).includes(contact),'count-only receipt never saves the supplied value');
+  const stillPrivate=(await json(privateRoot+'/private')).private;
+  assert.equal(stillPrivate.contact,contact);assert.equal(stillPrivate.replies[0].message,attempted.message);
+  assert.equal((await req(privateRoot+'/screenshot')).status,200);
+  assert.ok((await json(root+'/feedback')).items.some(row=>row.id===id));
   const snapshot=await archiveProjection(await req('/api/archive'));
+  assert.ok(!JSON.stringify(snapshot.data.event_identities).includes(contact),'event identity is removed while feedback remains an explicit exception');
+  assert.ok(!JSON.stringify(snapshot.data.audit).includes(contact),'audit never retains the supplied identity');
   const storedPrivate=JSON.parse(snapshot.data.feedback.find(row=>row.project===project.id&&row.id===id).private_data);
   assert.equal(storedPrivate.consent,true,'private archive values carry explicit consent');
   assert.equal(storedPrivate.contact,contact,'only the consented contact enters private custody');

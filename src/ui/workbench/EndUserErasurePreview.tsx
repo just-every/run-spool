@@ -7,6 +7,7 @@ type Preview = {
  planHash:string;hold:string|null;
  events: {status:string;count:number|null;retained:number;withoutRetainedIdentity:number;explanation:string};
  sessions: {status:string;count:number|null;explanation:string};
+ search: {status:string;count:number|null;explanation:string};
  feedback: {status:string;count:number|null};
  unavailable: {store:string;reason:string}[];
 };
@@ -42,6 +43,7 @@ export function EndUserErasurePreview({project,request,run,busy}:{project:string
     <p>{preview.events.status==='available'?`${preview.events.count} matching ${plural(preview.events.count!, 'event')}`:'Event matching unavailable'} · {preview.events.retained} retained {plural(preview.events.retained, 'event')} · {preview.events.withoutRetainedIdentity} without this retained identity.</p>
     <p>{preview.events.explanation}</p>
     <p>{preview.sessions.count===null?'Session matching unavailable':`${preview.sessions.count} matching ${plural(preview.sessions.count,'session')}`}. {preview.sessions.explanation}</p>
+    <p>{preview.search.count===null?'Search tag matching unavailable':`${preview.search.count} matching search tag entries`}. {preview.search.explanation}</p>
     {action==='delete_events'&&<p>{preview.feedback.count} attached feedback records will also be deleted.</p>}
     <ul>{preview.unavailable.map(row=><li key={row.store}>{row.store}: unavailable. {row.reason}</li>)}</ul>
     {preview.hold&&<p>{preview.hold} Nothing will be erased.</p>}
@@ -58,7 +60,7 @@ export function EndUserErasurePreview({project,request,run,busy}:{project:string
   </>}
   {receipt&&<div className="callout" role="status">
    <h3>Erasure complete</h3>
-   <p>{receipt.deleted.event_identities} event identities removed · {receipt.deleted.health_sessions} session identities removed{receipt.deleted.events!==undefined?` · ${receipt.deleted.events} events deleted`:''}.</p>
+   <p>{receipt.deleted.event_identities} event identities removed · {receipt.deleted.health_sessions} session identities removed · {receipt.deleted.search_tags} search tag entries removed{receipt.deleted.events!==undefined?` · ${receipt.deleted.events} events deleted`:''}.</p>
    <p>Started {receipt.requestedAt} · completed {receipt.completedAt} · {receipt.seconds} seconds.</p>
    <p>Receipt {receipt.id}. Older archives are refused when this installation or a trusted later journal knows the erasure.</p>
    <ul>{receipt.retained.map(row=><li key={row.table}>{row.table}: {row.reason}</li>)}</ul>
