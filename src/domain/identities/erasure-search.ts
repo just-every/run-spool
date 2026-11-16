@@ -31,6 +31,8 @@ export async function erasureSearchPlan(db: D1Database, project: string, predica
 }
 
 export function erasureSearchStatements(db:D1Database,project:string,changes:Awaited<ReturnType<typeof erasureSearchPlan>>['changes']) {
+ // Force JSON rows first in the guard: one indexed occurrence lookup per
+ // change, rather than a project scan and JSON reparse for every chunk.
  // Bounded JSON parameters keep this one atomic owner batch proportional to
  // the changed tag data, rather than one D1 statement per retained event.
  const chunks:string[]=[];let chunk:typeof changes=[],bytes=2;
@@ -42,7 +44,7 @@ export function erasureSearchStatements(db:D1Database,project:string,changes:Awa
  return chunks.flatMap(text=>[
   db.prepare(`INSERT INTO rer_portability_guard(value)
    SELECT CASE WHEN COUNT(*)=json_array_length(?) THEN 1 ELSE 0 END
-   FROM json_each(?) c JOIN events e ON e.project=? AND e.id=json_extract(c.value,'$.id')
+   FROM json_each(?) c CROSS JOIN events e ON e.project=? AND e.id=json_extract(c.value,'$.id')
     AND e.occurrence=json_extract(c.value,'$.occurrence') AND e.digest=json_extract(c.value,'$.before')`).bind(text,text,project),
   db.prepare(`WITH changes AS MATERIALIZED (
     SELECT json_extract(value,'$.id') id,json_extract(value,'$.payload') payload,json_extract(value,'$.digest') digest FROM json_each(?))
