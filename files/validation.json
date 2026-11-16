@@ -52,6 +52,15 @@
       "head": "242e038e96e7c68a06d637f11ba7cb21a2e0fa26",
       "exit_code": 0,
       "result": "status 200 then assignment 200 before packet refresh; no generated destination route alias; 1440/390 issue captures"
+    },
+    {
+      "name": "exact-SHA-Verify",
+      "run_id": 43833603260,
+      "conclusion": "success",
+      "head_sha": "242e038e96e7c68a06d637f11ba7cb21a2e0fa26",
+      "html_url": "https://github.com/just-every/run-spool/actions/runs/43833603260",
+      "status": "completed",
+      "github_calls": 5
     }
   ],
   "new_test_registrations": 0,

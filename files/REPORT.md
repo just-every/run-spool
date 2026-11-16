@@ -56,3 +56,16 @@ Candidate `242e038e96e7c68a06d637f11ba7cb21a2e0fa26` was pushed on the first gua
 Exact-candidate public-door replay passed on `242e038e96e7c68a06d637f11ba7cb21a2e0fa26`: a 200 status write followed immediately by a 200 assignment write while packet reads were held; the chosen destination name has no generated route alias. `post-fix.json` records the result. Masked issue screens are retained at 1440 and 390.
 
 CI snapshot after three GitHub calls (discovery plus two status queries at five-minute intervals): Verify `43833603260` remains `in_progress` on the exact candidate. Evidence is preserved independently while the builder continues waiting. This is not a READY or landing claim.
+
+
+## Final result
+
+Verify run `43833603260` completed successfully on exact candidate `242e038e96e7c68a06d637f11ba7cb21a2e0fa26`: https://github.com/just-every/run-spool/actions/runs/43833603260. Five GitHub calls total, with one watcher and at least 300 seconds between queries. No rerun or additional product push was required.
+
+All touched checks passed: typecheck, build, source-lock check, alert UI, owner setup, first-project setup with prepared-map/original-frame proof, and triage (22 groups, 102 retained captures). Exact-candidate status/assignment replay passed separately. The complete relevant browser proof selection is included in the evidence tree, with credentials masked. No full local rer verify was run.
+
+Trips 2–4 are fixed. Trip 1 did not reproduce through current main's explicit customer build-tool prerequisite, reachable preparation guide and working prepared-map alternative, so that product screen was left unchanged. Reproduced defects: 3 → 0. Four trips dispositioned: 3 fixed, 1 already addressed. New test registrations: 0. Migrations remain 102. Generated clause counts remain 23 done / 54 partial / 28 missing; clause Status, Gap and Evidence changes: none. No CLAIM or DONE claim is made. No PR was created. No blocker remains in this builder's scope; the fleet still owns publication scanning and landing.
+
+The product clone will be removed after the final evidence transfer and remote-ref confirmation. Actual report and receipt files remain under `$HOME/rer-consolidation/work/main-spool-stranger35-trips-1/packet/` and the dedicated evidence ref. The implementation and proof plan above is complete.
+
+Run Edit Run fleet, 16 November 2026.

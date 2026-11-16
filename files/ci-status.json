@@ -1,6 +1,6 @@
 {
-  "conclusion": null,
+  "conclusion": "success",
   "head_sha": "242e038e96e7c68a06d637f11ba7cb21a2e0fa26",
   "html_url": "https://github.com/just-every/run-spool/actions/runs/43833603260",
-  "status": "in_progress"
+  "status": "completed"
 }
