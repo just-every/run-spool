@@ -30,9 +30,9 @@ export async function admitFeedback(c: any, scope: IngestScope, input: FeedbackI
   // or by following an event ID again on a later read.
   await ingestBatch(c, scope, [...privacy.jobs,
    stmt(db, `INSERT INTO spool_authority_guards(ok) SELECT CASE WHEN EXISTS(SELECT 1 FROM rer_portability_state WHERE id=1 AND source_identity=? AND epoch=?) AND NOT EXISTS(SELECT 1 FROM rer_portability_journal WHERE source=? AND tombstone=?) THEN 1 ELSE 0 END`, before.source_identity, before.epoch, before.source_identity, key),
-   stmt(db, `INSERT INTO feedback(project,id,message,digest,received,event_id,occurrence)
+   stmt(db, `INSERT INTO feedback(project,id,message,digest,received,event_id,occurrence,private_data)
     VALUES(?,?,?,?,CAST(strftime('%s','now') AS INTEGER)*1000+CAST(substr(strftime('%f','now'),4,3) AS INTEGER),?,
-     (SELECT occurrence FROM events WHERE project=? AND id=?))`, project, input.id, input.message, input.digest, input.eventId, project, input.eventId),
+     (SELECT occurrence FROM events WHERE project=? AND id=?),?)`, project, input.id, input.message, input.digest, input.eventId, project, input.eventId, input.privateData?JSON.stringify(input.privateData):null),
    outcomeStatement(db, project, 'feedback_accepted'),
   ]);
   return c.json({ id: input.id, outcome: 'accepted', coverage: feedbackCoverage }, 201);

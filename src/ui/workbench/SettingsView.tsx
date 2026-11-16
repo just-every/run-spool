@@ -64,6 +64,7 @@ export function SettingsView({ project, projects, keys, releases, request, run, 
     if (section.id === 'organization') return true;
     if (section.id === 'projects') return organizationManager || !!project;
     if (section.id === 'alerts') return !!project || access.role === 'owner';
+    if (section.id === 'processing') return !!project && (configure || projectRole === 'member');
     if (section.id === 'data') return access.role === 'owner' || !!project && configure;
     if (section.id === 'audit') return organizationManager;
     return !!project && configure;
@@ -105,7 +106,7 @@ export function SettingsView({ project, projects, keys, releases, request, run, 
     {!!project&&configure&&<RecurrencePolicy key={`recurrence:${project}`} {...{project,request,run,busy}}/>}
     {!!project&&configure&&<ReleasePolicy key={`release-policy:${project}`} {...{project,request,run,busy}}/>}
     {!!project&&configure&&<CommitSharing key={`commit-sharing:${project}`} {...{project,request,run,busy}}/>}
-    {!!project&&organizationManager&&<FeedbackPanel key={`feedback:${project}`} {...{project,request,run,busy}}/>}
+    {!!project&&(organizationManager||['maintainer','member'].includes(projectRole))&&<FeedbackPanel key={`feedback:${project}`} {...{project,request,run,busy}}/>}
     </div>
     <div id="settings-alerts" className="settings-section" hidden={active !== 'alerts'} tabIndex={-1}>
       {!!project && configure && <p><a className="inline-link" href={hrefFor(project, 'alerts')}>Alert rules and delivery</a></p>}
