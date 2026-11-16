@@ -1,0 +1,52 @@
+{
+  "calls": [
+    {
+      "purpose": "pinned prior report",
+      "path": "repos/just-every/run-spool/contents/files/REPORT.md?ref=ad084acbc01efd8e604e3b20de1bf1f894c02805"
+    },
+    {
+      "purpose": "exact-SHA discovery",
+      "receipt": "ci-discovery.json",
+      "observedAt": "2026-11-16T22:33:59.055911+00:00"
+    },
+    {
+      "purpose": "exact-SHA observation",
+      "receipt": "ci-observation-1.json",
+      "observedAt": "2026-11-16T22:39:33.306586+00:00"
+    },
+    {
+      "purpose": "exact-SHA observation",
+      "receipt": "ci-observation-2.json",
+      "observedAt": "2026-11-16T22:44:56.034839+00:00"
+    },
+    {
+      "purpose": "exact-SHA observation",
+      "receipt": "ci-observation-3.json",
+      "observedAt": "2026-11-16T22:50:10.067022+00:00"
+    },
+    {
+      "purpose": "exact-SHA observation",
+      "receipt": "ci-observation-4.json",
+      "observedAt": "2026-11-16T22:55:32.797132+00:00"
+    },
+    {
+      "purpose": "completed failed-job inventory",
+      "receipt": "ci-jobs.json"
+    },
+    {
+      "purpose": "failed job log, once",
+      "job": 133664472224,
+      "command": "gh run view 43971228356 --repo just-every/run-spool --job 133664472224 --log-failed",
+      "receipt": "ci-owner-ui-failed.log"
+    },
+    {
+      "purpose": "failed job log, once",
+      "job": 133664472313,
+      "command": "gh run view 43971228356 --repo just-every/run-spool --job 133664472313 --log-failed",
+      "receipt": "ci-sentry-cli-failed.log"
+    }
+  ],
+  "run": 43971228356,
+  "minimumIntervalSeconds": 300,
+  "explicitCommandsUsed": 9
+}

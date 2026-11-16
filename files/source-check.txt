@@ -1,0 +1,2 @@
+lock exit=0
+source-check exit=0

@@ -1,0 +1,6 @@
+[33m▲ [43;33m[[43;30mWARNING[43;33m][0m [1mProxy environment variables detected. We'll use your proxy for fetch requests.[0m
+
+
+SCALE_ADMISSION {"candidate":"c5570fd9cdd52208ce39acbb41a46e19d666f043","runId":"sd-spool-sdk027-4-archive-final-20261116T224251Z","requestedVolume":160000,"status":200,"requestedRestoreMs":276087.043156,"retainedVolume":160000}
+SCALE_ARCHIVE {"candidate":"c5570fd9cdd52208ce39acbb41a46e19d666f043","runId":"sd-spool-sdk027-4-archive-final-20261116T224251Z","requestedVolume":160000,"archiveMs":357314.09479700006,"archivedEvents":160000}
+PROBE GOV-003 archive volume: {"candidate":"c5570fd9cdd52208ce39acbb41a46e19d666f043","runId":"sd-spool-sdk027-4-archive-final-20261116T224251Z","startedAt":"2026-11-16T22:42:52.758Z","completedAt":"2026-11-16T22:57:37.484Z","requestedVolume":160000,"admittedVolume":160000,"requestedRestoreMs":276087.043156,"archiveMs":357314.09479700006,"archivedEvents":160000,"archivedIdentities":160000,"overBudget":{"volume":160001,"status":400,"error":"Archive event budget"}}

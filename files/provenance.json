@@ -1,0 +1,42 @@
+{
+  "author": "Run Edit Run fleet (sd)",
+  "date": "2026-11-16T22:29:42.384776+00:00",
+  "repository": "just-every/run-spool",
+  "branch": "cloud/sd-spool-sdk027-4",
+  "base": "e29a9f44ad44315d65b4e12d7f2e69b739f67233",
+  "save": "d58542fcb06d2578ba623b5741ecac7a1a5aca23",
+  "contractBefore": {
+    "done": 23,
+    "partial": 54,
+    "missing": 28,
+    "total": 105
+  },
+  "contractAfter": {
+    "done": 23,
+    "partial": 54,
+    "missing": 28,
+    "total": 105
+  },
+  "rootTestScriptsBefore": 131,
+  "rootTestScriptsAfter": 131,
+  "newRegistrations": 0,
+  "contractJudgmentsChanged": false,
+  "optionalSearchUI": "Not implemented: required 12ui hosted design workflow requires an unavailable account sign-in. Existing owner-only identity API remains available.",
+  "pr": null,
+  "apiCallsUsed": 9,
+  "candidate": "c5570fd9cdd52208ce39acbb41a46e19d666f043",
+  "verifyRunId": 43971228356,
+  "productPushed": true,
+  "sourceTreeClean": true,
+  "readiness": "BLOCKED: exact-SHA Verify failure",
+  "ciConclusion": "failure",
+  "completedLocalChecksAt": "2026-11-16T23:00:22.012778+00:00",
+  "archiveFinalExit": 0,
+  "publicProofPoints": [
+    1,
+    3,
+    4,
+    5
+  ],
+  "terminalGate": "BLOCKED prerequisite=Successful exact-SHA Verify"
+}

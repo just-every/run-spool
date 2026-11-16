@@ -1,0 +1,62 @@
+{
+  "candidate": "c5570fd9cdd52208ce39acbb41a46e19d666f043",
+  "finalBuild": {
+    "exit": 0,
+    "log": "build.log"
+  },
+  "typecheck": {
+    "exit": 0,
+    "log": "typecheck.log",
+    "source": "final working tree committed as candidate"
+  },
+  "contractDocs": {
+    "exit": 0,
+    "log": "contract-docs.log"
+  },
+  "sourceLock": {
+    "regeneratedLast": true,
+    "writeExit": 0,
+    "checkExit": 0,
+    "receipt": "source-check.txt"
+  },
+  "legacyArchive": {
+    "exit": 0,
+    "log": "legacy-archive.log",
+    "head": "d58542fcb06d2578ba623b5741ecac7a1a5aca23",
+    "runtimeCodeUnchangedOnCandidate": true
+  },
+  "browser": {
+    "exit": 0,
+    "run": "browser-run.json",
+    "receipt": "browser-receipt.json"
+  },
+  "scale": {
+    "exit": 0,
+    "receipt": "scale-receipt.json",
+    "log": "scale-journey.log",
+    "hardTimeoutSeconds": 2400,
+    "erasureBarSeconds": 300
+  },
+  "archiveFirstAttempt": {
+    "exit": 1,
+    "complete": false,
+    "receipt": "archive-first-attempt.json"
+  },
+  "fullLocalVerifyRun": false,
+  "rootTests": {
+    "before": 131,
+    "after": 131
+  },
+  "newRegistrations": 0,
+  "archiveFinal": {
+    "exit": 0,
+    "receipt": "archive-volume-receipt.json",
+    "log": "archive-volume.log",
+    "hardTimeoutSeconds": 2400
+  },
+  "exactShaVerify": {
+    "conclusion": "failure",
+    "run": 43971228356,
+    "analysis": "ci-failure-analysis.json"
+  }
+}

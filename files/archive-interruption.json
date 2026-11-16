@@ -1,0 +1,8 @@
+{
+  "candidate": "c5570fd9cdd52208ce39acbb41a46e19d666f043",
+  "observedAt": "2026-11-16T22:42:50.551543+00:00",
+  "complete": false,
+  "exit": null,
+  "reason": "Execution environment reattached during the supplemental run. Unified exec session 59662 became unknown; started processes were observed defunct. No completion receipt or admission line was written.",
+  "log": "archive-volume-interrupted.log"
+}

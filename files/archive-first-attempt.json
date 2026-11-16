@@ -1,0 +1,20 @@
+{
+  "admission": {
+    "candidate": "d58542fcb06d2578ba623b5741ecac7a1a5aca23",
+    "runId": "sd-spool-sdk027-4-archive-20261116T222236Z",
+    "requestedVolume": 160000,
+    "status": 200,
+    "requestedRestoreMs": 282302.18987600005,
+    "retainedVolume": 160000
+  },
+  "command": "RER_CANDIDATE_SHA=<saved head> RER_SCALE_RUN_ID=<recorded id> cloud_run perl -e 'alarm 2400; exec @ARGV' -- node tests/end-user-erasure-volume.mjs --archive-160000",
+  "exit": 1,
+  "complete": false,
+  "failure": {
+    "door": "GET /api/archive",
+    "code": "UND_ERR_HEADERS_TIMEOUT",
+    "httpStatus": null,
+    "meaning": "Client response-header deadline while building the full archive, after admitted 160,000-event restore. No complete export or over-budget claim from this attempt."
+  },
+  "resolution": "Final candidate explicitly gives transport the outer 2400-second alarm deadline; erasure still asserts below 300 seconds."
+}

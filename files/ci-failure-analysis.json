@@ -1,0 +1,28 @@
+{
+  "candidate": "c5570fd9cdd52208ce39acbb41a46e19d666f043",
+  "run": 43971228356,
+  "conclusion": "failure",
+  "rootFailures": [
+    {
+      "job": 133664472224,
+      "name": "verify (owner-ui)",
+      "error": "locator.innerText timeout waiting for #null at tests/operator-ui.mjs:74; HTTP 409 observed before React feedback association was read",
+      "log": "ci-owner-ui-failed.log"
+    },
+    {
+      "job": 133664472313,
+      "name": "verify (sentry-cli)",
+      "error": "UND_ERR_SOCKET (other side closed) during GET /api/projects/web/sentry-uploads snapshot read at tests/sentry-cli/field-refusals.mjs:23/60; no completed HTTP response",
+      "log": "ci-sentry-cli-failed.log"
+    }
+  ],
+  "derivedFailures": [
+    "shards (spool)",
+    "verify"
+  ],
+  "scope": "The failing test files and operator assignment component are unchanged. The Sentry failure is during GET archive/metadata reads; the modified archive validators run on restore. No root-cause fix is claimed. Both failing journeys are outside the leased scale/identity/erasure work.",
+  "gate": "Successful exact-SHA Verify remains required; no READY claim and no workflow rerun or dispatch.",
+  "apiExplicitCommandsUsed": 9,
+  "failedJobLogsReadOnce": true,
+  "logRedactions": "Injected values, URL query/fragment data, local sign-in lines and workflow environment sections omitted."
+}

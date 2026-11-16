@@ -1,0 +1,167 @@
+{
+  "removal": {
+    "id": "be642bd658784c37a3ee6de05a12ba2b",
+    "phase": "complete",
+    "planned": {
+      "event_identities": 4,
+      "health_sessions": 0,
+      "search_tags": 6,
+      "captured_text_events": 5,
+      "issue_titles": 1,
+      "alert_titles": 1
+    },
+    "deleted": {
+      "event_identities": 4,
+      "health_sessions": 0,
+      "search_tags": 6,
+      "captured_text_events": 5,
+      "issue_titles": 1,
+      "alert_titles": 1
+    },
+    "retained": [
+      {
+        "table": "feedback",
+        "reason": "Feedback contact is discarded at intake. Retained scrubbed messages have no user identity index; they cannot be matched to this value. Event deletion also deletes feedback attached to those exact occurrences."
+      },
+      {
+        "table": "attachments",
+        "reason": "Attachment ingestion and identity metadata are not retained; there is no attachment identity matching store."
+      },
+      {
+        "table": "replays",
+        "reason": "Replay ingestion and identity metadata are not retained; there is no replay identity matching store."
+      },
+      {
+        "table": "captured_text",
+        "reason": "0 event records contain only ambiguous partial-token copies; 0 event records contain matching content that cannot be redacted without changing immutable grouping provenance. Those copies stay. Unknown aliases, encoded text, exception/stack/context copies and independent derived snapshots cannot be fully correlated by this door."
+      },
+      {
+        "table": "health_sessions",
+        "reason": "Only session DID hashes equal to the supplied value are matched. Different aliases and anonymous session aggregates cannot be correlated."
+      },
+      {
+        "table": "external_copies",
+        "reason": "Downloaded archives, delivered messages, provider backups and future incoming captures are outside this installation. A fresh destination needs the later archive as its trusted erasure journal."
+      }
+    ],
+    "blobs": {
+      "total": 0,
+      "deleted": 0
+    },
+    "requestedAt": "2026-11-16T22:35:18.674Z",
+    "committedAt": "2026-11-16T22:35:18.674Z",
+    "completedAt": "2026-11-16T22:35:18.680Z",
+    "seconds": 0.006,
+    "exceptions": [
+      "Only exact retained event identities and literally equal session DIDs are matched; the retained-scope list names uncorrelatable stores.",
+      "The existing portability redaction checkpoint refuses pre-erasure archives here, or with a trusted later journal on a fresh installation.",
+      "Downloaded copies, delivered messages, provider backups and future captures are outside this operation."
+    ]
+  },
+  "deletion": {
+    "id": "7e467729535e423985b3da3cdfed5d28",
+    "phase": "complete",
+    "planned": {
+      "event_identities": 1,
+      "health_sessions": 1,
+      "search_tags": 1,
+      "captured_text_events": 1,
+      "issue_titles": 0,
+      "alert_titles": 0,
+      "events": 1,
+      "feedback": 1,
+      "event_grouping": 0,
+      "event_suppressions": 0
+    },
+    "deleted": {
+      "event_identities": 1,
+      "health_sessions": 1,
+      "search_tags": 1,
+      "captured_text_events": 1,
+      "issue_titles": 0,
+      "alert_titles": 0,
+      "events": 1,
+      "feedback": 1,
+      "event_grouping": 0,
+      "event_suppressions": 0
+    },
+    "retained": [
+      {
+        "table": "feedback",
+        "reason": "Feedback contact is discarded at intake. Retained scrubbed messages have no user identity index; they cannot be matched to this value. Event deletion also deletes feedback attached to those exact occurrences."
+      },
+      {
+        "table": "attachments",
+        "reason": "Attachment ingestion and identity metadata are not retained; there is no attachment identity matching store."
+      },
+      {
+        "table": "replays",
+        "reason": "Replay ingestion and identity metadata are not retained; there is no replay identity matching store."
+      },
+      {
+        "table": "captured_text",
+        "reason": "0 event records contain only ambiguous partial-token copies; 0 event records contain matching content that cannot be redacted without changing immutable grouping provenance. Those copies stay. Unknown aliases, encoded text, exception/stack/context copies and independent derived snapshots cannot be fully correlated by this door."
+      },
+      {
+        "table": "health_sessions",
+        "reason": "Only session DID hashes equal to the supplied value are matched. Different aliases and anonymous session aggregates cannot be correlated."
+      },
+      {
+        "table": "external_copies",
+        "reason": "Downloaded archives, delivered messages, provider backups and future incoming captures are outside this installation. A fresh destination needs the later archive as its trusted erasure journal."
+      }
+    ],
+    "blobs": {
+      "total": 0,
+      "deleted": 0
+    },
+    "requestedAt": "2026-11-16T22:35:32.272Z",
+    "committedAt": "2026-11-16T22:35:32.272Z",
+    "completedAt": "2026-11-16T22:35:32.280Z",
+    "seconds": 0.008,
+    "exceptions": [
+      "Only exact retained event identities and literally equal session DIDs are matched; the retained-scope list names uncorrelatable stores.",
+      "The existing portability redaction checkpoint refuses pre-erasure archives here, or with a trusted later journal on a fresh installation.",
+      "Downloaded copies, delivered messages, provider backups and future captures are outside this operation."
+    ]
+  },
+  "restore": {
+    "same": "erasure_epoch",
+    "freshPost": "restored",
+    "freshOld": "erasure_epoch"
+  },
+  "before": {
+    "events": 6,
+    "matching": 4
+  },
+  "after": {
+    "events": 5,
+    "matching": 0
+  },
+  "limitations": [
+    {
+      "table": "feedback",
+      "reason": "Feedback contact is discarded at intake. Retained scrubbed messages have no user identity index; they cannot be matched to this value. Event deletion also deletes feedback attached to those exact occurrences."
+    },
+    {
+      "table": "attachments",
+      "reason": "Attachment ingestion and identity metadata are not retained; there is no attachment identity matching store."
+    },
+    {
+      "table": "replays",
+      "reason": "Replay ingestion and identity metadata are not retained; there is no replay identity matching store."
+    },
+    {
+      "table": "captured_text",
+      "reason": "0 event records contain only ambiguous partial-token copies; 0 event records contain matching content that cannot be redacted without changing immutable grouping provenance. Those copies stay. Unknown aliases, encoded text, exception/stack/context copies and independent derived snapshots cannot be fully correlated by this door."
+    },
+    {
+      "table": "health_sessions",
+      "reason": "Only session DID hashes equal to the supplied value are matched. Different aliases and anonymous session aggregates cannot be correlated."
+    },
+    {
+      "table": "external_copies",
+      "reason": "Downloaded archives, delivered messages, provider backups and future incoming captures are outside this installation. A fresh destination needs the later archive as its trusted erasure journal."
+    }
+  ]
+}

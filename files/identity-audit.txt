@@ -1,0 +1,12 @@
+c5570fd9cdd52208ce39acbb41a46e19d666f043
+Run Edit Run fleet <fleet@runeditrun.com>
+Run Edit Run fleet <fleet@runeditrun.com>
+
+Require admitted erasure scale proof with an explicit transport deadline
+
+d58542fcb06d2578ba623b5741ecac7a1a5aca23
+Run Edit Run fleet <fleet@runeditrun.com>
+Run Edit Run fleet <fleet@runeditrun.com>
+
+Admit the contract archive corpus and index identity validation [skip ci]
+

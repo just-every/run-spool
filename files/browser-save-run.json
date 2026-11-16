@@ -1,0 +1,16 @@
+{
+  "candidate": "d58542fcb06d2578ba623b5741ecac7a1a5aca23",
+  "command": "RER_CHROMIUM_EXECUTABLE_PATH=/usr/bin/chromium cloud_run perl -e 'alarm 900; exec @ARGV' -- node tests/end-user-erasure-preview.mjs",
+  "exit": 0,
+  "widths": [
+    1440,
+    390
+  ],
+  "assertionWidth": 1440,
+  "restore": {
+    "same": "erasure_epoch",
+    "freshPost": "restored",
+    "freshOld": "erasure_epoch"
+  },
+  "screenshots": "Superseded by exact-final-candidate browser-run.json; only the final screenshots are retained."
+}

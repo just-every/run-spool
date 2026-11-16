@@ -1,0 +1,50 @@
+{
+  "candidate": "c5570fd9cdd52208ce39acbb41a46e19d666f043",
+  "completedAt": "2026-11-16T22:36:08.948215+00:00",
+  "command": "RER_CHROMIUM_EXECUTABLE_PATH=/usr/bin/chromium cloud_run perl -e 'alarm 900; exec @ARGV' -- node tests/end-user-erasure-preview.mjs",
+  "exit": 0,
+  "widths": [
+    1440,
+    390
+  ],
+  "assertionWidth": 1440,
+  "screenshots": [
+    {
+      "file": "complete-1440.png",
+      "sha256": "453d9c876489962fdb1e63a32b511f09ed73fb122e6e58507b17b23f3ef184e8"
+    },
+    {
+      "file": "complete-390.png",
+      "sha256": "35adf21778b0fb91a11cadb34edc9c2e049046ec9307cde70c1fb8ad67f94f4e"
+    },
+    {
+      "file": "matching-1440.png",
+      "sha256": "51956d9a0fc31fe5691790ccc36d00f8fa703f89a913fe058c59160ad28c97cd"
+    },
+    {
+      "file": "matching-390.png",
+      "sha256": "fa8d58dfe172bed0053ff22a80dc46aad6e0e31ea1761b5dc92177859dbec34d"
+    },
+    {
+      "file": "search-after-1440.png",
+      "sha256": "0edf43aae13df369e5032dd8af603bc7cb5d3d07e038dbc49aec54aaa18cc81b"
+    },
+    {
+      "file": "search-after-390.png",
+      "sha256": "197047e7450dd5d9e0d90c3cd0798d1c8cd4ff926f47cc1d0715c09590c98139"
+    },
+    {
+      "file": "unavailable-1440.png",
+      "sha256": "035396e115241d95965aeed8b5b25f3c7d8d9404ba8bd95ed430dd17c4a801bd"
+    },
+    {
+      "file": "unavailable-390.png",
+      "sha256": "80254c7df01db7a288ebab8c00dc58aaf381ccea468fb6b38d531be303c358b2"
+    }
+  ],
+  "restore": {
+    "same": "erasure_epoch",
+    "freshPost": "restored",
+    "freshOld": "erasure_epoch"
+  }
+}
