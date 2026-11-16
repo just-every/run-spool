@@ -5,7 +5,7 @@ Signed: Run Edit Run fleet, 2026-11-16 UTC.
 Repository: just-every/run-spool
 Branch: cloud/sd-spool-sdk004-1
 Product head: cde6912af309f5fcf24bd8239d7e6684cb0dc6e5
-CI: Verify 43892572351 on cde6912af309f5fcf24bd8239d7e6684cb0dc6e5 is in progress; see the actual CI receipts for its terminal observation.
+CI: Verify 43892572351 on cde6912af309f5fcf24bd8239d7e6684cb0dc6e5: completed / failure. Product custody: BLOCKED.
 PR: none. The fleet owns publication scan, admission and landing; this cloud never pushes main or self-submits.
 
 ## Delivered
@@ -36,7 +36,7 @@ The main implementation stays in the leased feedback domain, panel/CSS, migratio
 - An assigned teammate sends through the existing provider fake. A held fake response exposes queued state through the private HTTP read; accepted, rejected, uncertain and missing-configuration outcomes then expose sent, failed, failed and never-sent respectively. The same request ID does not dispatch twice. Reply text is scrubbed before storage and dispatch.
 - Built inbox assertions ran at 1440, including contact, decoded screenshot, disabled mail-off form, reply history, overflow and no serious/critical Axe findings. The changed screen was captured once at viewport widths 1440 and 390. Both actual images are in this packet.
 - The populated prior-0109 native feedback archive restored with its description intact and private details null. The existing old-archive journey passed published-release upgrade, pre-metric archive, current round-trip, occupied-target refusal and corrupted/mismatched schema refusal.
-- Tests exited zero. The feedback run emitted a workerd Broken pipe diagnostic during fixture teardown; the journey and cleanup completed successfully. No product assertion was weakened or removed to accommodate it.
+- Retained local tests exited zero. The feedback run emitted a workerd Broken pipe diagnostic during fixture teardown; the journey and cleanup completed successfully. No product assertion was weakened or removed to accommodate it.
 - Local tools used the supplied shim's Node 24.19.0 and pnpm 10.12.4; its engine warning notes the repository's Node 22.20.0 pin. CI supplies the pinned Node version. Chromium used /usr/bin/chromium with --no-sandbox. Local-only fixtures required inherited HTTP proxies unset and file-based Node entrypoints; early diagnostic attempts with --input-type=module hung Miniflare and were stopped by their own recorded PIDs. Final retained checks use the file-based commands.
 
 RECEIPT.json binds the actual checks, product head, base, lock hash and screenshots. Complete relevant command logs are selected explicitly in this packet; credentials, environment dumps, private gate material, fixture archives and symlinks are excluded.
@@ -60,3 +60,15 @@ Product save: 2518c0c (skip CI); first candidate: 717793521d928a9f7279b40c1ca3cb
 The superseded integration candidate had Verify 43891585587 in progress when replaced; its final CI conclusion was not queried. No green claim is made for either superseded head.
 
 The ten-call GitHub budget has eight calls used before the terminal watcher: two unavailable platform document reads; four initial candidate CI discovery/status/jobs/failure-log reads; one superseded candidate discovery; one terminal candidate discovery. The sole terminal watcher makes at most two remaining REST status reads, ten minutes apart.
+
+Terminal candidate observation 1: Verify 43892572351 was still in_progress on the exact terminal SHA; nine of ten GitHub calls used. One later status read remains. No READY claim has been made.
+
+## Terminal observation
+
+At 2026-11-16T15:28:18.085610+00:00, Verify 43892572351 was completed / failure on the exact terminal product SHA. GitHub calls used: 10 of 10. Product custody: BLOCKED.
+Verify completed unsuccessfully. The remaining API budget is exhausted, so no unsupported cause or green claim is made for this terminal run. Successful exact-SHA Verify remains the blocking prerequisite.
+Evidence publication is separate from product custody and never waives an independent gate.
+
+After the terminal red Verify observation, the complete existing SDK HTTP registration was run locally on committed head cde6912af309f5fcf24bd8239d7e6684cb0dc6e5 with a 600-second timeout. It exited zero, including the changed feedback journey, native member/mail fake assertions, both feedback screen captures, all preceding SDK HTTP integration flows and final key-rate-limit checks. sdk-http-test.log is the complete actual receipt. The final feedback images and hashes now come from that committed-head run. No additional product change was made, and no cause is inferred for the uninspected CI failure.
+
+BLOCKER: successful exact-SHA Verify is missing. Verify 43892572351 completed failure on the terminal SHA; the ten-call API budget prevents retrieving its failed job/log in this task. The next authorized step is to inspect that run once with a fresh budget, identify the failed job and repair any in-scope failure before landing. No READY or acceptance promotion is claimed.

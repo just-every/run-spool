@@ -1,5 +1,7 @@
 {
+  "author": "Run Edit Run fleet",
   "base": "e1bbf84516f3e8729b623f040ff5b68cd95f3a91",
+  "blocker": "Exact-SHA Verify 43892572351 concluded failure. Ten-call GitHub budget exhausted; final failed job/log not inspected. Full local SDK HTTP registration and all touched checks pass.",
   "branch": "cloud/sd-spool-sdk004-1",
   "checks": [
     {
@@ -66,15 +68,21 @@
       "command": "pnpm integration:check",
       "exit_code": 0,
       "name": "integration-check"
+    },
+    {
+      "command": "cloud_run timeout -k 10 600 node tests/sentry-http.mjs",
+      "exit_code": 0,
+      "head": "cde6912af309f5fcf24bd8239d7e6684cb0dc6e5",
+      "name": "sdk-http-integrated",
+      "reason": "Final red Verify prompted a local reproduction attempt of the existing registration that invokes the changed feedback journey."
     }
   ],
   "ci": {
-    "conclusion": null,
+    "conclusion": "failure",
     "head_sha": "cde6912af309f5fcf24bd8239d7e6684cb0dc6e5",
     "html_url": "https://github.com/just-every/run-spool/actions/runs/43892572351",
     "id": 43892572351,
-    "name": "Verify",
-    "status": "in_progress"
+    "status": "completed"
   },
   "clause": {
     "after": "PARTIAL",
@@ -84,7 +92,51 @@
       3,
       4
     ],
-    "id": "SDK-004"
+    "id": "SDK-004",
+    "publicDoorProofs": {
+      "2": {
+        "doors": [
+          "native member invite/confirm",
+          "feedback/:id/review",
+          "feedback/:id/replies",
+          "feedback/:id/private",
+          "built feedback inbox"
+        ],
+        "states": [
+          "queued",
+          "sent/provider_accepted",
+          "failed/provider_failed",
+          "failed/delivery_unconfirmed",
+          "never_sent/mail_off",
+          "never_sent/mail_suppressed",
+          "never_sent/mail_unconfigured"
+        ],
+        "test": "tests/feedback-flow.mjs#feedbackFlow \u2192 privateFeedbackFlow/feedbackMailFlow"
+      },
+      "3": {
+        "door": "anonymous Sentry envelope intake",
+        "proof": "public per-minute bound reaches HTTP 429 feedback_rate_limited; oversized/invalid private payloads refused",
+        "test": "tests/feedback-flow.mjs#privateFeedbackFlow"
+      },
+      "4": {
+        "doors": [
+          "DELETE feedback/:id",
+          "GET feedback/:id/private",
+          "GET feedback/:id/screenshot",
+          "GET issue feedback",
+          "GET archive",
+          "POST restore",
+          "SDK retry"
+        ],
+        "proof": "description, contact, sanitized screenshot and reply canaries removed on withdrawal; older archive/retry fenced; restore preserves history without sending",
+        "test": "tests/feedback-flow.mjs#feedbackFlow/privateFeedbackFlow/feedbackMailFlow"
+      }
+    },
+    "unclaimedPoints": {
+      "1": "No complete end-user browser/mobile widget journey for screenshot/contact.",
+      "5": "Existing description-only unmodified SDK qualification was retained; this round does not claim unmodified attachment intake.",
+      "6": "Independent Spanish widget is absent."
+    }
   },
   "commits": [
     {
@@ -115,6 +167,12 @@
     "partial": 47
   },
   "created": "2026-11-16T14:54:57.926449+00:00",
+  "evidencePreliminaryRoundtrip": {
+    "files": 20,
+    "head": "38c0babbc9f419892de445e278f6a0923d0208dc",
+    "receipt": "evidence-roundtrip-preliminary.json",
+    "status": "restored"
+  },
   "githubBudgetDetails": [
     "2 platform content lookups (404)",
     "Initial candidate discovery, final status, jobs, failed build archive: 4",
@@ -122,7 +180,7 @@
     "Terminal candidate discovery: 1"
   ],
   "githubCallBudget": 10,
-  "githubCallsUsed": 8,
+  "githubCallsUsed": 10,
   "head": "cde6912af309f5fcf24bd8239d7e6684cb0dc6e5",
   "previousCI": [
     {
@@ -141,23 +199,29 @@
       "terminalConclusion": "not queried; superseded"
     }
   ],
+  "productCustody": "BLOCKED",
   "publicationScan": "Mac fleet final scan required; not available in cloud",
   "registrationChange": "Existing SDK HTTP feedbackFlow journey expanded; no additional CI test registration.",
   "repository": "just-every/run-spool",
   "schema": 1,
   "screens": [
     {
+      "capturedOnCommittedHead": "cde6912af309f5fcf24bd8239d7e6684cb0dc6e5",
       "file": "feedback-review-1440.png",
-      "sha256": "6095f88a844018c8aac56ea74b1bbc2dd4221dfb47f91080a427591159ef5362",
+      "journey": "tests/sentry-http.mjs \u2192 feedbackFlow",
+      "sha256": "d3da9d780ac3d32068f14d47e7f3d6a3784e3d79136bf373c891d854641b019d",
       "viewportWidth": 1440
     },
     {
+      "capturedOnCommittedHead": "cde6912af309f5fcf24bd8239d7e6684cb0dc6e5",
       "file": "feedback-review-390.png",
-      "sha256": "20d7ddc2bab71a0b3aa6382113969ccad4c316e6ae50164a677dbac4226ae6bb",
+      "journey": "tests/sentry-http.mjs \u2192 feedbackFlow",
+      "sha256": "544deaabfcde613a0243efa58ada19736cacc428e621419b0bf5f16c319657cc",
       "viewportWidth": 390
     }
   ],
   "sourceLockSha256": "d21f524378fe59186bdc3050268f3205b5a1fe46abe129894a7eef04eeb782c6",
   "tag": "sd-spool-sdk004-1",
-  "testEnvironment": "Dedicated Linux cloud VM; Node 24.19.0 and pnpm 10.12.4 selected by supplied toolchain. Local-only test commands unset inherited HTTP proxies; Chromium /usr/bin/chromium with --no-sandbox. No live provider calls."
+  "testEnvironment": "Dedicated Linux cloud VM; Node 24.19.0 and pnpm 10.12.4 selected by supplied toolchain. Local-only test commands unset inherited HTTP proxies; Chromium /usr/bin/chromium with --no-sandbox. No live provider calls.",
+  "updated": "2026-11-16T15:37:21.131782+00:00"
 }
