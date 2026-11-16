@@ -4185,6 +4185,10 @@
       "sha256": "561af8c0b4ed29ad8af56615139f5a8eb6b12daf0d74c8021f31a7789d814a9b",
       "executable": false
     },
+    "migrations/core/0109_feedback_review.sql": {
+      "sha256": "991615f887a895a3d6be01b805dc543a8a05c8274312b02788b170b73b52c06f",
+      "executable": false
+    },
     "ONBOARDING.md": {
       "sha256": "2b201e837e3caa66d4181b8955360372cd215f8288c108a81c383146a5806467",
       "executable": false
@@ -6133,6 +6137,14 @@
       "sha256": "22b8959844ece0897abe3e44c01401bdc0e03636e8b6fb25f5db03f05cd15839",
       "executable": false
     },
+    "src/domain/feedback/private.ts": {
+      "sha256": "588967f9368453032e315b7d94c94a9e53f5ac2471b5655c906b057818d35cb9",
+      "executable": false
+    },
+    "src/domain/feedback/review.ts": {
+      "sha256": "5e359a2398bc85a6ec1e3c0bf04d41af2ef383d9e58c4c5e726899889090b1b3",
+      "executable": false
+    },
     "src/domain/feedback/routes.ts": {
       "sha256": "fcae3e5d5066dea92caa682ffd2238c12a8e5314068c55d96a4e01128af03e0a",
       "executable": false
@@ -6550,7 +6562,7 @@
       "executable": false
     },
     "src/domain/portability.ts": {
-      "sha256": "342c3ff14d342e8b48f211cf9a51d797c4e6d332ecf932d62a0c2650dfcc94d1",
+      "sha256": "325b5fcc89a59e30a55a7de7fb26d87dbe52a32304bce5222a40669cb9ea85f8",
       "executable": false
     },
     "src/domain/privacy.ts": {
@@ -11126,7 +11138,7 @@
       "executable": false
     },
     "tests/feedback-flow.mjs": {
-      "sha256": "27c5cd42bc5852a7b0cdc7f48c24959a063ab7c9352e415c79fba4ebda4192f6",
+      "sha256": "bdf637214f865301566fe4de761887599390d86811c79d8dc0e2f6dd156bc95d",
       "executable": false
     },
     "tests/fidelity-flow.mjs": {
