@@ -71,3 +71,17 @@ The final fresh fetch found main unchanged at 2011d4884e82800cccefbf4d0a7cdfa913
 Final product head: c1920a0db12fa2684b415e4e2fae68e59d726d0b on cloud/sd-spool-sdk004-2, pushed successfully through cloud-push.py. All seven candidate commits, including side parents, have fleet author/committer identities and no trailers. Full commit history is retained. Verify run 43919292718 was discovered through REST for this exact SHA and branch; its initial status is in_progress. One original failed-job archive read and one discovery call have used 2/10 GitHub calls. No running workflow log was read, no workflow rerun/dispatch was requested, and the sole watcher waits at least 300 seconds between run calls.
 
 Before/after local counts: four named primary failing jobs to zero; contract remains 23 done, 54 partial and 28 missing (105 total). Test registrations added/removed: 0/0. SDK-004's original PARTIAL claim at points 2,3,4, default and gaps remain exactly as reported above. Exact-SHA Verify and final evidence transfer are reported separately below when complete. The Mac fleet retains publication scan, judgment, acceptance and landing custody.
+
+A preliminary 84-file packet was published successfully at evidence/sd-spool-sdk004-2 head 3dff40997933861229ee11afdadcc1dacab6de65 while exact-SHA Verify remained in progress. It preserves the complete actual local reports/receipts after the environment restart and carries no READY/acceptance/landing signal. The terminal EVIDENCE line will name the later final packet after the final CI status is recorded.
+
+## Exact-SHA Verify complete
+
+Verify 43919292718 completed with conclusion success on c1920a0db12fa2684b415e4e2fae68e59d726d0b: https://github.com/just-every/run-spool/actions/runs/43919292718 . This is the final non-skipped product head, not an earlier save, another branch or another SHA. The entire workflow succeeds, so the runtime/test partitions and dependent spool/aggregate gates are green. No generator exception, rerun, dispatch or additional repair was needed.
+
+GitHub budget used: 7/10 (one completed original failed-job log archive read, one exact-SHA discovery, five status polls). Every discovery/status interval was at least 300 seconds, verified from the actual timestamps. No other workflow log was read.
+
+Final result: product pushed, exact-SHA Verify green, no blocker; READY branch=cloud/sd-spool-sdk004-2 head=c1920a0db12fa2684b415e4e2fae68e59d726d0b. Four primary baseline failures become zero, with no contract status changes and no added/deleted test registrations. The second/final local repair passes. The original SDK-004 PARTIAL points=2,3,4 claim, default and gap remain unchanged. No main/default push, PR, tag, release, self-submit, publication scan or landing was performed.
+
+The final 84-file packet is prepared for the separate evidence/sd-spool-sdk004-2 ref. The terminal EVIDENCE line names its actual resulting head. The report transport is independent of product READY and never authorizes acceptance or landing. The pushed clone will be removed after the final evidence transfer succeeds; the complete packet remains in the task work directory.
+
+Signed: Run Edit Run fleet (sd), 2026-11-16 UTC.

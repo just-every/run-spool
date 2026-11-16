@@ -4,12 +4,12 @@
   "symlinks": 0,
   "injected_credential_values_found": 0,
   "credential_patterns_found": 0,
-  "scope": "selected packet only; not the Mac product publication scan",
+  "scope": "selected final packet only; not the Mac product publication scan",
   "files": [
     {
       "path": "REPORT.md",
-      "bytes": 15214,
-      "sha256": "f643518e3b09afd97f12df3fa0041d48f91b75a0014b1353d96a187b362231e3"
+      "bytes": 17261,
+      "sha256": "ce1b56cfdb0d0a4f62fdf856cab56d5b66d6152e9ee29938dc3ac1c996887946"
     },
     {
       "path": "PLAN.md",
@@ -18,8 +18,8 @@
     },
     {
       "path": "terminal-receipt.json",
-      "bytes": 1284,
-      "sha256": "9381049817a9456718f648c636eb26ea9d9d038734998894fce00f167ae05f97"
+      "bytes": 1670,
+      "sha256": "012e62b4c152b52adc6366e77a5bbb1d0fb4789bd1f86c6bff46ed13a7bbf286"
     },
     {
       "path": "reproduction-receipt.json",
@@ -38,13 +38,13 @@
     },
     {
       "path": "after-counts.json",
-      "bytes": 753,
-      "sha256": "86ba1f72032355ead0bbf5faf1a506a99edcccc85e10d468ab61bddf6304de48"
+      "bytes": 889,
+      "sha256": "4f41b0e61a7c87ac1a236675875521f96da726ff0debf2db79e3dcb0698276ba"
     },
     {
       "path": "api-budget.json",
-      "bytes": 1096,
-      "sha256": "2e48e454ce06c8f868a0782636a40e228ba70f93ccfcc120e3d974e14639a382"
+      "bytes": 1775,
+      "sha256": "f4f92c82c76f7ef13f8a572d0e1e5a0d60d166d7f51d79b9ba8cd6f69d6a4390"
     },
     {
       "path": "ci-discovery.json",
@@ -53,18 +53,18 @@
     },
     {
       "path": "ci-run.json",
-      "bytes": 296,
-      "sha256": "ed58f7aa1efc20fcc18d8591c35f4b30b6b79d8092cb3e6be7a4ad13dafa89dd"
+      "bytes": 299,
+      "sha256": "3904d14d68a630c7b7dbccc54c12cb4ab4f1f1beffc25a3b17032342da949e51"
     },
     {
       "path": "ci-status.json",
-      "bytes": 175,
-      "sha256": "5604fdd0368c66019ef324af9dd7a604e7b49f624c74ba1f31f5e682d9b96170"
+      "bytes": 178,
+      "sha256": "84bbfae176163d0392a3ea0e0e421552ff44b53bd50551c209578ab73556426c"
     },
     {
       "path": "ci-status-history.json",
-      "bytes": 567,
-      "sha256": "6ac882042d820b49b3322e1dac88057350dc20e74f6a5d3fa0f1edbb44162071"
+      "bytes": 1416,
+      "sha256": "4ab8243b2859fa319f34b5667b13859c75cb437b56e0388e68d320b240484db9"
     },
     {
       "path": "integration-receipt.json",

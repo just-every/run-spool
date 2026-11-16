@@ -10,9 +10,9 @@
     "ac684a8abd3f53f461884be0fcf06b64d688e7f4"
   ],
   "pushed": true,
-  "ready": false,
+  "ready": true,
   "ci_run": 43919292718,
-  "ci_status": "in_progress",
+  "ci_status": "completed",
   "ci_url": "https://github.com/just-every/run-spool/actions/runs/43919292718",
   "pr": null,
   "contract_status_changes": [],
@@ -42,7 +42,21 @@
       "exit": 0
     }
   ],
-  "timestamp": "2026-11-16T17:42:17.664382+00:00",
-  "ci_conclusion": null,
-  "github_calls_used": 4
+  "timestamp": "2026-11-16T17:58:49.348861+00:00",
+  "ci_conclusion": "success",
+  "github_calls_used": 7,
+  "preliminary_evidence": {
+    "ref": "refs/heads/evidence/sd-spool-sdk004-2",
+    "head": "3dff40997933861229ee11afdadcc1dacab6de65",
+    "files": 84,
+    "ci_pending_at_publication": true
+  },
+  "blockers": [],
+  "evidence_target": "refs/heads/evidence/sd-spool-sdk004-2",
+  "counts_after_ci": {
+    "done": 23,
+    "partial": 54,
+    "missing": 28,
+    "primary_failures": 0
+  }
 }

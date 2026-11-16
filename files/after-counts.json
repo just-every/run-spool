@@ -26,5 +26,9 @@
   ],
   "primary_jobs_pending": [],
   "primary_job_failures_before": 4,
-  "primary_job_failures_after": 0
+  "primary_job_failures_after": 0,
+  "exact_sha_verify": "success",
+  "ci_run": 43919292718,
+  "final_head": "c1920a0db12fa2684b415e4e2fae68e59d726d0b",
+  "blockers": []
 }
