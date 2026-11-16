@@ -4,6 +4,7 @@ import { capturedTextRedactor } from './erasure-text';
 
 type EventChange={id:string;occurrence:string;before:string;payload:string;digest:string};
 type IssueChange={id:string;before:string;revision:number;title:string};
+type AlertChange={id:string;before:string;payload:string};
 
 // FIND-001 reads event payloads; identity search reads event_identities itself.
 // There is no second sensitive index to journal or restore independently.
@@ -62,7 +63,12 @@ export async function erasureSearchPlan(db: D1Database, project: string, predica
  }
  const issues=deleting?[]:(await db.prepare('SELECT id,title,revision FROM issues WHERE project=? ORDER BY id').bind(project).all<{id:string;title:string;revision:number}>()).results;
  for(const issue of issues){const title=redactor.text(issue.title);if(title!==issue.title)issueChanges.push({id:issue.id,before:issue.title,revision:issue.revision,title})}
- return {count,textEvents,ambiguousEvents,groupingHeld,changes,issueChanges,fingerprint:await hash(canonical([changes,issueChanges,ambiguousEvents,groupingHeld]))};
+ // Issue search/exports also expose the retained attention alert's captured
+ // title. Redact that copy without changing its trigger, release or history.
+ const alertChanges:AlertChange[]=[];
+ const alerts=(await db.prepare('SELECT id,payload FROM alerts WHERE project=? AND payload IS NOT NULL ORDER BY id').bind(project).all<{id:string;payload:string}>()).results;
+ for(const alert of alerts){const payload=JSON.parse(alert.payload);if(typeof payload.title!=='string')continue;const title=redactor.text(payload.title);if(title!==payload.title)alertChanges.push({id:alert.id,before:alert.payload,payload:JSON.stringify({...payload,title})})}
+ return {count,textEvents,ambiguousEvents,groupingHeld,changes,issueChanges,alertChanges,fingerprint:await hash(canonical([changes,issueChanges,alertChanges,ambiguousEvents,groupingHeld]))};
 }
 
 function chunks<T>(changes:T[]) {
@@ -97,5 +103,14 @@ export function erasureIssueStatements(db:D1Database,project:string,changes:Issu
     AND i.title=json_extract(c.value,'$.before') AND i.revision=json_extract(c.value,'$.revision')`).bind(text,text,project),
   db.prepare(`WITH changes AS MATERIALIZED (SELECT json_extract(value,'$.id') id,json_extract(value,'$.title') title FROM json_each(?))
    UPDATE issues SET title=changes.title,revision=revision+1 FROM changes WHERE issues.project=? AND issues.id=changes.id`).bind(text,project),
+ ]);
+}
+export function erasureAlertStatements(db:D1Database,project:string,changes:AlertChange[]) {
+ return chunks(changes).flatMap(text=>[
+  db.prepare(`INSERT INTO rer_portability_guard(value)
+   SELECT CASE WHEN COUNT(*)=json_array_length(?) THEN 1 ELSE 0 END
+   FROM json_each(?) c CROSS JOIN alerts a ON a.project=? AND a.id=json_extract(c.value,'$.id') AND a.payload=json_extract(c.value,'$.before')`).bind(text,text,project),
+  db.prepare(`WITH changes AS MATERIALIZED (SELECT json_extract(value,'$.id') id,json_extract(value,'$.payload') payload FROM json_each(?))
+   UPDATE alerts SET payload=changes.payload FROM changes WHERE alerts.project=? AND alerts.id=changes.id`).bind(text,project),
  ]);
 }

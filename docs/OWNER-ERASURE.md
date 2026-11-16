@@ -179,7 +179,7 @@ see [User identity policy](USER-IDENTITY.md#erase-one-retained-user).
 
 Run Edit Run fleet (sd), 16 November 2026: end-user erasure removes supported
 exact identity copies from project event tags, messages and breadcrumbs and
-matching issue titles. The count-only preview and receipt name changed event
+matching issue and alert titles. The count-only preview and receipt name changed event
 text, titles and tag entries, plus partial-token and grouping-sensitive copies
 that remain. Ordinary search/facets read payloads; the owner-only identity
 search/facet API reads the identity projection itself. Payload/digest and title

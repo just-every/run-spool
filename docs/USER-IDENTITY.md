@@ -77,11 +77,11 @@ value and its private project hash, the matched occurrences' retained values
 and hashes, and raw tag values whose project hash matches those aliases. Whole
 tag entries are removed for exact matches; complete tokens inside captured
 sentences are removed without changing neighboring text. Matching issue title
-text is removed too. Digests are recomputed and previous occurrence/digest and
+text and its retained attention-alert title copy are removed too. Digests are recomputed and previous occurrence/digest and
 issue revision/title guards commit with identity removal, the receipt and one
 existing portability redaction checkpoint in the same owner transaction.
 
-The preview and receipt separately count changed text events and issue titles.
+The preview and receipt separately count changed text events, issue titles and alert titles.
 A substring inside a longer identifier cannot be attributed safely. Text used
 by an immutable grouping key cannot be removed by this door without changing
 its provenance and breaking restore; those event payloads remain intact and

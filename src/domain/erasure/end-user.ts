@@ -1,5 +1,5 @@
 import { canonical, hash } from '../privacy';
-import { erasureSearchPlan, erasureSearchStatements, erasureIssueStatements } from '../identities/erasure-search';
+import { erasureSearchPlan, erasureSearchStatements, erasureIssueStatements, erasureAlertStatements } from '../identities/erasure-search';
 import { identityHash } from '../identities/key';
 import { readIdentityPolicy, identityPolicyFence, type IdentityField } from '../identities/policy';
 import { portability } from '../portability';
@@ -60,7 +60,7 @@ export async function endUserPlan(db: D1Database, project: string, selection: En
   sessions:{status:unavailable?'unavailable':'available',count:unavailable?null:counts.sessions,retained:counts.sessionRetained,
    explanation:'Exact session DID equality only; other aliases and anonymous session aggregates cannot be attributed.'},
   search:{status:unavailable?'unavailable':'available',count:unavailable?null:search.count,explanation:'Exact retained identity copies in project event tags. Ordinary search/facets read those payloads; identity search/facets read the identity projection cleared by this operation.'},
-  capturedText:{status:unavailable?'unavailable':'available',count:unavailable?null:search.textEvents,issueTitles:search.issueChanges.length,ambiguousEvents:search.ambiguousEvents,groupingHeld:search.groupingHeld,explanation:'Whole-token copies in messages, tags and breadcrumbs are removed where grouping stays valid. Partial identifiers, grouping-sensitive content and unsupported copies remain explicitly listed.'},
+  capturedText:{status:unavailable?'unavailable':'available',count:unavailable?null:search.textEvents,issueTitles:search.issueChanges.length,alertTitles:search.alertChanges.length,ambiguousEvents:search.ambiguousEvents,groupingHeld:search.groupingHeld,explanation:'Whole-token copies in messages, tags and breadcrumbs and captured issue/alert titles are removed where grouping stays valid. Partial identifiers, grouping-sensitive content and unsupported copies remain explicitly listed.'},
   feedback:{status:action==='delete_events'?'attached_records_only':'unavailable',count:action==='delete_events'?counts.feedback:null},
   unavailable:endUserExceptions.map(({table,reason})=>({store:table,reason})),retained}};
 }
@@ -71,7 +71,7 @@ export async function endUserPlan(db: D1Database, project: string, selection: En
 export async function endUserStatements(db: D1Database, project: string, selection: EndUserSelection, plan: Awaited<ReturnType<typeof endUserPlan>>) {
  const transfer=await portability(db), before=await state(db), id=crypto.randomUUID().replaceAll('-',''),now=new Date().toISOString();
  const {counts,predicate,digest}=plan, deleting=selection.action==='delete_events';
- const deleted={event_identities:counts.matched,health_sessions:counts.sessions,search_tags:plan.search.count,captured_text_events:plan.search.textEvents,issue_titles:plan.search.issueChanges.length,...deleting?{events:counts.matched,feedback:counts.feedback,event_grouping:counts.grouping,event_suppressions:counts.suppressions}:{}};
+ const deleted={event_identities:counts.matched,health_sessions:counts.sessions,search_tags:plan.search.count,captured_text_events:plan.search.textEvents,issue_titles:plan.search.issueChanges.length,alert_titles:plan.search.alertChanges.length,...deleting?{events:counts.matched,feedback:counts.feedback,event_grouping:counts.grouping,event_suppressions:counts.suppressions}:{}};
  return {id,statements:[
   identityPolicyFence(db,project,plan.current.revision),
   guard(db,'EXISTS(SELECT 1 FROM rer_portability_state WHERE id=1 AND source_identity=? AND epoch=? AND import_job IS NULL)',before.source_identity,plan.fence?.epoch??0),
@@ -83,6 +83,7 @@ export async function endUserStatements(db: D1Database, project: string, selecti
   guard(db,`(SELECT COUNT(*) FROM events WHERE project=?)=? AND (SELECT COUNT(*) FROM (${predicate}))=? AND (SELECT COUNT(*) FROM health_sessions WHERE project=? AND user_hash=?)=? AND (SELECT COUNT(*) FROM feedback WHERE project=? AND event_id IN (${predicate}))=?`,project,counts.retained,project,digest,counts.matched,project,digest,counts.sessions,project,project,digest,counts.feedback),
   ...await transfer.invalidateTransfersStatements(),
   ...await transfer.redactionStatements(),
+  ...erasureAlertStatements(db,project,plan.search.alertChanges),
   db.prepare('UPDATE health_sessions SET user_hash=NULL WHERE project=? AND user_hash=?').bind(project,digest),
   ...deleting?[
    db.prepare(`DELETE FROM sentry_import_targets WHERE kind='event' AND id IN (SELECT json_array(?,event) FROM (${predicate}))`).bind(project,project,digest),

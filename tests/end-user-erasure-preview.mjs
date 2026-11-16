@@ -156,10 +156,10 @@ export async function endUserErasurePreviewFlow() {
   const search=async(p,q='')=>owner.json(root(p)+'/issue-search?eventTotals=1&q='+encodeURIComponent(q));
   const tagQuery='identity_copy:synthetic-spool-person-27',hashQuery='identity_hash:'+hashTag;
   const beforeSearch=await search(project,tagQuery),beforeHash=await search(project,hashQuery);
-  assert.equal(beforeSearch.matchingEvents,4);assert.equal(beforeHash.matchingEvents,2);
+  assert.equal(beforeSearch.matchingEvents,4);assert.equal(beforeHash.matchingEvents,2);assert.equal((await search(project,'message:synthetic-spool-person-27')).matchingEvents,5);
   assert.ok(beforeSearch.facets.tags.some(row=>row.value==='synthetic-spool-person-27'));
   const foreignTags=await search(foreign,tagQuery);
-  const searchPlan=await owner.json(door(project),'POST',selected);assert.equal(searchPlan.search.count,6);assert.equal(searchPlan.capturedText.count,5);assert.equal(searchPlan.capturedText.issueTitles,1);assert.equal(searchPlan.capturedText.groupingHeld,0);
+  const searchPlan=await owner.json(door(project),'POST',selected);assert.equal(searchPlan.search.count,6);assert.equal(searchPlan.capturedText.count,5);assert.equal(searchPlan.capturedText.issueTitles,1);assert.equal(searchPlan.capturedText.alertTitles,1);assert.equal(searchPlan.capturedText.groupingHeld,0);
   const pre=await archive(app),foreignBefore=(await preview(foreign)).events.count;
   const context=await browser.newContext({viewport:{width:1440,height:1000}}),page=await context.newPage();
   let removalReceipt;
@@ -176,7 +176,7 @@ export async function endUserErasurePreviewFlow() {
    await region.getByRole('heading',{name:'Erasure complete',exact:true}).waitFor();await assertScreen(page,region);
    for(const width of [1440,390]){await page.setViewportSize({width,height:1000});await region.screenshot({path:`.artifacts/erasure-preview/complete-${width}.png`})}
   }finally{await context.close()}
-  assert.equal(removalReceipt.phase,'complete');assert.equal(removalReceipt.deleted.event_identities,4);assert.equal(removalReceipt.deleted.search_tags,6);assert.equal(removalReceipt.deleted.captured_text_events,5);assert.equal(removalReceipt.deleted.issue_titles,1);
+  assert.equal(removalReceipt.phase,'complete');assert.equal(removalReceipt.deleted.event_identities,4);assert.equal(removalReceipt.deleted.search_tags,6);assert.equal(removalReceipt.deleted.captured_text_events,5);assert.equal(removalReceipt.deleted.issue_titles,1);assert.equal(removalReceipt.deleted.alert_titles,1);
   for(const [field,value] of [['user.id','synthetic-spool-person-27'],['user.email',email],['user.email',hashTag],['user.username','synthetic-spool-name-27'],['user.ip','192.0.2.27']]){const after=await identitySearch(project,field,value);assert.equal(after.matchingEvents,0);assert.deepEqual(after.rows,[]);assert.deepEqual(after.facets,[])}
   const identityFacets=await identitySearch(project);for(const value of [email,hashTag,...hashes(project)])assert.ok(!JSON.stringify(identityFacets).includes(value));assert.ok(identityFacets.facets.length>0,'other identity facets remain populated');
   assert.deepEqual(await identitySearch(foreign),foreignIdentities,'other project identity queries and facets are unchanged');
@@ -258,7 +258,7 @@ export async function endUserErasurePreviewFlow() {
   console.log('PROBE SDK-027 unavailable: dropped email -> unavailable, 1 unattributable; feedback, attachments and replays explicitly unavailable; session DID literal equality counted separately.');
   console.log('PROBE SDK-027 authority-and-privacy: repeated owner, admin and maintainer POSTs -> counts only, unchanged product rows; anonymous, member, read-only, valid or revoked grant, foreign, removed and cross-origin requests refuse; safe audits omit values and keys.');
   console.log('PROBE SDK-027 search-tags: 4 raw-ID tag matches and 2 private hash tag matches -> 0 search results and header-only CSV exports; nonempty JSON export, facets, issue views and next archive omit erased tokens; other user/project tags preserved; id, username and IP confirmations remove matching events and exact session DID identities.');
-  console.log('PROBE SDK-027 identity-search and captured text: owner-only populated raw/hash identity queries and facets -> zero for erased values; 5 captured message/tag/breadcrumb records and one issue title redacted; another user/project unchanged; ambiguous and grouping-sensitive copies retained with explicit counts; post-erasure archives restore.');
+  console.log('PROBE SDK-027 identity-search and captured text: owner-only populated raw/hash identity queries and facets -> zero for erased values; 5 captured message/tag/breadcrumb records and one issue title and its captured alert title redacted; another user/project unchanged; ambiguous and grouping-sensitive copies retained with explicit counts; post-erasure archives restore.');
   console.log('PROBE SDK-027 settings: keyboard preview, refusal, Axe, text size and reflow passed; matching screens recorded at 1440 and 390.');
  } finally {await browser?.close();await app.close()}
 }
