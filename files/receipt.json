@@ -1,0 +1,43 @@
+{
+  "schema": 1,
+  "tag": "gr-ci-spool-flake-1-pc1",
+  "repository": "just-every/run-spool",
+  "branch": "cloud/gr-ci-spool-flake-1-pc1",
+  "head": "99cc280c93ba18eb534bc4f1685fff8ca351e15e",
+  "product_changes": 0,
+  "new_product_commits": 0,
+  "rewritten_commits": 0,
+  "product_pushes": 0,
+  "pr": null,
+  "local_checks": {
+    "setup": 0,
+    "execution": 0,
+    "typecheck": 0,
+    "contract_docs": 0,
+    "source_lock": 0,
+    "connection_probe": 0
+  },
+  "clause_changes": [],
+  "claim": null,
+  "publication_scan": "fleet-only; not claimed in cloud",
+  "historical_logs": {
+    "original": "exit 0, empty output",
+    "owner_ui": "response contains rerun-success output; failed assertion unavailable"
+  },
+  "github_calls_used": 10,
+  "github_call_budget": 10,
+  "observed_runs": [
+    43775640016,
+    43784114100,
+    43788176180
+  ],
+  "created_at": "2026-11-16T02:08:50.650358+00:00",
+  "ci": {
+    "conclusion": "success",
+    "head_sha": "99cc280c93ba18eb534bc4f1685fff8ca351e15e",
+    "html_url": "https://github.com/just-every/run-spool/actions/runs/43788176180",
+    "status": "completed"
+  },
+  "ci_run_id": 43788176180,
+  "final_observed_at": "2026-11-16T02:13:28.301728+00:00"
+}

@@ -1,0 +1,17 @@
+{
+  "boundary": "real emitted Spool Worker over loopback HTTP",
+  "requestsPerMode": 3,
+  "beforeSocketIds": [
+    1,
+    2,
+    2
+  ],
+  "afterSocketIds": [
+    2,
+    3,
+    4
+  ],
+  "beforeReuses": 1,
+  "afterReuses": 0,
+  "limitation": "This deterministically proves removal of pooled socket reuse. It does not reproduce the historical ECONNRESET."
+}

@@ -1,0 +1,27 @@
+[
+  {
+    "command": "gh run view 43775640016 --repo just-every/run-spool --log-failed",
+    "exit": 0,
+    "output": "original-log.txt",
+    "bytes": 0
+  },
+  {
+    "command": "gh run view 43775640016 --repo just-every/run-spool --attempt 1 --log-failed",
+    "exit": 0,
+    "output": "original-attempt1-log.txt",
+    "bytes": 0
+  },
+  {
+    "command": "gh run view 43775640016 --repo just-every/run-spool --attempt 1 --job 133001575860 --log-failed",
+    "exit": 0,
+    "output": "original-execution-failure.txt",
+    "bytes": 0
+  },
+  {
+    "command": "gh run view 43784114100 --repo just-every/run-spool --job 133028240709 --log-failed",
+    "exit": 0,
+    "output": "prior-owner-ui-failure.txt",
+    "bytes": 44943,
+    "limitation": "Actual output ends with rerun success, so it does not prove the historical failed assertion."
+  }
+]

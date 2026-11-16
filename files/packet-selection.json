@@ -1,0 +1,28 @@
+{
+  "files": [
+    "REPORT.md",
+    "receipt.json",
+    "log-read-receipt.json",
+    "candidate-identities.txt",
+    "connection-probe.json",
+    "connection-probe.txt",
+    "execution-results.json",
+    "execution.txt",
+    "typecheck.txt",
+    "contract-check.txt",
+    "source-check.txt",
+    "prior-jobs.json",
+    "prior-attempt1-jobs.json",
+    "original-jobs.json",
+    "prior-owner-ui-failure.txt",
+    "original-log.txt",
+    "original-attempt1-log.txt",
+    "original-execution-failure.txt",
+    "exact-sha-runs.json",
+    "candidate-run-status.json",
+    "candidate-final-status.json",
+    "packet-selection.json"
+  ],
+  "injected_bundle_value_matches": 0,
+  "scope": "local packet selection only, not a publication scanner"
+}
