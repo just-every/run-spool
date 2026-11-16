@@ -1,0 +1,163 @@
+{
+  "base": "e1bbf84516f3e8729b623f040ff5b68cd95f3a91",
+  "branch": "cloud/sd-spool-sdk004-1",
+  "checks": [
+    {
+      "command": "cloud_run npx -y @runeditrun/rer setup --owner-email fleet@runeditrun.com --non-interactive",
+      "exit_code": 0,
+      "name": "setup"
+    },
+    {
+      "command": "cloud_run npx -y @runeditrun/rer build",
+      "exit_code": 0,
+      "name": "build"
+    },
+    {
+      "command": "pnpm typecheck",
+      "exit_code": 0,
+      "name": "typecheck"
+    },
+    {
+      "command": "cloud_run timeout -k 10 300 node tests/feedback-flow.mjs",
+      "exit_code": 0,
+      "name": "feedback"
+    },
+    {
+      "command": "cloud_run timeout -k 10 240 node tests/old-archive.mjs",
+      "exit_code": 0,
+      "name": "old-archive"
+    },
+    {
+      "command": "cloud_run timeout -k 10 120 node .artifacts/prior-feedback-restore.mjs",
+      "exit_code": 0,
+      "name": "prior-schema-archive"
+    },
+    {
+      "command": "node src/base/contract-docs.mjs check",
+      "exit_code": 0,
+      "name": "contract"
+    },
+    {
+      "command": "node scripts/edition-authoring/cli.mjs lock",
+      "exit_code": 0,
+      "name": "lock-write"
+    },
+    {
+      "command": "pnpm source:check",
+      "exit_code": 0,
+      "name": "lock-check"
+    },
+    {
+      "command": "git diff --check",
+      "exit_code": 0,
+      "name": "diff"
+    },
+    {
+      "command": "python3 $HOME/rer-consolidation/.tools/cloud-push.py origin cloud/sd-spool-sdk004-1",
+      "exit_code": 0,
+      "name": "push"
+    },
+    {
+      "command": "pnpm integration:sync",
+      "exit_code": 0,
+      "name": "integration-sync"
+    },
+    {
+      "command": "pnpm integration:check",
+      "exit_code": 0,
+      "name": "integration-check"
+    }
+  ],
+  "ci": {
+    "conclusion": null,
+    "head_sha": "cde6912af309f5fcf24bd8239d7e6684cb0dc6e5",
+    "html_url": "https://github.com/just-every/run-spool/actions/runs/43892572351",
+    "id": 43892572351,
+    "name": "Verify",
+    "status": "in_progress"
+  },
+  "clause": {
+    "after": "PARTIAL",
+    "before": "PARTIAL",
+    "claimedPoints": [
+      2,
+      3,
+      4
+    ],
+    "id": "SDK-004"
+  },
+  "commits": [
+    {
+      "head": "cde6912af309f5fcf24bd8239d7e6684cb0dc6e5",
+      "subject": "Preserve released feedback schema checks across private review upgrade"
+    },
+    {
+      "head": "f18a605cbed5cf19e68929ec41cd488d2db1e0df",
+      "subject": "Register feedback review migration in managed integration"
+    },
+    {
+      "head": "717793521d928a9f7279b40c1ca3cbe0b5b69a43",
+      "subject": "Prove private feedback replies, mail-off review and withdrawal"
+    },
+    {
+      "head": "2518c0c0f170443e38fa2092710f9816001c7877",
+      "subject": "Add consented private feedback review and reply ledger [skip ci]"
+    }
+  ],
+  "contractAfter": {
+    "done": 13,
+    "missing": 26,
+    "partial": 47
+  },
+  "contractBefore": {
+    "done": 13,
+    "missing": 26,
+    "partial": 47
+  },
+  "created": "2026-11-16T14:54:57.926449+00:00",
+  "githubBudgetDetails": [
+    "2 platform content lookups (404)",
+    "Initial candidate discovery, final status, jobs, failed build archive: 4",
+    "Superseded integration candidate discovery: 1",
+    "Terminal candidate discovery: 1"
+  ],
+  "githubCallBudget": 10,
+  "githubCallsUsed": 8,
+  "head": "cde6912af309f5fcf24bd8239d7e6684cb0dc6e5",
+  "previousCI": [
+    {
+      "cause": "Generated managed deployment spec omitted migration 0109; regenerated with pnpm integration:sync and integration:check passed.",
+      "conclusion": "failure",
+      "fixedIn": "f18a605cbed5cf19e68929ec41cd488d2db1e0df",
+      "head": "717793521d928a9f7279b40c1ca3cbe0b5b69a43",
+      "run": 43890291747
+    },
+    {
+      "fixedIn": "cde6912af309f5fcf24bd8239d7e6684cb0dc6e5",
+      "head": "f18a605cbed5cf19e68929ec41cd488d2db1e0df",
+      "lastObservedStatus": "in_progress",
+      "localFinding": "Existing old-archive inherited-schema assertion needed an additive private_data column allowance. All inherited constraints/values and null private-data defaults are still asserted.",
+      "run": 43891585587,
+      "terminalConclusion": "not queried; superseded"
+    }
+  ],
+  "publicationScan": "Mac fleet final scan required; not available in cloud",
+  "registrationChange": "Existing SDK HTTP feedbackFlow journey expanded; no additional CI test registration.",
+  "repository": "just-every/run-spool",
+  "schema": 1,
+  "screens": [
+    {
+      "file": "feedback-review-1440.png",
+      "sha256": "6095f88a844018c8aac56ea74b1bbc2dd4221dfb47f91080a427591159ef5362",
+      "viewportWidth": 1440
+    },
+    {
+      "file": "feedback-review-390.png",
+      "sha256": "20d7ddc2bab71a0b3aa6382113969ccad4c316e6ae50164a677dbac4226ae6bb",
+      "viewportWidth": 390
+    }
+  ],
+  "sourceLockSha256": "d21f524378fe59186bdc3050268f3205b5a1fe46abe129894a7eef04eeb782c6",
+  "tag": "sd-spool-sdk004-1",
+  "testEnvironment": "Dedicated Linux cloud VM; Node 24.19.0 and pnpm 10.12.4 selected by supplied toolchain. Local-only test commands unset inherited HTTP proxies; Chromium /usr/bin/chromium with --no-sandbox. No live provider calls."
+}

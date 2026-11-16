@@ -1,0 +1,11 @@
+build	Check integration and types	2026-11-16T14:53:06.9056378Z file:///home/runner/work/run-spool/run-spool/scripts/sync-integration.mjs:68
+build	Check integration and types	2026-11-16T14:53:06.9057071Z       throw Error(`Stale integration ${name}; build the application and regenerate with pnpm integration:sync`);
+build	Check integration and types	2026-11-16T14:53:06.9057407Z             ^
+build	Check integration and types	2026-11-16T14:53:06.9057497Z 
+build	Check integration and types	2026-11-16T14:53:06.9057992Z Error: Stale integration management/integration/deployment-spec.json; build the application and regenerate with pnpm integration:sync
+build	Check integration and types	2026-11-16T14:53:06.9059283Z     at integrationRecipe (file:///home/runner/work/run-spool/run-spool/scripts/sync-integration.mjs:68:13)
+build	Check integration and types	2026-11-16T14:53:06.9059903Z     at async file:///home/runner/work/run-spool/run-spool/scripts/sync-integration.mjs:76:3
+build	Check integration and types	2026-11-16T14:53:06.9060208Z 
+build	Check integration and types	2026-11-16T14:53:06.9060319Z Node.js v22.20.0
+build	Check integration and types	2026-11-16T14:53:06.9179457Z  ELIFECYCLE  Command failed with exit code 1.
+build	Check integration and types	2026-11-16T14:53:07.0342222Z ##[error]Process completed with exit code 1.
