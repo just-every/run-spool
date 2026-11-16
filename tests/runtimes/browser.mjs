@@ -154,7 +154,9 @@ export async function qualifyBrowser({browser,origin,cookie,request,applicationO
    assert.equal(stored.message,report.message);
    assert.equal(stored.event_id,report.eventId);
    assert.equal(stored.occurrence,occurrence.occurrence,'archive custody binds the exact retained occurrence');
-   assert.deepEqual(Object.keys(stored).sort(),['project','id','message','digest','received','event_id','occurrence'].sort(),'widget contact, URL, screenshot and other metadata have no stored fields');
+   assert.equal(stored.private_data,null,'an unmodified widget without explicit consent stores no contact, URL, screenshot or other private metadata');
+   assert.equal(row.hasPrivate,false,'the authorized inbox offers no private details for unmodified widget reports');
+   assert.deepEqual(Object.keys(stored).sort(),['project','id','message','digest','received','event_id','occurrence','private_data'].sort(),'widget rows contain only the description, association and empty consent extension');
    issueReports.set(intended.issue.id,[...(issueReports.get(intended.issue.id)??[]),report]);
   }
   for(const detail of details){

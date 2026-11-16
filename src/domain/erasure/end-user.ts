@@ -17,7 +17,7 @@ const matches = (field: IdentityField) => `SELECT i.event FROM event_identities 
 const noImportCustody=importCustodyRoots.map(table=>`NOT EXISTS(SELECT 1 FROM ${table})`).join(' AND ');
 const inventory = "SELECT json_group_array(name) AS inventory FROM (SELECT name FROM sqlite_master WHERE type='table' AND (name GLOB 'rer_portability_snap_*' OR name GLOB 'rer_portability_stage_*') ORDER BY name)";
 export const endUserExceptions = [
- {table:'feedback',reason:'Feedback contact is discarded at intake. Retained scrubbed messages have no user identity index; they cannot be matched to this value. Event deletion also deletes feedback attached to those exact occurrences.'},
+ {table:'feedback',reason:'Consented feedback contact, screenshots and replies stay in the feedback inbox. End-user erasure does not match feedback by contact or remove these details by the supplied identity. To remove them, the installation owner must withdraw the report in the feedback inbox. Deleting matching events also deletes reports attached to those exact occurrences.'},
  {table:'attachments',reason:'Attachment ingestion and identity metadata are not retained; there is no attachment identity matching store.'},
  {table:'replays',reason:'Replay ingestion and identity metadata are not retained; there is no replay identity matching store.'},
 ];

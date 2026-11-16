@@ -41,6 +41,16 @@ export async function preRepairArchive(text){
  return [earlier,...parts,{kind:'closing',partCount:parts.length,contentHash:verifier.digest(),archiveHash:binding.digest()}].map(record=>canonicalJson(record)+'\n').join('');
 }
 const withoutRepairs=data=>Object.fromEntries(Object.entries(data).filter(([table])=>![...lifecycleTables,...laterCustodyTables,...repairTables,...citationTables,...loaderTables,'grouping_policies','release_policies','release_metadata','release_builds','issue_resolutions','deployment_runs','deployment_steps','deployment_notices'].includes(table)).map(([table,rows])=>[table,(table==='audit'?rows.filter(row=>!row.kind.startsWith('repair_')):rows).map(canonical).sort()]));
+// A release before relay privacy also predates feedback review. Keep its
+// recorded migration prefix and table inventory consistent with that release.
+async function beforeFeedbackReviewRelease(manifest){
+ await beforeRelayPrivacy(manifest);
+ if(manifest.migrations)manifest.migrations=manifest.migrations.filter(name=>name!=='0109_feedback_review.sql');
+ if(manifest.migrationLedger)manifest.migrationLedger={...manifest.migrationLedger,entries:manifest.migrationLedger.entries.filter(entry=>entry.name!=='0109_feedback_review.sql')};
+ const migration=await readFile(new URL('../../migrations/core/0040_feedback.sql',import.meta.url),'utf8');
+ const sql=/CREATE TABLE feedback \([\s\S]*?\n\);/.exec(migration)[0].replace(/;$/,'');
+ manifest.tables=manifest.tables.map(table=>table.name==='feedback'?{...table,sql,columns:table.columns.filter(column=>column.name!=='private_data')}:table);
+}
 // Part 4: a pre-repair archive restores with empty repair tables; a populated
 // archive restores repairs, checks and every verdict input intact.
 export async function archiveProof(app,{issue,repair,cutoff,credentials}){
@@ -57,7 +67,7 @@ export async function archiveProof(app,{issue,repair,cutoff,credentials}){
  // A previous release's own archive (ledger through 0101, relay triggers as 0099 wrote them) restores whole; the
  // same inventory with one foreign trigger is refused by the public door and mutates nothing.
  const foreignObject={name:'foreign_inventory_trigger',type:'trigger',table:'issues',sql:'CREATE TRIGGER foreign_inventory_trigger AFTER INSERT ON issues BEGIN SELECT 1; END'};
- const previousRelease=await rebuiltArchive(source.text,beforeRelayPrivacy),foreignInventory=await rebuiltArchive(source.text,async manifest=>{await beforeRelayPrivacy(manifest);manifest.schemaObjects.push(foreignObject);});
+ const previousRelease=await rebuiltArchive(source.text,beforeFeedbackReviewRelease),foreignInventory=await rebuiltArchive(source.text,async manifest=>{await beforeFeedbackReviewRelease(manifest);manifest.schemaObjects.push(foreignObject);});
  await app.resetRestore(previousRelease,foreignInventory);restored=await app.archive();
  for(const table of Object.keys(source.data))assert.deepEqual(restored.data[table].map(canonical).sort(),source.data[table].map(canonical).sort(),'previous-release archive restores '+table);
  // The previous release's current-format archive carries every table but the two erasure tombstone tables.

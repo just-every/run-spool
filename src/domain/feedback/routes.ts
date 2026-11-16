@@ -1,3 +1,4 @@
+import { installReview, mayReview } from './review';
 import { ownerProjectRouter, ownerWrites } from '../owner-router';
 import { AuthError } from '../../modules/operator-auth/index.mjs';
 import { scrub, hash } from '../privacy';
@@ -32,6 +33,7 @@ feedbackRoutes.get('/', async c => {
  const rows = page.results.slice(0, limit), last = rows.at(-1);
  return c.json({
   items: rows.map(row => ({ id: row.id, message: scrub(row.message), received: row.received, eventId: row.event_id, issueId: row.issue ?? null,
+   ...(mayReview(c.get('ownerSession'))&&!issue?{hasPrivate:row.private_data!==null}:{}),
    association: row.occurrence ? 'attached' : row.event_id ? 'event_unavailable' : 'standalone' })),
   total: total!.count, next: page.results.length > limit && last ? btoa(JSON.stringify({ signature, received: last.received, id: last.id })) : null,
   bounds: { limit, retained: feedbackLimits.retained, perMinute: feedbackLimits.perMinute, messageCharacters: feedbackLimits.message }, coverage: feedbackCoverage,
@@ -49,3 +51,5 @@ feedbackRoutes.delete('/:id', async c => {
  }
  return c.json({ withdrawn: true, externalCopies: 'Downloaded archives and external copies must be removed separately; an older archive requires the later erasure journal on a new installation.' });
 });
+
+installReview(feedbackRoutes);

@@ -26,7 +26,7 @@ import { releaseTables } from './releases/archive';
 import { orderedReleaseExports } from './releases/archive-order';
 import { groupingTables } from './grouping/archive';
 import {inboundFilterTables} from './filters/archive';
-import { feedbackTables } from './feedback/archive';
+import { feedbackTables, beforeFeedbackReview } from './feedback/archive';
 import { bundleTables } from './bundle-grouping';
 import { operatorTables } from './operators/archive';
 import { projectAgentArtifacts } from './agent-door/artifact-map.mjs';
@@ -267,6 +267,8 @@ laterTables.unshift({tables:[],migrations:['0105_local_invitation_links.sql']});
 const projectMetricMigrations=['0106_project_metric_alerts.sql','0107_sentry_transactions.sql','0108_alert_notify_targets.sql'];
 for(const later of laterTables){later.tables.push('sentry_transactions');later.migrations.push(...projectMetricMigrations)}
 laterTables.unshift({tables:['sentry_transactions'],migrations:projectMetricMigrations});
+for(const later of laterTables)later.migrations.push('0109_feedback_review.sql');
+laterTables.unshift({tables:[],migrations:['0109_feedback_review.sql']});
 function beforeProjectMetricObjects(objects:any[],manifest:any){
  const added=[['0106_project_metric_alerts.sql',['alert_metric_states','alert_metric_events']],['0107_sentry_transactions.sql',['sentry_transactions']],['0108_alert_notify_targets.sql',['alert_target_destinations','alert_intent_recipients']]] as const;
  const missing:string[]=added.filter(([migration])=>!manifest.migrations?.includes(migration)).flatMap(([,tables])=>[...tables]);
@@ -292,12 +294,13 @@ async function earlierManifest(db: D1Database, manifest: any) {
  const tableless = [...new Set(laterTables.filter(later => !later.tables.length).flatMap(later => later.migrations))];
  for (const later of laterTables) {
   // A set that adds no archived table matches today's schema, so it applies only to an archive missing its migrations.
-  if (!later.tables.length && !(Array.isArray(manifest.migrations) && later.migrations.some(name => !manifest.migrations.includes(name)) && tableless.every(name => manifest.migrations.includes(name) || later.migrations.includes(name)))) continue;
+  if (!later.tables.length && !(Array.isArray(manifest.migrations) && later.migrations.some(name => !manifest.migrations.includes(name)) && tableless.every(name => manifest.migrations.includes(name) || later.migrations.includes(name))) && !(later.migrations.length===1 && later.migrations[0]==='0109_feedback_review.sql' && !manifest.migrations?.length)) continue;
   const missing=later.tables.filter(name=>!carriedReporting||!reportingNames.includes(name));
   if(later.tables.length&&!missing.length)continue;
   // An archive that records no migration list is either older than 0054 (issue_resolutions in its first form) or a current
   // format that carries none: try the recorded reading first, then today's form of that table.
-  const earlierWith = (before0054: boolean) => current.tables.filter((table: any) => !missing.includes(table.name)).map((table:any)=>beforeProjectMetrics(beforeAgentAttribution(table,manifest),manifest)).map((table:any)=>table.name==='issue_resolutions'&&before0054?{...table,sql:table.sql.replace('CREATE TABLE \"issue_resolutions\"','CREATE TABLE issue_resolutions').replace("('plain','current','next','named')","('plain','current')")}:table);
+  const reviewOnly=later.tables.length===0 && later.migrations.length===1 && later.migrations[0]==='0109_feedback_review.sql';
+  const earlierWith = (before0054: boolean) => reviewOnly ? current.tables.map((table:any)=>beforeFeedbackReview(table,manifest)) : current.tables.filter((table: any) => !missing.includes(table.name)).map((table:any)=>beforeFeedbackReview(beforeProjectMetrics(beforeAgentAttribution(table,manifest),manifest),manifest)).map((table:any)=>table.name==='issue_resolutions'&&before0054?{...table,sql:table.sql.replace('CREATE TABLE \"issue_resolutions\"','CREATE TABLE issue_resolutions').replace("('plain','current','next','named')","('plain','current')")}:table);
   let earlier: any[] | undefined;
   for (const before0054 of new Set([!manifest.migrations?.includes('0054_release_resolution_dist.sql'), false])) {
    const candidate = earlierWith(before0054);
@@ -308,7 +311,7 @@ async function earlierManifest(db: D1Database, manifest: any) {
   // A recognized native table upgrade must retain a complete, known object
   // inventory. An unrecorded index/trigger is never installed or acknowledged.
   // Archives without an object inventory still require Base's legacy replay.
-  if(product.schemaObjects!==undefined && canonicalJson(product.schemaObjects)!==canonicalJson(beforeProjectMetricObjects(previousRelayPrivacyObjects(previousNativeSymbolObjects(current.schemaObjects,manifest),manifest),manifest)))throw new PortabilityError('legacy_schema_object_inventory');
+  if(product.schemaObjects!==undefined && canonicalJson(product.schemaObjects)!==canonicalJson(reviewOnly?current.schemaObjects:beforeProjectMetricObjects(previousRelayPrivacyObjects(previousNativeSymbolObjects(current.schemaObjects,manifest),manifest),manifest)))throw new PortabilityError('legacy_schema_object_inventory');
   // Normalize this positively matched native inventory to the destination. The
   // original binding and source history are checked before finalize; platform
   // bookkeeping is never installed as product data or presented as new history.
@@ -330,7 +333,7 @@ async function importRecords(service: any, source: ReadableStream<Uint8Array>, d
     const earlier=db ? await earlierManifest(db,record) : null;
     const manifest = retireArchiveSetupToken(earlier ?? record, portabilityPolicy.requiredConfiguration);
     if(earlier){translated=record;sourceLedger.add(record);}
-    if(earlier)for(const [table,field,value] of [['repairs','recorded_by','owner'],['grouping_proposals','prepared_by',null]] as const){
+    if(earlier)for(const [table,field,value] of [['repairs','recorded_by','owner'],['grouping_proposals','prepared_by',null],['feedback','private_data',null]] as const){
      const archived=record.tables.find((entry:any)=>entry.name===table);
      if(archived&&!archived.columns.some((column:any)=>column.name===field)){attributionDefaults.set(table,{[field]:value});archivedAttributionColumns.set(table,archived.columns.map((column:any)=>column.name).sort());}
     }

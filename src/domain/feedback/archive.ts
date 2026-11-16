@@ -1,14 +1,16 @@
+import { validatePrivate } from './private';
 import { scrub } from '../privacy';
 import { validateOccurrence } from '../occurrences';
 import { feedbackLimits } from './input';
 
-export const feedbackTables = { feedback: ['project', 'id', 'message', 'digest', 'received', 'event_id', 'occurrence'] };
+export const feedbackTables = { feedback: ['project', 'id', 'message', 'digest', 'received', 'event_id', 'occurrence', 'private_data'] };
 export const feedbackOutcomes = ['feedback_accepted', 'feedback_duplicate', 'feedback_conflict', 'feedback_invalid', 'feedback_oversized', 'feedback_budget', 'feedback_rate_limited', 'feedback_withdrawn'];
-export const feedbackDefaults = (data: any) => ({ feedback: [], ...data });
+export const feedbackDefaults = (data: any) => ({ ...data, feedback: (data.feedback??[]).map((row:any)=>({private_data:null,...row})) });
 export function validateFeedbackArchive(data: any) {
  const identities = new Set<string>(), counts = new Map<string, number>();
  const events = new Set(data.events.map((row: any) => JSON.stringify([row.project, row.id, row.occurrence])));
  for (const row of data.feedback) {
+  validatePrivate(row.private_data);
   const key = JSON.stringify([row.project, row.id]);
   if (!/^(?:[a-f0-9]{32}|user-report-[a-f0-9]{32})$/.test(row.id) || identities.has(key)) throw new Error('Archive feedback identity');
   identities.add(key);
@@ -25,4 +27,14 @@ export function validateFeedbackArchive(data: any) {
   const detail = JSON.parse(row.detail);
   if (Object.keys(detail).join() !== 'count' || detail.count !== 1) throw new Error('Archive feedback withdrawal audit');
  }
+}
+
+/** Exact additive-column translation for archives made before private review. */
+export function beforeFeedbackReview(table:any,manifest:any){
+ if(table.name!=='feedback'||manifest.migrations?.includes('0109_feedback_review.sql'))return table;
+ // Unrecorded inventories may already carry private review. Preserve the
+ // current descriptor only when the archive declares that column; the caller
+ // still compares the complete SQL, columns and behavior inventory exactly.
+ if(!manifest.migrations?.length&&manifest.schemaObjects!==undefined&&manifest.tables?.find((entry:any)=>entry.name==='feedback')?.columns?.some((column:any)=>column.name==='private_data'))return table;
+ return {...table,sql:table.sql.replace(/, private_data TEXT DEFAULT NULL\s+CHECK\(private_data IS NULL OR \(json_valid\(private_data\) AND length\(private_data\)<=240000\)\)/,''),columns:table.columns.filter((column:any)=>column.name!=='private_data')};
 }

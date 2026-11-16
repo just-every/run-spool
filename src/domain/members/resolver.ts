@@ -45,10 +45,11 @@ export async function resolveMembership<T extends Pick<Session, 'operator'>>(req
  if (member.role!=='admin' && (operational || policy && role!=='maintainer')) return missing();
  if (!isRead && role!=='admin') {
   if (role==='read-only') return missing();
+  const feedbackReply=request.method==='POST' && /^feedback\/[^/]+\/(?:replies|review)$/.test(tail);
   const triage=/^(?:issues\/[^/]+(?:\/(?:assignment|priority|suppression|discussion|comments(?:\/[^/]+)?|subscription))?|bulk-triage|review\/views(?:\/[^/]+)?|suspects\/issues\/[^/]+)$/.test(tail);
   const deployment=/^(?:releases|artifacts|artifact-builds\/verify|deployments(?:\/[^/]+\/callbacks)?|keys(?:\/[^/]+)?)$/.test(tail);
   const maintain=role==='maintainer' && /^(?:inbound-filters|grouping-rules|identity-policy|end-user-erasure|scrubbing|recurrence-policy|release-policy|browser-origins|check-in-routes|retention-policy|retention|commits\/sharing|grouping-proposals|corrections|suppression-policies|alerting|follow-up|keys)(?:\/|$)/.test(tail);
-  if (!triage&&!deployment&&!maintain) return missing();
+  if (!feedbackReply&&!triage&&!deployment&&!maintain) return missing();
  }
  if (document && !isRead) return missing();
  return { ...result, membership: { ...member, project, projectRole: role==='admin'?undefined:role } };

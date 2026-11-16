@@ -6,3 +6,9 @@
 .feedback-list code{overflow-wrap:anywhere;word-break:break-word}
 .feedback-confirm{padding:1rem;background:var(--paper-sunk);border-left:3px solid currentColor}
 .feedback-panel .metadata{overflow-wrap:anywhere}
+
+.feedback-private{margin:.75rem 0 1rem;padding:1rem;background:var(--paper-sunk);min-width:0}
+.feedback-private textarea{display:block;width:100%;box-sizing:border-box;margin:.5rem 0;font:inherit;min-height:6rem}
+.feedback-screenshot{display:block;max-width:100%;max-height:32rem;object-fit:contain;margin:1rem 0}
+.feedback-contact,.feedback-reply p{overflow-wrap:anywhere;white-space:pre-wrap}
+.feedback-reply{margin:.75rem 0;padding:.5rem 0;border-top:var(--hairline-border)}
