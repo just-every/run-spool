@@ -1,0 +1,41 @@
+{
+  "repository": "just-every/run-spool",
+  "candidate": "e29a9f44ad44315d65b4e12d7f2e69b739f67233",
+  "githubCalls": 4,
+  "priorReportCalls": 1,
+  "observations": [
+    {
+      "at": "2026-11-16T18:41:47.272822+00:00",
+      "kind": "discovery",
+      "runs": [
+        {
+          "conclusion": null,
+          "event": "push",
+          "head_sha": "e29a9f44ad44315d65b4e12d7f2e69b739f67233",
+          "html_url": "https://github.com/just-every/run-spool/actions/runs/43931474874",
+          "id": 43931474874,
+          "name": "Verify",
+          "status": "in_progress"
+        }
+      ]
+    },
+    {
+      "at": "2026-11-16T18:47:32.818065+00:00",
+      "kind": "run",
+      "id": 43931474874,
+      "conclusion": null,
+      "head_sha": "e29a9f44ad44315d65b4e12d7f2e69b739f67233",
+      "html_url": "https://github.com/just-every/run-spool/actions/runs/43931474874",
+      "status": "in_progress"
+    },
+    {
+      "at": "2026-11-16T18:52:32.818937+00:00",
+      "kind": "run",
+      "id": 43931474874,
+      "conclusion": null,
+      "head_sha": "e29a9f44ad44315d65b4e12d7f2e69b739f67233",
+      "html_url": "https://github.com/just-every/run-spool/actions/runs/43931474874",
+      "status": "in_progress"
+    }
+  ]
+}

@@ -1,0 +1,18 @@
+{
+  "repository": "just-every/run-spool",
+  "branch": "cloud/sd-spool-sdk027-3",
+  "head": "e29a9f44ad44315d65b4e12d7f2e69b739f67233",
+  "base": "a037966cccf2f232e8c098d62607ba36cca7f777",
+  "commits": [
+    "e29a9f44ad44315d65b4e12d7f2e69b739f67233",
+    "22befd671e26af1d928ac99b3bad04d51f9099af",
+    "854f1952857d4656257fead81a80635e665e1ecb",
+    "5b920aa75b1dae7884cabbde8afaefb69aacffb6",
+    "91ea11dc8c5141dacfdcd5839d02c7b940346541",
+    "8d6c4e3b496e7b42e9966b28e37005ea6269b2d0"
+  ],
+  "identityCheck": "all candidate authors/committers fleet; no coauthors",
+  "productDiffInjectedValueCheck": "passed",
+  "mainIntegration": "fetched and merged after saves; already up to date",
+  "pr": null
+}

@@ -1,0 +1,20 @@
+{
+  "candidate": "e29a9f44ad44315d65b4e12d7f2e69b739f67233",
+  "journey": "tests/end-user-erasure-preview.mjs#endUserErasurePreviewFlow",
+  "behaviorWidth": 1440,
+  "proofWidths": [
+    1440,
+    390
+  ],
+  "screens": [
+    "complete-1440.png",
+    "complete-390.png",
+    "matching-1440.png",
+    "matching-390.png",
+    "search-after-1440.png",
+    "search-after-390.png",
+    "unavailable-1440.png",
+    "unavailable-390.png"
+  ],
+  "result": "passed"
+}

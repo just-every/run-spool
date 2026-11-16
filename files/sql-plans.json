@@ -1,0 +1,88 @@
+{
+  "beforeGuard": [
+    {
+      "id": 5,
+      "parent": 0,
+      "notused": 62,
+      "detail": "SEARCH e USING INDEX sqlite_autoindex_events_2 (project=?)"
+    },
+    {
+      "id": 12,
+      "parent": 0,
+      "notused": 0,
+      "detail": "SCAN c VIRTUAL TABLE INDEX 1:"
+    }
+  ],
+  "afterGuard": [
+    {
+      "id": 5,
+      "parent": 0,
+      "notused": 0,
+      "detail": "SCAN c VIRTUAL TABLE INDEX 1:"
+    },
+    {
+      "id": 10,
+      "parent": 0,
+      "notused": 47,
+      "detail": "SEARCH e USING INDEX sqlite_autoindex_events_1 (project=? AND id=? AND occurrence=?)"
+    }
+  ],
+  "beforeUpdate": [
+    {
+      "id": 4,
+      "parent": 0,
+      "notused": 0,
+      "detail": "MATERIALIZE changes"
+    },
+    {
+      "id": 7,
+      "parent": 4,
+      "notused": 0,
+      "detail": "SCAN json_each VIRTUAL TABLE INDEX 1:"
+    },
+    {
+      "id": 26,
+      "parent": 0,
+      "notused": 62,
+      "detail": "SCAN changes"
+    },
+    {
+      "id": 28,
+      "parent": 0,
+      "notused": 45,
+      "detail": "SEARCH events USING COVERING INDEX sqlite_autoindex_events_2 (project=? AND id=?)"
+    }
+  ],
+  "afterUpdate": [
+    {
+      "id": 4,
+      "parent": 0,
+      "notused": 0,
+      "detail": "MATERIALIZE changes"
+    },
+    {
+      "id": 8,
+      "parent": 4,
+      "notused": 0,
+      "detail": "SCAN c VIRTUAL TABLE INDEX 1:"
+    },
+    {
+      "id": 13,
+      "parent": 4,
+      "notused": 45,
+      "detail": "SEARCH e USING COVERING INDEX sqlite_autoindex_events_2 (project=? AND id=?)"
+    },
+    {
+      "id": 36,
+      "parent": 0,
+      "notused": 62,
+      "detail": "SCAN changes"
+    },
+    {
+      "id": 38,
+      "parent": 0,
+      "notused": 45,
+      "detail": "SEARCH events USING INTEGER PRIMARY KEY (rowid=?)"
+    }
+  ]
+}

@@ -1,0 +1,74 @@
+{
+  "batchMs": 151226,
+  "statements": 83,
+  "sqlDurationMs": 150781,
+  "rowsRead": 100532935,
+  "rowsWritten": 30892,
+  "slowest": [
+    {
+      "index": 54,
+      "meta": {
+        "served_by": "miniflare.db",
+        "duration": 6085,
+        "changes": 1,
+        "last_row_id": 26,
+        "changed_db": true,
+        "size_after": 25894912,
+        "rows_read": 3210000,
+        "rows_written": 1
+      }
+    },
+    {
+      "index": 50,
+      "meta": {
+        "served_by": "miniflare.db",
+        "duration": 5872,
+        "changes": 1,
+        "last_row_id": 24,
+        "changed_db": true,
+        "size_after": 25894912,
+        "rows_read": 3210000,
+        "rows_written": 1
+      }
+    },
+    {
+      "index": 56,
+      "meta": {
+        "served_by": "miniflare.db",
+        "duration": 5822,
+        "changes": 1,
+        "last_row_id": 27,
+        "changed_db": true,
+        "size_after": 25894912,
+        "rows_read": 3210000,
+        "rows_written": 1
+      }
+    },
+    {
+      "index": 66,
+      "meta": {
+        "served_by": "miniflare.db",
+        "duration": 5407,
+        "changes": 1,
+        "last_row_id": 32,
+        "changed_db": true,
+        "size_after": 25894912,
+        "rows_read": 3210000,
+        "rows_written": 1
+      }
+    },
+    {
+      "index": 62,
+      "meta": {
+        "served_by": "miniflare.db",
+        "duration": 5392,
+        "changes": 1,
+        "last_row_id": 30,
+        "changed_db": true,
+        "size_after": 25894912,
+        "rows_read": 3210000,
+        "rows_written": 1
+      }
+    }
+  ]
+}

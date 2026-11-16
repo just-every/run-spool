@@ -1,0 +1,7 @@
+{
+  "candidate": "e29a9f44ad44315d65b4e12d7f2e69b739f67233",
+  "runId": "sd-spool-sdk027-3-20261116T184055Z",
+  "startedAt": "2026-11-16T18:40:55.697671+00:00",
+  "command": "cloud_run perl -e 'alarm 2400; exec @ARGV' -- node tests/end-user-erasure-volume.mjs",
+  "hardTimeoutSeconds": 2400
+}

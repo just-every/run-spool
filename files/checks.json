@@ -1,0 +1,60 @@
+{
+  "candidate": "e29a9f44ad44315d65b4e12d7f2e69b739f67233",
+  "typecheck": {
+    "command": "pnpm typecheck",
+    "result": "passed",
+    "log": "typecheck.log"
+  },
+  "build": {
+    "command": "cloud_run npx -y @runeditrun/rer build",
+    "result": "passed",
+    "log": "build-summary.txt"
+  },
+  "publicJourney": {
+    "command": "RER_CHROMIUM_EXECUTABLE_PATH=/usr/bin/chromium cloud_run perl -e 'alarm 1200; exec @ARGV' -- node tests/end-user-erasure-preview.mjs",
+    "result": "passed",
+    "log": "final-public-journey.log",
+    "receipt": "journey-receipt.json"
+  },
+  "contract": {
+    "command": "node src/base/contract-docs.mjs check",
+    "result": "passed",
+    "log": "contract-check.log"
+  },
+  "sourceLock": {
+    "command": "node scripts/edition-authoring/cli.mjs lock; pnpm source:check",
+    "result": "passed",
+    "log": "source-check.log"
+  },
+  "counts": {
+    "contractBefore": {
+      "done": 23,
+      "partial": 54,
+      "missing": 28,
+      "total": 105
+    },
+    "contractAfter": {
+      "done": 23,
+      "partial": 54,
+      "missing": 28,
+      "total": 105
+    },
+    "rootTestScriptsBefore": 131,
+    "rootTestScriptsAfter": 131,
+    "registrationsAdded": 0
+  },
+  "checkedAt": "2026-11-16T18:42:14.266992+00:00",
+  "scale": {
+    "command": "cloud_run perl -e 'alarm 2400; exec @ARGV' -- node tests/end-user-erasure-volume.mjs",
+    "result": "passed admitted-volume journey; SDK-027 point 5 unproven",
+    "candidate": "e29a9f44ad44315d65b4e12d7f2e69b739f67233",
+    "runId": "sd-spool-sdk027-3-20261116T184055Z",
+    "requestedVolume": 150000,
+    "admittedVolume": 10000,
+    "completionSeconds": 2.3901728809999767,
+    "largeRestoreStatus": 400,
+    "largeRestoreError": "Archive event budget",
+    "receipt": "scale-receipt.json",
+    "log": "scale-journey.log"
+  }
+}
