@@ -1,0 +1,41 @@
+{
+  "run_id": 43841357640,
+  "head_sha": "9580df1b3fd371ee50df97fd8659bdd1d0c6a79d",
+  "github_calls_used": 6,
+  "observations": [
+    {
+      "at_utc": "2026-11-16T09:37:35Z",
+      "operation": "discovery",
+      "status": "in_progress",
+      "conclusion": null
+    },
+    {
+      "at_utc": "2026-11-16T09:42:47Z",
+      "operation": "run",
+      "status": "in_progress",
+      "conclusion": null
+    },
+    {
+      "at_utc": "2026-11-16T09:47:51Z",
+      "operation": "run",
+      "status": "in_progress",
+      "conclusion": null
+    },
+    {
+      "conclusion": null,
+      "head_sha": "9580df1b3fd371ee50df97fd8659bdd1d0c6a79d",
+      "html_url": "https://github.com/just-every/run-spool/actions/runs/43841357640",
+      "status": "in_progress",
+      "at_utc": "2026-11-16T09:52:51.554616+00:00",
+      "operation": "run"
+    },
+    {
+      "conclusion": "success",
+      "head_sha": "9580df1b3fd371ee50df97fd8659bdd1d0c6a79d",
+      "html_url": "https://github.com/just-every/run-spool/actions/runs/43841357640",
+      "status": "completed",
+      "at_utc": "2026-11-16T09:57:53.150717+00:00",
+      "operation": "run"
+    }
+  ]
+}

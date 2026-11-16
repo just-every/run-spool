@@ -1,0 +1,19 @@
+{
+  "author": "Run Edit Run fleet",
+  "date": "2026-11-16T09:40:45.920098+00:00",
+  "repository": "just-every/run-spool",
+  "tag": "v0.7.13",
+  "tag_exists": false,
+  "release_exists": false,
+  "release_probe": "gh api repos/just-every/run-spool/releases?per_page=100; complete returned inventory contained 17 releases and no v0.7.13",
+  "latest_published_release": {
+    "tag": "v0.7.12",
+    "published_at": "2026-11-15T12:41:15Z"
+  },
+  "latest_ref_probe": "git ls-remote origin refs/heads/cloud/sd-spool-release-0-7-13-r2 refs/heads/main refs/tags/v0.7.13",
+  "main": "7fee744e133924477a3d95e69b8a96d61d69f75d",
+  "product_head": "9580df1b3fd371ee50df97fd8659bdd1d0c6a79d",
+  "created_tags": false,
+  "created_releases": false,
+  "created_pr": false
+}

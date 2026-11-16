@@ -1,0 +1,131 @@
+diff --git a/CHANGELOG.md b/CHANGELOG.md
+index ce24cc5..3f4c359 100644
+--- a/CHANGELOG.md
++++ b/CHANGELOG.md
+@@ -1,5 +1,37 @@
+ # Changelog
+ 
++## 0.7.13 — 2026-11-16
++
++Spool 0.7.13 supports deliberately mail-off hosted installations on rer 0.2.118, improves owner and capture setup, and tightens project access to alert contacts.
++
++### What changed
++
++- **Choose a hosted installation without email.** Free and Assisted self hosting can explicitly select email off. The deploying owner signs in with `rer signin` from the original checkout using its deployment credentials and saved ownership record. Sign-in links and invitations are unavailable, and email alerts stay visibly blocked without a send. Sending credentials conflict with the off selection; choosing off does not remove secrets already bound to a Worker.
++- **Create, copy and test capture keys in one flow.** Capture can issue a new ingest key, show its SDK configuration and Sentry DSN, and send a sample error. A key issued in Settings stays in the signed-in page's memory when opening Capture, until dismissal or reload. Successful sample capture refreshes the setup progress. Saved key hashes cannot recover a lost key; create a replacement and revoke the old one when appropriate.
++- **Inspect team access and map imported roles.** Owners can inspect the people with access to each team's projects. Imported owner roles map to organization admin, without transferring installation ownership; imported manager roles require explicit maintainer projects. Only the installation owner can approve these mappings.
++- **Preserve project-member key authority.** Authorized project members can manage ingest and agent keys within their project, alongside deploy keys. Read-only and billing roles gain no key-management authority.
++- **Protect alert contacts while tracking deployments.** Recipient choices, contact-bearing destination configuration and delivery details require the owner, organization admin or project maintainer. Project members can still select a configured email route for deployment tracking using a neutral route label without seeing its contacts.
++- **Make new-project identity defaults explicit.** New projects keep the supported user ID, email, username and IP-address fields as sent, subject to installation scrubbing rules. Existing and restored policies stay unchanged; missing legacy policies retain their conservative defaults. Review Settings before capture if those fields should be hashed or dropped.
++- **Read setup and evidence more easily.** Capture links to Node.js/npm prerequisites for source-map setup; grouping guidance includes a copyable dependency-frame rule. Archive previews show record counts and validation limits, and issue evidence shows a readable bounded summary. Comment changes refresh the issue revision so subsequent triage actions use the current state.
++
++### Updating
++
++From 0.7.12: Back up first: download a private archive in Settings, or stop local dev and run `rer export --output exports/spool.jsonl`. From 0.7.12 on main, update with `git pull --ff-only` and `rer dev`; from a tag, run `git fetch --tags && git checkout v0.7.13` and `rer dev` once that tag is published. For a hosted installation, use `rer deploy` from the original deploying checkout. Keep the database, private settings, project keys and deployment receipt. There are no new migrations or breaking changes after 0.7.12; previously applied migration files are unchanged, so do not reset. Import private archives only into an empty destination. The application pins rer exactly to 0.2.118, updated from 0.2.113 in 0.7.12. To turn hosted mail off deliberately, select `MAIL_PROVIDER=none`, leave sending credentials empty and remove any previously bound sending secrets as described in docs/HOSTED.md. Keep the original deployment credentials and ownership receipt for guarded `rer signin` access. This application release does not publish the Spool SDK.
++
++### Known limits
++
++- Transaction measurements are bounded retained observations, not full distributed tracing: spans, transaction tags and request data are not stored.
++- Issue-owner notification selection uses its explicit fallback until verified issue ownership is available. Live provider delivery needs separate qualification; deliberately mail-off hosted installations send no sign-in links, invitations or email alerts.
++- Local development sends no email. Email verification for ownership transfer remains unavailable there; only an owner session opened through the local access link uses local confirmation.
++- Browser restore is limited to 16 MiB. Larger current JSONL archives need the CLI; legacy JSON archives over 16 MiB remain refused. A refused legacy JSON upload over 16 MiB can still end in a connection reset: the fix drains only what the restore engine has not already begun reading. Refused requests on the agent-door `/mcp` route are not covered by this fix.
++- Agent setup still requires an owner to save all six policy answers and create a project agent key. The agent CLI runs from a Spool checkout; it is not an npm-published package. Local agent calls also require the private dev gate described in the panel.
++- Erasing the owner is held while other stored agent text contains a different address that ends with the owner's address. The erasure match is case-sensitive.
++- Before the first project is created, opening a missing project URL as the owner redirects to setup instead of showing a not-found page.
++- Retained hosted archives still require separate Managed-to-native release qualification. If an archive is refused with `schema_mismatch`, restore into the release you exported from. Retrying a cut-off hosted restore can be refused until its five-minute lease expires; wait before retrying.
++- Bugsnag, Rollbar and Sentry imports remain bounded to 2 MiB and 500 records; larger sets are refused rather than partly applied. A real-account migration and live mail delivery through Cloudflare remain unqualified.
++
++Product screenshot: .github/assets/release/spool-issue-page-1600.png
++
+ ## 0.7.12 — 2026-11-15
+ 
+ Spool 0.7.12 adds project metric alerts, project-aware notification targets and more precise issue alert filters, and improves compatibility when restoring native backups.
+diff --git a/RELEASE.json b/RELEASE.json
+index b0f8a1a..4074dbf 100644
+--- a/RELEASE.json
++++ b/RELEASE.json
+@@ -1,14 +1,10 @@
+ {
+-  "version": "0.7.12",
+-  "previousVersion": "0.7.11",
++  "version": "0.7.13",
++  "previousVersion": "0.7.12",
+   "contractChanges": {},
+   "extensionPointChanges": [],
+-  "migrations": [
+-    "migrations/core/0106_project_metric_alerts.sql",
+-    "migrations/core/0107_sentry_transactions.sql",
+-    "migrations/core/0108_alert_notify_targets.sql"
+-  ],
++  "migrations": [],
+   "breaking": false,
+-  "agentUpdateInstructions": "From 0.7.11: Back up first: download a private archive in Settings, or stop local dev and run `rer export --output exports/spool.jsonl`. From 0.7.11 on main, update with `git pull --ff-only` and `rer dev`; from a tag, run `git fetch --tags && git checkout v0.7.12` and `rer dev` once that tag is published. For a hosted installation, use `rer deploy` from the original deploying checkout. Keep the database, private settings, project keys and deployment receipt. This update applies migrations 0106_project_metric_alerts.sql, 0107_sentry_transactions.sql and 0108_alert_notify_targets.sql for project metric alerts, retained transaction observations and alert recipients. Previously applied migration files are unchanged; do not reset. Import private archives only into an empty destination. The application still pins rer exactly to 0.2.113. This application release does not publish the Spool SDK.",
+-  "publicReleaseNotes": "Spool 0.7.12 adds project metric alerts, project-aware notification targets and more precise issue alert filters, and improves compatibility when restoring native backups.\n\n### What changed\n\n- **Watch project metrics.** Create alert rules for error counts, p95 transaction duration or crash-free session rate, with critical, optional warning and recovery thresholds. Rules show their current state and threshold comparisons. Retained Sentry transaction observations supply duration measurements, including SDK timestamps that mix numeric seconds and ISO fractions.\n- **Choose project recipients.** Email alert destinations can select a project team or an authorized project member. Choose whether an empty target should notify active project members or no one, and inspect resolved recipients in delivery details. Issue ownership is not available yet; its destination uses the selected fallback. Changing a target disables affected rules until they are reviewed and enabled again.\n- **Refine issue alerts.** Match severity exactly, at least or at most; use tag equality, presence, contains, prefix and suffix conditions; and set an action interval. Tag keys still need owner approval.\n- **Restore preceding native backups across the metric upgrade.** Spool verifies the original migration history and translates supported preceding native archives into the current schema, including archives with bookkeeping-only parts. New native archives retain scrubbed transaction observations and alert recipient history; restored deliveries remain quarantined.\n- **Update bundled dependencies.** Refresh the build tooling and transitive dependency fixes already on main, including Vite 8.2.4. The rer version remains 0.2.113.\n\n### Updating\n\nFrom 0.7.11: Back up first: download a private archive in Settings, or stop local dev and run `rer export --output exports/spool.jsonl`. From 0.7.11 on main, update with `git pull --ff-only` and `rer dev`; from a tag, run `git fetch --tags && git checkout v0.7.12` and `rer dev` once that tag is published. For a hosted installation, use `rer deploy` from the original deploying checkout. Keep the database, private settings, project keys and deployment receipt. This update applies migrations 0106_project_metric_alerts.sql, 0107_sentry_transactions.sql and 0108_alert_notify_targets.sql for project metric alerts, retained transaction observations and alert recipients. Previously applied migration files are unchanged; do not reset. Import private archives only into an empty destination. The application still pins rer exactly to 0.2.113. This application release does not publish the Spool SDK.\n\n### Known limits\n\n- Transaction measurements are bounded retained observations, not full distributed tracing: spans, transaction tags and request data are not stored.\n- Issue-owner notification selection uses its explicit fallback until verified issue ownership is available. Local development still suppresses mail; live provider delivery needs separate qualification.\n- Local development sends no email. Email verification for ownership transfer remains unavailable there; only an owner session opened through the local access link uses local confirmation.\n- Browser restore is limited to 16 MiB. Larger current JSONL archives need the CLI; legacy JSON archives over 16 MiB remain refused. A refused legacy JSON upload over 16 MiB can still end in a connection reset: the fix drains only what the restore engine has not already begun reading. Refused requests on the agent-door `/mcp` route are not covered by this fix.\n- Agent setup still requires an owner to save all six policy answers and create a project agent key. The agent CLI runs from a Spool checkout; it is not an npm-published package. Local agent calls also require the private dev gate described in the panel.\n- Erasing the owner is held while other stored agent text contains a different address that ends with the owner's address. The erasure match is case-sensitive.\n- Before the first project is created, opening a missing project URL as the owner redirects to setup instead of showing a not-found page.\n- Retained hosted archives still require separate Managed-to-native release qualification. If an archive is refused with `schema_mismatch`, restore into the release you exported from. Retrying a cut-off hosted restore can be refused until its five-minute lease expires; wait before retrying.\n- Bugsnag, Rollbar and Sentry imports remain bounded to 2 MiB and 500 records; larger sets are refused rather than partly applied. A real-account migration and live mail delivery through Cloudflare remain unqualified.\n\nProduct screenshot: .github/assets/release/spool-issue-page-1600.png"
++  "agentUpdateInstructions": "From 0.7.12: Back up first: download a private archive in Settings, or stop local dev and run `rer export --output exports/spool.jsonl`. From 0.7.12 on main, update with `git pull --ff-only` and `rer dev`; from a tag, run `git fetch --tags && git checkout v0.7.13` and `rer dev` once that tag is published. For a hosted installation, use `rer deploy` from the original deploying checkout. Keep the database, private settings, project keys and deployment receipt. There are no new migrations or breaking changes after 0.7.12; previously applied migration files are unchanged, so do not reset. Import private archives only into an empty destination. The application pins rer exactly to 0.2.118, updated from 0.2.113 in 0.7.12. To turn hosted mail off deliberately, select `MAIL_PROVIDER=none`, leave sending credentials empty and remove any previously bound sending secrets as described in docs/HOSTED.md. Keep the original deployment credentials and ownership receipt for guarded `rer signin` access. This application release does not publish the Spool SDK.",
++  "publicReleaseNotes": "Spool 0.7.13 supports deliberately mail-off hosted installations on rer 0.2.118, improves owner and capture setup, and tightens project access to alert contacts.\n\n### What changed\n\n- **Choose a hosted installation without email.** Free and Assisted self hosting can explicitly select email off. The deploying owner signs in with `rer signin` from the original checkout using its deployment credentials and saved ownership record. Sign-in links and invitations are unavailable, and email alerts stay visibly blocked without a send. Sending credentials conflict with the off selection; choosing off does not remove secrets already bound to a Worker.\n- **Create, copy and test capture keys in one flow.** Capture can issue a new ingest key, show its SDK configuration and Sentry DSN, and send a sample error. A key issued in Settings stays in the signed-in page's memory when opening Capture, until dismissal or reload. Successful sample capture refreshes the setup progress. Saved key hashes cannot recover a lost key; create a replacement and revoke the old one when appropriate.\n- **Inspect team access and map imported roles.** Owners can inspect the people with access to each team's projects. Imported owner roles map to organization admin, without transferring installation ownership; imported manager roles require explicit maintainer projects. Only the installation owner can approve these mappings.\n- **Preserve project-member key authority.** Authorized project members can manage ingest and agent keys within their project, alongside deploy keys. Read-only and billing roles gain no key-management authority.\n- **Protect alert contacts while tracking deployments.** Recipient choices, contact-bearing destination configuration and delivery details require the owner, organization admin or project maintainer. Project members can still select a configured email route for deployment tracking using a neutral route label without seeing its contacts.\n- **Make new-project identity defaults explicit.** New projects keep the supported user ID, email, username and IP-address fields as sent, subject to installation scrubbing rules. Existing and restored policies stay unchanged; missing legacy policies retain their conservative defaults. Review Settings before capture if those fields should be hashed or dropped.\n- **Read setup and evidence more easily.** Capture links to Node.js/npm prerequisites for source-map setup; grouping guidance includes a copyable dependency-frame rule. Archive previews show record counts and validation limits, and issue evidence shows a readable bounded summary. Comment changes refresh the issue revision so subsequent triage actions use the current state.\n\n### Updating\n\nFrom 0.7.12: Back up first: download a private archive in Settings, or stop local dev and run `rer export --output exports/spool.jsonl`. From 0.7.12 on main, update with `git pull --ff-only` and `rer dev`; from a tag, run `git fetch --tags && git checkout v0.7.13` and `rer dev` once that tag is published. For a hosted installation, use `rer deploy` from the original deploying checkout. Keep the database, private settings, project keys and deployment receipt. There are no new migrations or breaking changes after 0.7.12; previously applied migration files are unchanged, so do not reset. Import private archives only into an empty destination. The application pins rer exactly to 0.2.118, updated from 0.2.113 in 0.7.12. To turn hosted mail off deliberately, select `MAIL_PROVIDER=none`, leave sending credentials empty and remove any previously bound sending secrets as described in docs/HOSTED.md. Keep the original deployment credentials and ownership receipt for guarded `rer signin` access. This application release does not publish the Spool SDK.\n\n### Known limits\n\n- Transaction measurements are bounded retained observations, not full distributed tracing: spans, transaction tags and request data are not stored.\n- Issue-owner notification selection uses its explicit fallback until verified issue ownership is available. Live provider delivery needs separate qualification; deliberately mail-off hosted installations send no sign-in links, invitations or email alerts.\n- Local development sends no email. Email verification for ownership transfer remains unavailable there; only an owner session opened through the local access link uses local confirmation.\n- Browser restore is limited to 16 MiB. Larger current JSONL archives need the CLI; legacy JSON archives over 16 MiB remain refused. A refused legacy JSON upload over 16 MiB can still end in a connection reset: the fix drains only what the restore engine has not already begun reading. Refused requests on the agent-door `/mcp` route are not covered by this fix.\n- Agent setup still requires an owner to save all six policy answers and create a project agent key. The agent CLI runs from a Spool checkout; it is not an npm-published package. Local agent calls also require the private dev gate described in the panel.\n- Erasing the owner is held while other stored agent text contains a different address that ends with the owner's address. The erasure match is case-sensitive.\n- Before the first project is created, opening a missing project URL as the owner redirects to setup instead of showing a not-found page.\n- Retained hosted archives still require separate Managed-to-native release qualification. If an archive is refused with `schema_mismatch`, restore into the release you exported from. Retrying a cut-off hosted restore can be refused until its five-minute lease expires; wait before retrying.\n- Bugsnag, Rollbar and Sentry imports remain bounded to 2 MiB and 500 records; larger sets are refused rather than partly applied. A real-account migration and live mail delivery through Cloudflare remain unqualified.\n\nProduct screenshot: .github/assets/release/spool-issue-page-1600.png"
+ }
+diff --git a/package.json b/package.json
+index ec0939c..ed5f7b6 100644
+--- a/package.json
++++ b/package.json
+@@ -1,6 +1,6 @@
+ {
+   "name": "@errors/errors-workbench",
+-  "version": "0.7.12",
++  "version": "0.7.13",
+   "repository": {
+     "type": "git",
+     "url": "https://github.com/just-every/run-spool.git"
+diff --git a/seed.json b/seed.json
+index 8173ba6..568ec01 100644
+--- a/seed.json
++++ b/seed.json
+@@ -1,7 +1,7 @@
+ {
+   "id": "errors-workbench",
+   "name": "Spool",
+-  "version": "0.7.12",
++  "version": "0.7.13",
+   "maturity": "Local-first JavaScript, Python and Go evidence product with one owner and isolated projects; bounded native, Sentry and OTLP-log intake, private source maps, operator corrections, owner/project erasure, sandbox reproducer, granted GitHub fix branches and exposure measurement. Runtime checks and review evidence are recorded separately; source metadata does not establish hosted, provider or npm publication acceptance.",
+   "category": "monitoring",
+   "replaces": [
+diff --git a/sources.lock.json b/sources.lock.json
+index 4bc5dd5..a11281c 100644
+--- a/sources.lock.json
++++ b/sources.lock.json
+@@ -2662,7 +2662,7 @@
+       "executable": false
+     },
+     "CHANGELOG.md": {
+-      "sha256": "316936ee7a9d057d4639be1b4d95590aebfa1b712f69e1bcdddf6de11a7952cf",
++      "sha256": "202b3d4ff997b77427378fa1a4eda71bb28c7068a1feacbed4a1057e830e9fa6",
+       "executable": false
+     },
+     "CLAUDE.md": {
+@@ -4198,7 +4198,7 @@
+       "executable": false
+     },
+     "package.json": {
+-      "sha256": "c921e712da3247c665bc7de765eb255c40d321a3008964da7db06afd17278238",
++      "sha256": "4e56e75abdcf028590b9ec6f16a30e8325b66592654a2ce728a7ed1b6d2edaca",
+       "executable": false
+     },
+     "packages/agent/bin/spool-agent.mjs": {
+@@ -4522,7 +4522,7 @@
+       "executable": false
+     },
+     "RELEASE.json": {
+-      "sha256": "3b848441084634da4b3df4a502f1db830d784a30ecec891c0a1fd99ec8f4e7a7",
++      "sha256": "1b79872beb32dfde485ba5fb84fff020094eeb3299a1b3e9462ffc959369523c",
+       "executable": false
+     },
+     "rer-project.json": {
+@@ -5370,7 +5370,7 @@
+       "executable": false
+     },
+     "seed.json": {
+-      "sha256": "8123b75e1c3dfe5d92ea6fefaca24d96d9aa6d5baa5c963be17dac44e9108562",
++      "sha256": "1a6fc3d599968e1e4c8d5ea4c3541fe7f16bf1b83c79dc872a5216f15f7c62a1",
+       "executable": false
+     },
+     "src/archive-evidence.d.ts": {

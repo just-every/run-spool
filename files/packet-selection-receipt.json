@@ -1,0 +1,30 @@
+{
+  "author": "Run Edit Run fleet",
+  "date": "2026-11-16T09:58:38.768213+00:00",
+  "selected_files": [
+    "REPORT.md",
+    "PLAN.md",
+    "metadata-receipt.json",
+    "checks-receipt.json",
+    "release-preflight-receipt.json",
+    "provenance.json",
+    "push-receipt.txt",
+    "identity-receipt.txt",
+    "source-check.txt",
+    "contract-check.txt",
+    "typecheck.txt",
+    "base-copies-check.txt",
+    "diff-check.txt",
+    "release-diff.txt",
+    "product-diff.patch",
+    "ci-discovery.json",
+    "ci-result.json",
+    "ci-observations.json",
+    "packet-selection-receipt.json"
+  ],
+  "regular_files_only": true,
+  "symlinks": false,
+  "injected_credential_values_detected": false,
+  "credential_shapes_detected": false,
+  "scope": "packet selection and touched diff only; not the Base publication scan"
+}

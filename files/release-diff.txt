@@ -1,0 +1,100 @@
+7fee744e133924477a3d95e69b8a96d61d69f75d Prove guarded mail-off operation and stable public readiness
+7d7b276e925c27ebaaf56b48b0d97454d8f8ca42 Support deliberately disabled hosted mail on rer 0.2.118 [skip ci]
+adc3de69b9ae0ff60e41897f8ff7662fd656d560 Choose drop explicitly for multilingual archive scrubbing
+1e45483aaa1c08b77e32375d601e7c331697e784 Choose explicit drop policies in privacy journeys
+8b4eff1b26e22be045ea4527e1d5263f74ddb0e7 Validate prerequisite links against the served guide section
+a9c870ef57cfd1730221ad89c75ac4d2e96ab7a5 Complete readable setup journeys and preserve strict policy fixtures
+c9ac44abe66980b3537258615dcc330014a49940 Repair stranger setup and evidence trips [skip ci]
+74b7105bd756ac76a2e90086928a44af5e8cb5d1 Keep member deployment tracking separate from alert contacts
+ba41b82872e921f711ddcf610fd83885f5aefbde Exercise member deployment tracking without alert contacts
+0ad960ee9896b69a742695e88819f471440298ba Merge branch 'main' of https://github.com/just-every/run-spool into cloud/sd-spool-run1-faults-2
+61a1d702cc5ca9e4d832828e6aad45326e30b420 Relock native member authority compatibility
+0267d61d1a7409f7b4fc11706575996b7ec0000b Preserve existing member ingestion-key authority within its project
+2cb47c37abd44d3df08b8cd93dac87ccfb47b653 Relock CI compatibility fixes
+e8703417ae5eefc07b55dea1de4e31cca9ace9b4 Preserve SDK setup guidance and member agent-key delegation
+90dcff127c89be1337086f79ef15379e50d4dcc1 Relock key-copy journey selector
+a20fddf711278528b6bafac283380844931f084f Scope the key-copy probe to the secret code block
+91921761facbf20f75b4fd34fcea133552c90778 Relock the completed owner setup journey
+76abd4cb811195f519156e3a4c752fb263f9bb34 Keep issued keys in memory when opening Capture from Settings
+28ddf382062dc4721b10c30cf3b688fc55ada1b0 Regenerate source lock for owner workflow fixes
+b9027d37a7d02e164cdff103be874ea5abd9dc17 Refresh native capture progress after a received setup event
+83395fe96634d4356645e3364c3357941f73c2dd Select native invitation fields by their existing accessible labels
+3cf17d1a5c0f44a44563bed4e589f39a4e8ae86e Use native secure session cookies in hosted setup journey
+84357a81c9557b6836efa10dfcbb0f5d5a54393e Keep contact-bearing alert reads behind configuration authority
+086798cae3f0e3c0c7c37d53ee085dcb210c14ab Clear dismissed setup keys and narrow initial key state
+906e6f3326d62e68f604477b4879eaa9b91264b7 Restore owner team inspection and native project setup journeys
+
+ DIVERGENCE.md                               |  15 +++
+ OPERATIONS.json                             |  36 +++++-
+ OPERATIONS.md                               |  12 +-
+ base-copies.json                            |  22 +++-
+ deploy.json                                 |  24 +++-
+ docs/FRAMEWORK-SETUP.md                     |  13 ++
+ docs/HOSTED.md                              |  21 ++-
+ docs/OWNER-ERASURE.md                       |  26 ++--
+ docs/USER-IDENTITY.md                       |   4 +-
+ docs/site.json                              |   5 +
+ management/integration/deployment-spec.json |   9 +-
+ package.json                                |   2 +-
+ pnpm-lock.yaml                              |  10 +-
+ rer-project.json                            |   2 +-
+ rer-setup.json                              |  44 ++++++-
+ scripts/delivery/base/packaging.json        |   3 +
+ scripts/delivery/base/spec.mjs              |   6 +
+ scripts/installer/local.mjs                 |   2 +-
+ scripts/operations-config.mjs               |   4 +-
+ sources.lock.json                           | 158 ++++++++++++++---------
+ src/auth/mail.server.mjs                    |  16 ++-
+ src/auth/session.server.ts                  |   2 +-
+ src/auth/sign-in.server.ts                  |   3 +-
+ src/domain/alerts/deployment-label.ts       |   7 +
+ src/domain/alerts/routes.ts                 |  16 +++
+ src/domain/api.ts                           |   8 +-
+ src/domain/dashboards/metrics.ts            |   2 +-
+ src/domain/identities/policy.ts             |   2 +
+ src/domain/identities/routes.ts             |   2 +-
+ src/domain/members/mutations.ts             |  11 +-
+ src/domain/project-key-authority.ts         |   7 +
+ src/ui/alerts/AlertDestinations.tsx         |   3 +-
+ src/ui/workbench/ArchivePreview.tsx         |  12 ++
+ src/ui/workbench/ArchiveSettings.tsx        |   3 +-
+ src/ui/workbench/CaptureView.tsx            |  11 +-
+ src/ui/workbench/ClientKeySetup.tsx         |  24 ++++
+ src/ui/workbench/DeploymentHistory.tsx      |   2 +-
+ src/ui/workbench/Discussion.tsx             |   8 +-
+ src/ui/workbench/EvidenceRail.tsx           |  12 +-
+ src/ui/workbench/GroupingRules.tsx          |   5 +-
+ src/ui/workbench/IdentityPolicy.tsx         |   2 +-
+ src/ui/workbench/IssueView.tsx              |   8 +-
+ src/ui/workbench/LoaderSettings.tsx         |   2 +-
+ src/ui/workbench/Members.tsx                |  15 ++-
+ src/ui/workbench/ProjectForm.tsx            |   2 +-
+ src/ui/workbench/SdkSetup.tsx               |   7 +-
+ src/ui/workbench/SettingsView.tsx           |   2 +-
+ src/ui/workbench/SourceMapSetup.tsx         |   2 +-
+ src/ui/workbench/TeamMembers.tsx            |  20 +++
+ src/ui/workbench/WorkspaceView.tsx          |   7 +-
+ tests/admission-runtime.mjs                 |   9 +-
+ tests/agent-door/protocol-contract.mjs      |   1 +
+ tests/alerts/conditions-journey.mjs         |   3 +
+ tests/commands.mjs                          |  23 +++-
+ tests/end-user-erasure-preview.mjs          |   7 +-
+ tests/fidelity-flow.mjs                     |   8 +-
+ tests/grouping-rules-flow.mjs               |  10 ++
+ tests/identity-flow.mjs                     |  36 +++++-
+ tests/mail-off.mjs                          | 190 ++++++++++++++++++++++++++++
+ tests/managed-sign-in.mjs                   |   4 +
+ tests/multilingual.mjs                      |   5 +
+ tests/operator-ui.mjs                       |   9 ++
+ tests/owner-erasure-authority.mjs           |   6 +-
+ tests/owner-setup-browser.mjs               | 106 ++++++++++++++++
+ tests/owner-setup-flow.mjs                  |  64 ++++++++++
+ tests/reports-flow.mjs                      |   1 +
+ tests/session-flow.mjs                      |   8 +-
+ tests/setup-journey.mjs                     |   2 +-
+ tests/team-flow.mjs                         |   2 +
+ tests/triage-journey.mjs                    |  20 +++
+ wrangler.jsonc                              |   4 +-
+ 71 files changed, 990 insertions(+), 169 deletions(-)
+
+Migration diff:

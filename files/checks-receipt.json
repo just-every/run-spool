@@ -1,0 +1,33 @@
+{
+  "author": "Run Edit Run fleet",
+  "date": "2026-11-16T09:37:36.556925+00:00",
+  "head": "9580df1b3fd371ee50df97fd8659bdd1d0c6a79d",
+  "checks": [
+    {
+      "command": "pnpm source:check",
+      "exit": 0,
+      "log": "source-check.txt"
+    },
+    {
+      "command": "node src/base/contract-docs.mjs check",
+      "exit": 0,
+      "log": "contract-check.txt"
+    },
+    {
+      "command": "pnpm typecheck",
+      "exit": 0,
+      "log": "typecheck.txt"
+    },
+    {
+      "command": "git diff --check",
+      "exit": 0,
+      "log": "diff-check.txt"
+    },
+    {
+      "command": "node scripts/edition-authoring/cli.mjs verify-base --offline",
+      "exit": 0,
+      "log": "base-copies-check.txt"
+    }
+  ],
+  "environment_note": "An earlier fresh shell omitted the prescribed toolchain source; pnpm refused there. All final checks source /tmp/rer-cloud-toolchain.sh."
+}

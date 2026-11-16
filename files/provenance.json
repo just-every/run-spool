@@ -1,0 +1,18 @@
+{
+  "repository": "just-every/run-spool",
+  "branch": "cloud/sd-spool-release-0-7-13-r2",
+  "head": "9580df1b3fd371ee50df97fd8659bdd1d0c6a79d",
+  "tree": "8cf00df061406063a1a1f298c5793b6e64d64e3c",
+  "base_main": "7fee744e133924477a3d95e69b8a96d61d69f75d",
+  "clean_product_checkout": true,
+  "product_push": "success",
+  "pr": null,
+  "author": "Run Edit Run fleet",
+  "recorded_at": "2026-11-16T09:58:38.767490+00:00",
+  "verify_run": 43841357640,
+  "verify_url": "https://github.com/just-every/run-spool/actions/runs/43841357640",
+  "github_calls_used": 6,
+  "verify_status": "completed",
+  "verify_conclusion": "success",
+  "builder_result": "READY"
+}

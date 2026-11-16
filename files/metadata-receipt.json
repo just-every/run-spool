@@ -1,0 +1,39 @@
+{
+  "author": "Run Edit Run fleet",
+  "date": "2026-11-16T09:36:47.611378+00:00",
+  "base_main": "7fee744e133924477a3d95e69b8a96d61d69f75d",
+  "previous_tag_commit": "cc086904fd942175d18c60082b10c459c343dc78",
+  "commits_since_previous_tag": 25,
+  "version_before": "0.7.12",
+  "version_after": "0.7.13",
+  "previousVersion_before": "0.7.11",
+  "previousVersion_after": "0.7.12",
+  "migration_inventory": [],
+  "rer_package_pin": "0.2.118",
+  "rer_lock_pin": "0.2.118",
+  "rer_pins_modified": false,
+  "files_changed": [
+    "CHANGELOG.md",
+    "RELEASE.json",
+    "package.json",
+    "seed.json",
+    "sources.lock.json"
+  ],
+  "clause_status_before": {
+    "done": 23,
+    "partial": 54,
+    "missing": 28
+  },
+  "clause_status_after": {
+    "done": 23,
+    "partial": 54,
+    "missing": 28
+  },
+  "clause_status_changes": [],
+  "tests_added": 0,
+  "tests_changed": 0,
+  "release_md": "Absent on fresh main; left absent under existing-reference lease.",
+  "notes_match_changelog": true,
+  "historical_changelog_preserved": true,
+  "result": "pass"
+}
