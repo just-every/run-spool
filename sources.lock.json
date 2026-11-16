@@ -3062,7 +3062,7 @@
       "executable": false
     },
     "docs/OWNER-ERASURE.md": {
-      "sha256": "a309e2c1331a4ede1bc2fc65e02eae8517c932d85972a4cb7a18675fc611c482",
+      "sha256": "46a2e7dd7b2d75ff01c900a1eebb90792bca6d85f8cd5f742152bb60f3a3b848",
       "executable": false
     },
     "docs/PROJECT-ERASURE.md": {
@@ -3742,7 +3742,7 @@
       "executable": false
     },
     "docs/USER-IDENTITY.md": {
-      "sha256": "54de6563067f0548ed6fe1685ebf08b5aec1df1d9cf8b11580cbc21a67a7839d",
+      "sha256": "d7cf8d1855a1187d66b7ff0334ee1aa5091fc09572bd693ebdb617a4a93d3d46",
       "executable": false
     },
     "docs/WITH-YOUR-AGENT.md": {
@@ -11106,7 +11106,7 @@
       "executable": false
     },
     "tests/end-user-erasure-volume.mjs": {
-      "sha256": "433150a091c2ce5cfd14a8874ef3d386f7b6675836c32037ada74c1749be6e3f",
+      "sha256": "1730d05420fbe6cd8681702b3aaf4e18caaab5eefb385a275f87530fbde8a89b",
       "executable": false
     },
     "tests/execution-journey.mjs": {

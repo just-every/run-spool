@@ -1,6 +1,7 @@
 import assert from 'node:assert/strict';
 import { createHash } from 'node:crypto';
 import { execFileSync } from 'node:child_process';
+import { createRequire } from 'node:module';
 import { mkdir, writeFile } from 'node:fs/promises';
 import { runtime, archive, restore } from './owner-erasure/helpers.mjs';
 import { archiveText } from './agent-handoff/caps.mjs';
@@ -8,6 +9,12 @@ import { archiveText } from './agent-handoff/caps.mjs';
 // Run the committed journey outside push Verify under a hard 2400-second alarm.
 // A restore admission refusal is not an erasure-fence proof. Keep the requested
 // corpus explicit; admission must succeed, never fall back or plant product rows.
+// Match transport patience to the outer alarm. The erasure assertion remains 300s.
+// Reuse Wrangler's installed Undici; this changes no product or archive guard.
+const require=createRequire(import.meta.url);
+const {Agent,getGlobalDispatcher,setGlobalDispatcher}=require(require.resolve('undici',{paths:[require.resolve('wrangler/package.json')]}));
+const previousDispatcher=getGlobalDispatcher(),dispatcher=new Agent({headersTimeout:2400000,bodyTimeout:2400000});
+setGlobalDispatcher(dispatcher);
 const archiveOnly=process.argv.includes('--archive-160000'),requestedVolume=archiveOnly?160000:150000;
 const candidate=execFileSync('git',['rev-parse','HEAD'],{encoding:'utf8'}).trim();
 if(process.env.RER_CANDIDATE_SHA)assert.equal(candidate,process.env.RER_CANDIDATE_SHA,'scale receipt must name the checked-out candidate');
@@ -42,7 +49,8 @@ try {
  assert.equal(restoredIdentity.matchingEvents,requestedVolume,'public identity counts reconcile after full-volume restore');
  console.log('SCALE_ADMISSION '+JSON.stringify({candidate,runId,requestedVolume,status:requested.status,requestedRestoreMs,retainedVolume}));
  if(archiveOnly){
-  const exported=await archive(destination);
+  const exportStart=performance.now(),exported=await archive(destination),archiveMs=performance.now()-exportStart;
+  console.log('SCALE_ARCHIVE '+JSON.stringify({candidate,runId,requestedVolume,archiveMs,archivedEvents:exported.data.events.length}));
   assert.equal(exported.data.events.length,requestedVolume,'whole-project archive includes every retained event');
   assert.equal(exported.data.event_identities.length,requestedVolume,'whole-project archive includes every identity');
   assert.equal(exported.data.issues.reduce((n,row)=>n+row.count,0),requestedVolume,'archived aggregates reconcile');
@@ -52,7 +60,7 @@ try {
    assert.equal(refused.status,400);assert.equal(refused.body.error,'Archive event budget','capacity refusal remains distinct from erasure_epoch');
    assert.deepEqual(await over.json('/api/projects'),[],'over-budget restore leaves the destination empty');
   }finally{await over.close()}
-  const result={candidate,runId,startedAt,completedAt:new Date().toISOString(),requestedVolume,admittedVolume:retainedVolume,requestedRestoreMs,archivedEvents:exported.data.events.length,archivedIdentities:exported.data.event_identities.length,overBudget:{volume:requestedVolume+1,status:400,error:'Archive event budget'}};
+  const result={candidate,runId,startedAt,completedAt:new Date().toISOString(),requestedVolume,admittedVolume:retainedVolume,requestedRestoreMs,archiveMs,archivedEvents:exported.data.events.length,archivedIdentities:exported.data.event_identities.length,overBudget:{volume:requestedVolume+1,status:400,error:'Archive event budget'}};
   await mkdir('.artifacts/erasure-preview',{recursive:true});await writeFile('.artifacts/erasure-preview/archive-volume.json',JSON.stringify(result,null,2)+'\n');
   console.log('PROBE GOV-003 archive volume: '+JSON.stringify(result));
  }else{
@@ -69,4 +77,4 @@ try {
  await mkdir('.artifacts/erasure-preview',{recursive:true});await writeFile('.artifacts/erasure-preview/volume.json',JSON.stringify(result,null,2)+'\n');
  console.log('PROBE SDK-027 volume: '+JSON.stringify({requestedVolume,admittedVolume:retainedVolume,overCapStatus:requested?.status??null,completionMs,receiptSeconds:receipt.seconds,claim:retainedVolume===requestedVolume?'acceptance point 5 timed; other gaps remain':'PARTIAL; acceptance point 5 unproven'}));
  }
-} finally {await destination?.close();await source?.close()}
+} finally {try{await destination?.close();await source?.close()}finally{setGlobalDispatcher(previousDispatcher);await dispatcher.destroy()}}

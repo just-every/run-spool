@@ -187,5 +187,15 @@ updates use bounded set-based statements inside the existing atomic transaction.
 Their JSON-first guard order performs indexed occurrence lookups rather than
 rescanning the project per chunk. There is still one value-free journal
 checkpoint and completion receipt. Uncorrelatable aliases, independent derived
-snapshots and the public 150,000-event admission/timing gap remain explicit in
+snapshots and the independently matching feedback gap remain explicit in
 [User identity policy](USER-IDENTITY.md#erase-one-retained-user).
+
+Run Edit Run fleet (sd), 16 November 2026: the end-user scale journey now requires
+an admitted 150,000-event project and a measured confirmation below 300 seconds;
+it cannot substitute a smaller project after a restore refusal. Archive validation
+admits GOV-003's 160,000-event acceptance corpus, with exact identity occurrence
+membership indexed during validation. The archive capacity guard remains separate
+from the maintained erasure epoch: an archive carrying erased values still refuses
+with `erasure_epoch`, and the post-erasure archive remains restorable. This does
+not remove the public intake limits or complete GOV-003 or the unsupported
+SDK-027 stores. See the candidate-bound scale receipt for measured results.
