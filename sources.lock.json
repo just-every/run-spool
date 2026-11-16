@@ -6285,6 +6285,10 @@
       "sha256": "8e5cf182f8eb0dd8246eea58c9c92892168d095a07b4aeffc0d34632802ac7d4",
       "executable": false
     },
+    "src/domain/identities/erasure-text.ts": {
+      "sha256": "1d14179f4519e43111c33d946aa3733c6b8789bdaeb77caca8ade785a486740b",
+      "executable": false
+    },
     "src/domain/identities/intake.ts": {
       "sha256": "46238873ef734d53d3298c2488b237ad8ad560ab638cac6cdae9865ee0f19fc1",
       "executable": false
@@ -6303,6 +6307,10 @@
     },
     "src/domain/identities/routes.ts": {
       "sha256": "c0d87d2db272b2d289c9f7b819f318941ab8dc060ce04d1a7f06460393ff3747",
+      "executable": false
+    },
+    "src/domain/identities/search.ts": {
+      "sha256": "09a662b73afcee830a2ee08bd4bc8cb76124097cc4ceb1bf7d96702b16cb204e",
       "executable": false
     },
     "src/domain/identities/values.ts": {
@@ -11098,7 +11106,7 @@
       "executable": false
     },
     "tests/end-user-erasure-volume.mjs": {
-      "sha256": "77d033dbcc8fec498ce2900e47a92ddf3c208002895eb59efad26e2c12f09be0",
+      "sha256": "c20192f3f497413f919b8e0cf02311a130bfe6c07e987d1e7c15bff5cc98a096",
       "executable": false
     },
     "tests/execution-journey.mjs": {
