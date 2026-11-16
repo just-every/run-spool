@@ -35,8 +35,7 @@ Individual sessions are de-identified only when their privately hashed DID is
 literally equal to the supplied value; Spool cannot infer relationships between
 different aliases or attribute anonymous aggregate sessions. Feedback contact is
 already discarded at intake; scrubbed feedback messages have no independent
-user index. Attachments, replays and identity search indexes/facets have no
-retained matching store. The preview and receipt state those limitations rather
+user index. Attachments and replays have no retained matching store. The preview and receipt state those limitations rather
 than claiming zero matches or complete erasure of those stores.
 
 The completed receipt contains counts, times and retained-scope explanations.
@@ -47,33 +46,68 @@ and private archives omit the removed fields. This installation, or a fresh
 installation given its later archive/journal, refuses a pre-erasure archive.
 An empty installation given only an old archive cannot know about a later
 erasure. Downloaded copies, provider backups and future captures are outside
-this operation. This is not a promise of complete SDK-027 acceptance: identity
-search/facets and the public 150,000-event volume remain unavailable.
+this operation. Complete SDK-027 acceptance, including the public 150,000-event
+volume and independently matching feedback, remains unproven.
 
-### Search tags and other stores
+### Identity search and facets
 
-Run Edit Run fleet, 16 November 2026: ordinary search predicates and tag facets
-read retained event payloads directly. The erasure preview now counts exact
-copies of the supplied value, its project hash, and the matching occurrence's
-retained identity values and hashes in tag keys or values. Candidate tags are
-also hashed privately to match raw copies of hash-policy identities. Confirmation removes
-those tag entries with the identity, recomputes event digests and leaves other
-tags and unrelated occurrences intact. Event deletion removes those projections
-with the events. The receipt's `search_tags` count describes removed tag entries,
-not a separate database table. Counts, payload updates and receipt share the
-same owner transaction; the plan binds the changed search payloads.
+Run Edit Run fleet (sd), 16 November 2026: the installation owner can read
+`GET /api/projects/<project>/identity-search`. Its count, first 25 occurrence
+references and first 1,000 facet values come directly from the retained identity
+projection. The response names truncation. Add `field=user.email&value=<value>`
+to find an exact email; `user.id`, `user.username`, `user.ip` and `ip_address`
+are also supported. A raw supplied value matches its project hash under hash
+policy. A stored hash can also be searched directly. Facet values are raw only
+under keep, hashed under hash, and absent under drop. Private match hashes for
+keep fields and the project key never enter this response.
 
-There is still no identity-specific `user.email`, `user.id`, `user.username`
-or `user.ip` search/facet door. An alias discarded without a retained matching hash
-cannot be reconstructed, and text or tags on unrelated events cannot
-be attributed to a user merely because they contain a similar value. Session
-DIDs match only literal equality with the supplied identity, using the existing
-project HMAC. Unknown aliases and anonymous aggregates remain uncorrelatable.
-Attachments and replays have no retained matching store; their absence is
-reported as unavailable, rather than a successful zero-record erasure. Feedback
-contact and independently matching feedback remain outside this slice.
+This focused API is owner-only. Agent grants, members and administrators do not
+inherit access; ordinary issue-search syntax still does not support `user.*`.
+No additional identity index or persistent query is created. Erasure clears the
+same projection, so both raw-input and stored-hash queries and their facets lose
+the erased identity while other users and projects remain. The existing
+ordinary search, issue export and tag facets read the changed event payloads.
 
-The public retained-event and archive limits still refuse 150,000-event projects.
-The focused scale journey probes that exact requested corpus, records the refusal,
-and times the changed search-tag path at the admitted 10,000-event volume. That
-timing does not establish the required 150,000-event acceptance point.
+### Captured copies and remaining stores
+
+Run Edit Run fleet (sd), 16 November 2026: erasure now also scans project events
+for exact retained identity copies in messages, tags and breadcrumbs, including
+copies on occurrences with no retained identity. It recognizes the supplied
+value and its private project hash, the matched occurrences' retained values
+and hashes, and raw tag values whose project hash matches those aliases. Whole
+tag entries are removed for exact matches; complete tokens inside captured
+sentences are removed without changing neighboring text. Matching issue title
+text is removed too. Digests are recomputed and previous occurrence/digest and
+issue revision/title guards commit with identity removal, the receipt and one
+existing portability redaction checkpoint in the same owner transaction.
+
+The preview and receipt separately count changed text events and issue titles.
+A substring inside a longer identifier cannot be attributed safely. Text used
+by an immutable grouping key cannot be removed by this door without changing
+its provenance and breaking restore; those event payloads remain intact and
+are explicitly counted in the preview and explained in the receipt. Identity
+removal still completes, and the owner can instead choose to delete the exact
+identity-matched events. Unknown aliases, encoded text, exception/stack/context
+copies and independent derived snapshots remain outside this focused matcher.
+An absence claim applies only to the supported copies actually removed.
+
+Individual session DIDs still match only literal equality with the supplied
+value. Anonymous aggregates, discarded aliases and absent attachment/replay
+stores cannot be correlated. Feedback matching awaits its separate round.
+Downloaded copies and future captures remain outside this installation.
+
+### Performance and volume boundary
+
+Run Edit Run fleet (sd), 16 November 2026: bounded JSON batches use an indexed
+occurrence lookup for each changed row. The JSON rows run first in each guard,
+avoiding a full project scan and JSON reparse for every chunk. Payload and
+identity updates, transfer invalidation, one journal checkpoint, audit and
+receipt retain their existing atomic semantics; there is no per-event round
+trip or journal entry.
+
+The public retained-event and archive limits still refuse a 150,000-event
+project. The committed scale journey records that refusal separately from an
+`erasure_epoch` refusal of an older archive, then times the admitted 10,000-event
+project. This does not prove the 150,000-event timing requirement. GOV-003 and
+ERR-009 require whole-project streaming restore at that volume; SDK-027's older
+archive refusal does not excuse an unrelated archive-budget refusal.

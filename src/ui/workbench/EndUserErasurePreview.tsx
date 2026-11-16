@@ -8,6 +8,7 @@ type Preview = {
  events: {status:string;count:number|null;retained:number;withoutRetainedIdentity:number;explanation:string};
  sessions: {status:string;count:number|null;explanation:string};
  search: {status:string;count:number|null;explanation:string};
+ capturedText: {count:number|null;issueTitles:number;ambiguousEvents:number;groupingHeld:number;explanation:string};
  feedback: {status:string;count:number|null};
  unavailable: {store:string;reason:string}[];
 };
@@ -44,6 +45,8 @@ export function EndUserErasurePreview({project,request,run,busy}:{project:string
     <p>{preview.events.explanation}</p>
     <p>{preview.sessions.count===null?'Session matching unavailable':`${preview.sessions.count} matching ${plural(preview.sessions.count,'session')}`}. {preview.sessions.explanation}</p>
     <p>{preview.search.count===null?'Search tag matching unavailable':`${preview.search.count} matching search tag entries`}. {preview.search.explanation}</p>
+    <p>{preview.capturedText.count===null?'Captured text matching unavailable':`${preview.capturedText.count} events with removable captured text · ${preview.capturedText.issueTitles} issue titles`}. {preview.capturedText.explanation}</p>
+    {(preview.capturedText.ambiguousEvents>0||preview.capturedText.groupingHeld>0)&&<p>{preview.capturedText.ambiguousEvents} events with ambiguous partial copies · {preview.capturedText.groupingHeld} events with copies that affect grouping. These copies will remain.</p>}
     {action==='delete_events'&&<p>{preview.feedback.count} attached feedback records will also be deleted.</p>}
     <ul>{preview.unavailable.map(row=><li key={row.store}>{row.store}: unavailable. {row.reason}</li>)}</ul>
     {preview.hold&&<p>{preview.hold} Nothing will be erased.</p>}
@@ -61,6 +64,7 @@ export function EndUserErasurePreview({project,request,run,busy}:{project:string
   {receipt&&<div className="callout" role="status">
    <h3>Erasure complete</h3>
    <p>{receipt.deleted.event_identities} event identities removed · {receipt.deleted.health_sessions} session identities removed · {receipt.deleted.search_tags} search tag entries removed{receipt.deleted.events!==undefined?` · ${receipt.deleted.events} events deleted`:''}.</p>
+   <p>{receipt.deleted.captured_text_events} events with captured text removed · {receipt.deleted.issue_titles} issue titles cleared of matching text.</p>
    <p>Started {receipt.requestedAt} · completed {receipt.completedAt} · {receipt.seconds} seconds.</p>
    <p>Receipt {receipt.id}. Older archives are refused when this installation or a trusted later journal knows the erasure.</p>
    <ul>{receipt.retained.map(row=><li key={row.table}>{row.table}: {row.reason}</li>)}</ul>

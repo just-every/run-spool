@@ -1,5 +1,5 @@
 import { canonical, hash } from '../privacy';
-import { erasureSearchPlan, erasureSearchStatements } from '../identities/erasure-search';
+import { erasureSearchPlan, erasureSearchStatements, erasureIssueStatements } from '../identities/erasure-search';
 import { identityHash } from '../identities/key';
 import { readIdentityPolicy, identityPolicyFence, type IdentityField } from '../identities/policy';
 import { portability } from '../portability';
@@ -20,7 +20,6 @@ export const endUserExceptions = [
  {table:'feedback',reason:'Feedback contact is discarded at intake. Retained scrubbed messages have no user identity index; they cannot be matched to this value. Event deletion also deletes feedback attached to those exact occurrences.'},
  {table:'attachments',reason:'Attachment ingestion and identity metadata are not retained; there is no attachment identity matching store.'},
  {table:'replays',reason:'Replay ingestion and identity metadata are not retained; there is no replay identity matching store.'},
- {table:'identity_search',reason:'Identity-specific search keys and facets are unavailable. Ordinary search and tag facets read event payloads directly; exact identity copies in tags on matching events are removed.'},
 ];
 
 export async function endUserPlan(db: D1Database, project: string, selection: EndUserSelection) {
@@ -41,7 +40,7 @@ export async function endUserPlan(db: D1Database, project: string, selection: En
   (SELECT COUNT(*) FROM event_grouping WHERE project=? AND event IN (${predicate})) grouping,
   (SELECT COUNT(*) FROM event_suppressions WHERE project=? AND event IN (${predicate})) suppressions`)
  .bind(project,project,project,digest,project,digest,project,project,project,digest,project,project,digest,project,project,digest);
- const search=await erasureSearchPlan(db,project,predicate,digest,value,secret?.key??null);
+ const search=await erasureSearchPlan(db,project,predicate,digest,value,secret?.key??null,action==='delete_events');
  const counts=(await query.first()) as {retained:number;correlatable:number;matched:number;sessions:number;sessionRetained:number;feedback:number;grouping:number;suppressions:number};
  const unavailable=current.policy[field]==='drop'?'This field is dropped by the current policy; discarded identities cannot be recovered.':!secret?'No retained project identity key is available.':null;
  const fence=await db.prepare('SELECT source_identity,epoch,import_job FROM rer_portability_state WHERE id=1').first<{source_identity:string;epoch:number;import_job:string|null}>();
@@ -50,6 +49,7 @@ export async function endUserPlan(db: D1Database, project: string, selection: En
   !(await db.prepare(`SELECT ${noImportCustody} AS clear`).first<{clear:number}>())!.clear?'Shared import custody cannot be selectively erased by this door.':null;
  const planHash=await hash(canonical([project,field,digest,action,current.revision,counts,search.fingerprint,fence?.source_identity??null,fence?.epoch??0,copies?.inventory??null,hold]));
  const retained=[...endUserExceptions,
+  {table:'captured_text',reason:`${search.ambiguousEvents} event records contain only ambiguous partial-token copies; ${search.groupingHeld} event records contain matching content that cannot be redacted without changing immutable grouping provenance. Those copies stay. Unknown aliases, encoded text, exception/stack/context copies and independent derived snapshots cannot be fully correlated by this door.`},
   {table:'health_sessions',reason:'Only session DID hashes equal to the supplied value are matched. Different aliases and anonymous session aggregates cannot be correlated.'},
   {table:'external_copies',reason:'Downloaded archives, delivered messages, provider backups and future incoming captures are outside this installation. A fresh destination needs the later archive as its trusted erasure journal.'},
  ];
@@ -59,7 +59,8 @@ export async function endUserPlan(db: D1Database, project: string, selection: En
    explanation:unavailable??'Exact retained identity matches only. All four identity fields on matching events are removed; events without this field cannot be correlated.'},
   sessions:{status:unavailable?'unavailable':'available',count:unavailable?null:counts.sessions,retained:counts.sessionRetained,
    explanation:'Exact session DID equality only; other aliases and anonymous session aggregates cannot be attributed.'},
-  search:{status:unavailable?'unavailable':'available',count:unavailable?null:search.count,explanation:'Exact retained identity values and hashes copied into event tags on matching occurrences. Search predicates and facets read these same tags; no separate index is retained.'},
+  search:{status:unavailable?'unavailable':'available',count:unavailable?null:search.count,explanation:'Exact retained identity copies in project event tags. Ordinary search/facets read those payloads; identity search/facets read the identity projection cleared by this operation.'},
+  capturedText:{status:unavailable?'unavailable':'available',count:unavailable?null:search.textEvents,issueTitles:search.issueChanges.length,ambiguousEvents:search.ambiguousEvents,groupingHeld:search.groupingHeld,explanation:'Whole-token copies in messages, tags and breadcrumbs are removed where grouping stays valid. Partial identifiers, grouping-sensitive content and unsupported copies remain explicitly listed.'},
   feedback:{status:action==='delete_events'?'attached_records_only':'unavailable',count:action==='delete_events'?counts.feedback:null},
   unavailable:endUserExceptions.map(({table,reason})=>({store:table,reason})),retained}};
 }
@@ -70,7 +71,7 @@ export async function endUserPlan(db: D1Database, project: string, selection: En
 export async function endUserStatements(db: D1Database, project: string, selection: EndUserSelection, plan: Awaited<ReturnType<typeof endUserPlan>>) {
  const transfer=await portability(db), before=await state(db), id=crypto.randomUUID().replaceAll('-',''),now=new Date().toISOString();
  const {counts,predicate,digest}=plan, deleting=selection.action==='delete_events';
- const deleted={event_identities:counts.matched,health_sessions:counts.sessions,search_tags:plan.search.count,...deleting?{events:counts.matched,feedback:counts.feedback,event_grouping:counts.grouping,event_suppressions:counts.suppressions}:{}};
+ const deleted={event_identities:counts.matched,health_sessions:counts.sessions,search_tags:plan.search.count,captured_text_events:plan.search.textEvents,issue_titles:plan.search.issueChanges.length,...deleting?{events:counts.matched,feedback:counts.feedback,event_grouping:counts.grouping,event_suppressions:counts.suppressions}:{}};
  return {id,statements:[
   identityPolicyFence(db,project,plan.current.revision),
   guard(db,'EXISTS(SELECT 1 FROM rer_portability_state WHERE id=1 AND source_identity=? AND epoch=? AND import_job IS NULL)',before.source_identity,plan.fence?.epoch??0),
@@ -92,7 +93,7 @@ export async function endUserStatements(db: D1Database, project: string, selecti
     title=COALESCE((SELECT json_extract(payload,'$.type')||': '||json_extract(payload,'$.message') FROM events WHERE project=issues.project AND issue=issues.id AND id NOT IN (SELECT event FROM victims) ORDER BY received,id LIMIT 1),'[no retained events]'),revision=revision+1
     WHERE project=? AND id IN (SELECT issue FROM events WHERE project=? AND id IN (SELECT event FROM victims))`).bind(project,digest,project,project),
    db.prepare(`DELETE FROM events WHERE project=? AND id IN (${predicate})`).bind(project,project,digest),
-  ]:[...erasureSearchStatements(db,project,plan.search.changes),db.prepare(`UPDATE event_identities SET payload='{}',user_key=NULL,reason='sdk_sent_no_permitted_identity' WHERE project=? AND event IN (${predicate})`).bind(project,project,digest)],
+  ]:[...erasureSearchStatements(db,project,plan.search.changes),...erasureIssueStatements(db,project,plan.search.issueChanges),db.prepare(`UPDATE event_identities SET payload='{}',user_key=NULL,reason='sdk_sent_no_permitted_identity' WHERE project=? AND event IN (${predicate})`).bind(project,project,digest)],
   guard(db,`NOT EXISTS(SELECT 1 FROM (${predicate})) AND NOT EXISTS(SELECT 1 FROM health_sessions WHERE project=? AND user_hash=?)`,project,digest,project,digest),
   db.prepare(`INSERT INTO rer_erasure_operations(id,entity,subject,label,phase,step,planned,deleted,retained,requested_at,committed_at,completed_at)
    VALUES(?,'end-user',NULL,?,'complete',1,?,?,?,?,?,strftime('%Y-%m-%dT%H:%M:%fZ','now'))`).bind(id,'erased:'+crypto.randomUUID().replaceAll('-',''),JSON.stringify(deleted),JSON.stringify(deleted),JSON.stringify(plan.public.retained),now,now),

@@ -177,12 +177,15 @@ custody that cannot be selectively withdrawn holds this action without removal.
 The receipt lists unavailable stores and literal-DID-only session attribution;
 see [User identity policy](USER-IDENTITY.md#erase-one-retained-user).
 
-Run Edit Run fleet, 16 November 2026: end-user erasure also removes exact
-retained identity copies from tags on the matching event occurrences. Ordinary
-search and facets use these payloads directly. The count-only preview and
-receipt expose the number of removed search tag entries; chunked payload/digest
-updates remain inside the same atomic owner transaction and restore checkpoint.
-The preview hash includes those changes and commit guards verify their previous
-digests. Unchanged event text, unrelated occurrences, unsupported identity-specific
-search and uncorrelatable stores remain outside this claim. See the explicit
-boundaries and 150,000-event gap in USER-IDENTITY.md.
+Run Edit Run fleet (sd), 16 November 2026: end-user erasure removes supported
+exact identity copies from project event tags, messages and breadcrumbs and
+matching issue titles. The count-only preview and receipt name changed event
+text, titles and tag entries, plus partial-token and grouping-sensitive copies
+that remain. Ordinary search/facets read payloads; the owner-only identity
+search/facet API reads the identity projection itself. Payload/digest and title
+updates use bounded set-based statements inside the existing atomic transaction.
+Their JSON-first guard order performs indexed occurrence lookups rather than
+rescanning the project per chunk. There is still one value-free journal
+checkpoint and completion receipt. Uncorrelatable aliases, independent derived
+snapshots and the public 150,000-event admission/timing gap remain explicit in
+[User identity policy](USER-IDENTITY.md#erase-one-retained-user).

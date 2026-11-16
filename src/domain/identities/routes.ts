@@ -8,6 +8,7 @@ import {identityPolicy,readIdentityPolicy,identityPolicyFence,identityFields} fr
 import {identityPreview,convertedPayload,firstIdentityKey,previewFence} from './conversion';
 import {prepareIdentityKey} from './key';
 import {affectedUsers} from './read';
+import {searchIdentities} from './search';
 export const identityPolicyRoutes=ownerProjectRouter();
 identityPolicyRoutes.get('/',async c=>c.json({...await readIdentityPolicy(c.env.DB,c.req.param('project')!),defaults:'New projects keep the four supported user fields as sent, subject to installation scrubbing rules. Existing and restored policies stay unchanged. Other user fields remain dropped; session identifiers remain privately hashed.',address:'{{auto}} is unavailable: this Worker exposes no connecting socket address. No forwarded header or tunnel is trusted.'}));
 identityPolicyRoutes.post('/preview',async c=>{const b=await jsonBody(c.req.raw,2000),p=c.req.param('project')!,current=await readIdentityPolicy(c.env.DB,p),{snapshot,...preview}=await identityPreview(c.env.DB,p,current.revision,identityPolicy(b.policy));return c.json(preview)});
@@ -24,6 +25,14 @@ identityPolicyRoutes.put('/',async c=>{
  return c.json({revision,policy,converted:preview.converted});
 });
 export const identityReadRoutes=new Hono<any>();
+identityReadRoutes.get('/:project/identity-search',async c=>{
+ c.header('Cache-Control','no-store');c.header('X-Content-Type-Options','nosniff');
+ const owner=await ownerSession(c.req.raw,c.env,resolveMembership);
+ if(!owner||owner.operator.role!=='owner'||owner.membership||agentAuthority(c.req.raw)||c.req.header('authorization'))return c.json({error:'Installation owner session required'},403);
+ const project=c.req.param('project');
+ if(!await c.env.DB.prepare('SELECT 1 FROM projects WHERE id=?').bind(project).first())return c.json({error:'Project not found'},404);
+ return c.json(await searchIdentities(c.env.DB,project,c.req.query('field'),c.req.query('value')));
+});
 identityReadRoutes.get('/:project/issues/:issue/affected-users',async c=>{
  c.header('Cache-Control','no-store');c.header('X-Content-Type-Options','nosniff');const p=c.req.param('project'),issue=c.req.param('issue'),grant=await agentProject(c.req.raw,c.env.DB),owner=await ownerSession(c.req.raw,c.env,resolveMembership);
  if(grant!==p&&!owner||grant&&grant!==p)return c.json({error:'Sign in required'},401);

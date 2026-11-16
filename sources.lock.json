@@ -3062,7 +3062,7 @@
       "executable": false
     },
     "docs/OWNER-ERASURE.md": {
-      "sha256": "f4fef9e5059c3ab249db1be342ca8ad4af95cbcb4bbbffd597e46f0b654f7393",
+      "sha256": "5efb315c26fcc1292388dc8024e489c16767bae0bbcfe2a813d457a4fa3b4375",
       "executable": false
     },
     "docs/PROJECT-ERASURE.md": {
@@ -3742,7 +3742,7 @@
       "executable": false
     },
     "docs/USER-IDENTITY.md": {
-      "sha256": "3770bb67261eabf519e422628c25b8c2b37d06bbe356f082857fa48e8e02274b",
+      "sha256": "d736b1ca3d918d977bc07d04b32af6e53d74a9448638e8d3f760644487ecb7d8",
       "executable": false
     },
     "docs/WITH-YOUR-AGENT.md": {
@@ -6054,7 +6054,7 @@
       "executable": false
     },
     "src/domain/erasure/end-user.ts": {
-      "sha256": "973d0c6c662edb44fad43e126e90b9a24b79feec531c120e1faff62d717b2a85",
+      "sha256": "462f8e2431b4e3ba496a8b6751fd5744ab5631506bf377108d53f150a75777c6",
       "executable": false
     },
     "src/domain/erasure/identifiers.ts": {
@@ -6282,7 +6282,7 @@
       "executable": false
     },
     "src/domain/identities/erasure-search.ts": {
-      "sha256": "92c38606374535f7752f13a0d858560141a797542ed245d7506754fac7117054",
+      "sha256": "8e5cf182f8eb0dd8246eea58c9c92892168d095a07b4aeffc0d34632802ac7d4",
       "executable": false
     },
     "src/domain/identities/intake.ts": {
@@ -10354,7 +10354,7 @@
       "executable": false
     },
     "src/ui/workbench/EndUserErasurePreview.tsx": {
-      "sha256": "0cf747e5472d2ee5e2a009d56ac65ffdf34803a0c8f3d37b7252c154dcab2f30",
+      "sha256": "75fcfd33332a1d1f73c5ba89a5c72ae2960435966a6a8a695063b82dbc9e0cfa",
       "executable": false
     },
     "src/ui/workbench/erasureLabels.ts": {
@@ -11094,7 +11094,7 @@
       "executable": false
     },
     "tests/end-user-erasure-preview.mjs": {
-      "sha256": "0854ce9b781de02cfdee67f3172c86b3fb928c2d41135be7de8173bf381e2a03",
+      "sha256": "d20d2989d7e363d1ac5dddf4d0c22203291d85d7b088c7e12731e097073a3340",
       "executable": false
     },
     "tests/end-user-erasure-volume.mjs": {
