@@ -84,6 +84,10 @@ export async function feedbackFlow({ req, json, origin }) {
  assert.equal((await json(`${root}/alerts`)).length, alerts.length, 'feedback never makes an error alert');
  assert.equal((await json(`${root}/issues`))[0].count, issue.count + 1, 'feedback never increments error occurrences');
  const snapshot = await archiveProjection(await req('/api/archive'));
+ const ordinaryReports = snapshot.data.feedback.filter(row => row.project === project.id);
+ assert.equal(ordinaryReports.length, rows.total + 1, 'the additional browser report is also retained');
+ assert.ok(ordinaryReports.every(row => row.private_data === null), 'captureFeedback, feedback items and user_report without consent retain no private metadata');
+ assert.ok(rows.items.every(row => row.hasPrivate === false), 'the authorized inbox marks every ordinary report as having no private details');
  for (const canary of ['FEEDBACK_PRIVATE_CONTACT', 'FEEDBACK_PRIVATE_NAME', 'FEEDBACK_PRIVATE_URL', 'FEEDBACK_PRIVATE_EXTRA', 'FEEDBACK_PRIVATE_TOKEN', 'FEEDBACK_PRIVATE_LEGACY', 'FEEDBACK_CHANGED_PRIVATE']) {
   assert.ok(!JSON.stringify(rows).includes(canary)); assert.ok(!snapshot.text.includes(canary), 'discarded/scrubbed feedback fields never enter archive custody');
  }
@@ -166,6 +170,10 @@ export async function privateFeedbackFlow() {
   for(const actor of [reader,unrelated])assert.equal((await req(privateRoot+'/replies','POST',{...attempted,id:crypto.randomUUID()},{Cookie:actor})).status,404,'no reply authority for unrelated/read-only members');
   const issueRead=await json(root+'/feedback?issue='+issue.id);assert.ok(!JSON.stringify(issueRead).includes(contact));assert.ok(!JSON.stringify(issueRead).includes(attempted.message));assert.ok(!('hasPrivate' in issueRead.items[0]),'issue reads never publish private details');
   const snapshot=await archiveProjection(await req('/api/archive'));
+  const storedPrivate=JSON.parse(snapshot.data.feedback.find(row=>row.project===project.id&&row.id===id).private_data);
+  assert.equal(storedPrivate.consent,true,'private archive values carry explicit consent');
+  assert.equal(storedPrivate.contact,contact,'only the consented contact enters private custody');
+  assert.equal(storedPrivate.screenshot,cleanPng.toString('base64'),'only the reviewed PNG rendering bytes enter private custody');
   assert.ok(snapshot.text.includes(contact)&&snapshot.text.includes(attempted.message));assert.ok(!snapshot.text.includes(metadata));
   const destination=await startTestWorker(await freePort(),{MAIL_PROVIDER:'none',RER_DEV_ORIGIN:''});
   try{

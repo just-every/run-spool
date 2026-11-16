@@ -32,5 +32,9 @@ export function validateFeedbackArchive(data: any) {
 /** Exact additive-column translation for archives made before private review. */
 export function beforeFeedbackReview(table:any,manifest:any){
  if(table.name!=='feedback'||manifest.migrations?.includes('0109_feedback_review.sql'))return table;
+ // Unrecorded inventories may already carry private review. Preserve the
+ // current descriptor only when the archive declares that column; the caller
+ // still compares the complete SQL, columns and behavior inventory exactly.
+ if(!manifest.migrations?.length&&manifest.schemaObjects!==undefined&&manifest.tables?.find((entry:any)=>entry.name==='feedback')?.columns?.some((column:any)=>column.name==='private_data'))return table;
  return {...table,sql:table.sql.replace(/, private_data TEXT DEFAULT NULL\s+CHECK\(private_data IS NULL OR \(json_valid\(private_data\) AND length\(private_data\)<=240000\)\)/,''),columns:table.columns.filter((column:any)=>column.name!=='private_data')};
 }

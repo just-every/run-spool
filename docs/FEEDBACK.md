@@ -89,6 +89,11 @@ ledger; restoring never queues a new send. The withdrawal journal and active
 transfer invalidation fence older copies as for description text. Additive
 migration 0109 preserves historical reports with no private details; prior
 native archives translate that exact missing column to null.
+Current archive rows without consent carry `private_data: null`, including
+unmodified widget, `captureFeedback` and `user_report` submissions. This nullable
+column stores no contact, URL, screenshot or other metadata without consent.
+Archives without a migration list can also declare the current private column;
+restore checks their complete inventory before preserving it.
 
 DEFAULT SDK-004: explicit consent, deny by default, owner and assigned project
 team review only, no automatic outbound action, audited changes; private details

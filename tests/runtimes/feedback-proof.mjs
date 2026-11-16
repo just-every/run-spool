@@ -28,6 +28,7 @@ export async function feedbackProof({app,project,details,referenceSent}){
  const retained=archive.data.feedback.filter(row=>row.project===project.id);
  assert.deepEqual(retained.map(row=>row.id).sort(),feedback.items.map(row=>row.id).sort(),'archive custody includes exactly the public feedback reports');
  for(const report of feedback.items){
+  assert.equal(report.hasPrivate,false,'ordinary SDK feedback has no consented private details in the authorized inbox');
   const match=events.find(({event})=>event.id===report.eventId);
   assert.ok(match,'each report references a retained SDK occurrence');
   assert.ok(typeof match.event.occurrence==='string'&&match.event.occurrence.length>0,'the linked SDK event has a retained occurrence identity');
@@ -40,7 +41,8 @@ export async function feedbackProof({app,project,details,referenceSent}){
   eventIdentity(event.event.sentry.exceptions),feedback.items.filter(report=>report.eventId===event.id).map(report=>report.message).sort(),
  ])),ordered(expected),'every SDK error retains exactly its own feedback descriptions and handled state');
  for(const {issue} of details){
-  const page=await app.json(root+`/feedback?issue=${issue.id}`),expected=feedback.items.filter(report=>report.issueId===issue.id);
+  // The authorized inbox adds its private-review marker; issue evidence omits it.
+  const page=await app.json(root+`/feedback?issue=${issue.id}`),expected=feedback.items.filter(report=>report.issueId===issue.id).map(({hasPrivate,...report})=>report);
   assert.equal(page.total,expected.length,'the issue feedback count equals its retained reports');
   assert.deepEqual(page.items,expected,'the issue read preserves every report and association');
  }
