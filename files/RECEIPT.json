@@ -1,0 +1,130 @@
+{
+  "schema": 1,
+  "tag": "gr-mt-spool-ci-10",
+  "author": "Run Edit Run fleet",
+  "date": "2026-11-16",
+  "repository": "just-every/run-spool",
+  "status": "no-change",
+  "product_branch": "cloud/gr-mt-spool-ci-10",
+  "product_head": "a037966cccf2f232e8c098d62607ba36cca7f777",
+  "current_main_sha": "a037966cccf2f232e8c098d62607ba36cca7f777",
+  "product_commits_created": 0,
+  "product_push": false,
+  "pr": null,
+  "product_worktree_clean": true,
+  "original_run": {
+    "id": 41882662459,
+    "sha": "d8a51dde2434c12b8d0029f083ee8b4d784efc33",
+    "conclusion": "failure",
+    "failed_job": {
+      "id": 126759723580,
+      "name": "verify (owner-ui)",
+      "step": "Run suites"
+    },
+    "log_command_exit": 0,
+    "log_bytes": 0,
+    "assertion_recovered": false
+  },
+  "current_verify": {
+    "id": 43922951996,
+    "sha": "a037966cccf2f232e8c098d62607ba36cca7f777",
+    "status": "completed",
+    "conclusion": "success",
+    "owner_ui_job_id": 133495606677,
+    "final_job_id": 133507324595
+  },
+  "run_site": {
+    "id": 43922952000,
+    "sha": "a037966cccf2f232e8c098d62607ba36cca7f777",
+    "status": "completed",
+    "conclusion": "success"
+  },
+  "api_invocations": 7,
+  "api_budget": 10,
+  "api_ledger": [
+    {
+      "call": 1,
+      "command": "gh api repos/just-every/run-spool/actions/runs/41882662459/jobs --jq <failed-step-summary>",
+      "result": "owner-ui job 126759723580 failed in Run suites; shard/final failures are downstream"
+    },
+    {
+      "call": 2,
+      "command": "gh run view 41882662459 --repo just-every/run-spool --job 126759723580 --log-failed",
+      "result": "exit 0; stdout and stderr both empty; no retry"
+    },
+    {
+      "call": 3,
+      "command": "gh api repos/just-every/run-spool/actions/jobs/126759723580 --jq <metadata>",
+      "result": "completed/failure; check-run id 126759723580"
+    },
+    {
+      "call": 4,
+      "command": "gh api 'repos/just-every/run-spool/actions/runs?head_sha=a037966c&per_page=100' --jq <run-summary>",
+      "result": "empty list; abbreviated SHA query was not used as CI evidence"
+    },
+    {
+      "call": 5,
+      "command": "gh api repos/just-every/run-spool/check-runs/126759723580/annotations",
+      "result": "only Node action deprecation warning and generic exit-code-1 annotation; no assertion text"
+    },
+    {
+      "call": 6,
+      "command": "gh api 'repos/just-every/run-spool/actions/runs?head_sha=a037966cccf2f232e8c098d62607ba36cca7f777&per_page=100'",
+      "result": "completed successful Verify runs 43922951996 and 43916019599; successful Run site 43922952000"
+    },
+    {
+      "call": 7,
+      "command": "gh api 'repos/just-every/run-spool/actions/runs/43922951996/jobs?per_page=100'",
+      "result": "owner-ui 133495606677 and final verify 133507324595 completed/success; all non-skipped jobs successful"
+    }
+  ],
+  "local_tests": "not run: no source changes; current exact-SHA CI provides the full wall",
+  "clauses_changed": [],
+  "counts_before": {
+    "core": {
+      "done": 23,
+      "partial": 45,
+      "missing": 19,
+      "total": 87
+    },
+    "agent": {
+      "done": 0,
+      "partial": 9,
+      "missing": 9,
+      "total": 18
+    },
+    "full": {
+      "done": 23,
+      "partial": 54,
+      "missing": 28,
+      "total": 105
+    }
+  },
+  "counts_after": {
+    "core": {
+      "done": 23,
+      "partial": 45,
+      "missing": 19,
+      "total": 87
+    },
+    "agent": {
+      "done": 0,
+      "partial": 9,
+      "missing": 9,
+      "total": 18
+    },
+    "full": {
+      "done": 23,
+      "partial": 54,
+      "missing": 28,
+      "total": 105
+    }
+  },
+  "blockers": [],
+  "limits": [
+    "Historical failed-job log returned zero bytes, so no original assertion or causal attribution is claimed.",
+    "No local reproduction or local passing run is claimed.",
+    "No READY or product PUSHED claim: no product branch was published."
+  ],
+  "publication_scan": "not run: no product commit or product push; only explicitly selected report files are published through the separate evidence transport"
+}
