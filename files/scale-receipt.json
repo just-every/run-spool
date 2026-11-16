@@ -1,0 +1,74 @@
+{
+  "candidate": "a037966cccf2f232e8c098d62607ba36cca7f777",
+  "runId": "sd-spool-sdk027-2-20261116T171243Z",
+  "requestedVolume": 150000,
+  "requestedVolumeProof": "unavailable: public restore refuses corpus above retained cap",
+  "overCap": {
+    "attempted": 150000,
+    "status": 400,
+    "error": "Archive event budget"
+  },
+  "admittedVolume": 10000,
+  "before": {
+    "retained": 10000,
+    "matched": 10000
+  },
+  "after": {
+    "retained": 10000,
+    "matched": 0
+  },
+  "completionMs": 143504.39679600002,
+  "receipt": {
+    "id": "18259c1bfb7f4b9e83e8b51c36da82d5",
+    "phase": "complete",
+    "planned": {
+      "event_identities": 10000,
+      "health_sessions": 0,
+      "search_tags": 10000
+    },
+    "deleted": {
+      "event_identities": 10000,
+      "health_sessions": 0,
+      "search_tags": 10000
+    },
+    "retained": [
+      {
+        "table": "feedback",
+        "reason": "Feedback contact is discarded at intake. Retained scrubbed messages have no user identity index; they cannot be matched to this value. Event deletion also deletes feedback attached to those exact occurrences."
+      },
+      {
+        "table": "attachments",
+        "reason": "Attachment ingestion and identity metadata are not retained; there is no attachment identity matching store."
+      },
+      {
+        "table": "replays",
+        "reason": "Replay ingestion and identity metadata are not retained; there is no replay identity matching store."
+      },
+      {
+        "table": "identity_search",
+        "reason": "Identity-specific search keys and facets are unavailable. Ordinary search and tag facets read event payloads directly; exact identity copies in tags on matching events are removed."
+      },
+      {
+        "table": "health_sessions",
+        "reason": "Only session DID hashes equal to the supplied value are matched. Different aliases and anonymous session aggregates cannot be correlated."
+      },
+      {
+        "table": "external_copies",
+        "reason": "Downloaded archives, delivered messages, provider backups and future incoming captures are outside this installation. A fresh destination needs the later archive as its trusted erasure journal."
+      }
+    ],
+    "blobs": {
+      "total": 0,
+      "deleted": 0
+    },
+    "requestedAt": "2026-11-16T17:17:50.699Z",
+    "committedAt": "2026-11-16T17:17:50.699Z",
+    "completedAt": "2026-11-16T17:20:13.396Z",
+    "seconds": 142.697,
+    "exceptions": [
+      "Only exact retained event identities and literally equal session DIDs are matched; the retained-scope list names uncorrelatable stores.",
+      "The existing portability redaction checkpoint refuses pre-erasure archives here, or with a trusted later journal on a fresh installation.",
+      "Downloaded copies, delivered messages, provider backups and future captures are outside this operation."
+    ]
+  }
+}

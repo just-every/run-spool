@@ -1,0 +1,17 @@
+{
+  "observed_at": "2026-11-16T17:09:36.097997+00:00",
+  "gh_calls": 3,
+  "candidate": "25d5794843d0cc57feb0665ef8db2d0e9c2b2591",
+  "runs": [
+    {
+      "id": 43914369712,
+      "name": "Verify",
+      "event": "push",
+      "status": "in_progress",
+      "conclusion": null,
+      "head_sha": "25d5794843d0cc57feb0665ef8db2d0e9c2b2591",
+      "html_url": "https://github.com/just-every/run-spool/actions/runs/43914369712",
+      "created_at": "2026-11-16T17:04:04Z"
+    }
+  ]
+}

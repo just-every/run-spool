@@ -1,0 +1,18 @@
+{
+  "candidate": "a037966cccf2f232e8c098d62607ba36cca7f777",
+  "observed_at": "2026-11-16T17:13:30.836374+00:00",
+  "checks": [
+    {
+      "command": "node src/base/contract-docs.mjs check",
+      "exit_code": 0,
+      "stdout_sha256": "b04031901cfff3e9bc42a429b52cbc14c2442ffb68817fd62a245ac52847b422",
+      "stderr": ""
+    },
+    {
+      "command": "node scripts/edition-authoring/cli.mjs check",
+      "exit_code": 0,
+      "stdout_sha256": "30b68305810e6011ca8004c2727b3c531a2fdf14932b9481d8832cd1c9b65048",
+      "stderr": ""
+    }
+  ]
+}

@@ -1,0 +1,4 @@
+[33m▲ [43;33m[[43;30mWARNING[43;33m][0m [1mProxy environment variables detected. We'll use your proxy for fetch requests.[0m
+
+
+PROBE SDK-027 volume: {"requestedVolume":150000,"admittedVolume":10000,"overCapStatus":400,"completionMs":143504.39679600002,"receiptSeconds":142.697,"claim":"PARTIAL; acceptance point 5 unproven"}

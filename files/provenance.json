@@ -1,0 +1,18 @@
+{
+  "candidate": "a037966cccf2f232e8c098d62607ba36cca7f777",
+  "branch": "cloud/sd-spool-sdk027-2",
+  "repository": "just-every/run-spool",
+  "main_base": "2011d4884e82800cccefbf4d0a7cdfa91384e47b",
+  "commits": [
+    "a037966cccf2f232e8c098d62607ba36cca7f777 Join batched erasure payload updates by event identity",
+    "25d5794843d0cc57feb0665ef8db2d0e9c2b2591 Qualify end-user search-tag erasure through the owner journey",
+    "1b3f0b18f97947b8b36f28cff0898e4f6668d71e Match raw search tags against retained private identity hashes [skip ci]",
+    "bce4ad6631654076e37892961f408edadc77b36a Remove retained identity copies from searchable event tags [skip ci]"
+  ],
+  "product_pushed": true,
+  "pr": null,
+  "contract_status": "SDK-027 missing unchanged; builder PARTIAL points 1,3,4",
+  "root_test_scripts_before": 131,
+  "root_test_scripts_after": 131,
+  "registered_journeys_added": 0
+}

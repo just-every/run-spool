@@ -1,0 +1,38 @@
+{
+  "candidate": "a037966cccf2f232e8c098d62607ba36cca7f777",
+  "observed_at": "2026-11-16T17:21:26.777080+00:00",
+  "public_journey": {
+    "command": "cloud_run node tests/end-user-erasure-preview.mjs",
+    "exit_code": 0,
+    "receipt": "journey-receipt.json",
+    "screens": [
+      "matching-1440.png",
+      "matching-390.png",
+      "unavailable-1440.png",
+      "unavailable-390.png",
+      "complete-1440.png",
+      "complete-390.png",
+      "search-after-1440.png",
+      "search-after-390.png"
+    ]
+  },
+  "scale": {
+    "command": "cloud_run perl -e 'alarm 1800; exec @ARGV' -- node tests/end-user-erasure-volume.mjs",
+    "exit_code": 0,
+    "run_id": "sd-spool-sdk027-2-20261116T171243Z",
+    "receipt": "scale-receipt.json",
+    "admitted_volume": 10000,
+    "requested_volume": 150000,
+    "requested_volume_proven": false,
+    "wall_seconds": 143.504396796
+  },
+  "typecheck": {
+    "command": "pnpm typecheck",
+    "exit_code": 0
+  },
+  "build": {
+    "command": "cloud_run npx -y @runeditrun/rer build",
+    "exit_code": 0
+  },
+  "contract_and_source": "checks.json"
+}
