@@ -13,6 +13,15 @@ export async function erasureSearchPlan(db: D1Database, project: string, predica
  for(const row of identities)for(const field of Object.values(JSON.parse(row.payload)) as {value:string;hash:string}[]){tokens.add(field.value);tokens.add(field.hash);privateHashes.add(field.hash)}
  const hashes=new Map<string,Promise<string>>();
  const tagHash=(text:string)=>{if(!hashes.has(text))hashes.set(text,identityHash(key!,text));return hashes.get(text)!};
+ const discover=async(content:any):Promise<void>=>{
+  if(!key||!privateHashes.size)return;
+  if(typeof content==='string'){
+   const candidates=new Set([content,...content.match(/[\p{L}\p{M}\p{N}_@.+-]+/gu)??[]]);
+   for(const candidate of [...candidates])candidates.add(candidate.replace(/^[.+@-]+|[.+@-]+$/g,''));
+   for(const candidate of candidates)if(candidate&&candidate.length<=320&&!tokens.has(candidate)&&privateHashes.has(await tagHash(candidate)))tokens.add(candidate);
+  }else if(Array.isArray(content))for(const item of content)await discover(item);
+  else if(content&&typeof content==='object')for(const [name,item] of Object.entries(content)){await discover(name);await discover(item)}
+ };
  const redactor=capturedTextRedactor(tokens),changes:EventChange[]=[],issueChanges:IssueChange[]=[];
  let count=0,textEvents=0,ambiguousEvents=0,groupingHeld=0,cursor='';
  // Page the read, and keep only actual mutations in the plan. Repeated strings
@@ -21,6 +30,10 @@ export async function erasureSearchPlan(db: D1Database, project: string, predica
   const rows=(await db.prepare(`SELECT id,occurrence,digest,payload FROM events WHERE project=? AND id>? ${deleting?`AND id IN (${predicate})`:''} ORDER BY id LIMIT 500`).bind(project,cursor,...deleting?[project,digest]:[]).all<{id:string;occurrence:string;digest:string;payload:string}>()).results;
   for(const row of rows){
    const payload=JSON.parse(row.payload),previous=redactor.counts();let removedTags=0;
+   // A raw alias can survive keep->hash inside a sentence as well as a tag.
+   // Match candidate whole tokens to retained HMACs without recovering an
+   // unknown alias or persisting any match material.
+   await discover([payload.message,payload.breadcrumbs,payload.sentry?.message,payload.sentry?.logentry,payload.sentry?.breadcrumbs,payload.sentry?.tags]);
    if(payload.sentry?.tags){const retained=[];
     for(const [name,item] of Object.entries(payload.sentry.tags)){
      const text=String(item),remove=tokens.has(name)||tokens.has(text)||!!key&&(privateHashes.has(await tagHash(name))||privateHashes.has(await tagHash(text)));
