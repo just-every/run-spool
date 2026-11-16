@@ -55,7 +55,8 @@ search/facets and the public 150,000-event volume remain unavailable.
 Run Edit Run fleet, 16 November 2026: ordinary search predicates and tag facets
 read retained event payloads directly. The erasure preview now counts exact
 copies of the supplied value, its project hash, and the matching occurrence's
-retained identity values and hashes in tag keys or values. Confirmation removes
+retained identity values and hashes in tag keys or values. Candidate tags are
+also hashed privately to match raw copies of hash-policy identities. Confirmation removes
 those tag entries with the identity, recomputes event digests and leaves other
 tags and unrelated occurrences intact. Event deletion removes those projections
 with the events. The receipt's `search_tags` count describes removed tag entries,
@@ -63,8 +64,8 @@ not a separate database table. Counts, payload updates and receipt share the
 same owner transaction; the plan binds the changed search payloads.
 
 There is still no identity-specific `user.email`, `user.id`, `user.username`
-or `user.ip` search/facet door. A raw alias previously discarded by a hash/drop
-policy cannot be reconstructed, and text or tags on unrelated events cannot
+or `user.ip` search/facet door. An alias discarded without a retained matching hash
+cannot be reconstructed, and text or tags on unrelated events cannot
 be attributed to a user merely because they contain a similar value. Session
 DIDs match only literal equality with the supplied identity, using the existing
 project HMAC. Unknown aliases and anonymous aggregates remain uncorrelatable.

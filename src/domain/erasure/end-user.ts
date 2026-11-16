@@ -41,7 +41,7 @@ export async function endUserPlan(db: D1Database, project: string, selection: En
   (SELECT COUNT(*) FROM event_grouping WHERE project=? AND event IN (${predicate})) grouping,
   (SELECT COUNT(*) FROM event_suppressions WHERE project=? AND event IN (${predicate})) suppressions`)
  .bind(project,project,project,digest,project,digest,project,project,project,digest,project,project,digest,project,project,digest);
- const search=await erasureSearchPlan(db,project,predicate,digest,value);
+ const search=await erasureSearchPlan(db,project,predicate,digest,value,secret?.key??null);
  const counts=(await query.first()) as {retained:number;correlatable:number;matched:number;sessions:number;sessionRetained:number;feedback:number;grouping:number;suppressions:number};
  const unavailable=current.policy[field]==='drop'?'This field is dropped by the current policy; discarded identities cannot be recovered.':!secret?'No retained project identity key is available.':null;
  const fence=await db.prepare('SELECT source_identity,epoch,import_job FROM rer_portability_state WHERE id=1').first<{source_identity:string;epoch:number;import_job:string|null}>();

@@ -1,28 +1,33 @@
 import { hash, canonical } from '../privacy';
+import { identityHash } from './key';
 
 // FIND-001 reads its tag predicates and facets directly from event payloads.
 // Remove exact copies of retained identity fields, never guess from substrings
-// or edit another occurrence. Hash-only fields cannot reveal old raw aliases.
-export async function erasureSearchPlan(db: D1Database, project: string, predicate: string, digest: string | null, value: string) {
+// or edit another occurrence. Candidate tag values can be matched to retained
+// private hashes without recovering or exporting the original identity.
+export async function erasureSearchPlan(db: D1Database, project: string, predicate: string, digest: string | null, value: string, key: string | null) {
  const rows=(await db.prepare(`SELECT e.id,e.occurrence,e.digest,e.payload,i.payload AS identity
   FROM events e JOIN event_identities i ON i.project=e.project AND i.event=e.id AND i.occurrence=e.occurrence
-  WHERE e.project=? AND e.id IN (${predicate}) AND EXISTS(
-   SELECT 1 FROM json_each(e.payload,'$.sentry.tags') t WHERE
-    t.key IN (?,?) OR CAST(t.value AS TEXT) IN (?,?) OR EXISTS(
-     SELECT 1 FROM json_each(i.payload) f WHERE t.key IN (json_extract(f.value,'$.value'),json_extract(f.value,'$.hash'))
-      OR CAST(t.value AS TEXT) IN (json_extract(f.value,'$.value'),json_extract(f.value,'$.hash')))) ORDER BY e.id`)
-  .bind(project,project,digest,value,digest,value,digest).all<{id:string;occurrence:string;digest:string;payload:string;identity:string}>()).results;
+  WHERE e.project=? AND e.id IN (${predicate}) AND EXISTS(SELECT 1 FROM json_each(e.payload,'$.sentry.tags')) ORDER BY e.id`)
+  .bind(project,project,digest).all<{id:string;occurrence:string;digest:string;payload:string;identity:string}>()).results;
+ const hashes=new Map<string,Promise<string>>();
+ const tagHash=(text:string)=>{if(!hashes.has(text))hashes.set(text,identityHash(key!,text));return hashes.get(text)!};
  let count=0;
  const changes=await Promise.all(rows.map(async row=>{
-  const tokens=new Set([value,digest,...Object.values(JSON.parse(row.identity)).flatMap((field:any)=>[field.value,field.hash])]);
+  const fields=Object.values(JSON.parse(row.identity)) as {value:string;hash:string}[],tokens=new Set([value,digest,...fields.flatMap(field=>[field.value,field.hash])]),privateHashes=new Set(fields.map(field=>field.hash));
   const payload=JSON.parse(row.payload),tags=payload.sentry.tags;
-  payload.sentry.tags=Object.fromEntries(Object.entries(tags).filter(([key,item])=>{
-   const remove=tokens.has(key)||tokens.has(String(item));if(remove)count++;return !remove;
-  }));
+  const retained=[];
+  for(const [name,item] of Object.entries(tags)){
+   const text=String(item),remove=tokens.has(name)||tokens.has(text)||!!key&&(privateHashes.has(await tagHash(name))||privateHashes.has(await tagHash(text)));
+   if(remove)count++;else retained.push([name,item]);
+  }
+  payload.sentry.tags=Object.fromEntries(retained);
   const encoded=JSON.stringify(payload);
+  if(Object.keys(tags).length===retained.length)return null;
   return {id:row.id,occurrence:row.occurrence,before:row.digest,payload:encoded,digest:await hash(encoded)};
  }));
- return {count,changes,fingerprint:await hash(canonical(changes))};
+ const changed=changes.filter((row):row is NonNullable<typeof row>=>row!==null);
+ return {count,changes:changed,fingerprint:await hash(canonical(changed))};
 }
 
 export function erasureSearchStatements(db:D1Database,project:string,changes:Awaited<ReturnType<typeof erasureSearchPlan>>['changes']) {
