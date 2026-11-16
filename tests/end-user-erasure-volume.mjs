@@ -16,7 +16,9 @@ try {
  const created=await source.json('/api/projects',{id:project,name:'Synthetic volume'} ,201),dsn=new URL(created.dsn);
  const capture=await source.call(`/api${dsn.pathname}/store/?sentry_key=${dsn.username}&sentry_version=7`,{event_id:'a'.repeat(32),message:'synthetic-spool-volume',user:{id:'synthetic-spool-volume-person',email:value}},{});
  assert.equal(capture.status,200);await capture.arrayBuffer();
- const snapshot=await archive(source),seed=snapshot.data.events[0],identity=snapshot.data.event_identities[0],base=JSON.parse(seed.payload);
+ const snapshot=await archive(source);
+ for(const table of snapshot.manifest.tables)snapshot.data[table.name]??=[];
+ const seed=snapshot.data.events[0],identity=snapshot.data.event_identities[0],base=JSON.parse(seed.payload);
  const grow=async count=>{
   const data=structuredClone(snapshot.data),start=Date.now()-count*1000;
   data.events=Array.from({length:count},(_,n)=>{const id=n.toString(16).padStart(32,'0'),payload=JSON.stringify({...base,eventId:id});return {...seed,id,payload,digest:createHash('sha256').update(payload).digest('hex'),received:start+n*1000,occurrence:crypto.randomUUID()}});

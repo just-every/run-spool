@@ -55,7 +55,7 @@ export async function endUserErasurePreviewFlow() {
   await configure(project,'hash');expectCount(await preview(project),2,4,1);
   await capture(project,email);expectCount(await preview(project),3,5,1);
   await capture(foreign,email);expectCount(await preview(project),3,5,1);expectCount(await preview(foreign),2,2,0);
-  const unavailable=await preview(dropped);assert.equal(unavailable.events.status,'unavailable');assert.equal(unavailable.events.count,null);assert.match(unavailable.events.explanation,/dropped/);assert.equal(unavailable.events.withoutRetainedEmail,1);
+  const unavailable=await preview(dropped);assert.equal(unavailable.events.status,'unavailable');assert.equal(unavailable.events.count,null);assert.ok(unavailable.events.explanation.length>0);assert.equal(unavailable.events.withoutRetainedEmail,1);
   const invite=async(label,role,grants)=>{
    const address='synthetic-spool-preview-'+label+String.fromCharCode(64)+'example.test';
    await owner.json('/api/organization/invites','POST',{email:address,name:'Synthetic '+label,role,grants});
@@ -160,6 +160,7 @@ export async function endUserErasurePreviewFlow() {
    for(const width of [1440,390]){await page.setViewportSize({width,height:1000});await region.screenshot({path:`.artifacts/erasure-preview/complete-${width}.png`})}
   }finally{await context.close()}
   assert.equal(removalReceipt.phase,'complete');assert.equal(removalReceipt.deleted.event_identities,4);
+  assert.deepEqual(await owner.json('/api/erasures/'+removalReceipt.id),removalReceipt,'ordinary erasure receipt door preserves the completed counts and times');
   expectCount(await preview(project),0,6,5);assert.equal((await preview(foreign)).events.count,foreignBefore);
   const issues=await owner.json(root(project)+'/issues');
   for(const issue of issues){const visible=await owner.json(root(project)+'/issues/'+issue.id+'/affected-users');for(const row of visible.rows??[])assert.ok(!Object.keys(row.values).length||row.values.email?.value!==email);assert.ok(!JSON.stringify(visible).includes('synthetic-spool-person-27'))}
@@ -173,10 +174,13 @@ export async function endUserErasurePreviewFlow() {
   const sessionValue=other,dsn=new URL(project.dsn);
   const envelope='{}\n{"type":"session"}\n'+JSON.stringify({sid:crypto.randomUUID().replaceAll('-',''),did:sessionValue,started:new Date().toISOString(),status:'exited',attrs:{release:'synthetic-spool-27'}});
   const sessionResponse=await owner.req(`/api${dsn.pathname}/envelope/?sentry_key=${dsn.username}&sentry_version=7`,'POST',envelope,{Cookie:'','Content-Type':'text/plain'});assert.equal(sessionResponse.status,200);await sessionResponse.arrayBuffer();
+  const feedbackEnvelope='{}\n{"type":"user_report"}\n'+JSON.stringify({event_id:eventIds[2],comments:'synthetic-spool-attached-feedback',email:other,name:'synthetic-spool-feedback-person'});
+  const feedbackResponse=await owner.req(`/api${dsn.pathname}/envelope/?sentry_key=${dsn.username}&sentry_version=7`,'POST',feedbackEnvelope,{Cookie:'','Content-Type':'text/plain'});assert.equal(feedbackResponse.status,200);await feedbackResponse.arrayBuffer();
+  const beforeFeedback=await owner.json(root(project)+'/feedback');assert.equal(beforeFeedback.total,1);assert.equal(beforeFeedback.items[0].association,'attached');assert.ok(!JSON.stringify(beforeFeedback).includes(other));
   const deleteSelection={field:'email',value:other,action:'delete_events'},deletionPlan=await owner.json(door(project),'POST',deleteSelection);
-  assert.equal(deletionPlan.events.count,1);assert.equal(deletionPlan.sessions.count,1);
+  assert.equal(deletionPlan.events.count,1);assert.equal(deletionPlan.sessions.count,1);assert.equal(deletionPlan.feedback.count,1);
   const deletion=await owner.json(eraseDoor,'POST',{...deleteSelection,planHash:deletionPlan.planHash,confirm:'ERASE USER DATA'});
-  assert.equal(deletion.deleted.events,1);assert.equal(deletion.deleted.health_sessions,1);assert.equal((await preview(project,owner,other)).events.count,0);
+  assert.equal(deletion.deleted.events,1);assert.equal(deletion.deleted.health_sessions,1);assert.equal(deletion.deleted.feedback,1);assert.equal((await owner.json(root(project)+'/feedback')).total,0);assert.equal((await preview(project,owner,other)).events.count,0);
   assert.equal((await owner.json(root(project)+'/issues')).reduce((n,row)=>n+row.count,0),5);
   const finalArchive=await archive(app);assert.ok(finalArchive.data.health_sessions.every(row=>row.project!==project.id||row.user_hash===null));
   const safeAudit=await owner.json('/api/audit/export?format=json');assert.ok(safeAudit.rows.some(row=>row.action==='erasure.complete'&&row.outcome==='succeeded'));

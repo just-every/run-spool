@@ -84,9 +84,11 @@ export async function endUserStatements(db: D1Database, project: string, selecti
    db.prepare(`DELETE FROM sentry_import_targets WHERE kind='event' AND id IN (SELECT json_array(?,event) FROM (${predicate}))`).bind(project,project,digest),
    // FK cascades remove exact occurrence identities, grouping, suppressions and
    // attached feedback; the checkpoint fences every pre-erasure archive.
+   db.prepare(`WITH victims AS MATERIALIZED (${predicate}) UPDATE issues
+    SET count=(SELECT COUNT(*) FROM events WHERE project=issues.project AND issue=issues.id AND id NOT IN (SELECT event FROM victims)),
+    title=COALESCE((SELECT json_extract(payload,'$.type')||': '||json_extract(payload,'$.message') FROM events WHERE project=issues.project AND issue=issues.id AND id NOT IN (SELECT event FROM victims) ORDER BY received,id LIMIT 1),'[no retained events]'),revision=revision+1
+    WHERE project=? AND id IN (SELECT issue FROM events WHERE project=? AND id IN (SELECT event FROM victims))`).bind(project,digest,project,project),
    db.prepare(`DELETE FROM events WHERE project=? AND id IN (${predicate})`).bind(project,project,digest),
-   db.prepare(`UPDATE issues SET count=(SELECT COUNT(*) FROM events WHERE project=issues.project AND issue=issues.id),
-    title=COALESCE((SELECT json_extract(payload,'$.type')||': '||json_extract(payload,'$.message') FROM events WHERE project=issues.project AND issue=issues.id ORDER BY received,id LIMIT 1),'[no retained events]'),revision=revision+1 WHERE project=?`).bind(project),
   ]:[db.prepare(`UPDATE event_identities SET payload='{}',user_key=NULL,reason='sdk_sent_no_permitted_identity' WHERE project=? AND event IN (${predicate})`).bind(project,project,digest)],
   guard(db,`NOT EXISTS(SELECT 1 FROM (${predicate})) AND NOT EXISTS(SELECT 1 FROM health_sessions WHERE project=? AND user_hash=?)`,project,digest,project,digest),
   db.prepare(`INSERT INTO rer_erasure_operations(id,entity,subject,label,phase,step,planned,deleted,retained,requested_at,committed_at,completed_at)
