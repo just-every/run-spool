@@ -94,6 +94,8 @@ unmodified widget, `captureFeedback` and `user_report` submissions. This nullabl
 column stores no contact, URL, screenshot or other metadata without consent.
 Archives without a migration list can also declare the current private column;
 restore checks their complete inventory before preserving it.
+An archive's recorded migration history must match its schema. Restore refuses
+a history that skips migrations.
 
 DEFAULT SDK-004: explicit consent, deny by default, owner and assigned project
 team review only, no automatic outbound action, audited changes; private details
