@@ -1,0 +1,7 @@
+{
+  "status": "no-change",
+  "sha": "2011d4884e82800cccefbf4d0a7cdfa91384e47b",
+  "summary": "The reported SDK Verify failures are already repaired on main by e0ffb0e86e998b88838d8b20a60fa6960a8960b2; exact-SHA SDK/tunnel/execution jobs and the full original SDK command pass without a code or test change.",
+  "tests": "Node 22.20.0 / pnpm 10.12.4: rer setup, rer build and pnpm typecheck passed; original SDK step pnpm test:sentry && pnpm test:sentry:sdk && pnpm test:sdk && pnpm test:languages passed on 2011d4884e82800cccefbf4d0a7cdfa91384e47b; exact-SHA Verify 43887905458 completed/success, including sdk 133395369384, tunnel 133395369419 and execution 133395369465.",
+  "security": true
+}

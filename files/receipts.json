@@ -1,0 +1,166 @@
+{
+  "author": "Run Edit Run fleet",
+  "date": "2026-11-16",
+  "tag": "gr-mt-spool-ci-9",
+  "repository": "just-every/run-spool",
+  "github_budget_used": 10,
+  "github_budget_limit": 10,
+  "historical_failed_log_requests": [
+    {
+      "command": "gh run view 41685000847 --repo just-every/run-spool --job 126089545405 --log-failed",
+      "exit": 0,
+      "stdout_bytes": 0,
+      "stderr_bytes": 0,
+      "retries": 0,
+      "http_status": "not supplied"
+    },
+    {
+      "command": "gh run view 41637241328 --repo just-every/run-spool --job 125921896541 --log-failed",
+      "exit": 0,
+      "stdout_bytes": 0,
+      "stderr_bytes": 0,
+      "retries": 0,
+      "http_status": "not supplied"
+    }
+  ],
+  "preparation": [
+    {
+      "command": "pnpm install --frozen-lockfile",
+      "exit": 0
+    },
+    {
+      "command": "npx -y @runeditrun/rer setup --owner-email fleet@runeditrun.com --non-interactive",
+      "exit": 0,
+      "output": "private local-entry output intentionally excluded"
+    },
+    {
+      "command": "npx -y @runeditrun/rer build",
+      "exit": 0,
+      "head": "e1bbf84516f3e8729b623f040ff5b68cd95f3a91"
+    },
+    {
+      "command": "pnpm typecheck",
+      "exit": 0,
+      "node": "22.20.0",
+      "pnpm": "10.12.4",
+      "head": "e1bbf84516f3e8729b623f040ff5b68cd95f3a91"
+    }
+  ],
+  "limits": [
+    "Historical failed-job archive requests returned no assertion text; shared assertion/root cause cannot be determined from those responses."
+  ],
+  "local_initial_sdk": {
+    "command": "RER_CHROMIUM_EXECUTABLE_PATH=/usr/bin/chromium pnpm test:sdk",
+    "head": "e1bbf84516f3e8729b623f040ff5b68cd95f3a91",
+    "exit": 0,
+    "node": "22.20.0",
+    "pnpm": "10.12.4",
+    "proof": "Packed SDK browser/Node/Worker journey; all 24 mapped failures for Vite/Rollup/webpack/esbuild across three releases; source-map custody, restore and erasure."
+  },
+  "refreshed_preparation": [
+    {
+      "command": "npx -y @runeditrun/rer build",
+      "head": "2011d4884e82800cccefbf4d0a7cdfa91384e47b",
+      "exit": 0,
+      "node": "22.20.0",
+      "pnpm": "10.12.4"
+    },
+    {
+      "command": "pnpm typecheck",
+      "head": "2011d4884e82800cccefbf4d0a7cdfa91384e47b",
+      "exit": 0,
+      "node": "22.20.0",
+      "pnpm": "10.12.4"
+    }
+  ],
+  "product_diff": {
+    "base": "2011d4884e82800cccefbf4d0a7cdfa91384e47b",
+    "head": "2011d4884e82800cccefbf4d0a7cdfa91384e47b",
+    "files_changed": 0,
+    "new_product_commits": 0,
+    "test_registrations_added": 0,
+    "test_registrations_deleted": 0,
+    "clause_status_changes": [],
+    "identity_and_trailer_scan": "origin/main..HEAD empty; no task-created product commits"
+  },
+  "existing_repair": {
+    "sha": "e0ffb0e86e998b88838d8b20a60fa6960a8960b2",
+    "subject": "ci: spread the sdk shard's commands over three verify jobs",
+    "already_in_main": true,
+    "commands_preserved": true,
+    "timeout_preserved": true,
+    "measurement_source": "existing commit body; not newly measured historical run diagnostics"
+  },
+  "exact_current_sha_verification": {
+    "head": "2011d4884e82800cccefbf4d0a7cdfa91384e47b",
+    "run_id": 43887905458,
+    "status": "completed",
+    "conclusion": "success",
+    "affected_jobs": [
+      {
+        "name": "verify (sdk)",
+        "id": 133395369384,
+        "status": "completed",
+        "conclusion": "success",
+        "Run suites": "success"
+      },
+      {
+        "name": "verify (tunnel)",
+        "id": 133395369419,
+        "status": "completed",
+        "conclusion": "success",
+        "Run suites": "success"
+      },
+      {
+        "name": "verify (execution)",
+        "id": 133395369465,
+        "status": "completed",
+        "conclusion": "success",
+        "Run suites": "success"
+      }
+    ],
+    "other_exact_sha_successful_run": 43898515954,
+    "run_site": 43911734441,
+    "main_push_verify": {
+      "run_id": 43911734696,
+      "last_status": "in_progress",
+      "conclusion": null
+    }
+  },
+  "local_original_step": {
+    "command": "pnpm test:sentry && pnpm test:sentry:sdk && pnpm test:sdk && pnpm test:languages",
+    "runner": "cloud_run bash -e -o pipefail -c",
+    "head": "2011d4884e82800cccefbf4d0a7cdfa91384e47b",
+    "exit": 0,
+    "node": "22.20.0",
+    "pnpm": "10.12.4",
+    "chromium": "/usr/bin/chromium",
+    "browser_args": [
+      "--no-sandbox"
+    ],
+    "log": "original-sdk-step-passed.log"
+  },
+  "product_custody": {
+    "branch": "cloud/gr-mt-spool-ci-9",
+    "head": "2011d4884e82800cccefbf4d0a7cdfa91384e47b",
+    "new_commits": 0,
+    "product_push": "not needed for no-change; no product push performed",
+    "pr": null,
+    "publication_scan": "No new product tree or commit was created or published; no new-product publication scan performed."
+  },
+  "result": "no-change",
+  "generated_screenshot_cleanup": {
+    "files": 20,
+    "source": "docs/retained-verification/team004/*.png",
+    "action": "preserved outside clone under work/gr-mt-spool-ci-9/generated-proof, then restored tracked baseline",
+    "final_product_checkout": "clean"
+  },
+  "packet_review": {
+    "explicit_files": 20,
+    "regular_files_only": true,
+    "injected_secret_matches": 0,
+    "credential_shaped_matches": 0,
+    "private_setup_output": "excluded"
+  },
+  "owned_processes": "All test/browser/runtime descendants completed through cloud_run subreaper; no remaining owned browser or Worker found."
+}

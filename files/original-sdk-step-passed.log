@@ -1,0 +1,170 @@
+
+> @errors/errors-workbench@0.7.13 test:sentry /home/agent/rer-consolidation/work/maint/gr-mt-spool-ci-9/repo
+> node tests/sentry-http.mjs && node tests/sentry-import.mjs && node tests/business-import.mjs
+
+[33m▲ [43;33m[[43;30mWARNING[43;33m][0m [1mProxy environment variables detected. We'll use your proxy for fetch requests.[0m
+
+
+(node:3712) ExperimentalWarning: SQLite is an experimental feature and might change at any time
+(Use `node --trace-warnings ...` to show where the warning was created)
+PROBE SDK-011 invalid-only: framed JSON and conversion failures -> typed event invalid_item; no identity, scrubbing, release, issue or alert writes; exact refusal usage
+PROBE SDK-011 order and accounting: each invalid kind before and after two valid companions -> accepted=25, invalid_item=21; one retained occurrence and accepted unit per valid error
+PROBE SDK-011 refusal boundaries: malformed framing and store -> whole request refused; refusal-accounting and event-storage faults -> 503 with no partial product writes
+PROBE SDK-011 authority: invalid, foreign and revoked grants and denied origin -> no companions admitted or conversion refusals attributed
+OTLP HTTP flow passed: located log/JS exception, resource association, privacy/deduplication, full/partial rejection accounting, framing/limits, project CORS/grant revocation and shared native budget.
+PROBE FIND-001 priority filtering and ordering: 90 captured issues, four cursor pages, three two-page priority filters, combined predicates, exact JSON and CSV identities and priorities, and changed-query cursor refusals passed.
+[FIND-003] persisted metric widgets, same-occurrence queries, SDK008 counts, sessions, no-release, saved review tables, report definitions, revisions, sharing, bounded safe exports and capacity refusals passed
+[API-001] occurrence and feedback pages reconcile with owner UI reads; scope refusals, withdrawal and erasure passed
+[FIND-003] exact retained totals, saved-query read-back and widget equality, DST calendar buckets, history exclusions, acknowledgement and resolution quantiles, ownership, SDK-008 identity policy, SDK-005 health, no-release, discards and JSON and CSV public report doors passed
+SDK-009 an explicit dist 'sentry-no-dist' stays distinct from no dist, and next/named-release resolution regresses only on a later release (bulk; two auto semvers and two SHA releases).
+[TEAM-003] server deadlines, additional occurrences, shared affected-user definition, shown forecast, snooze, one follow-up and bulk suppression preview passed
+[FIND-001] pending count, one/selection review, atomic preview, unchanged issue data, regression, owner views, query validation, 25-view cap, stranger links, archive/restore/erasure and 1440/390 UI passed
+Bulk triage public flow passed: preview, atomic stale refusal, action binding, project/owner/origin scope, apply, revision and query export.
+Full-corpus search, query-wide facets, cursor pages, authorized JSON/CSV exports and scope passed.
+PROBE ERR-005 issue view: independent exception paging, occurrence selection reset, keyboard recovery and Axe passed at 1440; mapped screens captured at 1440 and 390
+PROBE ERR-005 retained pages: public Sentry envelope and current mapped-frame route -> 1,000 unique stored indices, originals through frame 1,000, explicit missing and mismatch reasons
+PROBE ERR-005 late maps: public artifact upload and event reads -> every admission snapshot and occurrence unchanged; new captures mapped; replay unchanged
+PROBE ERR-005 authority: malformed and cross-stack cursors, foreign selectors, project grants and removed native member -> refused without changing evidence
+PROBE ERR-005 legacy privacy: owner and agent packets -> 30 diagnostic frames, no source content or frame locals
+FIND-002 issue impact: all retained events, shared SDK-008 users, release exclusions, rate, project session denominators and query-scoped recommendation passed at 1440 and 390; explicit session association and truthful missing or foreign link coverage passed.
+SDK-010 request query strings are kept scrubbed and every exclusion is named; GROUP-001 fidelity flow passed: chains/groups/message events, root-cause alerts, retained selection/pagination/tags, privacy and agent scope, 1,000-frame retention and Java chain.
+GROUP-001 grouping rules public flow passed: exact-project authority, preview/no mutation, future routing, revision conflicts, immutable explanations, archive policy and responsive save/detail.
+[TEAM-003] next-release regression, same/old/no-release accounting, previewed revision-fenced policy and unchanged plain resolution passed
+SDK-009 an explicit dist 'sentry-no-dist' stays distinct from no dist, and next/named-release resolution regresses only on a later release (owner; two auto semvers and two SHA releases).
+Release identity public flow passed: optional release, automatic/dists, enrichment, semantic regression, plain resolution, counted strict/pattern/name outcomes, archive restore and 1440/390 settings/history/triage.
+TEAM-004 S1 / G1 passed: later SHA-release association, earlier resolution and revision kept, older-release protection, one SHA-release regression.
+TEAM-004 S2 / G2 passed: reviewed email/signed-webhook regression rules; default SHA/release/citation and shared author/message bodies; nonempty fixture outbox; owner cutoff removes shared mail/outbox text and webhook copies, cancels pending deliveries retention_removed; clean archive, shared exports and scrub canary.
+TEAM-004 short IDs, commit citations, resolution and unknown-ID link log passed: short IDs in lists, search, exports, packets and alerts; deploy-key and deployment citations; resolution, regression and older-release protection; SHA release association; merge alias; default-off and owner-shared author/message; inert restore, retention, erasure and retired prefixes; 1440/390 screens.
+SDK-006 inbound-filter public flow passed: every filter, full retained preview, stale/authority denial, pre-group/alert/usage exclusion, IPv4/IPv6, wildcard Origin/Referer, counters and disabling.
+Sentry HTTP public flows passed: shared admission, privacy and dedupe; distinct statsd and unknown counts with independent restore and erasure; SDK-011 deflate, counted 415s and item isolation; strict framing, binary, zero and gzip; CORS, credential agreement, revocation and project isolation; deploy scope and idempotent artifacts.
+PROBE BILL-001 5 minute: public envelope, two key grants -> accepted=3, duplicate=1, filtered=1, key_rate_limited=1; second key accepted
+PROBE BILL-001 5 hour and concurrency: six public envelopes at one remaining slot -> one accepted, five key-limited; restart and lower or higher limits preserve spend
+PROBE BILL-001 5 deadline and configuration: public envelope after expired persisted buckets -> accepted; disabling and re-enabling retain spend; mixed refusal count=2 and SDK discard count=7
+PROBE BILL-001 5 SDK: installed unmodified Node clients with two DSNs -> first key honors backoff; second key stores its error
+PROBE BILL-001 5 custody: private archive and fresh restore -> no key authority or quota state; owner project erasure -> both tables removed and replay refused
+PROBE BILL-001 5 loss: native capture refused by key limit -> repair verdict becomes inconclusive; reports and widgets reconcile server refusals
+PROBE BILL-001 5 UI 1440: Settings save -> one event per hour; Capture receipts -> accepted=1 and capture-key-limited=1; keyboard, Axe and reflow passed
+[33m▲ [43;33m[[43;30mWARNING[43;33m][0m [1mProxy environment variables detected. We'll use your proxy for fetch requests.[0m
+
+
+(node:6396) ExperimentalWarning: SQLite is an experimental feature and might change at any time
+(Use `node --trace-warnings ...` to show where the warning was created)
+Import reads: admin, maintainer, member and signed-out all refused with 401 and error only.
+Owner import reads: project-free state, imported project IDs, history counts, rejected labels/codes, native-edit blockers and explicit unknown transition times passed through public HTTP.
+Sentry org import fixture public flows passed through the import door: CLI no-write plan, reviewed apply, retained exact bytes, duplicates, inert native graph, scope and origin denial, reopen/resume, relation-safe undo, native-edit/revoked-session protection and inert archive restore. Synthetic export only.
+PROBE MIG-004 A1: release_stage object -> accepted; mapped production
+PROBE MIG-004 A2: snake_case coordinates -> [{"file":"https://shop.example/checkout.js","line":1,"column":0,"function":"submit"}]
+PROBE MIG-004 A2: snake_case coordinates -> [{"file":"CheckoutActivity.kt","line":43,"column":null,"function":"com.synthetic.CheckoutActivity.submit"}]
+PROBE MIG-004 GAP 2: mobile dSYM repointing -> 400; native-symbols supports ProGuard only
+PROBE MIG-004 A3: R8 '-> <init>' -> 201; stored mapping deduplicates with 200
+PROBE MIG-004 APPLE: bugsnag dSYM zip -> 201 keyed by Mach-O UUID, replay 200, malformed -> specific 400s; NDK .so -> 201 keyed by build id; symbolication of these files is reported unsupported
+PROBE MIG-004 APPLE: iOS export with Mach-O UUID frames -> nativeStacks unsupported and a native_frames loss; no original frame fabricated
+PROBE MIG-004 shapes: reviewing documented API bundle
+PROBE MIG-004 shapes: release_time, bundleVersion/errorClass, string columns and stability OBJECT -> reconciled; app.releaseStage -> two Android native events for one release; no fabricated sessions/rate.
+PROBE MIG-004 1: owner CLI web and Android export -> sampled graph and release session aggregates reconcile; interrupted apply resumes, history stays inert, archive restores and erasure fences replay.
+PROBE MIG-004 2: deploy upload and public capture -> web map and Android original native stack, at 1440 and 390.
+PROBE MIG-004 3: owner CLI missing and zero historical denominators -> explicit unavailable gap, crashFreeRate null and no fabricated sessions.
+(node:6579) ExperimentalWarning: SQLite is an experimental feature and might change at any time
+(Use `node --trace-warnings ...` to show where the warning was created)
+[33m▲ [43;33m[[43;30mWARNING[43;33m][0m [1mProxy environment variables detected. We'll use your proxy for fetch requests.[0m
+
+
+Signed bounded catch-up passed: 497 baseline -> 499 source records; native reconcile, changed issue + added issue/event, approval binding, over-allowance/gone/native-edit refusals and exact newest-first undo. Large-set reads approached the record limit with this synthetic graph; no arbitrary-byte/native-set claim.
+Business import public HTTP journey passed: owner opt-in, namespace allow-list, checked chunks, no-write review, signed approval, native reconciliation, Base door conformance through the owner and Business mounts, both undo doors, the tool archive and its restore check, project erasure of door custody, the signed cutover read with its refusals, and durable key revocation. Synthetic export only.
+
+> @errors/errors-workbench@0.7.13 test:sentry:sdk /home/agent/rer-consolidation/work/maint/gr-mt-spool-ci-9/repo
+> node tests/sentry-sdk.mjs
+
+(node:6660) ExperimentalWarning: SQLite is an experimental feature and might change at any time
+(Use `node --trace-warnings ...` to show where the warning was created)
+[33m▲ [43;33m[[43;30mWARNING[43;33m][0m [1mProxy environment variables detected. We'll use your proxy for fetch requests.[0m
+
+
+{"stage":"browser-qualification","width":1440,"target":"reference"}
+{"stage":"browser-round","width":1440,"target":"reference","round":0}
+[SDK-001] lifecycle: original session
+[SDK-001] lifecycle: focus released
+[SDK-001] lifecycle: window minimized
+[SDK-001] lifecycle: report sent
+{"stage":"browser-round","width":1440,"target":"reference","round":1}
+[SDK-001] lifecycle: original session
+[SDK-001] lifecycle: focus released
+[SDK-001] lifecycle: window minimized
+[SDK-001] lifecycle: report sent
+{"stage":"browser-qualification","width":1440,"target":"qualification"}
+{"stage":"browser-round","width":1440,"target":"qualification","round":0}
+[SDK-001] lifecycle: original session
+[SDK-001] lifecycle: focus released
+[SDK-001] lifecycle: window minimized
+[SDK-001] lifecycle: report sent
+{"stage":"browser-round","width":1440,"target":"qualification","round":1}
+[SDK-001] lifecycle: original session
+[SDK-001] lifecycle: focus released
+[SDK-001] lifecycle: window minimized
+[SDK-001] lifecycle: report sent
+{"qualification":"[SDK-001] browser","width":1440,"sent":{"session":6,"transaction":4,"event":4,"attachment":2,"log":2,"replay_event":2,"replay_recording":2,"feedback":4,"span":2,"client_report":2},"outcomes":{"accepted":4,"client_discarded:error:before_send":6,"feedback_accepted":4,"sentry_unsupported_attachment":2,"sentry_unsupported_other_telemetry":2,"sentry_unsupported_performance":2,"sentry_unsupported_replay":4,"session_stored":6,"transaction_stored":4}}
+PROBE SDK-004 acceptance5: actual Sentry widget, handled then automatic error across reloads at 1440 -> 4 callback IDs equal emitted, inbox and archived reports; exact occurrence and issue links; feedback_accepted=4
+{"stage":"browser-qualification","width":390,"target":"reference"}
+{"stage":"browser-round","width":390,"target":"reference","round":0}
+[SDK-001] lifecycle: original session
+[SDK-001] lifecycle: focus released
+[SDK-001] lifecycle: window minimized
+[SDK-001] lifecycle: report sent
+{"stage":"browser-round","width":390,"target":"reference","round":1}
+[SDK-001] lifecycle: original session
+[SDK-001] lifecycle: focus released
+[SDK-001] lifecycle: window minimized
+[SDK-001] lifecycle: report sent
+{"stage":"browser-qualification","width":390,"target":"qualification"}
+{"stage":"browser-round","width":390,"target":"qualification","round":0}
+[SDK-001] lifecycle: original session
+[SDK-001] lifecycle: focus released
+[SDK-001] lifecycle: window minimized
+[SDK-001] lifecycle: report sent
+{"stage":"browser-round","width":390,"target":"qualification","round":1}
+[SDK-001] lifecycle: original session
+[SDK-001] lifecycle: focus released
+[SDK-001] lifecycle: window minimized
+[SDK-001] lifecycle: report sent
+{"qualification":"[SDK-001] browser","width":390,"sent":{"session":6,"transaction":4,"event":4,"attachment":2,"log":2,"replay_event":2,"replay_recording":2,"feedback":4,"span":2,"client_report":2},"outcomes":{"accepted":4,"client_discarded:error:before_send":6,"feedback_accepted":4,"sentry_unsupported_attachment":2,"sentry_unsupported_other_telemetry":2,"sentry_unsupported_performance":2,"sentry_unsupported_replay":4,"session_stored":6,"transaction_stored":4}}
+PROBE SDK-004 acceptance5: actual Sentry widget, handled then automatic error across reloads at 390 -> 4 callback IDs equal emitted, inbox and archived reports; exact occurrence and issue links; feedback_accepted=4
+SDK-023 populated upgrade: existing project, key and occurrence preserved; same key defaults lazy and captures once after migration0061
+{"clause":"SDK-023","captures":8,"widths":[1440,390],"icons":"no icon-only control on the touched screen","loader":"/sdk/<public-key>.min.js","custody":"archive excludes key; erasure removes settings"}
+SDK-006 real unmodified Node SDK: every filter enabled through app at 1440/390, nonmatches, exact counters, no issues/alerts/accepted units, disable and later acceptance.
+{"clause":"SDK-024","widths":[1440,390],"routed":4,"unrouted":2,"receiver":"recorded double of the documented Uptime heartbeat door","custody":"not archived, restored inert, erased with the project"}
+[SDK-005] default Node healthy/crashed and browser healthy/unhandled sessions, exact reference reconciliation, aggregate unknown users, missing release/origin/key refusal, read grant, JSON, 1440/390, archive/restore and erasure passed
+(node:6660) ExperimentalWarning: The MockTimers API is an experimental feature and might change at any time
+[SDK-005] session-only SDK backoff, mixed errors, deadline recovery, exact rate, capacity, invalid and discard accounting and grant fences passed
+[SDK-008] unmodified browser/Python: explicit keep, count-only preview, audited hash/drop conversion, count-only grants/packets, literal IPv4/IPv6, unresolved auto addresses, private restore and erasure; 1440/390 passed
+{"passed":true,"browser":"11.6.0","node":"11.6.0","proof":"Unmodified SDK programs/configs with DSN switched only: browser 1440/390 original source line through build plugin and CLI, Node gzip capture+flush."}
+
+> @errors/errors-workbench@0.7.13 test:sdk /home/agent/rer-consolidation/work/maint/gr-mt-spool-ci-9/repo
+> node tests/sdk-package.mjs
+
+(node:11576) ExperimentalWarning: SQLite is an experimental feature and might change at any time
+(Use `node --trace-warnings ...` to show where the warning was created)
+npm warn Unknown env config "verify-deps-before-run". This will stop working in the next major version of npm.
+npm warn Unknown env config "_jsr-registry". This will stop working in the next major version of npm.
+[33m▲ [43;33m[[43;30mWARNING[43;33m][0m [1mProxy environment variables detected. We'll use your proxy for fetch requests.[0m
+
+
+[SRC-004] Spool CLI 27 maps, indexed offsets/sourceRoot/large-map public issue lookup, byte cap, per-file refusal, owner-only setting, release UI 1440/390 passed; no icon-only control on touched section.
+[plugin spool-source-maps] Uploaded 2 source maps.
+[plugin spool-source-maps] Uploaded 2 source maps.
+[plugin spool-source-maps] Uploaded 2 source maps.
+[SRC-001] Packed Vite, Rollup, webpack and esbuild: two emitted maps used in each of three consecutive releases at b1; all 24 mapped failures and earlier artifact sets reconciled; withheld map fails all four without output; late artifacts complete unchanged identities; independent restore and erasure; checksum tampering refused by file; 1440/390 overflow and Axe passed.
+{"passed":true,"proof":"Packed tarball installed offline into a fresh app: browser init with plugin-mapped frame and scrubbed breadcrumb, the same page without crypto.randomUUID, a fetch wrapper reporting refused sends without a feedback loop, a noisy location capped while another location’s error arrives and every drop counted on its issue, Node uncaught exception (and an odd-shaped one) reported then exit 1 with the app error, even with a never-settling fetch and a second throw, Worker catch block kept with a missing option."}
+
+> @errors/errors-workbench@0.7.13 test:languages /home/agent/rer-consolidation/work/maint/gr-mt-spool-ci-9/repo
+> node tests/multilingual.mjs
+
+(node:12380) ExperimentalWarning: SQLite is an experimental feature and might change at any time
+(Use `node --trace-warnings ...` to show where the warning was created)
+verify
+Heavy job admitted: Spool verify:suite [4ff47973d590]
+(node:12402) ExperimentalWarning: SQLite is an experimental feature and might change at any time
+(Use `node --trace-warnings ...` to show where the warning was created)
+▲ [WARNING] Proxy environment variables detected. We'll use your proxy for fetch requests.
+
+
+Multilingual public journey passed: native/Sentry equivalence, grammar/privacy/deduplication, scoped late path mapping, unchanged admission, JS-only execution, archive restoration and project erasure.

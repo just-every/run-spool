@@ -1,0 +1,11 @@
+Author: Run Edit Run fleet, 2026-11-16 UTC.
+Historical workflow commands, read through Git from the declared repository.
+
+Commit: 028ddd2336556da1888640216f9349b6898c2cc9
+294:           - shard: sdk
+295:             command: pnpm test:sentry && pnpm test:sentry:sdk && pnpm test:sdk && pnpm test:languages
+
+Commit: bf5b04ae4e485d92dd7fdb00924a3bb2557c62bb
+294:           - shard: sdk
+295:             command: pnpm test:sentry && pnpm test:sentry:sdk && pnpm test:sdk && pnpm test:languages
+
