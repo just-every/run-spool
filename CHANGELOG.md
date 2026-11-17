@@ -1,5 +1,37 @@
 # Changelog
 
+## 0.7.14 — 2026-11-17
+
+Spool 0.7.14 adds owner-confirmed end-user erasure, private feedback review and replies, and support for larger private archives.
+
+### What changed
+
+- **Erase one end user with confirmation.** In Settings, preview counts for an exact retained email, user ID, username or IP address. The installation owner can remove the identity while keeping events, or delete matching events, after typing `ERASE USER DATA`. Supported identity copies are removed from event identities, searchable tags and facets, attributable captured text and later exports and archives. Completion produces a receipt and audit without the supplied identity value. Older archives are refused when the installation or a trusted later journal knows the erasure.
+- **Review feedback privately and reply deliberately.** Authorized project teammates can review a consented screenshot and contact in the feedback inbox, mark the report reviewed and explicitly send a reply. Replies show queued, sent, failed or never-sent state; sent means the configured provider accepted the message, not confirmed mailbox delivery. An installation with email off says so, disables sending and sends nothing. Consented contact, screenshots and replies stay out of issue feedback and agent evidence.
+- **Understand the feedback erasure boundary.** The end-user erasure preview and receipt explain that consented feedback contact is kept in the feedback inbox and is not matched by the supplied identity. The owner must withdraw the report there to remove its contact, screenshot and replies. Deleting matching events also deletes reports attached to those exact occurrences.
+- **Handle larger retained projects.** A measured 150,000-event identity erasure completed in about 25 seconds while retaining all events. Private archive validation now supports 160,000 events per project, raised from 10,000; a measured 160,000-event restore and archive preserved every event and identity. These are measured outcomes, not a timing guarantee or an increase to public intake limits.
+
+### Updating
+
+From 0.7.13: Back up first: download a private archive in Settings, or stop local dev and run `rer export --output exports/spool.jsonl`. From 0.7.13 on main, update with `git pull --ff-only` and `rer dev`; from a tag, run `git fetch --tags && git checkout v0.7.14` and `rer dev` once that tag is published. For a hosted installation, use `rer deploy` from the original deploying checkout; the additive migration `migrations/core/0109_feedback_review.sql` applies on the next deploy. It adds private feedback review details while preserving historical reports without them. The core migration inventory is 103 SQL files, up from 102 in 0.7.13; previously applied migration files are unchanged, so do not reset. Keep the database, private settings, project keys and deployment receipt. Import private archives only into an empty destination. There are no breaking changes. The application still pins rer exactly to 0.2.118. To turn hosted mail off deliberately, select `MAIL_PROVIDER=none`, leave sending credentials empty and remove any previously bound sending secrets as described in docs/HOSTED.md. Keep the original deployment credentials and ownership receipt for guarded `rer signin` access. This application release does not publish the Spool SDK.
+
+### Known limits
+
+- Transaction measurements are bounded retained observations, not full distributed tracing: spans, transaction tags and request data are not stored.
+- Issue-owner notification selection uses its explicit fallback until verified issue ownership is available. Live provider delivery needs separate qualification; deliberately mail-off hosted installations send no sign-in links, invitations or email alerts.
+- Local development sends no email. Email verification for ownership transfer remains unavailable there; only an owner session opened through the local access link uses local confirmation.
+- Browser restore is limited to 16 MiB. Larger current JSONL archives need the CLI; legacy JSON archives over 16 MiB remain refused. A refused legacy JSON upload over 16 MiB can still end in a connection reset: the fix drains only what the restore engine has not already begun reading. Refused requests on the agent-door `/mcp` route are not covered by this fix.
+- Agent setup still requires an owner to save all six policy answers and create a project agent key. The agent CLI runs from a Spool checkout; it is not an npm-published package. Local agent calls also require the private dev gate described in the panel.
+- Erasing the owner is held while other stored agent text contains a different address that ends with the owner's address. The erasure match is case-sensitive.
+- Before the first project is created, opening a missing project URL as the owner redirects to setup instead of showing a not-found page.
+- Retained hosted archives still require separate Managed-to-native release qualification. If an archive is refused with `schema_mismatch`, restore into the release you exported from. Retrying a cut-off hosted restore can be refused until its five-minute lease expires; wait before retrying.
+- Bugsnag, Rollbar and Sentry imports remain bounded to 2 MiB and 500 records; larger sets are refused rather than partly applied. A real-account migration and live mail delivery through Cloudflare remain unqualified.
+- End-user erasure matches supported retained identities and attributable captured copies. Unknown aliases, partial identifiers, grouping-sensitive text, exception/stack/context copies, anonymous aggregates and external copies remain outside its matcher. Consented feedback contact, screenshots and replies are not matched by that contact; the owner must withdraw the report in the feedback inbox. Deleting matching events also deletes feedback attached to those exact occurrences.
+
+Product screenshot: .github/assets/release/spool-issue-page-1600.png
+
+Release notes: Run Edit Run fleet, 2026-11-17 (UTC).
+
 ## 0.7.13 — 2026-11-16
 
 Spool 0.7.13 supports deliberately mail-off hosted installations on rer 0.2.118, improves owner and capture setup, and tightens project access to alert contacts.
