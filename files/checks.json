@@ -1,0 +1,130 @@
+{
+  "schema": 1,
+  "tag": "gr-mt-spool-dep-12",
+  "repository": "just-every/run-spool",
+  "branch": "cloud/gr-mt-spool-dep-12",
+  "head": "215d2fbf2b70cdbeb0ab6404b062c5ba09bfbeaf",
+  "author": "Run Edit Run fleet",
+  "date": "2026-11-17",
+  "node": "22.20.0",
+  "pnpm": "10.12.4",
+  "files": [
+    "pnpm-lock.yaml",
+    "sources.lock.json"
+  ],
+  "qs": {
+    "before": [
+      "6.16.0",
+      "6.17.1"
+    ],
+    "after": [
+      "6.17.1"
+    ],
+    "vulnerableVersionsBefore": 1,
+    "vulnerableVersionsAfter": 0,
+    "expressRange": "^6.16.0",
+    "overrideAdded": false,
+    "unrelatedDependencyChanges": 0
+  },
+  "clauses": {
+    "changes": [],
+    "judgmentsChanged": false,
+    "generatedViewsCommitted": false
+  },
+  "checks": [
+    {
+      "command": "pnpm install --frozen-lockfile",
+      "exit": 0,
+      "receipt": "install-after.log"
+    },
+    {
+      "command": "cloud_run npx -y @runeditrun/rer setup --owner-email fleet@runeditrun.com --non-interactive",
+      "exit": 0,
+      "result": "103 migrations applied; owner set up; temporary app stopped. Raw setup output retained privately because it contains local access links."
+    },
+    {
+      "command": "cloud_run npx -y @runeditrun/rer build",
+      "exit": 0,
+      "receipt": "build.log"
+    },
+    {
+      "command": "cloud_run pnpm typecheck",
+      "exit": 0,
+      "receipt": "typecheck.log"
+    },
+    {
+      "command": "focused qs behaviour probe through Express resolution",
+      "exit": 0,
+      "receipt": "qs-behaviour.json"
+    },
+    {
+      "command": "node scripts/edition-authoring/cli.mjs lock; pnpm source:check",
+      "exit": 0,
+      "result": "Only pnpm-lock.yaml source hash changed; candidate source check passes."
+    },
+    {
+      "command": "git diff --check",
+      "exit": 0
+    },
+    {
+      "command": "cloud_run env RER_CHROMIUM_EXECUTABLE_PATH=/usr/bin/chromium node tests/agent-handoff.mjs",
+      "exit": 0,
+      "groups": 9,
+      "maskedCaptures": 10,
+      "receipt": "agent-handoff-results.json",
+      "log": "agent-handoff.log",
+      "cleanup": "all own children stopped; fixture directory removed"
+    }
+  ],
+  "pending": [],
+  "publicationNotes": [
+    "The first staged mirror lacked promised historical blobs; a full-history Git fetch corrected this before the active scan.",
+    "The default 300-second scan deadline expired without a verdict. The unchanged candidate is now being scanned with the supported 1800-second timeout."
+  ],
+  "publication": {
+    "status": "INCOMPLETE",
+    "complete": false,
+    "exit": 2,
+    "newFindings": 0,
+    "preExistingRules": {
+      "SEC-3": 16,
+      "secret.assignment": 1,
+      "hygiene.email": 1,
+      "scan.github-incomplete": 870
+    },
+    "source": {
+      "commit": "215d2fbf2b70cdbeb0ab6404b062c5ba09bfbeaf",
+      "tree": "50a2660bbe4b586039fd20b8893c552dc5ddd6c9"
+    },
+    "history": {
+      "commits": 987,
+      "trees": 977,
+      "blobs": 8224,
+      "commitMessages": 987,
+      "tagMessages": 23
+    },
+    "receipt": "publication-scan.json",
+    "githubApiCallsObserved": 49,
+    "httpStatus": "not exposed by scanner",
+    "gateSatisfied": false
+  },
+  "custody": {
+    "productPushed": false,
+    "productPushAttempted": false,
+    "branch": "cloud/gr-mt-spool-dep-12",
+    "head": "215d2fbf2b70cdbeb0ab6404b062c5ba09bfbeaf",
+    "clone": "/home/agent/rer-consolidation/work/maint/gr-mt-spool-dep-12/repo",
+    "bundle": "/home/agent/rer-consolidation/work/push-rescue/gr-mt-spool-dep-12-215d2fbf2b70.bundle",
+    "bundleSha256": "4c0618d7e67c535669871dfc9c85ab7b86e507af5c0029c6c0b3e23aae57a7c4",
+    "bundleVerified": true,
+    "ciRuns": [],
+    "pr": null,
+    "reason": "Required COMPLETE/PASS publication gate not satisfied; no product push or exact-SHA CI discovery attempted."
+  },
+  "githubBudget": {
+    "manualReadCalls": 2,
+    "scannerInternalCalls": 49,
+    "ciCalls": 0,
+    "note": "Scanner automatic GraphQL/REST fallback exceeded the ten-call task budget; no further API requests made."
+  }
+}
