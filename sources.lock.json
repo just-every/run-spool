@@ -11730,11 +11730,11 @@
       "executable": false
     },
     "tests/runtimes/ruby/Gemfile": {
-      "sha256": "259ee1e8b041db01952af8a992f330aa38010410a5e3df91b2f6f0f579fb2c99",
+      "sha256": "3fc93578fcf34cf5de9ecadc50fd38810d9acbc307e6047c451542899dfd44f2",
       "executable": false
     },
     "tests/runtimes/ruby/Gemfile.lock": {
-      "sha256": "1cef48bafc54ff4c525e044f1a9af61e89f81d5c7347c8b3ba42e3e4d65f43d5",
+      "sha256": "a5848a1faf5b5466a536fe70afd19ab0145d6e5f26872981977f5199f9a6e7b3",
       "executable": false
     },
     "tests/runtimes/rust.mjs": {
