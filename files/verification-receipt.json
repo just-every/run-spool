@@ -1,0 +1,196 @@
+{
+  "schema": 1,
+  "author": "Run Edit Run fleet",
+  "date": "2026-11-17",
+  "repository": "just-every/run-spool",
+  "branch": "cloud/gr-mt-spool-dep-16",
+  "head": "337a4cacd736ad172f397f318bb766fa5402ed9a",
+  "base": "7ece18059c1c7924a5b6f9cc816a7af3900136d5",
+  "toolchain": {
+    "node": "22.20.0",
+    "pnpm": "10.12.4",
+    "ruby": "3.3.8",
+    "bundler": "2.5.22",
+    "rack": "3.2.8",
+    "gems": {
+      "bigdecimal": "4.1.3",
+      "bundler": "2.5.22",
+      "concurrent-ruby": "1.3.8",
+      "logger": "1.7.0",
+      "rack": "3.2.8",
+      "sentry-ruby": "7.1.0"
+    }
+  },
+  "changes": {
+    "files": [
+      "tests/runtimes/ruby/Gemfile",
+      "tests/runtimes/ruby/Gemfile.lock",
+      "sources.lock.json"
+    ],
+    "rack": {
+      "before": "3.2.6",
+      "after": "3.2.8"
+    },
+    "other_gem_changes": [],
+    "vulnerable_rack_resolutions": {
+      "before": 1,
+      "after": 0
+    },
+    "listed_advisories_covered": 4
+  },
+  "checks": [
+    {
+      "command": "pnpm install --frozen-lockfile",
+      "exit": 0,
+      "log": "install.log"
+    },
+    {
+      "command": "cloud_run npx -y @runeditrun/rer setup --owner-email fleet@runeditrun.com --non-interactive",
+      "exit": 0,
+      "log": "setup.log",
+      "node": "24.19.0",
+      "note": "Initial setup used the available newer Node; the final build, typecheck and Ruby journey used the exact Node 22.20.0 pin."
+    },
+    {
+      "command": "bundle _2.5.22_ lock --update rack --conservative",
+      "exit": 0,
+      "log": "bundle-lock.log"
+    },
+    {
+      "command": "BUNDLE_FROZEN=true BUNDLE_JOBS=2 bundle _2.5.22_ install",
+      "exit": 0,
+      "log": "bundle-install.log"
+    },
+    {
+      "command": "cloud_run npx -y @runeditrun/rer build",
+      "exit": 0,
+      "log": "build.log"
+    },
+    {
+      "command": "pnpm typecheck",
+      "exit": 0,
+      "log": "typecheck.log"
+    },
+    {
+      "command": "BUNDLE_FROZEN=true BUNDLE_JOBS=2 RER_CHROMIUM_EXECUTABLE_PATH=/usr/bin/chromium cloud_run node tests/sdk-runtimes.mjs ruby",
+      "exit": 0,
+      "log": "ruby-runtime.log"
+    },
+    {
+      "command": "node scripts/edition-authoring/cli.mjs lock; pnpm source:check",
+      "exit": 0,
+      "log": "source-lock.log"
+    },
+    {
+      "command": "node src/base/contract-docs.mjs check",
+      "exit": 0,
+      "log": "contract-docs.log"
+    }
+  ],
+  "contract": {
+    "changes": [],
+    "before": {
+      "done": 23,
+      "partial": 54,
+      "missing": 28,
+      "total": 105
+    },
+    "after": {
+      "done": 23,
+      "partial": 54,
+      "missing": 28,
+      "total": 105
+    }
+  },
+  "test_registrations": {
+    "added": 0,
+    "removed": 0,
+    "weakened": 0
+  },
+  "publication_scan": {
+    "status": "PASS",
+    "initial_attempt": {
+      "status": "INCOMPLETE",
+      "rule": "scan.deadline-exceeded",
+      "deadline_seconds": 300,
+      "report": "publication-scan-initial.json"
+    },
+    "retry_deadline_seconds": 1800,
+    "report": "publication-scan.json",
+    "second_attempt": {
+      "status": "FAIL",
+      "complete": true,
+      "report": "publication-scan-with-local-artifacts.json",
+      "working_tree_findings": 13,
+      "invocation_findings": 1,
+      "resolution": "Removed only ignored task-generated setup, build and test artifacts; supplied --project just-every/spool and --repository https://github.com/just-every/run-spool as required by the scanner destination validator."
+    },
+    "third_attempt": {
+      "status": "PASS",
+      "head": "337a4cacd736ad172f397f318bb766fa5402ed9a",
+      "report": "publication-scan.json",
+      "deadline_seconds": 1800
+    },
+    "complete": true,
+    "findings": 0,
+    "source": {
+      "commit": "337a4cacd736ad172f397f318bb766fa5402ed9a",
+      "tree": "192c25ffd5ec71b0a3c79b218332048d249ffa4e"
+    },
+    "implementation": {
+      "version": "0.2.118",
+      "sha256": "c5f2d788f2f08764cd018e049b507c26f5ac01f651e2e8696398d89a5a886ffb",
+      "python": "3.12.14"
+    },
+    "history_counts": {
+      "commits": 982,
+      "trees": 972,
+      "blobs": 8209,
+      "commitMessages": 982,
+      "tagMessages": 23
+    },
+    "seconds": 417.4941
+  },
+  "ci": {
+    "status": "completed",
+    "conclusion": "success",
+    "head_sha": "337a4cacd736ad172f397f318bb766fa5402ed9a",
+    "runs": [
+      {
+        "id": 44056761412,
+        "conclusion": "success",
+        "head_sha": "337a4cacd736ad172f397f318bb766fa5402ed9a",
+        "html_url": "https://github.com/just-every/run-spool/actions/runs/44056761412",
+        "status": "completed"
+      }
+    ],
+    "discovery": "ci-discovery.json",
+    "polls": [
+      "ci-poll-1.json",
+      "ci-poll-2.json",
+      "ci-poll-3.json",
+      "ci-poll-4.json"
+    ],
+    "minimum_poll_interval_seconds": 300,
+    "manual_github_calls": 6,
+    "note": "The pinned publication scanner also performed its own bulk repository-reference resolution on two completed scans."
+  },
+  "product_custody": {
+    "pushed": true,
+    "landed": false,
+    "branch": "cloud/gr-mt-spool-dep-16",
+    "head": "337a4cacd736ad172f397f318bb766fa5402ed9a",
+    "push_receipt": "product-push.log",
+    "status": "READY",
+    "pr_url": null
+  },
+  "recovery": {
+    "path": "/home/agent/rer-consolidation/work/gr-mt-spool-dep-16/recovery/product.bundle",
+    "head": "337a4cacd736ad172f397f318bb766fa5402ed9a",
+    "sha256": "8f907fb22825e0b216eea34466c07e81894ec101176b8d1fac509e4ed1afc7b4",
+    "verified": true,
+    "note": "Local preservation only; not a pushed product or READY proof."
+  },
+  "blockers": [],
+  "process_cleanup": "All locally started application, browser, build and scan processes exited; the test harness and cloud_run reaped their children."
+}

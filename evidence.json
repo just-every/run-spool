@@ -1,0 +1,196 @@
+{
+  "files": [
+    {
+      "blob": "8fb3dcebc0e7fea52b7b8f288ab84d2aee76170c",
+      "bytes": 2166,
+      "path": "PLAN.md",
+      "sha256": "95b4749f8b20342273316e6a224469e3ddb93a62e4856724258dd6c8c4a9df3f"
+    },
+    {
+      "blob": "3a1a16d96d8be3420eb62001d9161d0859055bbc",
+      "bytes": 6315,
+      "path": "REPORT.md",
+      "sha256": "0f3ede0a14ad4369f36e3c40fa3394d8ac5f7f63a6fbaa371ccb490968802aca"
+    },
+    {
+      "blob": "23475a0c64d0ea0909e7ee985fd248a5cfcdd9f6",
+      "bytes": 12272,
+      "path": "build.log",
+      "sha256": "601131880d00099da5a8d171002c17dac8c6739b5fe579343e4de20a78e0dea0"
+    },
+    {
+      "blob": "ff711860cb26d8107b4f4c1f83f42a90452fd72f",
+      "bytes": 484,
+      "path": "bundle-install.log",
+      "sha256": "1678e39a87420b4665ed5a283a7d488c92b0dae5dff8505140ff46db8e3acd72"
+    },
+    {
+      "blob": "3e17b51bbfd99eec571939cc21275494d2b0a785",
+      "bytes": 229,
+      "path": "bundle-lock.log",
+      "sha256": "9f86e3637c8f4ca99925d758994f69cd5da08d7484c0db01fed277ddcecaa745"
+    },
+    {
+      "blob": "efb77259f0454b6580ba97b3fd17d30c8cdb2c5b",
+      "bytes": 111595,
+      "path": "bundle-verify.log",
+      "sha256": "2ed3016051337c97dd29fa563783d8c932b3a5a67a4b108fcddeabdf1936d05a"
+    },
+    {
+      "blob": "dbc3f9eceec89c15a5235c04e4e164ae0a075d12",
+      "bytes": 243,
+      "path": "ci-discovery.json",
+      "sha256": "ee4ce804bb51e1accb2494727075a398e9371c5efb00dcaa533167134926f2ee"
+    },
+    {
+      "blob": "ecc35da7a323b0584ae4624593694501ec3632f2",
+      "bytes": 175,
+      "path": "ci-poll-1.json",
+      "sha256": "5ec8d3495126044140b46824ce4712efb97fd285c3508c49c205fd2a4c59e5db"
+    },
+    {
+      "blob": "ecc35da7a323b0584ae4624593694501ec3632f2",
+      "bytes": 175,
+      "path": "ci-poll-2.json",
+      "sha256": "5ec8d3495126044140b46824ce4712efb97fd285c3508c49c205fd2a4c59e5db"
+    },
+    {
+      "blob": "ecc35da7a323b0584ae4624593694501ec3632f2",
+      "bytes": 175,
+      "path": "ci-poll-3.json",
+      "sha256": "5ec8d3495126044140b46824ce4712efb97fd285c3508c49c205fd2a4c59e5db"
+    },
+    {
+      "blob": "2ff2b1656b3c1c19e5580327047cfcc5bc3980d9",
+      "bytes": 178,
+      "path": "ci-poll-4.json",
+      "sha256": "41ec29ed58e95adf6155ca5b027102b0f9a08af137e910fa418a3a2d7fe31f4b"
+    },
+    {
+      "blob": "b59d39532e8a030ff74f6339019ab7870ef51548",
+      "bytes": 70,
+      "path": "contract-docs.log",
+      "sha256": "b04031901cfff3e9bc42a429b52cbc14c2442ffb68817fd62a245ac52847b422"
+    },
+    {
+      "blob": "55bfeff023c4ae17dc59e12f86f446b1960e6b53",
+      "bytes": 85,
+      "path": "identity-audit.txt",
+      "sha256": "148bad84b5b174568017df50d58e073566703d43c6c9fe7fa6f1af04420adf55"
+    },
+    {
+      "blob": "eab03f02bba0631aa52dbdb6f4e1ad6bbc0f2f48",
+      "bytes": 364,
+      "path": "identity-receipt.json",
+      "sha256": "d53053656c4ba427067e1c878f3ee112fc7d0d7e45d39400f20b137e206d13d8"
+    },
+    {
+      "blob": "d8d8cca74342edfd4b2dad3a9194bd601bb15964",
+      "bytes": 3537,
+      "path": "install.log",
+      "sha256": "5607b5c239289f0859c39c4463995070a8cb4368306949bf70279b1856f4421b"
+    },
+    {
+      "blob": "f55fb53772250a940060831eb38b84f69e9a7933",
+      "bytes": 913,
+      "path": "product-push.log",
+      "sha256": "ece6a80de498f8f55ca5b7938a084d4d6c521e5799fba2617f14711a2a1da904"
+    },
+    {
+      "blob": "c5e02905c33e5e10f72353e264bd42360acedd66",
+      "bytes": 1547,
+      "path": "product.patch",
+      "sha256": "89f13888d5c2c75c65e774949dd763821d02a49c25ec32617e3b410962402b6f"
+    },
+    {
+      "blob": "0c8d72da686872449f2cf245c6425727a6058f00",
+      "bytes": 565,
+      "path": "publication-scan-initial.json",
+      "sha256": "ead01c138b8ee6d1c1fc010e6104ce646165eeaf1656368c01a7b7b495e4a301"
+    },
+    {
+      "blob": "06a48a8c992f4508c69597ffa92c258b9dc6067c",
+      "bytes": 886518,
+      "path": "publication-scan-with-local-artifacts.json",
+      "sha256": "4ef150e72e8d3c2211f22e1fbb4b4e69d6f6976d23256902fef1d2760f2a35e3"
+    },
+    {
+      "blob": "83e690b95f588c87ca8c0d13834d80619e0d8910",
+      "bytes": 883293,
+      "path": "publication-scan.json",
+      "sha256": "cb46434862ca507ee09f2532941f1d0a46585b39f6a8ce8d3c3f63682bd5347e"
+    },
+    {
+      "blob": "7d855a6c0c2c14b57a806952e09d32f7d37528b4",
+      "bytes": 323,
+      "path": "recovery-receipt.json",
+      "sha256": "1b338738a0a32a565dbb3b1ae9e43ea64256cfffe2e80d5487eb08b4cefa42f1"
+    },
+    {
+      "blob": "23d24904c4f07cf1034c372b57eda07e02c78718",
+      "bytes": 773,
+      "path": "result.json",
+      "sha256": "3ebf1e75c099ed27199667e086cc9ab03c367dac06ca3d763c14cc03d5167556"
+    },
+    {
+      "blob": "4cf611ccf925c8777d1ada4348c8a34abb62689c",
+      "bytes": 236,
+      "path": "ruby-dependencies.json",
+      "sha256": "89490887e20be9c208d98b98ef19b2740558511c6725e5b4ea2ebb85ab9338fc"
+    },
+    {
+      "blob": "f1028293cb6cd96195698a6e5e25d67a6226ee5c",
+      "bytes": 625410,
+      "path": "ruby-issue-1440.png",
+      "sha256": "c00e86ed3dff84900ec352f40c8a4a80987d40ebde0b973100e147b89722cea4"
+    },
+    {
+      "blob": "86597e55ad70d3494968cf2e39d100eb6be1529d",
+      "bytes": 544125,
+      "path": "ruby-issue-390.png",
+      "sha256": "6669f180e54607e15c80b2f1577203c6b639a4f4c0d8c92982cb67c197037f50"
+    },
+    {
+      "blob": "a8c63d3451fae44d150ba6ca3153fa213b77a1a5",
+      "bytes": 722,
+      "path": "ruby-runtime.log",
+      "sha256": "d8f3b86b5b3f4318baaaa038cbf5adff25b5d04b2eb290e3f466d0c82c7bb0aa"
+    },
+    {
+      "blob": "6e7357aed4dc7b741749ceecc897c75b710a6d84",
+      "bytes": 12021,
+      "path": "setup.log",
+      "sha256": "1e3bcc59d536c4bac812f0fea526f38b0cd74d622c419d70ba4986e6ee8f1d86"
+    },
+    {
+      "blob": "74b7a4ff49dfc51a2a2fdc4d3511b6d60e3579ab",
+      "bytes": 957229,
+      "path": "source-lock.log",
+      "sha256": "92b9be9a546c790fdd256e6eddd53eea93c16da75dacb50146d9d8ca7de583e5"
+    },
+    {
+      "blob": "e1c8da2174f27ae74d3b3fee1e078720a301654c",
+      "bytes": 164,
+      "path": "toolchain.log",
+      "sha256": "bdea757800e71e35a4c590cba4b066b9bf7eb9e8bafe0e69c55bb3c1fd6743b7"
+    },
+    {
+      "blob": "3f452768e03d30c33d419ec23b4416285f907a08",
+      "bytes": 126,
+      "path": "typecheck.log",
+      "sha256": "a4911ceda974ed4c1ea005deda372cd7ff47a5b6cd8af261367d632c5643d780"
+    },
+    {
+      "blob": "dba7e3d69adee4284d32d3c5bb1705b2e7ccab14",
+      "bytes": 5668,
+      "path": "verification-receipt.json",
+      "sha256": "7e7638bd44bd69ea28209eb13b5e8eb442a27202ae924d53e38fb86e96196f3f"
+    }
+  ],
+  "product_branch": "cloud/gr-mt-spool-dep-16",
+  "product_head": "337a4cacd736ad172f397f318bb766fa5402ed9a",
+  "ref": "refs/heads/evidence/gr-mt-spool-dep-16",
+  "repository": "just-every/run-spool",
+  "schema": 1,
+  "tag": "gr-mt-spool-dep-16"
+}
