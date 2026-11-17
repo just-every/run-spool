@@ -1,0 +1,7 @@
+{
+  "status": "no-change",
+  "sha": "1853e3b3b59d49853b5ee7678f851d6de8343fbf",
+  "summary": "Already fixed on current main: Verify 44018323170 completed successfully at 1853e3b3b59d49853b5ee7678f851d6de8343fbf, including the formerly failing owner-ui suite.",
+  "tests": "Exact-SHA main Verify 44018323170: success, including owner-ui job 133821883166; local cloud_run pnpm typecheck: pass with Node 22.20.0 and pnpm 10.12.4. No product suite rerun locally because no files changed.",
+  "security": true
+}

@@ -1,0 +1,83 @@
+{
+  "schema": 1,
+  "tag": "gr-mt-spool-ci-12",
+  "repository": "just-every/run-spool",
+  "author": "Run Edit Run fleet",
+  "date": "2026-11-17",
+  "status": "no-change",
+  "product_branch": "cloud/gr-mt-spool-ci-12",
+  "product_head": "1853e3b3b59d49853b5ee7678f851d6de8343fbf",
+  "product_diff_files": 0,
+  "new_product_commits": 0,
+  "product_pushed": false,
+  "pr": null,
+  "remote_main_probe": {
+    "command": "git ls-remote origin refs/heads/main",
+    "head": "1853e3b3b59d49853b5ee7678f851d6de8343fbf"
+  },
+  "reported_failure": {
+    "run_id": 42345409504,
+    "head": "b7082a3fe692f43ea35e384109d2f4120a9c203c",
+    "job": "verify (owner-ui)",
+    "job_id": 128322166812,
+    "step": "Run suites"
+  },
+  "historical_log_attempt": {
+    "command": "gh run view 42345409504 --repo just-every/run-spool --job 128322166812 --log-failed",
+    "exit_code": 0,
+    "stdout_bytes": 0,
+    "retried": false,
+    "limitation": "No log content was returned; the historical failing assertion is not attributed."
+  },
+  "current_verify": {
+    "conclusion": "success",
+    "event": "push",
+    "head_branch": "main",
+    "head_sha": "1853e3b3b59d49853b5ee7678f851d6de8343fbf",
+    "html_url": "https://github.com/just-every/run-spool/actions/runs/44018323170",
+    "id": 44018323170,
+    "name": "Verify",
+    "run_started_at": "2026-11-17T04:36:13Z",
+    "status": "completed",
+    "updated_at": "2026-11-17T04:57:44Z"
+  },
+  "current_owner_ui": {
+    "job_id": 133821883166,
+    "conclusion": "success",
+    "command": "pnpm test:accessibility && pnpm test:admission",
+    "suite": "Full build/runtime/product partition executed; light coverage skipped."
+  },
+  "before_job_counts": {
+    "success": 24,
+    "failure": 3,
+    "skipped": 4,
+    "total": 31
+  },
+  "after_job_counts": {
+    "success": 28,
+    "failure": 0,
+    "skipped": 4,
+    "total": 32
+  },
+  "before_owner_ui_failures": 1,
+  "after_owner_ui_failures": 0,
+  "clause_status_changes": [],
+  "tests_added": 0,
+  "tests_removed": 0,
+  "local_setup": {
+    "command": "cloud_run npx -y @runeditrun/rer setup --owner-email fleet@runeditrun.com --non-interactive",
+    "exit_code": 0,
+    "private_output_published": false
+  },
+  "local_tests": "No product tests rerun: no touched files; exact-main full Verify qualifies the no-change result.",
+  "github_budget_units_used": 7,
+  "publication_scan": "Not run: no product commit or product push. Only explicitly reviewed report files are selected for the authorized evidence ref.",
+  "blockers": [],
+  "local_typecheck": {
+    "command": "cloud_run pnpm typecheck",
+    "exit_code": 0,
+    "node": "22.20.0",
+    "pnpm": "10.12.4",
+    "output": "typecheck.log"
+  }
+}

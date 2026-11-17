@@ -1,0 +1,70 @@
+{
+  "files": [
+    {
+      "blob": "075feab021b4fd4b7629451b6b08aa1898fdfaf9",
+      "bytes": 4739,
+      "path": "REPORT.md",
+      "sha256": "04c03806ecb07c4e64ffd954ef60473da2e5386103af0b855abf17cdeddb0673"
+    },
+    {
+      "blob": "b32908315d60f09ef290d3e957384849bcd58f4f",
+      "bytes": 36520,
+      "path": "current-jobs.json",
+      "sha256": "0188ea00b6022ab5f851f3efc14bd26ef6c1f26a3fda2ba601b2540f831936a6"
+    },
+    {
+      "blob": "ccf97968e6853e235a3bc0df77f64c1657dbf208",
+      "bytes": 323,
+      "path": "current-verify.json",
+      "sha256": "a1c50276c43bd9823bb8034c788bc865337d5b0d9dcd4c477a2988583dd7457d"
+    },
+    {
+      "blob": "65d2e000c30ada0ff30ba2820eb36d240c77bb09",
+      "bytes": 1296,
+      "path": "exact-main-runs.json",
+      "sha256": "8c5bb0516f8f793357eee0d3da4a319e17b9d67dd35afa32d4db6b1becdf9efe"
+    },
+    {
+      "blob": "9c8aad37d38420deb11f67ace2d8cb5a3e51bf66",
+      "bytes": 6426,
+      "path": "main-runs.json",
+      "sha256": "577ac85250bd506fb014ea9d8eddfab3d17e507dc51b480e6782bb9382f67d2d"
+    },
+    {
+      "blob": "e69de29bb2d1d6434b8b29ae775ad8c2e48c5391",
+      "bytes": 0,
+      "path": "original-failed-job.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "blob": "686dec29c5382760e671a77ebbcb0376429c768f",
+      "bytes": 2692,
+      "path": "original-jobs.json",
+      "sha256": "cd956cd94dbe2ba6f462a2544a0bcfdeafe318a84115ebf0358f47c166a11acf"
+    },
+    {
+      "blob": "88c0367f03110e646d66b74569207ae5e00be2b0",
+      "bytes": 507,
+      "path": "result.json",
+      "sha256": "143dbf7cb61160696d5df71578d214ff07dfa74df75106dd884a2764e4c39622"
+    },
+    {
+      "blob": "fa6cfd89de69e36a3ec7649dd0ce5b07f55962ee",
+      "bytes": 125,
+      "path": "typecheck.log",
+      "sha256": "3a48f53428875a984e67a12d548465b297023023b0d00db4a4f33924aabc6514"
+    },
+    {
+      "blob": "df9711778929da0cf1a805e568ae0af06d74c35b",
+      "bytes": 2679,
+      "path": "verification-receipt.json",
+      "sha256": "cefabacdab2906b9fcb7a6f081567a54d9e1293a8e5b84f0132d0c5806939977"
+    }
+  ],
+  "product_branch": "cloud/gr-mt-spool-ci-12",
+  "product_head": "1853e3b3b59d49853b5ee7678f851d6de8343fbf",
+  "ref": "refs/heads/evidence/gr-mt-spool-ci-12",
+  "repository": "just-every/run-spool",
+  "schema": 1,
+  "tag": "gr-mt-spool-ci-12"
+}
