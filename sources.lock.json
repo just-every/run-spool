@@ -3002,7 +3002,7 @@
       "executable": false
     },
     "docs/getting-started.md": {
-      "sha256": "b63c303ee28f3a2eabf6548a6d7bbcaedd5818dfcc63fce79d3fd383301acad2",
+      "sha256": "4e80861e24041f2b826f2c6ac2c8720dc8679e918d9cd2b67cc153ebe2aa8998",
       "executable": false
     },
     "docs/GITHUB-CONNECTION.md": {
@@ -5413,6 +5413,10 @@
       "sha256": "06237017d42af8baf5a867092d938244482abc498c5761d4bf5f7b821276dce7",
       "executable": false
     },
+    "src/auth/local-owner-lobby.server.ts": {
+      "sha256": "f746a35e621ccc83b4e85e9cd765a8479332469df35c93f0b77cc45a5cf2da37",
+      "executable": false
+    },
     "src/auth/local.server.mjs": {
       "sha256": "63732d540d3654da7a22220f4e904e4cd8ab43a9c07546d046fae2cf49f9bdb1",
       "executable": false
@@ -5434,7 +5438,7 @@
       "executable": false
     },
     "src/auth/sign-in.server.ts": {
-      "sha256": "598367ddae9b227f91ae4e4dfd2f468af961b412f8b10d07be059a862ccddfb1",
+      "sha256": "88b8d6183df53d5a0de1c9e56b208376f0a8238b5b8166a7a2b0c48e2e6910d4",
       "executable": false
     },
     "src/base/contract-anchor.mjs": {
@@ -10086,7 +10090,7 @@
       "executable": false
     },
     "src/server.ts": {
-      "sha256": "af40546ee84fc51658f542848025c784613ee3d56574f4e369042ddd9f9ca6ab",
+      "sha256": "e4c1ee76287f0818e8420a512604cdebfbe4369d164430775e7819750644299b",
       "executable": false
     },
     "src/site/pages.tsx": {
@@ -10562,7 +10566,7 @@
       "executable": false
     },
     "src/ui/workbench/ReleasesView.tsx": {
-      "sha256": "8487546b0acd35dbfdb8b565bf97a4fcca8e55ab49681fbb022dd80f561a8601",
+      "sha256": "19103033d2a25c9cd9346379f2e3370473e96e663791f4f0110ac29d9fcb4df1",
       "executable": false
     },
     "src/ui/workbench/RepairPanel.css": {
@@ -11481,6 +11485,10 @@
       "sha256": "0ecd53d14a50edacb5b86b9acbb01969499e44f0eb293dd7ecb2e12a176552d7",
       "executable": false
     },
+    "tests/release-registration.mjs": {
+      "sha256": "427cd21696d501a6e7421e5aeebec51337840e60524dbc339da53e71cf131608",
+      "executable": false
+    },
     "tests/repair-recovery.mjs": {
       "sha256": "61aa21559dbf39e77c6ce976ce5b293aca8c89075fdd2881fef2ee0b211103c8",
       "executable": false
@@ -11910,7 +11918,7 @@
       "executable": false
     },
     "tests/triage-journey.mjs": {
-      "sha256": "f6b77a7e8af0b05bab85cf559c9592160f1763f03960d82bb18eb2190ca4f89e",
+      "sha256": "a73d2f15a2eb262e0a9bb138899c056e3d24fe0d7ee075bd29d45ed8f4f6a0c5",
       "executable": false
     },
     "tests/tunnel-flow.mjs": {
