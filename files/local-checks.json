@@ -1,0 +1,60 @@
+{
+  "head": "1853e3b3b59d49853b5ee7678f851d6de8343fbf",
+  "checks": [
+    {
+      "name": "workflow bash block 1 syntax",
+      "exit": 0,
+      "output": ""
+    },
+    {
+      "name": "workflow bash block 2 syntax",
+      "exit": 0,
+      "output": ""
+    },
+    {
+      "name": "workflow bash block 3 syntax",
+      "exit": 0,
+      "output": ""
+    },
+    {
+      "name": "workflow bash block 4 syntax",
+      "exit": 0,
+      "output": ""
+    },
+    {
+      "name": "workflow bash block 5 syntax",
+      "exit": 0,
+      "output": ""
+    },
+    {
+      "name": "workflow bash block 6 syntax",
+      "exit": 0,
+      "output": ""
+    },
+    {
+      "name": "workflow bash block 7 syntax",
+      "exit": 0,
+      "output": ""
+    },
+    {
+      "name": "current trusted publishing report with no OIDC on local VM",
+      "exit": 0,
+      "output_file": "local-trusted-publishing.log",
+      "boundary": "This exercises the tokenless dry-run summary; it does not mint OIDC or publish."
+    },
+    {
+      "name": "main includes 8069a3255289f121700b24c629daa3b16c448e3a",
+      "exit": 0
+    },
+    {
+      "name": "main includes e9540f7ae83a5334d11dcaeda44c66df3b5ad94c",
+      "exit": 0
+    },
+    {
+      "name": "current workflow equals successful Release SDK workflow",
+      "exit": 0
+    }
+  ],
+  "new_tests": 0,
+  "edited_tests": 0
+}

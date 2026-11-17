@@ -1,0 +1,7 @@
+{
+  "status": "no-change",
+  "sha": "1853e3b3b59d49853b5ee7678f851d6de8343fbf",
+  "summary": "Already fixed on main by 8069a3255289f121700b24c629daa3b16c448e3a; the unchanged SDK workflow passed main run 43394717532 after replacing token-check with npm OIDC trusted publishing.",
+  "tests": "PASS: 7 workflow Bash bodies pass bash -n; exact trusted-publishing summary exits 0 locally without OIDC; fixed and successful-run commits are ancestors of HEAD; current workflow equals successful-run workflow. Main Verify 44022478247, 44018323018 and 44008607802 completed/success on HEAD. No code or tests changed; typecheck not rerun.",
+  "security": true
+}

@@ -1,0 +1,12 @@
+### npm trusted publishing for @just-every/spool
+
+- OIDC available to this run (id-token permission granted): **no**
+- The package's configured Trusted Publisher cannot be read from CI; only the owner's npmjs.com session can show or change it.
+- The publish job holds no npm token. If the Trusted Publisher below is missing or does not match, npm refuses the publish with its own 401 or 403.
+
+Owner steps, once (the package's only maintainer is the owner's npm account):
+
+1. Open https://www.npmjs.com/package/@just-every/spool/access and sign in as the owner.
+2. Under Trusted Publisher choose GitHub Actions.
+3. Organization or user: `just-every`. Repository: `run-spool`. Workflow filename: `sdk-release.yml`. Environment name: leave empty.
+4. Save. Then push the `sdk-v<version>` tag again, or re-run the failed Release SDK run; no secret is involved.

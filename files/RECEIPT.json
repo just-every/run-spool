@@ -1,0 +1,86 @@
+{
+  "schema": 1,
+  "tag": "gr-mt-spool-ci-13",
+  "repository": "just-every/run-spool",
+  "author": "Run Edit Run fleet",
+  "date": "2026-11-17",
+  "status": "no-change",
+  "branch": "cloud/gr-mt-spool-ci-13",
+  "head": "1853e3b3b59d49853b5ee7678f851d6de8343fbf",
+  "fix_commit": "8069a3255289f121700b24c629daa3b16c448e3a",
+  "original_failure": {
+    "run_id": 42475288649,
+    "head": "0ac17384fa3edb3d4f782e9f4f8ece1963ffe8ef",
+    "job_id": 128715138180,
+    "job": "token-check",
+    "step": "NPM_TOKEN reaches this repository",
+    "conclusion": "failure"
+  },
+  "log_retrieval": {
+    "command": "gh run view 42475288649 --repo just-every/run-spool --job 128715138180 --log-failed",
+    "exit": 0,
+    "stdout_bytes": 0,
+    "stderr_bytes": 0,
+    "limit": "The archive command returned no text; no underlying npm error or HTTP response is available, and it was not retried."
+  },
+  "successful_sdk_run": {
+    "run_id": 43394717532,
+    "head": "e9540f7ae83a5334d11dcaeda44c66df3b5ad94c",
+    "conclusion": "success",
+    "workflow_bytes_identical_to_head": true,
+    "build": "success",
+    "trusted-publishing-check": "success",
+    "publish": "skipped (branch dry run)"
+  },
+  "current_main_verify": [
+    {
+      "run_id": 44022478247,
+      "head": "1853e3b3b59d49853b5ee7678f851d6de8343fbf",
+      "status": "completed",
+      "conclusion": "success"
+    },
+    {
+      "run_id": 44018323018,
+      "head": "1853e3b3b59d49853b5ee7678f851d6de8343fbf",
+      "status": "completed",
+      "conclusion": "success"
+    },
+    {
+      "run_id": 44008607802,
+      "head": "1853e3b3b59d49853b5ee7678f851d6de8343fbf",
+      "status": "completed",
+      "conclusion": "success"
+    }
+  ],
+  "changes": {
+    "product_commits": 0,
+    "product_files": 0,
+    "tests_added": 0,
+    "tests_removed": 0,
+    "clause_status_changes": []
+  },
+  "contract_counts": {
+    "before": {
+      "done": 23,
+      "partial": 54,
+      "missing": 28,
+      "total": 105
+    },
+    "after": {
+      "done": 23,
+      "partial": 54,
+      "missing": 28,
+      "total": 105
+    }
+  },
+  "github_calls": 6,
+  "product_push": "not needed; already fixed on main",
+  "pr": null,
+  "publication_scan": "Not run: no new product tree or product push; report packet checked separately for secrets before evidence publication.",
+  "limitations": [
+    "No npm publishing or trusted-publisher account setup was attempted.",
+    "Local summary proof is not an actual OIDC exchange.",
+    "Original failed log archive returned empty output."
+  ],
+  "blockers": []
+}
