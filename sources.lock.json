@@ -11446,7 +11446,7 @@
       "executable": false
     },
     "tests/product-runtime.mjs": {
-      "sha256": "e6dd888049a03f3fbef521385d3da1d34146eae681abfdf5e06f64e9e8148891",
+      "sha256": "a8668710c039ee1bddb941ca7c170fe49e75e69c8be6c10613af4c72eb8a4125",
       "executable": false
     },
     "tests/project-erasure-cap.mjs": {
