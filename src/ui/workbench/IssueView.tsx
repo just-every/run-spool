@@ -1,3 +1,5 @@
+import { AssignmentPicker } from './AssignmentPicker';
+import { SendTestError } from './SdkSetup';
 import { releaseLabel, buildLabel } from './releaseLabels';
 import {IssueImpact} from './IssueImpact';
 import {Suppression} from './Suppression';
@@ -23,7 +25,7 @@ import { RepairPanel } from './RepairPanel';
 import { ExecutionPanel } from './ExecutionPanel';
 import { attentionLabel, type Alert } from './attention';
 import { hrefFor } from './location';
-import { date, displayFile, download, stateLabel, states, type Request, type Run } from './shared';
+import { date, displayFile, download, stateLabel, states, useDraft, Field, type Request, type Run } from './shared';
 // Match the bounded diagnostic projection back to its retained SDK frames in order.
 // Keeping original indices preserves repository links and native frame classifications.
 function hiddenSourceRows(event: any) {
@@ -52,6 +54,8 @@ export function IssueView({ project, packet, panels, status, alert, busy, reques
   const [allFrames, setAllFrames] = useState(false), [copied, setCopied] = useState(false);
   const [agentCommandOpen, setAgentCommandOpen] = useState(false);
   const [resolution,setResolution]=useState('plain'),[resolutionRelease,setResolutionRelease]=useState('');
+  const [testKey,setTestKey] = useDraft(`${project}.capture-key`, '');
+  const [resolving,setResolving]=useState(false);
   const [localRevision,setLocalRevision]=useState<{issue:string;revision:number}|null>(null);
   const [selectedEvent, setSelectedEvent] = useState<any>(null);
   useEffect(()=>setSelectedEvent(null),[project,packet?.issue.id]);
@@ -68,15 +72,31 @@ export function IssueView({ project, packet, panels, status, alert, busy, reques
   const commitResolution = group.resolution_mode === 'named' ? packet.commits?.rows?.find((row: any) => row.release === group.resolution_release) : null;
   return <>
     <div className="issue-toolbar"><Link className="text-button" to={hrefFor(project) as any}>All issues</Link><button className="text-button" onClick={() => void run(async () => { await navigator.clipboard.writeText(new URL(hrefFor(project, 'issues', group.id), location.origin).href); setCopied(true); })}>{copied ? 'Link copied' : 'Copy link'}</button></div>
-    <EventExplorer key={`${project}:${group.id}`} project={project} issue={group.id} refresh={packet} onSelect={setSelectedEvent}/>
     <section className="issue">
-      <div className="issue-summary"><div className="issue-body"><div className="issue-status">{group.short_id && <code className="short-id" title="Short ID">{group.short_id}</code>}<span className={`state-chip ${group.state}`}>{stateLabel(group.state)}</span>{readOnly&&<Priority {...{project,request,run,busy,refresh,readOnly}} issue={group}/>}{alert && <span className={`attention-badge ${alert.kind}`}>{attentionLabel(alert)}</span>}</div><p className="metadata">{event ? `${event.event.release||'none'} · ${event.event.environment}` : 'Occurrence evidence deleted by retention'}</p></div><p className="issue-count"><strong>{group.count}</strong> <span>events</span></p>
-      {!readOnly && <div className="triage"><label className="form-field">Status<select value={group.state} disabled={busy} onChange={e => void run(async () => { const saved = await request(`/api/projects/${project}/issues/${group.id}`, 'PATCH', { state: e.target.value, revision: group.revision, ...(e.target.value==='resolved'?{resolution,...resolution==='named'?{release:resolutionRelease}:{}}:{}) }); setLocalRevision({issue:group.id,revision:saved.revision}); refresh(); })}>{states.filter(state=>state!=='suppressed'||group.state==='suppressed').map(state => <option key={state} value={state} disabled={state==='resolved'&&resolution==='named'&&!resolutionRelease}>{stateLabel(state)}</option>)}</select></label><ResolutionPicker project={project} value={resolution} release={resolutionRelease} disabled={busy} onChange={(mode,release)=>{setResolution(mode);setResolutionRelease(release)}}/><Priority {...{project,request,run,busy,refresh,readOnly}} issue={group}/></div>}
-        <button className="highlight-button phone-download" onClick={() => download(packet, `spool-${group.id.slice(0, 12)}-packet.json`)}><span aria-hidden="true">↓</span> Download evidence (raw JSON)</button></div>
+      <div className="issue-summary"><div className="issue-body"><div className="issue-status">{group.short_id && <code className="short-id" title="Short ID">{group.short_id}</code>}<span className={`state-chip ${group.state}`}>{stateLabel(group.state)}</span>{readOnly&&<Priority {...{project,request,run,busy,refresh,readOnly}} issue={group}/>}{alert?.kind!=='new_issue' && alert && <span className={`attention-badge ${alert.kind}`}>{attentionLabel(alert)}</span>}</div><p className="metadata">{event ? `${event.event.release||'none'} · ${event.event.environment}` : 'Occurrence evidence deleted by retention'}</p></div><p className="issue-count"><strong>{group.count}</strong> <span>events</span></p>
+      </div>
+      {readOnly&&<AssignmentPicker {...{project,request,run,busy,refresh,readOnly}} issue={group} onSaved={()=>{}}/>}
+      {!readOnly && <div className="issue-main-actions">
+        <div className="issue-triage-controls"><label className="form-field">Status<select aria-label="Status" value={group.state} disabled={busy} onChange={e => {
+          if(e.target.value==='resolved'){setResolving(true);return;}
+          void run(async () => { const saved = await request(`/api/projects/${project}/issues/${group.id}`, 'PATCH', { state: e.target.value, revision: group.revision }); setLocalRevision({issue:group.id,revision:saved.revision}); refresh(); });
+        }}>{states.filter(state=>state!=='suppressed'||group.state==='suppressed').map(state => <option key={state} value={state}>{stateLabel(state)}</option>)}</select></label>
+        <AssignmentPicker {...{project,request,run,busy,refresh}} issue={group} onSaved={revision=>setLocalRevision({issue:group.id,revision})}/></div>
+        <div className="button-row">{group.state!=='resolved'&&<button className="primary-button" disabled={busy} onClick={()=>setResolving(true)}>Resolve</button>}<button className="text-button" onClick={()=>{document.getElementById('issue-discussion')?.scrollIntoView({block:'start'});document.querySelector<HTMLTextAreaElement>('#issue-discussion textarea')?.focus()}}>Comment</button>
+        <details className="issue-secondary-actions"><summary aria-label="Issue actions" title="Issue actions">⋯</summary>
+          <Details title="Fix with an AI coding assistant" triggerLabel="Fix with an AI coding assistant" onOpen={()=>setAgentCommandOpen(true)}>{agentCommandOpen&&<AgentPacketCommand project={project} issue={group.short_id??group.id}/>}</Details>
+          <button className="text-button" onClick={()=>download(packet,`spool-${group.short_id??'issue'}-packet.json`)}>Download details for a developer</button>
+        </details></div>
+        {resolving ? <form className="resolve-issue" onSubmit={e=>{e.preventDefault();void run(async()=>{const saved=await request(`/api/projects/${project}/issues/${group.id}`,'PATCH',{state:'resolved',revision:group.revision,resolution,...resolution==='named'?{release:resolutionRelease}:{}});setLocalRevision({issue:group.id,revision:saved.revision});setResolving(false);refresh()})}}>
+          <ResolutionPicker project={project} value={resolution} release={resolutionRelease} disabled={busy} onChange={(mode,release)=>{setResolution(mode);setResolutionRelease(release)}}/>
+          <button className="primary-button" disabled={busy||resolution==='named'&&!resolutionRelease}>Confirm resolve</button><button type="button" className="text-button" onClick={()=>setResolving(false)}>Cancel</button>
+        </form> : group.state!=='resolved'&&<p className="resolution-note">When resolved: reopen if it happens again.</p>}
+        <Details title="Issue controls"><Priority {...{project,request,run,busy,refresh,readOnly}} issue={group}/><p>New means you have not acknowledged the issue. Open means you have acknowledged it. Resolved follows your chosen reopening rule. Ignored keeps collecting events under its archive condition.</p></Details>
+      </div>}
+      {sample&&group.state==='resolved'&&!readOnly&&<section className="resolved-test"><Field label="Project ingest key" type="password" autoComplete="off" value={testKey} onChange={e=>setTestKey(e.target.value)}/><SendTestError {...{project,request}} release={event.event.release} build={event.event.build} ingestKey={testKey} buttonLabel="Send the test error again" onReceived={refresh}/></section>}
       {group.state==='resolved'&&<p className="metadata">{commitResolution?`Resolved in ${commitResolution.release} by commit ${commitResolution.sha.slice(0,12)} (“${commitResolution.citation}”) · the first event in a future target regresses it; repeats in an observed target follow the project recurrence policy.`:group.resolution_mode==='plain'?'Resolved · reopens on the next event.':group.resolution_mode==='next'?(group.resolution_release ? `Resolved for the next release after ${group.resolution_release}.` : 'Resolved until the first event with a release.'):group.resolution_mode==='named'?`Resolved for ${group.resolution_release??'the selected release'} · repeats follow the project recurrence policy; future target events and later releases reopen it.`:'Resolved in its current release · older events and events without a release do not reopen it.'}</p>}{!!group.seen_without_release&&<p className="callout">{group.seen_without_release} seen with no release after resolve. Inspect these occurrences in All Events with !has:release.</p>}
       {packet.shortIdRequest?.alias && <p className="callout" role="status">{packet.shortIdRequest.requested} is an alias of {group.short_id}: that issue was merged here, and every link to it opens this issue.</p>}
       {!!group.short_id_aliases?.length && <p className="metadata short-id-aliases">Also answers to {group.short_id_aliases.join(', ')}.</p>}
-      {!readOnly && <Details title="Hand this issue to your agent" triggerLabel="Hand to agent" onOpen={() => setAgentCommandOpen(true)}>{agentCommandOpen && <AgentPacketCommand project={project} issue={group.short_id ?? group.id} />}</Details>}
       {group.short_id_resolves_to && <p className="callout">{group.short_id} now resolves to {group.short_id_resolves_to}, where these occurrences were merged.</p>}
       {selectedEvent&&<p className="metadata" data-event-id={selectedEvent.id}>{date(selectedEvent.received)} · {selectedEvent.event.type}: {selectedEvent.event.message}</p>}
       <CheckInLink checkIns={event?.checkIns}/>
@@ -100,6 +120,7 @@ export function IssueView({ project, packet, panels, status, alert, busy, reques
       {frames.length > 6 && <button className="text-button" onClick={() => setAllFrames(!allFrames)}>{allFrames ? 'Show fewer frames' : `Show all ${frames.length} frames`}</button>}
       <Details title="Issue and source evidence"><p>Source maps and recorded repository path mappings enrich the current lookup. Original receipt records remain unchanged.</p><pre>{JSON.stringify({ issue: group, grouping: packet.grouping, events: packet.events }, null, 2)}</pre></Details>
     </section>
+    <EventExplorer key={`${project}:${group.id}`} project={project} issue={group.id} refresh={packet} onSelect={setSelectedEvent}/>
     <div className="issue-collaboration"><Suppression {...{project,request,run,busy,readOnly}} issue={group} onChange={refresh}/>
     <Discussion project={project} issue={group.id} refresh={packet} request={request} onChanged={revision=>{if(Number.isSafeInteger(revision))setLocalRevision({issue:group.id,revision:revision!});refresh();}}/></div>
     <CommitTimeline project={project} issue={group.id} shortId={group.short_id} refresh={packet} request={request}/>

@@ -1,3 +1,4 @@
+import { assignmentLabelSql } from '../operators/assignment';
 import {activityDetail} from '../lifecycle/activity';
 import { Hono } from 'hono';
 import { AuthError } from '../../modules/operator-auth/index.mjs';
@@ -42,6 +43,7 @@ discussionRoutes.get('/:project/issues/:issue/discussion',async c=>{
   if(!cursor||cursor.signature!==signature||!Number.isSafeInteger(cursor.created)||cursor.created<0||typeof cursor.id!=='string'||cursor.id.length>100)throw new AuthError('invalid_activity_cursor',400);
  }
  const rows=(await s(db,`SELECT a.*,(SELECT o.display_name FROM audit_actor_links l JOIN oa_operators o ON o.id=l.owner_id WHERE l.label=a.actor_label AND l.kind IN ('owner','member') LIMIT 1) actor_name FROM issue_activity a WHERE a.project=? AND a.issue=?${cursor?' AND (a.created,a.id)<(?,?)':''} ORDER BY a.created DESC,a.id DESC LIMIT 51`,project,issue.id,...cursor?[cursor.created,cursor.id]:[]).all<any>()).results;
+ for(const row of rows){if(row.kind==='assignment'){const detail=JSON.parse(row.detail);const resolved=await s(db,`WITH value AS (SELECT ? label,? project) SELECT ${assignmentLabelSql('value.label','value.project')} label FROM value`,detail.assignee??null,project).first<any>();row.detail=JSON.stringify({assignee:resolved?.label? scrub(resolved.label):null});}}
  const activityRows=rows.slice(0,50).map(row=>({...row,actor_name:row.actor_name?scrub(row.actor_name):null,detail:JSON.parse(activityDetail(row.detail))})),last=rows[49];
  return c.json({...data,recurrence,activity:activityRows,next:rows.length>50?btoa(JSON.stringify({signature,created:last.created,id:last.id})):null});
 });
