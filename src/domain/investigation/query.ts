@@ -38,7 +38,8 @@ export function eventQuery(query: string, agent = false) {
    case 'stack':case 'function':contains(`json_extract(e.payload,'$.frames')||' '||COALESCE(${exceptions},'')||' '||COALESCE(${stacktrace},'')`,value);break;
    case 'after':case 'before':{const at=Date.parse(value);if(!Number.isFinite(at))throw new Error(`Invalid ${key} date`);clauses.push(`e.received${key==='after'?'>=':'<'}?`);args.push(at);break;}
    default:
-    if(key.startsWith('user.')||!/^[-a-zA-Z0-9_.]{1,100}$/.test(key))throw new Error(`Unsupported search field: ${key}`);
+    if(key.startsWith('user.'))throw new Error(`${key} cannot be searched in the issue list: Spool keeps user identity under its identity policy, not as searchable event text. To find one person's retained events, use Settings → Privacy & filtering → End-user erasure, then preview matches.`);
+    if(!/^[-a-zA-Z0-9_.]{1,100}$/.test(key))throw new Error(`Unsupported search field: ${key}`);
     clauses.push(`EXISTS(SELECT 1 FROM json_each(e.payload,'$.sentry.tags') tag WHERE tag.key=? AND CAST(tag.value AS TEXT)=?)`);args.push(key,value);
   }
  }

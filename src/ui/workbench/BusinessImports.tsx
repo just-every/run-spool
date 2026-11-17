@@ -46,7 +46,7 @@ export function BusinessImports({ request, run, busy }: { request: Request; run:
       {problem && <p role="alert">{problem}</p>}
       {pending && <p role="status">Working…</p>}
       {state && <>
-        {!state.configured && <p>Owner-claim trust configuration is required before enabling business imports. <a href="/docs/business-import-trust">Configure Business import trust</a>.</p>}
+        {!state.configured && <p>Owner-claim trust configuration is required before enabling business imports. <a href="/docs/business-import-trust">Configure Business import trust</a>. Without Business trust, the installation owner can still import an organization export from the checkout: <a href="/docs/business-import-trust#import-as-the-owner-without-business-trust">import as the owner</a>.</p>}
         <button className="text-button" disabled={disabled || (!state.configured && !state.enabled)} onClick={() => void perform(async () => {
           setState(await request(path, 'POST', { enabled: !state.enabled }));
         })}>{state.enabled ? 'Disable business imports' : 'Enable business imports'}</button>

@@ -78,6 +78,11 @@
           "slug": "business-import-trust",
           "source": "docs/BUSINESS-IMPORT-TRUST.md",
           "label": "Business import trust"
+        },
+        {
+          "slug": "notifications",
+          "source": "docs/NOTIFICATIONS.md",
+          "label": "Personal notifications"
         }
       ]
     }

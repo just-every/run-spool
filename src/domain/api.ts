@@ -248,7 +248,7 @@ api.patch('/api/projects/:project/issues/:issue',async c=>{
 api.get('/api/projects/:project/issues/:issue/packet',async c=>{
   // A short ID or alias, in any case, reads its current issue's packet.
   const found=await resolveIssue(c.env.DB,c.req.param('project'),c.req.param('issue'));
-  const packet=found&&await issuePacket(c.env.DB,c.req.param('project'),found.issue,found.requested,!!c.get('owner'));
+  const packet=found&&await issuePacket(c.env.DB,c.req.param('project'),found.issue,found.requested);
   return packet===null?c.json({error:'Issue not found'},404):c.body(packet,200,{'Content-Type':'application/json; charset=UTF-8'});
 });
 api.get('/api/archive',async c=>new Response(await auditedExport(c.env.DB,await archiveStream(await portability(c.env.DB))),{headers:{'Content-Type':'application/x-ndjson','Content-Disposition':'attachment; filename=errors-private-archive.jsonl','Cache-Control':'no-store'}}));
