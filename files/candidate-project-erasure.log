@@ -1,0 +1,20 @@
+(node:12750) ExperimentalWarning: SQLite is an experimental feature and might change at any time
+(Use `node --trace-warnings ...` to show where the warning was created)
+verify
+Heavy job admitted: Spool verify:suite [5588d6fd09ea]
+(node:12772) ExperimentalWarning: SQLite is an experimental feature and might change at any time
+(Use `node --trace-warnings ...` to show where the warning was created)
+STEP setup/startDev
+STEP setup/dev-ready
+END setup/dev-ready seconds=64.381
+END setup/startDev seconds=64.469
+STEP setup/dev-stop
+END setup/dev-stop seconds=0.206
+STEP setup/dev-ready
+END setup/dev-ready seconds=62.081
+STEP setup/dev-stop
+END setup/dev-stop seconds=0.244
+Project erasure public journey passed: 7 groups; 8 captures.
+STEP setup/stopDev
+END setup/stopDev seconds=0.000
+Project erasure cleanup: [{"name":"browser","outcome":"stopped"},{"name":"checkout","outcome":"stopped"}]

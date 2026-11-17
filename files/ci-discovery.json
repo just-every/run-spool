@@ -1,0 +1,16 @@
+{
+  "utc": "2026-11-17T22:40:08.918059+00:00",
+  "queried_head": "21a434c38bf0b467bca76c294f63b726c7fa8e2c",
+  "runs": [
+    {
+      "id": 44191699045,
+      "name": "Verify",
+      "status": "in_progress",
+      "conclusion": null,
+      "head_sha": "21a434c38bf0b467bca76c294f63b726c7fa8e2c",
+      "html_url": "https://github.com/just-every/run-spool/actions/runs/44191699045",
+      "event": "push",
+      "path": ".github/workflows/verify.yml"
+    }
+  ]
+}

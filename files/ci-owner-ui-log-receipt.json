@@ -1,0 +1,19 @@
+{
+  "command": [
+    "gh",
+    "run",
+    "view",
+    "44191699045",
+    "--repo",
+    "just-every/run-spool",
+    "--job",
+    "134423302538",
+    "--log-failed"
+  ],
+  "exit": 0,
+  "job": 134423302538,
+  "run": 44191699045,
+  "utc": "2026-11-17T23:09:23.157274+00:00",
+  "redactions": "Injected values, long hex values, auth/cookie material, URL queries/fragments and local entry URLs.",
+  "environment_blocks_omitted": true
+}

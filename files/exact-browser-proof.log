@@ -1,0 +1,16 @@
+(node:15824) ExperimentalWarning: SQLite is an experimental feature and might change at any time
+(Use `node --trace-warnings ...` to show where the warning was created)
+[33m▲ [43;33m[[43;30mWARNING[43;33m][0m [1mProxy environment variables detected. We'll use your proxy for fetch requests.[0m
+
+
+node:internal/process/promises:394
+    triggerUncaughtException(err, true /* fromPromise */);
+    ^
+
+page.waitForResponse: Timeout 15000ms exceeded while waiting for event "response"
+    at /home/agent/rer-consolidation/work/sd-spool-design-issues-3/packet/browser-proof.mjs:69:24 {
+  log: [],
+  name: 'TimeoutError'
+}
+
+Node.js v22.20.0

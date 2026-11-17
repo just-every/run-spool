@@ -44,5 +44,19 @@
   "baseline_repetition_3": "Uses the unchanged emitted baseline Worker and already-loaded Sentry test modules while source replay is prepared; no rebuild until it exits.",
   "baseline_repetition_3_build_unchanged_verified": true,
   "replay_save": "388c978d44e4e13cc952553618b93cef0efe7456",
-  "comparison_load_note": "Main repetition 2 overlapped a separate project-erasure startup probe; main repetition 3 overlapped typechecking. Candidate raw repetition 1 overlaps the independent Issues browser journey. All emitted Worker builds and Sentry harness sources are held constant per comparison case; proof-only Issues test edits do not affect the Sentry entrypoint."
+  "comparison_load_note": "Main repetition 2 overlapped a separate project-erasure startup probe; main repetition 3 overlapped typechecking. Candidate raw repetition 1 overlaps the independent Issues browser journey. All emitted Worker builds and Sentry harness sources are held constant per comparison case; proof-only Issues test edits do not affect the Sentry entrypoint.",
+  "raw_repetition_3_harness_sha256": "27b65b1d652c59a98f7cd75753f915a00bf28fb468c511bb97867fb6b2995ab2",
+  "candidate_emitted_worker_sha256": "8ed2d05b212cd11abdc8f1d5df9eb0409d0886ef889e8c8b963f0bb8ebbd0486",
+  "raw_repetition_3_note": "The unmodified harness had loaded and completed authority probes before recovery source integration. The running process retains its original module code. App source is unchanged; the ordered build must preserve the recorded emitted Worker hash.",
+  "ordered_build_preserves_candidate_worker_bytes": true,
+  "recovery_save": "5f4dfd83c931fbc5e8d860604a11778e90ddce02",
+  "final_working_tree_matches_ordered_checks": true,
+  "staged_final_tree": "45c5c0a24614e4d4dc86eff09221fcd2c363b3b2",
+  "final_head": "fdcbe49c5f65a04faf69ce08ceddb72568bc41af",
+  "final_tree": "45c5c0a24614e4d4dc86eff09221fcd2c363b3b2",
+  "integrated_main": "53b460837d5a58266c39d03a9f923e09e9c29fb7",
+  "policy_recovery_save": "240376854a6d7f3bd89ec2054fa58be006ae722a",
+  "initial_replay_linear": true,
+  "later_main_merge_reason": "Cloud preservation rule requires updated main merge after published save; main advanced by qs lockfile patch. Published history is not rewritten.",
+  "terminal_merged_check_diff_sha256": "3dc034ead286acd79a8fd6ae1b1b6d370c25bbb073f70e237b255086b3b491b4"
 }

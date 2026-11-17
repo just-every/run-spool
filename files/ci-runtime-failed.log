@@ -1,0 +1,43 @@
+verify (runtime)	Run suites	﻿2026-11-17T22:38:30.9286825Z ##[group]Run node tests/demo-capture.mjs && node tests/deployment-history.mjs && node tests/audit-history.mjs && node tests/old-archive.mjs && pnpm test:runtime && pnpm test:product && pnpm test:origins && pnpm test:dev-credentials
+verify (runtime)	Run suites	2026-11-17T22:38:30.9288538Z [36;1mnode tests/demo-capture.mjs && node tests/deployment-history.mjs && node tests/audit-history.mjs && node tests/old-archive.mjs && pnpm test:runtime && pnpm test:product && pnpm test:origins && pnpm test:dev-credentials[0m
+verify (runtime)	Run suites	2026-11-17T22:38:30.9309572Z shell: /usr/bin/bash -e {0}
+[Workflow environment block omitted.]
+verify (runtime)	Run suites	2026-11-17T22:38:30.9329198Z ##[endgroup]
+verify (runtime)	Run suites	2026-11-17T22:38:31.0294266Z (node:3149) ExperimentalWarning: SQLite is an experimental feature and might change at any time
+verify (runtime)	Run suites	2026-11-17T22:38:31.0295639Z (Use `node --trace-warnings ...` to show where the warning was created)
+verify (runtime)	Run suites	2026-11-17T22:38:35.9872014Z Demo capture: app 200; 3 recent events; 3 attributed transaction facts; restart unchanged
+verify (runtime)	Run suites	2026-11-17T22:38:36.5869181Z (node:3177) ExperimentalWarning: SQLite is an experimental feature and might change at any time
+verify (runtime)	Run suites	2026-11-17T22:38:36.5870539Z (Use `node --trace-warnings ...` to show where the warning was created)
+verify (runtime)	Run suites	2026-11-17T22:39:58.2310258Z [REL-002] first-release and reactivation candidates, exact regression alert and two commits with recorded deployment window, older-release spike comparison, audited reject and confirm without occurrence changes, restore and erasure; desktop and phone passed
+verify (runtime)	Run suites	2026-11-17T22:40:15.5025765Z REL-001 passed: CI and owner start/progress/success/failure/rollback, idempotency/conflicts, one overdue notice over two ticks, environments, enrichment, denials, inert restore, erasure and 1440/390.
+verify (runtime)	Run suites	2026-11-17T22:40:16.0822698Z (node:3555) ExperimentalWarning: SQLite is an experimental feature and might change at any time
+verify (runtime)	Run suites	2026-11-17T22:40:16.0824046Z (Use `node --trace-warnings ...` to show where the warning was created)
+verify (runtime)	Run suites	2026-11-17T22:40:48.5529946Z AUDIT-001 passed: atomic owner/deploy/ingest transaction facts, denied/stale request outcomes, agent and notification facts, fixed snapshot cursor/JSON/CSV, restart, archive payload append restore, previous-format legacy facts, project erasure and 1440/390 history/export/error/denied/empty.
+verify (runtime)	Run suites	2026-11-17T22:40:54.5099513Z (node:3666) ExperimentalWarning: SQLite is an experimental feature and might change at any time
+verify (runtime)	Run suites	2026-11-17T22:40:54.5100673Z (Use `node --trace-warnings ...` to show where the warning was created)
+verify (runtime)	Run suites	2026-11-17T22:41:04.0310017Z PASS populated published release upgrades preserve existing rows and columns with declared attribution additions: 176 tables, 118 rows before and after
+verify (runtime)	Run suites	2026-11-17T22:41:18.9120755Z PASS populated 0068 upgrade: 201 tables preserved; five additive migrations applied
+verify (runtime)	Run suites	2026-11-17T22:42:04.0821445Z PASS pre-metric archive with complete native objects and hashed ledger restores into the metric schema
+verify (runtime)	Run suites	2026-11-17T22:42:22.4951020Z PASS old native archive restores into a fresh migrated target with all product rows and destination ledger intact
+verify (runtime)	Run suites	2026-11-17T22:42:37.3224576Z PASS old archive refuses an occupied target without changing its project
+verify (runtime)	Run suites	2026-11-17T22:42:51.0573670Z PASS genuinely mismatched schema and corrupted original archive binding still refuse
+verify (runtime)	Run suites	2026-11-17T22:43:12.4545204Z PASS current archive independently restores and mandatory bookkeeping exclusions retain person-owned tables
+verify (runtime)	Run suites	2026-11-17T22:43:12.8591937Z 
+verify (runtime)	Run suites	2026-11-17T22:43:12.8592990Z > @errors/errors-workbench@0.7.14 test:runtime /home/runner/work/run-spool/run-spool
+verify (runtime)	Run suites	2026-11-17T22:43:12.8594302Z > node tests/runtime.mjs
+verify (runtime)	Run suites	2026-11-17T22:43:12.8594637Z 
+verify (runtime)	Run suites	2026-11-17T22:43:13.2962819Z (node:3761) ExperimentalWarning: SQLite is an experimental feature and might change at any time
+verify (runtime)	Run suites	2026-11-17T22:43:13.2964793Z (Use `node --trace-warnings ...` to show where the warning was created)
+verify (runtime)	Run suites	2026-11-17T22:43:20.2722475Z PROBE SDK-020 G5: anonymous docs navigation, seven configuration sections, source maps, Python guidance, tunnel replacement and generated static article passed.
+verify (runtime)	Run suites	2026-11-17T22:43:23.6913907Z Settings prerequisite guides passed: Slack and cron reach pinned Base owner steps and a working receipt-to-binding recipe; Business trust links open locally and anonymously from the docs index.
+verify (runtime)	Run suites	2026-11-17T22:43:23.8819799Z Spool runtime: DB health, server document gate, direct API gate, local owner admission, second-claim refusal and immediate revocation passed.
+verify (runtime)	Run suites	2026-11-17T22:43:24.2226301Z 
+verify (runtime)	Run suites	2026-11-17T22:43:24.2227523Z > @errors/errors-workbench@0.7.14 test:product /home/runner/work/run-spool/run-spool
+verify (runtime)	Run suites	2026-11-17T22:43:24.2228433Z > node tests/product-runtime.mjs
+verify (runtime)	Run suites	2026-11-17T22:43:24.2228741Z 
+verify (runtime)	Run suites	2026-11-17T22:43:24.4011794Z (node:4032) ExperimentalWarning: SQLite is an experimental feature and might change at any time
+verify (runtime)	Run suites	2026-11-17T22:43:24.4012620Z (Use `node --trace-warnings ...` to show where the warning was created)
+verify (runtime)	Run suites	2026-11-17T22:45:21.0112801Z AI-005 agent grouping proposals show counterexamples and rate, alert and repair effects, and stay reversible passed.
+verify (runtime)	Run suites	2026-11-17T22:45:55.7851150Z Product acceptance failed: {"failed":true,"failure":{"type":"TypeError","location":"tests/product-runtime.mjs:77:12","cause":{"code":"UND_ERR_SOCKET","message":"other side closed"},"http":{"method":"POST","path":"/api/restore","ordinal":692}},"cleanupFailures":[],"worker":{"redacted":true,"lines":745,"networkConnectionLost":false,"d1Error":false,"sqliteError":false,"mentions":{"typeError":false,"referenceError":false,"rangeError":false,"syntaxError":false,"invalidProject":false,"instanceofOperand":false,"temporalDeadZone":false,"undefinedAccess":false,"notDefined":false,"internalError":false,"scriptNoResponse":false,"contextNotFinalized":false,"scrub":false,"apiErrorHandler":false}}}
+verify (runtime)	Run suites	2026-11-17T22:45:55.8624912Z  ELIFECYCLE  Command failed with exit code 1.
+verify (runtime)	Run suites	2026-11-17T22:45:55.8900876Z ##[error]Process completed with exit code 1.

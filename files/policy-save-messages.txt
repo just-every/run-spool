@@ -1,0 +1,18 @@
+240376854a6d7f3bd89ec2054fa58be006ae722a
+Fence saved policies and isolate restore test writes [skip ci]
+
+21a434c38bf0b467bca76c294f63b726c7fa8e2c
+Pin owner Issues resolution and capture proof
+
+Assert the plain reopening preset at 1440, wait for the capture and invalid-key results before recording proof, and capture those changed states at 1440 and 390. Mask issued-key SDK snippets and DSNs in screenshots. Regenerate the source lock last; no contract judgments or release metadata change.
+
+5f4dfd83c931fbc5e8d860604a11778e90ddce02
+Bound Sentry owner-read socket recovery [skip ci]
+
+Main and the replay both reproduced socket-level owner inventory read failures after archive/refusal sequences. Retry only a failed GET with UND_ERR_SOCKET or ECONNRESET, at most twice after bounded public health readiness checks. Writes, HTTP refusals, assertions and other errors remain strict. Real HTTP close/reset fixtures prove recovery, no mutation replay, no 403 retry and bounded failure. Full candidate qualification continues after this preservation save.
+
+388c978d44e4e13cc952553618b93cef0efe7456
+Reapply owner Issues journeys on current main [skip ci]
+
+Replay the net product and test changes from 2379058, 170970d, da6caa7, 27fad43 and a510bbb on f44efc8, retaining current main privacy changes and contract judgments. Regenerate the source lock after the product generators. Sentry comparison and full candidate verification follow this preservation save.
+

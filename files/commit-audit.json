@@ -1,0 +1,91 @@
+{
+  "ok": true,
+  "candidate_commits": [
+    {
+      "head": "388c978d44e4e13cc952553618b93cef0efe7456",
+      "subject": "Reapply owner Issues journeys on current main [skip ci]",
+      "author": {
+        "name": "Run Edit Run fleet",
+        "email": "fleet@runeditrun.com"
+      },
+      "committer": {
+        "name": "Run Edit Run fleet",
+        "email": "fleet@runeditrun.com"
+      },
+      "parents": [
+        "f44efc8c76f8f11753b89465cc3fcb7b64760570"
+      ],
+      "trailers": []
+    },
+    {
+      "head": "5f4dfd83c931fbc5e8d860604a11778e90ddce02",
+      "subject": "Bound Sentry owner-read socket recovery [skip ci]",
+      "author": {
+        "name": "Run Edit Run fleet",
+        "email": "fleet@runeditrun.com"
+      },
+      "committer": {
+        "name": "Run Edit Run fleet",
+        "email": "fleet@runeditrun.com"
+      },
+      "parents": [
+        "388c978d44e4e13cc952553618b93cef0efe7456"
+      ],
+      "trailers": []
+    },
+    {
+      "head": "21a434c38bf0b467bca76c294f63b726c7fa8e2c",
+      "subject": "Pin owner Issues resolution and capture proof",
+      "author": {
+        "name": "Run Edit Run fleet",
+        "email": "fleet@runeditrun.com"
+      },
+      "committer": {
+        "name": "Run Edit Run fleet",
+        "email": "fleet@runeditrun.com"
+      },
+      "parents": [
+        "5f4dfd83c931fbc5e8d860604a11778e90ddce02"
+      ],
+      "trailers": []
+    },
+    {
+      "head": "240376854a6d7f3bd89ec2054fa58be006ae722a",
+      "subject": "Fence saved policies and isolate restore test writes [skip ci]",
+      "author": {
+        "name": "Run Edit Run fleet",
+        "email": "fleet@runeditrun.com"
+      },
+      "committer": {
+        "name": "Run Edit Run fleet",
+        "email": "fleet@runeditrun.com"
+      },
+      "parents": [
+        "21a434c38bf0b467bca76c294f63b726c7fa8e2c"
+      ],
+      "trailers": []
+    },
+    {
+      "head": "fdcbe49c5f65a04faf69ce08ceddb72568bc41af",
+      "subject": "Merge updated main after owner journey recovery",
+      "author": {
+        "name": "Run Edit Run fleet",
+        "email": "fleet@runeditrun.com"
+      },
+      "committer": {
+        "name": "Run Edit Run fleet",
+        "email": "fleet@runeditrun.com"
+      },
+      "parents": [
+        "240376854a6d7f3bd89ec2054fa58be006ae722a",
+        "53b460837d5a58266c39d03a9f923e09e9c29fb7"
+      ],
+      "trailers": []
+    }
+  ],
+  "published_history_rewritten": false,
+  "merges": [
+    "fdcbe49c5f65a04faf69ce08ceddb72568bc41af"
+  ],
+  "merge_reason": "Required updated-main integration after published save; initial replay was linear."
+}

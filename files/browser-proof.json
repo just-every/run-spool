@@ -1,0 +1,163 @@
+{
+  "head": "fdcbe49c5f65a04faf69ce08ceddb72568bc41af",
+  "tree": "45c5c0a24614e4d4dc86eff09221fcd2c363b3b2",
+  "qualification": "Synthetic local owner journey through the emitted Worker; assertions at 1440, visual captures at 1440 and 390.",
+  "checks": [
+    "Capture sends the real shared sample and names its new alert.",
+    "Assign to saves an actual project member through the issue header.",
+    "A saved suppression policy remains visible and can be disabled through the rendered dialog.",
+    "One status vocabulary and Assigned to me filter preserve the assigned row and exclude the unassigned issue.",
+    "Resolve opens the plain reopening preset; it does not resolve on opening.",
+    "Sending the resolved sample again returns to the same issue and shows Regressed.",
+    "An invalid key names recovery, offers no exact-event retry, and changes neither issue count nor occurrence count.",
+    "No browser page errors."
+  ],
+  "captures": [
+    {
+      "scenario": "capture-result",
+      "width": 1440,
+      "height": 900,
+      "file": "browser-proof-framed/capture-result-1440.png",
+      "bytes": 136689,
+      "sha256": "8f2dca254fc1886cfe3879c47dc92306abee041f4f37f097e4f27bd14ca5f148"
+    },
+    {
+      "scenario": "capture-result",
+      "width": 390,
+      "height": 900,
+      "file": "browser-proof-framed/capture-result-390.png",
+      "bytes": 69596,
+      "sha256": "a17c3a96f44d3784df86df5c94669e0fe76db8f1e023ab4746b7a751178594bc"
+    },
+    {
+      "scenario": "suppression-policy",
+      "width": 1440,
+      "height": 900,
+      "file": "browser-proof-framed/suppression-policy-1440.png",
+      "bytes": 145868,
+      "sha256": "7f8eabda58b5701a49c7546d3e12b395dbc199d6ad3ed14d26ecdee1cac490dd"
+    },
+    {
+      "scenario": "suppression-policy",
+      "width": 390,
+      "height": 900,
+      "file": "browser-proof-framed/suppression-policy-390.png",
+      "bytes": 66916,
+      "sha256": "065e945cf25c75dc299a19d4e41395c28b737fd922280bc8e8c2a38cc89a1179"
+    },
+    {
+      "scenario": "issues-list",
+      "width": 1440,
+      "height": 900,
+      "file": "browser-proof-framed/issues-list-1440.png",
+      "bytes": 82215,
+      "sha256": "e8edfb496675fd573435606a57b0f5e78d1df03b02ee38e8160d550e36544428"
+    },
+    {
+      "scenario": "issues-list",
+      "width": 390,
+      "height": 900,
+      "file": "browser-proof-framed/issues-list-390.png",
+      "bytes": 54606,
+      "sha256": "11cbc3ca54f60797f087cb2eaf437e1149a3fd5340a95247c03af3e062126c4e"
+    },
+    {
+      "scenario": "issues-filters",
+      "width": 1440,
+      "height": 900,
+      "file": "browser-proof-framed/issues-filters-1440.png",
+      "bytes": 95527,
+      "sha256": "14ff0b7951401153b45a1f6434a2758eedea2fa6fea22e3b746eeda82c8e88d9"
+    },
+    {
+      "scenario": "issues-filters",
+      "width": 390,
+      "height": 900,
+      "file": "browser-proof-framed/issues-filters-390.png",
+      "bytes": 52289,
+      "sha256": "419752c77b9a660aa2af752cbe5b4b4cd0988390d78373eaac618407a989efe8"
+    },
+    {
+      "scenario": "issue-header",
+      "width": 1440,
+      "height": 900,
+      "file": "browser-proof-framed/issue-header-1440.png",
+      "bytes": 111251,
+      "sha256": "441ff388a688e60f0f4d8c4e928cac312f801e8d0c6806da4d1f59113bdd11a5"
+    },
+    {
+      "scenario": "issue-header",
+      "width": 390,
+      "height": 900,
+      "file": "browser-proof-framed/issue-header-390.png",
+      "bytes": 56573,
+      "sha256": "61e3bb53c27e66a1d340bf8ebe007d6bf58fd36e2b6d8d647521ef4271124b09"
+    },
+    {
+      "scenario": "resolution-preset",
+      "width": 1440,
+      "height": 900,
+      "file": "browser-proof-framed/resolution-preset-1440.png",
+      "bytes": 139428,
+      "sha256": "56f4fc96dd0bae2b6fc0680b655f809b3a331586e71e7af38d9f92484d7f9c02"
+    },
+    {
+      "scenario": "resolution-preset",
+      "width": 390,
+      "height": 900,
+      "file": "browser-proof-framed/resolution-preset-390.png",
+      "bytes": 60164,
+      "sha256": "8e5d288ebd545a638ea250ecc0b5af7f655ce6bd7080a6402d717b79287a993f"
+    },
+    {
+      "scenario": "resolved-sample",
+      "width": 1440,
+      "height": 900,
+      "file": "browser-proof-framed/resolved-sample-1440.png",
+      "bytes": 143642,
+      "sha256": "64212bdda154de3a9e7be0a172da7820a008a8bf717495cc74795e1779ffacda"
+    },
+    {
+      "scenario": "resolved-sample",
+      "width": 390,
+      "height": 900,
+      "file": "browser-proof-framed/resolved-sample-390.png",
+      "bytes": 64612,
+      "sha256": "ec481b64974926b0715c04715fe3a26a68a6f466a2ed5858fa3d98ef6071665e"
+    },
+    {
+      "scenario": "regressed-sample",
+      "width": 1440,
+      "height": 900,
+      "file": "browser-proof-framed/regressed-sample-1440.png",
+      "bytes": 119050,
+      "sha256": "785b988d4e9e440be9b573dfad27cf7bb380133ad9f2bd9195c5a5f821f95164"
+    },
+    {
+      "scenario": "regressed-sample",
+      "width": 390,
+      "height": 900,
+      "file": "browser-proof-framed/regressed-sample-390.png",
+      "bytes": 59919,
+      "sha256": "7ee12c561a795e6e5da1fdf5e403f87e9106b197a997a5be19a762e12578d5df"
+    },
+    {
+      "scenario": "invalid-key",
+      "width": 1440,
+      "height": 900,
+      "file": "browser-proof-framed/invalid-key-1440.png",
+      "bytes": 139544,
+      "sha256": "1683b97100fda12c405efd9f5ca7b5fa7d61dd77f1a1a2c412b06d20cb55f053"
+    },
+    {
+      "scenario": "invalid-key",
+      "width": 390,
+      "height": 900,
+      "file": "browser-proof-framed/invalid-key-390.png",
+      "bytes": 69664,
+      "sha256": "4619c718de2445ddf7893616693430ed6a94cf7b5f60cfd953593847f0dca72b"
+    }
+  ],
+  "ok": true,
+  "utc": "2026-11-17T23:42:23.996Z"
+}

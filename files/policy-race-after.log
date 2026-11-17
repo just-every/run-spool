@@ -1,0 +1,6 @@
+(node:19780) ExperimentalWarning: SQLite is an experimental feature and might change at any time
+(Use `node --trace-warnings ...` to show where the warning was created)
+[33m▲ [43;33m[[43;30mWARNING[43;33m][0m [1mProxy environment variables detected. We'll use your proxy for fetch requests.[0m
+
+
+{"checks":["Policy save appears before held read release","Saved policy survives older read"],"initialValue":"04c85f25bda9daa111d18ee7ccb29fff3fae0ecf5054c1baa570df05257760e6","heldReads":1,"policyStillVisible":true,"apiPolicyCount":1,"ok":true,"utc":"2026-11-17T23:21:04.956Z"}

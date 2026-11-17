@@ -1,0 +1,26 @@
+verify (owner-ui)	Run suites	﻿2026-11-17T22:38:25.6520719Z ##[group]Run pnpm test:accessibility && pnpm test:admission
+verify (owner-ui)	Run suites	2026-11-17T22:38:25.6521397Z [36;1mpnpm test:accessibility && pnpm test:admission[0m
+verify (owner-ui)	Run suites	2026-11-17T22:38:25.6537986Z shell: /usr/bin/bash -e {0}
+[Workflow environment block omitted.]
+verify (owner-ui)	Run suites	2026-11-17T22:38:25.6540003Z ##[endgroup]
+verify (owner-ui)	Run suites	2026-11-17T22:38:25.8170914Z 
+verify (owner-ui)	Run suites	2026-11-17T22:38:25.8171672Z > @errors/errors-workbench@0.7.14 test:accessibility /home/runner/work/run-spool/run-spool
+verify (owner-ui)	Run suites	2026-11-17T22:38:25.8172003Z > node tests/triage-journey.mjs
+verify (owner-ui)	Run suites	2026-11-17T22:38:25.8172117Z 
+verify (owner-ui)	Run suites	2026-11-17T22:38:26.1884449Z (node:2523) ExperimentalWarning: SQLite is an experimental feature and might change at any time
+verify (owner-ui)	Run suites	2026-11-17T22:38:26.1885007Z (Use `node --trace-warnings ...` to show where the warning was created)
+verify (owner-ui)	Run suites	2026-11-17T22:39:44.4047410Z node:internal/modules/run_main:123
+verify (owner-ui)	Run suites	2026-11-17T22:39:44.4047861Z     triggerUncaughtException(
+verify (owner-ui)	Run suites	2026-11-17T22:39:44.4048092Z     ^
+verify (owner-ui)	Run suites	2026-11-17T22:39:44.4048188Z 
+verify (owner-ui)	Run suites	2026-11-17T22:39:44.4048363Z page.waitForFunction: Timeout 15000ms exceeded.
+verify (owner-ui)	Run suites	2026-11-17T22:39:44.4050678Z     at operatorUi (/home/runner/work/run-spool/run-spool/tests/operator-ui.mjs:91:13)
+verify (owner-ui)	Run suites	2026-11-17T22:39:44.4051401Z     at async journey (/home/runner/work/run-spool/run-spool/tests/triage-journey.mjs:303:2)
+verify (owner-ui)	Run suites	2026-11-17T22:39:44.4052002Z     at async file:///home/runner/work/run-spool/run-spool/tests/triage-journey.mjs:307:31 {
+verify (owner-ui)	Run suites	2026-11-17T22:39:44.4052351Z   log: [],
+verify (owner-ui)	Run suites	2026-11-17T22:39:44.4052527Z   name: 'TimeoutError'
+verify (owner-ui)	Run suites	2026-11-17T22:39:44.4052720Z }
+verify (owner-ui)	Run suites	2026-11-17T22:39:44.4052807Z 
+verify (owner-ui)	Run suites	2026-11-17T22:39:44.4052975Z Node.js v22.20.0
+verify (owner-ui)	Run suites	2026-11-17T22:39:44.4410133Z  ELIFECYCLE  Command failed with exit code 1.
+verify (owner-ui)	Run suites	2026-11-17T22:39:44.4576080Z ##[error]Process completed with exit code 1.

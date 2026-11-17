@@ -1,0 +1,29 @@
+{
+  "head": "21a434c38bf0b467bca76c294f63b726c7fa8e2c",
+  "tree": "a90693ddfbcd7e1b99dba812d646faa07d9e3ac7",
+  "qualification": "Synthetic local owner journey through the emitted Worker; assertions at 1440, visual captures at 1440 and 390.",
+  "checks": [
+    "Capture sends the real shared sample and names its new alert."
+  ],
+  "captures": [
+    {
+      "scenario": "capture-result",
+      "width": 1440,
+      "height": 900,
+      "file": "browser-proof/capture-result-1440.png",
+      "bytes": 136689,
+      "sha256": "8f2dca254fc1886cfe3879c47dc92306abee041f4f37f097e4f27bd14ca5f148"
+    },
+    {
+      "scenario": "capture-result",
+      "width": 390,
+      "height": 900,
+      "file": "browser-proof/capture-result-390.png",
+      "bytes": 69596,
+      "sha256": "a17c3a96f44d3784df86df5c94669e0fe76db8f1e023ab4746b7a751178594bc"
+    }
+  ],
+  "failure": "page.waitForResponse: Timeout 15000ms exceeded while waiting for event \"response\"\n    at /home/agent/rer-consolidation/work/sd-spool-design-issues-3/packet/browser-proof.mjs:69:24",
+  "ok": false,
+  "utc": "2026-11-17T22:40:35.801Z"
+}

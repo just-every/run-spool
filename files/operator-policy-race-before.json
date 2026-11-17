@@ -1,0 +1,12 @@
+{
+  "checks": [
+    "Policy save appears before held read release"
+  ],
+  "initialValue": "04c85f25bda9daa111d18ee7ccb29fff3fae0ecf5054c1baa570df05257760e6",
+  "heldReads": 1,
+  "policyStillVisible": false,
+  "apiPolicyCount": 1,
+  "ok": false,
+  "failure": "AssertionError [ERR_ASSERTION]: An older panel read must not hide the saved policy\n\nfalse !== true\n\n    at file:///tmp/spool-policy-race.mjs:32:9\n    at process.processTicksAndRejections (node:internal/process/task_queues:105:5)",
+  "utc": "2026-11-17T23:19:49.753Z"
+}

@@ -1,0 +1,86 @@
+{
+  "repository": "just-every/run-spool",
+  "branch": "cloud/sd-spool-design-issues-3",
+  "head": "fdcbe49c5f65a04faf69ce08ceddb72568bc41af",
+  "tree": "45c5c0a24614e4d4dc86eff09221fcd2c363b3b2",
+  "remote_head_verified": "fdcbe49c5f65a04faf69ce08ceddb72568bc41af",
+  "linear": false,
+  "counts_before": {
+    "Core": {
+      "done": 23,
+      "partial": 45,
+      "missing": 19,
+      "total": 87
+    },
+    "Agent surface": {
+      "done": 0,
+      "partial": 9,
+      "missing": 9,
+      "total": 18
+    },
+    "Full target": {
+      "done": 23,
+      "partial": 54,
+      "missing": 28,
+      "total": 105
+    }
+  },
+  "counts_after": {
+    "Core": {
+      "done": 23,
+      "partial": 45,
+      "missing": 19,
+      "total": 87
+    },
+    "Agent surface": {
+      "done": 0,
+      "partial": 9,
+      "missing": 9,
+      "total": 18
+    },
+    "Full target": {
+      "done": 23,
+      "partial": 54,
+      "missing": 28,
+      "total": 105
+    }
+  },
+  "clause_status_changes": [],
+  "contract_and_generated_views_unchanged": true,
+  "release_metadata_unchanged": true,
+  "browser_proof": {
+    "ok": true,
+    "head": "fdcbe49c5f65a04faf69ce08ceddb72568bc41af",
+    "states": 9,
+    "widths": [
+      1440,
+      390
+    ],
+    "captures": 18,
+    "checks": 8,
+    "all_png_dimensions_and_hashes_verified": true
+  },
+  "local_project_erasure": {
+    "exit": 0,
+    "groups": 7,
+    "captures": 8,
+    "reported_409_race_reproduced": false
+  },
+  "ci_run": null,
+  "ci_status": "awaiting discovery",
+  "ready": false,
+  "utc": "2026-11-17T23:42:06.910803+00:00",
+  "ci_conclusion": null,
+  "local_fixed_sentry": {
+    "head": "21a434c38bf0b467bca76c294f63b726c7fa8e2c",
+    "exit": 0
+  },
+  "initial_replay_linear": true,
+  "merges": [
+    "fdcbe49c5f65a04faf69ce08ceddb72568bc41af"
+  ],
+  "previous_ci_run": 44191699045,
+  "previous_ci_conclusion": "failure",
+  "merged_runtime_exit": 0,
+  "owner_journey_exit": 0
+}
