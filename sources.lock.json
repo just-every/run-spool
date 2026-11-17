@@ -10390,7 +10390,7 @@
       "executable": false
     },
     "src/ui/workbench/Discussion.tsx": {
-      "sha256": "8d63b3804895ffd8bca6c60d4d0a3393ddde9ed3c555e3cc0275bb07e48f4d61",
+      "sha256": "8da6a25ce01ceb7c7140310099c125d597b921876ab52db477be1dff551e3822",
       "executable": false
     },
     "src/ui/workbench/EmptyCapture.tsx": {
@@ -10486,7 +10486,7 @@
       "executable": false
     },
     "src/ui/workbench/IssueView.tsx": {
-      "sha256": "cfd00e3bfa91f62d96bed3e590926167fb00a0baebfa78e14d7dbf05b5718bdb",
+      "sha256": "890fd0fbf3e303507dc44e34b25c0e3071d1dcde35c444cfb8255b52e995f7a7",
       "executable": false
     },
     "src/ui/workbench/KeyRateLimit.tsx": {
@@ -11934,7 +11934,7 @@
       "executable": false
     },
     "tests/team-browser.mjs": {
-      "sha256": "bc483170c5ccb883abfd3f8da244b89428fde7c29cbae15dbd6d83b96acd73c3",
+      "sha256": "9a26a5c8a3899dc43b40094dc479c37fa10a2c07c61cc1fba1d5a76c3f6c28ed",
       "executable": false
     },
     "tests/team-flow.mjs": {

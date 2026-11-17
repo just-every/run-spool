@@ -4,10 +4,12 @@ import { date, stateLabel, type Request } from './shared';
 import type { ActivityRow, DiscussionData } from '../../domain/discussion/model';
 
 type Data=DiscussionData&{recurrence:{sameRelease:number;olderRelease:number};activity:ActivityRow[];next:string|null};
-export function Discussion({project,issue,refresh,request,onChanged}:{project:string;issue:string;refresh:unknown;request:Request;onChanged?:(revision?:number)=>void}) {
+export function Discussion({project,issue,refresh,request,onChanged,focusRequest=0}:{focusRequest?:number;project:string;issue:string;refresh:unknown;request:Request;onChanged?:(revision?:number)=>void}) {
  const base=`/api/projects/${encodeURIComponent(project)}/issues/${encodeURIComponent(issue)}`;
  const [data,setData]=useState<Data|null>(null),[error,setError]=useState(''),[body,setBody]=useState(''),[editing,setEditing]=useState<{id:string;version:number}|null>(null),[editBody,setEditBody]=useState(''),[busy,setBusy]=useState(false);
  const loadedIssue=useRef('');
+ const commentInput=useRef<HTMLTextAreaElement>(null),focusedRequest=useRef(0);
+ useEffect(()=>{if(focusRequest>focusedRequest.current&&data?.canWrite&&!busy&&commentInput.current){focusedRequest.current=focusRequest;commentInput.current.focus();}},[focusRequest,data?.canWrite,busy]);
  useEffect(()=>{
   let alive=true;setError('');if(loadedIssue.current!==base){loadedIssue.current=base;setData(null);setEditing(null);setBody('')}
   request(base+'/discussion').then(value=>{if(alive)setData(value)}).catch(failure=>{if(alive)setError(failure.message)});
@@ -37,7 +39,7 @@ export function Discussion({project,issue,refresh,request,onChanged}:{project:st
    {data.canWrite&&<button className="text-button" disabled={busy} onClick={()=>void mutate('/subscription','PUT',{subscribed:!data.subscription.subscribed,version:data.subscription.version})}>{data.subscription.subscribed?'Unsubscribe':'Subscribe'}</button>}
    <p className="muted">Notifications are not sent yet.</p>
    {data.canWrite&&<form onSubmit={event=>{event.preventDefault();void mutate('/comments','POST',{body})}}>
-    <label className="form-field">Comment<textarea aria-label="Comment" required value={body} maxLength={4000} rows={4} style={{width:'100%',boxSizing:'border-box'}} disabled={busy||data.comments.length>=data.limit} onChange={event=>setBody(event.target.value)}/></label>
+    <label className="form-field">Comment<textarea ref={commentInput} aria-label="Comment" required value={body} maxLength={4000} rows={4} style={{width:'100%',boxSizing:'border-box'}} disabled={busy||data.comments.length>=data.limit} onChange={event=>setBody(event.target.value)}/></label>
     <p className="muted">Mention a project member with @name or the part of their email before @. Up to 4,000 characters per comment.</p>
     <button className="highlight-button" disabled={busy||!body.trim()||data.comments.length>=data.limit}>Post comment</button>
    </form>}

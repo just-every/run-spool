@@ -212,6 +212,17 @@ export async function teamTriage(owner,member,project,width) {
   probe('member assignment','busy Assign plus duplicate activation -> one request and retained project member');
 
   const body='synthetic-spool-1 investigating the mapped delivery failure',comment=memberPage.getByLabel('Comment',{exact:true});
+  if(width===1440){
+   let releaseDiscussion;const pendingDiscussion=new Promise(resolve=>{releaseDiscussion=resolve});
+   await memberPage.route('**/issues/'+issue+'/discussion',async route=>{if(route.request().method()==='GET')await pendingDiscussion;await route.continue()});
+   try{
+    await memberPage.reload();await memberPage.getByRole('button',{name:'Comment',exact:true}).waitFor();
+    await expect(comment).toHaveCount(0);
+    await activate(memberPage.getByRole('button',{name:'Comment',exact:true}));releaseDiscussion();
+    await expect(comment).toBeFocused();
+   }finally{releaseDiscussion();await memberPage.unroute('**/issues/'+issue+'/discussion')}
+  }
+
   await comment.fill(body);await comment.focus();await memberPage.keyboard.press('Tab');
   const post=memberPage.getByRole('button',{name:'Post comment',exact:true});await expect(post).toBeFocused();
   const posted=memberPage.waitForResponse(response=>new URL(response.url()).pathname===root+'/issues/'+issue+'/comments'&&response.request().method()==='POST');
