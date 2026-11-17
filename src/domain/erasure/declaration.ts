@@ -17,6 +17,7 @@ export const projectErasure = defineErasure({
  entity: 'project',
  root: { table: 'projects' },
  edges: [
+  {table:'spool_import_proposals',from:'projects',where:"project=? OR EXISTS(SELECT 1 FROM json_each(payload,'$.grants') g WHERE json_extract(g.value,'$.project')=?) OR EXISTS(SELECT 1 FROM json_each(payload,'$.projects') p WHERE p.value=?)",params:['id','id','id']},
   ...['spool_notification_preferences','issue_recurrence_boundaries','issue_suppressions','issue_comments','issue_subscriptions','recurrence_policies','issue_priorities','issue_activity'].map(fromProject),
   // Multi-project definitions retain their other widgets; a sole-project item
   // and all its grants leave with the last project they describe.
@@ -49,7 +50,7 @@ export const projectErasure = defineErasure({
   ...['integration_deliveries', 'integration_attempts', 'integration_resolutions', 'integration_replays', 'integration_tokens', 'integration_token_events', 'integration_token_usage'].map(integration),
   // One predicate per project, never one query per event: import targets name
   // the project directly, or by the project in their JSON key, or by issue.
-  { table: 'sentry_import_targets', from: 'projects', where: "(kind='project' AND id=?) OR (CASE WHEN kind IN ('release','event') THEN json_extract(id,'$[0]') END=?) OR (kind='issue' AND id IN (SELECT id FROM issues WHERE project=?))", params: ['id', 'id', 'id'] },
+  { table: 'sentry_import_targets', from: 'projects', where: "(kind='project' AND id=?) OR (CASE WHEN kind IN ('release','event') THEN json_extract(id,'$[0]') END=?) OR (kind='issue' AND id IN (SELECT id FROM issues WHERE project=?)) OR (kind='import-proposal' AND id IN (SELECT id FROM spool_import_proposals WHERE project=? OR EXISTS(SELECT 1 FROM json_each(payload,'$.grants') g WHERE json_extract(g.value,'$.project')=?) OR EXISTS(SELECT 1 FROM json_each(payload,'$.projects') p WHERE p.value=?)))", params: ['id', 'id', 'id', 'id', 'id', 'id'] },
  ],
  redact: [
   { table: 'audit', from: 'projects', on: { project: 'id' }, set: { project: null, detail: ERASED_AUDIT_PENDING }, reason: 'Project audit entries survive with their kind and time only, under a random label that cannot be joined back to the project.' },
