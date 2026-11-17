@@ -1,4 +1,4 @@
 /** The spool-of-thread mark and the product name; the mark asset is shared with server documents. */
-export function Wordmark({ className = '' }: { className?: string }) {
-  return <span className={`wordmark ${className}`.trim()}><img src="/theme/spool-mark.svg" alt="" width="45" height="45" /><span data-rer-name>Spool</span></span>;
+export function Wordmark({ className = '', name = 'Spool' }: { className?: string; name?: string }) {
+  return <span className={`wordmark ${className}`.trim()}><img src="/theme/spool-mark.svg" alt="" width="45" height="45" /><span data-rer-name={name === 'Spool' ? '' : undefined}>{name}</span></span>;
 }

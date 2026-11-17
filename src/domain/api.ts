@@ -1,3 +1,4 @@
+import { recentCapture } from './capture-sources';
 import { canManageProjectKey } from './project-key-authority';
 import { keyRateRoutes } from './key-rate-limits/routes';
 import suppressionRoutes from './suppression/routes';
@@ -80,7 +81,7 @@ import rollbarImportRoutes from './rollbar-import/routes';
 import businessImportRoutes from './sentry-import/business-routes';
 import { projectDsn } from './sentry/dsn';
 import { feedbackRoutes } from './feedback/routes';
-import { browserOrigin, ingestOrigin, requestedHeaders } from './origins';
+import { websiteOrigin, ingestOrigin, requestedHeaders } from './origins';
 import { clientDroppedSql, issueAttentionSql, decodeIssueAttention, listedIssueSql } from './issue-attention';
 import { recordDevMint } from './dev-credentials';
 import { agentProject, agentReadPath } from './agent-access';
@@ -220,7 +221,7 @@ api.get('/api/projects/:project/browser-origins',async c=>c.json((await stmt(c.e
 api.on(['POST','DELETE'],'/api/projects/:project/browser-origins',async c=>{
   const project=c.req.param('project'),b=await body(c,2048);
   if(!b||typeof b!=='object'||Array.isArray(b)||Object.keys(b).join()!=='origin')throw new Error('Exactly one origin field is required');
-  const origin=browserOrigin(b.origin);if(!await stmt(c.env.DB,'SELECT 1 FROM projects WHERE id=?',project).first())return c.json({error:'Project not found'},404);
+  const origin=websiteOrigin(b.origin);if(!await stmt(c.env.DB,'SELECT 1 FROM projects WHERE id=?',project).first())return c.json({error:'Project not found'},404);
   const add=c.req.method==='POST',id=crypto.randomUUID(),time=now();
   const implicit=origin===c.env.AUTH_ORIGIN;
   if(implicit&&add)return c.json({origin,changed:false,allowed:true,implicit:true},add?201:200);
@@ -235,7 +236,7 @@ api.get('/api/projects/:project/issues',async c=>{
   const rows=(await stmt(c.env.DB,`SELECT i.*, ${prioritySql('i')} priority, ${shortIdColumnsSql('i')}, (SELECT mode FROM issue_resolutions r WHERE r.project=i.project AND r.issue=i.id) resolution_mode,(SELECT seen_without_release FROM issue_resolutions r WHERE r.project=i.project AND r.issue=i.id) seen_without_release, ${issueAttentionSql}, ${clientDroppedSql}, (SELECT release FROM events WHERE issue=i.id AND project=i.project ORDER BY received DESC,id DESC LIMIT 1) last_release, ${issueReleasesSql('i')} releases FROM issues i WHERE i.project=? AND ${listedIssueSql('i')} AND (?='all' OR i.state=?) ORDER BY CASE json_extract(attention,'$.kind') WHEN 'regression' THEN 2 WHEN 'new_issue' THEN 1 ELSE 0 END DESC,last_seen DESC,id DESC LIMIT ?`,c.req.param('project'),state,state,limit).all<any>()).results;
   return c.json(rows.map(decodeIssueAttention).map(decodeShortIds).map(row=>c.get('project')?issueProjection(row):ownerIssue(row)));
 });
-api.get('/api/projects/:project/outcomes',async c=>c.json({captureKeys:await stmt(c.env.DB,`SELECT COUNT(*) total,COALESCE(SUM(CASE WHEN revoked IS NULL AND ${mintedByCurrentPerson} THEN 1 ELSE 0 END),0) active FROM credentials WHERE project=? AND kind='ingest'`,c.req.param('project')).first(),window:'last 24 hours',coverage:'Server admission and SDK-reported client discards; unreported pre-transport loss remains unknown',rows:(await stmt(c.env.DB,'SELECT reason,SUM(count) count FROM outcomes WHERE project=? AND window>=? GROUP BY reason',c.req.param('project'),now()-86400000).all<any>()).results.map(outcomeProjection)}));
+api.get('/api/projects/:project/outcomes',async c=>c.json({captureKeys:await stmt(c.env.DB,`SELECT COUNT(*) total,COALESCE(SUM(CASE WHEN revoked IS NULL AND ${mintedByCurrentPerson} THEN 1 ELSE 0 END),0) active FROM credentials WHERE project=? AND kind='ingest'`,c.req.param('project')).first(),recentCapture:await recentCapture(c.env.DB,c.req.param('project'),now()),window:'last 24 hours',coverage:'Server admission and SDK-reported client discards; unreported pre-transport loss remains unknown',rows:(await stmt(c.env.DB,'SELECT reason,SUM(count) count FROM outcomes WHERE project=? AND window>=? GROUP BY reason',c.req.param('project'),now()-86400000).all<any>()).results.map(outcomeProjection)}));
 api.get('/api/projects/:project/alerts',async c=>c.json((await stmt(c.env.DB,`SELECT a.*,(SELECT COUNT(*) FROM alert_history h WHERE h.project=a.project AND h.alert_id=a.id) delivery_count,CASE WHEN EXISTS(SELECT 1 FROM alert_history h WHERE h.project=a.project AND h.alert_id=a.id) THEN 'configured' ELSE 'not_configured' END routing_state,${sharingSql('a.project')} commit_sharing FROM alerts a WHERE a.project=? ORDER BY a.created DESC,a.id LIMIT 100`,c.req.param('project')).all<any>()).results.map(row=>c.get('project')?alertProjection(row):ownerAlert(row))));
 api.patch('/api/projects/:project/issues/:issue',async c=>{
   const b=await body(c),resolution=resolutionInput(b);if(!['open','acknowledged','resolved','suppressed'].includes(b.state)||!Number.isSafeInteger(b.revision))throw new Error('Invalid triage');
