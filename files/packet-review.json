@@ -1,0 +1,71 @@
+{
+  "author": "Run Edit Run fleet",
+  "date": "2026-11-17",
+  "scope": "Explicitly selected report-only files; no product tree publication",
+  "regular_files": true,
+  "symlinks": 0,
+  "credential_value_matches": 0,
+  "secret_pattern_matches": 0,
+  "files": [
+    {
+      "path": "REPORT.md",
+      "bytes": 5862,
+      "sha256": "32fa761b4d36857036b6f59d4ec8c63d2f82d83c633eb6eebf7c4dfe0f7714dc"
+    },
+    {
+      "path": "RECEIPT.json",
+      "bytes": 2540,
+      "sha256": "cc7bfebfcde05b77176fa5a62c43d2fdf9a6c343b29e5504c1f2299db4f7d868"
+    },
+    {
+      "path": "result.json",
+      "bytes": 653,
+      "sha256": "10cba4d6aeed743082df43cc9570b620f68b088a5e3f4cfc81aea078e9d1bea4"
+    },
+    {
+      "path": "original-run-jobs.json",
+      "bytes": 295,
+      "sha256": "cd16439ac3f2d21c56372b860481977705422ee4eb86afc7f969c5c0c1c8554f"
+    },
+    {
+      "path": "original-failure.log",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "main-release-runs.json",
+      "bytes": 3067,
+      "sha256": "e653d7eca3d3e078e6d053ab75602c25ccbf497b4596256f688df3756f85fa9c"
+    },
+    {
+      "path": "successful-run-jobs.json",
+      "bytes": 2258,
+      "sha256": "8f720126a5c7fab3209a380aa68113d2a91b26378ed55c609da2626cce23327b"
+    },
+    {
+      "path": "current-main-ci.json",
+      "bytes": 1405,
+      "sha256": "dcc30da29df4a0dae75fc3fef9b481dfd39e05fce7050822b1b9cf0e9d61fb93"
+    },
+    {
+      "path": "local-trusted-publishing-summary.md",
+      "bytes": 856,
+      "sha256": "d6ac6c88ad3b016cee3c11cbebd4096c37e779be51439eeeecf82fca50deda7d"
+    },
+    {
+      "path": "local-trusted-publishing.log",
+      "bytes": 961,
+      "sha256": "28db07221fe96b64e1099beb28e70e01dba20625ecb92c91cfa5ac37e22f6d96"
+    },
+    {
+      "path": "local-checks.json",
+      "bytes": 1342,
+      "sha256": "c4f579119337d097d1deb49ccabc2d00262c4ac4ec2401c8b4e8b60fae3251df"
+    },
+    {
+      "path": "workflow-history.diff",
+      "bytes": 6531,
+      "sha256": "5ac0f244d8dfda429c560af807ab6ddb02baa9577bc088e1235b1bb62b69933b"
+    }
+  ]
+}
