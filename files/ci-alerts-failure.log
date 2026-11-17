@@ -1,0 +1,91 @@
+Sanitized actual failed-job log: workflow environment block removed.
+verify (alerts)	Run suites	﻿2026-11-17T12:34:06.3112857Z ##[group]Run pnpm test:alerts && pnpm test:alerts-ui
+verify (alerts)	Run suites	2026-11-17T12:34:06.3113365Z [36;1mpnpm test:alerts && pnpm test:alerts-ui[0m
+verify (alerts)	Run suites	2026-11-17T12:34:06.3132061Z shell: /usr/bin/bash -e {0}
+verify (alerts)	Run suites	2026-11-17T12:34:06.3134964Z ##[endgroup]
+verify (alerts)	Run suites	2026-11-17T12:34:06.5346977Z 
+verify (alerts)	Run suites	2026-11-17T12:34:06.5348008Z > @errors/errors-workbench@0.7.14 test:alerts /home/runner/work/run-spool/run-spool
+verify (alerts)	Run suites	2026-11-17T12:34:06.5349339Z > node tests/alerts-runtime.mjs && node tests/alerts-immediate.mjs && node tests/alerts-edge-runtime.mjs && node tests/alerts-native.mjs && node tests/alerts-egress.mjs
+verify (alerts)	Run suites	2026-11-17T12:34:06.5350018Z 
+verify (alerts)	Run suites	2026-11-17T12:34:06.6501834Z (node:2473) ExperimentalWarning: SQLite is an experimental feature and might change at any time
+verify (alerts)	Run suites	2026-11-17T12:34:06.6502878Z (Use `node --trace-warnings ...` to show where the warning was created)
+verify (alerts)	Run suites	2026-11-17T12:34:45.6664935Z PROBE AI-004 acceptance 4: native repair facts and strictly newer capture -> recurred observation, one matching regression delivery, one owner follow-up at the 24-hour boundary, one suppressed alternate notice and one creation audit fact; older capture and replay controls passed.
+verify (alerts)	Run suites	2026-11-17T12:34:45.6888986Z (node:2473) ExperimentalWarning: The MockTimers API is an experimental feature and might change at any time
+verify (alerts)	Run suites	2026-11-17T12:35:10.7537076Z ALERT-003 destination tests, delivery states, timezone digests and snoozing never hide loss: passing reviewed tests and unchanged archive projection; accepted/delivered/bounced/complained (signed fixtures), unsigned/forged/unknown refused, duplicate once; webhook HTTP/signature receipt; America/New_York daily/weekly at DST boundary once; burst held, expiry one durable resumption and suppressed count; inert restore.
+verify (alerts)	Run suites	2026-11-17T12:35:10.8075666Z ALERT-004 an interrupted send, an expired lease and a lost provider response each leave one durable follow-up and never a duplicate. Alert public doors passed: atomic capture with silent local mail and HMAC receiver; regression, isolation/revocation/origin, immutable 429 retry, uncertainty, overlapping complete-window spikes, safe restore without replay.
+verify (alerts)	Run suites	2026-11-17T12:35:10.9385459Z (node:2539) ExperimentalWarning: SQLite is an experimental feature and might change at any time
+verify (alerts)	Run suites	2026-11-17T12:35:10.9386545Z (Use `node --trace-warnings ...` to show where the warning was created)
+verify (alerts)	Run suites	2026-11-17T12:35:15.3557628Z {"passed":true,"ingestToDeliveredMs":790,"proof":"Idle tick recorded in /health; new-issue and regression mail accepted silently and webhook delivered after ingest with no scheduled run; racing and later scheduled runs sent nothing twice."}
+verify (alerts)	Run suites	2026-11-17T12:35:15.4954170Z (node:2564) ExperimentalWarning: SQLite is an experimental feature and might change at any time
+verify (alerts)	Run suites	2026-11-17T12:35:15.4954817Z (Use `node --trace-warnings ...` to show where the warning was created)
+verify (alerts)	Run suites	2026-11-17T12:35:28.3674593Z Alert edge policy passed: missing enforcing egress blocks without fetch; real Base mail 429 retries, 503 uncertainty never replays, rule revocation cancels pending work.
+verify (alerts)	Run suites	2026-11-17T12:35:28.3678362Z RER relay: native sign-in and alert mail POST the exact relay envelope with ***; emitted workerd uses Base redirect:manual; 302 is rejected/provider_redirected with no target fetch or retry; 429 queues then retries per policy; 401 is a rejected delivery and a plain owner-visible sign-in problem, with health intact. Login hints prefill both sign-in paths without sending mail.
+verify (alerts)	Run suites	2026-11-17T12:35:28.5381791Z (node:2608) ExperimentalWarning: SQLite is an experimental feature and might change at any time
+verify (alerts)	Run suites	2026-11-17T12:35:28.5382671Z (Use `node --trace-warnings ...` to show where the warning was created)
+verify (alerts)	Run suites	2026-11-17T12:35:28.5755218Z TAP version 13
+verify (alerts)	Run suites	2026-11-17T12:35:35.5483923Z ALERT-001 filters, retained-user windows, explicit session denominator, identity/session refusals, stale preview, durable deduplication, reactivation and plain Resolve passed
+verify (alerts)	Run suites	2026-11-17T12:35:50.6819041Z ALERT-001 baseline journey: sample-scaled normal/burst, weekly seasonality, low traffic, current/historical loss, insufficient history, and durable once-only routing across restart
+verify (alerts)	Run suites	2026-11-17T12:36:08.0034790Z Native metric failure/revocation, truthful capture-loss accounting and populated project alert custody erasure passed
+verify (alerts)	Run suites	2026-11-17T12:36:29.7832321Z ALERT-001 archive round trip restores 45 alerts of kinds metric, new_issue, reactivation, regression, spike; unknown kind refused: {"error":"Invalid alert archive"}
+verify (alerts)	Run suites	2026-11-17T12:36:29.8253715Z # Subtest: native scheduled event delivers a new issue with silent local mail once
+verify (alerts)	Run suites	2026-11-17T12:36:29.8260267Z ok 1 - native scheduled event delivers a new issue with silent local mail once
+verify (alerts)	Run suites	2026-11-17T12:36:29.8261286Z   ---
+verify (alerts)	Run suites	2026-11-17T12:36:29.8263346Z   duration_ms: 61249.248125
+verify (alerts)	Run suites	2026-11-17T12:36:29.8263675Z   type: 'test'
+verify (alerts)	Run suites	2026-11-17T12:36:29.8263941Z   ...
+verify (alerts)	Run suites	2026-11-17T12:36:35.2524024Z PROBE ALERT-001 acceptance-5: Sentry intake and plain Resolve on two distinct issues -> same-release and release-less recurrence each reopen once, retain the correct release identity and create two reviewed-rule intents; repeated capture and scheduling create no duplicate alert, intent or attempt.
+verify (alerts)	Run suites	2026-11-17T12:36:35.3513501Z # Subtest: native scheduled event delivers a later-release regression with silent local mail once
+verify (alerts)	Run suites	2026-11-17T12:36:35.3514833Z ok 2 - native scheduled event delivers a later-release regression with silent local mail once
+verify (alerts)	Run suites	2026-11-17T12:36:35.3515435Z   ---
+verify (alerts)	Run suites	2026-11-17T12:36:35.3515827Z   duration_ms: 5525.819959
+verify (alerts)	Run suites	2026-11-17T12:36:35.3517038Z   type: 'test'
+verify (alerts)	Run suites	2026-11-17T12:36:35.3517366Z   ...
+verify (alerts)	Run suites	2026-11-17T12:38:00.9460022Z # Subtest: native scheduled event completes a real spike window and completes with silent local mail once
+verify (alerts)	Run suites	2026-11-17T12:38:00.9461238Z ok 3 - native scheduled event completes a real spike window and completes with silent local mail once
+verify (alerts)	Run suites	2026-11-17T12:38:00.9461857Z   ---
+verify (alerts)	Run suites	2026-11-17T12:38:00.9462186Z   duration_ms: 85594.475467
+verify (alerts)	Run suites	2026-11-17T12:38:00.9462551Z   type: 'test'
+verify (alerts)	Run suites	2026-11-17T12:38:00.9462882Z   ...
+verify (alerts)	Run suites	2026-11-17T12:38:00.9479169Z 1..3
+verify (alerts)	Run suites	2026-11-17T12:38:00.9481587Z # tests 3
+verify (alerts)	Run suites	2026-11-17T12:38:00.9482286Z # suites 0
+verify (alerts)	Run suites	2026-11-17T12:38:00.9482595Z # pass 3
+verify (alerts)	Run suites	2026-11-17T12:38:00.9482837Z # fail 0
+verify (alerts)	Run suites	2026-11-17T12:38:00.9483077Z # cancelled 0
+verify (alerts)	Run suites	2026-11-17T12:38:00.9483372Z # skipped 0
+verify (alerts)	Run suites	2026-11-17T12:38:00.9483624Z # todo 0
+verify (alerts)	Run suites	2026-11-17T12:38:00.9483900Z # duration_ms 152375.580854
+verify (alerts)	Run suites	2026-11-17T12:38:01.0877507Z (node:2683) ExperimentalWarning: SQLite is an experimental feature and might change at any time
+verify (alerts)	Run suites	2026-11-17T12:38:01.0878381Z (Use `node --trace-warnings ...` to show where the warning was created)
+verify (alerts)	Run suites	2026-11-17T12:38:06.8911416Z Alert egress delivery passed: signed delivery through the egress service transport, private-address refusal without connection, redirect not followed (3 pinned connections).
+verify (alerts)	Run suites	2026-11-17T12:38:33.2454890Z [ALERT-002] reviewed Slack test, exactly-once new/regression, safe identifiers, rotation/revoke, API/500/timeout/egress failures, secret exclusion, inert restore and erasure passed (recorded edge double only)
+verify (alerts)	Run suites	2026-11-17T12:38:52.3291029Z PROBE ALERT-002 alternate: reviewed exact-project Slack -> one posted notice, attempt, message identifier and safe follow-up fact across concurrent ticks and restart
+verify (alerts)	Run suites	2026-11-17T12:38:52.3292630Z PROBE ALERT-002 uncertainty: provider timeout -> uncertain once without automatic resend or recursive notices; source reconciliation preserves unknown alternate receipt
+verify (alerts)	Run suites	2026-11-17T12:38:52.3294425Z PROBE ALERT-002 rate: HTTP 429 with Retry-After 60 -> no early retry; restart continues the same notice and records the posted message
+verify (alerts)	Run suites	2026-11-17T12:38:52.3296234Z PROBE ALERT-002 retry: overlapping ticks, one waiting on a held notice while the other receives HTTP 429 Retry-After 60 -> the stale snapshot sends nothing before the durable boundary; the due retry posts the same notice once
+verify (alerts)	Run suites	2026-11-17T12:38:52.3298240Z PROBE ALERT-002 credentials: foreign and unreviewed alternates refused; rotation and revocation cancel old queued notices across restart
+verify (alerts)	Run suites	2026-11-17T12:38:52.3299602Z PROBE ALERT-002 custody: archive excludes notice queues and tokens; project erasure removes operational notice custody and no later send occurs
+verify (alerts)	Run suites	2026-11-17T12:38:52.6309454Z 
+verify (alerts)	Run suites	2026-11-17T12:38:52.6310496Z > @errors/errors-workbench@0.7.14 test:alerts-ui /home/runner/work/run-spool/run-spool
+verify (alerts)	Run suites	2026-11-17T12:38:52.6311201Z > node tests/alerts-ui.mjs
+verify (alerts)	Run suites	2026-11-17T12:38:52.6311425Z 
+verify (alerts)	Run suites	2026-11-17T12:38:53.0053410Z (node:2818) ExperimentalWarning: SQLite is an experimental feature and might change at any time
+verify (alerts)	Run suites	2026-11-17T12:38:53.0054280Z (Use `node --trace-warnings ...` to show where the warning was created)
+verify (alerts)	Run suites	2026-11-17T12:38:53.0763549Z (node:2818) ExperimentalWarning: The MockTimers API is an experimental feature and might change at any time
+verify (alerts)	Run suites	2026-11-17T12:39:00.0006437Z node:internal/modules/run_main:123
+verify (alerts)	Run suites	2026-11-17T12:39:00.0007319Z     triggerUncaughtException(
+verify (alerts)	Run suites	2026-11-17T12:39:00.0009077Z     ^
+verify (alerts)	Run suites	2026-11-17T12:39:00.0009246Z 
+verify (alerts)	Run suites	2026-11-17T12:39:00.0009645Z AssertionError [ERR_ASSERTION]: A blocked save names the missing preview action after a reviewed test
+verify (alerts)	Run suites	2026-11-17T12:39:00.0010388Z     at file:///home/runner/work/run-spool/run-spool/tests/alerts-ui.mjs:47:11 {
+verify (alerts)	Run suites	2026-11-17T12:39:00.0010901Z   generatedMessage: false,
+verify (alerts)	Run suites	2026-11-17T12:39:00.0011194Z   code: 'ERR_ASSERTION',
+verify (alerts)	Run suites	2026-11-17T12:39:00.0011528Z   actual: false,
+verify (alerts)	Run suites	2026-11-17T12:39:00.0011782Z   expected: true,
+verify (alerts)	Run suites	2026-11-17T12:39:00.0012042Z   operator: '==',
+verify (alerts)	Run suites	2026-11-17T12:39:00.0012246Z   diff: 'simple'
+verify (alerts)	Run suites	2026-11-17T12:39:00.0012420Z }
+verify (alerts)	Run suites	2026-11-17T12:39:00.0012513Z 
+verify (alerts)	Run suites	2026-11-17T12:39:00.0012592Z Node.js v22.20.0
+verify (alerts)	Run suites	2026-11-17T12:39:00.0391750Z  ELIFECYCLE  Command failed with exit code 1.
+verify (alerts)	Run suites	2026-11-17T12:39:00.0702270Z ##[error]Process completed with exit code 1.

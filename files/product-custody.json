@@ -1,0 +1,12 @@
+{
+  "time": "2026-11-17T12:47:38.097183+00:00",
+  "repository": "just-every/run-spool",
+  "branch": "cloud/sd-spool-import-sentry-1",
+  "head": "8f3fe12f0153fe7d91a55e00ed7e5c4853b9ecba",
+  "remote_head": "8f3fe12f0153fe7d91a55e00ed7e5c4853b9ecba",
+  "identity_check": "All three candidate commits have Run Edit Run fleet author/committer and fleet@runeditrun.com; no co-author trailers.",
+  "evidence_first_readback": {
+    "head": "be851b2b3402ca7c82e88c45bbb26e7585ae95b6",
+    "files_verified": 20
+  }
+}

@@ -53,5 +53,64 @@
       "{status,conclusion,head_sha,html_url}"
     ],
     "exit": 0
+  },
+  {
+    "time": "2026-11-17T12:48:15.907911+00:00",
+    "command": [
+      "gh",
+      "api",
+      "repos/just-every/run-spool/actions/runs/44083960124",
+      "--jq",
+      "{status,conclusion,head_sha,html_url}"
+    ],
+    "exit": 0
+  },
+  {
+    "time": "2026-11-17T12:53:17.867443+00:00",
+    "command": [
+      "gh",
+      "api",
+      "repos/just-every/run-spool/actions/runs/44083960124",
+      "--jq",
+      "{status,conclusion,head_sha,html_url}"
+    ],
+    "exit": 0
+  },
+  {
+    "time": "2026-11-17T12:53:44.783296+00:00",
+    "command": [
+      "gh",
+      "api",
+      "repos/just-every/run-spool/actions/runs/44083960124/jobs?per_page=100",
+      "--jq",
+      "{total_count,jobs:[.jobs[]|select(.conclusion==\"failure\")|{id,name,conclusion,steps:[.steps[]|select(.conclusion==\"failure\")|{name,number}]}]}"
+    ],
+    "exit": 0
+  },
+  {
+    "time": "2026-11-17T12:54:16.442165+00:00",
+    "command": [
+      "gh",
+      "run",
+      "view",
+      "44083960124",
+      "--repo",
+      "just-every/run-spool",
+      "--job",
+      "134042431931",
+      "--log-failed"
+    ],
+    "exit": 0
+  },
+  {
+    "time": "2026-11-17T13:00:55.781255+00:00",
+    "command": [
+      "gh",
+      "api",
+      "repos/just-every/run-spool/actions/runs/44083960124/jobs?per_page=100",
+      "--jq",
+      "{total_count,jobs:[.jobs[]|{id,name,status,conclusion,head_sha}]}"
+    ],
+    "exit": 0
   }
 ]

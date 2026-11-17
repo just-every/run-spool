@@ -1,0 +1,21 @@
+{
+  "head": "8f3fe12f0153fe7d91a55e00ed7e5c4853b9ecba",
+  "files": [
+    {
+      "path": "tests/alerts-ui.mjs",
+      "same_as_origin_main": true,
+      "sha256": "ee30c08f80346489f3e80b504092a7f8e8ee101b81a699e5140a3582dcaf8c78"
+    },
+    {
+      "path": "src/ui/alerts/AlertRules.tsx",
+      "same_as_origin_main": true,
+      "sha256": "137d8a5d4239a8b48877b1beecdf3debd3b6e9a8bc8e0b846427fa7daf837ac7"
+    },
+    {
+      "path": "tests/alerts/runtime.mjs",
+      "same_as_origin_main": true,
+      "sha256": "57bb9cee4d01491ec22a83fc68664bab5f033dab725be30c126e0c3629df454c"
+    }
+  ],
+  "scope": "Alerts UI files are outside this task lease; no assertion or UI change was made."
+}
