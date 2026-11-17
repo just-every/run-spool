@@ -1,0 +1,74 @@
+{
+  "repository": "just-every/run-spool",
+  "product_branch": "cloud/sd-spool-import-rules-2",
+  "product_head": "6d55202781d060e57defb4dc9e492b1a86a0bc2c",
+  "recorded_at": "2026-11-17T19:45:21.028699+00:00",
+  "checks": [
+    {
+      "command": "node src/base/contract-docs.mjs check",
+      "exit": 0,
+      "log": "contract-check.log",
+      "sha256": "b04031901cfff3e9bc42a429b52cbc14c2442ffb68817fd62a245ac52847b422"
+    },
+    {
+      "command": "node scripts/edition-authoring/cli.mjs verify-base --offline",
+      "exit": 0,
+      "log": "base-copy-check.log",
+      "sha256": "487a93aed7e010c3ffe872f5bc5cb6cb36b22d1c5329f2a664de4882f8a913c2"
+    },
+    {
+      "command": "pnpm source:check",
+      "exit": 0,
+      "log": "source-check.log",
+      "sha256": "f81b845bfadefcca330b95c3ee3c90fb36146a206baec37175200983e685cb0f"
+    },
+    {
+      "command": "pnpm typecheck",
+      "exit": 0,
+      "log": "typecheck.log",
+      "sha256": "d24e643786b2318b8099f4214cf47f0a1b65f505e181e9651ab2a74c5ef9547d"
+    },
+    {
+      "command": "npx -y @runeditrun/rer check --profile first-party",
+      "exit": 0,
+      "log": "validation.log",
+      "sha256": "6205e22497347c74bf6517d7c67792b17cc2051d7b12f33098353c4b1b9bed4a"
+    },
+    {
+      "command": "cloud_run npx -y @runeditrun/rer build",
+      "exit": 0,
+      "log": "application-build.log",
+      "sha256": "c6a0895f6c45586a703dcb8b50843441da836fa39200e298b2efaad6026145e6"
+    },
+    {
+      "command": "cloud_run npx -y @runeditrun/rer build --site",
+      "exit": 0,
+      "log": "site-build.log",
+      "sha256": "999ba8503a60e0206ca3a907082a7bf59f23971ea42a4b35e6014b17588f0b01"
+    },
+    {
+      "command": "pnpm integration:check",
+      "exit": 0,
+      "log": "integration-check.log",
+      "sha256": "46a108e0ca55bcdb6210d183ccd8f636d77def078169686f0764b21d56d60523"
+    },
+    {
+      "command": "cloud_run node tests/alerts-native.mjs",
+      "exit": 0,
+      "log": "alerts-native.log",
+      "sha256": "2767eebe9c4f149d3a9e92eba2eda2ff9e0d45cb04dd15b23760a96748dc9772"
+    },
+    {
+      "command": "cloud_run node tests/sentry-import.mjs",
+      "exit": 0,
+      "log": "sentry-import.log",
+      "sha256": "332ed57e63438295868b62c573198273772aa5ca869ea38c68eb7b1ac9fb2447"
+    },
+    {
+      "command": "node --check tests/sentry-import/field-accounting.mjs; node --check tests/sentry-import/rule-receipt.mjs",
+      "exit": 0
+    }
+  ],
+  "scope_blocker": "No existing vendor import creates native alert rules; Sentry native rule carry is explicitly excluded",
+  "clause_status_changes": []
+}

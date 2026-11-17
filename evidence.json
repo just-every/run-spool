@@ -1,0 +1,178 @@
+{
+  "files": [
+    {
+      "blob": "152c98a1d32994c7acf7de202147871cac3c5e13",
+      "bytes": 2081,
+      "path": "PLAN.md",
+      "sha256": "a649590c0faeac3716ffce23bb0d61509355cf50c12e9fe42a838b8f1406f1bd"
+    },
+    {
+      "blob": "c15ebd610266436b9a9f1cdaf655b1092582de9d",
+      "bytes": 7261,
+      "path": "REPORT.md",
+      "sha256": "805213b2fb14b27034bf1852f3bce00c43e56e8e3b9adb34d33cf9219e08df4d"
+    },
+    {
+      "blob": "0433d32a5e6ad3f90013b18c749db7999aea332a",
+      "bytes": 1528,
+      "path": "alerts-native.log",
+      "sha256": "2767eebe9c4f149d3a9e92eba2eda2ff9e0d45cb04dd15b23760a96748dc9772"
+    },
+    {
+      "blob": "ea9c52efcc286f4b1ddf819824f5365f0b550f10",
+      "bytes": 12199,
+      "path": "application-build.log",
+      "sha256": "c6a0895f6c45586a703dcb8b50843441da836fa39200e298b2efaad6026145e6"
+    },
+    {
+      "blob": "b250454775e6a68756c337728f4c73646c65e7fd",
+      "bytes": 23317,
+      "path": "base-copy-check.log",
+      "sha256": "487a93aed7e010c3ffe872f5bc5cb6cb36b22d1c5329f2a664de4882f8a913c2"
+    },
+    {
+      "blob": "536ad3b77b12e3cc373f0fe27e0b251a9bb37aeb",
+      "bytes": 256245,
+      "path": "baseline-accounting.json",
+      "sha256": "e15f6cf45800495df5e30e1e20f4fb279abf532741daac198587a6c45df40e51"
+    },
+    {
+      "blob": "dbe7f30fdff288d7013a1716b9634c5d1ef9c566",
+      "bytes": 367,
+      "path": "ci-discovery.json",
+      "sha256": "166f00092d0a47e4f1191e722bcbffb369d44a729dc13b1862af4cca05fbc629"
+    },
+    {
+      "blob": "a8011556e69d77a06df15a8c498331bb7e2a6e02",
+      "bytes": 2677,
+      "path": "ci-receipt.json",
+      "sha256": "00b784a6f8eee23334caa8c9dfb9c89d93c7c5617c9d21d0cef965609374e1f2"
+    },
+    {
+      "blob": "4fc34d2038279a81c0d409728933efb67950fa94",
+      "bytes": 290,
+      "path": "ci-status-2.json",
+      "sha256": "6a6e8e0f32f6a1385ab0c56aa758db8733ee02d96db9399710491073ce802139"
+    },
+    {
+      "blob": "96a12ac5810e6729a9bfa940f170737ce3fb2b77",
+      "bytes": 290,
+      "path": "ci-status-3.json",
+      "sha256": "d0103b738a9eaa7452efde91a141856d709bd028b7b41312a438a8d588775a1d"
+    },
+    {
+      "blob": "143edb9705c62f6612ae557f72715526cc7d6a51",
+      "bytes": 290,
+      "path": "ci-status-4.json",
+      "sha256": "4df376fea91bc3e6e92e4eab76e48b5fcda596e0689ececf1a83638cada4dea3"
+    },
+    {
+      "blob": "dea4392bbf6f9503d0429cb71b8cf322a2416299",
+      "bytes": 290,
+      "path": "ci-status-5.json",
+      "sha256": "25d629c3fcc26770a84f9f1741891f78b7884f50c0d8e2e99df72da468ff6e8b"
+    },
+    {
+      "blob": "bf50b6ae0fa8ef94b055fedd21dd68441946f135",
+      "bytes": 293,
+      "path": "ci-status-6.json",
+      "sha256": "44067d05a1caf8d78d57e623532f68e23014d1a81c8a853b2f9b1759ab9b7758"
+    },
+    {
+      "blob": "b59d39532e8a030ff74f6339019ab7870ef51548",
+      "bytes": 70,
+      "path": "contract-check.log",
+      "sha256": "b04031901cfff3e9bc42a429b52cbc14c2442ffb68817fd62a245ac52847b422"
+    },
+    {
+      "blob": "4cf4bf3d01d3b5022426fe02bef006febe0a703f",
+      "bytes": 1237,
+      "path": "import-receipt.json",
+      "sha256": "ee5938f0963c03e824165b70baeb89f0526cce48e04a92523c0f1a23b5e1eadf"
+    },
+    {
+      "blob": "369039420c470751c1fad36b3b8226b8b4697fa1",
+      "bytes": 296,
+      "path": "integration-check.log",
+      "sha256": "46a108e0ca55bcdb6210d183ccd8f636d77def078169686f0764b21d56d60523"
+    },
+    {
+      "blob": "205e196b92617e6179345687f582a4e97259f750",
+      "bytes": 2577,
+      "path": "local-checks.json",
+      "sha256": "fdbfc6ad1c0602c200dba63af3fc29181220e952bb30130871fd2ccc6b865714"
+    },
+    {
+      "blob": "9b26aafcf67ef8667eba164c5263ffd8b1a0c060",
+      "bytes": 542,
+      "path": "preservation-receipt.json",
+      "sha256": "c07992334228dd0333c2039fa10d3ac6860351e22e3831d4b9bedbdd7a619326"
+    },
+    {
+      "blob": "71bc494ead377d477a3a436820c7648d18824e86",
+      "bytes": 1015,
+      "path": "product-push.log",
+      "sha256": "6ac93753a7d55bffc8889175f65287b132f0d090425d336face37e4123ea5acd"
+    },
+    {
+      "blob": "c5e55eb315f75d8d509de37acf858b0c42b2dd23",
+      "bytes": 167576,
+      "path": "rule-receipt-1440.png",
+      "sha256": "6411acc0e2feb57170ba6c43c84338ad869d347f2228a530a18e20c5a1660be7"
+    },
+    {
+      "blob": "b03395e6b5dee20dc5ce7ad5b7b0afbb37d4a9b7",
+      "bytes": 93444,
+      "path": "rule-receipt-390.png",
+      "sha256": "13d9e6d7fb3fc38f20a4617064e44c288ce6fad2eb36d48fb6e48f6dae110f7a"
+    },
+    {
+      "blob": "8b5963646a425def91f22ed0de8f2c08eb64a85f",
+      "bytes": 6580868,
+      "path": "scaled-accounting.json",
+      "sha256": "b8278bc040f7e5b880574057fd535eee7700df44bd501cfe1b6761099f737529"
+    },
+    {
+      "blob": "cd0d2c10bc10904180a5f567352c4e9f97c242ec",
+      "bytes": 1219,
+      "path": "scope-receipt.json",
+      "sha256": "e53737ccfeec0aca2cdcfd274bb14ebb9edcdc209e7f5a6f675dc7f707da5a37"
+    },
+    {
+      "blob": "bdda61e4d0d49eff196186d2ecc66fba534d3cd1",
+      "bytes": 2748,
+      "path": "sentry-import.log",
+      "sha256": "332ed57e63438295868b62c573198273772aa5ca869ea38c68eb7b1ac9fb2447"
+    },
+    {
+      "blob": "759bfdbc66b2c53f46963489ffe7381df5b5edde",
+      "bytes": 6022,
+      "path": "site-build.log",
+      "sha256": "999ba8503a60e0206ca3a907082a7bf59f23971ea42a4b35e6014b17588f0b01"
+    },
+    {
+      "blob": "9f682ba5c772fb8959b30b7648bc8011b41d9fb7",
+      "bytes": 480235,
+      "path": "source-check.log",
+      "sha256": "f81b845bfadefcca330b95c3ee3c90fb36146a206baec37175200983e685cb0f"
+    },
+    {
+      "blob": "6d02c6bc20043ba91462f3b6041fc3cb76761dca",
+      "bytes": 188,
+      "path": "typecheck.log",
+      "sha256": "d24e643786b2318b8099f4214cf47f0a1b65f505e181e9651ab2a74c5ef9547d"
+    },
+    {
+      "blob": "e0746d82caf17348cdc04c253bcde3312f0717a8",
+      "bytes": 136,
+      "path": "validation.log",
+      "sha256": "6205e22497347c74bf6517d7c67792b17cc2051d7b12f33098353c4b1b9bed4a"
+    }
+  ],
+  "product_branch": "cloud/sd-spool-import-rules-2",
+  "product_head": "6d55202781d060e57defb4dc9e492b1a86a0bc2c",
+  "ref": "refs/heads/evidence/sd-spool-import-rules-2",
+  "repository": "just-every/run-spool",
+  "schema": 1,
+  "tag": "sd-spool-import-rules-2"
+}

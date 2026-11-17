@@ -1,0 +1,14 @@
+{
+  "product_branch": "cloud/sd-spool-import-rules-2",
+  "head": "6d55202781d060e57defb4dc9e492b1a86a0bc2c",
+  "remote_head": "6d55202781d060e57defb4dc9e492b1a86a0bc2c",
+  "pushed": true,
+  "push_guard": "cloud-push.py",
+  "attempts": 1,
+  "bundle": "/home/agent/rer-consolidation/work/sd-spool-import-rules-2/product.bundle",
+  "bundle_sha256": "18ee7b531727b1fff1c14534e26ceb0e915d6f28124bea5ef7fced1ebad4a136",
+  "bundle_verified": true,
+  "pr_created": false,
+  "main_pushed": false,
+  "recorded_at": "2026-11-17T19:47:13.999577+00:00"
+}

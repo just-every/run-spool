@@ -1,0 +1,39 @@
+{
+  "repository": "just-every/run-spool",
+  "base": "3b7a3ebe545f3bd9c6a979ca04d5687c6a375b09",
+  "scope": "No current vendor import creates native alert rules",
+  "paths": [
+    {
+      "path": "src/domain/sentry-import/targets.ts",
+      "sha256": "6400b943b69085f0326e87ae72cd90b36c57df9cbc48935f3e26c3a95f698b1c"
+    },
+    {
+      "path": "src/domain/sentry-import/mapping.ts",
+      "sha256": "88ffc8676f543c555288cb6fe223a22d7c35cbd6a822f1d686cf0610c7420daa"
+    },
+    {
+      "path": "src/domain/alerts/archive.ts",
+      "sha256": "a0c4fca0a337c2576eafc1061ec97c1f7557d07ec7cc9c3ae35cb23af6f644fd"
+    },
+    {
+      "path": "src/domain/alerts/preview.ts",
+      "sha256": "d35d89e64c07c6231d443ced6244ce61e9a3c026a3524fc2120f8ecbfa3b25c1"
+    },
+    {
+      "path": "tests/alerts/conditions-journey.mjs",
+      "sha256": "15769cf5da7d60cebdde7c34ddd50ca3c52dc8d913aba8f2f32577b0633414a0"
+    },
+    {
+      "path": "tests/alerts-native.mjs",
+      "sha256": "d0f649315101f20682fb18e79f922d80a520f3d3cf170fb07640067934980dcc"
+    }
+  ],
+  "manualPreviewAndJourneyUnchanged": true,
+  "contractCounts": {
+    "done": 23,
+    "partial": 54,
+    "missing": 28,
+    "total": 105
+  },
+  "clauseStatusChanges": []
+}
