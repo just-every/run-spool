@@ -26,7 +26,7 @@ try{
   // Each SDK reads its release (and, where it supports one, its dist) from the standard variables.
   const identity={SENTRY_RELEASE:`synthetic-spool-${name}@1.0.0`,SENTRY_DIST:'synthetic-spool-1'};
   const execute=async(dsn,modes=sequence)=>{const results=[];for(const mode of modes){const c=runtime.command(mode,dir,dsn);results.push({mode,...await run(c.command,c.args,{cwd:c.cwd,env:{...identity,...c.env},unset:c.unset})})}return results};
-  const reference=await referenceCollector();
+  const reference=await referenceCollector({responseDelayMs:runtime.responseDelayMs});
   const referenceRuns=await execute(reference.dsn);await reference.close();
   for(const result of referenceRuns)assert.equal(result.mode==='crash'?result.code!==0:result.code===0,true,`${name} reference ${result.mode} exit ${result.code}: ${result.stderr.slice(-600)}`);
   const types=counts(reference.sent.map(item=>item.type));
