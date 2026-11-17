@@ -1,0 +1,7 @@
+{
+  "status": "no-change",
+  "sha": "1853e3b3b59d49853b5ee7678f851d6de8343fbf",
+  "summary": "Nightly 42561208392 mobile-preview failure was already fixed by e9297446cc645c4509b1e93881a04bf94f6c3e5a; the full command journey passes locally and in exact current-main Verify 44022478247.",
+  "tests": "Node 22.20.0 / pnpm 10.12.4: cloud_run env RER_CHROMIUM_EXECUTABLE_PATH=/usr/bin/chromium pnpm test:commands PASS (exit 0); cloud_run pnpm typecheck PASS (exit 0); node scripts/edition-authoring/cli.mjs check PASS (ok true, exit 0); node --check tests/preview-session.mjs PASS (exit 0).",
+  "security": true
+}

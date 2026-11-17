@@ -1,0 +1,101 @@
+{
+  "schema": 1,
+  "tag": "gr-mt-spool-ci-14",
+  "author": "Run Edit Run fleet",
+  "date": "2026-11-17T07:51:55.416081+00:00",
+  "repository": "just-every/run-spool",
+  "status": "no-change",
+  "product_branch": "cloud/gr-mt-spool-ci-14",
+  "product_head": "1853e3b3b59d49853b5ee7678f851d6de8343fbf",
+  "origin_main": "1853e3b3b59d49853b5ee7678f851d6de8343fbf",
+  "existing_fix": "e9297446cc645c4509b1e93881a04bf94f6c3e5a",
+  "original_run": {
+    "id": 42561208392,
+    "head": "9271cae322c0e9b9512b45e8340c62bca60d7eed",
+    "command_job": 128977857073,
+    "conclusion": "failure",
+    "stage": "mobile-preview"
+  },
+  "resolved_nightly": {
+    "id": 43153888732,
+    "head": "56e2029c36482c291eb846d3c33c935302d98250",
+    "command_job": 130969269750,
+    "conclusion": "success"
+  },
+  "current_main_verify": {
+    "id": 44022478247,
+    "head": "1853e3b3b59d49853b5ee7678f851d6de8343fbf",
+    "status": "completed",
+    "conclusion": "success",
+    "command_job": 133834985512,
+    "command_job_conclusion": "success"
+  },
+  "later_scheduled_failure": {
+    "id": 43803437294,
+    "head": "adc3de69b9ae0ff60e41897f8ff7662fd656d560",
+    "command_job": 133088740043,
+    "stage": "slow-readiness",
+    "conclusion": "failure",
+    "scope": "separate baseline failure; later current-main full command job passed"
+  },
+  "tests": [
+    {
+      "command": "pnpm install --frozen-lockfile",
+      "exit_code": 0
+    },
+    {
+      "command": "cloud_run env RER_CHROMIUM_EXECUTABLE_PATH=/usr/bin/chromium pnpm test:commands",
+      "exit_code": 0,
+      "node": "22.20.0",
+      "pnpm": "10.12.4",
+      "log": "local-commands.log",
+      "full_journey": true
+    },
+    {
+      "command": "cloud_run pnpm typecheck",
+      "exit_code": 0,
+      "node": "22.20.0",
+      "log": "local-typecheck.log"
+    },
+    {
+      "command": "node scripts/edition-authoring/cli.mjs check",
+      "exit_code": 0,
+      "ok": true,
+      "summary": "source-check-summary.json"
+    },
+    {
+      "command": "node --check tests/preview-session.mjs",
+      "exit_code": 0
+    }
+  ],
+  "counts": {
+    "product_files_changed_before": 0,
+    "product_files_changed_after": 0,
+    "new_product_commits": 0,
+    "tests_added": 0,
+    "tests_deleted": 0,
+    "clause_status_changes": 0,
+    "original_failed_command_jobs": 1,
+    "resolved_nightly_failed_command_jobs": 0,
+    "current_main_verify_failed_command_jobs": 0
+  },
+  "cleanup": {
+    "command_process_exited": true,
+    "subreaper_exited": true,
+    "isolated_command_checkout_removed": true,
+    "browser_closed_by_journey": true,
+    "servers_stopped_by_journey": true,
+    "product_worktree_clean": true,
+    "clone_retained_as_requested_output": "/home/agent/rer-consolidation/work/maint/gr-mt-spool-ci-14/repo"
+  },
+  "product_publication": {
+    "pushed": false,
+    "pr": null,
+    "publication_scan": "not run: no new product tree or product push",
+    "landing_candidate": false
+  },
+  "github_api_invocations": 9,
+  "github_api_budget": 10,
+  "blocking_issues_for_original_report": [],
+  "evidence_publication": "separate report-only ref; receipt precedes transfer and does not claim landing readiness"
+}
