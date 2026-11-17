@@ -1,3 +1,4 @@
+import {registerReleaseAndReturn} from './release-registration.mjs';
 import {chooseLocalAgentPolicy} from './agent-door/local-policy.mjs';
 import { operatorUi } from './operator-ui.mjs';
 import assert from 'node:assert/strict';
@@ -56,9 +57,7 @@ try {
  await capture('waiting',width);
  await page.getByRole('button',{name:'Set up capture',exact:true}).click();assert.equal(await page.locator('.right').count(),0);
  await page.getByRole('button',{name:'Register your first release',exact:true}).click();
- await page.getByLabel('Release name',{exact:true}).fill('autumn-deliveries');await page.getByLabel('Build identifier',{exact:true}).fill('dispatch-a');
- await page.getByRole('button',{name:'Register release',exact:true}).click();await page.locator('.data-row strong').filter({hasText:'autumn-deliveries'}).waitFor();
- await (await workbenchLink(page,'Capture')).click();
+ await registerReleaseAndReturn({page,origin,project:'cedar',name:'autumn-deliveries',build:'dispatch-a',api,capture:scenario=>capture(scenario,width)});
  const snippet=await page.getByLabel('SDK init',{exact:true}).innerText();assert.ok(snippet.includes(JSON.stringify(origin)));assert.ok(!snippet.includes('location.origin'));
  application=await startDispatchApp({endpoint:origin,project:'cedar',ingestKey:project.ingestKey,release:'autumn-deliveries',build:'dispatch-a',environment:'production',debugId:'dispatch-map'});
  await page.getByLabel('Exact application origin',{exact:true}).fill(application.origin);await page.getByRole('button',{name:'Allow browser origin',exact:true}).click();await page.getByRole('status').filter({hasText:'Allowed'}).waitFor();
