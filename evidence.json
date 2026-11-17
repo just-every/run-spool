@@ -1,0 +1,94 @@
+{
+  "files": [
+    {
+      "blob": "9c57d4eb5ce1763dde3243617a53d959f040408c",
+      "bytes": 3294,
+      "path": "REPORT.md",
+      "sha256": "0e6bd691d1b063fc9e0fac723ec70b114de012f6dbf8b9ad7f65c92c46e36d81"
+    },
+    {
+      "blob": "55bfeff023c4ae17dc59e12f86f446b1960e6b53",
+      "bytes": 85,
+      "path": "commit-identity.txt",
+      "sha256": "148bad84b5b174568017df50d58e073566703d43c6c9fe7fa6f1af04420adf55"
+    },
+    {
+      "blob": "b60fd6bbf6aff91de766908251bd4718c3d8b922",
+      "bytes": 3564,
+      "path": "dependency-check.txt",
+      "sha256": "b5f75a3bd8604e96dd83766e4ed761976e06bba4d7c8ab09093730bb1290c087"
+    },
+    {
+      "blob": "746345d96c9a9fc449f7ef03d2eef27ff1785b08",
+      "bytes": 926,
+      "path": "local-checks.json",
+      "sha256": "621115977211026af498e8a661aedbf0252a033934667b61071a01bf17e3f84b"
+    },
+    {
+      "blob": "579fee12aafa5d95ea2085e54290cbde64fed8af",
+      "bytes": 395,
+      "path": "lockfile-comparison.json",
+      "sha256": "086ded8e8a36a17c2c3ccde17a4bdc1ae027bfb4d1cd1f978c142c47c3938dde"
+    },
+    {
+      "blob": "45b25174d056db910ffbb5d0a240317690f85bef",
+      "bytes": 290,
+      "path": "product-push.json",
+      "sha256": "34ddf005d6b48a42d1dcf4e9af3220c00ed31e1c3f502f0df2f0f51b5b3fe213"
+    },
+    {
+      "blob": "37b6170bd6373dfa5e002c6cf41ce8bdd3d839bd",
+      "bytes": 579,
+      "path": "publication-scan-initial.json",
+      "sha256": "0be669ba68a8e5cea405ac115e920a577f1c1830af98de94d5a2ef4bc45e9b25"
+    },
+    {
+      "blob": "279cfacfd153b58fa60c25cbf52f3202f1b9add9",
+      "bytes": 2330,
+      "path": "publication-scan.json",
+      "sha256": "6c731aa76adaa696b9465b37c2eed77f174a78313548cf768cbb98bd9c508a26"
+    },
+    {
+      "blob": "d3760580a15693ec413dc2c1e5875e2fac9b7160",
+      "bytes": 554,
+      "path": "result.json",
+      "sha256": "bd5ea18f1cc292073341aa863c20804d8a357e46bf09d52765b2a087f490262b"
+    },
+    {
+      "blob": "d3afc03e4a8b761b00a76b61fd0343e43d236c83",
+      "bytes": 538,
+      "path": "sentry-cli.txt",
+      "sha256": "5b4cbf533c239a3af5ea624fe39bb395139d40266545624ebb00e16ef2ea3c9e"
+    },
+    {
+      "blob": "7beeeed20dae188897a030873c29fa8ebea1ec42",
+      "bytes": 72,
+      "path": "typecheck.txt",
+      "sha256": "5c0c636c936053a035246623c1790e5cb7654f6ba9dc74a8077d84c751b21e94"
+    },
+    {
+      "blob": "29a4bab8746275db81f479ae7816af43a07810dd",
+      "bytes": 300,
+      "path": "verify-discovery.json",
+      "sha256": "d8d062e7a7db03a9baa97fbe6a6b56dedfc191ed672be42fa71d2c5bdba392b6"
+    },
+    {
+      "blob": "6c902553928458ebbf88c1628540d937553c372f",
+      "bytes": 1143,
+      "path": "verify-polls.jsonl",
+      "sha256": "800e4174fd7950fb23663f510f64b10bf56f5c721b27100ee1892d43617b27ca"
+    },
+    {
+      "blob": "2f7066e1262673c4343e8f82104bfcc3caf6eab8",
+      "bytes": 256,
+      "path": "verify.json",
+      "sha256": "57e8781afcea30574f9321248115f747f57b84a27123c46d251898793c50cc86"
+    }
+  ],
+  "product_branch": "cloud/gr-mt-spool-dep-13",
+  "product_head": "0e9dcab93c04383708923b760b25c954e34e805d",
+  "ref": "refs/heads/evidence/gr-mt-spool-dep-13",
+  "repository": "just-every/run-spool",
+  "schema": 1,
+  "tag": "gr-mt-spool-dep-13"
+}

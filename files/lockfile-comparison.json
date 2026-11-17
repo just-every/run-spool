@@ -1,0 +1,19 @@
+{
+  "advisory": "GHSA-g3hv-75wg-m249",
+  "before": {
+    "minimatch": [
+      "10.2.6"
+    ],
+    "affectedVersionCount": 1
+  },
+  "after": {
+    "minimatch": [
+      "11.0.1"
+    ],
+    "affectedVersionCount": 0
+  },
+  "unchangedWorkspaceImporters": true,
+  "changedParent": "glob@13.0.6",
+  "addedRequiredDependency": "@isaacs/nonrecursive-glob-match@1.1.0",
+  "unrelatedLockfileChanges": 0
+}

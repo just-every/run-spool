@@ -1,0 +1,100 @@
+{
+  "schema": "rer.publish-check/v3",
+  "scannerSourceCommit": "221a331181f8fbafba3510edc977a3d471f9ac52",
+  "exit": 0,
+  "timeoutSeconds": 1200,
+  "status": "PASS",
+  "complete": true,
+  "source": {
+    "commit": "0e9dcab93c04383708923b760b25c954e34e805d",
+    "tree": "a18369d641465fd9db3addc36a37b58ddff9dadd"
+  },
+  "publicBase": {
+    "ref": "https://github.com/just-every/run-spool#main",
+    "commit": "53b460837d5a58266c39d03a9f923e09e9c29fb7"
+  },
+  "scanner": {
+    "name": "gitleaks",
+    "version": "8.30.1"
+  },
+  "implementation": {
+    "version": "0.2.122-dev.g221a3311",
+    "sha256": "dace44a03ce03a9402975c82e7f6c62a84c21671674722cfa6841d2b25fd600a",
+    "python": "3.12.14"
+  },
+  "guarantees": {
+    "historyScanned": true,
+    "visualRecognition": false,
+    "environmentChecked": false
+  },
+  "timings": {
+    "totalSeconds": 411.536383,
+    "phases": {
+      "history.prepare": {
+        "calls": 1,
+        "seconds": 0.649141
+      },
+      "history.context": {
+        "calls": 992,
+        "seconds": 49.683461
+      },
+      "history.text": {
+        "calls": 26941,
+        "seconds": 302.21465
+      },
+      "working-tree.context": {
+        "calls": 1,
+        "seconds": 0.066166
+      },
+      "working-tree.text": {
+        "calls": 2374,
+        "seconds": 14.727761
+      },
+      "identities.prepare": {
+        "calls": 27,
+        "seconds": 2.909538
+      },
+      "gitleaks.git": {
+        "calls": 1,
+        "seconds": 7.278011
+      },
+      "checksums.prepare": {
+        "calls": 27,
+        "seconds": 0.00649
+      },
+      "gitleaks.dir": {
+        "calls": 1,
+        "seconds": 2.06195
+      },
+      "messages.text": {
+        "calls": 1015,
+        "seconds": 0.118226
+      },
+      "gitleaks.messages": {
+        "calls": 1,
+        "seconds": 0.508086
+      },
+      "github.references": {
+        "calls": 1,
+        "seconds": 2.49579
+      }
+    }
+  },
+  "history": {
+    "scope": "selected-and-public-base",
+    "commits": 992,
+    "trees": 982,
+    "blobs": 8257,
+    "commitMessages": 992,
+    "tagMessages": 23,
+    "hydration": {
+      "missingBefore": 0,
+      "missingAfter": 0,
+      "fetches": 0,
+      "seconds": 0.034709
+    }
+  },
+  "findings": 0,
+  "alreadyPublic": 17,
+  "reportSha256": "a20f88814839f8e1034efcb2bc51f95110b2843117b055664d9cf03756e883ce"
+}

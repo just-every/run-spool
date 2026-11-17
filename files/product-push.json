@@ -1,0 +1,9 @@
+{
+  "repository": "just-every/run-spool",
+  "head": "0e9dcab93c04383708923b760b25c954e34e805d",
+  "ref": "refs/heads/cloud/gr-mt-spool-dep-13",
+  "command": "git push --porcelain origin HEAD:refs/heads/cloud/gr-mt-spool-dep-13",
+  "attempts": 1,
+  "exit": 0,
+  "remoteHeadVerified": true
+}

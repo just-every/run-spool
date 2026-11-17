@@ -1,0 +1,17 @@
+{
+  "head": "0e9dcab93c04383708923b760b25c954e34e805d",
+  "node": "22.20.0",
+  "pnpm": "10.12.4",
+  "checks": [
+    {"command": "pnpm install --lockfile-only", "exit": 0},
+    {"command": "pnpm install --frozen-lockfile", "exit": 0},
+    {"command": "pnpm why minimatch", "exit": 0, "installedVersion": "11.0.1", "affectedPaths": 0, "patchedPaths": 5},
+    {"command": "cloud_run pnpm run build:app", "exit": 0, "artifact": "dist/server/index.js"},
+    {"command": "nice -n 15 pnpm typecheck", "exit": 0},
+    {"command": "cloud_run nice -n 15 pnpm test:sentry:cli", "exit": 0, "bundlers": ["Vite", "esbuild", "Rollup", "webpack"]},
+    {"command": "node scripts/edition-authoring/cli.mjs lock", "exit": 0},
+    {"command": "pnpm source:check", "exit": 0},
+    {"command": "node src/base/contract-docs.mjs check", "exit": 0, "errors": 0, "warnings": 0},
+    {"command": "git diff --check origin/main...HEAD", "exit": 0}
+  ]
+}
