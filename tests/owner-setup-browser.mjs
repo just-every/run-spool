@@ -58,7 +58,7 @@ export async function ownerSetupBrowser(app, cookie, project, json) {
   const copy=page.getByRole('button',{name:'Copy Ingest key',exact:true});await copy.click();
   assert.equal(await page.evaluate(async key=>(await navigator.clipboard.readText())===key,grant.key),true,'owner copies the usable native ingest key');await page.evaluate(()=>navigator.clipboard.writeText(''));
   assert.ok((await page.getByLabel('SDK init',{exact:true}).innerText()).includes(grant.key));
-  await page.getByRole('button',{name:'Send test error',exact:true}).click();await expect(page.getByRole('status').filter({hasText:'Test error received.'})).toBeVisible();
+  await page.getByRole('button',{name:'Send test error',exact:true}).click();await expect(page.getByRole('status').filter({hasText:'New alert raised'})).toBeVisible();
   const issues=await json('/api/projects/'+project.id+'/issues');assert.ok(issues.some(row=>row.title.includes('SpoolTestError')),'normal setup sends a real received event');
   assert.ok(!JSON.stringify(await json('/api/audit')).includes(grant.key),'audit never contains the credential');
   assert.ok(!page.url().includes(grant.key),'no key in navigation URLs');

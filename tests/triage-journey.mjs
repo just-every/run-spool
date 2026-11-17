@@ -64,7 +64,7 @@ try {
  const appPage=await context.newPage();async function throwInApp(){await appPage.goto(application.origin);await appPage.getByRole('button',{name:'Prepare delivery'}).click();await appPage.waitForFunction(()=>window.captureOutcome?.outcome==='accepted');return appPage.evaluate(()=>window.captureOutcome);}
  const admitted=await throwInApp();assert.ok(admitted.issue);checked('Real minified application throws and capture crosses a second loopback origin');
  const issuePath='/projects/cedar/issues/'+admitted.issue;
- await (await workbenchLink(page,'Issues',false)).click();await page.locator('.unseen-label').waitFor();
+ await (await workbenchLink(page,'Issues',false)).click();await page.locator('.unseen-issue').waitFor();
  const row=page.locator('tbody tr').first();assert.match(await row.innerText(),/New/);await row.getByRole('link').click();await page.locator('.missing-map').waitFor();assert.equal(await page.locator('.missing-map').count(),1);
  await page.getByRole('button',{name:'Upload map',exact:true}).click();await page.getByLabel('Bundle debug ID',{exact:true}).waitFor();assert.equal(await page.getByLabel('Bundle debug ID',{exact:true}).inputValue(),'dispatch-map');
  await page.getByLabel('Source map file · max 256 KiB',{exact:true}).setInputFiles({name:'dispatch.js.map',mimeType:'application/json',buffer:Buffer.from(JSON.stringify(application.map))});
@@ -85,13 +85,13 @@ try {
  {await capture('mapped-issue',width);const audit=await new AxeBuilder({page}).withTags(['wcag2a','wcag2aa','wcag21aa']).analyze();assert.deepEqual(audit.violations.map(item=>item.id),[]);}
  await page.getByRole('button',{name:'Copy link',exact:true}).click();assert.equal(await page.evaluate(()=>navigator.clipboard.readText()),origin+issuePath);
  await page.reload();await page.locator('.mapped-frame').first().waitFor();assert.equal(new URL(page.url()).pathname,issuePath);
- await page.getByRole('link',{name:'All issues',exact:true}).click();await page.goBack();await page.locator('.mapped-frame').first().waitFor();await page.goForward();await page.getByRole('heading',{name:'Issues',exact:true}).last().waitFor();await page.waitForLoadState('networkidle');assert.equal(await page.locator('.unseen-label').count(),0);
+ await page.getByRole('link',{name:'All issues',exact:true}).click();await page.goBack();await page.locator('.mapped-frame').first().waitFor();await page.goForward();await page.getByRole('heading',{name:'Issues',exact:true}).last().waitFor();await page.waitForLoadState('networkidle');assert.equal(await page.locator('.unseen-issue').count(),0);
  await page.goto(origin+issuePath);const details=page.getByRole('button',{name:'Details: Issue and source evidence',exact:true});await details.click();await page.getByRole('dialog').waitFor();assert.ok(await page.getByRole('dialog').evaluate(dialog=>dialog.contains(document.activeElement)));await page.keyboard.press('Shift+Tab');assert.ok(await page.getByRole('dialog').evaluate(dialog=>dialog.contains(document.activeElement)));await page.keyboard.press('Escape');assert.equal(await details.evaluate(button=>document.activeElement===button),true);checked('Copy destination, refresh, history, viewed count and Details focus/Escape');
- await page.getByRole('combobox',{name:'Status',exact:true}).selectOption('resolved');await page.waitForFunction(()=>document.querySelector('.state-chip')?.textContent==='Resolved');
+ await page.getByRole('combobox',{name:'Status',exact:true}).selectOption('resolved');await page.getByRole('button',{name:'Confirm resolve',exact:true}).click();await page.waitForFunction(()=>document.querySelector('.state-chip')?.textContent==='Resolved');
  await api('/api/projects/cedar/releases','POST',{name:'winter-deliveries',build:'dispatch-b'});await api('/api/projects/cedar/artifacts','POST',{release:'winter-deliveries',build:'dispatch-b',debugId:'dispatch-map',map:application.map});application.setRelease('winter-deliveries','dispatch-b');const regressed=await throwInApp();assert.equal(regressed.issue,admitted.issue);
  application.setRelease('autumn-deliveries','dispatch-a');assert.equal((await throwInApp()).issue,admitted.issue);
  await appPage.evaluate(()=>{window.captureOutcome=null;});await appPage.getByRole('button',{name:'Track delivery'}).click();await appPage.waitForFunction(()=>window.captureOutcome?.outcome==='accepted');assert.notEqual((await appPage.evaluate(()=>window.captureOutcome)).issue,admitted.issue);
- await page.getByRole('link',{name:'All issues',exact:true}).click();await page.getByText('Regressed in winter-deliveries',{exact:true}).waitFor();await page.waitForFunction(()=>document.querySelectorAll('.unseen-label').length===2);assert.equal(await page.locator('.unseen-label').count(),2);assert.ok((await page.locator('tbody tr').first().innerText()).includes('Regressed in winter-deliveries'));
+ await page.getByRole('link',{name:'All issues',exact:true}).click();await page.getByText('Regressed in winter-deliveries',{exact:true}).waitFor();await page.waitForFunction(()=>document.querySelectorAll('.unseen-issue').length===2);assert.equal(await page.locator('.unseen-issue').count(),2);assert.ok((await page.locator('tbody tr').first().innerText()).includes('Regressed in winter-deliveries'));
  await capture('regression-priority',width);
  await page.locator('tbody tr').first().getByRole('link').click();await page.getByText('Regressed in winter-deliveries',{exact:true}).waitFor();checked('Resolved issue recurs in next release; late older release does not replace regression identity');
  // Check drafts across destinations without relying on browser refresh persistence.
@@ -196,6 +196,7 @@ try {
   assert.equal(await page.locator('.issue').count(),0);await recoveryScreens('unavailable-issue');
   await page.unroute(packetUrl);await page.getByRole('button',{name:'Retry evidence',exact:true}).click();
   await page.locator('.mapped-frame').first().waitFor();await page.getByLabel('Comment',{exact:true}).waitFor();await page.waitForLoadState('networkidle');
+  await page.waitForURL(url=>url.searchParams.has('event')&&url.searchParams.has('occurrence'));
   const retainedDestination=page.url(),retainedIssues=await api('/api/projects/cedar/issues');
   const draft='synthetic-spool-1 unsent investigation';
   const comment=page.getByLabel('Comment',{exact:true});await comment.fill(draft);await comment.focus();
@@ -247,12 +248,35 @@ try {
   // The UI sends a real native envelope. Replay its same message and exact
   // frames as an ordinary TypeError to isolate the test marker's grouping.
   const sent=page.waitForResponse(response=>response.url()===origin+'/api/ingest/cedar'&&response.request().method()==='POST');
-  await page.getByRole('button',{name:'Capture test exception',exact:true}).click();const response=await sent,event=response.request().postDataJSON(),test=await response.json();assert.equal(test.outcome,'accepted');
+  await page.getByRole('button',{name:'Send the test error again',exact:true}).click();const response=await sent,event=response.request().postDataJSON(),test=await response.json();assert.equal(test.outcome,'accepted');
   const ingest=async value=>{const response=await fetch(origin+'/api/ingest/cedar',{method:'POST',headers:{Origin:origin,Authorization:'Bearer '+project.ingestKey,'Content-Type':'application/json'},body:JSON.stringify(value)});assert.equal(response.status,201);return response.json();};
   const real=await ingest({...event,eventId:crypto.randomUUID(),type:'TypeError',environment:'production'});assert.notEqual(test.issue,real.issue,'a test never joins the real issue with the same message and frames');
-  const repeated=page.waitForResponse(response=>response.url()===origin+'/api/ingest/cedar'&&response.request().method()==='POST');await page.getByRole('button',{name:'Capture test exception',exact:true}).click();assert.equal((await (await repeated).json()).issue,test.issue);
+  const repeated=page.waitForResponse(response=>response.url()===origin+'/api/ingest/cedar'&&response.request().method()==='POST');await page.getByRole('button',{name:'Send the test error again',exact:true}).click();assert.equal((await (await repeated).json()).issue,test.issue);
+  // Setup's send control and Capture share the same sample location.
+  await page.getByRole('button',{name:'Create ingest key',exact:true}).click();
+  const setupSample=page.waitForResponse(response=>response.url()===origin+'/api/ingest/cedar'&&response.request().method()==='POST');
+  await page.getByRole('button',{name:'Send test error',exact:true}).click();assert.equal((await(await setupSample).json()).issue,test.issue,'the setup send path groups with Capture');
+  await page.goto(origin+'/projects/cedar/issues/'+test.issue);
+  await expect(page.getByRole('combobox',{name:'Resolution',exact:true})).toHaveCount(0);
+  await page.getByRole('button',{name:'Resolve',exact:true}).click();await page.getByRole('button',{name:'Confirm resolve',exact:true}).click();
+  await expect(page.locator('.issue-status .state-chip')).toHaveText('Resolved');
+  await page.getByLabel('Project ingest key',{exact:true}).fill(project.ingestKey);
+  const returned=page.waitForResponse(response=>response.url()===origin+'/api/ingest/cedar'&&response.request().method()==='POST');
+  await page.getByRole('button',{name:'Send the test error again',exact:true}).click();assert.equal((await(await returned).json()).issue,test.issue,'the resolved sample returns to the original issue');
+  await expect(page.locator('.issue-status')).toContainText('Regressed');
+  const fresh=await api('/api/projects','POST',{id:'synthetic-spool-capture',name:'Synthetic capture project'});
+  await page.goto(origin+'/projects/'+fresh.id+'/capture');
+  await page.getByLabel('Project ingest key',{exact:true}).fill('synthetic-spool-invalid');
+  await expect(page.getByRole('button',{name:'Send the test error again',exact:true})).toBeEnabled();
+  const refused=page.waitForResponse(response=>response.url()===origin+'/api/ingest/'+fresh.id&&response.request().method()==='POST');
+  await page.getByRole('button',{name:'Send the test error again',exact:true}).click();assert.equal((await(await refused).json()).reason,'invalid_ingest_key');
+  await expect(page.getByRole('button',{name:'Retry exact event',exact:true})).toHaveCount(0);
+  await page.getByRole('link',{name:'Create a new key',exact:true}).click();await expect(page.getByRole('heading',{name:'Project keys',exact:true})).toBeVisible();
+  await page.goto(origin+'/projects/'+fresh.id+'/capture');await page.getByLabel('Project ingest key',{exact:true}).fill(fresh.ingestKey);
+  const accepted=page.waitForResponse(response=>response.url()===origin+'/api/ingest/'+fresh.id&&response.request().method()==='POST');await page.getByRole('button',{name:'Send the test error again',exact:true}).click();assert.equal((await(await accepted).json()).outcome,'accepted');
+  assert.equal((await api('/api/projects/'+fresh.id+'/releases')).length,1,'Capture registers the sample release on a new project');
   const issues=await api('/api/projects/cedar/issues'),testIssue=issues.find(row=>row.id===test.issue),realIssue=issues.find(row=>row.id===real.issue);
-  assert.match(testIssue.title,/test/i,'the test is identified in its title');assert.equal(testIssue.count,2,'repeat test captures stay in their own issue');assert.equal(realIssue.count,1,'test captures do not increment the real issue');assert.equal(realIssue.title,'TypeError: '+event.message,'ordinary ingestion keeps the real error title');
+  assert.match(testIssue.title,/test/i,'the test is identified in its title');assert.equal(testIssue.count,4,'repeat test captures stay in their own issue');assert.equal(realIssue.count,1,'test captures do not increment the real issue');assert.equal(realIssue.title,'TypeError: '+event.message,'ordinary ingestion keeps the real error title');
   await page.goto(origin+'/projects/cedar/issues');await page.getByRole('link',{name:testIssue.title,exact:true}).waitFor();
   for(const screen of [1440,390])await capture('test-issue-list',screen,screen===1440);await page.setViewportSize({width,height:900});
   await page.getByRole('link',{name:testIssue.title,exact:true}).click();await page.getByRole('heading',{name:testIssue.title,exact:true}).waitFor();

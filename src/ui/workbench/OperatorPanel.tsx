@@ -1,6 +1,6 @@
 import { plural } from './readable';
 import { correctionLabels, loadCorrectionReferences } from './correctionReferences';
-import { useEffect, useId, useRef, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { Details } from './Details';
 import { useLiveRead } from './useLiveRead';
 import { date, Field, type Request, type Run } from './shared';
@@ -64,12 +64,8 @@ export function CorrectionHistory({ entries, issueId, busy, onUndo, labels }: { 
 
 export function OperatorPanel({ project, packet, busy, request, run, refresh, initial }: { initial?: Promise<any[]>; project: string; packet: any; busy: boolean; request: Request; run: Run; refresh: () => void }) {
   const [state, setState] = useState<any>(null);
-  const [assignmentRevision, setAssignmentRevision] = useState<number | null>(null);
   const [history, setHistory] = useState<any[]>([]);
   const [references, setReferences] = useState<any>(null);
-  const [label, setLabel] = useState('');
-  const [assignmentError, setAssignmentError] = useState(''), [assignmentMessage, setAssignmentMessage] = useState('');
-  const assignmentFeedback = useId();
   const [selected, setSelected] = useState<string[]>([]);
   const [target, setTarget] = useState('');
   const [preview, setPreview] = useState<CorrectionPreview | null>(null);
@@ -80,13 +76,10 @@ export function OperatorPanel({ project, packet, busy, request, run, refresh, in
   const issue = packet.issue;
   const root = `/api/projects/${encodeURIComponent(project)}`;
 
-  const waitingForPacket = assignmentRevision !== null && issue.revision < assignmentRevision;
-  const ready = !!state && !waitingForPacket;
-  const labelEdited = useRef(false);
+  const ready = !!state;
   const consumedInitial = useRef<Promise<any[]> | undefined>(undefined);
-  useEffect(() => { labelEdited.current = false; setState(null); setAssignmentRevision(null); setPreview(null); setSelected([]); setFailure(''); setAssignmentError(''); setAssignmentMessage(''); }, [root, issue.id]);
+  useEffect(() => { setState(null); setPreview(null); setSelected([]); setFailure(''); }, [root, issue.id]);
   useLiveRead(async (signal, background) => {
-    if (waitingForPacket) return;
     try {
       const prefetched = !background && initial && initial !== consumedInitial.current;
       consumedInitial.current = initial;
@@ -95,10 +88,9 @@ export function OperatorPanel({ project, packet, busy, request, run, refresh, in
       const resolved = await loadCorrectionReferences(root, packet, corrections, request);
       if (signal.aborted) return;
       setReferences(resolved); setState(operatorState); setHistory(corrections); setFailure('');
-      if (!labelEdited.current) setLabel(operatorState.assignments.find((assignment: any) => assignment.issue === issue.id)?.label ?? '');
       if (!state) setValue(packet.events?.[0]?.originalGrouping?.fingerprint ?? issue.fingerprint);
     } catch (error) { if (!signal.aborted) setFailure((error as Error).message); }
-  }, [root, issue.id, issue.revision, assignmentRevision, request, initial], { live: !initial });
+  }, [root, issue.id, issue.revision, request, initial], { live: !initial });
 
   const createPreview = (kind: string) => run(async () => {
     let destination: any;
@@ -132,39 +124,10 @@ export function OperatorPanel({ project, packet, busy, request, run, refresh, in
     });
   };
 
-  const saveAssignment = (nextLabel: string | null) => run(async () => {
-    setAssignmentError(''); setAssignmentMessage('');
-    try {
-      const saved = await request(`${root}/issues/${issue.id}/assignment`, 'PATCH', { revision: issue.revision, label: nextLabel });
-      setLabel(saved.label ?? '');
-      setAssignmentRevision(saved.revision);
-      labelEdited.current = false;
-      setState(null);
-      setAssignmentMessage(saved.label ? 'Assignment saved.' : 'Assignment cleared.');
-      refresh();
-    } catch (error) {
-      setAssignmentError((error as Error).message);
-    }
-  });
-
   const labels = correctionLabels(project, packet, references, preview, state?.audit ?? []);
   return <section className="evidence">
     <h2>Operator decisions</h2>
     {failure && <p role="alert">{failure}</p>}
-    <form className="form-grid" onSubmit={event => {
-      event.preventDefault();
-      void saveAssignment(label.trim() || null);
-    }}>
-      <div>
-        <Field label="Assigned to" aria-invalid={assignmentError ? true : undefined} aria-describedby={assignmentError || assignmentMessage ? assignmentFeedback : undefined} disabled={busy || !ready} maxLength={80} value={label} onChange={event => { labelEdited.current = true; setLabel(event.target.value); setAssignmentError(''); setAssignmentMessage(''); }} />
-        {assignmentError && <p id={assignmentFeedback} className="field-error" role="alert">{assignmentError}</p>}
-        {assignmentMessage && <p id={assignmentFeedback} role="status">{assignmentMessage}</p>}
-      </div>
-      <button className="primary-button" disabled={busy || !ready}>Save assignment</button>
-      <button type="button" className="text-button" disabled={busy || !ready} onClick={() => void saveAssignment(null)}>Unassign</button>
-    </form>
-    <p>A label records responsibility; it does not create an account, grant access or send a notification.</p>
-
     <div className="operator-controls" role="group" aria-label="Operator controls">
       <Details title="Correct grouping" triggerLabel="Correct grouping">
         <p>Corrections move only the reviewed events. Future events keep their original grouping. Retries stay with this issue. Imported history is excluded. A new preview replaces the previous unapplied preview.</p>

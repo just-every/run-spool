@@ -190,8 +190,9 @@ export async function teamTriage(owner,member,project,width) {
   await teamKeyboardDetails(memberPage,'Issue and source evidence',()=>screen(memberPage,'team-evidence-dialog'));await detailsClosed;
   probe('search','release query -> the isolated captured issue and its mapped frame');
 
-  const label=memberPage.getByLabel('Assigned to',{exact:true}),save=memberPage.getByRole('button',{name:'Save assignment',exact:true});
-  await label.fill('Cedar responder');await label.focus();await memberPage.keyboard.press('Tab');await expect(save).toBeFocused();
+  const label=memberPage.getByLabel('Assign to',{exact:true}),save=memberPage.getByRole('button',{name:'Assign',exact:true});
+  const assignees=await member.json(root+'/assignment-members'),target=assignees.members.find(row=>row.name===member.member.name);assert.ok(target);
+  await label.selectOption(target.id);await label.focus();await memberPage.keyboard.press('Tab');await expect(save).toBeFocused();
   let releaseAssignment;const gate=new Promise(resolve=>{releaseAssignment=resolve});let assignments=0;
   await memberPage.route('**/assignment',async route=>{if(route.request().method()==='PATCH'){assignments++;await gate;}await route.continue();});
   try {
@@ -201,9 +202,14 @@ export async function teamTriage(owner,member,project,width) {
    await save.evaluate(button=>button.click());releaseAssignment();assert.equal((await saved).status(),200);
    await expect(save).toBeEnabled();assert.equal(assignments,1,'a blocked duplicate activation sends exactly one assignment request');
   }finally{releaseAssignment();await memberPage.unroute('**/assignment');}
-  assert.equal((await owner.json(root+'/operator-state')).assignments.find(row=>row.issue===issue).label,'Cedar responder');
-  await expect(label).toHaveValue('Cedar responder');
-  probe('operator-label assignment','busy Save assignment plus duplicate activation -> one request and retained responsibility label');
+  assert.equal((await owner.json(root+'/operator-state')).assignments.find(row=>row.issue===issue).label,member.member.name);
+  await expect(label).toHaveValue(target.id);
+  if(width===1440){assert.ok((await owner.json(root+'/issues/'+issue+'/discussion')).activity.some(row=>row.kind==='assignment'&&row.detail.assignee===member.member.name));
+  assert.ok((await member.json(root+'/issue-search?assignee=me')).rows.some(row=>row.id===issue));
+  assert.ok(!(await owner.json(root+'/issue-search?assignee=me')).rows.some(row=>row.id===issue));
+  const assignedView=await member.json(root+'/review/views','POST',{q:'',status:'all',release:'all',sort:'priority',assignee:'me'});
+  assert.equal((await member.json(root+'/review/views')).views.find(row=>row.id===assignedView.id).query.assignee,'me');}
+  probe('member assignment','busy Assign plus duplicate activation -> one request and retained project member');
 
   const body='synthetic-spool-1 investigating the mapped delivery failure',comment=memberPage.getByLabel('Comment',{exact:true});
   await comment.fill(body);await comment.focus();await memberPage.keyboard.press('Tab');
@@ -243,7 +249,7 @@ export async function teamTriage(owner,member,project,width) {
   await expect(memberPage.getByRole('main')).toContainText('access');await expect(memberPage.getByRole('main')).not.toContainText(packet.issue.title);
   await screen(memberPage,'team-permission');
   assert.deepEqual(errors,[],'the team path has no browser errors');
-  console.log('[UX-001] '+width+' native team independently registered, captured, mapped, searched, operator-label assigned without duplicate writes, commented, followed alert by touch and recorded repair approval; keyboard, Axe and reflow passed');
+  console.log('[UX-001] '+width+' native team independently registered, captured, mapped, searched, member assigned without duplicate writes, commented, followed alert by touch and recorded repair approval; keyboard, Axe and reflow passed');
  }finally{await browser.close();await application?.stop();}
 }
 

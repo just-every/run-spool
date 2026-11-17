@@ -1,6 +1,6 @@
 import { useEffect, useRef, useState } from 'react';
 import { personLabel, resolutionLabel, words } from './readable';
-import { date, type Request } from './shared';
+import { date, stateLabel, type Request } from './shared';
 import type { ActivityRow, DiscussionData } from '../../domain/discussion/model';
 
 type Data=DiscussionData&{recurrence:{sameRelease:number;olderRelease:number};activity:ActivityRow[];next:string|null};
@@ -29,7 +29,7 @@ export function Discussion({project,issue,refresh,request,onChanged}:{project:st
   try{const next:Data=await request(base+'/discussion?cursor='+encodeURIComponent(data.next));setData({...next,activity:[...data.activity,...next.activity]})}
   catch(failure){setError((failure as Error).message)}finally{setBusy(false)}
  }
- return <section className="evidence" aria-label="Discussion" aria-busy={busy}>
+ return <section id="issue-discussion" className="evidence" aria-label="Discussion" aria-busy={busy}>
   <h2>Discussion</h2>
   {error&&<p role="alert">{error}</p>}
   {!data?!error&&<p role="status">Loading discussion…</p>:<>
@@ -46,7 +46,7 @@ export function Discussion({project,issue,refresh,request,onChanged}:{project:st
    {data.activity.length?<ol className="timeline">{data.activity.map(row=>{
     const comment=row.kind==='comment_added'?data.comments.find(comment=>comment.id===row.detail.comment):null;
     const release=row.detail.release??row.detail.resolvedRelease??row.detail.resolution_release;
-    const label:Record<string,string>={resolved_release_recurrence:'Recurred in resolved release',older_release_recurrence:'Repeated in older release',suppression_started:'Archived',suppression_expired:'Archive condition met',state:'Status changed',subscribed:'Subscribed',unsubscribed:'Unsubscribed',priority:'Priority changed',resolution:'Resolved',comment_added:'Comment',comment_edited:'Comment edited',comment_deleted:'Comment deleted'};
+    const label:Record<string,string>={assignment:'Assignment changed',resolved_release_recurrence:'Recurred in resolved release',older_release_recurrence:'Repeated in older release',suppression_started:'Ignored',suppression_expired:'Ignore condition met',state:'Status changed',subscribed:'Subscribed',unsubscribed:'Unsubscribed',priority:'Priority changed',resolution:'Resolved',comment_added:'Comment',comment_edited:'Comment edited',comment_deleted:'Comment deleted'};
     const recurrence=row.detail.recurrenceCount??row.detail.recurrence_count??row.detail.count;
     return <li key={row.id} style={{overflowWrap:'anywhere'}}>
      <p><strong>{label[row.kind]??row.kind.replaceAll('_',' ')}</strong> · {date(row.created)} · {comment?comment.author:personLabel(row.actor_kind,row.actor_name)}</p>
@@ -58,15 +58,16 @@ export function Discussion({project,issue,refresh,request,onChanged}:{project:st
       </form>:<p className="commit-message" style={{whiteSpace:'pre-wrap',overflowWrap:'anywhere'}}>{comment.body}</p>}
       {comment.canEdit&&editing?.id!==comment.id&&<><button className="text-button" disabled={busy} onClick={()=>{setEditing({id:comment.id,version:comment.version});setEditBody(comment.body)}}>Edit comment</button> <button className="text-button" disabled={busy} onClick={()=>void mutate('/comments/'+encodeURIComponent(comment.id),'DELETE',{version:comment.version})}>Delete comment</button></>}
      </>:<p className="muted">This comment was deleted or its author was erased.</p>)}
+     {row.kind==='assignment'&&<p>Assigned to {typeof row.detail.assignee==='string'?row.detail.assignee:'Unassigned'}</p>}
      {typeof row.detail.reason==='string'&&<p>{row.detail.reason}</p>}
      {typeof row.detail.forecast==='number'&&<p>Forecast: {row.detail.forecast} occurrences per hour.</p>}
      {typeof row.detail.deadline==='number'&&<p>Follow-up due {date(row.detail.deadline)}.</p>}
      {typeof row.detail.occurrenceTarget==='number'&&<p>Reopen at {row.detail.occurrenceTarget} occurrences.</p>}
      {typeof row.detail.userTarget==='number'&&<p>Reopen at {row.detail.userTarget} affected users.</p>}
      {typeof row.detail.priority==='string'&&<p>Priority: {words(row.detail.priority)}</p>}
-     {typeof row.detail.state==='string'&&<p>Status: {words(row.detail.state)}</p>}
+     {typeof row.detail.state==='string'&&<p>Status: {stateLabel(row.detail.state)}</p>}
      {typeof release==='string'&&<p>Release: {release||'No release'}</p>}
-     {typeof row.detail.mode==='string'&&<p>{row.kind.startsWith('suppression_')?'Archive condition':'Resolution'}: {row.kind.startsWith('suppression_')?words(row.detail.mode):resolutionLabel(row.detail.mode,typeof release==='string'?release:null)}</p>}
+     {typeof row.detail.mode==='string'&&<p>{row.kind.startsWith('suppression_')?'Ignore condition':'Resolution'}: {row.kind.startsWith('suppression_')?words(row.detail.mode):resolutionLabel(row.detail.mode,typeof release==='string'?release:null)}</p>}
      {typeof recurrence==='number'&&<p>Occurrences: {recurrence}</p>}
     </li>;
    })}</ol>:<p>No activity recorded yet.</p>}
