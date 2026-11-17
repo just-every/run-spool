@@ -16,7 +16,7 @@ Use the checkout that runs Spool, not the checkout of the application reporting 
    ```
 
    Replace the placeholders with your own values; encode each actual PEM line break as `\n` in the JSON string. Do not commit the file or paste it into an issue, report or screenshot. The optional `apiOrigin` field is for an alternate HTTPS API origin; normal GitHub needs no override.
-5. From that same checkout, restart with `rer dev` (or `~/.local/bin/rer dev` after the no-Node installer). Reload the issue's **Reproduce and fix → Fix branches** section.
+5. From that same checkout, restart with `~/.local/bin/rer dev`. Reload the issue's **Reproduce and fix → Fix branches** section.
 
 **Configured** means only that Spool accepted the settings' format. It does not prove access to GitHub. An invalid connection reports its reason on the issue page; correct the setting, stop, restart and reload again.
 

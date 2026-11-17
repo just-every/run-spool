@@ -1,3 +1,4 @@
+import { rememberCaptureSource } from './capture-sources';
 import {prepareScrubbing} from './scrubbing/model';
 import { spendKeyEvent, keyLimitedResponse } from './key-rate-limits/model';
 import {eventIdentityStatements,type PreparedIdentity} from './identities/intake';
@@ -103,6 +104,7 @@ export async function admitEvent(c:any,scope:IngestScope,input:Envelope,digest:s
       stmt(db,"UPDATE issue_resolutions SET seen_without_release=seen_without_release+1 WHERE project=? AND issue=? AND mode IN ('current','next','named') AND EXISTS(SELECT 1 FROM issues WHERE id=? AND state='resolved') AND ?=''",project,issue,issue,event.release),
       ...prepared.notes!.map(note=>outcomeStatement(db,project,'sentry_release_'+note)),
       outcomeStatement(db,project,'accepted'),
+      ...rememberCaptureSource(db,project,c.req.header('origin'),time),
       ...sentryTrimming(db,project,event),
       ...(originGuard?[stmt(db,'DELETE FROM browser_origin_guards WHERE id=?',originGuard)]:[]),
     ];

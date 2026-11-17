@@ -270,7 +270,7 @@ Review the printed patch before applying it. The command writes nothing until `-
 
 ## Prepare Node.js and npm
 
-Run Edit Run fleet, 15 November 2026. The source-map build and upload commands need Node.js and npm in **your application’s repository**. The no-Node Spool installer supplies a private runtime for Spool, not for building your application.
+The source-map build and upload commands need Node.js and npm in **your application’s repository**. The no-Node Spool installer supplies a private runtime for Spool, not for building your application.
 
 1. Install the current Node.js LTS from [the official download page](https://nodejs.org/en/download), following its instructions for your operating system. npm is included.
 2. Open a fresh terminal in your application’s repository and run `node --version` and `npm --version`. Both must succeed before continuing.

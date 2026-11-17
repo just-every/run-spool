@@ -1,4 +1,5 @@
-import { useEffect, useState, type FormEvent } from 'react';
+import { BrowserOrigins } from '../BrowserOrigins';
+import { useEffect, useState } from 'react';
 import { captureException } from '../../domain/capture';
 import { receiptLabel } from './CaptureReceipts';
 import { hrefFor, sourceMapHref } from './location';
@@ -32,39 +33,14 @@ export function SdkSetup({ endpoint, project, ingestKey, release, build }: { end
   </div>;
 }
 
-/**
- * The browser init sends from the app's own origin, which Spool refuses until the project allows it. The step is
- * tied to this project and lists what is already allowed; the app's origin itself is not known here, so the field
- * starts empty.
- */
 export function OriginStep({ project, request }: { project: string; request: Request }) {
-  const [origin, setOrigin] = useState(''), [allowed, setAllowed] = useState<string[] | null>(null), [busy, setBusy] = useState(false), [status, setStatus] = useState('');
-  const path = `/api/projects/${encodeURIComponent(project)}/browser-origins`;
-  useEffect(() => {
-    let alive = true;
-    request(path).then(rows => { if (alive) setAllowed(rows.map((row: any) => row.origin)); }, () => { if (alive) setAllowed(null); });
-    return () => { alive = false; };
-  }, [path, request]);
-  async function allow(event: FormEvent) {
-    event.preventDefault(); setBusy(true); setStatus('');
-    try {
-      const result = await request(path, 'POST', { origin });
-      setStatus(result.implicit ? `${result.origin} is Spool’s own origin and is always allowed.` : `Allowed ${result.origin}.`);
-      if (!result.implicit) setAllowed(rows => [...new Set([...(rows ?? []), result.origin])]);
-      setOrigin('');
-    } catch (failure) { setStatus(`Not allowed: ${(failure as Error).message}`); }
+  const [busy, setBusy] = useState(false), [error, setError] = useState('');
+  async function run(work: () => Promise<unknown>) {
+    setBusy(true); setError('');
+    try { await work(); } catch (failure) { setError((failure as Error).message); }
     finally { setBusy(false); }
   }
-  return <div className="origin-step">
-    <h3>Allow your app’s origin</h3>
-    <p className="muted">In a browser, Spool accepts events only from origins this project allows, so the init above sends nothing until your app’s exact origin is allowed. Node and Workers send no origin and need only the key.</p>
-    <form className="origin-form" onSubmit={event => void allow(event)}>
-      <label className="form-field">Your app’s origin<input type="url" required maxLength={1024} placeholder="https://app.example" value={origin} disabled={busy} aria-describedby="origin-step-help" onChange={event => { setOrigin(event.target.value); setStatus(''); }} /></label>
-      <button className="primary-button" disabled={busy || !origin}>Allow origin</button>
-    </form>
-    <p id="origin-step-help" className="muted">Scheme, host and port only, such as <code>http://localhost:5173</code>. {allowed === null ? null : allowed.length ? <>Allowed now: {allowed.map((row, index) => <span key={row}>{index ? ', ' : ''}<code>{row}</code></span>)}.</> : 'No app origin is allowed yet.'} <a className="inline-link" href={hrefFor(project, 'capture')}>Manage allowed origins</a></p>
-    <p role="status">{status}</p>
-  </div>;
+  return <div className="origin-step"><BrowserOrigins {...{ project, request, busy, run }} />{error && <p role="alert">{error}</p>}<a className="inline-link" href={hrefFor(project, 'capture')}>Manage allowed websites</a></div>;
 }
 
 export function SentryIntake({ dsn }: { dsn?: string }) {

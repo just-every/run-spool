@@ -79,7 +79,7 @@ function stagedValidation(later: string[] = []) {
 const tombstoneTables=Object.keys(tombstoneArchiveTables);
 const custodyExcluded=[...projectAgentArtifacts.artifacts.map(item=>item.table),...rosterArtifacts.map(item=>item.table)].filter(table=>!tombstoneTables.includes(table));
 export const portabilityPolicy = {
- product: 'runeditrun/errors-workbench', excludeTables: [...keyRateTables,...custodyExcluded,'spool_agent_operations','spool_agent_custody','spool_native_approvals','spool_erasure_agents','spool_native_audit_actors','restored_work','scrubbing_previews','spool_follow_up_alternates','spool_service_credentials','spool_local_invite_links','retention_runs','credentials', 'sessions', 'login_budget', 'browser_origin_guards','spool_authority_guards','operator_guards',...safeAuditExcludedTables,...followUpExcludedTables,'deployment_actors','release_order_keys','checkin_routes','checkin_links','ik_%', ...alertExcludedTables, ...erasureExcludedTables, ...executionExcludedTables, ...sentryCliExcludedTables],
+ product: 'runeditrun/errors-workbench', excludeTables: ['capture_sources',...keyRateTables,...custodyExcluded,'spool_agent_operations','spool_agent_custody','spool_native_approvals','spool_erasure_agents','spool_native_audit_actors','restored_work','scrubbing_previews','spool_follow_up_alternates','spool_service_credentials','spool_local_invite_links','retention_runs','credentials', 'sessions', 'login_budget', 'browser_origin_guards','spool_authority_guards','operator_guards',...safeAuditExcludedTables,...followUpExcludedTables,'deployment_actors','release_order_keys','checkin_routes','checkin_links','ik_%', ...alertExcludedTables, ...erasureExcludedTables, ...executionExcludedTables, ...sentryCliExcludedTables],
  exportRow: (table: string, row: any) => scrubExportRow(table, notificationPreferenceExportRow(table, reportingExportRow(table, suppressionExportRow(table, discussionExportRow(table, memberExportRow(table, proposalExportRow(table, deploymentExportRow(table, alertExportRow(table, row))))))))),
  requiredConfiguration: ['OWNER_EMAIL', 'SESSION_SECRET', 'AUTH_ORIGIN', 'AUTH_LOCAL', 'MAIL_PROVIDER', 'MAIL_FROM', 'ALERT_DESTINATIONS', 'ALERT_DESTINATION_HASH_KEY', 'ALERT_PUBLIC_ORIGIN', 'INTEGRATION_EGRESS'],
  validateStaged: stagedValidation(),
@@ -269,6 +269,9 @@ for(const later of laterTables){later.tables.push('sentry_transactions');later.m
 laterTables.unshift({tables:['sentry_transactions'],migrations:projectMetricMigrations});
 for(const later of laterTables)later.migrations.push('0109_feedback_review.sql');
 laterTables.unshift({tables:[],migrations:['0109_feedback_review.sql']});
+// Identity synchronization and temporary connection status add no archive rows.
+for(const later of laterTables)later.migrations.push('0110_member_identity.sql','0111_capture_sources.sql');
+laterTables.unshift({tables:[],migrations:['0110_member_identity.sql','0111_capture_sources.sql']});
 function beforeProjectMetricObjects(objects:any[],manifest:any){
  const added=[['0106_project_metric_alerts.sql',['alert_metric_states','alert_metric_events']],['0107_sentry_transactions.sql',['sentry_transactions']],['0108_alert_notify_targets.sql',['alert_target_destinations','alert_intent_recipients']]] as const;
  const missing:string[]=added.filter(([migration])=>!manifest.migrations?.includes(migration)).flatMap(([,tables])=>[...tables]);
