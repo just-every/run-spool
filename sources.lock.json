@@ -3705,6 +3705,10 @@
       "sha256": "874f424624348f8ab6926288c014969e8b8b25d3553dafd93b9b8e958198c709",
       "executable": false
     },
+    "docs/SENTRY-ROSTER-IMPORT.md": {
+      "sha256": "49159364eef7d04291a8aeea95c12531f2f5608eb3653470b55132947a30085b",
+      "executable": false
+    },
     "docs/SENTRY-SCRUBBING.md": {
       "sha256": "b94efaf3c399f016fe148d3fad872d209f5fb9fbe6fd44c8098f94e4833403f3",
       "executable": false
@@ -3774,7 +3778,7 @@
       "executable": false
     },
     "management/integration/deployment-spec.json": {
-      "sha256": "9cb724769d3a23af6117224233f9965ac00113bb1ef8121c2eb34940f3e5e0b2",
+      "sha256": "f0967ac8ef63695df17041559324a337589185f18b3b5346ffa74dafdbf2a171",
       "executable": false
     },
     "migrations/core/0001_errors.sql": {
@@ -4187,6 +4191,10 @@
     },
     "migrations/core/0109_feedback_review.sql": {
       "sha256": "991615f887a895a3d6be01b805dc543a8a05c8274312b02788b170b73b52c06f",
+      "executable": false
+    },
+    "migrations/core/0110_sentry_roster_proposals.sql": {
+      "sha256": "d88d992bf20a0697cd58991c4a78148dd0730acdcf9ae3837a8e3184ab16c8eb",
       "executable": false
     },
     "ONBOARDING.md": {
@@ -6415,6 +6423,14 @@
     },
     "src/domain/members/archive.ts": {
       "sha256": "7659a13160ce5348a9c3080ac70c4fd73571263c990c8b68cf1fd0fabf1aab62",
+      "executable": false
+    },
+    "src/domain/members/import-model.ts": {
+      "sha256": "8768a2c1f0799bd9b733341a501a6eb1c4015c232d5cacefd5e7224669ffdb28",
+      "executable": false
+    },
+    "src/domain/members/imports.ts": {
+      "sha256": "6a04083748b9ee35f03245fe3a3700ec5b4788792324ee3de0a5682eed0c7a55",
       "executable": false
     },
     "src/domain/members/input.ts": {
@@ -10445,6 +10461,10 @@
       "sha256": "a39e50e93764f6676bfc708b2b1bab0e683aa3692fd690a39e5e9f91f909fb9c",
       "executable": false
     },
+    "src/ui/workbench/ImportedMembers.tsx": {
+      "sha256": "7d98da9ab523c3ad67cd66fb8868ac11d4506b6d17ea2832659be72078f3375c",
+      "executable": false
+    },
     "src/ui/workbench/inbound-filters.css": {
       "sha256": "0f368981b9e35384260767133beb1dd3adc40c7d0324d7516f6485387aac2c7d",
       "executable": false
@@ -10486,7 +10506,7 @@
       "executable": false
     },
     "src/ui/workbench/Members.tsx": {
-      "sha256": "e6a3cb52f66ef6c59151973649c3c04ba67961f704c9f5be25ca63d2861cf9c8",
+      "sha256": "ef93b6426cf6ce0982d1033671f340bdf55c6ca5cbb24b8bf2639829598208ad",
       "executable": false
     },
     "src/ui/workbench/Navigation.tsx": {
@@ -11018,7 +11038,7 @@
       "executable": false
     },
     "tests/archive.mjs": {
-      "sha256": "80a34c4da3938db4fd37533b10d1a86c239ee14a20be7dd5bd19e9806ac919a8",
+      "sha256": "8893a8dd2919124cfb1939cf1dcf7deab5003144e8c73b2bb0a8b062be54f36c",
       "executable": false
     },
     "tests/audit-history.mjs": {
@@ -11835,6 +11855,10 @@
     },
     "tests/sentry-import/reads.mjs": {
       "sha256": "bc691f9582fee9b7c08a2ceecf289c549d264b25b8a7454e7b8d940b1d117339",
+      "executable": false
+    },
+    "tests/sentry-import/roster-ownership.mjs": {
+      "sha256": "e674646430419884bee5d497304454ad6221b785e8ecd46a41b33ab172325ad6",
       "executable": false
     },
     "tests/sentry-invalid-event-flow.mjs": {

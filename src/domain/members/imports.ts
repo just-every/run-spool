@@ -41,6 +41,7 @@ importedMembers.post('/:id/invite',async c=>{
  // Reservation changes the target before mail can be attempted, fencing undo
  // and catch-up even if the native sender or the final receipt fails.
  await ownerBatch(db,session,[check(db,"EXISTS(SELECT 1 FROM spool_import_proposals WHERE id=? AND state='pending' AND version=?)",row.id,expected),
+  ...payload.grants.map((grant:any)=>s(db,"INSERT INTO spool_project_teams(project,organization,team) SELECT id,?,'Imported project' FROM projects WHERE id=? ON CONFLICT(project) DO NOTHING",organization.id,grant.project)),
   s(db,"UPDATE spool_import_proposals SET state='inviting',version=version+1 WHERE id=?",row.id),auditCommit(db)]);
  const result=await invite(c.req.raw,c.env,session,organization.id,{email:payload.email,name:payload.name,role:payload.role,grants:payload.grants});
  await ownerBatch(db,session,[s(db,"UPDATE spool_import_proposals SET state='invited',version=version+1 WHERE id=? AND state='inviting'",row.id),auditCommit(db)]);
