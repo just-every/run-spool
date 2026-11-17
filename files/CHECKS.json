@@ -1,0 +1,90 @@
+{
+  "schema": 1,
+  "author": "Run Edit Run fleet",
+  "at": "2026-11-17T12:25:08.265398+00:00",
+  "head": "427828960f1389e15f28b0b55a2a8c7ed2b86e80",
+  "checks": [
+    {
+      "command": "npx -y @runeditrun/rer setup --owner-email fleet@runeditrun.com --non-interactive",
+      "result": "passed",
+      "exit": 0,
+      "scope": "local setup"
+    },
+    {
+      "command": "npx -y @runeditrun/rer build",
+      "result": "passed",
+      "exit": 0,
+      "scope": "local build; rer selected pinned Node 22.20.0"
+    },
+    {
+      "command": "pnpm run build:app",
+      "result": "passed",
+      "exit": 0,
+      "head": "427828960f1389e15f28b0b55a2a8c7ed2b86e80"
+    },
+    {
+      "command": "pnpm typecheck",
+      "result": "passed",
+      "exit": 0,
+      "head": "427828960f1389e15f28b0b55a2a8c7ed2b86e80"
+    },
+    {
+      "command": "pnpm integration:check",
+      "result": "passed",
+      "exit": 0,
+      "head": "427828960f1389e15f28b0b55a2a8c7ed2b86e80"
+    },
+    {
+      "command": "node src/base/contract-docs.mjs check",
+      "result": "passed",
+      "exit": 0,
+      "note": "No acceptance or status edits; generated views unchanged"
+    },
+    {
+      "command": "node scripts/edition-authoring/cli.mjs lock; pnpm source:check",
+      "result": "passed",
+      "exit": 0,
+      "head": "427828960f1389e15f28b0b55a2a8c7ed2b86e80"
+    },
+    {
+      "command": "node tests/sentry-import.mjs",
+      "result": "passed",
+      "exit": 0,
+      "note": "Existing owner-door, Bugsnag regression and new roster flow; run before final review/audit refinements"
+    },
+    {
+      "command": "node tests/sentry-import/roster-ownership.mjs",
+      "result": "passed",
+      "exit": 0,
+      "head": "427828960f1389e15f28b0b55a2a8c7ed2b86e80",
+      "receipt": "ROSTER-RECEIPT.json"
+    },
+    {
+      "command": "node --import /tmp/spool-chromium.mjs -e \"import('./tests/team-flow.mjs').then(m=>m.teamFlow())\"",
+      "result": "passed",
+      "exit": 0,
+      "note": "Browser launcher configuration only: system Chromium /usr/bin/chromium with --no-sandbox. Includes team-browser functions."
+    },
+    {
+      "command": "node /tmp/spool-operator-driver.mjs",
+      "result": "passed",
+      "exit": 0,
+      "note": "Calls existing operatorFlow with a real local Worker, owner session and public HTTP client; no product assertions replaced"
+    },
+    {
+      "command": "node tests/project-erasure.mjs",
+      "result": "passed",
+      "deadlineSeconds": 1200,
+      "note": "Repeated with a 1,200-second hard deadline; complete public setup/dev/HTTP/export/import/restore-fence journey passed. Initial 420-second attempt remains recorded in notes.",
+      "exit": 0,
+      "groups": 7,
+      "captures": 8
+    }
+  ],
+  "notes": [
+    "An initial team invocation only loaded exported functions; it is not counted as proof.",
+    "First full team run reached an unconfigured direct Playwright launch; rerun with system Chromium passed.",
+    "A concurrent-build browser attempt timed out at the existing Usage disclosure; clean emitted-build rerun passed.",
+    "A new owner-hold assertion was corrected to accept the existing earlier ambiguous-attribution hold as well as shared custody. No product protection or existing assertion was removed."
+  ]
+}

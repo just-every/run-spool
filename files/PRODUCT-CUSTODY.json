@@ -1,0 +1,13 @@
+{
+  "at": "2026-11-17T12:22:56.891527+00:00",
+  "repository": "just-every/run-spool",
+  "ref": "refs/heads/cloud/sd-spool-import-sentry-3",
+  "head": "427828960f1389e15f28b0b55a2a8c7ed2b86e80",
+  "remoteRefMatches": true,
+  "cleanProductCheckout": true,
+  "allCandidateIdentities": "Run Edit Run fleet <fleet@runeditrun.com>",
+  "trailers": "none",
+  "pushedThrough": "cloud-push.py",
+  "main": "never pushed",
+  "pr": null
+}

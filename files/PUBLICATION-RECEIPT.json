@@ -1,0 +1,11 @@
+{
+  "schema": 1,
+  "author": "Run Edit Run fleet",
+  "headAtReview": "427828960f1389e15f28b0b55a2a8c7ed2b86e80",
+  "scope": "candidate changes only",
+  "injectedCredentialValueScan": "passed",
+  "identityReview": "fleet authors and committers; no coauthor trailers",
+  "fullPublicationScan": "NOT RUN in cloud; fleet lander must run its existing publication scan",
+  "productRef": "refs/heads/cloud/sd-spool-import-sentry-3",
+  "evidenceRef": "refs/heads/evidence/sd-spool-import-sentry-3"
+}

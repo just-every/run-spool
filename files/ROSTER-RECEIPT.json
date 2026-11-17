@@ -1,0 +1,69 @@
+{
+  "schema": 1,
+  "author": "Run Edit Run fleet",
+  "at": "2026-11-17T12:18:27.723Z",
+  "head": "427828960f1389e15f28b0b55a2a8c7ed2b86e80",
+  "syntheticOnly": true,
+  "sourceRecords": 17,
+  "planCounts": {
+    "input": 17,
+    "unique": 17,
+    "duplicates": 0,
+    "mapped": 11,
+    "unmapped": 16,
+    "rejected": 1,
+    "effects": 11,
+    "byKind": {
+      "manifest": 1,
+      "members": 7,
+      "ownership": 1,
+      "projects": 2,
+      "team-members": 4,
+      "teams": 2
+    }
+  },
+  "reconciliation": {
+    "sourceRecords": 17,
+    "present": 0,
+    "explained": 17,
+    "nativeTargets": 11,
+    "byKind": {
+      "project": 2,
+      "import-proposal": 9
+    }
+  },
+  "before": {
+    "projects": 0,
+    "members": 1,
+    "proposals": 0
+  },
+  "afterImport": {
+    "projects": 2,
+    "members": 1,
+    "proposals": 9
+  },
+  "proofs": [
+    "no-native-write-preview",
+    "no-mail-session-access-effects",
+    "active-pending-expired",
+    "role-scope-mapping",
+    "unsupported-role",
+    "exact-reimport",
+    "resume-retry",
+    "guarded-undo",
+    "overlap-unmatched-unsupported-owner-preview",
+    "native-invitation-and-removal",
+    "safe-portable-audit",
+    "inert-archive-restore",
+    "project-custody-erasure"
+  ],
+  "screenshots": [
+    "ownership-1440.png",
+    "ownership-390.png",
+    "roster-1440.png",
+    "roster-390.png",
+    "member-1440.png",
+    "member-390.png"
+  ],
+  "result": "passed"
+}

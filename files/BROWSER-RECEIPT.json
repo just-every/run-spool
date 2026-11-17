@@ -1,0 +1,36 @@
+{
+  "head": "427828960f1389e15f28b0b55a2a8c7ed2b86e80",
+  "fixture": "synthetic Sentry roster/ownership",
+  "assertionWidth": 1440,
+  "proofWidths": [
+    1440,
+    390
+  ],
+  "files": {
+    "member-1440.png": {
+      "bytes": 134424,
+      "sha256": "d069dd0770b84ad9559e3396142584bd8bd61bf48182956dc127c6dcd787a230"
+    },
+    "ownership-1440.png": {
+      "bytes": 146879,
+      "sha256": "80b2856cfdd35acdce80aad5bb7bf93cd0f43d9147e06bfec672cef1e662d38e"
+    },
+    "member-390.png": {
+      "bytes": 79469,
+      "sha256": "0f3f0ebb7a38df985189c694deebbe1f0334eb0bb5dd7916e3b9a0d7972188d9"
+    },
+    "ownership-390.png": {
+      "bytes": 88317,
+      "sha256": "2a4fc7f178038e6e0058d1124e86145dbb71ae69774da3653579578ef1f728c6"
+    },
+    "roster-1440.png": {
+      "bytes": 114400,
+      "sha256": "5a72ccfe64fc60b4ed84e8fa4e070075e15b9549d69a78dd512c9cfe5bca5a1b"
+    },
+    "roster-390.png": {
+      "bytes": 104019,
+      "sha256": "0df73195dc71e921a58f071cf6a8ef7b2da20c520eb3f27c99b0454c3a91399a"
+    }
+  },
+  "inspection": "Ownership review and roster screenshots visually inspected; no horizontal overflow assertion on ownership review."
+}

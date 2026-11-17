@@ -1,0 +1,16 @@
+{
+  "at": "2026-11-17T12:29:21.692930+00:00",
+  "head": "427828960f1389e15f28b0b55a2a8c7ed2b86e80",
+  "apiCalls": 3,
+  "runs": [
+    {
+      "id": 44081913572,
+      "name": "Verify",
+      "head_sha": "427828960f1389e15f28b0b55a2a8c7ed2b86e80",
+      "status": "in_progress",
+      "conclusion": null,
+      "html_url": "https://github.com/just-every/run-spool/actions/runs/44081913572",
+      "created_at": "2026-11-17T12:18:32Z"
+    }
+  ]
+}

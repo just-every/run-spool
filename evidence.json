@@ -1,0 +1,100 @@
+{
+  "files": [
+    {
+      "blob": "52ea53e132d5bc589eb1139e63950a7ebee6e1c9",
+      "bytes": 1154,
+      "path": "BROWSER-RECEIPT.json",
+      "sha256": "5c860d3be20e29015e2ae6d41058724432f0fc0602b035aa043286db49aabef4"
+    },
+    {
+      "blob": "b3824e0a0ef90acaf22bd8dc49a4f40d8790e11f",
+      "bytes": 3270,
+      "path": "CHECKS.json",
+      "sha256": "03e4fdb39288074c79b668cf4e26a113f559bdcbaa89536d4190bc4a51fa65e2"
+    },
+    {
+      "blob": "48b40a6824fa0c189516806873064d77c1fedd68",
+      "bytes": 444,
+      "path": "CI-RECEIPT.json",
+      "sha256": "45b5a174187599a129c7852357edbaa3148cb21eadfdeb9a6ae7ad2c5e3cbb99"
+    },
+    {
+      "blob": "ed757ed18b549d8560c3d1fd9eb81dc51bfb2798",
+      "bytes": 2964,
+      "path": "PLAN.md",
+      "sha256": "be218cd0764f43159e057749477c00f811dda7ef408604665a1e86c15d0add25"
+    },
+    {
+      "blob": "11d13c4bcb00eca2221e6691ffc36b460371efc4",
+      "bytes": 426,
+      "path": "PRODUCT-CUSTODY.json",
+      "sha256": "83b0e4ba861a2bd336ba055e5b07fbf37394158371bd6660a8ab784e56ba903e"
+    },
+    {
+      "blob": "e0f7fbf4b7ce59111b599ff772f308927bf99e41",
+      "bytes": 492,
+      "path": "PUBLICATION-RECEIPT.json",
+      "sha256": "d7272efc3fd6868632bc8922904561a81887bb9f81a30b7e38f97b92f1bcf4bc"
+    },
+    {
+      "blob": "9e72a4c57ff47b47562b17c45255439a63c2bb06",
+      "bytes": 7157,
+      "path": "REPORT.md",
+      "sha256": "c0902b3f439b0eb2277e129280e2d11ccb2277fba589af918cde066bb6db8744"
+    },
+    {
+      "blob": "641de03b734a7fc8961c36e3b40e6897c003777e",
+      "bytes": 1423,
+      "path": "ROSTER-RECEIPT.json",
+      "sha256": "ea7bc42bd39f08cda2ea710232c4e6f4535984ff2bdf647c0954d9aad8215ee2"
+    },
+    {
+      "blob": "52418a1b7386adf9a0435a8028d0ca4f6e16b498",
+      "bytes": 1229,
+      "path": "RUN-OUTPUT.md",
+      "sha256": "170047ab4697aa3f335881cc942c08310296facc6b8aa9c640ac945813151837"
+    },
+    {
+      "blob": "6697a516132c87b15208abb1fbecd8038a8f3407",
+      "bytes": 134424,
+      "path": "member-1440.png",
+      "sha256": "d069dd0770b84ad9559e3396142584bd8bd61bf48182956dc127c6dcd787a230"
+    },
+    {
+      "blob": "57ae1e58d913085e2c4dc6298d1c421f595fb96d",
+      "bytes": 79469,
+      "path": "member-390.png",
+      "sha256": "0f3f0ebb7a38df985189c694deebbe1f0334eb0bb5dd7916e3b9a0d7972188d9"
+    },
+    {
+      "blob": "e69761ee53339742ab9f0badc839964444708db0",
+      "bytes": 146879,
+      "path": "ownership-1440.png",
+      "sha256": "80b2856cfdd35acdce80aad5bb7bf93cd0f43d9147e06bfec672cef1e662d38e"
+    },
+    {
+      "blob": "307e601faed9eba5d87e5bc38b799e5837e0dd8c",
+      "bytes": 88317,
+      "path": "ownership-390.png",
+      "sha256": "2a4fc7f178038e6e0058d1124e86145dbb71ae69774da3653579578ef1f728c6"
+    },
+    {
+      "blob": "5bad958f5d739d6de5ecb7f6e954bea5f77510f4",
+      "bytes": 114400,
+      "path": "roster-1440.png",
+      "sha256": "5a72ccfe64fc60b4ed84e8fa4e070075e15b9549d69a78dd512c9cfe5bca5a1b"
+    },
+    {
+      "blob": "0abc4fa8ec1bf3525913e6804ce12e29f1c32ac8",
+      "bytes": 104019,
+      "path": "roster-390.png",
+      "sha256": "0df73195dc71e921a58f071cf6a8ef7b2da20c520eb3f27c99b0454c3a91399a"
+    }
+  ],
+  "product_branch": "cloud/sd-spool-import-sentry-3",
+  "product_head": "427828960f1389e15f28b0b55a2a8c7ed2b86e80",
+  "ref": "refs/heads/evidence/sd-spool-import-sentry-3",
+  "repository": "just-every/run-spool",
+  "schema": 1,
+  "tag": "sd-spool-import-sentry-3"
+}
