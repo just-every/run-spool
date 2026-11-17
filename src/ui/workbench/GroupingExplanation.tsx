@@ -29,7 +29,7 @@ export function GroupingExplanation({ explanation, evidence, labels, future = fa
     <p>Retained window: {date(explanation.window.start)} → {date(explanation.window.end)}.</p>
     <ul>{explanation.rates.map((row: any) => <li key={row.issue}>{labels.issue(row.issue)}: {row.before} → {row.after} {plural(row.after, 'event')} (change {row.delta}); {Number(row.perMinuteBefore.toFixed(3))} → {Number(row.perMinuteAfter.toFixed(3))} per minute.</li>)}</ul>
     <h4>Recorded ownership</h4>
-    <ul>{explanation.ownership.map((row: any) => <li key={row.issue}>{labels.issue(row.issue)}: {proposalText(row.label) || 'Unassigned'}</li>)}</ul>
+    <ul>{explanation.ownership.map((row: any) => <li key={row.issue}>{labels.issue(row.issue)}: {typeof row.label==='string'&&row.label.startsWith('audit:')?'Member assignment':proposalText(row.label)||'Unassigned'}</li>)}</ul>
     <ProposalAlertEffects alerts={explanation.alerts} labels={labels} />
     <ProposalRepairEffects repair={explanation.repair} labels={labels} />
     <p>{proposalText(explanation.behavior)}</p>

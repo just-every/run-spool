@@ -1,4 +1,3 @@
-import { assignmentLabelSql } from '../operators/assignment';
 import { normalize } from '../privacy';
 import { previewCorrection } from '../operators/grouping';
 import { previewGroupingPolicy } from '../grouping/routes';
@@ -30,7 +29,7 @@ export async function explainProposal(db:D1Database,row:any,preview:any){
  const inside=affected.filter((m:any)=>!input.variants.some((v:any)=>same(m.variant,v))).map((m:any)=>({...m,issue:m.from,differing:input.variants.map((v:any)=>['stack','release','route'].filter(k=>v[k]!==m.variant[k])).sort((a:any,b:any)=>a.length-b.length)[0]}));
  const outside=all.filter(e=>!moving.has(e.id)).map(e=>({event:e.id,occurrence:e.occurrence,issue:e.issue,variant:variantOf(e)})).filter(e=>input.variants.some((v:any)=>['stack','release','route'].some(k=>v[k]!==''&&v[k]===e.variant[k])));
  const ids=[...new Set<string>([input.source,...input.target?[input.target]:[],...moves.flatMap((m:any)=>[m.from,m.to])])],duration=(input.window.end-input.window.start)/60000;
- const issues=(await s(db,`SELECT i.id,i.state,${assignmentLabelSql('a.label','a.project')} label FROM issues i LEFT JOIN issue_assignments a ON a.project=i.project AND a.issue=i.id WHERE i.project=? AND i.id IN (SELECT value FROM json_each(?))`,project,JSON.stringify(ids)).all<any>()).results;
+ const issues=(await s(db,'SELECT i.id,i.state,a.label FROM issues i LEFT JOIN issue_assignments a ON a.project=i.project AND a.issue=i.id WHERE i.project=? AND i.id IN (SELECT value FROM json_each(?))',project,JSON.stringify(ids)).all<any>()).results;
  const inWindow=(e:any,w:any)=>!e.historical&&e.received>=w.start&&e.received<w.end;
  const rate=(issue:string)=>{
   const before=all.filter(e=>e.issue===issue&&inWindow(e,input.window)).length;
