@@ -1,0 +1,14 @@
+{
+  "tag": "ct-open-points-plan-spool-1",
+  "at": "2026-11-17T11:11:24.226260+00:00",
+  "attempts": [
+    {
+      "attempt": 1,
+      "exit": 1,
+      "result": "EVIDENCE_FAILED Git push failed exit=1",
+      "boundary": "Local identity preflight; remote push was not executed",
+      "diagnosis": "A full local fetch from the blob-filtered planning clone encountered missing promisor objects with upload-pack lazy fetching disabled.",
+      "correction": "Transfer only the complete commit graph into isolated evidence storage for origin/main..HEAD identity inspection. No change to product checkout/head/index; no credential refresh or alternate credential."
+    }
+  ]
+}

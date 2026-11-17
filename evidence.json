@@ -1,0 +1,46 @@
+{
+  "files": [
+    {
+      "blob": "a13fe1ec66ca89c47652d2e2476bf879a5a08076",
+      "bytes": 160820,
+      "path": "ACCEPTANCE-INVENTORY.md",
+      "sha256": "1dffaa0e66a54ec2bb11ab175a89f44351579811234c9eea37d96c4b197c2dae"
+    },
+    {
+      "blob": "91af1034ac30ea1bc0951ebb5738d6ef01b38ad9",
+      "bytes": 50682,
+      "path": "REPORT.md",
+      "sha256": "6ea39edc3282a81176161fe228424f540fed96feee939e5c342d747836cada2f"
+    },
+    {
+      "blob": "ab79540aa1db02b093408bc4970d3d3941ef9d24",
+      "bytes": 889176,
+      "path": "branch-receipt.json",
+      "sha256": "59ddfc6f2068d9322f025ea992644934953bdb0309023d00714e85b830690612"
+    },
+    {
+      "blob": "e1b2790cf1366f90ccedc939dff5e2139f7e9561",
+      "bytes": 168510,
+      "path": "clause-inventory.json",
+      "sha256": "8728c6b5b20e2b8ccc13935d212d014734795479dece3f3e63350841cc0a270e"
+    },
+    {
+      "blob": "223c04c2c51684cedddf3f0a20f54b1d23c8a8b8",
+      "bytes": 11849,
+      "path": "planner-receipt.json",
+      "sha256": "c7d911d7688a5d5e7c7f22906de6d33a5bb8494bc88913805240e0e811ccf5e3"
+    },
+    {
+      "blob": "c27afe74d59185727a967af12a64d4d548d26cb3",
+      "bytes": 673,
+      "path": "publication-attempts.json",
+      "sha256": "d54a83fe5b6792a9eca56149b9d7933f7a7e35ac4a7f8bb7e9b156f9e7917668"
+    }
+  ],
+  "product_branch": "main",
+  "product_head": "337a4cacd736ad172f397f318bb766fa5402ed9a",
+  "ref": "refs/heads/evidence/ct-open-points-plan-spool-1",
+  "repository": "just-every/run-spool",
+  "schema": 1,
+  "tag": "ct-open-points-plan-spool-1"
+}

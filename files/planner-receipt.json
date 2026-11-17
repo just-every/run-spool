@@ -1,0 +1,364 @@
+{
+  "schema": 1,
+  "tag": "ct-open-points-plan-spool-1",
+  "repository": "just-every/run-spool",
+  "at": "2026-11-17T11:09:25.404005+00:00",
+  "role": "read-only planner",
+  "product_branch": "main",
+  "product_head": "337a4cacd736ad172f397f318bb766fa5402ed9a",
+  "product_tree": "192c25ffd5ec71b0a3c79b218332048d249ffa4e",
+  "product_commits_created": 0,
+  "product_pushes": 0,
+  "prs": 0,
+  "ci_dispatches": 0,
+  "publications_authorized": [
+    "refs/heads/evidence/ct-open-points-plan-spool-1"
+  ],
+  "counts": {
+    "open": 82,
+    "held_external": 5,
+    "hard": 71,
+    "cheap_qualification_only": 6,
+    "builder_entries": 5
+  },
+  "checks": [
+    {
+      "command": [
+        "node",
+        "src/base/contract-docs.mjs",
+        "check"
+      ],
+      "exit": 0,
+      "stdout": "Contract prose: 0 errors, 0 warnings.\nContract documents are current.\n",
+      "stderr": ""
+    },
+    {
+      "command": [
+        "node",
+        "scripts/agent-door/surface.mjs",
+        "--check"
+      ],
+      "exit": 0,
+      "stdout": "",
+      "stderr": ""
+    },
+    {
+      "command": [
+        "git",
+        "diff",
+        "--exit-code"
+      ],
+      "exit": 0,
+      "stdout": "",
+      "stderr": ""
+    },
+    {
+      "command": [
+        "git",
+        "diff",
+        "--cached",
+        "--exit-code"
+      ],
+      "exit": 0,
+      "stdout": "",
+      "stderr": ""
+    },
+    {
+      "command": [
+        "git",
+        "status",
+        "--porcelain=v1"
+      ],
+      "exit": 0,
+      "stdout": "",
+      "stderr": ""
+    },
+    {
+      "command": [
+        "git",
+        "log",
+        "origin/main..HEAD",
+        "--format=%an <%ae>%n%cn <%ce>%n%(trailers:only,unfold)"
+      ],
+      "exit": 0,
+      "stdout": "",
+      "stderr": ""
+    }
+  ],
+  "not_run": [
+    "product runtime Verify",
+    "browser journeys and screenshots",
+    "physical devices",
+    "live provider/account journeys",
+    "paid model/API calls"
+  ],
+  "source_files": {
+    "ACCEPTANCE.md": {
+      "bytes": 277139,
+      "sha256": "09f4bb713a3cf9acdde84ba680630f9e9356198966ea70f2ac502520909a9ab1"
+    },
+    "AGENTS.md": {
+      "bytes": 12412,
+      "sha256": "2466cd04c08e11d9cf81c0edb76032ea0d61580fd9939db4992a49eaafb3e131"
+    },
+    "CONTRACT.md": {
+      "bytes": 325429,
+      "sha256": "ee9c871bfa25a110d3f3e61924164c75cc17ea412cb775f2e0621f114ab3594b"
+    },
+    "RULINGS.md": {
+      "bytes": 4224,
+      "sha256": "caf18cf13e009ad95bbb897e4f1c1cc550c474c6235de67ef944aff3c293c896"
+    },
+    "docs/BUGSNAG-SWITCHING.md": {
+      "bytes": 23364,
+      "sha256": "f3f09fc5843d71c33ec0c0689320a26697c29df9c27d4bab99d110792bd524d1"
+    },
+    "docs/CLAIMS.md": {
+      "bytes": 2082,
+      "sha256": "dea371100eb9ee81aee20dfc3264506a9885383e15a197f813f044a335555aba"
+    },
+    "docs/FEEDBACK.md": {
+      "bytes": 9965,
+      "sha256": "4a9d51aa14938631cb3ac3248727e6b25885b70c69635c9fec7a191e698427fd"
+    },
+    "docs/OWNER-ERASURE.md": {
+      "bytes": 15947,
+      "sha256": "b80010077e55bcdf1f46cfc785c9e73fb0102b331b10e0af9ef0aa48905880cd"
+    },
+    "docs/contract/adopted-defaults.md": {
+      "bytes": 1749,
+      "sha256": "4fe6282f0912cfe9de7d5d1e0db03be824d217776d032e6001dee08816d726c1"
+    },
+    "package.json": {
+      "bytes": 4637,
+      "sha256": "a55bfbcbda9fa6b8d2b5f0f6a082f33a1d283dc3adecfc6256759f3527bea67e"
+    },
+    "scripts/agent-door/surface.mjs": {
+      "bytes": 9811,
+      "sha256": "1ee581707123a36b21e224bbf92edde0ee31e8550287c3f0814e5c189a52475f"
+    },
+    "src/domain/investigation/impact.ts": {
+      "bytes": 3276,
+      "sha256": "c1fc94322957d560a383950b92c854aa523042f2b6cb2117cbcd8666cf60e7cd"
+    },
+    "src/domain/repository-links.ts": {
+      "bytes": 4758,
+      "sha256": "6bba9239f3bbf75158f35bb986e7bd6934b3665db27ca63c77ce4ea2795d5c61"
+    },
+    "src/domain/sentry/mapped-frames.ts": {
+      "bytes": 3096,
+      "sha256": "3ac663245e72007b83e0886330edab51221c0835bd81cfa0ca2c8f139808b1bc"
+    },
+    "tests/agent-door/people.mjs": {
+      "bytes": 6978,
+      "sha256": "d6f912ada0ccb6bcce06f85d82bfb17db49033cb23e49f231cabfb0ac8beed6e"
+    },
+    "tests/agent-door/setup.mjs": {
+      "bytes": 11223,
+      "sha256": "e8b0f7303b58ce1295c7dd5fd9652c9068e2b50610be9fa4a62f598b97dba77c"
+    },
+    "tests/agent-handoff.mjs": {
+      "bytes": 33119,
+      "sha256": "491ff86b4e2ffb76a5abf83936fa230841e13ffb3cc3e0d29faecf8f4817b76f"
+    },
+    "tests/agent-handoff/clients.mjs": {
+      "bytes": 5166,
+      "sha256": "a91ca204d0604028a58a5e787f1d4c9271cfb65f3b0685f3856c9d79bf428c65"
+    },
+    "tests/alerts-metric.mjs": {
+      "bytes": 7504,
+      "sha256": "9355af23d2a75b32ec44a7b7550becf29337ee3e20b56c938d33fba2d454b94d"
+    },
+    "tests/alerts-runtime.mjs": {
+      "bytes": 15349,
+      "sha256": "cff447f0b9e1c62f8d6b46855947654d00caf6fe92cf9f2c36f8510d7865fe9f"
+    },
+    "tests/alerts-ui.mjs": {
+      "bytes": 22795,
+      "sha256": "ee30c08f80346489f3e80b504092a7f8e8ee101b81a699e5140a3582dcaf8c78"
+    },
+    "tests/alerts/baseline-journey.mjs": {
+      "bytes": 11719,
+      "sha256": "b2bd98b0d9cae856bf26d7b048ddf1336761b3ce4137c3d783f97aad717c9b77"
+    },
+    "tests/alerts/repair-recurrence.mjs": {
+      "bytes": 7083,
+      "sha256": "a55cf612f65c349bc8e2ea712744dc28b7495677acefd486e99bf6d9ebdd8376"
+    },
+    "tests/audit-history.mjs": {
+      "bytes": 16182,
+      "sha256": "28bad01718c97f755fc190e13564f0402e5066281aae890b4ee805e87b79eec5"
+    },
+    "tests/bugsnag-cutover.mjs": {
+      "bytes": 10621,
+      "sha256": "2e9c00d7c5291d024b164f6f6d77128b2f657b0f4e62d9721241a5c2211ee68f"
+    },
+    "tests/bulk-triage-flow.mjs": {
+      "bytes": 18648,
+      "sha256": "97384bf5d81b72d902ddb0a526d3c5dc9e47f3bc01952846c44c0a036c5ec791"
+    },
+    "tests/business-import.mjs": {
+      "bytes": 44971,
+      "sha256": "0c3108aed04f8d4f69d89929eb92386a6db1fb3932771c19e99ba76549300a5f"
+    },
+    "tests/checkin-flow.mjs": {
+      "bytes": 19931,
+      "sha256": "9addeef587a23025d241c8c3dfa75a11a5713a1d1cd9c35c911ceb6970f11160"
+    },
+    "tests/commands.mjs": {
+      "bytes": 17884,
+      "sha256": "fa86ab43572f7e7db6953624d9ccc76deca573e9d2af842cfe2fae30f13e9fe2"
+    },
+    "tests/discussion-flow.mjs": {
+      "bytes": 8751,
+      "sha256": "48e111c5a089fedad0c68f2eba3d1ea2dc2c3dd001e8fb2331160f3238346232"
+    },
+    "tests/end-user-erasure-preview.mjs": {
+      "bytes": 32304,
+      "sha256": "0598b8efd4392e00f1d55e58cfb12f7adc25899a61ef3a9e2a478491e2df5a64"
+    },
+    "tests/end-user-erasure-volume.mjs": {
+      "bytes": 8653,
+      "sha256": "1730d05420fbe6cd8681702b3aaf4e18caaab5eefb385a275f87530fbde8a89b"
+    },
+    "tests/execution-journey.mjs": {
+      "bytes": 16123,
+      "sha256": "db6b9e148f429689c9c25cf4bdfd1f5f836f05dbda1250d768ecf90047a88c5e"
+    },
+    "tests/execution/reproduce.mjs": {
+      "bytes": 21865,
+      "sha256": "46e5b4435c33b2dfe7cf751d1a1d0c8a5e1c511c7e8746917854488f363543c2"
+    },
+    "tests/feedback-flow.mjs": {
+      "bytes": 32019,
+      "sha256": "16d204f24b38480cd0f71c4a382659e06a3140eab2f2ef4eb52378496b3eadd2"
+    },
+    "tests/fidelity-flow.mjs": {
+      "bytes": 25926,
+      "sha256": "69275904ac634e4367711180e8cc69e726bad70a6eb9c91be7dcb0c765b5258e"
+    },
+    "tests/governance-step-up.mjs": {
+      "bytes": 11249,
+      "sha256": "2d0528692658fe3270a43bf543927312be3c6d69960d44de0872d68db5ec89fe"
+    },
+    "tests/key-rate-limit-flow.mjs": {
+      "bytes": 22072,
+      "sha256": "55cf4dc36f1265de98f59958d5bbcfb84ee241593d00f62f290894780b19f902"
+    },
+    "tests/mapped-frames-flow.mjs": {
+      "bytes": 19840,
+      "sha256": "15a425d8d4870428fad7248b118709e90854a91d30e853f86435309056bc4f66"
+    },
+    "tests/notification-preferences.mjs": {
+      "bytes": 9575,
+      "sha256": "aaac6237272c8b6796ea95bb150efaf8127fe7bde9727e3dacef86469a89b910"
+    },
+    "tests/operator-flow.mjs": {
+      "bytes": 23063,
+      "sha256": "d24ace171e18de4e9e6e28146724ee24ba2b81d98322b1bd75571cb33bbc418f"
+    },
+    "tests/owner-editor.mjs": {
+      "bytes": 12022,
+      "sha256": "f01e8efc23f475968579cc2b92d82377aaea730e4c1d09392866ab928f177b82"
+    },
+    "tests/priority-search-flow.mjs": {
+      "bytes": 13381,
+      "sha256": "93b95078cdb766d9d53a596410d6ce13ca4b09830397cfab771c5217eb8b1a74"
+    },
+    "tests/records-flow.mjs": {
+      "bytes": 7326,
+      "sha256": "b1da0a6d40ff4cd7597d139e6cedfb6869c2440be23438b3beb41b4d933bdf31"
+    },
+    "tests/release-identity-flow.mjs": {
+      "bytes": 65367,
+      "sha256": "0063d99925e141f5f75151228cffe781432b12cbe59cfcf830355abe16c9f60a"
+    },
+    "tests/repair-recovery.mjs": {
+      "bytes": 5817,
+      "sha256": "61aa21559dbf39e77c6ce976ce5b293aca8c89075fdd2881fef2ee0b211103c8"
+    },
+    "tests/repository-source-flow.mjs": {
+      "bytes": 6119,
+      "sha256": "b643b92e2aa14019b0a4163a517e7b7c0f5d4a8bb20e23bfb9d6146a6cf2cc34"
+    },
+    "tests/runtimes/chain-proof.mjs": {
+      "bytes": 7025,
+      "sha256": "ad42114084b9ac1808eac6a1c3ef5ce02a82d6c383a4db80adabd87859047a99"
+    },
+    "tests/runtimes/node.mjs": {
+      "bytes": 6189,
+      "sha256": "b0b3693ea3de68645c8d4ed4cf8bf74289a7a35ec24eff75f936cd111b7b13d0"
+    },
+    "tests/runtimes/php.mjs": {
+      "bytes": 659,
+      "sha256": "c1078c14688c38339350d415cd4316d6a343617fc9f62ef8dd40915d31bdb78c"
+    },
+    "tests/runtimes/python.mjs": {
+      "bytes": 22113,
+      "sha256": "1a254107c79155fcd57c74f7f0a8a0f68917be71f019a07df4cd4b6868a611a0"
+    },
+    "tests/runtimes/ruby.mjs": {
+      "bytes": 816,
+      "sha256": "a18d159615069a751deb5a76a2af5b62dc3437e31427a8a646c89a769e50010d"
+    },
+    "tests/scrubbing-flow.mjs": {
+      "bytes": 20052,
+      "sha256": "58d631f69dc94b470a939e225e10ef2f1a344fb1053754a093345985e053448d"
+    },
+    "tests/sdk-package.mjs": {
+      "bytes": 19551,
+      "sha256": "e2552cad017144f070ecea809bb84f24cfdaa77b1c60163bc69b37e4d7227c80"
+    },
+    "tests/sentry-cli-compat.mjs": {
+      "bytes": 3530,
+      "sha256": "27b65b1d652c59a98f7cd75753f915a00bf28fb468c511bb97867fb6b2995ab2"
+    },
+    "tests/sentry-sdk.mjs": {
+      "bytes": 18883,
+      "sha256": "127e93e74cb4ba64d6222d093314158a1d45cc23c20ecf948410b5f81dcf160a"
+    },
+    "tests/session-flow.mjs": {
+      "bytes": 13569,
+      "sha256": "ccd759d9b8fea0b484962095cf108caa46f6d90428ddb45b72247c0c7e87aef0"
+    },
+    "tests/setup-journey.mjs": {
+      "bytes": 15380,
+      "sha256": "f7f4a24b971a6ebc8a8e28c4218ae34c04713a80d7e965934c04498ae4f81f0d"
+    },
+    "tests/slack-flow.mjs": {
+      "bytes": 8696,
+      "sha256": "272b5039b27fa8bb2d50a431f20714ba045c8b49c0e957f328fd6db7495e7216"
+    },
+    "tests/suspect-flow.mjs": {
+      "bytes": 13997,
+      "sha256": "716b7726fbda82e52b8c89ad358b9e5bd1057f080696aaa26d77a554e0417faf"
+    },
+    "tests/team-browser.mjs": {
+      "bytes": 34431,
+      "sha256": "8bcbfe5ed52c8399790bb5415197f2b83e88eb02d8e9ad2071ca025748ef6991"
+    },
+    "tests/team-flow.mjs": {
+      "bytes": 47882,
+      "sha256": "c984582428fee7d642a71384adcce2cd4697670b42b1f38e42a1851c298e9506"
+    },
+    "tests/team-viewport.mjs": {
+      "bytes": 1301,
+      "sha256": "2a1df5b7e9279ded2f3429d530a5e00d1cfef44a2e9b4813a65fc1ea5ed13692"
+    },
+    "tests/triage-journey.mjs": {
+      "bytes": 33755,
+      "sha256": "f6b77a7e8af0b05bab85cf559c9592160f1763f03960d82bb18eb2190ca4f89e"
+    },
+    "tests/tunnel-flow.mjs": {
+      "bytes": 21049,
+      "sha256": "9726b3edc0918d995f5059f5c7d05139be564a3b9f53fa726171b649355ef3e7"
+    }
+  },
+  "branch_refs": 873,
+  "unmerged_refs": 574,
+  "notes": [
+    "Assertions in source were inspected; prior receipts are explicitly attributed, not reproduced.",
+    "The 150000-event timing in the report is a recorded prior candidate result, not this planner run.",
+    "Packet contains public source-derived planning metadata only; no credentials/environment dumps/held-out gates/symlinks."
+  ]
+}
