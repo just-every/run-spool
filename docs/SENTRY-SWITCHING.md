@@ -308,3 +308,5 @@ full Sentry API/Terraform compatibility, real-account dual run and cutover remai
 unproved. The existing public door and product release status are unchanged.
 
 Signed: Run Edit Run fleet, 17 November 2026.
+
+Sentry source alert definitions are retained for review but do not become native alert rules. The import receipt and history say “Rules are not carried over yet: <n> rule(s) not imported”, counting the distinct source rule definitions. This does not enable rules, connect destinations or change the missing-user and missing-session reasons shown when you preview a rule by hand.
