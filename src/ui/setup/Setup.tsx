@@ -34,7 +34,7 @@ export function Setup() {
  // The first key is shown once, in memory only. Continue is an explicit owner
  // action; a reload uses durable project existence and never recreates a key.
  return <main className="setup-shell">
-  <header className="setup-brand"><Wordmark name={identity.value.installationName ? `${identity.value.installationName} · Spool` : undefined} /><span className="setup-tagline">JavaScript evidence workbench</span></header>
+  <header className="setup-brand"><Wordmark className={identity.value.installationName ? 'setup-installation-wordmark' : undefined} name={identity.value.installationName ? `${identity.value.installationName} · Spool` : undefined} /><span className="setup-tagline">JavaScript evidence workbench</span></header>
   <section className="setup-panel" aria-labelledby="setup-title">
    <div className="setup-intro"><p className="setup-eyebrow">Your private installation</p>
     <h1 id="setup-title" ref={heading} tabIndex={-1}>{created ? 'Your project is ready' : restoring ? 'Restore your Spool' : 'Create your first project'}</h1>

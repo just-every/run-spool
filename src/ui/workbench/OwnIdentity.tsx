@@ -1,3 +1,4 @@
+import { identityMessage } from './identityMessage';
 import { useEffect, useState } from 'react';
 import { Field, type Request, type Run } from './shared';
 
@@ -14,7 +15,7 @@ function IdentityField({ label, value, email = false, request, run, busy, refres
         setEditing(false); setProof(false); setNotice('Saved'); refresh();
       } catch (failure) {
         if (email && (failure as Error).message === 'step_up_required') { setProof(true); return; }
-        throw failure;
+        throw new Error(identityMessage(failure));
       }
     });
   }

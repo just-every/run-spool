@@ -45,3 +45,5 @@
 .setup-steps>li{min-width:0;padding-left:4px}
 .setup-steps>li::marker{font:700 20px var(--font-display)}
 .setup-steps>li>h3{font-size:24px;margin-bottom:16px}
+
+.setup-brand .setup-installation-wordmark{max-width:100%;white-space:normal;font-size:28px;line-height:1.15;overflow-wrap:anywhere}

@@ -1,3 +1,4 @@
+import { identityMessage } from '../workbench/identityMessage';
 import { useEffect, useState } from 'react';
 import { Field, type Request } from '../workbench/shared';
 
@@ -5,12 +6,14 @@ export type SetupIdentityValue = { installationName: string; name: string; email
 
 /** Own identity uses native, session-fenced changes, including email step-up. */
 export async function initializeSetupIdentity(request: Request, value: SetupIdentityValue) {
+  try {
   const [session, access] = await Promise.all([request('/auth/session'), request('/api/organization/me')]);
   if (value.email.trim().toLowerCase() !== session.operator.email) await request('/auth/email', 'POST', { email: value.email });
   if (value.name.trim() !== session.operator.displayName) await request('/auth/display-name', 'POST', { displayName: value.name });
-  if (!access.organization) return request('/api/organization', 'POST', { name: value.installationName });
-  if (value.installationName.trim() !== access.organization.name) return request('/api/organization', 'PUT', { name: value.installationName });
+  if (!access.organization) return await request('/api/organization', 'POST', { name: value.installationName });
+  if (value.installationName.trim() !== access.organization.name) return await request('/api/organization', 'PUT', { name: value.installationName });
   return access.organization;
+  } catch (failure) { throw new Error(identityMessage(failure)); }
 }
 
 export function useSetupIdentity(request: Request) {
@@ -23,7 +26,7 @@ export function useSetupIdentity(request: Request) {
       const localDefault = !access.organization && access.localTransferConfirmation && /^owner@[^@]+\.test$/i.test(session.operator.email);
       setValue({ installationName: access.organization?.name ?? '', name: localDefault ? '' : session.operator.displayName, email: localDefault ? '' : session.operator.email });
       setReady(true);
-    }).catch(failure => { if (live) setError(failure.message); });
+    }).catch(failure => { if (live) setError(identityMessage(failure)); });
     return () => { live = false; };
   }, [request]);
   return { value, setValue, ready, error, initialize: () => initializeSetupIdentity(request, value) };

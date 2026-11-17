@@ -103,7 +103,7 @@ try {
  await settingsNavigation.getByRole('link',{name:'Projects & keys',exact:true}).click();
  if(width===1440){
   await expect(page.getByRole('heading',{name:'Project keys',exact:true})).toBeVisible();
-  await expect(page.getByRole('heading',{name:'Members',exact:true})).toBeHidden();
+  await expect(page.getByRole('heading',{name:'Who can use Spool?',exact:true})).toBeHidden();
   const created=page.waitForResponse(response=>new URL(response.url()).pathname==='/api/projects/cedar/keys'&&response.request().method()==='POST');
   await page.getByRole('button',{name:'Create deploy key',exact:true}).click();const createdResponse=await created;assert.equal(createdResponse.status(),201);
   const {hash:createdHash}=await createdResponse.json();

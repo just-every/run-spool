@@ -1,5 +1,5 @@
 import { BrowserOrigins } from '../BrowserOrigins';
-import { useEffect, useState } from 'react';
+import { useState } from 'react';
 import { captureException } from '../../domain/capture';
 import { receiptLabel } from './CaptureReceipts';
 import { hrefFor, sourceMapHref } from './location';
