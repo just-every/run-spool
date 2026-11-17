@@ -1,0 +1,105 @@
+{
+  "schema": 1,
+  "task": "ct-import-plan-spool-1",
+  "role": "planner",
+  "repository": "just-every/run-spool",
+  "reviewed_branch": "main",
+  "reviewed_head": "337a4cacd736ad172f397f318bb766fa5402ed9a",
+  "main_advertisement": "337a4cacd736ad172f397f318bb766fa5402ed9a\trefs/heads/main",
+  "product_checkout_clean": true,
+  "product_commits_created": 0,
+  "product_refs_pushed": [],
+  "product_tests_run": [],
+  "product_application_launches": 0,
+  "ci_dispatches": 0,
+  "prs_created": 0,
+  "planning_checks": [
+    "source inspection, documented public API response field inventory, queue block JSON and five-entry validation",
+    "clean worktree/index and HEAD=origin/main",
+    "product origin/main..HEAD identity log empty",
+    "explicit regular-file selection, no symlinks; no raw API key examples or private gate/credential/environment files selected"
+  ],
+  "owner_context": {
+    "repository": "just-every/run-runeditrun",
+    "clone_result": "Repository not found",
+    "direction_public_result": "404",
+    "agents_public_result": "404",
+    "cited_copy": "not found in tracked Spool documentation"
+  },
+  "source_files": [
+    {
+      "path": "AGENTS.md",
+      "sha256": "2466cd04c08e11d9cf81c0edb76032ea0d61580fd9939db4992a49eaafb3e131"
+    },
+    {
+      "path": "CONTRACT.md",
+      "sha256": "ee9c871bfa25a110d3f3e61924164c75cc17ea412cb775f2e0621f114ab3594b"
+    },
+    {
+      "path": "ACCEPTANCE.md",
+      "sha256": "09f4bb713a3cf9acdde84ba680630f9e9356198966ea70f2ac502520909a9ab1"
+    },
+    {
+      "path": "package.json",
+      "sha256": "a55bfbcbda9fa6b8d2b5f0f6a082f33a1d283dc3adecfc6256759f3527bea67e"
+    },
+    {
+      "path": "docs/SENTRY-SWITCHING.md",
+      "sha256": "3b1ff65c7518a2754bdb26f58c6e4583f9f6d2f82ed8a2ff3e83c36ab54864b6"
+    },
+    {
+      "path": "docs/BUSINESS-IMPORT-TRUST.md",
+      "sha256": "a926ea4ea3d53621f8ce7f642956364b1b3d070d9854c046049eb70d1c27ad8b"
+    },
+    {
+      "path": "docs/IMPORT-READS.md",
+      "sha256": "9ebf64785924290489af1bea558af55cb75936418e5a1f4820fea5c841184327"
+    },
+    {
+      "path": "src/domain/sentry-import/source.ts",
+      "sha256": "a705d23ed0ddabf93610a62924f5a064245dae645fd1c681d2aaca837ae727c0"
+    },
+    {
+      "path": "src/domain/sentry-import/mapping.ts",
+      "sha256": "88ffc8676f543c555288cb6fe223a22d7c35cbd6a822f1d686cf0610c7420daa"
+    },
+    {
+      "path": "src/domain/sentry-import/event.ts",
+      "sha256": "a23a49d263bd129b4149cce52960e69d1e24bdd11bdac44914dcc4073f997c1d"
+    },
+    {
+      "path": "src/domain/sentry-import/door.server.ts",
+      "sha256": "d3a45ddbc65592577dac31351de97b7e3ebc8abafc3712892128a51cfd2c7bdf"
+    },
+    {
+      "path": "src/domain/sentry-import/targets.ts",
+      "sha256": "a183228210f20689abaa48bbf87ab491b7061a60ac2aa0922433e63ea8ea74d5"
+    },
+    {
+      "path": "src/ui/workbench/BusinessImports.tsx",
+      "sha256": "394eea16add9488c7b4846706d9dc402b4ce55b04578a332f4a9a18b88fab6af"
+    },
+    {
+      "path": "scripts/sentry-import.mjs",
+      "sha256": "2552f6f7f2be9b0e2c37930fc0fdc5b48de88aa8bfa8e7ba42230bce3c61bcf0"
+    },
+    {
+      "path": "tests/sentry-import.mjs",
+      "sha256": "ee755555002e33066a6a8d22d422938e6a9125870d70bcdb7631b2153cd63c2d"
+    },
+    {
+      "path": "tests/business-import.mjs",
+      "sha256": "0c3108aed04f8d4f69d89929eb92386a6db1fb3932771c19e99ba76549300a5f"
+    },
+    {
+      "path": "tests/fixtures/sentry/organization.json",
+      "sha256": "ea096ab1647753b5bbd89c85754c46bfcc2bd213fc56ed01358cd51a74e189ba"
+    }
+  ],
+  "report_sha256": "3ae8b81f7d34f23b8008f2a4715da342b075608bce9010b760b9606ccef2b354",
+  "field_matrix_paths": 835,
+  "planned_evidence_ref": "refs/heads/evidence/ct-import-plan-spool-1",
+  "publication_semantics": "Report-only evidence, not product custody, acceptance or landing. Publication candidate author/committer and all side-parent trailers are audited in isolated publisher Git before push.",
+  "held_external": "R-2: owner-authorized real Sentry buyer test installation/account, export and production-volume cutover authorization",
+  "created_utc": "2026-11-17T11:05:50.856346+00:00"
+}

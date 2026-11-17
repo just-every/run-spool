@@ -1,0 +1,215 @@
+[
+  {
+    "name": "projects",
+    "url": "https://docs.sentry.io/api/projects/list-an-organizations-projects/",
+    "error": "HTTP Error 404: Not Found"
+  },
+  {
+    "name": "keys",
+    "url": "https://docs.sentry.io/api/projects/list-a-projects-client-keys/",
+    "final_url": "https://docs.sentry.io/api/projects/list-a-projects-client-keys/",
+    "status": 200,
+    "bytes": 275088,
+    "text_file": "keys.txt"
+  },
+  {
+    "name": "issues",
+    "url": "https://docs.sentry.io/api/events/list-a-projects-issues/",
+    "final_url": "https://docs.sentry.io/api/events/list-a-projects-issues/",
+    "status": 200,
+    "bytes": 262275,
+    "text_file": "issues.txt"
+  },
+  {
+    "name": "issue-detail",
+    "url": "https://docs.sentry.io/api/events/retrieve-an-issue/",
+    "final_url": "https://docs.sentry.io/api/events/retrieve-an-issue/",
+    "status": 200,
+    "bytes": 867491,
+    "text_file": "issue-detail.txt"
+  },
+  {
+    "name": "events",
+    "url": "https://docs.sentry.io/api/events/list-an-issues-events/",
+    "final_url": "https://docs.sentry.io/api/events/list-an-issues-events/",
+    "status": 200,
+    "bytes": 256748,
+    "text_file": "events.txt"
+  },
+  {
+    "name": "event-detail",
+    "url": "https://docs.sentry.io/api/events/retrieve-an-event-for-a-project/",
+    "final_url": "https://docs.sentry.io/api/events/retrieve-an-event-for-a-project/",
+    "status": 200,
+    "bytes": 410191,
+    "text_file": "event-detail.txt"
+  },
+  {
+    "name": "releases",
+    "url": "https://docs.sentry.io/api/releases/list-an-organizations-releases/",
+    "final_url": "https://docs.sentry.io/api/releases/list-an-organizations-releases/",
+    "status": 200,
+    "bytes": 287428,
+    "text_file": "releases.txt"
+  },
+  {
+    "name": "alerts",
+    "url": "https://docs.sentry.io/api/alerts/list-a-projects-rules/",
+    "error": "HTTP Error 404: Not Found"
+  },
+  {
+    "name": "metric-alerts",
+    "url": "https://docs.sentry.io/api/alerts/list-an-organizations-metric-alert-rules/",
+    "error": "HTTP Error 404: Not Found"
+  },
+  {
+    "name": "ownership",
+    "url": "https://docs.sentry.io/api/projects/retrieve-ownership-configuration-for-a-project/",
+    "final_url": "https://docs.sentry.io/api/projects/retrieve-ownership-configuration-for-a-project/",
+    "status": 200,
+    "bytes": 265293,
+    "text_file": "ownership.txt"
+  },
+  {
+    "name": "members",
+    "url": "https://docs.sentry.io/api/organizations/list-an-organizations-members/",
+    "final_url": "https://docs.sentry.io/api/organizations/list-an-organizations-members/",
+    "status": 200,
+    "bytes": 258733,
+    "text_file": "members.txt"
+  },
+  {
+    "name": "pagination",
+    "url": "https://docs.sentry.io/api/pagination/",
+    "final_url": "https://docs.sentry.io/api/pagination/",
+    "status": 200,
+    "bytes": 256647,
+    "text_file": "pagination.txt"
+  },
+  {
+    "name": "envelopes",
+    "url": "https://develop.sentry.dev/sdk/data-model/envelopes/",
+    "final_url": "https://develop.sentry.dev/sdk/foundations/envelopes/",
+    "status": 200,
+    "bytes": 365398,
+    "text_file": "envelopes.txt"
+  },
+  {
+    "name": "event-payload",
+    "url": "https://develop.sentry.dev/sdk/data-model/event-payloads/",
+    "final_url": "https://develop.sentry.dev/sdk/foundations/envelopes/event-payloads/",
+    "status": 200,
+    "bytes": 345151,
+    "text_file": "event-payload.txt"
+  },
+  {
+    "name": "owner-direction",
+    "url": "https://raw.githubusercontent.com/just-every/run-runeditrun/main/DIRECTION.md",
+    "error": "HTTP Error 404: Not Found"
+  },
+  {
+    "name": "owner-agents",
+    "url": "https://raw.githubusercontent.com/just-every/run-runeditrun/main/AGENTS.md",
+    "error": "HTTP Error 404: Not Found"
+  },
+  {
+    "name": "projects",
+    "url": "https://docs.sentry.io/api/organizations/list-an-organizations-projects/",
+    "status": 200,
+    "final_url": "https://docs.sentry.io/api/organizations/list-an-organizations-projects/",
+    "text_file": "projects.txt"
+  },
+  {
+    "name": "alert-index",
+    "url": "https://docs.sentry.io/api/alerts/",
+    "error": "HTTP Error 404: Not Found"
+  },
+  {
+    "name": "auth",
+    "url": "https://develop.sentry.dev/sdk/foundations/transport/authentication/",
+    "status": 200,
+    "final_url": "https://develop.sentry.dev/sdk/foundations/transport/authentication/",
+    "text_file": "auth.txt"
+  },
+  {
+    "name": "alerts",
+    "url": "https://docs.sentry.io/api/alerts/list-a-projects-issue-alert-rules/",
+    "error": "HTTP Error 404: Not Found"
+  },
+  {
+    "name": "metric-alerts",
+    "url": "https://docs.sentry.io/api/alerts/list-an-organizations-metric-alert-rules/",
+    "error": "HTTP Error 404: Not Found"
+  },
+  {
+    "name": "alerts2",
+    "url": "https://docs.sentry.io/api/alerts/retrieve-an-issue-alert-rule/",
+    "error": "HTTP Error 404: Not Found"
+  },
+  {
+    "name": "metrics2",
+    "url": "https://docs.sentry.io/api/alerts/retrieve-a-metric-alert-rule/",
+    "error": "HTTP Error 404: Not Found"
+  },
+  {
+    "name": "teams",
+    "url": "https://docs.sentry.io/api/teams/list-an-organizations-teams/",
+    "status": 200,
+    "final_url": "https://docs.sentry.io/api/teams/list-an-organizations-teams/",
+    "text_file": "teams.txt"
+  },
+  {
+    "name": "sdk-options",
+    "url": "https://docs.sentry.io/platforms/javascript/configuration/options/",
+    "status": 200,
+    "final_url": "https://docs.sentry.io/platforms/javascript/configuration/options/",
+    "text_file": "sdk-options.txt"
+  },
+  {
+    "name": "alerts-current",
+    "url": "https://docs.sentry.io/api/monitors/fetch-alerts/",
+    "status": 200,
+    "final_url": "https://docs.sentry.io/api/monitors/fetch-alerts/",
+    "text_file": "alerts-current.txt"
+  },
+  {
+    "name": "alert-detail-current",
+    "url": "https://docs.sentry.io/api/monitors/fetch-an-alert/",
+    "status": 200,
+    "final_url": "https://docs.sentry.io/api/monitors/fetch-an-alert/",
+    "text_file": "alert-detail-current.txt"
+  },
+  {
+    "name": "alert-create-current",
+    "url": "https://docs.sentry.io/api/monitors/create-an-alert-for-an-organization/",
+    "status": 200,
+    "final_url": "https://docs.sentry.io/api/monitors/create-an-alert-for-an-organization/",
+    "text_file": "alert-create-current.txt"
+  },
+  {
+    "name": "alert-actions",
+    "url": "https://docs.sentry.io/api/monitors/list-available-alert-actions/",
+    "status": 200,
+    "final_url": "https://docs.sentry.io/api/monitors/list-available-alert-actions/",
+    "text_file": "alert-actions.txt"
+  },
+  {
+    "name": "ownership-guide",
+    "url": "https://docs.sentry.io/product/issues/ownership-rules/",
+    "status": 200,
+    "final_url": "https://docs.sentry.io/product/issues/ownership-rules/",
+    "text_file": "ownership-guide.txt"
+  },
+  {
+    "name": "monitors",
+    "url": "https://docs.sentry.io/api/monitors/fetch-an-organizations-monitors/",
+    "status": 200,
+    "text_file": "research/monitors.txt"
+  },
+  {
+    "name": "monitor-detail",
+    "url": "https://docs.sentry.io/api/monitors/fetch-a-monitor/",
+    "status": 200,
+    "text_file": "research/monitor-detail.txt"
+  }
+]

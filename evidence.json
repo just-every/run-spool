@@ -1,0 +1,40 @@
+{
+  "files": [
+    {
+      "blob": "a7dd8f861f6a312a0fe1b4a89c1eb6834264cc87",
+      "bytes": 45726,
+      "path": "REPORT.md",
+      "sha256": "3ae8b81f7d34f23b8008f2a4715da342b075608bce9010b760b9606ccef2b354"
+    },
+    {
+      "blob": "c5b1b18d5e794240acb17f9a2c4821045a977399",
+      "bytes": 23863,
+      "path": "documented-response-fields.json",
+      "sha256": "46e2dfb5230277a82090fe59a487c312bbb3fdaa49cdb9c0cd0fdfe0906c540d"
+    },
+    {
+      "blob": "a29b376c75ebbfcee0e43a9e68c3df5af88e59fa",
+      "bytes": 355003,
+      "path": "field-matrix.json",
+      "sha256": "63a54c3d131be57883d722f00bac29e099769f1cd0810c6c5da5d3abc1a5311d"
+    },
+    {
+      "blob": "5dd4782c1ebb1ce1b5c8d7c545ea2ae2b4e89312",
+      "bytes": 4120,
+      "path": "planning-receipt.json",
+      "sha256": "c326e6099ecd3cbe6e95fca8cfdb6c227094cd6117db30d422127da33e06d208"
+    },
+    {
+      "blob": "40fbcaca4d110be254a2beee0eeda9e3d8e967f1",
+      "bytes": 7089,
+      "path": "public-docs-receipt.json",
+      "sha256": "ace3d841eb93da7c43e1dd9bfeb3784c13790d830631e74e53d07e9a388a21a7"
+    }
+  ],
+  "product_branch": "main",
+  "product_head": "337a4cacd736ad172f397f318bb766fa5402ed9a",
+  "ref": "refs/heads/evidence/ct-import-plan-spool-1",
+  "repository": "just-every/run-spool",
+  "schema": 1,
+  "tag": "ct-import-plan-spool-1"
+}
