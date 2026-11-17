@@ -5862,7 +5862,7 @@
       "executable": false
     },
     "src/domain/audit/classify.ts": {
-      "sha256": "2cc8b0042972fed7a5ac68364ccf7d561d9b3602fff09b70018c08103ce52388",
+      "sha256": "2192be67371158332574d1a7f5b8a3e09c7761a930212e6e50d21b717e898814",
       "executable": false
     },
     "src/domain/audit/context.ts": {
@@ -11886,7 +11886,7 @@
       "executable": false
     },
     "tests/sentry-import/roster-ownership.mjs": {
-      "sha256": "a0c1d2f5b90a4a0097f3d5a2ced93735ea3548582790de579d4980fc4cc02de4",
+      "sha256": "518dd7bfc9af81245824e7810d899ff8bc66a0f6e6c3af83a89dde5792bb6970",
       "executable": false
     },
     "tests/sentry-import/schema-pages.mjs": {
