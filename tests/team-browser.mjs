@@ -321,7 +321,7 @@ export async function localMailFlow() {
   const challenge=await app.DB.prepare('SELECT consumed_at FROM oa_step_up_challenges ORDER BY created_at DESC LIMIT 1').first();
   assert.equal(challenge.consumed_at,null,'requesting suppressed mail creates no step-up proof');
   assert.equal((await app.DB.prepare('SELECT COUNT(*) n FROM rer_mail_development_outbox').first()).n,0,'local mail is neither sent nor retained as a mailbox');
-  const folder=process.env.SPOOL_LOCAL_MAIL_EVIDENCE;
+  const folder=process.env.SPOOL_LOCAL_MAIL_EVIDENCE||'.artifacts/local-invitations';
   if(folder){
    await mkdir(folder,{recursive:true});
    await members.screenshot({path:resolve(folder,'local-members-1440.png'),mask:[input]});
@@ -333,6 +333,7 @@ export async function localMailFlow() {
   console.log('Local mail journey: missing-link recovery, copy and native verification complete');
   const inviteeContext=await browser.newContext({viewport:{width:1440,height:1000}}),invitee=await inviteeContext.newPage();invitee.setDefaultTimeout(20000);
   await invitee.goto(link);await expect(invitee.getByRole('main')).toContainText('Synthetic local owner');await expect(invitee.getByRole('main')).toContainText('Synthetic local team');await expect(invitee.getByRole('main')).toContainText(project.name);
+  if(folder){for(const width of [1440,390]){await invitee.setViewportSize({width,height:1000});await invitee.screenshot({path:resolve(folder,'invitation-page-'+width+'.png'),fullPage:true});}await invitee.setViewportSize({width:1440,height:1000});}
   const confirmed=invitee.waitForResponse(r=>new URL(r.url()).pathname==='/auth/confirm'&&r.request().method()==='POST');
   await invitee.getByRole('button',{name:'Join',exact:true}).click();assert.equal((await confirmed).status(),303);
   const session=await inviteeContext.request.get(app.origin+'/auth/session');assert.equal(session.status(),200);

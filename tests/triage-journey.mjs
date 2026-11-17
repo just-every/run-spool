@@ -102,11 +102,14 @@ try {
  const settingsNavigation=page.getByRole('navigation',{name:'Settings sections'});
  await settingsNavigation.getByRole('link',{name:'Projects & keys',exact:true}).click();
  if(width===1440){
+  const keyProof=async(name,target)=>{for(const screen of [1440,390]){await page.setViewportSize({width:screen,height:900});await target.scrollIntoViewIfNeeded();await target.screenshot({path:output+`/${name}-${screen}.png`,mask:[target.locator('[data-secret]')]});}await page.setViewportSize({width,height:900});};
   await expect(page.getByRole('heading',{name:'Project keys',exact:true})).toBeVisible();
+  await keyProof('project-keys',page.getByRole('heading',{name:'Project keys',exact:true}).locator('..'));
   await expect(page.getByRole('heading',{name:'Members',exact:true})).toBeHidden();
   const created=page.waitForResponse(response=>new URL(response.url()).pathname==='/api/projects/cedar/keys'&&response.request().method()==='POST');
   await page.getByLabel('New key name',{exact:true}).fill('synthetic-spool-1 deploy');await page.getByRole('button',{name:'Create deploy key',exact:true}).click();const createdResponse=await created;assert.equal(createdResponse.status(),201);
   const {hash:createdHash}=await createdResponse.json();
+  await keyProof('key-issued',page.getByRole('dialog',{name:'New project key',exact:true}));
   const listedKeys=await api('/api/projects/cedar/keys');assert.equal(listedKeys.find(row=>row.hash===createdHash).last_used,null);assert.equal(typeof listedKeys.find(row=>row.kind==='ingest').last_used,'number','the key used by the live application has an actual last-use time');
   await page.getByRole('button',{name:"I've saved it",exact:true}).click();
   const key=page.locator(`.key-row[data-key-hash="${createdHash}"]`);await key.getByRole('button',{name:'Details: Project key',exact:true}).click();
@@ -117,6 +120,7 @@ try {
   assert.equal((await api('/api/projects/cedar/keys')).find(row=>row.hash===createdHash).revoked,null,'opening the consequence confirmation does not revoke');
   await keyDialog.getByRole('button',{name:'Keep key',exact:true}).click();
   await keyDialog.getByRole('button',{name:'Revoke key',exact:true}).click();
+  await keyProof('key-revoke',keyDialog);
   await keyDialog.getByRole('button',{name:'Confirm revoke',exact:true}).click();
   await expect(page.getByRole('dialog',{name:'Project key',exact:true})).toContainText('Revoked');
   assert.equal((await api('/api/projects/cedar/keys')).find(row=>row.kind==='ingest').revoked,null,'Revoking the created deploy key preserves the ingest key for later capture');

@@ -262,3 +262,49 @@ owner-claim key ring (Base's `verifyRerGrant`). Without that trust it answers
 404; without a grant 401; another action, an expired grant, another
 installation, owner or audience, a wrong key, or a key revoked under **Revoke
 key** 403; a malformed body 400; any method but POST 405.
+
+## Generate a documented-schema import fixture
+
+No Sentry account is needed for this synthetic experiment. From the checkout:
+
+```sh
+node scripts/fixtures/sentry-organization.mjs /tmp/spool-sentry-baseline baseline
+node scripts/fixtures/sentry-organization.mjs /tmp/spool-sentry-scaled scaled
+```
+
+Each directory contains a deterministic `capture.json`, sanitized `bundle.json`,
+page/byte/redaction `receipt.json` and public `documentation.json` links. The
+baseline has eight issues/events; scaled has 260 of each, exceeding the former
+500-record limit. Both include projects, keys, issues, event details, releases,
+workflows/detectors, singleton ownership and members/teams. The wrapper is Spool's
+format, not a universal native Sentry export. Response objects use the linked
+Sentry `/api/0/` schemas. Events use singleton event detail responses, not SDK wire
+JSON or list summaries. Ownership gets a project-scoped singleton identity and
+needs no invented provider ID. Lists retain complete `Link` acquisition chains,
+including an empty terminal page and overlapping equal issue rows. Issue lists
+request every state (`query=`), avoiding Sentry's default unresolved subset.
+
+For an already captured, authorized offline response file:
+
+```sh
+node scripts/sentry-export.mjs CAPTURE.json BUNDLE.json RECEIPT.json
+```
+
+This command never calls Sentry. It checks endpoints, page chains and collection
+scope, refuses truncated/cross-origin links and strips credentials before any
+upload can be constructed. Repeated removed values are redacted across every response page, including encoded forms;
+a credential reflected in a field name refuses the capture. Keep capture files private: only sanitized bundles reach the import
+door, and only the path/count report belongs in shared evidence. Credential
+refusal and exact owner/project authority checks remain in the existing door.
+Use the existing `scripts/sentry-import.mjs dry-run --file BUNDLE.json` owner path
+with its documented endpoint and session environment options, review the returned
+fingerprint, then explicitly apply. Owner reads expose the accounting described
+in [IMPORT-READS.md](IMPORT-READS.md).
+
+These fixtures qualify inventory and loss accounting only. No native invitations,
+source key activation, live alerts or replacement loader script are created.
+Other MIG-001 collections, richer event fidelity, arbitrary-size migration,
+full Sentry API/Terraform compatibility, real-account dual run and cutover remain
+unproved. The existing public door and product release status are unchanged.
+
+Signed: Run Edit Run fleet, 17 November 2026.

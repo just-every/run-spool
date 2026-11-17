@@ -29,7 +29,7 @@ export async function erasePanel(app,browser,directory,{project,width,needles}){
   let release;const follow= new Promise(resolve=>{release=resolve});
   await page.route('**/api/erasures/*/resume',async route=>{await follow;await route.continue()});
   const started=Date.now(),response=page.waitForResponse(r=>new URL(r.url()).pathname===`/api/projects/${project}/erasure`&&r.request().method()==='POST');
-  await erase.click();const status=(await response).status();assert.equal(status,202,'the erase returns an accepted job');
+  await erase.click();const answer=await response,status=answer.status();assert.equal(status,202,`the erase returns an accepted job (${status===202?'accepted':await answer.text()})`);
   await page.getByRole('heading',{name:'Erasure continuing',exact:true}).waitFor();
   await check(page,directory,width,'progress',captures,needles);
   release();
