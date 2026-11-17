@@ -11654,7 +11654,7 @@
       "executable": false
     },
     "tests/runtimes/java.mjs": {
-      "sha256": "3c8f48fdc4242a69dd46a97a737d525b3b9e0f0920be4581bf19800c6864ee8f",
+      "sha256": "cc185b0485e9f677ab6fff364db19b9b5421c259ffebfe36ee54e1882249f3b3",
       "executable": false
     },
     "tests/runtimes/java/App.java": {
