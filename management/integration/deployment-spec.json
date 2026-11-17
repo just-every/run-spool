@@ -624,6 +624,12 @@
       "name": "0109_feedback_review.sql",
       "sha256": "991615f887a895a3d6be01b805dc543a8a05c8274312b02788b170b73b52c06f",
       "sql": "-- Consent-scoped contact, raster screenshot and bounded reply ledger share the\n-- report's existing custody: one row, one withdrawal/retention/erasure fence.\nALTER TABLE feedback ADD COLUMN private_data TEXT DEFAULT NULL\n CHECK(private_data IS NULL OR (json_valid(private_data) AND length(private_data)<=240000));\n"
+    },
+    {
+      "binding": "DB",
+      "name": "0111_key_names_and_use.sql",
+      "sha256": "b1cae0eee0f949294c39ff602c56d7dc8abbabef544dfa782376a016cb73865c",
+      "sql": "-- Descriptive key metadata stays with excluded credential grants, never archives.\nALTER TABLE credentials ADD COLUMN name TEXT NOT NULL DEFAULT '';\nALTER TABLE credentials ADD COLUMN last_used INTEGER;\n\n-- Names and successful-use timestamps do not change credential authority.\n-- Preserve the post-erasure revocation and guarded transfer fences while\n-- allowing metadata-only writes with every authority field unchanged.\nDROP TRIGGER spool_erased_owner_credential_update;\nCREATE TRIGGER spool_erased_owner_credential_update BEFORE UPDATE ON credentials\nWHEN EXISTS(SELECT 1 FROM rer_erasure_operations WHERE entity='installation-owner')\n AND NOT EXISTS(SELECT 1 FROM rer_erasure_guard)\n AND NOT COALESCE((\n  NEW.revoked IS NOT NULL AND NEW.hash IS OLD.hash AND NEW.project IS OLD.project\n  AND NEW.kind IS OLD.kind AND NEW.created IS OLD.created\n  AND NEW.minted_by IS OLD.minted_by AND NEW.minted_version IS OLD.minted_version\n  OR NEW.hash IS OLD.hash AND NEW.project IS OLD.project AND NEW.kind IS OLD.kind\n  AND NEW.created IS OLD.created AND NEW.revoked IS OLD.revoked\n  AND NEW.minted_by IS OLD.minted_by AND NEW.minted_version IS OLD.minted_version\n  OR OLD.revoked IS NULL AND NEW.revoked IS NULL AND NEW.hash IS OLD.hash\n  AND NEW.project IS OLD.project AND NEW.kind IS OLD.kind AND NEW.created IS OLD.created\n  AND NEW.minted_by IS OLD.minted_by AND NEW.minted_version=OLD.minted_version+1\n  AND EXISTS(SELECT 1 FROM audit_context WHERE action='member.transfer' AND committed=0)\n  AND EXISTS(SELECT 1 FROM spool_authority_guards WHERE ok=1)\n  AND EXISTS(SELECT 1 FROM oa_operators o WHERE o.id=OLD.minted_by\n   AND o.version=OLD.minted_version AND o.status='active')\n ),0)\nBEGIN SELECT RAISE(ABORT,'credential_authority_changed'); END;\n"
     }
   ],
   "compatibilityDate": "2026-09-08",

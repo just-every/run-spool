@@ -1,3 +1,4 @@
+import {openAlertDetails} from '../navigation.mjs';
 import assert from 'node:assert/strict';
 import { mkdir } from 'node:fs/promises';
 
@@ -13,7 +14,7 @@ export async function rulesUI(page, app, width) {
  }
  await app.db.batch(ids.map(id=>app.db.prepare('UPDATE events SET received=? WHERE project=? AND id=?').bind(Math.floor(Date.now()/300000)*300000-300000+100,'web',id)));
 
- await page.getByRole('button', { name: 'Rules', exact: true }).click();
+ await page.getByRole('button', { name: 'Rules', exact: true }).click();await openAlertDetails(page);
  const discard = page.getByRole('button', { name: 'Discard edit', exact: true });
  if (await discard.isVisible()) {
   page.once('dialog', dialog => dialog.accept());
