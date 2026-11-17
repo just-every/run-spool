@@ -26,7 +26,7 @@ function withoutColumn(sql,name){
 }
 
 // TEAM-004 stores (migration 0059) and SRC-003's release/deploy stores (migration 0060) that the released schema lacks.
-const membershipTables = ['spool_reporting_items','spool_reporting_projects','spool_reporting_widgets','spool_reporting_shares','spool_team_digest_settings','spool_team_snoozes','spool_team_mail','spool_organizations','spool_members','spool_project_teams','spool_project_grants','spool_member_invites','spool_service_accounts','spool_service_scopes'];
+const membershipTables = ['spool_import_proposals','spool_reporting_items','spool_reporting_projects','spool_reporting_widgets','spool_reporting_shares','spool_team_digest_settings','spool_team_snoozes','spool_team_mail','spool_organizations','spool_members','spool_project_teams','spool_project_grants','spool_member_invites','spool_service_accounts','spool_service_scopes'];
 const citationTables = ['sentry_transactions','agent_door_retired_refs','bs_retired','native_symbols','native_debug_files','spool_notification_preferences','scrubbing_policies','scrubbing_changes','alert_rule_configs','issue_recurrence_boundaries','issue_priorities','issue_activity','issue_comments','issue_subscriptions','recurrence_policies','issue_suppressions',...membershipTables,'review_stamps','review_views','retention_policies','identity_policies','event_identities','project_identity_keys','health_sessions','health_aggregates','slack_delivery_meta','suspect_decisions','source_map_builds','source_map_build_files','artifact_storage_settings','loader_settings','short_id_prefixes','issue_short_ids','issue_short_id_moves','commits','release_commits','commit_links','repository_link_log','commit_sharing','sentry_releases','sentry_deploys'];
 
 // This is the unchanged output of the old native exporter, including its ledger.
@@ -101,6 +101,8 @@ try {
    assert.equal(withoutColumn(currentSql,'private_data'),sql,'private review preserves all released feedback columns and constraints');
    const column=(await rows(upgrade,"PRAGMA table_info('feedback')")).find(column=>column.name==='private_data');
    assert.deepEqual({type:column.type,notnull:column.notnull,default:column.dflt_value},{type:'TEXT',notnull:0,default:'NULL'});
+  }else if(name==='sentry_import_targets'){
+   assert.equal(currentSql.replace(",'import-proposal'",'').replace('CREATE TABLE "sentry_import_targets"','CREATE TABLE sentry_import_targets'),sql,'roster import expands only the provenance kind discriminator');
   }else if(name==='alerts'){
    assert.equal(currentSql.replace('issue TEXT REFERENCES issues(id)','issue TEXT NOT NULL REFERENCES issues(id)').replace(", CHECK((kind='metric' AND issue IS NULL) OR (kind<>'metric' AND issue IS NOT NULL))",''),sql,'metric feed changes only issue nullability and its kind constraint');
   }else if(name!=='spool_audit_events')assert.equal(currentSql,sql,`populated upgrade preserves released table schema: ${name}`);
@@ -142,7 +144,7 @@ try {
  // Backups made immediately before project metrics carry complete behavior and
  // hashed migration history, unlike the earlier table-only fixture above.
  const preMetric=await target('PRE_METRIC',migrations.filter(m=>m.name<'0106'));
- transfer.portabilityPolicy.validateStaged=context=>stagedValidation({...context,read:table=>table==='sentry_transactions'?Promise.resolve([]):context.read(table)});
+ transfer.portabilityPolicy.validateStaged=context=>stagedValidation({...context,read:table=>['sentry_transactions','spool_import_proposals'].includes(table)?Promise.resolve([]):context.read(table)});
  try{await transfer.restoreStream(await transfer.portability(preMetric),new Response(archive).body)}finally{transfer.portabilityPolicy.validateStaged=stagedValidation}
  const recentArchive=await new Response(await transfer.archiveStream(await transfer.portability(preMetric))).text(),recent=await target('RECENT');
  await transfer.restoreStream(await transfer.portability(recent),new Response(recentArchive).body);

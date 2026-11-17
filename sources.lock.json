@@ -6598,7 +6598,7 @@
       "executable": false
     },
     "src/domain/portability.ts": {
-      "sha256": "8af3c9645e64eaab329704dc86d5130b3abdd3b66206d42f8f813350705af810",
+      "sha256": "79384abac3063d613949d863c8082f1361243500356402d3da4f4af656a82ac5",
       "executable": false
     },
     "src/domain/privacy.ts": {
@@ -11198,7 +11198,7 @@
       "executable": false
     },
     "tests/fixtures/archive-before-project-metrics.mjs": {
-      "sha256": "5538cd31eb6369f5cd8a61680b3f254baea264aec31e1285c2ccb91d0d429622",
+      "sha256": "116c8086686055193008a4e082ce368ea4edfd431d02eee5d72707ad8ed1f7cb",
       "executable": false
     },
     "tests/fixtures/archive-before-relay-privacy.mjs": {
@@ -11358,7 +11358,7 @@
       "executable": false
     },
     "tests/old-archive.mjs": {
-      "sha256": "578e127b0d1c9bfa2fb71fb8f206655e79550e21f2df98634a7980d8855c7633",
+      "sha256": "3cab14a54aa3004a67ab305fc288733a0a30907c346c10f2566963843722a7ea",
       "executable": false
     },
     "tests/operator-archive.mjs": {
@@ -11506,7 +11506,7 @@
       "executable": false
     },
     "tests/repair-recovery/archive.mjs": {
-      "sha256": "056416522a0c51f2772cc8eb78cce3b4f938cccc9b543d1da27d371c98f225c8",
+      "sha256": "3ec1dc9c9b37a4f3f824672f13ae171a49080bb17bb97703187197b7feb9a147",
       "executable": false
     },
     "tests/repair-recovery/capture.mjs": {
