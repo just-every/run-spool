@@ -12,6 +12,7 @@ import './setup.css';
 type CreatedProject = { id: string; name: string; ingestKey: string; dsn?: string; devMinted?: boolean };
 export function Setup() {
  const identity = useSetupIdentity(api);
+ useEffect(() => { document.title = identity.value.installationName ? `${identity.value.installationName} · Spool` : 'Spool'; }, [identity.value.installationName]);
  const [ready, setReady] = useState(false);
  const [restoring, setRestoring] = useState(false);
  const [busy, setBusy] = useState(false), [error, setError] = useState('');
