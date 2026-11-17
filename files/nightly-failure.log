@@ -1,0 +1,22 @@
+2026-11-16T04:21:53.1046658Z ##[group]Run pnpm test:commands
+2026-11-16T04:21:53.1046987Z [36;1mpnpm test:commands[0m
+2026-11-16T04:21:53.1065120Z shell: /usr/bin/bash -e {0}
+2026-11-16T04:21:53.1066733Z ##[endgroup]
+2026-11-16T04:21:53.3896503Z 
+2026-11-16T04:21:53.3898261Z > @errors/errors-workbench@0.7.12 test:commands /home/runner/work/run-spool/run-spool
+2026-11-16T04:21:53.3899104Z > node tests/commands.mjs
+2026-11-16T04:21:53.3899378Z 
+2026-11-16T04:21:53.8718347Z (node:2775) ExperimentalWarning: SQLite is an experimental feature and might change at any time
+2026-11-16T04:21:53.8719696Z (Use `node --trace-warnings ...` to show where the warning was created)
+2026-11-16T04:23:51.0508899Z {"journey":"spool-commands","stage":"slow-readiness","stageOrdinal":7,"command":{"ordinal":7,"command":"setup","exitCode":null,"cliErrorCode":"unknown","refusalFamily":"unknown","lifecycleMarker":"starting","resourcePreflight":"not-requested","resourcePreflightRefusal":"unknown","spawned":true,"exited":false,"spawnFailed":false,"timedOut":false,"readinessObserved":false,"healthChecked":false,"outboxChecked":false},"error":{"type":"AssertionError","source":null,"line":null},"cleanup":{"browser":"not-started","children":"stopped","directory":"removed"}}
+2026-11-16T04:23:51.0528945Z file:///home/runner/work/run-spool/run-spool/tests/command-diagnostics.mjs:203
+2026-11-16T04:23:51.0529694Z   throw new Error('Spool command journey failed: '+JSON.stringify(report));
+2026-11-16T04:23:51.0530155Z         ^
+2026-11-16T04:23:51.0533250Z 
+2026-11-16T04:23:51.0536392Z Error: Spool command journey failed: {"journey":"spool-commands","stage":"slow-readiness","stageOrdinal":7,"command":{"ordinal":7,"command":"setup","exitCode":null,"cliErrorCode":"unknown","refusalFamily":"unknown","lifecycleMarker":"starting","resourcePreflight":"not-requested","resourcePreflightRefusal":"unknown","spawned":true,"exited":false,"spawnFailed":false,"timedOut":false,"readinessObserved":false,"healthChecked":false,"outboxChecked":false},"error":{"type":"AssertionError","source":null,"line":null},"cleanup":{"browser":"not-started","children":"stopped","directory":"removed"}}
+2026-11-16T04:23:51.0539242Z     at finishJourney (file:///home/runner/work/run-spool/run-spool/tests/command-diagnostics.mjs:203:9)
+2026-11-16T04:23:51.0540414Z     at async file:///home/runner/work/run-spool/run-spool/tests/commands.mjs:135:59
+2026-11-16T04:23:51.0541097Z 
+2026-11-16T04:23:51.0541449Z Node.js v22.20.0
+2026-11-16T04:23:51.0774312Z  ELIFECYCLE  Command failed with exit code 1.
+2026-11-16T04:23:51.0968865Z ##[error]Process completed with exit code 1.

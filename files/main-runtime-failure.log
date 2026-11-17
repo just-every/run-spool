@@ -1,0 +1,11 @@
+2026-11-17T08:21:09.2392296Z (node:2453) ExperimentalWarning: SQLite is an experimental feature and might change at any time
+2026-11-17T08:21:14.7704754Z (node:2485) ExperimentalWarning: SQLite is an experimental feature and might change at any time
+2026-11-17T08:22:48.0460674Z TypeError: fetch failed
+2026-11-17T08:22:48.0461071Z     at node:internal/deps/undici/undici:13510:13
+2026-11-17T08:22:48.0461773Z     at async file:///home/runner/work/run-spool/run-spool/tests/deployment-history.mjs:71:646 {
+2026-11-17T08:22:48.0462442Z   [cause]: SocketError: other side closed
+2026-11-17T08:22:48.0462983Z       at Socket.<anonymous> (node:internal/deps/undici/undici:6294:28)
+2026-11-17T08:22:48.0463539Z       at Socket.emit (node:events:531:35)
+2026-11-17T08:22:48.0463933Z       at Socket.emit (node:domain:489:12)
+2026-11-17T08:22:48.0464354Z       at endReadableNT (node:internal/streams/readable:1698:12)
+2026-11-17T08:22:48.0464842Z       at process.processTicksAndRejections (node:internal/process/task_queues:90:21) {

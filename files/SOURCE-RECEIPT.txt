@@ -1,0 +1,12 @@
+Author: Run Edit Run fleet, 2026-11-17.
+Relevant command-journey sources are identical between the tested and newer main revisions.
+tested_head=7ece18059c1c7924a5b6f9cc816a7af3900136d5
+newer_main=337a4cacd736ad172f397f318bb766fa5402ed9a
+tests/commands.mjs blob=9d976dbac9c25b84ed05d0365e745cead6116426
+tests/command-runner.mjs blob=0ce7d8f22b631c9c4ba213cbd3ef5a77e8c863fe
+tests/command-diagnostics.mjs blob=54ddd1124cb232f33a5d4ab95bd67948c9582e48
+tests/setup-journey.mjs blob=0ab72834b4250bdf0204156ad65634623f06d77b
+tests/browser-launch.mjs blob=d3704c470104111a2da12accd52f5c7909257092
+scripts/installer/local.mjs blob=f3b2e6685c2d19918f8a4f49ee1ceaa8b40202d6
+package.json blob=8497cdc43843d251606a3e03f4f7849d9a5c3c32
+pnpm-lock.yaml blob=cd09e5d6c8c4e11ceb51d5b2cb14b90b62365825

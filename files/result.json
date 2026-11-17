@@ -1,0 +1,7 @@
+{
+  "status": "no-change",
+  "sha": "337a4cacd736ad172f397f318bb766fa5402ed9a",
+  "summary": "Current main already fixes the Nightly slow-readiness race by waiting for real health while setup remains pending; the complete pnpm test:commands journey and typecheck passed locally on unchanged command-journey sources.",
+  "tests": "Node 22.20.0 / pnpm 10.12.4: pnpm install --frozen-lockfile PASS; RER_CHROMIUM_EXECUTABLE_PATH=/usr/bin/chromium cloud_run pnpm test:commands PASS (exit 0); cloud_run pnpm typecheck PASS (exit 0). Tested 7ece18059c1c7924a5b6f9cc816a7af3900136d5; relevant sources identical on returned current-main head 337a4cacd736ad172f397f318bb766fa5402ed9a.",
+  "security": true
+}

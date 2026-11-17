@@ -1,0 +1,47 @@
+{
+  "author": "Run Edit Run fleet",
+  "date": "2026-11-17",
+  "limit": 10,
+  "invocations": [
+    {
+      "number": 1,
+      "command": "gh api repos/just-every/run-spool/actions/runs/43803437294/jobs?per_page=100",
+      "result": "failed command job identified: 133088740043"
+    },
+    {
+      "number": 2,
+      "command": "gh run view 43803437294 --repo just-every/run-spool --job 133088740043 --log-failed",
+      "result": "exit 0, stdout empty; downloaded archive read locally, no second API log request"
+    },
+    {
+      "number": 3,
+      "command": "gh api repos/just-every/run-spool/actions/runs?head_sha=7ece18059c1c7924a5b6f9cc816a7af3900136d5&per_page=100",
+      "result": "main-ci.json"
+    },
+    {
+      "number": 4,
+      "command": "gh api repos/just-every/run-spool/actions/runs/44045714537/jobs?per_page=100",
+      "result": "main-ci-failures.json"
+    },
+    {
+      "number": 5,
+      "command": "gh run view 44045714537 --repo just-every/run-spool --job 133911463949 --log-failed",
+      "result": "exit 0, stdout empty; downloaded archive read locally, no second API log request"
+    },
+    {
+      "number": 6,
+      "command": "gh api repos/just-every/run-spool/actions/runs?head_sha=337a4cacd736ad172f397f318bb766fa5402ed9a&per_page=100",
+      "result": "latest-main-ci.json; latest push Verify in progress; earlier push Verify 44056761412 succeeded on the same SHA"
+    },
+    {
+      "number": 7,
+      "command": "gh api repos/just-every/run-spool/actions/runs/44064973763",
+      "result": {
+        "conclusion": null,
+        "head_sha": "337a4cacd736ad172f397f318bb766fa5402ed9a",
+        "html_url": "https://github.com/just-every/run-spool/actions/runs/44064973763",
+        "status": "in_progress"
+      }
+    }
+  ]
+}

@@ -1,0 +1,43 @@
+{
+  "author": "Run Edit Run fleet",
+  "date": "2026-11-17",
+  "tag": "gr-mt-spool-ci-19",
+  "repository": "just-every/run-spool",
+  "status": "no-change",
+  "product_branch": "cloud/gr-mt-spool-ci-19",
+  "product_head": "337a4cacd736ad172f397f318bb766fa5402ed9a",
+  "product_push": false,
+  "product_commits_added": 0,
+  "pr": null,
+  "tested_head": "7ece18059c1c7924a5b6f9cc816a7af3900136d5",
+  "source_equivalence": "SOURCE-RECEIPT.txt",
+  "local_checks": [
+    {
+      "command": "pnpm install --frozen-lockfile",
+      "exit": 0
+    },
+    {
+      "command": "RER_CHROMIUM_EXECUTABLE_PATH=/usr/bin/chromium cloud_run pnpm test:commands",
+      "exit": 0
+    },
+    {
+      "command": "cloud_run pnpm typecheck",
+      "exit": 0
+    }
+  ],
+  "historical_run": 43803437294,
+  "fix_commit": "7fee744e133924477a3d95e69b8a96d61d69f75d",
+  "current_main_verify": {
+    "id": 44064973763,
+    "status": "in_progress",
+    "conclusion": null
+  },
+  "prior_exact_sha_success": 44056761412,
+  "clause_status_changes": [],
+  "test_registration_delta": 0,
+  "generated_view_changes": false,
+  "product_diff_empty": true,
+  "owned_process_cleanup": "command journey and subreaper exited successfully",
+  "product_publication_scan": "not run; no product commit or push",
+  "blockers": []
+}
