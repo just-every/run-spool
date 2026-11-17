@@ -1,0 +1,20 @@
+{
+  "before": {
+    "clauses": {
+      "done": 23,
+      "partial": 54,
+      "missing": 28
+    },
+    "clauseTotal": 105,
+    "rootMjsScripts": 131
+  },
+  "after": {
+    "clauses": {
+      "done": 23,
+      "partial": 54,
+      "missing": 28
+    },
+    "clauseTotal": 105,
+    "rootMjsScripts": 131
+  }
+}

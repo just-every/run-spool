@@ -1,0 +1,3 @@
+repository=just-every/run-spool
+branch=cloud/sd-spool-sdk027-6
+head=dce7b40c301abe897d3a6a393a11097f556ac0cb

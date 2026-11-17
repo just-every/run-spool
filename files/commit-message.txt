@@ -1,0 +1,7 @@
+commit dce7b40c301abe897d3a6a393a11097f556ac0cb
+Author:     Run Edit Run fleet <fleet@runeditrun.com>
+AuthorDate: Tue Nov 17 00:20:33 2026 +0000
+Commit:     Run Edit Run fleet <fleet@runeditrun.com>
+CommitDate: Tue Nov 17 00:20:33 2026 +0000
+
+    Document measured end-user erasure and archive scale results

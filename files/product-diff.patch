@@ -1,0 +1,66 @@
+diff --git a/docs/OWNER-ERASURE.md b/docs/OWNER-ERASURE.md
+index c6d8fa1..20afe30 100644
+--- a/docs/OWNER-ERASURE.md
++++ b/docs/OWNER-ERASURE.md
+@@ -199,3 +199,26 @@ from the maintained erasure epoch: an archive carrying erased values still refus
+ with `erasure_epoch`, and the post-erasure archive remains restorable. This does
+ not remove the public intake limits or complete GOV-003 or the unsupported
+ SDK-027 stores. See the candidate-bound scale receipt for measured results.
++
++### Measured end-user erasure and archive results
++
++Run Edit Run fleet (sd), 17 November 2026: on candidate
++`c5570fd9cdd52208ce39acbb41a46e19d666f043`, run
++`sd-spool-sdk027-4-erasure-20261116T223452Z` erased the selected identity from
++150,000 events in 24.681905 client seconds (7.185 receipt seconds), below the
++300-second bar. Matching identities fell from 150,000 to zero; all 150,000
++events remained. Run `sd-spool-sdk027-4-archive-final-20261116T224251Z` also
++passed: 160,000 events restored, then 160,000 events and identities archived;
++a 160,001-event restore returned `400 Archive event budget` without mutation.
++The raised budget, from 10,000 to 160,000 events per project, is enforced by
++`archiveEventsPerProject` and the early tally in `validateArchiveRows` in
++`src/domain/archive.ts`; `validateArchive` uses it for legacy event rows too.
++These are the prior candidate's measured results, recorded in its
++[report and receipts](https://github.com/just-every/run-spool/tree/fb84a1bf05cbc9debdaf764ee1c11119f7f84b7a/files),
++and leave the existing SDK-027 and GOV-003 gaps open. Run the committed journey
++outside push Verify with:
++
++```sh
++perl -e 'alarm 2400; exec @ARGV' -- node tests/end-user-erasure-volume.mjs
++perl -e 'alarm 2400; exec @ARGV' -- node tests/end-user-erasure-volume.mjs --archive-160000
++```
+diff --git a/docs/USER-IDENTITY.md b/docs/USER-IDENTITY.md
+index 02f4679..b29a21b 100644
+--- a/docs/USER-IDENTITY.md
++++ b/docs/USER-IDENTITY.md
+@@ -99,6 +99,8 @@ Downloaded copies and future captures remain outside this installation.
+ 
+ ### Performance and volume boundary
+ 
++Run Edit Run fleet (sd), 17 November 2026: see [measured erasure and archive results](OWNER-ERASURE.md#measured-end-user-erasure-and-archive-results) for the prior candidate's 150,000-event erasure and 160,000-event archive proof.
++
+ Run Edit Run fleet (sd), 16 November 2026: bounded JSON batches use an indexed
+ occurrence lookup for each changed row. The JSON rows run first in each guard,
+ avoiding a full project scan and JSON reparse for every chunk. Payload and
+diff --git a/sources.lock.json b/sources.lock.json
+index dd8debc..1b00ae0 100644
+--- a/sources.lock.json
++++ b/sources.lock.json
+@@ -3062,7 +3062,7 @@
+       "executable": false
+     },
+     "docs/OWNER-ERASURE.md": {
+-      "sha256": "46a2e7dd7b2d75ff01c900a1eebb90792bca6d85f8cd5f742152bb60f3a3b848",
++      "sha256": "b80010077e55bcdf1f46cfc785c9e73fb0102b331b10e0af9ef0aa48905880cd",
+       "executable": false
+     },
+     "docs/PROJECT-ERASURE.md": {
+@@ -3742,7 +3742,7 @@
+       "executable": false
+     },
+     "docs/USER-IDENTITY.md": {
+-      "sha256": "d7cf8d1855a1187d66b7ff0334ee1aa5091fc09572bd693ebdb617a4a93d3d46",
++      "sha256": "97531a7da53ef759ac9c2ca6ae233f3ecd283226de736651673b1434015c1e78",
+       "executable": false
+     },
+     "docs/WITH-YOUR-AGENT.md": {

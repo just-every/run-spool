@@ -1,0 +1,91 @@
+{
+  "calls": [
+    {
+      "number": 1,
+      "time": "2026-11-17T00:20:50.491369+00:00",
+      "command": [
+        "gh",
+        "api",
+        "repos/just-every/run-spool/actions/runs?head_sha=dce7b40c301abe897d3a6a393a11097f556ac0cb&per_page=100"
+      ],
+      "exit": 0
+    },
+    {
+      "number": 2,
+      "time": "2026-11-17T00:25:51.492409+00:00",
+      "command": [
+        "gh",
+        "api",
+        "repos/just-every/run-spool/actions/runs/43986847706",
+        "--jq",
+        "{status,conclusion,head_sha,html_url}"
+      ],
+      "exit": 0
+    },
+    {
+      "number": 3,
+      "time": "2026-11-17T00:30:52.494636+00:00",
+      "command": [
+        "gh",
+        "api",
+        "repos/just-every/run-spool/actions/runs/43986847706",
+        "--jq",
+        "{status,conclusion,head_sha,html_url}"
+      ],
+      "exit": 0
+    },
+    {
+      "number": 4,
+      "time": "2026-11-17T00:35:53.496330+00:00",
+      "command": [
+        "gh",
+        "api",
+        "repos/just-every/run-spool/actions/runs/43986847706",
+        "--jq",
+        "{status,conclusion,head_sha,html_url}"
+      ],
+      "exit": 0
+    },
+    {
+      "number": 5,
+      "time": "2026-11-17T00:40:54.497084+00:00",
+      "command": [
+        "gh",
+        "api",
+        "repos/just-every/run-spool/actions/runs/43986847706",
+        "--jq",
+        "{status,conclusion,head_sha,html_url}"
+      ],
+      "exit": 0
+    },
+    {
+      "number": 6,
+      "time": "2026-11-17T00:41:08.160355+00:00",
+      "command": [
+        "gh",
+        "api",
+        "repos/just-every/run-spool/actions/runs/43986847706/jobs?per_page=100"
+      ],
+      "exit": 0,
+      "purpose": "Post-completion failed-job diagnostics; no polling"
+    },
+    {
+      "number": 7,
+      "time": "2026-11-17T00:41:39.648263+00:00",
+      "command": [
+        "gh",
+        "run",
+        "view",
+        "43986847706",
+        "--repo",
+        "just-every/run-spool",
+        "--job",
+        "133717655276",
+        "--log-failed"
+      ],
+      "exit": 0,
+      "purpose": "One completed Ruby failure archive read"
+    }
+  ],
+  "budget": 10
+}

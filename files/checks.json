@@ -1,0 +1,70 @@
+{
+  "timestamp": "2026-11-17T00:23:43.109374+00:00",
+  "productHead": "dce7b40c301abe897d3a6a393a11097f556ac0cb",
+  "dependencyInstall": {
+    "command": "cloud_run pnpm install --frozen-lockfile",
+    "exit": 0,
+    "node": "24.19.0",
+    "pnpm": "10.12.4",
+    "enginePin": "22.20.0",
+    "warning": "Repository engine pin is 22.20.0; provided fleet setup retained the newer VM Node 24.19.0. Typecheck passed."
+  },
+  "checks": [
+    {
+      "command": "node scripts/edition-authoring/cli.mjs lock",
+      "exit": 0,
+      "receipt": "source-lock.log"
+    },
+    {
+      "command": "pnpm source:check",
+      "exit": 0,
+      "receipt": "source-check.log"
+    },
+    {
+      "command": "pnpm typecheck",
+      "exit": 0,
+      "receipt": "typecheck.log"
+    },
+    {
+      "command": "git diff --check HEAD^ HEAD",
+      "exit": 0
+    },
+    {
+      "command": "git log --merges origin/main..HEAD",
+      "exit": 0,
+      "output": ""
+    }
+  ],
+  "changedFiles": [
+    "docs/OWNER-ERASURE.md",
+    "docs/USER-IDENTITY.md",
+    "sources.lock.json"
+  ],
+  "counts": {
+    "before": {
+      "clauses": {
+        "done": 23,
+        "partial": 54,
+        "missing": 28
+      },
+      "clauseTotal": 105,
+      "rootMjsScripts": 131
+    },
+    "after": {
+      "clauses": {
+        "done": 23,
+        "partial": 54,
+        "missing": 28
+      },
+      "clauseTotal": 105,
+      "rootMjsScripts": 131
+    }
+  },
+  "newTests": 0,
+  "scaleJourneysRerun": false,
+  "publicationScan": "Deferred to fleet Mac under cloud instructions",
+  "contractJudgmentsChanged": false,
+  "generatedViewsChanged": false,
+  "mergeAncestry": "origin/main unchanged at e29a9f44; prior sdk027-4 commits retained; ordinary docs commit only",
+  "initialRebaseAttempt": "Refused before the docs commit because changes were unstaged; no commits or worktree rewritten. Fresh origin/main equals the existing ancestor, so no replay was necessary."
+}

@@ -1,0 +1,16 @@
+{
+  "command": [
+    "gh",
+    "run",
+    "view",
+    "43986847706",
+    "--repo",
+    "just-every/run-spool",
+    "--job",
+    "133717655276",
+    "--log-failed"
+  ],
+  "exit": 0,
+  "job": 133717655276,
+  "sanitization": "Injected values, token patterns, URL query/fragment and environment sections omitted. No retry."
+}

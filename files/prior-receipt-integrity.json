@@ -1,0 +1,27 @@
+{
+  "priorEvidenceHead": "fb84a1bf05cbc9debdaf764ee1c11119f7f84b7a",
+  "priorProductHead": "c5570fd9cdd52208ce39acbb41a46e19d666f043",
+  "files": [
+    {
+      "source": "REPORT.md",
+      "copy": "PRIOR-REPORT.md",
+      "bytes": 11539,
+      "sha256": "0efb710d69ea7787be60efd09b4c154be70c109cc906e49653806ee0ea749525",
+      "verified": true
+    },
+    {
+      "source": "scale-receipt.json",
+      "copy": "prior-scale-receipt.json",
+      "bytes": 3286,
+      "sha256": "2fd15fe36d0b6f05329acc19e5ac4cf35eb3ea13fce1822e00b50d30dfcb72ed",
+      "verified": true
+    },
+    {
+      "source": "archive-volume-receipt.json",
+      "copy": "prior-archive-volume-receipt.json",
+      "bytes": 504,
+      "sha256": "f6115b67cb47c02156e9af91787c16374c4777162eb328d88398802f187a6cee",
+      "verified": true
+    }
+  ]
+}

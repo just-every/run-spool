@@ -1,0 +1,14 @@
+{
+  "repository": "just-every/run-spool",
+  "priorProduct": "c5570fd9cdd52208ce39acbb41a46e19d666f043",
+  "evidenceRef": "refs/heads/evidence/sd-spool-sdk027-4",
+  "evidenceHead": "fb84a1bf05cbc9debdaf764ee1c11119f7f84b7a",
+  "suppliedReportUrlHttp": 404,
+  "readFiles": [
+    "files/REPORT.md",
+    "files/scale-receipt.json",
+    "files/archive-volume-receipt.json",
+    "files/scale-journey.log"
+  ],
+  "newScaleRun": false
+}

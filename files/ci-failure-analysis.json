@@ -1,0 +1,84 @@
+{
+  "productHead": "dce7b40c301abe897d3a6a393a11097f556ac0cb",
+  "runId": 43986847706,
+  "conclusion": "failure",
+  "failedJobs": [
+    {
+      "id": 133717655276,
+      "name": "runtime (ruby)",
+      "firstFailingStep": "Run ruby SDK journey"
+    },
+    {
+      "id": 133725126067,
+      "name": "shards (spool)",
+      "firstFailingStep": "Require every job in this coverage partition"
+    },
+    {
+      "id": 133725153348,
+      "name": "verify",
+      "firstFailingStep": "Require the selected coverage and its proof"
+    }
+  ],
+  "rootJob": 133717655276,
+  "firstFailingStep": {
+    "name": "Run ruby SDK journey",
+    "status": "completed",
+    "conclusion": "failure",
+    "number": 20,
+    "started_at": "2026-11-17T00:22:25Z",
+    "completed_at": "2026-11-17T00:22:48Z"
+  },
+  "source": "tests/sdk-runtimes.mjs:41:10",
+  "assertion": "AssertionError [ERR_ASSERTION]: ruby: Spool outcomes reconcile with SDK-sent items",
+  "unexpectedActualOutcomes": [
+    [
+      "client_discarded:error:network_error",
+      1
+    ],
+    [
+      "client_discarded:log_byte:network_error",
+      521
+    ],
+    [
+      "client_discarded:log_item:network_error",
+      1
+    ],
+    [
+      "client_discarded:monitor:network_error",
+      1
+    ]
+  ],
+  "ownerUi": {
+    "job": 133717655420,
+    "conclusion": "success"
+  },
+  "sentryCli": {
+    "job": 133717655368,
+    "conclusion": "success"
+  },
+  "contractDocs": {
+    "job": 133717184330,
+    "conclusion": "success"
+  },
+  "build": {
+    "job": 133717184316,
+    "conclusion": "success"
+  },
+  "archiveCommand": [
+    "gh",
+    "run",
+    "view",
+    "43986847706",
+    "--repo",
+    "just-every/run-spool",
+    "--job",
+    "133717655276",
+    "--log-failed"
+  ],
+  "archiveExit": 0,
+  "rerun": false,
+  "reproduction": "Not attempted; this brief leases docs and lock only and forbids code/test edits and reruns. No flake diagnosis or waiver claimed.",
+  "blocker": "Successful exact-SHA Verify",
+  "sanitizedActualLog": "ci-ruby-failed.log",
+  "exactErrorLines": "AssertionError [ERR_ASSERTION]: ruby: Spool outcomes reconcile with SDK-sent items\nruntime (ruby)\tRun ruby SDK journey\t2026-11-17T00:22:48.2356967Z + actual - expected\nruntime (ruby)\tRun ruby SDK journey\t2026-11-17T00:22:48.2357178Z ... Skipped lines\nruntime (ruby)\tRun ruby SDK journey\t2026-11-17T00:22:48.2357294Z \nruntime (ruby)\tRun ruby SDK journey\t2026-11-17T00:22:48.2357369Z   [\nruntime (ruby)\tRun ruby SDK journey\t2026-11-17T00:22:48.2357764Z     [\nruntime (ruby)\tRun ruby SDK journey\t2026-11-17T00:22:48.2357999Z       'accepted',\nruntime (ruby)\tRun ruby SDK journey\t2026-11-17T00:22:48.2358228Z       3\nruntime (ruby)\tRun ruby SDK journey\t2026-11-17T00:22:48.2358460Z     ],\nruntime (ruby)\tRun ruby SDK journey\t2026-11-17T00:22:48.2358667Z ...\nruntime (ruby)\tRun ruby SDK journey\t2026-11-17T00:22:48.2358886Z     [\nruntime (ruby)\tRun ruby SDK journey\t2026-11-17T00:22:48.2359243Z +     'client_discarded:error:network_error',\nruntime (ruby)\tRun ruby SDK journey\t2026-11-17T00:22:48.2359610Z +     1\nruntime (ruby)\tRun ruby SDK journey\t2026-11-17T00:22:48.2359839Z +   ],\nruntime (ruby)\tRun ruby SDK journey\t2026-11-17T00:22:48.2360055Z +   [\nruntime (ruby)\tRun ruby SDK journey\t2026-11-17T00:22:48.2360390Z +     'client_discarded:log_byte:network_error',\nruntime (ruby)\tRun ruby SDK journey\t2026-11-17T00:22:48.2360778Z +     521\nruntime (ruby)\tRun ruby SDK journey\t2026-11-17T00:22:48.2361025Z +   ],\nruntime (ruby)\tRun ruby SDK journey\t2026-11-17T00:22:48.2361262Z +   [\nruntime (ruby)\tRun ruby SDK journey\t2026-11-17T00:22:48.2361623Z +     'client_discarded:log_item:network_error',\nruntime (ruby)\tRun ruby SDK journey\t2026-11-17T00:22:48.2362003Z +     1\nruntime (ruby)\tRun ruby SDK journey\t2026-11-17T00:22:48.2362259Z +   ],\nruntime (ruby)\tRun ruby SDK journey\t2026-11-17T00:22:48.2362504Z +   [\nruntime (ruby)\tRun ruby SDK journey\t2026-11-17T00:22:48.2363013Z +     'client_discarded:monitor:network_error',\nruntime (ruby)\tRun ruby SDK journey\t2026-11-17T00:22:48.2363747Z +     1\nruntime (ruby)\tRun ruby SDK journey\t2026-11-17T00:22:48.2363982Z +   ],\nruntime (ruby)\tRun ruby SDK journey\t2026-11-17T00:22:48.2364228Z +   [\nruntime (ruby)\tRun ruby SDK journey\t2026-11-17T00:22:48.2364532Z       'sentry_unsupported_attachment',\nruntime (ruby)\tRun ruby SDK journey\t2026-11-17T00:22:48.2364859Z       7\nruntime (ruby)\tRun ruby SDK journey\t2026-11-17T00:22:48.2365105Z     ],\nruntime (ruby)\tRun ruby SDK journey\t2026-11-17T00:22:48.2365390Z     [\nruntime (ruby)\tRun ruby SDK journey\t2026-11-17T00:22:48.2365698Z       'sentry_unsupported_other_telemetry',\nruntime (ruby)\tRun ruby SDK journey\t2026-11-17T00:22:48.2365957Z \nruntime (ruby)\tRun ruby SDK journey\t2026-11-17T00:22:48.2366476Z     at file:///home/runner/work/run-spool/run-spool/tests/sdk-runtimes.mjs:41:10\nruntime (ruby)\tRun ruby SDK journey\t2026-11-17T00:22:48.2367275Z     at process.processTicksAndRejections (node:internal/process/task_queues:105:5) {\nruntime (ruby)\tRun ruby SDK journey\t2026-11-17T00:22:48.2367848Z   generatedMessage: false,\nruntime (ruby)\tRun ruby SDK journey\t2026-11-17T00:22:48.2368181Z   code: 'ERR_ASSERTION',\nruntime (ruby)\tRun ruby SDK journey\t2026-11-17T00:22:48.2368499Z   actual: [\nruntime (ruby)\tRun ruby SDK journey\t2026-11-17T00:22:48.2368764Z     [ 'accepted', 3 ],\nruntime (ruby)\tRun ruby SDK journey\t2026-11-17T00:22:48.2369094Z     [ 'check_in_unrouted', 2 ],\nruntime (ruby)\tRun ruby SDK journey\t2026-11-17T00:22:48.2369503Z     [ 'client_discarded:error:before_send', 2 ],\nruntime (ruby)\tRun ruby SDK journey\t2026-11-17T00:22:48.2369986Z     [ 'client_discarded:error:network_error', 1 ],\nruntime (ruby)\tRun ruby SDK journey\t2026-11-17T00:22:48.2370496Z     [ 'client_discarded:log_byte:network_error', 521 ],\nruntime (ruby)\tRun ruby SDK journey\t2026-11-17T00:22:48.2370997Z     [ 'client_discarded:log_item:network_error', 1 ],\nruntime (ruby)\tRun ruby SDK journey\t2026-11-17T00:22:48.2371481Z     [ 'client_discarded:monitor:network_error', 1 ],\nruntime (ruby)\tRun ruby SDK journey\t2026-11-17T00:22:48.2371950Z     [ 'sentry_unsupported_attachment', 7 ],\nruntime (ruby)\tRun ruby SDK journey\t2026-11-17T00:22:48.2372386Z     [ 'sentry_unsupported_other_telemetry', 3 ],\nruntime (ruby)\tRun ruby SDK journey\t2026-11-17T00:22:48.2372810Z     [ 'session_stored', 1 ],\nruntime (ruby)\tRun ruby SDK journey\t2026-11-17T00:22:48.2373181Z     [ 'transaction_stored', 4 ]\nruntime (ruby)\tRun ruby SDK journey\t2026-11-17T00:22:48.2373500Z   ],\nruntime (ruby)\tRun ruby SDK journey\t2026-11-17T00:22:48.2373740Z   expected: [\nruntime (ruby)\tRun ruby SDK journey\t2026-11-17T00:22:48.2374008Z     [ 'accepted', 3 ],\nruntime (ruby)\tRun ruby SDK journey\t2026-11-17T00:22:48.2374606Z     [ 'check_in_unrouted', 2 ],\nruntime (ruby)\tRun ruby SDK journey\t2026-11-17T00:22:48.2374992Z     [ 'client_discarded:error:before_send', 2 ],\nruntime (ruby)\tRun ruby SDK journey\t2026-11-17T00:22:48.2375444Z     [ 'sentry_unsupported_attachment', 7 ],\nruntime (ruby)\tRun ruby SDK journey\t2026-11-17T00:22:48.2375894Z     [ 'sentry_unsupported_other_telemetry', 3 ],\nruntime (ruby)\tRun ruby SDK journey\t2026-11-17T00:22:48.2376960Z     [ 'session_stored', 1 ],\nruntime (ruby)\tRun ruby SDK journey\t2026-11-17T00:22:48.2377348Z     [ 'transaction_stored', 4 ]\nruntime (ruby)\tRun ruby SDK journey\t2026-11-17T00:22:48.2377671Z   ],\nruntime (ruby)\tRun ruby SDK journey\t2026-11-17T00:22:48.2377955Z   operator: 'deepStrictEqual',\nruntime (ruby)\tRun ruby SDK journey\t2026-11-17T00:22:48.2378344Z   diff: 'simple'\nruntime (ruby)\tRun ruby SDK journey\t2026-11-17T00:22:48.2378559Z }\nruntime (ruby)\tRun ruby SDK journey\t2026-11-17T00:22:48.2378661Z \nruntime (ruby)\tRun ruby SDK journey\t2026-11-17T00:22:48.2378743Z Node.js v22.20.0\nruntime (ruby)\tRun ruby SDK journey\t2026-11-17T00:22:48.2669715Z ##[error]Process completed with exit code 1.\n"
+}
