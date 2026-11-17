@@ -12,9 +12,10 @@ curl -fsSL https://runeditrun.com/install.sh | sh -s -- dev just-every/run-spool
 
 Already have Node 22 or later? `npx -y @runeditrun/rer dev just-every/run-spool` does the same. If the installer prints a line that puts `rer` on your PATH, run that line too. To start it again later, run the same line from the same folder, or `cd run-spool && rer dev`.
 
-These instructions describe `main`, which may be ahead of the latest tagged Spool release, `v0.6.0`. For that release, clone it yourself with `git clone --branch v0.6.0 https://github.com/just-every/run-spool.git run-spool` and follow the instructions shipped with the tag.
-
 `rer dev` installs everything, prepares the local database and prints `RER_OPEN`. First start chooses `owner@run-spool.test` for the `run-spool` folder above without asking for an email; it does this with piped input too. Another folder name produces `owner@<sanitized-folder-name>.test`. An existing installation keeps its owner. Open `RER_OPEN` in a browser on this computer to enter signed in as the owner. Keep it private: it carries this checkout's dev key. Local sign-in sends no real email.
+
+<details>
+<summary>Details</summary>
 
 For separate lifecycle steps, `rer install` installs the locked dependencies and `rer setup` prepares or preserves the owner and local settings, then stops its temporary app. Run `rer dev` afterwards to start Spool. Explicit `rer setup` prompts for missing required answers when stdin is a terminal (unless `--json` or `--non-interactive` is set). Piping an email alone is not a setup answer.
 
@@ -42,6 +43,8 @@ rer dev
 ```
 
 The `--answers` path must be relative and contained inside the checkout. Absolute paths, `..` traversal and symlinks are refused; the file must be owned by you, regular, unshared by hard links and readable/writable only by you (`0600`). `.rer/` is already ignored by this checkout. Do not place the file in a shared directory or commit it.
+
+</details>
 
 ## Your first project
 

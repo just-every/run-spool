@@ -51,7 +51,7 @@ export function Setup() {
       </li>
       <li><h3>Send a test error.</h3><SendTestError project={created.id} ingestKey={created.ingestKey} release={release} build={build} request={api} /></li>
       <li><h3>Give this code to your developer.</h3><LocalCaptureNote endpoint={endpoint} />
-       <OriginStep project={created.id} request={api} />
+       <OriginStep showDetails={false} project={created.id} request={api} />
        <div className="setup-release"><Field label="Release" value={release} required pattern="[a-zA-Z0-9._:@+\-]+" onChange={event => setRelease(event.target.value)} /><Field label="Build" value={build} required pattern="[a-zA-Z0-9._:\-]+" onChange={event => setBuild(event.target.value)} /></div>
        {endpoint && <SdkSetup endpoint={endpoint} project={created.id} ingestKey={created.ingestKey} release={release} build={build} />}
        <details><summary>Details</summary>{created.devMinted && <p>This key works only with this local copy of Spool. After putting Spool online, sign in there and create a new key for your app.</p>}<SentryIntake dsn={created.dsn} /></details>

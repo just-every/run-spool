@@ -1,18 +1,21 @@
 # Integration egress service
 
-Slack destinations and cron check-ins require the installation's **integration egress service**, bound as `INTEGRATION_EGRESS`. It is a separate Cloudflare Worker that enforces outbound destination policy. A token, channel ID or heartbeat URL alone does not install it. Without it, Slack cannot post and connected cron check-ins are counted as not routed; nothing is sent by another path.
+Slack destinations and cron check-ins require the installation's **integration egress service**. It is a separate Cloudflare Worker that enforces outbound destination policy. A token, channel ID or heartbeat URL alone does not install it. Without it, Slack cannot post and connected cron check-ins are counted as not routed; nothing is sent by another path.
 
 ## What this installation supports
 
-The shipped Spool deployment declares no egress binding. There is no Settings switch that installs the service. An installation operator with deployment access must install it and bind Spool to its exact deployment receipt. Ordinary local `rer dev` has no production egress service and no supported `.dev.vars` value that can create this RPC binding. Use an operator-managed deployment for live forwarding. The local test transport is for synthetic tests only.
+There is no Settings switch that installs the service. An installation operator with deployment access must install it and bind Spool to its deployment. Use an operator-managed deployment for live forwarding.
 
-Live hybrid egress qualification remains pending. Installing a binding does not by itself prove live Slack delivery or Uptime forwarding; keep these integrations disabled until the operator qualifies the selected deployment.
+Keep these integrations disabled until your operator has checked live Slack delivery or Uptime forwarding on your installation.
+
+<details>
+<summary>Details</summary>
 
 ## Install the service
 
 **Owner account required.** An installation operator needs access to the owner's Cloudflare account and deployment checkout. Supply `CLOUDFLARE_ACCOUNT_ID` and a matching `CLOUDFLARE_API_TOKEN` privately to the deployment process, with permission to deploy Workers and read the complete account zone inventory. Never paste credentials into a command, page or report.
 
-Read [Base's egress-service owner steps and live qualification procedure](https://github.com/runeditrun/base/blob/c2efb501cbc148c2aee4d5e1107ebdba81469006/modules/egress-service/OWNER-STEPS.md). This link uses the Base revision recorded for Spool's vendored egress module in `base-copies.json`. The historical probe authorizations there do not authorize a new live run; an owner must separately authorize qualification and supply a safe external receiver outside the account's own zones. The installation steps below use Spool's copy of that module.
+Read the [egress-service installation procedure](https://github.com/runeditrun/base/blob/c2efb501cbc148c2aee4d5e1107ebdba81469006/modules/egress-service/OWNER-STEPS.md). The installation steps below use Spool’s copy of that service. Obtain the owner’s authorization before testing with an external receiver.
 
 Use the same Spool checkout and its installed dependencies. These steps change deployment configuration; the service and Spool each retain their own private deployment state. One checkout must own the service's state.
 
@@ -123,3 +126,5 @@ If a binding remains missing, ask the operator to check the deployed Spool versi
 ## Outbound limits
 
 Only HTTPS on port 443 is allowed. Private, reserved, malformed and mixed public/private DNS answers are refused, and redirects are not followed. For destinations outside Cloudflare ranges the service pins a validated address with hostname-verified TLS. For all-Cloudflare answers, Worker fetch resolves again and relies on platform private-address refusal; origin TLS follows the destination zone's policy. Universal destination reachability is not promised.
+
+</details>

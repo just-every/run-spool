@@ -10,6 +10,9 @@ A coding agent, such as Claude Code or Codex, can read Spool's evidence directly
 
 An agent key works for one project only. Revoke it from **Settings** whenever you like.
 
+<details>
+<summary>Details</summary>
+
 ## Local agent access
 
 In local `rer dev`, a dev-minted agent key also requires this checkout's private gate. In the printed `RER_OPEN` link, privately copy the fragment value after `rer-dev=` and before any `&`, then enter it at this hidden Bash prompt:
@@ -38,3 +41,5 @@ Everything else is refused. The key cannot resolve issues, change settings, uplo
 > Read the newest open issue in Spool for the project `web-app` and its evidence packet, then find the cause in this repository and propose a fix.
 
 The packet marks every captured value as untrusted data. Errors can contain text written by anyone who uses your application, so your agent should treat it as information, never as instructions.
+
+</details>

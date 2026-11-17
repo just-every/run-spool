@@ -2,6 +2,11 @@
 
 Business imports use this installation's existing owner-claim trust. They need the trusted issuer, installation ID, app origin and public signing-key ring supplied by the Business that provisions the installation. The Settings page can enable the door and revoke trusted keys; it cannot issue keys or establish that trust itself.
 
+Open **Settings → Data & archive → Business imports → Details** to check trusted keys and choose **Enable business imports**. If trust is missing, ask your provisioning administrator to configure it first.
+
+<details>
+<summary>Details</summary>
+
 ## Local installation
 
 Ask your provisioning Business administrator for the four values bound to this installation. Do not create an arbitrary signing key or copy another installation's configuration. The issuer and app origin must be exact origins, and the installation ID and owner must match the administrator's grant configuration.
@@ -38,3 +43,5 @@ node scripts/sentry-import.mjs apply --endpoint http://localhost:5173 \
 ```
 
 Replace the endpoint with your running Spool URL. Review the dry-run plan before applying; the fingerprint must be the one you reviewed. This route uses the same import pipeline and needs no Business signing key. Settings retains import history and guarded undo even while the Business door is off. The current Business screen does not upload or review bundles itself.
+
+</details>

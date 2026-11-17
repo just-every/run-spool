@@ -33,9 +33,9 @@ export function useSetupIdentity(request: Request) {
 }
 
 export function SetupIdentity({ value, onChange, disabled = false }: { value: SetupIdentityValue; onChange: (value: SetupIdentityValue) => void; disabled?: boolean }) {
-  return <div className="form-grid">
+  return <>
     <Field label="What should we call this?" placeholder="Brightwell Support" autoComplete="organization" required maxLength={120} disabled={disabled} value={value.installationName} onChange={event => onChange({ ...value, installationName: event.target.value })} />
     <Field label="Your name" autoComplete="name" required maxLength={120} disabled={disabled} value={value.name} onChange={event => onChange({ ...value, name: event.target.value })} />
     <Field label="Your email" type="email" autoComplete="email" required maxLength={254} disabled={disabled} value={value.email} onChange={event => onChange({ ...value, email: event.target.value })} />
-  </div>;
+  </>;
 }

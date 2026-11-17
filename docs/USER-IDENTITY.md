@@ -4,10 +4,10 @@ Choose which details about your users your project keeps. New projects keep the 
 
 ## Change the policy
 
-1. Open your project’s **Settings → Privacy & filtering**.
-2. Under **User identity policy**, choose **drop**, **hash** or **keep** for each user detail.
-3. Choose **Preview identity policy** and review how many records will change.
-4. Choose **Save identity policy** to apply your choices to existing records and future errors. You cannot recover details you previously dropped or hashed by choosing keep later.
+1. Open your project’s Settings → Privacy & filtering.
+2. Under User identity policy, choose drop, hash or keep for each user detail.
+3. Choose Preview identity policy and review how many records will change.
+4. Choose Save identity policy to apply your choices to existing records and future errors. You cannot recover details you previously dropped or hashed by choosing keep later.
 
 ## Erase one retained user
 

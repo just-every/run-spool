@@ -104,6 +104,7 @@ try{
  assert.equal((await request('/api/ingest/other','POST',{...event,eventId:'other-project'},{Authorization:'Bearer '+other.ingestKey,Origin:foreign})).status,403);
  for(const pasted of [' desk.brightwell.example ','https://desk.brightwell.example/login','https://desk.brightwell.example/'])assert.equal((await json('/api/projects/other/browser-origins','POST',{origin:pasted})).origin,'https://desk.brightwell.example');
  assert.equal((await request('/api/ingest/other','POST',{...event,eventId:'pasted-website'},{Authorization:'Bearer '+other.ingestKey,Origin:'https://desk.brightwell.example'})).status,201,'the saved website address admits the real browser request');
+ await json('/api/projects/other/browser-origins','DELETE',{origin:'https://desk.brightwell.example'});
  assert.equal((await request('/api/projects/cors/browser-origins','DELETE',{origin:foreign},{Origin:foreign})).status,403);
  const agent=await json('/api/projects/cors/keys','POST',{kind:'agent'});const saved=cookie;cookie='';
  assert.equal((await request('/api/projects/cors/browser-origins','GET',undefined,{Authorization:'Bearer '+agent.key})).status,403);

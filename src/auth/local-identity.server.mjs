@@ -48,7 +48,7 @@ export function withDevIdentity(worker, { bindings = env => env, config: authCon
       if (managedInstallation(env)) {
         // Never admit a dev credential here; with dev identity on, serve nothing.
         registerDevAdmission(null);
-        if (env.RER_DEV_IDENTITY !== 'off') return rejectedResponse(request, text(503, 'Dev identity refuses to run beside RER_INSTALLATION_ID with a non-loopback RER_MANAGEMENT_ORIGIN. Remove those bindings from local settings or use ~/.local/bin/rer dev --login.'));
+        if (env.RER_DEV_IDENTITY !== 'off') return rejectedResponse(request, text(503, 'This installation needs its online sign-in. Restart with ~/.local/bin/rer dev --login.'));
         return new URL(request.url).pathname === '/auth/dev/enter' || new URL(request.url).pathname === '/__dev/personas' || new URL(request.url).pathname === '/auth/local/cli-session' ? rejectedResponse(request, devNotFound()) : worker.fetch(request, original, execution);
       }
       const gate = devGate({ key: env.RER_DEV_KEY, origin: env.AUTH_ORIGIN, local: env.AUTH_LOCAL === 'true' });
@@ -179,7 +179,7 @@ async function enter(request, gate, { config, store, hash, current, everyone, ow
     }
     operator = await store.byEmail(persona.email);
   }
-  if (!operator) return text(409, 'The owner that rer setup claimed is not in this database. Run ~/.local/bin/rer setup.');
+  if (!operator) return text(409, 'Your owner account is missing. Run ~/.local/bin/rer setup.');
   if (!isActiveOperator(operator, config.allowList)) return signInRefusal(request, config.branding, {
     status: 403,
     message: 'This account is inactive or no longer allowed to sign in to this app. Choose another account, or ask an owner or administrator to restore its access.',

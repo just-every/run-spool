@@ -6,6 +6,9 @@ During first-project setup, **Send test error** checks the new key and release f
 
 The **Capture** page in the workbench walks through these steps for the selected project and fills in its own address and the latest release for you.
 
+<details>
+<summary>Details</summary>
+
 ## Browser capture without Node.js or npm
 
 Download `/errors-capture.js` from your Spool installation (the **Capture** page links to it), and serve the file alongside your browser app. In a module script, initialise the helper once:
@@ -30,8 +33,6 @@ Run this in **your application’s repository**, with [Node.js and npm](https://
 npm install @just-every/spool
 ```
 
-As of 2026-11-12 this installs SDK 0.1.0. SDK 0.2.0 remains owner-held and unpublished on npm. Ordinary capture and source-map upload work with 0.1.0; [exposure measurement](REPRODUCE-AND-FIX.md#3-did-the-fix-reach-the-affected-users) and the plugin's upload-count message require 0.2.0. The Spool app release does not publish the SDK.
-
 ```js
 import { init } from '@just-every/spool';
 init({ endpoint: "http://127.0.0.1:8787", project: "web-app", ingestKey: 'YOUR_INGEST_KEY',
@@ -50,7 +51,7 @@ Open **Releases** and add the release name and build your application reports, s
 
 ## 3. Upload the source maps
 
-Spool matches each bundle to its source map using a **bundle debug ID**, a UUID stored in both the JavaScript bundle and its map. Use the plugin or command below to create that matching pair and upload the map. For a manual upload in **Releases**, use the ID from the prepared map's `debug_id` field (also written as `//# debugId=…` in the bundle), and select the same project, release and build your SDK reports. Typing a new ID into the upload form does not stamp your bundle. Spool keeps maps private and never fetches source files from the internet. The upload service and current checkout CLI accept flat or indexed V3 maps up to 1 MiB each. The published npm SDK 0.1.0 CLI and the prepared-map picker on **Releases** accept only flat V3 maps up to 256 KiB. There is no lifetime map count; all paths respect the optional project artifact-storage byte cap. The larger/indexed CLI support is in the unpublished 0.2.0 source, not npm 0.1.0.
+Spool matches each bundle to its source map using a **bundle debug ID**, a UUID stored in both the JavaScript bundle and its map. Use the plugin or command below to create that matching pair and upload the map. For a manual upload in **Releases**, use the ID from the prepared map's `debug_id` field (also written as `//# debugId=…` in the bundle), and select the same project, release and build your SDK reports. Typing a new ID into the upload form does not stamp your bundle. Spool keeps maps private and never fetches source files from the internet. The prepared-map picker on **Releases** accepts flat V3 maps up to 256 KiB. The project artifact-storage byte cap also applies.
 
 You can also upload maps from your build with a **deploy key** from **Settings**. A deploy key can only register releases and upload maps for its project. Keep the key in your build's environment, never in your application's source. With Vite or Rollup, add the SDK's plugin:
 
@@ -69,7 +70,7 @@ npx spool-sourcemaps --endpoint https://spool.example --project web \
   --release web@1.2.0 --build build-42 --key-env SPOOL_DEPLOY_KEY dist/app.js
 ```
 
-Each bundle needs its `.map` next to it. Run the tool before publishing the built application: it rewrites the bundle and map with the matching debug ID, so serve those resulting files. Both tools register the release, mark each bundle so the SDK can match its errors to the map, and upload the maps. With the published SDK 0.1.0, a successful command-line upload exits 0 and prints `{"uploaded":1}` for one map, without any extra flag. This version does not accept `--json`. Its Vite/Rollup plugin is silent on success; a refused upload fails the build. Confirm success by triggering an error in the exact stamped build and checking its original-source frame as described below. Newer unpublished SDK source adds a readable upload summary; do not expect it from npm 0.1.0.
+Each bundle needs its `.map` next to it. Run the tool before publishing the built application: it rewrites the bundle and map with the matching debug ID, so serve those resulting files. Both tools register the release, mark each bundle so the SDK can match its errors to the map, and upload the maps. A refused upload fails the build. Confirm success by triggering an error in the exact stamped build and checking its original-source frame as described below.
 
 ## 4. Check it works
 
@@ -101,7 +102,7 @@ See [supported languages](SUPPORTED-LANGUAGES.md) for the exact native/Sentry Py
 
 ### Use a browser loader tag
 
-For an existing Sentry Loader Script installation, open **Settings → Project keys → Details** for its capture key. Set the shipped SDK version, tracing sample rate, replay session/error sample rates and feedback option there. Spool currently ships the same official `@sentry/browser` 11.6.0 it qualifies directly. All three rates start at zero and feedback starts off; choose any higher rate explicitly. Paste that key's public DSN client key into the unsaved tag field to fill:
+For an existing Sentry Loader Script installation, open **Settings → Project keys → Details** for its capture key. Set the shipped SDK version, tracing sample rate, replay session/error sample rates and feedback option there. All three rates start at zero and feedback starts off; choose any higher rate explicitly. Paste that key's public DSN client key into the unsaved tag field to fill:
 
 ```html
 <script src="https://YOUR_SPOOL_ORIGIN/sdk/YOUR_INGEST_KEY.min.js" crossorigin="anonymous"></script>
@@ -111,8 +112,8 @@ The SDK bundle is built into Spool and served from its own origin. No CDN fetch 
 
 Define `window.sentryOnLoad` before the tag or call `Sentry.onLoad(callback)` after it. Each callback runs once, with a client initialized for that key. Later `onLoad` registrations run immediately. To keep release identity, call `Sentry.init({release: 'web@1.2.0', dist: 'build-42'})` in the callback; the loader retains the key's DSN and settings. Events without a release use ordinary Sentry intake: they are accepted and counted without inventing a release. Matching release/dist events group and count like directly bundled browser SDK events.
 
-Settings apply on the next script load. Disabling the loader and revoking its capture key are separate actions: disabled, revoked and unknown loader keys all answer 404 with no script or DSN. Disabling a loader does not revoke an SDK already loaded by a page. The script contains only the public DSN and that key's options. It is not an origin authorization mechanism: SDK-006 Origin/Referer and allowed-domain enforcement remain at the unchanged intake door. Spool keeps no answer cache or per-visitor state for the script.
+Settings apply on the next script load. Disabling the loader and revoking its capture key are separate actions: disabled, revoked and unknown loader keys all answer 404 with no script or DSN. Disabling a loader does not revoke an SDK already loaded by a page. The script contains only the public DSN and that key's options. Your application's origin must still be allowed in Capture.
 
-Migration `0061_loader_settings.sql` adds configuration without rewriting existing keys. Private archives retain settings and their one-way key hashes, exclude raw keys and credentials, and restore the settings inertly; create new capture keys after restore. Project erasure removes the settings. Maintainer edits use the existing owner permission, same-origin, revision and audit fences (owner remains maintainer until TEAM-001).
+After restoring a private archive, create new capture keys before using the loader.
 
-Not qualified here: older SDK version tracks, pre-load automatic instrumentation, the hosted legacy report-dialog endpoint, screenshots (disabled for the feedback widget), or a real Sentry organization loader-key inventory and replacement-tag listing. That listing remains MIG-001. Traces and replay still have their named unsupported outcomes; their storage remains with SDK-005/SDK-007/CTX-001/CTX-002/SDK-025. No provider account, device or consent is used.
+</details>

@@ -2,6 +2,9 @@
 
 Fix branches need a GitHub App installed on the target repository and a connection supplied by the person who operates this Spool installation. Creating a GitHub App alone does not connect Spool. The issue page has no credential form or standalone connection test.
 
+<details>
+<summary>Details</summary>
+
 ## Local Spool
 
 Use the checkout that runs Spool, not the checkout of the application reporting errors.
@@ -20,6 +23,8 @@ Use the checkout that runs Spool, not the checkout of the application reporting 
 
 **Configured** means only that Spool accepted the settings' format. It does not prove access to GitHub. An invalid connection reports its reason on the issue page; correct the setting, stop, restart and reload again.
 
+</details>
+
 ## Check access through an approved step
 
 There is no harmless standalone connection test. Review the exact repository, base, branch, paths, purpose and expiry in the grant before approving. With a connection, approval can immediately open a branch and draft pull request. For an already approved, unexpired grant, choose **Open branch and draft pull request**; renew an expired grant first. A successful step establishes access and records its receipt. Failures appear on the issue page and in the workflow receipts.
@@ -28,6 +33,6 @@ Without a connection, approval waits for the connection and makes no provider re
 
 ## Hosted Spool
 
-The current hosted deployment does **not support the optional GitHub connection secret**. Its `deploy.json` does not declare `GITHUB_CONNECTION`; `rer deploy --set-secret GITHUB_CONNECTION` refuses it as undeclared. There is no supported hosted credential-entry route today. Use local Spool for this workflow or ask your installation operator for a release with optional integration deployment support.
+Hosted Spool has no supported credential-entry route for this connection. Use local Spool for this workflow or ask your installation operator for a release with optional integration deployment support.
 
-Do not add the secret through the Cloudflare dashboard: changing the Worker outside rer's deployment receipt can block subsequent updates. Making it a required secret would also force every installation to provide GitHub credentials.
+Do not add the secret through the Cloudflare dashboard: changing the Worker outside rer's deployment receipt can block subsequent updates.

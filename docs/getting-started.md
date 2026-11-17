@@ -14,9 +14,10 @@ The line installs `rer`, the Run Edit Run command, clones Spool into a `run-spoo
 
 To start Spool again later, run the same line from the same folder, or `cd run-spool && ~/.local/bin/rer dev`. `~/.local/bin/rer dev --stop` stops it. The installer leaves your shell profile unchanged. For the remaining commands below, run `export PATH="$HOME/.local/bin:$PATH"` in each new terminal, or use `~/.local/bin/rer` wherever the guide says `rer`.
 
-## Choose your owner
+<details>
+<summary>Details</summary>
 
-These instructions describe `main`, which may be ahead of the latest tagged Spool release, `v0.7.11`. For that release, clone it yourself with `git clone --branch v0.7.11 https://github.com/just-every/run-spool.git run-spool` and follow the instructions shipped with the tag.
+## Choose your owner
 
 For separate lifecycle steps, `rer install` installs the locked dependencies and `rer setup` prepares or preserves the owner and local settings, then stops its temporary app. Run `rer dev` afterwards to start Spool. Explicit `rer setup` prompts for missing required answers when stdin is a terminal (unless `--json` or `--non-interactive` is set). Piping an email alone is not a setup answer.
 
@@ -44,6 +45,8 @@ rer dev
 ```
 
 The `--answers` path must be relative and contained inside the checkout. Absolute paths, `..` traversal and symlinks are refused; the file must be owned by you, regular, unshared by hard links and readable/writable only by you (`0600`). `.rer/` is already ignored by this checkout. Do not place the file in a shared directory or commit it.
+
+</details>
 
 If you opened the app address and cannot sign in as the local owner, open a terminal in your `run-spool` folder and run `~/.local/bin/rer dev --as owner`. Open the private sign-in link it prints on this computer and keep that link private. After registering a release in **Releases**, the confirmation beside **Register release** names the release; **Return to capture test** takes you back to **Capture**. — sd, 2026-11-17.
 

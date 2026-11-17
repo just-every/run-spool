@@ -33,14 +33,14 @@ export function SdkSetup({ endpoint, project, ingestKey, release, build }: { end
   </div>;
 }
 
-export function OriginStep({ project, request }: { project: string; request: Request }) {
+export function OriginStep({ project, request, showDetails = true }: { project: string; request: Request; showDetails?: boolean }) {
   const [busy, setBusy] = useState(false), [error, setError] = useState('');
   async function run(work: () => Promise<unknown>) {
     setBusy(true); setError('');
     try { await work(); } catch (failure) { setError((failure as Error).message); }
     finally { setBusy(false); }
   }
-  return <div className="origin-step"><BrowserOrigins {...{ project, request, busy, run }} />{error && <p role="alert">{error}</p>}<a className="inline-link" href={hrefFor(project, 'capture')}>Manage allowed websites</a></div>;
+  return <div className="origin-step"><BrowserOrigins {...{ project, request, busy, run, showDetails }} />{error && <p role="alert">{error}</p>}<a className="inline-link" href={hrefFor(project, 'capture')}>Manage allowed websites</a></div>;
 }
 
 export function SentryIntake({ dsn }: { dsn?: string }) {
