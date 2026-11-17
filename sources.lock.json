@@ -3706,7 +3706,7 @@
       "executable": false
     },
     "docs/SENTRY-ROSTER-IMPORT.md": {
-      "sha256": "49159364eef7d04291a8aeea95c12531f2f5608eb3653470b55132947a30085b",
+      "sha256": "c664c079d42702572771ac9e633bed618cc6bfd05bbd2c8fa07c9b78571a2d6b",
       "executable": false
     },
     "docs/SENTRY-SCRUBBING.md": {
@@ -6430,7 +6430,7 @@
       "executable": false
     },
     "src/domain/members/imports.ts": {
-      "sha256": "6a04083748b9ee35f03245fe3a3700ec5b4788792324ee3de0a5682eed0c7a55",
+      "sha256": "749b11597767f464545a4dceb329141f8b2fdf90f1a266ab906a0a17db7174c6",
       "executable": false
     },
     "src/domain/members/input.ts": {
@@ -11858,7 +11858,7 @@
       "executable": false
     },
     "tests/sentry-import/roster-ownership.mjs": {
-      "sha256": "e674646430419884bee5d497304454ad6221b785e8ecd46a41b33ab172325ad6",
+      "sha256": "a0c1d2f5b90a4a0097f3d5a2ced93735ea3548582790de579d4980fc4cc02de4",
       "executable": false
     },
     "tests/sentry-invalid-event-flow.mjs": {
