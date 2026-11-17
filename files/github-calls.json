@@ -1,0 +1,57 @@
+[
+  {
+    "time": "2026-11-17T12:20:15.114470+00:00",
+    "command": [
+      "gh",
+      "api",
+      "repos/just-every/run-spool/actions/runs?head_sha=902b02863ab16ab5f14f4aaa5f561445dea155a7&per_page=100",
+      "--jq",
+      "{total_count,workflow_runs:[.workflow_runs[]|{id,name,status,conclusion,head_sha,html_url}]}"
+    ],
+    "exit": 0
+  },
+  {
+    "time": "2026-11-17T12:25:46.643266+00:00",
+    "command": [
+      "gh",
+      "api",
+      "repos/just-every/run-spool/actions/runs/44082113676",
+      "--jq",
+      "{status,conclusion,head_sha,html_url}"
+    ],
+    "exit": 0
+  },
+  {
+    "time": "2026-11-17T12:32:43.794579+00:00",
+    "command": [
+      "gh",
+      "api",
+      "repos/just-every/run-spool/actions/runs?head_sha=8f3fe12f0153fe7d91a55e00ed7e5c4853b9ecba&per_page=100",
+      "--jq",
+      "{total_count,workflow_runs:[.workflow_runs[]|{id,name,status,conclusion,head_sha,html_url}]}"
+    ],
+    "exit": 0
+  },
+  {
+    "time": "2026-11-17T12:37:54.718800+00:00",
+    "command": [
+      "gh",
+      "api",
+      "repos/just-every/run-spool/actions/runs/44083960124",
+      "--jq",
+      "{status,conclusion,head_sha,html_url}"
+    ],
+    "exit": 0
+  },
+  {
+    "time": "2026-11-17T12:43:14.414237+00:00",
+    "command": [
+      "gh",
+      "api",
+      "repos/just-every/run-spool/actions/runs/44083960124",
+      "--jq",
+      "{status,conclusion,head_sha,html_url}"
+    ],
+    "exit": 0
+  }
+]

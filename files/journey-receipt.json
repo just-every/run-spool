@@ -1,0 +1,28 @@
+{
+  "head": "902b02863ab16ab5f14f4aaa5f561445dea155a7",
+  "time": "2026-11-17T12:21:45.895929+00:00",
+  "runs": [
+    {
+      "command": "cloud_run timeout 600 node tests/business-import.mjs",
+      "exit": 0,
+      "log": "business-run.log"
+    },
+    {
+      "command": "RER_CHROMIUM_EXECUTABLE_PATH=/usr/bin/chromium cloud_run timeout 600 node tests/bugsnag-import.mjs",
+      "exit": 0,
+      "log": "bugsnag-regression.log"
+    },
+    {
+      "command": "cloud_run timeout 600 node tests/sentry-import.mjs",
+      "exit": 1,
+      "detail": "All Sentry assertions passed; its following Bugsnag browser flow could not find bundled Playwright Chromium. The complete Bugsnag regression was then run separately with /usr/bin/chromium and passed."
+    },
+    {
+      "command": "RER_CHROMIUM_EXECUTABLE_PATH=/usr/bin/chromium cloud_run timeout 600 node tests/sentry-import.mjs",
+      "exit": 0,
+      "head": "902b02863ab16ab5f14f4aaa5f561445dea155a7",
+      "log": "owner-complete.log"
+    }
+  ],
+  "final_product_head": "8f3fe12f0153fe7d91a55e00ed7e5c4853b9ecba"
+}

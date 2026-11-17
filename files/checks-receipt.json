@@ -1,0 +1,50 @@
+{
+  "head": "8f3fe12f0153fe7d91a55e00ed7e5c4853b9ecba",
+  "time": "2026-11-17T12:35:58.892889+00:00",
+  "checks": [
+    {
+      "command": [
+        "pnpm",
+        "typecheck"
+      ],
+      "exit": 0,
+      "stdout_sha256": "d24e643786b2318b8099f4214cf47f0a1b65f505e181e9651ab2a74c5ef9547d",
+      "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "command": [
+        "pnpm",
+        "source:check"
+      ],
+      "exit": 0,
+      "stdout_sha256": "2b5352143e1f63c1fee97eb4def1d12a5b76d9fe4baef9502f33bf44f325cc78",
+      "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "command": [
+        "node",
+        "src/base/contract-docs.mjs",
+        "check"
+      ],
+      "exit": 0,
+      "stdout_sha256": "b04031901cfff3e9bc42a429b52cbc14c2442ffb68817fd62a245ac52847b422",
+      "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "command": [
+        "git",
+        "diff",
+        "--check"
+      ],
+      "exit": 0,
+      "stdout_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    }
+  ],
+  "build": {
+    "head": "902b02863ab16ab5f14f4aaa5f561445dea155a7",
+    "command": "cloud_run npx -y @runeditrun/rer build",
+    "exit": 0,
+    "note": "Native app sources are unchanged by the final capture-only commit."
+  }
+}

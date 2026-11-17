@@ -1,0 +1,50 @@
+{
+  "synthetic": true,
+  "test": "fieldAccounting",
+  "profiles": [
+    {
+      "profile": "baseline",
+      "sourceRecords": 26,
+      "unique": 25,
+      "duplicates": 1,
+      "fields": 582,
+      "arrays": 89,
+      "sourceBytes": 16026,
+      "bundleBytes": 26934,
+      "sourcePayloadBytes": 15907,
+      "nativeBytes": 18789,
+      "byKind": {
+        "project": 1,
+        "release": 1,
+        "issue": 8,
+        "event": 8
+      },
+      "interrupted": true,
+      "reconciled": true
+    },
+    {
+      "profile": "scaled",
+      "sourceRecords": 530,
+      "unique": 529,
+      "duplicates": 1,
+      "fields": 15450,
+      "arrays": 2357,
+      "sourceBytes": 417238,
+      "bundleBytes": 509843,
+      "sourcePayloadBytes": 416865,
+      "nativeBytes": 598601,
+      "byKind": {
+        "project": 1,
+        "release": 1,
+        "issue": 260,
+        "event": 260
+      },
+      "interrupted": true,
+      "reconciled": true
+    }
+  ],
+  "head": "8f3fe12f0153fe7d91a55e00ed7e5c4853b9ecba",
+  "command": "cloud_run timeout 600 node scale-driver.mjs",
+  "exit": 0,
+  "scope": "Synthetic public owner door, committed fieldAccounting helper; populated control project."
+}
