@@ -1,0 +1,77 @@
+{
+  "tag": "gr-mt-spool-ci-16",
+  "author": "Run Edit Run fleet",
+  "date": "2026-11-17",
+  "repository": "just-every/run-spool",
+  "branch": "cloud/gr-mt-spool-ci-16",
+  "head": "f9db9344ae83b7f2e8916488185f65e0a76c4cd4",
+  "toolchain": {
+    "node": "22.20.0",
+    "pnpm": "10.12.4",
+    "jdk": "21.0.13",
+    "maven": "3.9.11",
+    "mavenDependencyPlugin": "3.9.0",
+    "sentryJava": "8.61.0"
+  },
+  "checks": [
+    {
+      "command": "mvn -q -B -o -Dmaven.repo.local=<isolated-cache> dependency:copy-dependencies -DoutputDirectory=lib",
+      "exit": 1,
+      "purpose": "Reproduce the exact prefix-resolution failure with no group metadata."
+    },
+    {
+      "command": "mvn -q -B org.apache.maven.plugins:maven-dependency-plugin:3.9.0:copy-dependencies -DoutputDirectory=lib",
+      "exit": 0,
+      "purpose": "Resolve exact plugin artifacts through the VM proxy."
+    },
+    {
+      "command": "mvn -q -B -o -Dmaven.repo.local=<same-isolated-cache> org.apache.maven.plugins:maven-dependency-plugin:3.9.0:copy-dependencies -DoutputDirectory=lib",
+      "exit": 0,
+      "purpose": "Same cached artifacts, still no group metadata; direct coordinates succeed."
+    },
+    {
+      "command": "node tests/sdk-runtimes.mjs java",
+      "exit": 0,
+      "purpose": "Unchanged public-door Java SDK journey; reference collector, real Worker API and browser."
+    },
+    {
+      "command": "pnpm typecheck",
+      "exit": 0
+    },
+    {
+      "command": "node scripts/edition-authoring/cli.mjs lock",
+      "exit": 0
+    },
+    {
+      "command": "pnpm source:check",
+      "exit": 0
+    },
+    {
+      "command": "npx -y @runeditrun/rer setup --owner-email fleet@runeditrun.com --non-interactive",
+      "exit": 0
+    }
+  ],
+  "counts": {
+    "changedFiles": 2,
+    "addedTestRegistrations": 0,
+    "deletedTestRegistrations": 0,
+    "skippedTestRegistrations": 0,
+    "qualifiedRuntimeEntriesBefore": 10,
+    "qualifiedRuntimeEntriesAfter": 10,
+    "localJavaJourneyBefore": "setup failed",
+    "localJavaJourneyAfter": "pass",
+    "clauseStatusChanges": 0
+  },
+  "limitations": [
+    "Local full suite deliberately not run; exact-SHA Verify is the full wall.",
+    "Main landing and publication scan on the fleet machine remain separate gates."
+  ],
+  "publicationScan": {
+    "status": "PASS",
+    "complete": true,
+    "findings": 0,
+    "head": "f9db9344ae83b7f2e8916488185f65e0a76c4cd4",
+    "tree": "2f6f34f69804aed2c4b0d6092d16a7189bd8f012",
+    "receipt": "publication-scan.json"
+  }
+}

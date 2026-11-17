@@ -1,0 +1,18 @@
+{
+  "observed_at": "2026-11-17T09:16:38.802681+00:00",
+  "head": "f9db9344ae83b7f2e8916488185f65e0a76c4cd4",
+  "runs": [
+    {
+      "id": 44054041994,
+      "name": "Verify",
+      "head_sha": "f9db9344ae83b7f2e8916488185f65e0a76c4cd4",
+      "head_branch": "cloud/gr-mt-spool-ci-16",
+      "event": "push",
+      "status": "in_progress",
+      "conclusion": null,
+      "html_url": "https://github.com/just-every/run-spool/actions/runs/44054041994",
+      "created_at": "2026-11-17T09:16:18Z",
+      "updated_at": "2026-11-17T09:16:33Z"
+    }
+  ]
+}

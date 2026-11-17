@@ -1,0 +1,8 @@
+(node:4302) ExperimentalWarning: SQLite is an experimental feature and might change at any time
+(Use `node --trace-warnings ...` to show where the warning was created)
+[33m▲ [43;33m[[43;30mWARNING[43;33m][0m [1mProxy environment variables detected. We'll use your proxy for fetch requests.[0m
+
+
+{"probe":"SDK-025 feedback","runtime":"rt-java","sdkProduced":2,"accepted":2,"persisted":2,"associated":2}
+{"probe":"SDK-010 cause chains","runtime":"java","sent":3,"retained":3,"frames":[2,2,2],"root":"ArithmeticException","screens":[1440,390]}
+{"runtime":"java","sdk":"io.sentry:sentry 8.61.0","sent":{"session":8,"event":3,"attachment":3,"feedback":2,"client_report":2,"check_in":2,"transaction":3,"log":3},"outcomes":{"accepted":3,"check_in_unrouted":2,"client_discarded:error:before_send":2,"feedback_accepted":2,"sentry_unsupported_attachment":3,"sentry_unsupported_other_telemetry":3,"session_stored":8,"transaction_stored":3},"identity":["[\"synthetic-spool-java@1.0.0\",\"synthetic-spool-1\"]"]}

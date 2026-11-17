@@ -1,0 +1,19 @@
+{
+  "author": "Run Edit Run fleet",
+  "date": "2026-11-17",
+  "repository": "just-every/run-spool",
+  "branch": "cloud/gr-mt-spool-ci-16",
+  "head": "f9db9344ae83b7f2e8916488185f65e0a76c4cd4",
+  "productPushed": true,
+  "pushAttempts": 1,
+  "publicationScan": "COMPLETE/PASS",
+  "publicationFindings": 0,
+  "verifyRun": 44054041994,
+  "verifyAtDiscovery": "in_progress",
+  "ready": true,
+  "pr": null,
+  "verifyStatus": "completed",
+  "verifyConclusion": "success",
+  "verifyHead": "f9db9344ae83b7f2e8916488185f65e0a76c4cd4",
+  "verifyUrl": "https://github.com/just-every/run-spool/actions/runs/44054041994"
+}
