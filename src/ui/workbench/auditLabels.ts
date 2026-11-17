@@ -22,7 +22,7 @@ const areas: Record<string, string> = {
   auth: 'Sign-in', deployment: 'Deployment', cli: 'Command-line operation', capture: 'Error capture', automation: 'Background follow-up', owner: 'Owner account', private: 'Private action',
 };
 const verbs: Record<string, string> = {
-  create: 'created', change: 'changed', share: 'sharing changed', export: 'exported', read: 'viewed', invite: 'invitation sent', remove: 'removed', transfer: 'transferred', preview: 'previewed', policy: 'settings changed',
+  create: 'created', change: 'changed', share: 'sharing changed', export: 'exported', read: 'viewed', invite: 'invitation created', remove: 'removed', transfer: 'transferred', preview: 'previewed', policy: 'settings changed',
   register: 'registered', upload: 'uploaded', settings: 'settings changed', test: 'tested', resolve: 'resolved', check: 'checked', fact: 'updated', queue: 'queued', finish: 'finished', propose: 'proposed', approve: 'approved', advance: 'advanced',
   status: 'status checked', apply: 'applied', reconcile: 'reconciled', undo: 'undone', resume: 'continued', originals: 'originals viewed', archive: 'archived', start: 'started', timeout: 'timed out',
 };

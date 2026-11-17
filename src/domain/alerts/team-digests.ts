@@ -1,6 +1,7 @@
 import { listedIssueSql } from '../issue-attention';
 import { activeTeamRecipient } from '../members/notifications';
 import { scrub } from '../privacy';
+import { primaryShortIdSql } from '../short-ids/lookup';
 import { digestPeriod } from './calendar';
 import { alertServiceBatch } from './scheduled-mail';
 import { statement as s,type AlertEnvironment } from './types';
@@ -20,7 +21,7 @@ export async function queueTeamDigests(env:AlertEnvironment,time:number) {
   for(const {project} of projects){
    const [issues,usage,attention,held]=await Promise.all([
     s(env.DB,`WITH work AS (
-     SELECT i.id,i.title,i.state,i.first_seen>=? AND i.first_seen<? new_work,
+     SELECT i.id,i.title,i.state,${primaryShortIdSql('i')} short_id,i.first_seen>=? AND i.first_seen<? new_work,
       EXISTS(SELECT 1 FROM alerts a WHERE a.project=i.project AND a.issue=i.id AND a.kind='regression' AND a.created>=? AND a.created<?) regressed,
       NOT EXISTS(SELECT 1 FROM issue_assignments x WHERE x.project=i.project AND x.issue=i.id) unowned
      FROM issues i WHERE i.project=? AND ${listedIssueSql('i')})
@@ -32,7 +33,7 @@ export async function queueTeamDigests(env:AlertEnvironment,time:number) {
    ]);
    const totals=issues.results[0];
    lines.push(`Project ${project}: new ${totals?.new_total??0}; regressed ${totals?.regressed_total??0}; unowned ${totals?.unowned_total??0}; work ${totals?.total??0}; held alerts ${held?.n??0}.`);
-   lines.push(...issues.results.map((issue:any)=>`${issue.id}: ${scrub(issue.title).slice(0,200)} | ${issue.state}`));
+   lines.push(...issues.results.map(issue=>`${issue.short_id?issue.short_id+' · ':''}${scrub(issue.title).slice(0,200)} | ${issue.state}`));
    lines.push(`Capture receipts / usage (including loss): ${usage.results.map((item:any)=>`${item.reason} ${item.count}`).join(', ')||'none'}.`);
    lines.push(`Needs attention: ${attention.results.map((item:any)=>`${item.state} ${item.count}`).join(', ')||'none'}.`);
   }

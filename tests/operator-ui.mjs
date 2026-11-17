@@ -70,6 +70,7 @@ export async function operatorUi({page,api,origin,project,issue,capture}){
   await assignment.fill('Browser operator draft');
   const refused=page.waitForResponse(r=>r.url().endsWith('/assignment')&&r.request().method()==='PATCH');
   await page.getByRole('button',{name:'Save assignment',exact:true}).click();assert.equal((await refused).status(),409,'A real concurrent write is still fenced');
+  await page.waitForFunction(()=>document.querySelector('input[maxlength="80"]')?.getAttribute('aria-invalid')==='true');
   const feedback=page.locator('#'+await assignment.getAttribute('aria-describedby'));
   assert.match(await feedback.innerText(),/reload/i,'The conflict names a recovery action available on this screen');
   assert.doesNotMatch(await feedback.innerText(),/preview/i,'Assignment has no preview action');

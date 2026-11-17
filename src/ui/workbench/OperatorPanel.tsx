@@ -51,6 +51,7 @@ export function CorrectionHistory({ entries, issueId, busy, onUndo, labels }: { 
     <h3>Correction history</h3>
     {relevant.map(entry => <Details key={entry.id} title={`${entry.kind} · ${entry.state}`} triggerLabel={`${entry.kind} · ${entry.state}`}>
       <p>{labels?.actor?.(entry) ?? 'Recorded operator'} · Created {date(entry.created, labels?.timeZone)} · updated {date(entry.updated, labels?.timeZone)}</p>
+      {entry.state === 'undone' && <p>Undone: the moved events returned to their original issues. The counts below show the correction before it was undone.</p>}
       <ul>{entry.plan.issues.map((issue: any) => <li key={issue.id}><IssueReference id={issue.id} labels={labels} />: {issue.count} → {issue.after} {plural(issue.after, 'event')}</li>)}</ul>
       <ol>{entry.plan.moves.map((move: any) => <li key={`${move.event}:${move.occurrence}`}><EventMove move={move} labels={labels} /></li>)}</ol>
       <div className="button-row"><button className="text-button" onClick={() => { setCopyError(''); void navigator.clipboard.writeText(JSON.stringify(entry, null, 2)).then(() => setCopied(entry.id)).catch(() => setCopyError('Clipboard unavailable. Try Copy details again in a secure browser.')); }}>Copy details</button>
@@ -73,6 +74,8 @@ export function OperatorPanel({ project, packet, busy, request, run, refresh, in
   const [selected, setSelected] = useState<string[]>([]);
   const [target, setTarget] = useState('');
   const [preview, setPreview] = useState<CorrectionPreview | null>(null);
+  const [groupingError, setGroupingError] = useState('');
+  const groupingFeedback = useId();
   const [failure, setFailure] = useState('');
   const [field, setField] = useState('fingerprint');
   const [mode, setMode] = useState('exact');
@@ -84,7 +87,7 @@ export function OperatorPanel({ project, packet, busy, request, run, refresh, in
   const ready = !!state && !waitingForPacket;
   const labelEdited = useRef(false);
   const consumedInitial = useRef<Promise<any[]> | undefined>(undefined);
-  useEffect(() => { labelEdited.current = false; setState(null); setAssignmentRevision(null); setPreview(null); setSelected([]); setFailure(''); setAssignmentError(''); setAssignmentMessage(''); }, [root, issue.id]);
+  useEffect(() => { labelEdited.current = false; setState(null); setAssignmentRevision(null); setPreview(null); setSelected([]); setGroupingError(''); setFailure(''); setAssignmentError(''); setAssignmentMessage(''); }, [root, issue.id]);
   useLiveRead(async (signal, background) => {
     if (waitingForPacket) return;
     try {
@@ -100,10 +103,17 @@ export function OperatorPanel({ project, packet, busy, request, run, refresh, in
     } catch (error) { if (!signal.aborted) setFailure((error as Error).message); }
   }, [root, issue.id, issue.revision, assignmentRevision, request, initial], { live: !initial });
 
-  const createPreview = (kind: string) => run(async () => {
+  const groupingAction = (work: () => Promise<void>) => run(async () => {
+    setGroupingError('');
+    try { await work(); }
+    catch (error) { setGroupingError((error as Error).message); }
+  });
+
+  const createPreview = (kind: string) => groupingAction(async () => {
+    setPreview(null);
     let destination: any;
     if (kind === 'merge') {
-      const response = await request(`${root}/issues/${encodeURIComponent(target)}/packet`);
+      const response = await request(`${root}/issues/${encodeURIComponent(target.trim())}/packet`);
       destination = response.issue;
     }
     setPreview(await request(`${root}/corrections/preview`, 'POST', {
@@ -117,7 +127,7 @@ export function OperatorPanel({ project, packet, busy, request, run, refresh, in
   const applyPreview = () => {
     const previewId = preview?.id;
     if (!previewId) return;
-    return run(async () => {
+    return groupingAction(async () => {
       await request(`${root}/corrections/${previewId}/apply`, 'POST', { confirm: true });
       setPreview(null);
       setSelected([]);
@@ -126,7 +136,7 @@ export function OperatorPanel({ project, packet, busy, request, run, refresh, in
   };
 
   const undoCorrection = (id: string) => {
-    void run(async () => {
+    void groupingAction(async () => {
       await request(`${root}/corrections/${id}/undo`, 'POST', { confirm: true });
       refresh();
     });
@@ -176,8 +186,10 @@ export function OperatorPanel({ project, packet, busy, request, run, refresh, in
           </label>)}
         </fieldset>
         <button className="text-button" disabled={busy || !ready || !selected.length} onClick={() => void createPreview('split')}>Preview selected-event split</button>
-        <Field label="Merge into issue ID" disabled={busy || !ready} value={target} onChange={event => setTarget(event.target.value)} />
+        <Field label="Merge into issue ID" aria-describedby={groupingFeedback} disabled={busy || !ready} value={target} onChange={event => { setTarget(event.target.value); setGroupingError(''); }} />
+        <p id={groupingFeedback}>Enter the target’s short ID from this project’s issue list. The target must contain live captured events.</p>
         <button className="text-button" disabled={busy || !ready || !target} onClick={() => void createPreview('merge')}>Preview issue merge</button>
+        {groupingError && <p className="field-error" role="alert">{groupingError}</p>}
         {preview && <CorrectionReview preview={preview} labels={labels} busy={busy} onApply={applyPreview} onCancel={() => setPreview(null)} />}
         <CorrectionHistory entries={history} labels={labels} issueId={issue.id} busy={busy} onUndo={undoCorrection} />
       </Details>

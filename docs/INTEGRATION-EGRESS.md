@@ -2,6 +2,8 @@
 
 Slack destinations and cron check-ins require the installation's **integration egress service**, bound as `INTEGRATION_EGRESS`. It is a separate Cloudflare Worker that enforces outbound destination policy. A token, channel ID or heartbeat URL alone does not install it. Without it, Slack cannot post and connected cron check-ins are counted as not routed; nothing is sent by another path.
 
+Follow [Connect Slack](#connect-slack) or [Connect cron check-ins](#connect-cron-check-ins) to get the values for Settings. The deployment operator can [install the service](#install-the-service) and [bind it to Spool](#bind-spool-and-enable-the-destination).
+
 ## What this installation supports
 
 The shipped Spool deployment declares no egress binding. There is no Settings switch that installs the service. An installation operator with deployment access must install it and bind Spool to its exact deployment receipt. Ordinary local `rer dev` has no production egress service and no supported `.dev.vars` value that can create this RPC binding. Use an operator-managed deployment for live forwarding. The local test transport is for synthetic tests only.
@@ -12,7 +14,7 @@ Live hybrid egress qualification remains pending. Installing a binding does not 
 
 **Owner account required.** An installation operator needs access to the owner's Cloudflare account and deployment checkout. Supply `CLOUDFLARE_ACCOUNT_ID` and a matching `CLOUDFLARE_API_TOKEN` privately to the deployment process, with permission to deploy Workers and read the complete account zone inventory. Never paste credentials into a command, page or report.
 
-Read [Base's egress-service owner steps and live qualification procedure](https://github.com/runeditrun/base/blob/c2efb501cbc148c2aee4d5e1107ebdba81469006/modules/egress-service/OWNER-STEPS.md). This link uses the Base revision recorded for Spool's vendored egress module in `base-copies.json`. The historical probe authorizations there do not authorize a new live run; an owner must separately authorize qualification and supply a safe external receiver outside the account's own zones. The installation steps below use Spool's copy of that module.
+The steps below install Spool's copy of the service. For background and the separate live qualification procedure, see [Base's egress-service owner steps](https://github.com/runeditrun/base/blob/c2efb501cbc148c2aee4d5e1107ebdba81469006/modules/egress-service/OWNER-STEPS.md) at the revision recorded in `base-copies.json`. A new live qualification requires separate owner authorization and a safe external receiver outside the account's own zones.
 
 Use the same Spool checkout and its installed dependencies. These steps change deployment configuration; the service and Spool each retain their own private deployment state. One checkout must own the service's state.
 
@@ -23,8 +25,8 @@ Use the same Spool checkout and its installed dependencies. These steps change d
    ```
 
    Preserve its project identity and disabled public route. In `egress-deploy.json`, configure the service-owned `vars`:
-   - `EGRESS_OWNED_ZONES`: a JSON array containing **all** zones the account owns (use an explicit `[]` only if there are none).
-   - `EGRESS_WORKERS_SUFFIX`: the account's exact `<account-subdomain>.workers.dev` suffix.
+   - For `EGRESS_OWNED_ZONES`, open the [Cloudflare dashboard](https://dash.cloudflare.com/), select the account deploying the service, and open **Domains**. Clear search and status filters and copy the zone names from every page, including pending zones and any subdomains added as separate zones. Put those names in a JSON array. Use `[]` only after confirming the account has no zones. If you use the API for the inventory, filter by `account.id`, request all four types (`full,partial,secondary,internal`), leave `status` unset, and collect every result's `name` through `result_info.total_pages`. Use access that can see every zone in the account. [Cloudflare's zone inventory](https://developers.cloudflare.com/fundamentals/concepts/accounts-and-zones/#zones) · [List Zones API](https://developers.cloudflare.com/api/resources/zones/methods/list/)
+   - For `EGRESS_WORKERS_SUFFIX`, open **Workers & Pages** in the same account and copy the value shown next to **Your subdomain**. Enter the account hostname in the form `<account-subdomain>.workers.dev`, with no scheme, path or Worker name. The account-level API returns the label in `result.subdomain`. Append `.workers.dev` to that label. [Cloudflare's Workers dashboard instructions](https://developers.cloudflare.com/workers/configuration/routing/workers-dev/#configure-workersdev) · [Get a Workers Subdomain API](https://developers.cloudflare.com/api/resources/workers/subresources/subdomains/methods/get/)
    - `EGRESS_GRANTS`: a JSON array with an `EgressRestricted` entry whose `allowedHosts` lists the exact receiver hosts. Include `slack.com` for Slack and the host from each Uptime heartbeat URL for cron check-ins. The checked-in grants allow no hosts.
 
    Keep the full inventory current when account ownership changes. Owned zones and the account's Workers suffix cannot be destinations. An optional `EGRESS_ALLOWED_HOSTS` list narrows every caller further. Do not widen the service to arbitrary destinations just to make a test pass.
@@ -113,13 +115,31 @@ The result has this shape. This copyable example contains no secret; replace eve
 
 Merge this entry with existing configuration, preserving all other fields. A service upgrade requires updating the consumer's pinned grant and identity from the new receipt. Do not substitute a plain fetch or a provider dashboard change.
 
-From that checkout, commit the reviewed binding, run `rer deploy --dry-run`, then `rer deploy` for the same environment. The deploy validates the named grant, service identity and binding; a missing Worker refuses with `service-worker-missing`. Preserve Spool's deployment receipt too. Reload Settings after deployment:
-
-- **Slack destinations — own Slack workspace required:** a workspace administrator must permit the app installation. The deployment owner must keep the server secret `ALERT_DESTINATION_HASH_KEY` configured and stable. Create a Slack App with a bot token carrying `chat:write`, install it in your workspace and join the bot to the target channel. Enter the channel identifier and token in Settings, choose **Connect Slack**, then **Test** and review its passing result before enabling an alert rule. The test posts a message; a message ID proves provider acknowledgment, not that a person read it.
-- **Cron check-ins — own Uptime installation required:** obtain its heartbeat capability URL with your Uptime account. Open **Cron check-ins**, enter the Sentry monitor slug and the separate heartbeat capability URL Uptime shows once when issuing its heartbeat key, then choose **Connect monitor**. Send a check-in from the configured SDK and inspect Capture for the forwarding receipt. Uptime evaluates missed-run schedules; Spool only forwards the start, success or failure receipt.
+From that checkout, commit the reviewed binding, run `rer deploy --dry-run`, then `rer deploy` for the same environment. The deploy validates the named grant, service identity and binding; a missing Worker refuses with `service-worker-missing`. Preserve Spool's deployment receipt too. Reload Settings after deployment.
 
 If a binding remains missing, ask the operator to check the deployed Spool version and its exact receipt. If configured but delivery fails, check the service grant, destination host, account inventory and provider result. Never share Slack tokens or heartbeat capability URLs. Restoring a private archive does not restore these connections; reconnect deliberately.
+
+## Connect Slack
+
+Use your own Slack workspace. If app installs require approval, ask its administrator. Your Spool deployment operator must [bind the egress service](#bind-spool-and-enable-the-destination) with `slack.com` in its grant and preserve Spool's managed `ALERT_DESTINATION_HASH_KEY` secret.
+
+1. Open [Your Apps in Slack](https://api.slack.com/apps). Choose **Create New App**, name it, and select the workspace that contains your destination channel. In your app settings, open **OAuth & Permissions**. Under **Bot Token Scopes**, add `chat:write`. [Slack's app setup guide](https://docs.slack.dev/app-management/quickstart-app-settings/)
+2. On the same page, choose **Install to Workspace**, then **Allow**. Back in **OAuth & Permissions**, copy the **Bot User OAuth Token** from **OAuth Tokens**. Keep it private. [Slack's bot token guide](https://docs.slack.dev/tools/node-slack-sdk/getting-started/)
+3. In Slack, open the destination channel and use `/invite` with the app's bot name. Click the channel name at the top and copy the **Channel ID** at the bottom of the channel details. [Slack's channel ID instructions](https://docs.slack.dev/tools/python-slack-sdk/tutorial/uploading-files/#sharing-a-file-within-a-channel)
+4. In your Spool project, open **Settings → Alerts & integrations → Slack destinations**. Set **Slack destination name** to a label you will recognise in alert rules. Paste the channel ID into **Slack channel identifier** and the token into **Slack bot token**, then choose **Connect Slack**.
+5. Choose **Test** for that destination and check the test post in the selected channel. Once Spool shows a passing result, choose **Review passing test**. In **Alerts → Rules**, select the reviewed destination before enabling its rule. A message ID records Slack's acknowledgment of the post.
+
+## Connect cron check-ins
+
+Use an Uptime installation you own with a public HTTPS address. Give its hostname to the Spool deployment operator for the [egress grant](#bind-spool-and-enable-the-destination). The service refuses hosts in the Cloudflare account's own zones or its Workers suffix, even if listed in the grant.
+
+1. In Uptime, open **Monitors → New monitor → Fill in the form yourself**. Under **What to check**, choose **Scheduled job (heartbeat)**. Give it a name, set the expected interval and grace period for your job, and choose **Save monitor**. Keep Uptime's private runner running so it can evaluate the receipts. If you created the monitor from a definition file, open it and choose **Resume**. [Uptime's heartbeat setup](https://run-uptime.com/docs/monitors#incoming-heartbeat) · [Private runner setup](https://run-uptime.com/docs/runner)
+2. In **Connect your job**, copy the one-time **Check-in URL**. On an existing monitor, choose **Create or replace check-in URL…**. Replacing it immediately retires the previous URL and key. Use the full URL as shown, ending in `/api/heartbeats/<monitor>/url/<token>`. Keep it private. [Uptime's heartbeat jobs guide](https://run-uptime.com/docs/heartbeat-jobs)
+3. In your Spool project, open **Settings → Issue processing → Cron check-ins**. For **Monitor slug**, enter the exact slug from the job's Sentry SDK instrumentation, such as the first argument to `Sentry.withMonitor` in Node.js. For **Uptime heartbeat capability URL**, paste the URL from step 2, then choose **Connect monitor**. [Sentry's SDK check-in guide](https://docs.sentry.io/platforms/javascript/guides/node/crons/#job-monitoring)
+4. Run the job with its Sentry SDK configured to use your Spool DSN. In Spool's **Capture** receipts, look for **Cron check-in forwarded to Uptime**. That receipt records that Uptime accepted the forwarded check-in. Uptime's monitor evaluates missed runs on the schedule you configured there. [Find your project's Spool DSN](capture.md#already-using-sentry-point-your-dsn-here)
 
 ## Outbound limits
 
 Only HTTPS on port 443 is allowed. Private, reserved, malformed and mixed public/private DNS answers are refused, and redirects are not followed. For destinations outside Cloudflare ranges the service pins a validated address with hostname-verified TLS. For all-Cloudflare answers, Worker fetch resolves again and relies on platform private-address refusal; origin TLS follows the destination zone's policy. Universal destination reachability is not promised.
+
+— Run Edit Run fleet, 2026-11-18.

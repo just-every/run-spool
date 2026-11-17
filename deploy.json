@@ -52,6 +52,11 @@
       "optional": true
     },
     {
+      "binding": "GITHUB_CONNECTION",
+      "environment": "GITHUB_CONNECTION",
+      "optional": true
+    },
+    {
       "binding": "MAIL_PROVIDER",
       "environment": "MAIL_PROVIDER",
       "optional": true

@@ -74,7 +74,7 @@ export async function deliveryFlow(inbox){
   const newYorkDay=time=>new Intl.DateTimeFormat('en-CA',{timeZone:'America/New_York'}).format(time),runDay=newYorkDay(Date.now());
   let nextMorning=Math.floor(Date.now()/3600000+1)*3600000;while(newYorkDay(nextMorning)===runDay||newYorkHour(nextMorning)!==10)nextMorning+=3600000;
   const digestReceipts=await app.json('/api/projects/web/outcomes');await app.schedule(nextMorning);
-  const dayDigest=(await app.json(base+'/controls')).digests.find(d=>d.kind==='daily'&&d.scope==='project');assert.ok(dayDigest);for(const receipt of digestReceipts.rows)assert.ok(dayDigest.body.includes(`${receipt.reason}: ${receipt.count}`),'digest preserves capture receipts during snooze');assert.match(dayDigest.body,/\nWEB-[0-9A-Z]+ [a-f0-9]{64}: /,'TEAM-004 digest work names short IDs');
+  const dayDigest=(await app.json(base+'/controls')).digests.find(d=>d.kind==='daily'&&d.scope==='project');assert.ok(dayDigest);for(const receipt of digestReceipts.rows)assert.ok(dayDigest.body.includes(`${receipt.reason}: ${receipt.count}`),'digest preserves capture receipts during snooze');assert.match(dayDigest.body,/\nWEB-[0-9A-Z]+ · /,'TEAM-004 digest work names short IDs');assert.doesNotMatch(dayDigest.body,/\b[a-f0-9]{64}\b/,'digest work hides stored issue identities');
   assert.ok((await app.json('/api/projects/web/follow-up')).rows.some(r=>r.reason.startsWith('capture_loss_')&&r.capture_loss>0));
   // New York falls back on 1 November: this completed daily period has 25 hours.
   const dst=Date.parse('2026-11-02T14:00:00Z');await Promise.all([app.schedule(dst),app.schedule(dst+1000)]);await app.schedule(dst+3600000);
