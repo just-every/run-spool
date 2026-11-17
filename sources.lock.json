@@ -4390,7 +4390,7 @@
       "executable": false
     },
     "pnpm-lock.yaml": {
-      "sha256": "61726f845e343e3bd524818e0b14d32b559e108e016f3a0fad725cae00fcee8f",
+      "sha256": "78474f3d9d9d0e1f46a397049bdd056b6514584866d34d9d78eeb650b6e99b59",
       "executable": false
     },
     "pnpm-workspace.yaml": {
@@ -11550,7 +11550,7 @@
       "executable": false
     },
     "tests/repair-recovery/archive.mjs": {
-      "sha256": "056416522a0c51f2772cc8eb78cce3b4f938cccc9b543d1da27d371c98f225c8",
+      "sha256": "bbe4ccad3fd7984d07114357bcf92009097892bbd3b698c4d4497b0cdb54285f",
       "executable": false
     },
     "tests/repair-recovery/capture.mjs": {

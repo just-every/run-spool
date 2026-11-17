@@ -45,8 +45,12 @@ const withoutRepairs=data=>Object.fromEntries(Object.entries(data).filter(([tabl
 // recorded migration prefix and table inventory consistent with that release.
 async function beforeFeedbackReviewRelease(manifest){
  await beforeRelayPrivacy(manifest);
- if(manifest.migrations)manifest.migrations=manifest.migrations.filter(name=>name!=='0109_feedback_review.sql');
- if(manifest.migrationLedger)manifest.migrationLedger={...manifest.migrationLedger,entries:manifest.migrationLedger.entries.filter(entry=>entry.name!=='0109_feedback_review.sql')};
+ // Keep the historical prefix even when later migrations are added or renumbered.
+ const laterMigration=name=>Number.parseInt(name,10)>=109;
+ if(manifest.migrations)manifest.migrations=manifest.migrations.filter(name=>!laterMigration(name));
+ if(manifest.migrationLedger)manifest.migrationLedger={...manifest.migrationLedger,entries:manifest.migrationLedger.entries.filter(entry=>!laterMigration(entry.name)&&(!manifest.migrations||manifest.migrations.includes(entry.name)))};
+ // These installation-only objects did not exist in the historical release.
+ if(manifest.schemaObjects)manifest.schemaObjects=manifest.schemaObjects.filter(object=>!['spool_member_identity','capture_sources'].includes(object.name)&&object.table!=='capture_sources');
  const migration=await readFile(new URL('../../migrations/core/0040_feedback.sql',import.meta.url),'utf8');
  const sql=/CREATE TABLE feedback \([\s\S]*?\n\);/.exec(migration)[0].replace(/;$/,'');
  manifest.tables=manifest.tables.map(table=>table.name==='feedback'?{...table,sql,columns:table.columns.filter(column=>column.name!=='private_data')}:table);
