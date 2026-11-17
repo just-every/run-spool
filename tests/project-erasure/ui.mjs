@@ -3,11 +3,11 @@ import AxeBuilder from '@axe-core/playwright';
 import {openGate} from '../auth.mjs';
 import {scanText} from './scan.mjs';
 
-async function check(page,directory,width,name,captures,needles){
+async function check(page,directory,width,name,captures,needles,projectName=''){
  assert.equal(await page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth+1),true,`${name} at ${width}: no horizontal overflow`);
  const audit=await new AxeBuilder({page}).withTags(['wcag2a','wcag2aa','wcag21aa']).analyze();assert.deepEqual(audit.violations.map(row=>row.id),[],`${name} at ${width}: axe`);
- // The panel shows counts and times, never a stored personal value.
- const section=page.locator('section[aria-labelledby^="erasure"]'),panel=await section.innerText();assert.deepEqual(scanText(panel,needles),[],`${name} at ${width}: no personal value`);
+ // Only the selected project name belongs in the preview; all captured personal values remain absent.
+ const section=page.locator('section[aria-labelledby^="erasure"]'),panel=await section.innerText();assert.deepEqual(scanText(panel.replace(`This deletes ${projectName}:`,'This deletes the selected project:'),needles),[],`${name} at ${width}: no personal value`);
  const path=`${directory}/erasure-${name}-${width}.png`;await section.screenshot({path});captures.push(path);
 }
 // Preview, typed confirmation and receipt by clicking in the Settings panel.
@@ -16,14 +16,16 @@ export async function erasePanel(app,browser,directory,{project,width,needles}){
  try{
   await openGate(context,app.origin);
   await context.addCookies(app.cookie.split('; ').filter(Boolean).map(pair=>({name:pair.slice(0,pair.indexOf('=')),value:pair.slice(pair.indexOf('=')+1),url:app.origin})));
+  const currentProjects=await (await context.request.get(app.origin+'/api/projects')).json(),projectName=currentProjects.find(row=>row.id===project)?.name;
+  assert.equal(typeof projectName,'string');
   const page=await context.newPage();await page.goto(`${app.origin}/projects/${project}/settings#settings-data`);
   await page.getByRole('heading',{name:'Erase this project',exact:true}).waitFor();
   await page.getByRole('button',{name:'Preview erasure',exact:true}).click();
-  await page.getByText(/rows will be deleted\./).waitFor();await check(page,directory,width,'preview',captures,needles);
-  const erase=page.getByRole('button',{name:'Erase project',exact:true});
+  await page.getByRole('status').filter({hasText:'This deletes'}).waitFor();if(width===1440)assert.ok((await page.getByRole('status').filter({hasText:'This deletes'}).innerText()).includes(projectName),'preview identifies the selected project by its actual name');if(width===1440)assert.equal(await page.getByRole('button',{name:'Download a backup first',exact:true}).isEnabled(),true);await page.locator('section[aria-labelledby="erasure-title"] details > summary').click();await check(page,directory,width,'preview',captures,needles,projectName);
+  const erase=page.getByRole('button',{name:'Delete project',exact:true});
   assert.equal(await erase.isDisabled(),true,'erase stays disabled before typed confirmation');
   await page.getByLabel(`Type ${project} to confirm`,{exact:true}).fill(project.slice(0,-1));assert.equal(await erase.isDisabled(),true,'a partial identifier does not confirm');
-  await page.getByLabel(`Type ${project} to confirm`,{exact:true}).fill(project);await check(page,directory,width,'confirmation',captures,needles);
+  await page.getByLabel(`Type ${project} to confirm`,{exact:true}).fill(project);await check(page,directory,width,'confirmation',captures,needles,projectName);
   let release;const follow= new Promise(resolve=>{release=resolve});
   await page.route('**/api/erasures/*/resume',async route=>{await follow;await route.continue()});
   const started=Date.now(),response=page.waitForResponse(r=>new URL(r.url()).pathname===`/api/projects/${project}/erasure`&&r.request().method()==='POST');

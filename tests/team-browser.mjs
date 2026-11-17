@@ -35,7 +35,7 @@ export async function browserMembers(owner,projects) {
   assert.equal((await owner.json(organization+'/me')).mailSuppressed,false);
   assert.ok((await owner.json(organization)).invites.every(row=>!row.localLink),'mail-sending runtime returns no local invitation links');
   await members.locator('summary').filter({hasText:/^Invitations$/}).click();
-  await expect(members.getByRole('button',{name:'Copy invitation link',exact:true})).toHaveCount(0);
+  await expect(members.getByRole('button',{name:'Copy link',exact:true})).toHaveCount(0);
   // Stored grants contain member and created metadata; writes must send only the input shape.
   await members.getByRole('button',{name:'Details: synthetic-spool-6 access',exact:true}).click();
   const dialog=page.getByRole('dialog'),role=dialog.getByLabel(/^Organization role/),secondProject=dialog.getByLabel(new RegExp('^'+projects[1].name));
@@ -299,6 +299,9 @@ export async function localMailFlow() {
   const pending=page.waitForResponse(r=>new URL(r.url()).pathname==='/api/organization/invites'&&r.request().method()==='POST');
   await members.getByRole('button',{name:'Create invitation',exact:true}).click();assert.equal((await pending).status(),202);
   await expect(members.getByRole('status')).toBeVisible();
+  const immediate=members.getByLabel('Invitation link for synthetic-spool-local@example.test',{exact:true}).first();
+  await expect(immediate).toBeVisible();
+  await expect(members.locator('.data-row').filter({hasText:'Synthetic local invitee'}).first()).toContainText('Invited');
   // A reload proves the pending link survives navigation without minting a new token.
   await page.reload();await members.locator('summary').filter({hasText:/^Invitations$/}).click();
   const input=members.getByLabel('Invitation link for synthetic-spool-local@example.test',{exact:true});await input.waitFor();
@@ -309,7 +312,7 @@ export async function localMailFlow() {
   assert.ok(!native.envelope.includes(token),'the stored copy is encrypted');
   console.log('Local mail journey: pending native link available after reload');
   const beforeTokens=(await app.DB.prepare('SELECT COUNT(*) n FROM oa_tokens').first()).n;
-  await members.getByRole('button',{name:'Copy invitation link',exact:true}).click();
+  await members.getByRole('button',{name:'Copy link',exact:true}).click();
   assert.ok(await page.evaluate(async value=>(await navigator.clipboard.readText())===value,link),'clipboard contains the pending native link');
   assert.equal((await app.DB.prepare('SELECT COUNT(*) n FROM oa_tokens').first()).n,beforeTokens,'copy creates no second token');
   await members.locator('summary').filter({hasText:/^Verify identity for ownership transfer$/}).click();
@@ -329,8 +332,9 @@ export async function localMailFlow() {
   await expect(members.getByRole('status').filter({hasText:/no email/i})).toContainText(/cannot/i);
   console.log('Local mail journey: missing-link recovery, copy and native verification complete');
   const inviteeContext=await browser.newContext({viewport:{width:1440,height:1000}}),invitee=await inviteeContext.newPage();invitee.setDefaultTimeout(20000);
-  await invitee.goto(link);const confirmed=invitee.waitForResponse(r=>new URL(r.url()).pathname==='/auth/confirm'&&r.request().method()==='POST');
-  await invitee.getByRole('button',{name:'Confirm',exact:true}).click();assert.equal((await confirmed).status(),303);
+  await invitee.goto(link);await expect(invitee.getByRole('main')).toContainText('Synthetic local owner');await expect(invitee.getByRole('main')).toContainText('Synthetic local team');await expect(invitee.getByRole('main')).toContainText(project.name);
+  const confirmed=invitee.waitForResponse(r=>new URL(r.url()).pathname==='/auth/confirm'&&r.request().method()==='POST');
+  await invitee.getByRole('button',{name:'Join',exact:true}).click();assert.equal((await confirmed).status(),303);
   const session=await inviteeContext.request.get(app.origin+'/auth/session');assert.equal(session.status(),200);
   assert.equal((await session.json()).operator.role,'member');
   const access=await (await inviteeContext.request.get(app.origin+'/api/organization/me')).json();assert.equal(access.role,'read-only');assert.deepEqual(access.projects.map(row=>row.id),[project.id]);

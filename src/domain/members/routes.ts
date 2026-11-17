@@ -44,7 +44,7 @@ memberRoutes.get('/',async c=>{
   organization(db),s(db,"SELECT m.*,COALESCE(o.status,'inert') operatorStatus,CASE WHEN o.role='owner' THEN 'owner' ELSE m.role END role FROM spool_members m LEFT JOIN oa_operators o ON o.id=m.operator_id ORDER BY m.created,m.id").all(),
   s(db,'SELECT * FROM spool_project_grants').all(),s(db,'SELECT * FROM spool_project_teams').all(),s(db,'SELECT * FROM spool_service_accounts').all(),s(db,'SELECT * FROM spool_service_scopes').all(),s(db,'SELECT * FROM spool_member_invites').all(),
  ]);
- return c.json({organization:org,members:members.results,grants:grants.results,teams:teams.results,services:services.results,scopes:scopes.results,invites:await Promise.all(invites.results.map(async (row:any)=>({...row,localLink:await localInvitationLink(c.env,c.get('teamSession'),row.id)})))});
+ return c.json({organization:org,members:members.results,grants:grants.results,teams:teams.results,services:services.results,scopes:scopes.results,invites:await Promise.all(invites.results.map(async (row:any)=>({...row,state:row.state==='invited'&&members.results.some((m:any)=>m.id===row.member&&m.operatorStatus==='active')?'accepted':row.state,localLink:await localInvitationLink(c.env,c.get('teamSession'),row.id)})))});
 });
 memberRoutes.post('/',async c=>{
  const session=c.get('teamSession');if(session.operator.role!=='owner')return c.json({error:'Project not found'},404);

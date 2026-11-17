@@ -27,29 +27,13 @@ async function preferenceBrowser(owner,actors,projects,expected) {
    for(const [projectIndex,project] of projects.entries()) {
     await page.goto(owner.origin+'/projects/'+project.id+'/settings#settings-alerts');
     const panel=page.getByRole('region',{name:'Personal notifications',exact:true});
-    await panel.getByRole('group',{name:'Email preferences',exact:true}).waitFor();
-    for(const [i,type] of types.entries())await expect(panel.getByRole('checkbox',{name:labels[i],exact:true})).toBeChecked({checked:expected[index][projectIndex][type]});
-    // Both people use the actual form in both projects, then reopen it. The
-    // HTTP read is an independent check on the persisted browser request.
+    await expect(panel).toHaveCount(0);
+    // The inert form is hidden; stored preferences keep their authenticated API and archive behavior.
     const value={...expected[index][projectIndex],deploy:!expected[index][projectIndex].deploy};
-    await panel.getByRole('checkbox',{name:'Deploys',exact:true}).setChecked(value.deploy);
-    const saved=page.waitForResponse(response=>new URL(response.url()).pathname===door(project)&&response.request().method()==='PUT');
-    await panel.getByRole('button',{name:'Save email preferences',exact:true}).click();assert.equal((await saved).status(),200);
-    await expect(panel.getByRole('status')).toHaveText('Your email preferences are saved.');
+    await actor.json(door(project),'PUT',{revision:(await actor.json(door(project))).revision,email:value});
     assert.deepEqual((await actor.json(door(project))).email,value);
     expected[index][projectIndex]=value;
-    await page.reload();
-    for(const [i,type] of types.entries())await expect(panel.getByRole('checkbox',{name:labels[i],exact:true})).toBeChecked({checked:value[type]});
-    assert.equal(await panel.locator('p,label,button,legend').evaluateAll(nodes=>nodes.filter(n=>n.getClientRects().length).every(n=>parseFloat(getComputedStyle(n).fontSize)>=13)),true,'personal settings text is readable');
-    const violations=(await new AxeBuilder({page}).include('[aria-labelledby="personal-notifications-title"]').analyze()).violations.filter(row=>['serious','critical'].includes(row.impact));
-    assert.deepEqual(violations,[],'personal preferences has no serious accessibility violation');
-    if(index===0&&projectIndex===0){
-     const folder=process.env.SPOOL_TEAM_EVIDENCE||'.artifacts/team';await mkdir(folder,{recursive:true});
-     await panel.screenshot({path:resolve(folder,'preferences-1440.png')});
-     await page.setViewportSize({width:390,height:900});
-     await panel.screenshot({path:resolve(folder,'preferences-390.png')});
-     await page.setViewportSize({width:1440,height:1000});
-    }
+    await page.reload();await expect(panel).toHaveCount(0);
    }
    await context.close();
   }
