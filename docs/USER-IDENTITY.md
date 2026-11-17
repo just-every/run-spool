@@ -46,8 +46,9 @@ and private archives omit the removed fields. This installation, or a fresh
 installation given its later archive/journal, refuses a pre-erasure archive.
 An empty installation given only an old archive cannot know about a later
 erasure. Downloaded copies, provider backups and future captures are outside
-this operation. Complete SDK-027 acceptance, including the public 150,000-event
-volume and independently matching feedback, remains unproven.
+this operation. Complete SDK-027 acceptance, including independently matching feedback and
+unsupported captured copies, remains unproven. The scale journey below separately
+qualifies the admitted-volume timing when it passes on the candidate.
 
 ### Identity search and facets
 
@@ -98,6 +99,8 @@ Downloaded copies and future captures remain outside this installation.
 
 ### Performance and volume boundary
 
+Run Edit Run fleet (sd), 17 November 2026: see [measured erasure and archive results](OWNER-ERASURE.md#measured-end-user-erasure-and-archive-results) for the prior candidate's 150,000-event erasure and 160,000-event archive proof.
+
 Run Edit Run fleet (sd), 16 November 2026: bounded JSON batches use an indexed
 occurrence lookup for each changed row. The JSON rows run first in each guard,
 avoiding a full project scan and JSON reparse for every chunk. Payload and
@@ -105,9 +108,25 @@ identity updates, transfer invalidation, one journal checkpoint, audit and
 receipt retain their existing atomic semantics; there is no per-event round
 trip or journal entry.
 
-The public retained-event and archive limits still refuse a 150,000-event
-project. The committed scale journey records that refusal separately from an
-`erasure_epoch` refusal of an older archive, then times the admitted 10,000-event
-project. This does not prove the 150,000-event timing requirement. GOV-003 and
-ERR-009 require whole-project streaming restore at that volume; SDK-027's older
-archive refusal does not excuse an unrelated archive-budget refusal.
+Run Edit Run fleet (sd), 16 November 2026: archive validation now admits up to
+160,000 events per project, including the 150,000-event erasure corpus. The old
+10,000-event archive budget contradicted GOV-003's published volume and its
+160,000-event archive/restore acceptance; it was a product validator limit, not
+a fixture restriction. Native legacy archives admit the same event corpus;
+other legacy table budgets and all payload, origin, schema, checksum, grouping,
+identity and erasure-fence checks remain. Exact occurrence membership is indexed
+in memory during identity validation instead of scanning all events per identity.
+The 160,000-event budget is still a bounded implementation limit, not completion
+of GOV-003's unlimited-retention target. Public intake keeps its separate current
+capacity and minute limits.
+
+Run the committed scale journey outside push Verify with a 2,400-second hard
+alarm: `perl -e 'alarm 2400; exec @ARGV' -- node tests/end-user-erasure-volume.mjs`.
+It requires public restore of all 150,000 events, reconciles issue and identity
+counts, then checks owner-confirmed identity/tag/text removal within 300 seconds
+while retaining every event. It records its checked-out candidate SHA, run ID,
+client wall time and receipt time in `.artifacts/erasure-preview/volume.json`.
+No smaller-corpus fallback can pass. The same journey's `--archive-160000` mode
+checks the 160,000-event restore/archive counts and an unchanged empty destination
+after an over-budget refusal. That capacity refusal is distinct from SDK-027's
+older-archive `erasure_epoch` refusal, still checked by the public erasure journey.
