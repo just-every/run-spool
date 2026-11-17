@@ -4,7 +4,7 @@ export function isLocalEndpoint(value: string) {
 }
 
 export function LocalCaptureNote({ endpoint }: { endpoint: string }) {
- return isLocalEndpoint(endpoint) ? <p className="muted">This copy runs only on this computer. Your customers’ browsers can’t reach it, so their errors won’t arrive until Spool is online. <a className="inline-link" href="/docs/hosting">Put Spool online</a>.</p> : null;
+ return isLocalEndpoint(endpoint) ? <p className="muted">This copy runs only on this computer. Your customers’ browsers can’t reach it, so their errors won’t arrive until Spool is online. <a className="inline-link" href="https://run-spool.com/docs/hosting">Put Spool online</a>.</p> : null;
 }
 
 export function LocalAddressWarning({ endpoint, addresses }: { endpoint: string; addresses: string[] }) {
