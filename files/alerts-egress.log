@@ -1,0 +1,13 @@
+(node:7067) ExperimentalWarning: SQLite is an experimental feature and might change at any time
+(Use `node --trace-warnings ...` to show where the warning was created)
+[33m▲ [43;33m[[43;30mWARNING[43;33m][0m [1mProxy environment variables detected. We'll use your proxy for fetch requests.[0m
+
+
+Alert egress delivery passed: signed delivery through the egress service transport, private-address refusal without connection, redirect not followed (3 pinned connections).
+[ALERT-002] reviewed Slack test, exactly-once new/regression, safe identifiers, rotation/revoke, API/500/timeout/egress failures, secret exclusion, inert restore and erasure passed (recorded edge double only)
+PROBE ALERT-002 alternate: reviewed exact-project Slack -> one posted notice, attempt, message identifier and safe follow-up fact across concurrent ticks and restart
+PROBE ALERT-002 uncertainty: provider timeout -> uncertain once without automatic resend or recursive notices; source reconciliation preserves unknown alternate receipt
+PROBE ALERT-002 rate: HTTP 429 with Retry-After 60 -> no early retry; restart continues the same notice and records the posted message
+PROBE ALERT-002 retry: overlapping ticks, one waiting on a held notice while the other receives HTTP 429 Retry-After 60 -> the stale snapshot sends nothing before the durable boundary; the due retry posts the same notice once
+PROBE ALERT-002 credentials: foreign and unreviewed alternates refused; rotation and revocation cancel old queued notices across restart
+PROBE ALERT-002 custody: archive excludes notice queues and tokens; project erasure removes operational notice custody and no later send occurs

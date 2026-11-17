@@ -1,0 +1,7 @@
+{
+  "scanner": "gitleaks",
+  "version": "8.30.1",
+  "status": "PASS",
+  "findings": 0,
+  "selection": "Final complete explicitly selected packet; non-secret reports/receipts/logs and product diff only. No credentials, environment dumps, private gate material, symlinks or generated private state."
+}

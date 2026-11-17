@@ -1,0 +1,27 @@
+{
+  "repository": "just-every/run-spool",
+  "branch": "cloud/gr-mt-spool-dep-11",
+  "head": "1093a64bdf6c3e80a94894cc3c1592481588aa91",
+  "remote_ref": "refs/heads/cloud/gr-mt-spool-dep-11",
+  "remote_head": "1093a64bdf6c3e80a94894cc3c1592481588aa91",
+  "remote_verified": true,
+  "guard": "$HOME/rer-consolidation/.tools/cloud-push.py",
+  "guard_result": "PUSH_OK branch=cloud/gr-mt-spool-dep-11",
+  "guard_attempts": 1,
+  "outer_shell_observed_exit": 1,
+  "note": "Guard printed PUSH_OK and Git confirmed a new branch; independent ls-remote verified the exact pushed SHA despite the outer tool shell reporting exit 1. No push retry was necessary.",
+  "identity": {
+    "author": "Run Edit Run fleet",
+    "committer": "Run Edit Run fleet",
+    "author_email": "fleet@runeditrun.com",
+    "committer_email": "fleet@runeditrun.com",
+    "trailers": []
+  },
+  "publication_scan": {
+    "status": "PASS",
+    "complete": true,
+    "findings": 0,
+    "head": "1093a64bdf6c3e80a94894cc3c1592481588aa91",
+    "report_sha256": "289d84ad09a0a755ddb3e0b2db7363a89df22afc611fc352f1fa26689f686167"
+  }
+}

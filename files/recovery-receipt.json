@@ -1,0 +1,8 @@
+{
+  "path": "/home/agent/rer-consolidation/work/maint/gr-mt-spool-dep-11/recovery/candidate.bundle",
+  "sha256": "965b72b5993a847a2ff2fcaa1f42b314b2765403e222aa5f54cdab826c947718",
+  "head": "1093a64bdf6c3e80a94894cc3c1592481588aa91",
+  "ref": "refs/heads/cloud/gr-mt-spool-dep-11",
+  "verified": true,
+  "role": "Recovery data only; no publication or READY claim."
+}

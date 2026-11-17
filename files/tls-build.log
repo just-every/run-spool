@@ -1,0 +1,99 @@
+ Downloading crates ...
+  Downloaded quote v1.0.47
+  Downloaded rustls-pki-types v1.15.1
+  Downloaded web-time v1.1.0
+  Downloaded wasm-bindgen-macro-support v0.2.114
+  Downloaded proc-macro2 v1.0.107
+  Downloaded once_cell v1.21.4
+  Downloaded zeroize v1.9.1
+  Downloaded wasm-bindgen v0.2.114
+  Downloaded rustls-webpki v0.103.15
+  Downloaded unicode-ident v1.0.26
+  Downloaded js-sys v0.3.91
+  Downloaded webpki-roots v1.0.9
+  Downloaded rustls v0.23.46
+  Downloaded syn v2.0.119
+  Downloaded wasm-bindgen-macro v0.2.114
+  Downloaded rustversion v1.0.23
+  Downloaded libc v0.2.190
+  Downloaded shlex v2.0.1
+  Downloaded find-msvc-tools v0.1.14
+  Downloaded cfg-if v1.0.5
+  Downloaded bumpalo v3.20.3
+  Downloaded cc v1.8.0
+   Compiling wasm-bindgen-shared v0.2.114
+   Compiling proc-macro2 v1.0.107
+   Compiling unicode-ident v1.0.26
+   Compiling quote v1.0.47
+   Compiling rustversion v1.0.23
+   Compiling syn v2.0.119
+   Compiling bumpalo v3.20.3
+   Compiling wasm-bindgen v0.2.114
+   Compiling once_cell v1.21.4
+   Compiling cfg-if v1.0.5
+   Compiling shlex v2.0.1
+   Compiling find-msvc-tools v0.1.14
+   Compiling cc v1.8.0
+   Compiling ring v0.17.14
+   Compiling wasm-bindgen-macro-support v0.2.114
+   Compiling wasm-bindgen-macro v0.2.114
+   Compiling js-sys v0.3.91
+   Compiling zeroize v1.9.1
+   Compiling untrusted v0.9.0
+   Compiling rustls v0.23.46
+   Compiling subtle v2.6.1
+   Compiling web-time v1.1.0
+   Compiling rustls-pki-types v1.15.1
+   Compiling getrandom v0.2.17
+   Compiling webpki-roots v1.0.9
+   Compiling rustls-webpki v0.103.15
+   Compiling rer-egress-tls v0.1.0 (/home/agent/rer-consolidation/work/maint/gr-mt-spool-dep-11/repo/src/modules/egress-service/tls)
+    Finished `release` profile [optimized] target(s) in 32.57s
+ Downloading crates ...
+  Downloaded wasi v0.11.1+wasi-snapshot-preview1
+  Downloaded windows-targets v0.52.6
+  Downloaded windows_aarch64_msvc v0.52.6
+  Downloaded windows_aarch64_gnullvm v0.52.6
+  Downloaded windows_x86_64_gnullvm v0.52.6
+  Downloaded windows_i686_gnu v0.52.6
+  Downloaded windows_x86_64_msvc v0.52.6
+  Downloaded windows_i686_gnullvm v0.52.6
+  Downloaded windows_x86_64_gnu v0.52.6
+  Downloaded windows_i686_msvc v0.52.6
+  Downloaded windows-sys v0.52.0
+{"file":"egress.wasm","bytes":618505,"imports":[{"module":"./engine_bg.js","name":"__wbg_now_16f0c993d5dd6c27","kind":"function"},{"module":"./engine_bg.js","name":"__wbindgen_object_clone_ref","kind":"function"},{"module":"./engine_bg.js","name":"__wbg_crypto_38df2bab126b63dc","kind":"function"},{"module":"./engine_bg.js","name":"__wbg___wbindgen_is_object_781bc9f159099513","kind":"function"},{"module":"./engine_bg.js","name":"__wbg_process_44c7a14e11e9f69e","kind":"function"},{"module":"./engine_bg.js","name":"__wbg_versions_276b2795b1c6a219","kind":"function"},{"module":"./engine_bg.js","name":"__wbindgen_object_drop_ref","kind":"function"},{"module":"./engine_bg.js","name":"__wbg_node_84ea875411254db1","kind":"function"},{"module":"./engine_bg.js","name":"__wbg___wbindgen_is_string_7ef6b97b02428fae","kind":"function"},{"module":"./engine_bg.js","name":"__wbg_require_b4edbdcf3e2a1ef0","kind":"function"},{"module":"./engine_bg.js","name":"__wbg___wbindgen_is_function_3c846841762788c1","kind":"function"},{"module":"./engine_bg.js","name":"__wbg_call_2d781c1f4d5c0ef8","kind":"function"},{"module":"./engine_bg.js","name":"__wbg_msCrypto_bd5a034af96bcba6","kind":"function"},{"module":"./engine_bg.js","name":"__wbg_new_with_length_825018a1616e9e55","kind":"function"},{"module":"./engine_bg.js","name":"__wbg_subarray_a068d24e39478a8a","kind":"function"},{"module":"./engine_bg.js","name":"__wbg_getRandomValues_c44a50d8cfdaebeb","kind":"function"},{"module":"./engine_bg.js","name":"__wbg_length_ea16607d7b61445b","kind":"function"},{"module":"./engine_bg.js","name":"__wbg_prototypesetcall_d62e5099504357e6","kind":"function"},{"module":"./engine_bg.js","name":"__wbg_randomFillSync_6c25eac9869eb53c","kind":"function"},{"module":"./engine_bg.js","name":"__wbg___wbindgen_is_undefined_52709e72fb9f179c","kind":"function"},{"module":"./engine_bg.js","name":"__wbg_static_accessor_GLOBAL_8adb955bd33fac2f","kind":"function"},{"module":"./engine_bg.js","name":"__wbg_static_accessor_GLOBAL_THIS_ad356e0db91c7913","kind":"function"},{"module":"./engine_bg.js","name":"__wbg_static_accessor_WINDOW_bb9f1ba69d61b386","kind":"function"},{"module":"./engine_bg.js","name":"__wbg_static_accessor_SELF_f207c857566db248","kind":"function"},{"module":"./engine_bg.js","name":"__wbg___wbindgen_throw_6ddd609b62940d55","kind":"function"},{"module":"./engine_bg.js","name":"__wbindgen_cast_0000000000000001","kind":"function"},{"module":"./engine_bg.js","name":"__wbindgen_cast_0000000000000002","kind":"function"}]}
+   Compiling rer-egress-tls v0.1.0 (/home/agent/rer-consolidation/work/maint/gr-mt-spool-dep-11/repo/src/modules/egress-service/tls)
+    Finished `release` profile [optimized] target(s) in 4.87s
+{"file":"test.wasm","bytes":623497,"imports":[{"module":"./engine_bg.js","name":"__wbg_now_16f0c993d5dd6c27","kind":"function"},{"module":"./engine_bg.js","name":"__wbindgen_object_clone_ref","kind":"function"},{"module":"./engine_bg.js","name":"__wbg_crypto_38df2bab126b63dc","kind":"function"},{"module":"./engine_bg.js","name":"__wbg___wbindgen_is_object_781bc9f159099513","kind":"function"},{"module":"./engine_bg.js","name":"__wbg_process_44c7a14e11e9f69e","kind":"function"},{"module":"./engine_bg.js","name":"__wbg_versions_276b2795b1c6a219","kind":"function"},{"module":"./engine_bg.js","name":"__wbindgen_object_drop_ref","kind":"function"},{"module":"./engine_bg.js","name":"__wbg_node_84ea875411254db1","kind":"function"},{"module":"./engine_bg.js","name":"__wbg___wbindgen_is_string_7ef6b97b02428fae","kind":"function"},{"module":"./engine_bg.js","name":"__wbg_require_b4edbdcf3e2a1ef0","kind":"function"},{"module":"./engine_bg.js","name":"__wbg___wbindgen_is_function_3c846841762788c1","kind":"function"},{"module":"./engine_bg.js","name":"__wbg_call_2d781c1f4d5c0ef8","kind":"function"},{"module":"./engine_bg.js","name":"__wbg_msCrypto_bd5a034af96bcba6","kind":"function"},{"module":"./engine_bg.js","name":"__wbg_new_with_length_825018a1616e9e55","kind":"function"},{"module":"./engine_bg.js","name":"__wbg_subarray_a068d24e39478a8a","kind":"function"},{"module":"./engine_bg.js","name":"__wbg_getRandomValues_c44a50d8cfdaebeb","kind":"function"},{"module":"./engine_bg.js","name":"__wbg_length_ea16607d7b61445b","kind":"function"},{"module":"./engine_bg.js","name":"__wbg_prototypesetcall_d62e5099504357e6","kind":"function"},{"module":"./engine_bg.js","name":"__wbg_randomFillSync_6c25eac9869eb53c","kind":"function"},{"module":"./engine_bg.js","name":"__wbg___wbindgen_is_undefined_52709e72fb9f179c","kind":"function"},{"module":"./engine_bg.js","name":"__wbg_static_accessor_GLOBAL_8adb955bd33fac2f","kind":"function"},{"module":"./engine_bg.js","name":"__wbg_static_accessor_GLOBAL_THIS_ad356e0db91c7913","kind":"function"},{"module":"./engine_bg.js","name":"__wbg_static_accessor_WINDOW_bb9f1ba69d61b386","kind":"function"},{"module":"./engine_bg.js","name":"__wbg_static_accessor_SELF_f207c857566db248","kind":"function"},{"module":"./engine_bg.js","name":"__wbg___wbindgen_throw_6ddd609b62940d55","kind":"function"},{"module":"./engine_bg.js","name":"__wbindgen_cast_0000000000000001","kind":"function"},{"module":"./engine_bg.js","name":"__wbindgen_cast_0000000000000002","kind":"function"}]}
+   Compiling wasm-bindgen-shared v0.2.114
+   Compiling proc-macro2 v1.0.107
+   Compiling unicode-ident v1.0.26
+   Compiling quote v1.0.47
+   Compiling rustversion v1.0.23
+   Compiling syn v2.0.119
+   Compiling bumpalo v3.20.3
+   Compiling wasm-bindgen v0.2.114
+   Compiling once_cell v1.21.4
+   Compiling cfg-if v1.0.5
+   Compiling find-msvc-tools v0.1.14
+   Compiling shlex v2.0.1
+   Compiling cc v1.8.0
+   Compiling ring v0.17.14
+   Compiling wasm-bindgen-macro-support v0.2.114
+   Compiling zeroize v1.9.1
+   Compiling untrusted v0.9.0
+   Compiling rustls v0.23.46
+   Compiling subtle v2.6.1
+   Compiling wasm-bindgen-macro v0.2.114
+   Compiling js-sys v0.3.91
+   Compiling web-time v1.1.0
+   Compiling rustls-pki-types v1.15.1
+   Compiling getrandom v0.2.17
+   Compiling webpki-roots v1.0.9
+   Compiling rustls-webpki v0.103.15
+   Compiling rer-egress-tls v0.1.0 (/home/agent/rer-consolidation/work/maint/gr-mt-spool-dep-11/repo/src/modules/egress-service/tls)
+    Finished `release` profile [optimized] target(s) in 30.34s
+{"file":"egress.wasm","bytes":618505,"reproduced":true,"imports":[{"module":"./engine_bg.js","name":"__wbg_now_16f0c993d5dd6c27","kind":"function"},{"module":"./engine_bg.js","name":"__wbindgen_object_clone_ref","kind":"function"},{"module":"./engine_bg.js","name":"__wbg_crypto_38df2bab126b63dc","kind":"function"},{"module":"./engine_bg.js","name":"__wbg___wbindgen_is_object_781bc9f159099513","kind":"function"},{"module":"./engine_bg.js","name":"__wbg_process_44c7a14e11e9f69e","kind":"function"},{"module":"./engine_bg.js","name":"__wbg_versions_276b2795b1c6a219","kind":"function"},{"module":"./engine_bg.js","name":"__wbindgen_object_drop_ref","kind":"function"},{"module":"./engine_bg.js","name":"__wbg_node_84ea875411254db1","kind":"function"},{"module":"./engine_bg.js","name":"__wbg___wbindgen_is_string_7ef6b97b02428fae","kind":"function"},{"module":"./engine_bg.js","name":"__wbg_require_b4edbdcf3e2a1ef0","kind":"function"},{"module":"./engine_bg.js","name":"__wbg___wbindgen_is_function_3c846841762788c1","kind":"function"},{"module":"./engine_bg.js","name":"__wbg_call_2d781c1f4d5c0ef8","kind":"function"},{"module":"./engine_bg.js","name":"__wbg_msCrypto_bd5a034af96bcba6","kind":"function"},{"module":"./engine_bg.js","name":"__wbg_new_with_length_825018a1616e9e55","kind":"function"},{"module":"./engine_bg.js","name":"__wbg_subarray_a068d24e39478a8a","kind":"function"},{"module":"./engine_bg.js","name":"__wbg_getRandomValues_c44a50d8cfdaebeb","kind":"function"},{"module":"./engine_bg.js","name":"__wbg_length_ea16607d7b61445b","kind":"function"},{"module":"./engine_bg.js","name":"__wbg_prototypesetcall_d62e5099504357e6","kind":"function"},{"module":"./engine_bg.js","name":"__wbg_randomFillSync_6c25eac9869eb53c","kind":"function"},{"module":"./engine_bg.js","name":"__wbg___wbindgen_is_undefined_52709e72fb9f179c","kind":"function"},{"module":"./engine_bg.js","name":"__wbg_static_accessor_GLOBAL_8adb955bd33fac2f","kind":"function"},{"module":"./engine_bg.js","name":"__wbg_static_accessor_GLOBAL_THIS_ad356e0db91c7913","kind":"function"},{"module":"./engine_bg.js","name":"__wbg_static_accessor_WINDOW_bb9f1ba69d61b386","kind":"function"},{"module":"./engine_bg.js","name":"__wbg_static_accessor_SELF_f207c857566db248","kind":"function"},{"module":"./engine_bg.js","name":"__wbg___wbindgen_throw_6ddd609b62940d55","kind":"function"},{"module":"./engine_bg.js","name":"__wbindgen_cast_0000000000000001","kind":"function"},{"module":"./engine_bg.js","name":"__wbindgen_cast_0000000000000002","kind":"function"}]}
+   Compiling rer-egress-tls v0.1.0 (/home/agent/rer-consolidation/work/maint/gr-mt-spool-dep-11/repo/src/modules/egress-service/tls)
+    Finished `release` profile [optimized] target(s) in 4.62s
+{"file":"test.wasm","bytes":623497,"reproduced":true,"imports":[{"module":"./engine_bg.js","name":"__wbg_now_16f0c993d5dd6c27","kind":"function"},{"module":"./engine_bg.js","name":"__wbindgen_object_clone_ref","kind":"function"},{"module":"./engine_bg.js","name":"__wbg_crypto_38df2bab126b63dc","kind":"function"},{"module":"./engine_bg.js","name":"__wbg___wbindgen_is_object_781bc9f159099513","kind":"function"},{"module":"./engine_bg.js","name":"__wbg_process_44c7a14e11e9f69e","kind":"function"},{"module":"./engine_bg.js","name":"__wbg_versions_276b2795b1c6a219","kind":"function"},{"module":"./engine_bg.js","name":"__wbindgen_object_drop_ref","kind":"function"},{"module":"./engine_bg.js","name":"__wbg_node_84ea875411254db1","kind":"function"},{"module":"./engine_bg.js","name":"__wbg___wbindgen_is_string_7ef6b97b02428fae","kind":"function"},{"module":"./engine_bg.js","name":"__wbg_require_b4edbdcf3e2a1ef0","kind":"function"},{"module":"./engine_bg.js","name":"__wbg___wbindgen_is_function_3c846841762788c1","kind":"function"},{"module":"./engine_bg.js","name":"__wbg_call_2d781c1f4d5c0ef8","kind":"function"},{"module":"./engine_bg.js","name":"__wbg_msCrypto_bd5a034af96bcba6","kind":"function"},{"module":"./engine_bg.js","name":"__wbg_new_with_length_825018a1616e9e55","kind":"function"},{"module":"./engine_bg.js","name":"__wbg_subarray_a068d24e39478a8a","kind":"function"},{"module":"./engine_bg.js","name":"__wbg_getRandomValues_c44a50d8cfdaebeb","kind":"function"},{"module":"./engine_bg.js","name":"__wbg_length_ea16607d7b61445b","kind":"function"},{"module":"./engine_bg.js","name":"__wbg_prototypesetcall_d62e5099504357e6","kind":"function"},{"module":"./engine_bg.js","name":"__wbg_randomFillSync_6c25eac9869eb53c","kind":"function"},{"module":"./engine_bg.js","name":"__wbg___wbindgen_is_undefined_52709e72fb9f179c","kind":"function"},{"module":"./engine_bg.js","name":"__wbg_static_accessor_GLOBAL_8adb955bd33fac2f","kind":"function"},{"module":"./engine_bg.js","name":"__wbg_static_accessor_GLOBAL_THIS_ad356e0db91c7913","kind":"function"},{"module":"./engine_bg.js","name":"__wbg_static_accessor_WINDOW_bb9f1ba69d61b386","kind":"function"},{"module":"./engine_bg.js","name":"__wbg_static_accessor_SELF_f207c857566db248","kind":"function"},{"module":"./engine_bg.js","name":"__wbg___wbindgen_throw_6ddd609b62940d55","kind":"function"},{"module":"./engine_bg.js","name":"__wbindgen_cast_0000000000000001","kind":"function"},{"module":"./engine_bg.js","name":"__wbindgen_cast_0000000000000002","kind":"function"}]}

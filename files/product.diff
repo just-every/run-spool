@@ -1,0 +1,200 @@
+diff --git a/DIVERGENCE.md b/DIVERGENCE.md
+index 901b2d03..3034b788 100644
+--- a/DIVERGENCE.md
++++ b/DIVERGENCE.md
+@@ -13,3 +13,15 @@ These intentional adaptations of `scripts/operations-config.mjs` and
+ `base-copies.json`. No live deployment or provider qualification is claimed.
+ 
+ — Run Edit Run fleet, 2026-11-15.
++
++## Egress TLS security update (2026-11-17)
++
++Spool pins rustls 0.23.46 to address GHSA-vp88-798v-h67f,
++GHSA-w44r-93j7-qv28, GHSA-c8m5-c952-6cm4 and GHSA-h2v8-394m-p7vv.
++The TLS Cargo manifest, lockfile, README, production and test WASM, and
++trust-bundle manifest are declared adaptations in `base-copies.json`, retaining
++their original Base comparison baselines. Both rebuilt artifacts reproduce with
++the declared toolchain. A later Base refresh must reconcile these adaptations
++while retaining a patched rustls version.
++
++— Run Edit Run fleet, 2026-11-17.
+diff --git a/base-copies.json b/base-copies.json
+index 7c690016..7bcc3dc1 100644
+--- a/base-copies.json
++++ b/base-copies.json
+@@ -2605,7 +2605,41 @@
+         "modules/egress-service/tsconfig.json",
+         "modules/egress-service/wasm.d.ts",
+         "modules/egress-service/worker.ts"
+-      ]
++      ],
++      "adapted": {
++        "src/modules/egress-service/tls/Cargo.toml": "c2efb501cbc148c2aee4d5e1107ebdba81469006",
++        "src/modules/egress-service/tls/Cargo.lock": "c2efb501cbc148c2aee4d5e1107ebdba81469006",
++        "src/modules/egress-service/tls/README.md": "c2efb501cbc148c2aee4d5e1107ebdba81469006",
++        "src/modules/egress-service/tls/egress.wasm": "c2efb501cbc148c2aee4d5e1107ebdba81469006",
++        "src/modules/egress-service/tls/test.wasm": "c2efb501cbc148c2aee4d5e1107ebdba81469006",
++        "src/modules/egress-service/tls/trust-bundle.json": "c2efb501cbc148c2aee4d5e1107ebdba81469006"
++      },
++      "acknowledged": {
++        "src/modules/egress-service/tls/Cargo.toml": {
++          "sha256": "6ddb5347ab1ec91ed527b87c4b31a006c0f946f90c70b72ce8e24f31a0ca76b8",
++          "mode": "100644"
++        },
++        "src/modules/egress-service/tls/Cargo.lock": {
++          "sha256": "75cd0fcbe6015877ba3c40b0bd4df98a12959d8eebb6686ea4248bf31ac8f329",
++          "mode": "100644"
++        },
++        "src/modules/egress-service/tls/README.md": {
++          "sha256": "19fb257c0796028a22f17c8824046f339de6e07750664e6c716cc40d9d4db41d",
++          "mode": "100644"
++        },
++        "src/modules/egress-service/tls/egress.wasm": {
++          "sha256": "5fe30986dd6aa7235b90bfb34654ac20519354e57eac2250bd8d86a4d70f8456",
++          "mode": "100644"
++        },
++        "src/modules/egress-service/tls/test.wasm": {
++          "sha256": "f950b0b751383aa2ea1f64d2e116e00ecc539a62a11a38dd0ec1f4f1a3e6133f",
++          "mode": "100644"
++        },
++        "src/modules/egress-service/tls/trust-bundle.json": {
++          "sha256": "5e6cc24f2e0e4c9e86adbf14dd792ce962006c49b61b8d57ac72b43e5bdb5ef1",
++          "mode": "100644"
++        }
++      }
+     },
+     {
+       "path": "src/modules/erasure",
+diff --git a/sources.lock.json b/sources.lock.json
+index 8cea7b81..75870a22 100644
+--- a/sources.lock.json
++++ b/sources.lock.json
+@@ -2654,7 +2654,7 @@
+       "executable": false
+     },
+     "base-copies.json": {
+-      "sha256": "187e858f7e3fd8979c23666f899c0b78ae67b3be34e185718b50fecf3545632d",
++      "sha256": "abcaf122ddfc8463d332374bd685c5fbbb3bfeff8067f5a6c78022fdb2102f8a",
+       "executable": false
+     },
+     "BROWSER-ORIGINS.md": {
+@@ -2902,7 +2902,7 @@
+       "executable": false
+     },
+     "DIVERGENCE.md": {
+-      "sha256": "43281cdcc04b4b05fdfc4504554a0c24a5440c49a17b8201974459e2b10deecd",
++      "sha256": "688b74a3c574c4128cd7b3480fdeda2973fec1e9858584d2d814418e8b0975fa",
+       "executable": false
+     },
+     "docs/AGENT-DOOR.md": {
+@@ -8102,15 +8102,15 @@
+       "executable": false
+     },
+     "src/modules/egress-service/tls/Cargo.lock": {
+-      "sha256": "d0c9ef4170f9b22b32c11e87752851dcb378d338847d7b3c8c2f7874e64ff1e8",
++      "sha256": "75cd0fcbe6015877ba3c40b0bd4df98a12959d8eebb6686ea4248bf31ac8f329",
+       "executable": false
+     },
+     "src/modules/egress-service/tls/Cargo.toml": {
+-      "sha256": "21f453e02afe05b81811adea9f53d3da29c6d41151baace5099405e1b3b628c5",
++      "sha256": "6ddb5347ab1ec91ed527b87c4b31a006c0f946f90c70b72ce8e24f31a0ca76b8",
+       "executable": false
+     },
+     "src/modules/egress-service/tls/egress.wasm": {
+-      "sha256": "4743c1afe775e0fa519cc732d975aa55192cb03ed82592dee7e4597b6d6a1978",
++      "sha256": "5fe30986dd6aa7235b90bfb34654ac20519354e57eac2250bd8d86a4d70f8456",
+       "executable": false
+     },
+     "src/modules/egress-service/tls/engine.js": {
+@@ -8118,7 +8118,7 @@
+       "executable": false
+     },
+     "src/modules/egress-service/tls/README.md": {
+-      "sha256": "5b3b92b81e2dc1705be17ddb14088bb3c7fbea0b50165cc95d94b0f6721b0629",
++      "sha256": "19fb257c0796028a22f17c8824046f339de6e07750664e6c716cc40d9d4db41d",
+       "executable": false
+     },
+     "src/modules/egress-service/tls/rust-toolchain.toml": {
+@@ -8130,11 +8130,11 @@
+       "executable": false
+     },
+     "src/modules/egress-service/tls/test.wasm": {
+-      "sha256": "096d721102f183cc4043057c15d9c11f8a30351f4b7acfbb475bc8dc017bbdf5",
++      "sha256": "f950b0b751383aa2ea1f64d2e116e00ecc539a62a11a38dd0ec1f4f1a3e6133f",
+       "executable": false
+     },
+     "src/modules/egress-service/tls/trust-bundle.json": {
+-      "sha256": "850948d27dc0f391f39e22c5fb23ba8234d80c293d65f46712138cb5ee32509b",
++      "sha256": "5e6cc24f2e0e4c9e86adbf14dd792ce962006c49b61b8d57ac72b43e5bdb5ef1",
+       "executable": false
+     },
+     "src/modules/egress-service/tls/trust-bundle.mjs": {
+diff --git a/src/modules/egress-service/tls/Cargo.lock b/src/modules/egress-service/tls/Cargo.lock
+index cf0ddc58..695464ca 100644
+--- a/src/modules/egress-service/tls/Cargo.lock
++++ b/src/modules/egress-service/tls/Cargo.lock
+@@ -111,9 +111,9 @@ dependencies = [
+ 
+ [[package]]
+ name = "rustls"
+-version = "0.23.45"
++version = "0.23.46"
+ source = "registry+https://github.com/rust-lang/crates.io-index"
+-checksum = "0d41d731c7d2f962d1ccc364cec258de3c0e93b38c2fb3ba97ac74513048d634"
++checksum = "48e13bd8c0e9365c43cfa5c9e8f9ad49d3c8444926c9aac819e0e4dc503c8fdf"
+ dependencies = [
+  "once_cell",
+  "ring",
+diff --git a/src/modules/egress-service/tls/Cargo.toml b/src/modules/egress-service/tls/Cargo.toml
+index 8f8a6a4d..680df8b2 100644
+--- a/src/modules/egress-service/tls/Cargo.toml
++++ b/src/modules/egress-service/tls/Cargo.toml
+@@ -10,7 +10,7 @@ crate-type = ["cdylib"]
+ test-roots = []
+ 
+ [dependencies]
+-rustls = { version = "=0.23.45", default-features = false, features = ["std", "ring", "tls12"] }
++rustls = { version = "=0.23.46", default-features = false, features = ["std", "ring", "tls12"] }
+ ring = { version = "=0.17.14", features = ["wasm32_unknown_unknown_js"] }
+ wasm-bindgen = "=0.2.114"
+ js-sys = "=0.3.91"
+diff --git a/src/modules/egress-service/tls/README.md b/src/modules/egress-service/tls/README.md
+index 92905cdc..7c25e9e1 100644
+--- a/src/modules/egress-service/tls/README.md
++++ b/src/modules/egress-service/tls/README.md
+@@ -3,7 +3,7 @@
+ Production `egress.wasm` is built from [src/lib.rs](src/lib.rs) with Rust **1.90.0**, the
+ `wasm32-unknown-unknown` target, wasm-bindgen **0.2.114**, and LLVM clang/llvm-ar
+ **21.1.8**. `Cargo.lock` fixes every transitive crate. The direct TLS inputs are
+-[rustls 0.23.45](https://docs.rs/rustls/0.23.45/rustls/),
++[rustls 0.23.46](https://docs.rs/rustls/0.23.46/rustls/),
+ [ring 0.17.14](https://docs.rs/ring/0.17.14/ring/), and
+ [webpki-roots 1.0.9](https://docs.rs/webpki-roots/1.0.9/webpki_roots/).
+ The roots crate compiles its Mozilla trust-anchor snapshot into the module;
+@@ -58,8 +58,9 @@ artifacts let ordinary Base verification and relocated edition checks run
+ without requiring a Rust toolchain. Rebuild verification is an explicit release
+ step; it is not a claim that every consumer's CI recompiles Rust.
+ 
+-Production WASM is **605,169 bytes**. The complete 12-module Worker is **645,795 bytes**, including **8,715 bytes** of
+-generated glue, as recorded with the OD08-1b evidence. Initial OD08-1b attempt 1 used
++Production WASM with rustls 0.23.46 is **618,505 bytes**. The OD08-1b evidence recorded
++**605,169 bytes** of production WASM and a **645,795-byte** 12-module Worker, including
++**8,715 bytes** of generated glue. Initial OD08-1b attempt 1 used
+ rustls 0.23.35/webpki-roots 1.0.4; subsequent qualification uses the versions
+ above. Byte reproducibility is demonstrated with the declared compiler toolchain,
+ not claimed across arbitrary LLVM versions.
+diff --git a/src/modules/egress-service/tls/trust-bundle.json b/src/modules/egress-service/tls/trust-bundle.json
+index f94e4ad6..e6f2a936 100644
+--- a/src/modules/egress-service/tls/trust-bundle.json
++++ b/src/modules/egress-service/tls/trust-bundle.json
+@@ -6,8 +6,8 @@
+     "checksum": "7dcd9d09a39985f5344844e66b0c530a33843579125f23e21e9f0f220850f22a"
+   },
+   "artifacts": {
+-    "egress.wasm": "4743c1afe775e0fa519cc732d975aa55192cb03ed82592dee7e4597b6d6a1978",
+-    "test.wasm": "096d721102f183cc4043057c15d9c11f8a30351f4b7acfbb475bc8dc017bbdf5"
++    "egress.wasm": "5fe30986dd6aa7235b90bfb34654ac20519354e57eac2250bd8d86a4d70f8456",
++    "test.wasm": "f950b0b751383aa2ea1f64d2e116e00ecc539a62a11a38dd0ec1f4f1a3e6133f"
+   },
+   "anchors": [
+     {

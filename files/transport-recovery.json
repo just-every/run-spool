@@ -1,0 +1,12 @@
+{
+  "operation": "git ls-remote --heads origin refs/heads/main refs/heads/cloud/gr-mt-spool-dep-11",
+  "attempts": 2,
+  "first_result": "Authentication failed: invalid username or token; HTTP status not supplied by Git.",
+  "recovery": "Launcher refresh, shared decrypted-bundle helper reinstalled, 15-second backoff, retry succeeded.",
+  "final_result": "main=6263ba70f1d0fce4ea1df7e6bf7b4f0d827489e1; named cloud branch absent",
+  "credential_values_logged": false,
+  "proactive_ci_refresh": {
+    "epoch": 1794938759.1211863,
+    "result": "Launcher bundle refreshed and shared Git setup reinstalled before later CI reads."
+  }
+}

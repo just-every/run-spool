@@ -1,0 +1,159 @@
+{
+  "author": "Run Edit Run fleet",
+  "date": "2026-11-17",
+  "repository": "just-every/run-spool",
+  "branch": "cloud/gr-mt-spool-dep-11",
+  "baseline": "6263ba70f1d0fce4ea1df7e6bf7b4f0d827489e1",
+  "toolchain": {
+    "node": "22.20.0",
+    "pnpm": "10.12.4",
+    "rust": "1.90.0",
+    "wasm-bindgen": "0.2.114",
+    "llvm": "21.1.8",
+    "cargo_jobs": 2
+  },
+  "crate_count_before": 39,
+  "crate_count_after": 39,
+  "dependency_changes": [
+    {
+      "crate": "rustls",
+      "before": "0.23.45",
+      "after": "0.23.46"
+    }
+  ],
+  "vulnerable_rustls_resolutions_before": 1,
+  "vulnerable_rustls_resolutions_after": 0,
+  "advisories_addressed": 4,
+  "artifacts": {
+    "egress.wasm": {
+      "before_bytes": 605169,
+      "after_bytes": 618505,
+      "sha256": "5fe30986dd6aa7235b90bfb34654ac20519354e57eac2250bd8d86a4d70f8456"
+    },
+    "test.wasm": {
+      "before_bytes": 610195,
+      "after_bytes": 623497,
+      "sha256": "f950b0b751383aa2ea1f64d2e116e00ecc539a62a11a38dd0ec1f4f1a3e6133f"
+    }
+  },
+  "tests_added": 0,
+  "tests_removed": 0,
+  "clause_status_changes": [],
+  "checks": [
+    {
+      "command": "pnpm install --frozen-lockfile",
+      "status": "PASS",
+      "result": "Frozen Node workspace installation; no package.json or pnpm-lock.yaml changes."
+    },
+    {
+      "command": "cloud_run npx -y @runeditrun/rer setup --owner-email fleet@runeditrun.com --non-interactive",
+      "status": "PASS",
+      "result": "103 local migrations and first-owner setup; temporary app stopped."
+    },
+    {
+      "command": "cargo +1.90.0 update --manifest-path src/modules/egress-service/tls/Cargo.toml -p rustls --precise 0.23.46",
+      "status": "PASS",
+      "result": "Only rustls changed among 39 locked crates."
+    },
+    {
+      "command": "node src/modules/egress-service/tls/build.mjs",
+      "status": "PASS",
+      "result": "Production WASM rebuilt; production root-injection export refused by build."
+    },
+    {
+      "command": "node src/modules/egress-service/tls/build.mjs --test",
+      "status": "PASS",
+      "result": "Test WASM rebuilt with matching imports."
+    },
+    {
+      "command": "node src/modules/egress-service/tls/build.mjs --check",
+      "status": "PASS",
+      "result": "Production WASM and glue reproduced byte for byte; trust manifest verified."
+    },
+    {
+      "command": "node src/modules/egress-service/tls/build.mjs --test --check",
+      "status": "PASS",
+      "result": "Test WASM reproduced byte for byte; trust manifest verified."
+    },
+    {
+      "command": "pnpm typecheck",
+      "status": "PASS",
+      "result": "TypeScript tsc --noEmit, exit 0."
+    },
+    {
+      "command": "cloud_run npx -y @runeditrun/rer build",
+      "status": "PASS",
+      "result": "Application build complete, exit 0."
+    },
+    {
+      "command": "cloud_run node tests/alerts-egress.mjs",
+      "status": "PASS",
+      "result": "Signed webhook over rebuilt WASM TLS with original hostname, private-address refusal, redirect refusal, no replay; Slack edge journey also passed."
+    },
+    {
+      "command": "node scripts/edition-authoring/cli.mjs lock",
+      "status": "PASS",
+      "result": "Regenerated six changed source hashes; no unrelated locks."
+    },
+    {
+      "command": "pnpm source:check",
+      "status": "PASS",
+      "result": "Source lock matches product inputs, exit 0."
+    },
+    {
+      "command": "node src/base/contract-docs.mjs check",
+      "status": "PASS",
+      "result": "0 errors and 0 warnings; generated views current."
+    },
+    {
+      "command": "git diff --check",
+      "status": "PASS",
+      "result": "No whitespace errors."
+    },
+    {
+      "command": "node scripts/edition-authoring/cli.mjs verify-base --offline (initial)",
+      "status": "FAIL",
+      "result": "Six intended TLS changes needed explicit adaptation acknowledgements; fixed with documented adapt-base commands."
+    },
+    {
+      "command": "node scripts/edition-authoring/cli.mjs adapt-base src/modules/egress-service/tls/<each of six changed TLS files>",
+      "status": "PASS",
+      "result": "Original Base digests and revisions retained; current bytes acknowledged as seed adaptations."
+    },
+    {
+      "command": "node scripts/edition-authoring/cli.mjs verify-base --offline (final)",
+      "status": "PASS",
+      "result": "No drift or unrecorded copies."
+    },
+    {
+      "command": "node scripts/edition-authoring/cli.mjs lock && pnpm source:check (after adaptation metadata)",
+      "status": "PASS",
+      "result": "Source lock regenerated last and checked."
+    },
+    {
+      "command": "pnpm run check -- --profile first-party",
+      "status": "PASS",
+      "result": "Required first-party repository check, exit 0."
+    },
+    {
+      "command": "Base packaged publication scan (before local-output cleanup)",
+      "status": "FAIL",
+      "result": "Inspection COMPLETE with 175 working-tree-only findings in ignored setup/build outputs, no committed-source findings; all generated local state/build outputs removed before clean-tree rerun."
+    },
+    {
+      "command": "Base packaged publication scanner on exact clean candidate",
+      "status": "PASS",
+      "result": "COMPLETE; zero findings; full history and injected environment checked.",
+      "head": "1093a64bdf6c3e80a94894cc3c1592481588aa91"
+    },
+    {
+      "command": "gh api repos/just-every/run-spool/actions/runs/44140203481",
+      "status": "PASS",
+      "result": "Exact-SHA Verify completed/success.",
+      "head": "1093a64bdf6c3e80a94894cc3c1592481588aa91",
+      "run_id": 44140203481,
+      "html_url": "https://github.com/just-every/run-spool/actions/runs/44140203481"
+    }
+  ],
+  "head": "1093a64bdf6c3e80a94894cc3c1592481588aa91"
+}
