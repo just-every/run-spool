@@ -43,6 +43,7 @@ function related(project: string): D1RelatedErasure {
    const payload = record.payload as any;
    if(payload?.vendor==='bugsnag')return names(payload.organization,record.kind==='projects'?payload.data?.id:payload.project,'bugsnag');
    if(payload?.vendor==='rollbar')return typeof payload.project==='string' && rollbarProject(payload.project)===project;
+   if (['members','teams','team-members'].includes(record.kind))return Array.isArray(payload?.projects)&&payload.projects.some((slug:any)=>names(payload.organization,slug));
    if (record.kind === 'projects') return names(payload?.organization, payload?.data?.slug);
    if (record.kind === 'releases') return Array.isArray(payload?.data?.projects) && payload.data.projects.some((linked: any) => names(payload.organization, linked?.slug));
    return names(payload?.organization, payload?.project);

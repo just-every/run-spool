@@ -71,6 +71,7 @@ export async function ownerDeclaration(db: D1Database,secret:string) {
   const competing = await db.prepare("SELECT 1 FROM rer_erasure_operations WHERE phase<>'complete' AND NOT(entity='installation-owner' AND json_extract(subject,'$.id')=?) LIMIT 1").bind(subject.id).first();
   if(competing)return 'erasure_in_progress';
   if(await db.prepare('SELECT 1 FROM oa_domain_rules WHERE created_by=?').bind(subject.id).first())return 'domain_creator_attribution';
+  if(await db.prepare('SELECT 1 FROM spool_import_proposals LIMIT 1').first())return 'shared_import_custody';
   if(await db.prepare('SELECT 1 FROM oa_tokens WHERE issuer_id=? AND operator_id<>? AND operator_id NOT IN (SELECT successor_id FROM spool_owner_successor WHERE owner_id=?) AND NOT EXISTS(SELECT 1 FROM spool_members m JOIN oa_operators recipient ON recipient.id=oa_tokens.operator_id WHERE m.operator_id=recipient.id OR (m.operator_id IS NULL AND m.email=recipient.email))').bind(subject.id,subject.id,subject.id).first())return 'shared_invitation_provenance';
   const successor = await db.prepare(`SELECT 1 FROM spool_owner_successor x JOIN oa_operators o ON o.id=x.successor_id WHERE x.owner_id=? AND o.role='member' AND o.status='active' AND EXISTS(SELECT 1 FROM oa_sessions s WHERE s.operator_id=o.id AND s.kind='native' AND s.revoked_at IS NULL AND s.expires_at>? AND s.operator_version=o.version)`).bind(subject.id,Date.now()).first();
   return successor ? null : 'verified_successor_required';

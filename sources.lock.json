@@ -3705,6 +3705,10 @@
       "sha256": "874f424624348f8ab6926288c014969e8b8b25d3553dafd93b9b8e958198c709",
       "executable": false
     },
+    "docs/SENTRY-ROSTER-IMPORT.md": {
+      "sha256": "432f13a97a25adef449826206d1ce5ee14983baa3b80814d84b05a4bb68dda61",
+      "executable": false
+    },
     "docs/SENTRY-SCRUBBING.md": {
       "sha256": "b94efaf3c399f016fe148d3fad872d209f5fb9fbe6fd44c8098f94e4833403f3",
       "executable": false
@@ -3774,7 +3778,7 @@
       "executable": false
     },
     "management/integration/deployment-spec.json": {
-      "sha256": "9cb724769d3a23af6117224233f9965ac00113bb1ef8121c2eb34940f3e5e0b2",
+      "sha256": "f0967ac8ef63695df17041559324a337589185f18b3b5346ffa74dafdbf2a171",
       "executable": false
     },
     "migrations/core/0001_errors.sql": {
@@ -4187,6 +4191,10 @@
     },
     "migrations/core/0109_feedback_review.sql": {
       "sha256": "991615f887a895a3d6be01b805dc543a8a05c8274312b02788b170b73b52c06f",
+      "executable": false
+    },
+    "migrations/core/0110_sentry_roster_proposals.sql": {
+      "sha256": "d88d992bf20a0697cd58991c4a78148dd0730acdcf9ae3837a8e3184ab16c8eb",
       "executable": false
     },
     "ONBOARDING.md": {
@@ -5854,7 +5862,7 @@
       "executable": false
     },
     "src/domain/audit/classify.ts": {
-      "sha256": "48ab58eddbf6c27eb9645a0a69a98bf1d5f313607ab9a873741eba2dd2d1524d",
+      "sha256": "2cc8b0042972fed7a5ac68364ccf7d561d9b3602fff09b70018c08103ce52388",
       "executable": false
     },
     "src/domain/audit/context.ts": {
@@ -6070,7 +6078,7 @@
       "executable": false
     },
     "src/domain/erasure/declaration.ts": {
-      "sha256": "5a977aa592d6f39c6439432794435943bf1282e1b1a7fd6c0036ccfe1ee0f08b",
+      "sha256": "a3a3c01699404410ac3a74faee86e6f362409e78fe4d4f2d21f613d4af3f542e",
       "executable": false
     },
     "src/domain/erasure/end-user.ts": {
@@ -6086,7 +6094,7 @@
       "executable": false
     },
     "src/domain/erasure/owner-declaration.ts": {
-      "sha256": "fe5d9d12b5de3c9685900fb88de8afcb1fc6b37917d9281add678ae6e834b472",
+      "sha256": "4c939c11e1fbd36ebc2328b91f6afe893c8ab93a55571bad035d8ea2f5bfb727",
       "executable": false
     },
     "src/domain/erasure/owner-operation.ts": {
@@ -6114,7 +6122,7 @@
       "executable": false
     },
     "src/domain/erasure/service.ts": {
-      "sha256": "0a0e806d9736ff485d29fcc8b923ffe520d5a94622334ef71c7715cb52888d63",
+      "sha256": "6de34649309ad03467fd903a1cc3115ea97d73ad232f480eb41d4d2bf77aaa69",
       "executable": false
     },
     "src/domain/execution-archive.ts": {
@@ -6426,7 +6434,15 @@
       "executable": false
     },
     "src/domain/members/archive.ts": {
-      "sha256": "1568c57f6ffa45adeef164537039d6d88e411fdee5cc463099f8e845cf564ddf",
+      "sha256": "7659a13160ce5348a9c3080ac70c4fd73571263c990c8b68cf1fd0fabf1aab62",
+      "executable": false
+    },
+    "src/domain/members/import-model.ts": {
+      "sha256": "8768a2c1f0799bd9b733341a501a6eb1c4015c232d5cacefd5e7224669ffdb28",
+      "executable": false
+    },
+    "src/domain/members/imports.ts": {
+      "sha256": "adc234bdef1bbcc22144db64a26c12445e922ea130e1b3882693c0a813e87231",
       "executable": false
     },
     "src/domain/members/input.ts": {
@@ -6454,7 +6470,7 @@
       "executable": false
     },
     "src/domain/members/routes.ts": {
-      "sha256": "4cf2fe216831112534d1b66f0e58b7124f8f461e10d5e22848478c1249e21d92",
+      "sha256": "c239aecf5b9e4e60d7c5ad0582cdefd2add5c4f44f7df1d6f5677f0650f7e74b",
       "executable": false
     },
     "src/domain/members/services.ts": {
@@ -6594,7 +6610,7 @@
       "executable": false
     },
     "src/domain/portability.ts": {
-      "sha256": "325b5fcc89a59e30a55a7de7fb26d87dbe52a32304bce5222a40669cb9ea85f8",
+      "sha256": "8af3c9645e64eaab329704dc86d5130b3abdd3b66206d42f8f813350705af810",
       "executable": false
     },
     "src/domain/privacy.ts": {
@@ -6974,7 +6990,7 @@
       "executable": false
     },
     "src/domain/sentry-import/archive.ts": {
-      "sha256": "a24de828a735d4b3e0c4b87fdd5e16cbaa26511b3d32c99a187078015333e557",
+      "sha256": "59a91803c9a7444cac6c683a542236cdc38b4ea5fc1f5831b61be3a3209ec7bd",
       "executable": false
     },
     "src/domain/sentry-import/business-routes.ts": {
@@ -6994,7 +7010,7 @@
       "executable": false
     },
     "src/domain/sentry-import/mapping.ts": {
-      "sha256": "88ffc8676f543c555288cb6fe223a22d7c35cbd6a822f1d686cf0610c7420daa",
+      "sha256": "84e0df759dfdcabc511af94c7dbd5b99e8b9651af05c2aac85d074a4edaa889a",
       "executable": false
     },
     "src/domain/sentry-import/owner-reads.server.ts": {
@@ -7014,11 +7030,11 @@
       "executable": false
     },
     "src/domain/sentry-import/source.ts": {
-      "sha256": "e479587fc0529d93951193bed9fb34d5624db7493850e27f1c37e676f4e701de",
+      "sha256": "ca0acaf078fa2f860ed6da7b1b8a18acdfec5a72c9a874f2cb632b21a65b8b50",
       "executable": false
     },
     "src/domain/sentry-import/targets.ts": {
-      "sha256": "6400b943b69085f0326e87ae72cd90b36c57df9cbc48935f3e26c3a95f698b1c",
+      "sha256": "076715ed6f01264e1ae120661b7942c3fc714bb3c685f7ecbcee17ebfb35a6fa",
       "executable": false
     },
     "src/domain/sentry/agent-evidence.ts": {
@@ -10457,6 +10473,10 @@
       "sha256": "a39e50e93764f6676bfc708b2b1bab0e683aa3692fd690a39e5e9f91f909fb9c",
       "executable": false
     },
+    "src/ui/workbench/ImportedMembers.tsx": {
+      "sha256": "d08a6291bca9bf7265aecb8d2e76ed8d6cd13ad3b7bab1c9312754a75f9f4abe",
+      "executable": false
+    },
     "src/ui/workbench/inbound-filters.css": {
       "sha256": "0f368981b9e35384260767133beb1dd3adc40c7d0324d7516f6485387aac2c7d",
       "executable": false
@@ -10498,7 +10518,7 @@
       "executable": false
     },
     "src/ui/workbench/Members.tsx": {
-      "sha256": "36b225d41aa4aa45f03fa93e8d1af7552f4bafc71be8de39df8a1ce773c1249e",
+      "sha256": "e6a3cb52f66ef6c59151973649c3c04ba67961f704c9f5be25ca63d2861cf9c8",
       "executable": false
     },
     "src/ui/workbench/Navigation.tsx": {
@@ -11854,15 +11874,19 @@
       "executable": false
     },
     "tests/sentry-import.mjs": {
-      "sha256": "aecab4d08d87b209e24a872b419261f8302f745e3acf52217050b84cc9b5e2ff",
+      "sha256": "8bb455497e80bfe3107a9f4ddf1045adacaaf108ee5874067bd166bc890e8d14",
       "executable": false
     },
     "tests/sentry-import/field-accounting.mjs": {
-      "sha256": "a857b2d521e05f004d444da78c7f8d018238b0e7d1af26afbf4d7ff7af338f9f",
+      "sha256": "892517db4a69fa7962ef2799001ea27bb2fff7ffa789bc1f23edd0b12789b96b",
       "executable": false
     },
     "tests/sentry-import/reads.mjs": {
       "sha256": "bc691f9582fee9b7c08a2ceecf289c549d264b25b8a7454e7b8d940b1d117339",
+      "executable": false
+    },
+    "tests/sentry-import/roster-ownership.mjs": {
+      "sha256": "b1aae4a977d967fe788411df282fd0f52ecfb5924de7ceb442addf9b0ca9d1f2",
       "executable": false
     },
     "tests/sentry-import/schema-pages.mjs": {

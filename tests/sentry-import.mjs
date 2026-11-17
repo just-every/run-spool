@@ -1,5 +1,6 @@
 import { schemaPages } from './sentry-import/schema-pages.mjs';
 import { fieldAccounting } from './sentry-import/field-accounting.mjs';
+import { rosterOwnershipFlow } from './sentry-import/roster-ownership.mjs';
 import { bugsnagMigrationFlow } from './bugsnag-import.mjs';
 import assert from 'node:assert/strict';
 import { createHash } from 'node:crypto';
@@ -144,3 +145,5 @@ try{
 }finally{await stopWorker();await rm(scratch,{recursive:true,force:true});delete process.env.SPOOL_TEST_SESSION}
 
 await bugsnagMigrationFlow();
+
+await rosterOwnershipFlow();

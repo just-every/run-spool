@@ -1,3 +1,4 @@
+import { proposalId } from '../members/import-model';
 import { eventId as bugsnagEventId } from '../bugsnag-import/event';
 import { validateRollbarTarget, importedAlgorithm } from '../rollbar-import/archive.ts';
 import { canonical, hash, identity } from '../privacy';
@@ -8,7 +9,7 @@ export async function validateImportedRows(data:any){
   for(const row of data.sentry_project_aliases){if(!Number.isSafeInteger(row.id)||row.id<1||!projects.has(row.project)||aliases.has(row.id)||projectAliases.has(row.project))throw new Error('Archive Sentry alias');aliases.add(row.id);projectAliases.add(row.project)}
   if(projectAliases.size!==projects.size)throw new Error('Archive project alias coverage');
   for(const row of data.sentry_import_targets){
-    if(!['project','release','issue','event'].includes(row.kind)||typeof row.id!=='string'||typeof row.revision!=='string'||!row.revision||row.revision.length>100)throw new Error('Archive import identity');
+    if(!['project','release','issue','event','import-proposal'].includes(row.kind)||typeof row.id!=='string'||typeof row.revision!=='string'||!row.revision||row.revision.length>100)throw new Error('Archive import identity');
     const source=JSON.parse(row.source);
     if(source?.vendor==='rollbar'){
       await validateRollbarTarget(row,source,data);
@@ -25,6 +26,7 @@ export async function validateImportedRows(data:any){
     if(row.kind==='release'){const id=JSON.parse(row.id);exists=Array.isArray(id)&&id.length===2&&id[0]===project&&id[1]===source.id&&data.releases.some((r:any)=>r.project===project&&r.name===source.id)}
     if(row.kind==='issue')exists=row.id===await hash(JSON.stringify([vendor,source.organization,source.project,source.id]))&&data.issues.some((i:any)=>i.id===row.id&&i.project===project);
     if(row.kind==='event'){const id=JSON.parse(row.id);exists=Array.isArray(id)&&id.length===2&&id[0]===project&&id[1]===(vendor==='bugsnag'?bugsnagEventId(source.organization,source.project,source.id):source.id.toLowerCase())&&data.events.some((e:any)=>e.project===project&&e.id===id[1]&&e.historical===1)}
+    if(row.kind==='import-proposal')exists=data.spool_import_proposals.some((p:any)=>p.id===row.id&&p.project===project&&row.id===proposalId(source.organization,p.kind,source.id));
     if(!exists)throw new Error('Archive imported native reference');
   }
   for(const issue of data.issues.filter((row:any)=>importedAlgorithm(row.algorithm))){

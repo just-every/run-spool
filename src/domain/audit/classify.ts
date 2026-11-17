@@ -21,6 +21,7 @@ const rules: Rule[] = [
  {pattern:/^\/api\/projects\/(?<project>[^/]+)\/alerting\/team-digests$/,action:'alert.digest.settings',kind:'project'},
  {pattern:/^\/api\/projects\/(?<project>[^/]+)\/alerting\/team-snoozes$/,action:'alert.snooze',kind:'project'},
  {pattern:/^\/api\/projects\/(?<project>[^/]+)\/follow-up\/alternate-member$/,action:'automation.follow_up',kind:'project'},
+ {pattern:/^\/api\/organization\/imports(?:\/(?<subject>[^/]+)\/(?<operation>preview|invite))?$/,action:'member.change',kind:'identity'},
  {pattern:/^\/api\/organization$/,methods:['POST'],action:'organization.create',kind:'installation'},
  {pattern:/^\/api\/organization\/invites$/,action:'member.invite',kind:'identity'},
  {pattern:/^\/api\/organization\/members\/(?<subject>[^/]+)$/,methods:['DELETE'],action:'member.remove',kind:'identity'},

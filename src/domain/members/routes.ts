@@ -1,3 +1,4 @@
+import { importedMembers } from './imports';
 import { mailSuppressed } from '../../auth/mail.server.mjs';
 import { localDevelopmentEnabled } from '../../auth/local.server.mjs';
 import { localInvitationLink } from './local-invitations';
@@ -38,6 +39,7 @@ memberRoutes.use('*',async(c,next)=>{
  if(session.operator.role!=='owner'&&session.membership?.role!=='admin')return c.json({error:'Project not found'},404);
  await next();
 });
+memberRoutes.route('/imports',importedMembers);
 memberRoutes.get('/',async c=>{
  const db=c.env.DB;
  const [org,members,grants,teams,services,scopes,invites]=await Promise.all([
