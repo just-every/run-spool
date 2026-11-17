@@ -12,7 +12,9 @@ export default {
  cause:{mode:'suppressed',types:['ArithmeticException','IOException','IllegalStateException'],mechanisms:['chained','suppressed','chained'],functions:['charge','closeResource','charge']},
  async prepare(dir){
   await cp(here,dir,{recursive:true});
-  await runOk('mvn',['-q','-B','dependency:copy-dependencies','-DoutputDirectory=lib'],{cwd:dir});
+  // Resolve the pinned plugin directly: a cold runner must not need Maven's
+  // mutable group-prefix metadata to discover dependency:copy-dependencies.
+  await runOk('mvn',['-q','-B','org.apache.maven.plugins:maven-dependency-plugin:3.9.0:copy-dependencies','-DoutputDirectory=lib'],{cwd:dir});
   await runOk('javac',['-cp',resolve(dir,'lib/*'),'-d',resolve(dir,'out'),resolve(dir,'App.java')],{cwd:dir});
  },
  command(mode,dir,dsn,cwd=dir){return {command:'java',args:['-cp',[resolve(dir,'out'),resolve(dir,'lib/*')].join(delimiter),'App',mode],cwd,env:{SPOOL_FIXTURE_DSN:dsn}}},
