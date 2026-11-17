@@ -21,7 +21,8 @@ export async function cookieFile(path) {
   const info=await lstat(path);if(!info.isFile() || info.size>4096)throw new Error('The session file must be a small regular file.');
   const file=await open(path,constants.O_RDONLY|constants.O_NOFOLLOW);
   let value;try{value=(await file.readFile('utf8')).trim();}finally{await file.close();}
-  if(!/^[!#$%&'*+.^_`|~0-9A-Za-z-]+=[!#-:<-~]+$/.test(value) || value.includes(';'))throw new Error('The session file must hold one cookie.');
+  // RFC 6265 cookie-octet excludes quotes, commas, semicolons and backslashes.
+  if(!/^[!#$%&'*+.^_`|~0-9A-Za-z-]+=[\x21\x23-\x2B\x2D-\x3A\x3C-\x5B\x5D-\x7E]+$/.test(value) || value.includes(';'))throw new Error('The session file must hold one cookie.');
   return value;
 }
 export async function absent(path) {
