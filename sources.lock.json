@@ -2654,7 +2654,7 @@
       "executable": false
     },
     "base-copies.json": {
-      "sha256": "187e858f7e3fd8979c23666f899c0b78ae67b3be34e185718b50fecf3545632d",
+      "sha256": "abcaf122ddfc8463d332374bd685c5fbbb3bfeff8067f5a6c78022fdb2102f8a",
       "executable": false
     },
     "BROWSER-ORIGINS.md": {
@@ -2902,7 +2902,7 @@
       "executable": false
     },
     "DIVERGENCE.md": {
-      "sha256": "43281cdcc04b4b05fdfc4504554a0c24a5440c49a17b8201974459e2b10deecd",
+      "sha256": "688b74a3c574c4128cd7b3480fdeda2973fec1e9858584d2d814418e8b0975fa",
       "executable": false
     },
     "docs/AGENT-DOOR.md": {
@@ -8110,15 +8110,15 @@
       "executable": false
     },
     "src/modules/egress-service/tls/Cargo.lock": {
-      "sha256": "d0c9ef4170f9b22b32c11e87752851dcb378d338847d7b3c8c2f7874e64ff1e8",
+      "sha256": "75cd0fcbe6015877ba3c40b0bd4df98a12959d8eebb6686ea4248bf31ac8f329",
       "executable": false
     },
     "src/modules/egress-service/tls/Cargo.toml": {
-      "sha256": "21f453e02afe05b81811adea9f53d3da29c6d41151baace5099405e1b3b628c5",
+      "sha256": "6ddb5347ab1ec91ed527b87c4b31a006c0f946f90c70b72ce8e24f31a0ca76b8",
       "executable": false
     },
     "src/modules/egress-service/tls/egress.wasm": {
-      "sha256": "4743c1afe775e0fa519cc732d975aa55192cb03ed82592dee7e4597b6d6a1978",
+      "sha256": "5fe30986dd6aa7235b90bfb34654ac20519354e57eac2250bd8d86a4d70f8456",
       "executable": false
     },
     "src/modules/egress-service/tls/engine.js": {
@@ -8126,7 +8126,7 @@
       "executable": false
     },
     "src/modules/egress-service/tls/README.md": {
-      "sha256": "5b3b92b81e2dc1705be17ddb14088bb3c7fbea0b50165cc95d94b0f6721b0629",
+      "sha256": "19fb257c0796028a22f17c8824046f339de6e07750664e6c716cc40d9d4db41d",
       "executable": false
     },
     "src/modules/egress-service/tls/rust-toolchain.toml": {
@@ -8138,11 +8138,11 @@
       "executable": false
     },
     "src/modules/egress-service/tls/test.wasm": {
-      "sha256": "096d721102f183cc4043057c15d9c11f8a30351f4b7acfbb475bc8dc017bbdf5",
+      "sha256": "f950b0b751383aa2ea1f64d2e116e00ecc539a62a11a38dd0ec1f4f1a3e6133f",
       "executable": false
     },
     "src/modules/egress-service/tls/trust-bundle.json": {
-      "sha256": "850948d27dc0f391f39e22c5fb23ba8234d80c293d65f46712138cb5ee32509b",
+      "sha256": "5e6cc24f2e0e4c9e86adbf14dd792ce962006c49b61b8d57ac72b43e5bdb5ef1",
       "executable": false
     },
     "src/modules/egress-service/tls/trust-bundle.mjs": {
