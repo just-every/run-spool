@@ -1,0 +1,39 @@
+{
+  "observations": [
+    {
+      "command": "node tests/old-archive.mjs",
+      "result": "reproduced",
+      "assertion": "populated upgrade preserves every pre-existing row: credentials",
+      "repair": "explicit additive defaults, full inherited-field and constraint equality"
+    },
+    {
+      "command": "node tests/agent-handoff.mjs",
+      "result": "reproduced",
+      "stage": "selector-refusals",
+      "assertion": "complete key-row equality after successful positive-control reads",
+      "repair": "exact key-row nonmutation for every refusal; successful-use metadata qualified separately"
+    },
+    {
+      "command": "node tests/owner-erasure.mjs",
+      "result": "reproduced",
+      "assertion": "successor key mint returns HTTP 400 instead of 201",
+      "repair": "single named INSERT and metadata-only post-erasure fence"
+    },
+    {
+      "command": "node tests/alerts-ui.mjs",
+      "result": "original timing-sensitive assertion passed locally at 1440 and 390; repaired assertion also passed",
+      "repair": "same expected missing-preview hint with retry until destination refresh"
+    },
+    {
+      "command": "node tests/old-archive.mjs after metadata fence change",
+      "result": "identified older archive behavior-inventory mismatch; repaired full journey passed",
+      "repair": "exact pre-0110 trigger projection and migration compatibility registration"
+    },
+    {
+      "command": "pnpm run validate:release",
+      "result": "unavailable",
+      "diagnostic": "ERR_PNPM_NO_SCRIPT; no such script in package.json",
+      "alternative": "contract parser, unchanged contract and release bytes, matching version metadata; no release command"
+    }
+  ]
+}

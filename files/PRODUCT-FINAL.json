@@ -1,0 +1,18 @@
+{
+  "branch": "cloud/sd-spool-design-keys-2",
+  "head": "5379ddf99bbf5c930790b3fae60b47d8af84474e",
+  "publishedAt": "2026-11-17T19:14:23.719054+00:00",
+  "productPush": "success",
+  "guardAttempts": 1,
+  "identity": "Run Edit Run fleet <fleet@runeditrun.com>",
+  "trailers": [],
+  "mainMerged": "3b7a3ebe545f3bd9c6a979ca04d5687c6a375b09",
+  "mergeCount": 1,
+  "worktreeClean": true,
+  "pr": null,
+  "readiness": "BLOCKED: successful exact-SHA Verify required",
+  "githubCallsUsed": 10,
+  "githubCallsRemaining": 0,
+  "ciRunId": 44156366231,
+  "ciConclusion": "failure"
+}

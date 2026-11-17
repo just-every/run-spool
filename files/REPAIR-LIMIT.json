@@ -1,0 +1,21 @@
+{
+  "head": "5379ddf99bbf5c930790b3fae60b47d8af84474e",
+  "command": [
+    "node",
+    "tests/repair-recovery.mjs"
+  ],
+  "started": "2026-11-17T19:14:11Z",
+  "completed": "2026-11-17T19:19:20Z",
+  "exit": 1,
+  "stage": "setup",
+  "failure": "STALL setup/startDev",
+  "watchdogSeconds": 90,
+  "devReadyMeasuredSeconds": 89.922,
+  "productAssertionReached": false,
+  "cleanup": [
+    "capture stopped",
+    "browser stopped",
+    "checkout stopped"
+  ],
+  "earlierTargetedProof": "Earlier complete archive portion passed the previously failing previous-release restore, exact rows and foreign-object refusal, before a later startup deadline; this is not a full-suite pass."
+}

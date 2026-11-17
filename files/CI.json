@@ -1,0 +1,42 @@
+{
+  "repository": "just-every/run-spool",
+  "head": "5379ddf99bbf5c930790b3fae60b47d8af84474e",
+  "observedAt": "2026-11-17T19:55:17Z",
+  "command": [
+    "gh",
+    "api",
+    "repos/just-every/run-spool/actions/runs?head_sha=5379ddf99bbf5c930790b3fae60b47d8af84474e&per_page=100"
+  ],
+  "exit": 0,
+  "apiCallsUsed": 10,
+  "apiCallsRemaining": 0,
+  "runs": [
+    {
+      "id": 44156366231,
+      "name": "Verify",
+      "event": "push",
+      "status": "completed",
+      "conclusion": "failure",
+      "head_sha": "5379ddf99bbf5c930790b3fae60b47d8af84474e",
+      "head_branch": "cloud/sd-spool-design-keys-2",
+      "html_url": "https://github.com/just-every/run-spool/actions/runs/44156366231",
+      "created_at": "2026-11-17T19:14:03Z",
+      "updated_at": "2026-11-17T19:30:11Z"
+    }
+  ],
+  "selected": {
+    "id": 44156366231,
+    "name": "Verify",
+    "event": "push",
+    "status": "completed",
+    "conclusion": "failure",
+    "head_sha": "5379ddf99bbf5c930790b3fae60b47d8af84474e",
+    "head_branch": "cloud/sd-spool-design-keys-2",
+    "html_url": "https://github.com/just-every/run-spool/actions/runs/44156366231",
+    "created_at": "2026-11-17T19:14:03Z",
+    "updated_at": "2026-11-17T19:30:11Z"
+  },
+  "status": "completed",
+  "conclusion": "failure",
+  "exactShaSuccess": false
+}

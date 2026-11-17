@@ -1,0 +1,21 @@
+{
+  "command": "node tests/agent-handoff.mjs",
+  "stage": "selector-refusals",
+  "observedResult": "AI-001 packet-selector refusals passed: HTTP 403, CLI 3 and official MCP 3 for traversal, command and instruction; packet, product rows and authority preserved.",
+  "http": 403,
+  "cli": 3,
+  "officialMcp": "refused",
+  "cases": [
+    "traversal",
+    "command",
+    "instruction"
+  ],
+  "perRefusalFullCredentialRowsUnchanged": true,
+  "wholePacketEquality": true,
+  "foreignProjectKeysUnchanged": true,
+  "productHead": "2bd31e7ce754e3baf79cfde14b25df5263de740d",
+  "testSha256": "3a1e9a1db8c5fae4617f533ca5c0e0a70e9316aa783df580afefc7c30569c0cd",
+  "scope": "full agent-handoff journey completed successfully, exit 0",
+  "fullJourneyGroups": 9,
+  "maskedCaptures": 10
+}

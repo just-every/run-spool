@@ -1,0 +1,22 @@
+{
+  "head": "5379ddf99bbf5c930790b3fae60b47d8af84474e",
+  "command": [
+    "pnpm",
+    "test:agent-door"
+  ],
+  "started": "2026-11-17T19:27:09Z",
+  "completed": "2026-11-17T19:32:44Z",
+  "exit": 0,
+  "chromiumExecutable": "/usr/bin/chromium",
+  "browserArgsInclude": "--no-sandbox",
+  "assertionsChanged": false,
+  "earlierAttempt": {
+    "exit": 1,
+    "cause": "Missing Playwright bundled browser; rerun used existing PLAYWRIGHT_CHROMIUM_EXECUTABLE_PATH support."
+  },
+  "finalActualOutput": [
+    "Replay clock restarted",
+    "Replay clock policy adopted",
+    "Native replay horizon: original completion expiry preserved; now/24h+1ms tombstones; horizon+1ms fresh refusal; old archive epoch refused."
+  ]
+}

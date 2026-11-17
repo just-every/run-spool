@@ -1,0 +1,13 @@
+{
+  "head": "83c01b9346f6006bff062b22fa2002d648810c47",
+  "mergedMain": "3b7a3ebe545f3bd9c6a979ca04d5687c6a375b09",
+  "initialMain": "6263ba70f1d0fce4ea1df7e6bf7b4f0d827489e1",
+  "initialCandidateWasLinear": true,
+  "publishedHistoryRewritten": false,
+  "mergeReason": "Cloud adaptation explicitly requires merging updated main after a published save; this overrides the original brief linear-history mechanics.",
+  "conflicts": [],
+  "contractChanged": false,
+  "viewsCommitted": false,
+  "productPush": "success",
+  "branch": "cloud/sd-spool-design-keys-2"
+}

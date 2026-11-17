@@ -1,0 +1,31 @@
+[
+  {
+    "run": 44129600501,
+    "job": 134212604808,
+    "name": "shards-spool",
+    "observedDependencyFields": {
+      "BUILD": "success",
+      "RUNTIMES": "success",
+      "TESTS": "failure",
+      "COMMANDS": "skipped"
+    },
+    "outcome": "failed aggregate following suite failures"
+  },
+  {
+    "run": 44129600501,
+    "job": 134212663714,
+    "name": "verify",
+    "observedDependencyFields": {
+      "PLAN": "success",
+      "CONTRACT_DOCS": "success",
+      "SHARDS": "failure",
+      "LIGHT": "skipped",
+      "PUSH_PROOF": "skipped",
+      "NIGHTLY_PROOF": "skipped",
+      "COVERAGE": "full",
+      "HAS_SHARDS": "true",
+      "SKIP": "false"
+    },
+    "outcome": "failed aggregate following suite failures"
+  }
+]

@@ -1,0 +1,19 @@
+{"label": "install", "started": "2026-11-17T17:31:55Z", "completed": "2026-11-17T17:32:05.954684+00:00", "exit": 0, "argv": ["pnpm", "install", "--frozen-lockfile"]}
+{"label": "portable-contract", "started": "2026-11-17T17:32:06Z", "completed": "2026-11-17T17:32:10.402934+00:00", "exit": 0, "argv": ["pnpm", "run", "check", "--", "--profile", "first-party"]}
+{"label": "source", "started": "2026-11-17T17:32:10Z", "completed": "2026-11-17T17:32:12.230798+00:00", "exit": 0, "argv": ["pnpm", "source:check"]}
+{"label": "base-offline", "started": "2026-11-17T17:32:12Z", "completed": "2026-11-17T17:32:12.714998+00:00", "exit": 0, "argv": ["node", "scripts/edition-authoring/cli.mjs", "verify-base", "--offline"]}
+{"label": "application", "started": "2026-11-17T17:32:12Z", "completed": "2026-11-17T17:32:59.542691+00:00", "exit": 0, "argv": ["pnpm", "run", "build:app"]}
+{"label": "integration", "started": "2026-11-17T17:32:59Z", "completed": "2026-11-17T17:33:01.981330+00:00", "exit": 0, "argv": ["pnpm", "integration:check"]}
+{"label": "types", "started": "2026-11-17T17:33:02Z", "completed": "2026-11-17T17:33:37.295838+00:00", "exit": 0, "argv": ["pnpm", "typecheck"]}
+{"label": "rer-build", "started": "2026-11-17T17:33:37Z", "completed": "2026-11-17T17:53:43.837593+00:00", "exit": 75, "argv": ["npx", "-y", "@runeditrun/rer", "build"]}
+{"label": "install", "started": "2026-11-17T18:59:56Z", "completed": "2026-11-17T19:00:09.304740+00:00", "exit": 0, "argv": ["pnpm", "install", "--frozen-lockfile"]}
+{"label": "portable-contract", "started": "2026-11-17T19:00:09Z", "completed": "2026-11-17T19:00:16.838628+00:00", "exit": 0, "argv": ["pnpm", "run", "check", "--", "--profile", "first-party"]}
+{"label": "source", "started": "2026-11-17T19:00:16Z", "completed": "2026-11-17T19:00:19.119583+00:00", "exit": 0, "argv": ["pnpm", "source:check"]}
+{"label": "base-offline", "started": "2026-11-17T19:00:19Z", "completed": "2026-11-17T19:00:19.753023+00:00", "exit": 0, "argv": ["node", "scripts/edition-authoring/cli.mjs", "verify-base", "--offline"]}
+{"label": "application", "started": "2026-11-17T19:00:19Z", "completed": "2026-11-17T19:00:54.282228+00:00", "exit": 0, "argv": ["pnpm", "run", "build:app"]}
+{"label": "integration", "started": "2026-11-17T19:00:54Z", "completed": "2026-11-17T19:00:54.982596+00:00", "exit": 0, "argv": ["pnpm", "integration:check"]}
+{"label": "types", "started": "2026-11-17T19:00:54Z", "completed": "2026-11-17T19:01:29.846472+00:00", "exit": 0, "argv": ["pnpm", "typecheck"]}
+{"label": "rer-build", "started": "2026-11-17T19:01:29Z", "completed": "2026-11-17T19:13:42.211338+00:00", "exit": 0, "argv": ["npx", "-y", "@runeditrun/rer", "build"]}
+{"label": "agent-surface", "started": "2026-11-17T19:13:42Z", "completed": "2026-11-17T19:13:42.746879+00:00", "exit": 0, "argv": ["pnpm", "agent-surface:check"]}
+{"label": "contract-docs", "started": "2026-11-17T19:13:42Z", "completed": "2026-11-17T19:13:43.172943+00:00", "exit": 0, "argv": ["node", "src/base/contract-docs.mjs", "check"]}
+{"label": "native-export", "started": "2026-11-17T19:13:43Z", "completed": "2026-11-17T19:13:43.438873+00:00", "exit": 0, "argv": ["node", "tests/native-export.mjs"]}

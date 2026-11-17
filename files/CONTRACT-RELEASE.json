@@ -1,0 +1,15 @@
+{
+  "contractBytesUnchanged": true,
+  "releaseVersion": "0.7.14",
+  "releaseMetadataUnchanged": true,
+  "clauseChanges": [],
+  "namedValidationScript": "validate:release is absent in package.json; invocation returned ERR_PNPM_NO_SCRIPT; no release/tag was run",
+  "counts": {
+    "done": 23,
+    "partial": 54,
+    "missing": 28,
+    "total": 105
+  },
+  "comparedMain": "3b7a3ebe545f3bd9c6a979ca04d5687c6a375b09",
+  "checkedAt": "2026-11-17T18:55:53.920301+00:00"
+}

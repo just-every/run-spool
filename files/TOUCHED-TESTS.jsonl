@@ -1,0 +1,1 @@
+{"command": "node tests/alerts-ui.mjs", "started": "2026-11-17T17:25:08Z", "completed": "2026-11-17T17:31:35.598639+00:00", "exit": 0, "log": "/tmp/spool-final-alerts-ui.log", "chromium": "/usr/bin/chromium", "node": "22.20.0"}

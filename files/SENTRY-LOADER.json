@@ -1,0 +1,32 @@
+{
+  "command": [
+    "node",
+    "tests/sentry-sdk.mjs"
+  ],
+  "head": "5379ddf99bbf5c930790b3fae60b47d8af84474e",
+  "started": "2026-11-17T19:19:22Z",
+  "completed": "2026-11-17T19:26:05Z",
+  "exit": 0,
+  "observations": [
+    "SDK-023 populated upgrade: existing project, key and occurrence preserved; same key defaults lazy and captures once after migration0061"
+  ],
+  "actualSummaries": [
+    {
+      "clause": "SDK-023",
+      "captures": 8,
+      "widths": [
+        1440,
+        390
+      ],
+      "icons": "no icon-only control on the touched screen",
+      "loader": "/sdk/<public-key>.min.js",
+      "custody": "archive excludes key; erasure removes settings"
+    },
+    {
+      "passed": true,
+      "browser": "11.6.0",
+      "node": "11.6.0",
+      "proof": "Unmodified SDK programs/configs with DSN switched only: browser 1440/390 original source line through build plugin and CLI, Node gzip capture+flush."
+    }
+  ]
+}

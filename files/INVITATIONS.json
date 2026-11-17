@@ -1,0 +1,12 @@
+{
+  "command": "node tests/owner-claim.mjs",
+  "exit": 0,
+  "head": "2bd31e7ce754e3baf79cfde14b25df5263de740d",
+  "invitationProof": "suppressed mail; copied retained link after reload; same native expiring token; separate browser accepted once; roles, expiry, read-only denial and archive exclusion asserted",
+  "screens": [
+    "screens/invitation-1440.png",
+    "screens/invitation-390.png",
+    "screens/local-invitations-1440.png",
+    "screens/local-invitations-390.png"
+  ]
+}

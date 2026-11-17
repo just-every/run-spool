@@ -1,0 +1,15 @@
+{
+  "at": "2026-11-17T17:24:07.755174+00:00",
+  "boundary": "local SQLite over every committed migration",
+  "metadataOnlyWrite": "passed",
+  "protectedFieldsRefused": [
+    "hash",
+    "project",
+    "kind",
+    "created",
+    "minted_by",
+    "minted_version"
+  ],
+  "revocation": "passed",
+  "revivalRefused": "passed"
+}

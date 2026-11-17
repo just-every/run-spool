@@ -1,0 +1,10 @@
+{
+  "repository": "just-every/run-spool",
+  "branch": "cloud/sd-spool-design-keys-2",
+  "head": "2bd31e7ce754e3baf79cfde14b25df5263de740d",
+  "main": "6263ba70f1d0fce4ea1df7e6bf7b4f0d827489e1",
+  "reappliedHead": "739c7ff1575296fd329c69769364f030618a7b11",
+  "push": "PUSH_OK; cloud-push.py attempt 1/5",
+  "ci": "[skip ci] preservation checkpoint, not READY",
+  "linear": true
+}

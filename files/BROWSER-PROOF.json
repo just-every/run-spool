@@ -1,0 +1,21 @@
+{
+  "capturedAt": "2026-11-17T19:10:39.658645+00:00",
+  "widths": [
+    1440,
+    390
+  ],
+  "screens": [
+    "project-keys",
+    "key-issued",
+    "key-revoke",
+    "invitation",
+    "local-invitations",
+    "alerts",
+    "backup",
+    "erasure-preview"
+  ],
+  "keyIssuedSecretBlockMasked": true,
+  "pendingInvitationInputMasked": true,
+  "source": "Actual public browser journeys using Chromium /usr/bin/chromium --no-sandbox; selected captures only.",
+  "assertions": "Existing journey assertions retained. New screenshots exercise both widths without adding duplicate behavioral assertions."
+}
