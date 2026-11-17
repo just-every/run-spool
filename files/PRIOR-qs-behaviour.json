@@ -1,0 +1,23 @@
+{
+  "beforeVersion": "6.16.0",
+  "afterVersion": "6.17.1",
+  "results": [
+    {
+      "ownToString": "not callable",
+      "before": "TypeError",
+      "after": "a=%5Bobject%20Object%5D"
+    },
+    {
+      "ownToString": null,
+      "before": "TypeError",
+      "after": "a=%5Bobject%20Object%5D"
+    },
+    {
+      "ownToString": 42,
+      "before": "TypeError",
+      "after": "a=%5Bobject%20Object%5D"
+    }
+  ],
+  "ordinaryCommaStrings": "pass",
+  "nestedQueryParsing": "pass"
+}

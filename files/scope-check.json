@@ -1,0 +1,18 @@
+{
+  "base": "6263ba70f1d0fce4ea1df7e6bf7b4f0d827489e1",
+  "files": [
+    "pnpm-lock.yaml",
+    "sources.lock.json"
+  ],
+  "sourceLockChangedFields": [
+    [
+      "files",
+      "pnpm-lock.yaml",
+      "sha256"
+    ]
+  ],
+  "sourceLockHashMatches": true,
+  "contractChanged": false,
+  "acceptanceViewsChanged": false,
+  "passed": true
+}

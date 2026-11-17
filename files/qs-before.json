@@ -1,0 +1,21 @@
+{
+  "phase": "before",
+  "version": "6.16.0",
+  "dependencyPath": "packages/agent -> @modelcontextprotocol/sdk 1.32.1 -> express 5.3.0 -> qs",
+  "results": [
+    {
+      "ownToString": "not callable",
+      "actual": "TypeError"
+    },
+    {
+      "ownToString": null,
+      "actual": "TypeError"
+    },
+    {
+      "ownToString": 42,
+      "actual": "TypeError"
+    }
+  ],
+  "ordinaryCommaStrings": "pass",
+  "nestedQueryParsing": "pass"
+}

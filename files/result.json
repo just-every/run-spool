@@ -1,0 +1,38 @@
+{
+  "tag": "gr-spool-qs-1",
+  "repository": "just-every/run-spool",
+  "branch": "cloud/gr-spool-qs-1",
+  "head": "3ac41cb67cf1d559b1fc9baf838563c80ab195ac",
+  "status": "BLOCKED",
+  "blocker": "Verify 44142299489 wizard failed: npm ETARGET, no matching @sentry/server-utils@11.14.0 while installing the unpinned Next.js Sentry SDK",
+  "localChecks": "passed",
+  "productPush": "success",
+  "ciRun": 44142299489,
+  "ciConclusion": "failure",
+  "clausesChanged": [],
+  "claims": [],
+  "counts": {
+    "base": "6263ba70f1d0fce4ea1df7e6bf7b4f0d827489e1",
+    "before": {
+      "qsVersions": [
+        "6.16.0",
+        "6.17.1"
+      ],
+      "uniqueQsVersions": 2,
+      "vulnerableQsVersions": 1
+    },
+    "after": {
+      "qsVersions": [
+        "6.17.1"
+      ],
+      "uniqueQsVersions": 1,
+      "vulnerableQsVersions": 0
+    },
+    "unrelatedDependencyUpgrades": 0,
+    "addedTestRegistrations": 0,
+    "removedTestRegistrations": 0,
+    "clauseStatusChanges": [],
+    "claims": []
+  },
+  "ready": false
+}

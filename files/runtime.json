@@ -1,0 +1,11 @@
+{
+  "node": "22.20.0",
+  "pnpm": "10.12.4",
+  "setupOwner": "fleet@runeditrun.com",
+  "dependencyUpdateCommand": "pnpm --recursive update qs --lockfile-only",
+  "fullHistoryClone": true,
+  "githubCallsUsedBeforeCI": 2,
+  "uiChanged": false,
+  "contractChanged": false,
+  "publicationScan": "Deferred to fleet Mac under explicit cloud adaptation; no cloud scan claimed; no helper or scan result substituted."
+}

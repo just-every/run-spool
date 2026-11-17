@@ -1,0 +1,16 @@
+rer toolchain: node v24.19.0 pnpm 10.12.4 (pins 22.20.0 / 10.12.4)
+Scope: all 3 workspace projects
+.                                        |  WARN  `node_modules` is present. Lockfile only installation will make it out-of-date
+Progress: resolved 1, reused 0, downloaded 0, added 0
+Progress: resolved 31, reused 0, downloaded 0, added 0
+Progress: resolved 51, reused 0, downloaded 0, added 0
+Progress: resolved 91, reused 0, downloaded 0, added 0
+Progress: resolved 136, reused 0, downloaded 0, added 0
+Progress: resolved 178, reused 0, downloaded 0, added 0
+Progress: resolved 252, reused 0, downloaded 0, added 0
+Progress: resolved 302, reused 0, downloaded 0, added 0
+Progress: resolved 355, reused 0, downloaded 0, added 0
+Progress: resolved 412, reused 0, downloaded 0, added 0
+Progress: resolved 474, reused 0, downloaded 0, added 0
+Progress: resolved 491, reused 0, downloaded 0, added 0, done
+Done in 11.2s using pnpm v10.12.4

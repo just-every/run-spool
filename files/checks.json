@@ -1,0 +1,92 @@
+[
+  {
+    "name": "qs-before",
+    "command": "cloud_run node \"$HOME/rer-consolidation/work/gr-spool-qs-1/packet/qs-probe.cjs\" before",
+    "exit": 0,
+    "started": "2026-11-17T17:52:06.904052+00:00",
+    "seconds": 1.159,
+    "log": "qs-before.log",
+    "private_log_retained": false
+  },
+  {
+    "name": "update",
+    "command": "cloud_run pnpm --recursive update qs --lockfile-only",
+    "exit": 0,
+    "started": "2026-11-17T17:52:08.097694+00:00",
+    "seconds": 12.166,
+    "log": "update.log",
+    "private_log_retained": false
+  },
+  {
+    "name": "install",
+    "command": "cloud_run pnpm install --frozen-lockfile",
+    "exit": 0,
+    "started": "2026-11-17T17:52:30.878977+00:00",
+    "seconds": 6.317,
+    "log": "install.log",
+    "private_log_retained": false
+  },
+  {
+    "name": "qs-after",
+    "command": "cloud_run node \"$HOME/rer-consolidation/work/gr-spool-qs-1/packet/qs-probe.cjs\" after",
+    "exit": 0,
+    "started": "2026-11-17T17:52:37.272522+00:00",
+    "seconds": 0.883,
+    "log": "qs-after.log",
+    "private_log_retained": false
+  },
+  {
+    "name": "setup",
+    "command": "cloud_run npx -y @runeditrun/rer setup --owner-email fleet@runeditrun.com --non-interactive",
+    "exit": 0,
+    "started": "2026-11-17T17:52:38.186547+00:00",
+    "seconds": 91.257,
+    "log": null,
+    "private_log_retained": true
+  },
+  {
+    "name": "build",
+    "command": "cloud_run npx -y @runeditrun/rer build",
+    "exit": 0,
+    "started": "2026-11-17T17:54:09.521592+00:00",
+    "seconds": 26.069,
+    "log": "build.log",
+    "private_log_retained": false
+  },
+  {
+    "name": "typecheck",
+    "command": "cloud_run pnpm typecheck",
+    "exit": 0,
+    "started": "2026-11-17T17:54:35.622868+00:00",
+    "seconds": 17.762,
+    "log": "typecheck.log",
+    "private_log_retained": false
+  },
+  {
+    "name": "source-lock",
+    "command": "cloud_run node scripts/edition-authoring/cli.mjs lock",
+    "exit": 0,
+    "started": "2026-11-17T17:54:53.419335+00:00",
+    "seconds": 1.362,
+    "log": "source-lock.log",
+    "private_log_retained": false
+  },
+  {
+    "name": "source-check",
+    "command": "cloud_run pnpm source:check",
+    "exit": 0,
+    "started": "2026-11-17T17:54:54.811810+00:00",
+    "seconds": 1.52,
+    "log": "source-check.log",
+    "private_log_retained": false
+  },
+  {
+    "name": "whitespace",
+    "command": "git diff --check",
+    "exit": 0,
+    "started": "2026-11-17T17:54:56.372847+00:00",
+    "seconds": 0.67,
+    "log": "whitespace.log",
+    "private_log_retained": false
+  }
+]

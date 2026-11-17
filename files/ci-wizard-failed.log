@@ -1,0 +1,57 @@
+verify (wizard)	Run suites (wizard, 8-minute deadline)	﻿2026-11-17T17:57:35.5274484Z ##[group]Run # This journey installs and builds real apps. Bound the entire process group,
+verify (wizard)	Run suites (wizard, 8-minute deadline)	2026-11-17T17:57:35.5275228Z [36;1m# This journey installs and builds real apps. Bound the entire process group,[0m
+verify (wizard)	Run suites (wizard, 8-minute deadline)	2026-11-17T17:57:35.5275674Z [36;1m# including stuck npm/pip/build children, before the job cap skips artifacts.[0m
+verify (wizard)	Run suites (wizard, 8-minute deadline)	2026-11-17T17:57:35.5276108Z [36;1mif timeout --kill-after=10s 8m bash -e -o pipefail -c "$SUITE_COMMAND"; then[0m
+verify (wizard)	Run suites (wizard, 8-minute deadline)	2026-11-17T17:57:35.5276438Z [36;1m  exit 0[0m
+verify (wizard)	Run suites (wizard, 8-minute deadline)	2026-11-17T17:57:35.5276616Z [36;1melse[0m
+verify (wizard)	Run suites (wizard, 8-minute deadline)	2026-11-17T17:57:35.5276786Z [36;1m  status=$?[0m
+verify (wizard)	Run suites (wizard, 8-minute deadline)	2026-11-17T17:57:35.5277021Z [36;1m  if [ "$status" -eq 124 ] || [ "$status" -eq 137 ]; then[0m
+verify (wizard)	Run suites (wizard, 8-minute deadline)	2026-11-17T17:57:35.5277543Z [36;1m    echo '::error::Wizard suite exceeded its 8-minute deadline (10-second kill grace). See the last [wizard] stage for the stalled operation.'[0m
+verify (wizard)	Run suites (wizard, 8-minute deadline)	2026-11-17T17:57:35.5277997Z [36;1m  fi[0m
+verify (wizard)	Run suites (wizard, 8-minute deadline)	2026-11-17T17:57:35.5278178Z [36;1m  exit "$status"[0m
+verify (wizard)	Run suites (wizard, 8-minute deadline)	2026-11-17T17:57:35.5278368Z [36;1mfi[0m
+verify (wizard)	Run suites (wizard, 8-minute deadline)	2026-11-17T17:57:35.5295614Z shell: /usr/bin/bash -e {0}
+[Workflow environment listing omitted from public evidence.]
+verify (wizard)	Run suites (wizard, 8-minute deadline)	2026-11-17T17:57:35.5297512Z ##[endgroup]
+verify (wizard)	Run suites (wizard, 8-minute deadline)	2026-11-17T17:57:35.7520272Z 
+verify (wizard)	Run suites (wizard, 8-minute deadline)	2026-11-17T17:57:35.7521170Z > @errors/errors-workbench@0.7.14 test:wizard /home/runner/work/run-spool/run-spool
+verify (wizard)	Run suites (wizard, 8-minute deadline)	2026-11-17T17:57:35.7521779Z > node tests/setup-flow.mjs
+verify (wizard)	Run suites (wizard, 8-minute deadline)	2026-11-17T17:57:35.7521974Z 
+verify (wizard)	Run suites (wizard, 8-minute deadline)	2026-11-17T17:57:36.1316807Z (node:2555) ExperimentalWarning: SQLite is an experimental feature and might change at any time
+verify (wizard)	Run suites (wizard, 8-minute deadline)	2026-11-17T17:57:36.1317761Z (Use `node --trace-warnings ...` to show where the warning was created)
+verify (wizard)	Run suites (wizard, 8-minute deadline)	2026-11-17T17:57:36.1320318Z [wizard] pack and install setup command (0.0s)
+verify (wizard)	Run suites (wizard, 8-minute deadline)	2026-11-17T17:57:38.1744072Z [wizard] start emitted Worker and sign in (2.0s)
+verify (wizard)	Run suites (wizard, 8-minute deadline)	2026-11-17T17:57:42.4075106Z [wizard] DSN and framework refusals (6.3s)
+verify (wizard)	Run suites (wizard, 8-minute deadline)	2026-11-17T17:57:44.8711127Z [wizard] linked file and settings refusals (8.7s)
+verify (wizard)	Run suites (wizard, 8-minute deadline)	2026-11-17T17:57:45.3647674Z [wizard] install Django and configure its SDK (9.2s)
+verify (wizard)	Run suites (wizard, 8-minute deadline)	2026-11-17T17:57:52.0030321Z [wizard] capture real Django failure (15.9s)
+verify (wizard)	Run suites (wizard, 8-minute deadline)	2026-11-17T17:57:52.6149456Z [wizard] install Next.js (16.5s)
+verify (wizard)	Run suites (wizard, 8-minute deadline)	2026-11-17T17:57:59.2905168Z [wizard] configure Next.js and install its SDK (23.2s)
+verify (wizard)	Run suites (wizard, 8-minute deadline)	2026-11-17T17:58:06.0353132Z npm error code ETARGET
+verify (wizard)	Run suites (wizard, 8-minute deadline)	2026-11-17T17:58:06.0353845Z npm error notarget No matching version found for @sentry/server-utils@11.14.0.
+verify (wizard)	Run suites (wizard, 8-minute deadline)	2026-11-17T17:58:06.0354622Z npm error notarget In most cases you or one of your dependencies are requesting
+verify (wizard)	Run suites (wizard, 8-minute deadline)	2026-11-17T17:58:06.0355395Z npm error notarget a package version that doesn't exist.
+verify (wizard)	Run suites (wizard, 8-minute deadline)	2026-11-17T17:58:06.0363745Z npm error A complete log of this run can be found in: /home/runner/.npm/_logs/2026-11-17T17_57_59_408Z-debug-0.log
+verify (wizard)	Run suites (wizard, 8-minute deadline)	2026-11-17T17:58:06.0610873Z npm failed
+verify (wizard)	Run suites (wizard, 8-minute deadline)	2026-11-17T17:58:06.0653514Z [wizard] cleanup browsers, servers and temporary apps (29.9s)
+verify (wizard)	Run suites (wizard, 8-minute deadline)	2026-11-17T17:58:06.3908919Z node:internal/modules/run_main:123
+verify (wizard)	Run suites (wizard, 8-minute deadline)	2026-11-17T17:58:06.3909441Z     triggerUncaughtException(
+verify (wizard)	Run suites (wizard, 8-minute deadline)	2026-11-17T17:58:06.3909763Z     ^
+verify (wizard)	Run suites (wizard, 8-minute deadline)	2026-11-17T17:58:06.3909901Z 
+verify (wizard)	Run suites (wizard, 8-minute deadline)	2026-11-17T17:58:06.3910297Z AssertionError [ERR_ASSERTION]: Expected values to be strictly equal:
+verify (wizard)	Run suites (wizard, 8-minute deadline)	2026-11-17T17:58:06.3910722Z 
+verify (wizard)	Run suites (wizard, 8-minute deadline)	2026-11-17T17:58:06.3910855Z 1 !== 0
+verify (wizard)	Run suites (wizard, 8-minute deadline)	2026-11-17T17:58:06.3911012Z 
+verify (wizard)	Run suites (wizard, 8-minute deadline)	2026-11-17T17:58:06.3911335Z     at file:///home/runner/work/run-spool/run-spool/tests/setup-flow.mjs:165:10
+verify (wizard)	Run suites (wizard, 8-minute deadline)	2026-11-17T17:58:06.3912078Z     at process.processTicksAndRejections (node:internal/process/task_queues:105:5) {
+verify (wizard)	Run suites (wizard, 8-minute deadline)	2026-11-17T17:58:06.3912590Z   generatedMessage: true,
+verify (wizard)	Run suites (wizard, 8-minute deadline)	2026-11-17T17:58:06.3912868Z   code: 'ERR_ASSERTION',
+verify (wizard)	Run suites (wizard, 8-minute deadline)	2026-11-17T17:58:06.3913459Z   actual: 1,
+verify (wizard)	Run suites (wizard, 8-minute deadline)	2026-11-17T17:58:06.3913684Z   expected: 0,
+verify (wizard)	Run suites (wizard, 8-minute deadline)	2026-11-17T17:58:06.3914162Z   operator: 'strictEqual',
+verify (wizard)	Run suites (wizard, 8-minute deadline)	2026-11-17T17:58:06.3914411Z   diff: 'simple'
+verify (wizard)	Run suites (wizard, 8-minute deadline)	2026-11-17T17:58:06.3914648Z }
+verify (wizard)	Run suites (wizard, 8-minute deadline)	2026-11-17T17:58:06.3914756Z 
+verify (wizard)	Run suites (wizard, 8-minute deadline)	2026-11-17T17:58:06.3914861Z Node.js v22.20.0
+verify (wizard)	Run suites (wizard, 8-minute deadline)	2026-11-17T17:58:06.4263458Z  ELIFECYCLE  Command failed with exit code 1.
+verify (wizard)	Run suites (wizard, 8-minute deadline)	2026-11-17T17:58:06.4448327Z ##[error]Process completed with exit code 1.

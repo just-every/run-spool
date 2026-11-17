@@ -1,0 +1,122 @@
+{
+  "limit": 10,
+  "calls": [
+    {
+      "purpose": "prior report",
+      "number": 1
+    },
+    {
+      "purpose": "prior behavior receipt",
+      "number": 2
+    },
+    {
+      "purpose": "exact-SHA workflow discovery",
+      "number": 3,
+      "time": "2026-11-17T17:55:53.091932+00:00",
+      "command": [
+        "gh",
+        "api",
+        "repos/just-every/run-spool/actions/runs?head_sha=3ac41cb67cf1d559b1fc9baf838563c80ab195ac&per_page=100",
+        "--jq",
+        "[.workflow_runs[] | {id,name,status,conclusion,head_sha,html_url,event}]"
+      ],
+      "exit": 0
+    },
+    {
+      "number": 4,
+      "purpose": "Verify exact-SHA poll",
+      "time": "2026-11-17T18:00:54.095563+00:00",
+      "command": [
+        "gh",
+        "api",
+        "repos/just-every/run-spool/actions/runs/44142299489",
+        "--jq",
+        "{status,conclusion,head_sha,html_url}"
+      ],
+      "exit": 0
+    },
+    {
+      "number": 5,
+      "purpose": "Verify exact-SHA poll",
+      "time": "2026-11-17T18:06:03.497635+00:00",
+      "command": [
+        "gh",
+        "api",
+        "repos/just-every/run-spool/actions/runs/44142299489",
+        "--jq",
+        "{status,conclusion,head_sha,html_url}"
+      ],
+      "exit": 0
+    },
+    {
+      "number": 6,
+      "purpose": "Verify exact-SHA poll",
+      "time": "2026-11-17T18:11:04.498268+00:00",
+      "command": [
+        "gh",
+        "api",
+        "repos/just-every/run-spool/actions/runs/44142299489",
+        "--jq",
+        "{status,conclusion,head_sha,html_url}"
+      ],
+      "exit": 0
+    },
+    {
+      "number": 7,
+      "purpose": "Verify exact-SHA poll",
+      "time": "2026-11-17T18:16:06.331822+00:00",
+      "command": [
+        "gh",
+        "api",
+        "repos/just-every/run-spool/actions/runs/44142299489",
+        "--jq",
+        "{status,conclusion,head_sha,html_url}"
+      ],
+      "exit": 0
+    },
+    {
+      "number": 8,
+      "purpose": "Verify exact-SHA poll",
+      "time": "2026-11-17T18:21:07.334816+00:00",
+      "command": [
+        "gh",
+        "api",
+        "repos/just-every/run-spool/actions/runs/44142299489",
+        "--jq",
+        "{status,conclusion,head_sha,html_url}"
+      ],
+      "exit": 0
+    },
+    {
+      "number": 9,
+      "purpose": "completed Verify failed-job discovery",
+      "time": "2026-11-17T18:21:23.274777+00:00",
+      "command": [
+        "gh",
+        "api",
+        "repos/just-every/run-spool/actions/runs/44142299489/jobs?per_page=100",
+        "--jq",
+        "{total_count,jobs:[.jobs[]|{id,name,conclusion,html_url,failed_steps:[.steps[]|select(.conclusion==\"failure\")|{name,number}]}]}"
+      ],
+      "exit": 0
+    },
+    {
+      "number": 10,
+      "purpose": "originating wizard failed-job log archive",
+      "time": "2026-11-17T18:22:02.610836+00:00",
+      "command": [
+        "gh",
+        "run",
+        "view",
+        "44142299489",
+        "--repo",
+        "just-every/run-spool",
+        "--job",
+        "134248971925",
+        "--log-failed"
+      ],
+      "exit": 0
+    }
+  ],
+  "used": 10
+}

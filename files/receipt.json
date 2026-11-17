@@ -1,0 +1,234 @@
+{
+  "repository": "just-every/run-spool",
+  "branch": "cloud/gr-spool-qs-1",
+  "head": "3ac41cb67cf1d559b1fc9baf838563c80ab195ac",
+  "result": "BLOCKED",
+  "checks": [
+    {
+      "name": "qs-before",
+      "command": "cloud_run node \"$HOME/rer-consolidation/work/gr-spool-qs-1/packet/qs-probe.cjs\" before",
+      "exit": 0,
+      "started": "2026-11-17T17:52:06.904052+00:00",
+      "seconds": 1.159,
+      "log": "qs-before.log",
+      "private_log_retained": false
+    },
+    {
+      "name": "update",
+      "command": "cloud_run pnpm --recursive update qs --lockfile-only",
+      "exit": 0,
+      "started": "2026-11-17T17:52:08.097694+00:00",
+      "seconds": 12.166,
+      "log": "update.log",
+      "private_log_retained": false
+    },
+    {
+      "name": "install",
+      "command": "cloud_run pnpm install --frozen-lockfile",
+      "exit": 0,
+      "started": "2026-11-17T17:52:30.878977+00:00",
+      "seconds": 6.317,
+      "log": "install.log",
+      "private_log_retained": false
+    },
+    {
+      "name": "qs-after",
+      "command": "cloud_run node \"$HOME/rer-consolidation/work/gr-spool-qs-1/packet/qs-probe.cjs\" after",
+      "exit": 0,
+      "started": "2026-11-17T17:52:37.272522+00:00",
+      "seconds": 0.883,
+      "log": "qs-after.log",
+      "private_log_retained": false
+    },
+    {
+      "name": "setup",
+      "command": "cloud_run npx -y @runeditrun/rer setup --owner-email fleet@runeditrun.com --non-interactive",
+      "exit": 0,
+      "started": "2026-11-17T17:52:38.186547+00:00",
+      "seconds": 91.257,
+      "log": null,
+      "private_log_retained": true
+    },
+    {
+      "name": "build",
+      "command": "cloud_run npx -y @runeditrun/rer build",
+      "exit": 0,
+      "started": "2026-11-17T17:54:09.521592+00:00",
+      "seconds": 26.069,
+      "log": "build.log",
+      "private_log_retained": false
+    },
+    {
+      "name": "typecheck",
+      "command": "cloud_run pnpm typecheck",
+      "exit": 0,
+      "started": "2026-11-17T17:54:35.622868+00:00",
+      "seconds": 17.762,
+      "log": "typecheck.log",
+      "private_log_retained": false
+    },
+    {
+      "name": "source-lock",
+      "command": "cloud_run node scripts/edition-authoring/cli.mjs lock",
+      "exit": 0,
+      "started": "2026-11-17T17:54:53.419335+00:00",
+      "seconds": 1.362,
+      "log": "source-lock.log",
+      "private_log_retained": false
+    },
+    {
+      "name": "source-check",
+      "command": "cloud_run pnpm source:check",
+      "exit": 0,
+      "started": "2026-11-17T17:54:54.811810+00:00",
+      "seconds": 1.52,
+      "log": "source-check.log",
+      "private_log_retained": false
+    },
+    {
+      "name": "whitespace",
+      "command": "git diff --check",
+      "exit": 0,
+      "started": "2026-11-17T17:54:56.372847+00:00",
+      "seconds": 0.67,
+      "log": "whitespace.log",
+      "private_log_retained": false
+    }
+  ],
+  "counts": {
+    "base": "6263ba70f1d0fce4ea1df7e6bf7b4f0d827489e1",
+    "before": {
+      "qsVersions": [
+        "6.16.0",
+        "6.17.1"
+      ],
+      "uniqueQsVersions": 2,
+      "vulnerableQsVersions": 1
+    },
+    "after": {
+      "qsVersions": [
+        "6.17.1"
+      ],
+      "uniqueQsVersions": 1,
+      "vulnerableQsVersions": 0
+    },
+    "unrelatedDependencyUpgrades": 0,
+    "addedTestRegistrations": 0,
+    "removedTestRegistrations": 0,
+    "clauseStatusChanges": [],
+    "claims": []
+  },
+  "scope": {
+    "base": "6263ba70f1d0fce4ea1df7e6bf7b4f0d827489e1",
+    "files": [
+      "pnpm-lock.yaml",
+      "sources.lock.json"
+    ],
+    "sourceLockChangedFields": [
+      [
+        "files",
+        "pnpm-lock.yaml",
+        "sha256"
+      ]
+    ],
+    "sourceLockHashMatches": true,
+    "contractChanged": false,
+    "acceptanceViewsChanged": false,
+    "passed": true
+  },
+  "publicationScan": {
+    "status": "reserved for fleet Mac under cloud adaptation",
+    "complete": false,
+    "requiredCommandOnMac": ".tools/publish-check.sh --repo <fresh-full-history-clone> --ref 3ac41cb67cf1d559b1fc9baf838563c80ab195ac --project just-every/run-spool --repository https://github.com/just-every/run-spool --public-base 'https://github.com/just-every/run-spool#main' --timeout-seconds 4800",
+    "requiredResult": "COMPLETE with zero NEW findings; pre-existing public-base history findings do not block",
+    "attemptedHere": false
+  },
+  "productPush": {
+    "status": "success",
+    "attempts": 1
+  },
+  "ci": {
+    "conclusion": "failure",
+    "head_sha": "3ac41cb67cf1d559b1fc9baf838563c80ab195ac",
+    "html_url": "https://github.com/just-every/run-spool/actions/runs/44142299489",
+    "status": "completed"
+  },
+  "pr": null,
+  "githubCallsUsed": 10,
+  "localChecksPassed": true,
+  "predecessorTreeMatch": {
+    "tree": "50a2660bbe4b586039fd20b8893c552dc5ddd6c9",
+    "matches": true,
+    "predecessorHead": "215d2fbf2b70cdbeb0ab6404b062c5ba09bfbeaf"
+  },
+  "remoteProductRef": {
+    "head": "3ac41cb67cf1d559b1fc9baf838563c80ab195ac",
+    "ref": "refs/heads/cloud/gr-spool-qs-1",
+    "confirmed": true
+  },
+  "blocker": "Verify 44142299489 wizard failed: npm ETARGET, no matching @sentry/server-utils@11.14.0 while installing the unpinned Next.js Sentry SDK",
+  "githubBudgetExhausted": true,
+  "failedJobs": [
+    {
+      "conclusion": "failure",
+      "failed_steps": [
+        {
+          "name": "Run suites (wizard, 8-minute deadline)",
+          "number": 11
+        }
+      ],
+      "html_url": "https://github.com/just-every/run-spool/actions/runs/44142299489/job/134248971925",
+      "id": 134248971925,
+      "name": "verify (wizard)"
+    },
+    {
+      "conclusion": "failure",
+      "failed_steps": [
+        {
+          "name": "Require every job in this coverage partition",
+          "number": 2
+        }
+      ],
+      "html_url": "https://github.com/just-every/run-spool/actions/runs/44142299489/job/134261432748",
+      "id": 134261432748,
+      "name": "shards (spool)"
+    },
+    {
+      "conclusion": "failure",
+      "failed_steps": [
+        {
+          "name": "Require the selected coverage and its proof",
+          "number": 2
+        }
+      ],
+      "html_url": "https://github.com/just-every/run-spool/actions/runs/44142299489/job/134261479223",
+      "id": 134261479223,
+      "name": "verify"
+    }
+  ],
+  "jobConclusionCounts": {
+    "failure": 3,
+    "skipped": 4,
+    "success": 25
+  },
+  "ready": false,
+  "allLocalTouchedChecksPassed": true,
+  "productWorkPreserved": true,
+  "failureDiagnosis": {
+    "originatingJob": 134248971925,
+    "archiveCommand": "gh run view 44142299489 --repo just-every/run-spool --job 134248971925 --log-failed",
+    "archiveExit": 0,
+    "error": "npm ETARGET: No matching version found for @sentry/server-utils@11.14.0.",
+    "assertion": "tests/setup-flow.mjs:165 expected nextRun.status 0, got 1",
+    "installPlan": "packages/sdk/src/setup/plans.mjs:9 requests @sentry/nextjs without a version",
+    "diagnosisSourceUnchangedFromMain": true,
+    "publicLog": "ci-wizard-failed.log",
+    "logSanitization": "injected values, token patterns and URL queries sanitized; workflow environment listing omitted; raw archive retained privately outside packet",
+    "downstreamJobs": [
+      134261432748,
+      134261479223
+    ],
+    "downstreamLogs": "Not fetched: the originating assertion is in wizard; the final two diagnostic calls exhausted the ten-call budget."
+  },
+  "nextAction": "After the upstream npm dependency is available, rerun Verify for the existing exact SHA from the fleet. A separate wizard SDK pinning change requires separate scope. Mac publication scan remains required before landing."
+}

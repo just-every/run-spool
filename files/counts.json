@@ -1,0 +1,23 @@
+{
+  "base": "6263ba70f1d0fce4ea1df7e6bf7b4f0d827489e1",
+  "before": {
+    "qsVersions": [
+      "6.16.0",
+      "6.17.1"
+    ],
+    "uniqueQsVersions": 2,
+    "vulnerableQsVersions": 1
+  },
+  "after": {
+    "qsVersions": [
+      "6.17.1"
+    ],
+    "uniqueQsVersions": 1,
+    "vulnerableQsVersions": 0
+  },
+  "unrelatedDependencyUpgrades": 0,
+  "addedTestRegistrations": 0,
+  "removedTestRegistrations": 0,
+  "clauseStatusChanges": [],
+  "claims": []
+}

@@ -1,0 +1,21 @@
+{
+  "phase": "after",
+  "version": "6.17.1",
+  "dependencyPath": "packages/agent -> @modelcontextprotocol/sdk 1.32.1 -> express 5.3.0 -> qs",
+  "results": [
+    {
+      "ownToString": "not callable",
+      "actual": "a=%5Bobject%20Object%5D"
+    },
+    {
+      "ownToString": null,
+      "actual": "a=%5Bobject%20Object%5D"
+    },
+    {
+      "ownToString": 42,
+      "actual": "a=%5Bobject%20Object%5D"
+    }
+  ],
+  "ordinaryCommaStrings": "pass",
+  "nestedQueryParsing": "pass"
+}
