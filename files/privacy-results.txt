@@ -1,0 +1,15 @@
+Actual privacy-table output from pnpm test:privacy (exit 0)
+alert webhook payloads       secrets 0 | ordinary lost: none
+alert email                  secrets 0 | ordinary lost: none
+owner issue list             secrets 0 | ordinary lost: none
+owner alert feed             secrets 0 | ordinary lost: none
+agent issue list             secrets 0 | ordinary lost: none
+agent alerts                 secrets 0 | ordinary lost: none
+CLI issues                   secrets 0 | ordinary lost: none
+owner issue page (packet)    secrets 0 | ordinary lost: none
+agent packet                 secrets 0 | ordinary lost: none
+CLI packet markdown          secrets 0 | ordinary lost: none
+CLI packet json              secrets 0 | ordinary lost: none
+MCP get_packet               secrets 0 | ordinary lost: none
+MCP list_issues              secrets 0 | ordinary lost: none
+archive export               secrets 0 | ordinary lost: none

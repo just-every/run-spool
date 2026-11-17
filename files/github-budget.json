@@ -1,0 +1,43 @@
+{
+  "limit": 10,
+  "calls": [
+    {
+      "number": 1,
+      "command": "gh api repos/just-every/run-spool/actions/runs/44156366231/jobs",
+      "result": "completed; runtime job 134299004802 failed"
+    },
+    {
+      "number": 2,
+      "command": "gh run view 44156366231 --repo just-every/run-spool --job 134299004802 --log-failed",
+      "result": "completed; original redacted owner_runtime_failure read once"
+    },
+    {
+      "number": 3,
+      "command": "gh api repos/just-every/run-spool/actions/runs?head_sha=ba97984c5372e00bd6c28bb05eb37fb8c7f89928&per_page=100",
+      "result": "Verify 44182275861 in_progress on exact SHA",
+      "utc": "2026-11-17T21:40:48Z"
+    },
+    {
+      "number": 4,
+      "command": "gh api repos/just-every/run-spool/actions/runs/44182275861",
+      "result": {
+        "conclusion": null,
+        "head_sha": "ba97984c5372e00bd6c28bb05eb37fb8c7f89928",
+        "html_url": "https://github.com/just-every/run-spool/actions/runs/44182275861",
+        "status": "in_progress"
+      },
+      "utc": "2026-11-17T21:46:08Z"
+    },
+    {
+      "number": 5,
+      "command": "gh api repos/just-every/run-spool/actions/runs/44182275861",
+      "result": {
+        "conclusion": null,
+        "head_sha": "ba97984c5372e00bd6c28bb05eb37fb8c7f89928",
+        "html_url": "https://github.com/just-every/run-spool/actions/runs/44182275861",
+        "status": "in_progress"
+      },
+      "utc": "2026-11-17T21:51:26Z"
+    }
+  ]
+}

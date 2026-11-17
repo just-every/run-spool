@@ -1,0 +1,227 @@
+{
+  "schema": 1,
+  "task": "sd-spool-design-keys-3",
+  "repository": "just-every/run-spool",
+  "branch": "cloud/sd-spool-design-keys-3",
+  "head": "ba97984c5372e00bd6c28bb05eb37fb8c7f89928",
+  "tree": "885cc52f8c43c1aaaccb3be2cbf32f6d02a27db1",
+  "tested_committed_save": "606b86f4448570834917908289e37de38fd8fa24",
+  "save_tree_equals_final_tree": true,
+  "base": "f44efc8c76f8f11753b89465cc3fcb7b64760570",
+  "utc": "2026-11-17T21:41:27Z",
+  "ordered_build_prefix": [
+    {
+      "command": "node tests/native-export.mjs",
+      "exit_code": 0
+    },
+    {
+      "command": "pnpm run check -- --profile first-party",
+      "exit_code": 0
+    },
+    {
+      "command": "pnpm source:check",
+      "exit_code": 0
+    },
+    {
+      "command": "node scripts/edition-authoring/cli.mjs verify-base --offline",
+      "exit_code": 0
+    },
+    {
+      "command": "pnpm run build:app",
+      "exit_code": 0
+    },
+    {
+      "command": "pnpm integration:check",
+      "exit_code": 0
+    },
+    {
+      "command": "node scripts/agent-door/surface.mjs --check",
+      "exit_code": 0
+    },
+    {
+      "command": "pnpm typecheck",
+      "exit_code": 0
+    }
+  ],
+  "affected_suites": [
+    {
+      "command": "pnpm test:runtime",
+      "exit_code": 0
+    },
+    {
+      "command": "pnpm test:product",
+      "exit_code": 0
+    },
+    {
+      "command": "pnpm test:origins",
+      "exit_code": 0
+    },
+    {
+      "command": "pnpm test:accessibility",
+      "exit_code": 0
+    },
+    {
+      "command": "pnpm test:alerts",
+      "exit_code": 0
+    },
+    {
+      "command": "pnpm test:alerts-ui",
+      "exit_code": 0
+    },
+    {
+      "command": "pnpm test:admission",
+      "exit_code": 0
+    },
+    {
+      "command": "pnpm test:dev-credentials",
+      "exit_code": 0
+    },
+    {
+      "command": "pnpm test:agent-handoff",
+      "exit_code": 0
+    },
+    {
+      "command": "pnpm test:privacy",
+      "exit_code": 0
+    },
+    {
+      "command": "pnpm test:project-erasure",
+      "exit_code": 0
+    },
+    {
+      "command": "pnpm test:project-erasure-cap",
+      "exit_code": 0
+    },
+    {
+      "command": "pnpm test:owner-erasure",
+      "exit_code": 0
+    }
+  ],
+  "additional_checks": [
+    {
+      "command": "node tests/old-archive.mjs",
+      "exit_code": 0
+    },
+    {
+      "command": "pnpm test:sentry:sdk",
+      "exit_code": 0
+    },
+    {
+      "command": "pnpm test:agent-door",
+      "exit_code": 0
+    },
+    {
+      "command": "node tests/alerts-egress.mjs",
+      "exit_code": 0
+    }
+  ],
+  "fresh_main_rechecks": {
+    "ordered_build_prefix": "passed",
+    "runtime": "passed",
+    "alerts_egress": "passed",
+    "reason": "incoming main changed only egress TLS and source provenance; 46 replay paths do not overlap"
+  },
+  "generators": {
+    "contract_write": "0 documents changed",
+    "contract_check": "0 errors, 0 warnings; current",
+    "agent_surface": "passed",
+    "integration_sync": "matching",
+    "source_lock": "regenerated last; check passed"
+  },
+  "release_validation": {
+    "dedicated_package_script": null,
+    "documented_seed_prefix": "passed",
+    "contract_meaning_changed": false,
+    "release_json_changed": false
+  },
+  "counts_before": {
+    "core": {
+      "done": 23,
+      "partial": 45,
+      "missing": 19,
+      "total": 87
+    },
+    "agent": {
+      "done": 0,
+      "partial": 9,
+      "missing": 9,
+      "total": 18
+    },
+    "full": {
+      "done": 23,
+      "partial": 54,
+      "missing": 28,
+      "total": 105
+    }
+  },
+  "counts_after": {
+    "core": {
+      "done": 23,
+      "partial": 45,
+      "missing": 19,
+      "total": 87
+    },
+    "agent": {
+      "done": 0,
+      "partial": 9,
+      "missing": 9,
+      "total": 18
+    },
+    "full": {
+      "done": 23,
+      "partial": 54,
+      "missing": 28,
+      "total": 105
+    }
+  },
+  "clause_status_changes": [],
+  "migration_inventory": {
+    "before": 103,
+    "after": 104,
+    "added": "0110_key_names_and_use.sql"
+  },
+  "populated_upgrade": {
+    "historical_tables": 176,
+    "rows_before": 120,
+    "rows_after": 120,
+    "preserved": true
+  },
+  "repaired_test": "tests/setup-prerequisites.mjs::settingsPrerequisiteGuides imported by tests/runtime.mjs",
+  "runtime_before": "deterministic hidden Slack guide timeout",
+  "runtime_after": "passed",
+  "capacity_erasure": {
+    "events": 10000,
+    "request_ms": 1507,
+    "completion_ms": 40005,
+    "receipt_seconds": 38.428
+  },
+  "source_lock_sha256": "996022ecd48d1216faa670ed9219783ae93c74753408bb7d686f85c5867a192f",
+  "published_commits": 2,
+  "merge_commits": 0,
+  "candidate_identity": "Run Edit Run fleet <fleet@runeditrun.com> for every author and committer",
+  "trailers": "absent",
+  "local_test_provenance": {
+    "initial_base": "3b7a3ebe545f3bd9c6a979ca04d5687c6a375b09",
+    "local_owner_ui_result_records_precommit_base_head": true,
+    "product_delta_preserved_by_patch_sha256": "088d32d51fd7b8102d09ec053f847df85e56356b12095e6b6b676db4c25f8b3f",
+    "final_remote_verify_required": true
+  },
+  "resolved_local_failures": [
+    {
+      "check": "runtime before repair",
+      "outcome": "failed as reproduced; repaired without weakening assertions"
+    },
+    {
+      "check": "agent-door initial launch",
+      "outcome": "missing PLAYWRIGHT_CHROMIUM_EXECUTABLE_PATH; passed with /usr/bin/chromium"
+    },
+    {
+      "check": "handoff during environment restart",
+      "outcome": "interrupted; old test-owned server reservation was stopped; complete rerun passed"
+    },
+    {
+      "check": "owner-erasure before committing",
+      "outcome": "HEAD-only CLI clone lacked staged migration; same unchanged test passed after fleet save commit"
+    }
+  ]
+}

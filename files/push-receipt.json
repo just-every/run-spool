@@ -1,0 +1,21 @@
+{
+  "schema": 1,
+  "repository": "just-every/run-spool",
+  "branch": "cloud/sd-spool-design-keys-3",
+  "save_head": "606b86f4448570834917908289e37de38fd8fa24",
+  "save_message_skip_ci": true,
+  "base": "f44efc8c76f8f11753b89465cc3fcb7b64760570",
+  "push_command": "python3 $HOME/rer-consolidation/.tools/cloud-push.py origin cloud/sd-spool-design-keys-3",
+  "attempts": 1,
+  "exit_code": 0,
+  "identities": "all Run Edit Run fleet <fleet@runeditrun.com>",
+  "trailers": "absent",
+  "merge_commits": 0,
+  "evidence_in_product": false,
+  "final_head": "ba97984c5372e00bd6c28bb05eb37fb8c7f89928",
+  "final_tree": "885cc52f8c43c1aaaccb3be2cbf32f6d02a27db1",
+  "final_push_exit": 0,
+  "final_push_attempts": 1,
+  "pushes": 2,
+  "final_commit": "Verify trigger; same source tree as tested save"
+}
