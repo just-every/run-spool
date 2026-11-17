@@ -3706,7 +3706,7 @@
       "executable": false
     },
     "docs/SENTRY-ROSTER-IMPORT.md": {
-      "sha256": "c664c079d42702572771ac9e633bed618cc6bfd05bbd2c8fa07c9b78571a2d6b",
+      "sha256": "385c138bd075b7286a9d55e70a13778687093b52be7f3d9a7b40f94534b5b24b",
       "executable": false
     },
     "docs/SENTRY-SCRUBBING.md": {
@@ -11203,6 +11203,10 @@
     },
     "tests/fixtures/archive-before-relay-privacy.mjs": {
       "sha256": "b59f6509d0c633fb7d938398aed3075c64ad17e0b6834cf273b46a0ae915ed40",
+      "executable": false
+    },
+    "tests/fixtures/archive-before-sentry-roster.mjs": {
+      "sha256": "6fb2a7de9149e4425b1e4a678ac2c59dee312570072ad643dcd3184634ac8445",
       "executable": false
     },
     "tests/fixtures/archive-fc75a7ac.md": {

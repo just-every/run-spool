@@ -93,3 +93,13 @@ outside the installation fence.
 journey. It uses synthetic documented API responses and native local fixtures;
 no real Sentry or repository account, delivered real email, production dual run,
 cutover or completed TEAM-002 is claimed.
+
+Archive compatibility includes inventories created before these review stores.
+The translator recognizes the exact earlier provenance discriminator and omits
+only the declared new table and its objects when comparing a pre-roster
+inventory. Current archives carrying the review table retain its schema, even
+when an older transport records no migration ledger. Prior-release fixtures
+model the absence of review custody explicitly. Existing populated rows and
+constraints remain checked; foreign behavior objects, occupied targets and
+corrupted archive bindings still refuse restoration. The old-archive,
+multilingual and repair-recovery journeys exercise these compatibility doors.
