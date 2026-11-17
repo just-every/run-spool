@@ -2,7 +2,7 @@
   "schema": 1,
   "author": "Run Edit Run fleet",
   "at": "2026-11-17T12:25:08.265398+00:00",
-  "head": "427828960f1389e15f28b0b55a2a8c7ed2b86e80",
+  "head": "f30b750c3355ed4acaa20f950ef0c6e7c36ef1c4",
   "checks": [
     {
       "command": "npx -y @runeditrun/rer setup --owner-email fleet@runeditrun.com --non-interactive",
@@ -20,31 +20,35 @@
       "command": "pnpm run build:app",
       "result": "passed",
       "exit": 0,
-      "head": "427828960f1389e15f28b0b55a2a8c7ed2b86e80"
+      "headAtRecordedCheck": "427828960f1389e15f28b0b55a2a8c7ed2b86e80"
     },
     {
       "command": "pnpm typecheck",
       "result": "passed",
       "exit": 0,
-      "head": "427828960f1389e15f28b0b55a2a8c7ed2b86e80"
+      "headAtRecordedCheck": "427828960f1389e15f28b0b55a2a8c7ed2b86e80",
+      "head": "f30b750c3355ed4acaa20f950ef0c6e7c36ef1c4"
     },
     {
       "command": "pnpm integration:check",
       "result": "passed",
       "exit": 0,
-      "head": "427828960f1389e15f28b0b55a2a8c7ed2b86e80"
+      "headAtRecordedCheck": "427828960f1389e15f28b0b55a2a8c7ed2b86e80",
+      "head": "f30b750c3355ed4acaa20f950ef0c6e7c36ef1c4"
     },
     {
       "command": "node src/base/contract-docs.mjs check",
       "result": "passed",
       "exit": 0,
-      "note": "No acceptance or status edits; generated views unchanged"
+      "note": "No acceptance or status edits; generated views unchanged",
+      "head": "f30b750c3355ed4acaa20f950ef0c6e7c36ef1c4"
     },
     {
       "command": "node scripts/edition-authoring/cli.mjs lock; pnpm source:check",
       "result": "passed",
       "exit": 0,
-      "head": "427828960f1389e15f28b0b55a2a8c7ed2b86e80"
+      "headAtRecordedCheck": "427828960f1389e15f28b0b55a2a8c7ed2b86e80",
+      "head": "f30b750c3355ed4acaa20f950ef0c6e7c36ef1c4"
     },
     {
       "command": "node tests/sentry-import.mjs",
@@ -56,8 +60,10 @@
       "command": "node tests/sentry-import/roster-ownership.mjs",
       "result": "passed",
       "exit": 0,
-      "head": "427828960f1389e15f28b0b55a2a8c7ed2b86e80",
-      "receipt": "ROSTER-RECEIPT.json"
+      "receipt": "ROSTER-RECEIPT.json",
+      "headAtRecordedCheck": "427828960f1389e15f28b0b55a2a8c7ed2b86e80",
+      "head": "f30b750c3355ed4acaa20f950ef0c6e7c36ef1c4",
+      "note": "Exact revised candidate; all behavioral assertions and six browser images passed."
     },
     {
       "command": "node --import /tmp/spool-chromium.mjs -e \"import('./tests/team-flow.mjs').then(m=>m.teamFlow())\"",
@@ -79,12 +85,35 @@
       "exit": 0,
       "groups": 7,
       "captures": 8
+    },
+    {
+      "command": "node tests/old-archive.mjs",
+      "result": "passed",
+      "exit": 0,
+      "scope": "compatibility fix tree; populated upgrade, old/current restore, occupied target and corrupted binding refusals"
+    },
+    {
+      "command": "node tests/multilingual.mjs",
+      "result": "passed",
+      "exit": 0,
+      "scope": "compatibility fix tree; archive restore, source mapping, privacy and erasure"
+    },
+    {
+      "command": "node tests/repair-recovery.mjs",
+      "result": "passed",
+      "deadlineSeconds": 1500,
+      "scope": "compatibility fix tree; previously red CI archive path",
+      "exit": 0,
+      "groups": 6,
+      "captures": 16,
+      "note": "Complete compatibility-fix recovery journey passed, including prior/current archive restore and corrupted/foreign inventory refusals."
     }
   ],
   "notes": [
     "An initial team invocation only loaded exported functions; it is not counted as proof.",
     "First full team run reached an unconfigured direct Playwright launch; rerun with system Chromium passed.",
     "A concurrent-build browser attempt timed out at the existing Usage disclosure; clean emitted-build rerun passed.",
-    "A new owner-hold assertion was corrected to accept the existing earlier ambiguous-attribution hold as well as shared custody. No product protection or existing assertion was removed."
+    "A new owner-hold assertion was corrected to accept the existing earlier ambiguous-attribution hold as well as shared custody. No product protection or existing assertion was removed.",
+    "First exact-SHA Verify 44081913572 failed in old-archive, multilingual restore and repair-recovery archive. The declared new custody table/discriminator required exact inventory compatibility and fixture updates; unknown behavior and binding refusals remain asserted."
   ]
 }

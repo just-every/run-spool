@@ -25,3 +25,25 @@ Project erasure:
 
 Project erasure public journey passed: 7 groups; 8 captures.
 
+
+## Compatibility regression output
+
+node tests/old-archive.mjs:
+
+PASS populated published release upgrades preserve existing rows and columns with declared attribution additions: 176 tables, 118 rows before and after
+PASS populated 0068 upgrade: 201 tables preserved; five additive migrations applied
+PASS pre-metric archive with complete native objects and hashed ledger restores into the metric schema
+PASS old native archive restores into a fresh migrated target with all product rows and destination ledger intact
+PASS old archive refuses an occupied target without changing its project
+PASS genuinely mismatched schema and corrupted original archive binding still refuse
+PASS current archive independently restores and mandatory bookkeeping exclusions retain person-owned tables
+
+node tests/multilingual.mjs:
+
+Multilingual public journey passed: native/Sentry equivalence, grammar/privacy/deduplication, scoped late path mapping, unchanged admission, JS-only execution, archive restoration and project erasure.
+
+node tests/repair-recovery.mjs:
+
+Repair recovery public journey passed: 6 groups; 16 captures; verdicts a,b,c,e,f,d.
+
+Exact-SHA Verify 44086779185: completed/failure on f30b750c3355ed4acaa20f950ef0c6e7c36ef1c4. Latest job diagnostics not read: ten-call budget exhausted.

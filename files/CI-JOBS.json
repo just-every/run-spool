@@ -1,0 +1,318 @@
+{
+  "run": 44081913572,
+  "jobs": [
+    {
+      "id": 134034369289,
+      "name": "plan",
+      "status": "completed",
+      "conclusion": "success",
+      "started_at": "2026-11-17T12:18:35Z",
+      "completed_at": "2026-11-17T12:18:43Z",
+      "failedSteps": []
+    },
+    {
+      "id": 134034460024,
+      "name": "build",
+      "status": "completed",
+      "conclusion": "success",
+      "started_at": "2026-11-17T12:18:45Z",
+      "completed_at": "2026-11-17T12:19:42Z",
+      "failedSteps": []
+    },
+    {
+      "id": 134034460156,
+      "name": "contract-docs",
+      "status": "completed",
+      "conclusion": "success",
+      "started_at": "2026-11-17T12:18:45Z",
+      "completed_at": "2026-11-17T12:19:00Z",
+      "failedSteps": []
+    },
+    {
+      "id": 134034462037,
+      "name": "commands",
+      "status": "completed",
+      "conclusion": "skipped",
+      "started_at": "2026-11-17T12:18:43Z",
+      "completed_at": "2026-11-17T12:18:43Z",
+      "failedSteps": []
+    },
+    {
+      "id": 134034462716,
+      "name": "light",
+      "status": "completed",
+      "conclusion": "skipped",
+      "started_at": "2026-11-17T12:18:43Z",
+      "completed_at": "2026-11-17T12:18:43Z",
+      "failedSteps": []
+    },
+    {
+      "id": 134034983271,
+      "name": "runtime (python)",
+      "status": "completed",
+      "conclusion": "success",
+      "started_at": "2026-11-17T12:19:45Z",
+      "completed_at": "2026-11-17T12:20:55Z",
+      "failedSteps": []
+    },
+    {
+      "id": 134034983292,
+      "name": "runtime (ruby)",
+      "status": "completed",
+      "conclusion": "success",
+      "started_at": "2026-11-17T12:19:44Z",
+      "completed_at": "2026-11-17T12:20:37Z",
+      "failedSteps": []
+    },
+    {
+      "id": 134034983297,
+      "name": "runtime (elixir)",
+      "status": "completed",
+      "conclusion": "success",
+      "started_at": "2026-11-17T12:19:45Z",
+      "completed_at": "2026-11-17T12:24:07Z",
+      "failedSteps": []
+    },
+    {
+      "id": 134034983314,
+      "name": "runtime (dotnet)",
+      "status": "completed",
+      "conclusion": "success",
+      "started_at": "2026-11-17T12:19:44Z",
+      "completed_at": "2026-11-17T12:21:04Z",
+      "failedSteps": []
+    },
+    {
+      "id": 134034983327,
+      "name": "runtime (rust)",
+      "status": "completed",
+      "conclusion": "success",
+      "started_at": "2026-11-17T12:19:44Z",
+      "completed_at": "2026-11-17T12:21:24Z",
+      "failedSteps": []
+    },
+    {
+      "id": 134034983372,
+      "name": "runtime (node)",
+      "status": "completed",
+      "conclusion": "success",
+      "started_at": "2026-11-17T12:19:44Z",
+      "completed_at": "2026-11-17T12:20:26Z",
+      "failedSteps": []
+    },
+    {
+      "id": 134034983426,
+      "name": "verify (runtime)",
+      "status": "completed",
+      "conclusion": "failure",
+      "started_at": "2026-11-17T12:19:45Z",
+      "completed_at": "2026-11-17T12:23:08Z",
+      "failedSteps": [
+        {
+          "name": "Run suites",
+          "conclusion": "failure"
+        }
+      ]
+    },
+    {
+      "id": 134034983431,
+      "name": "verify (sentry-cli)",
+      "status": "completed",
+      "conclusion": "success",
+      "started_at": "2026-11-17T12:19:45Z",
+      "completed_at": "2026-11-17T12:27:38Z",
+      "failedSteps": []
+    },
+    {
+      "id": 134034983435,
+      "name": "verify (sdk)",
+      "status": "completed",
+      "conclusion": "success",
+      "started_at": "2026-11-17T12:19:44Z",
+      "completed_at": "2026-11-17T12:34:24Z",
+      "failedSteps": []
+    },
+    {
+      "id": 134034983437,
+      "name": "runtime (electron)",
+      "status": "completed",
+      "conclusion": "success",
+      "started_at": "2026-11-17T12:19:44Z",
+      "completed_at": "2026-11-17T12:20:39Z",
+      "failedSteps": []
+    },
+    {
+      "id": 134034983466,
+      "name": "verify (project-erasure)",
+      "status": "completed",
+      "conclusion": "success",
+      "started_at": "2026-11-17T12:19:44Z",
+      "completed_at": "2026-11-17T12:28:27Z",
+      "failedSteps": []
+    },
+    {
+      "id": 134034983467,
+      "name": "verify (tunnel)",
+      "status": "completed",
+      "conclusion": "failure",
+      "started_at": "2026-11-17T12:19:45Z",
+      "completed_at": "2026-11-17T12:31:34Z",
+      "failedSteps": [
+        {
+          "name": "Run suites",
+          "conclusion": "failure"
+        }
+      ]
+    },
+    {
+      "id": 134034983486,
+      "name": "verify (owner-ui)",
+      "status": "completed",
+      "conclusion": "success",
+      "started_at": "2026-11-17T12:19:44Z",
+      "completed_at": "2026-11-17T12:30:57Z",
+      "failedSteps": []
+    },
+    {
+      "id": 134034983506,
+      "name": "verify (agent-handoff)",
+      "status": "completed",
+      "conclusion": "success",
+      "started_at": "2026-11-17T12:19:44Z",
+      "completed_at": "2026-11-17T12:38:01Z",
+      "failedSteps": []
+    },
+    {
+      "id": 134034983508,
+      "name": "runtime (java)",
+      "status": "completed",
+      "conclusion": "success",
+      "started_at": "2026-11-17T12:19:44Z",
+      "completed_at": "2026-11-17T12:20:59Z",
+      "failedSteps": []
+    },
+    {
+      "id": 134034983512,
+      "name": "verify (wizard)",
+      "status": "completed",
+      "conclusion": "success",
+      "started_at": "2026-11-17T12:19:45Z",
+      "completed_at": "2026-11-17T12:21:27Z",
+      "failedSteps": []
+    },
+    {
+      "id": 134034983516,
+      "name": "verify (project-erasure-cap)",
+      "status": "completed",
+      "conclusion": "success",
+      "started_at": "2026-11-17T12:19:44Z",
+      "completed_at": "2026-11-17T12:26:34Z",
+      "failedSteps": []
+    },
+    {
+      "id": 134034983553,
+      "name": "runtime (go)",
+      "status": "completed",
+      "conclusion": "success",
+      "started_at": "2026-11-17T12:19:45Z",
+      "completed_at": "2026-11-17T12:20:48Z",
+      "failedSteps": []
+    },
+    {
+      "id": 134034983567,
+      "name": "verify (owner-erasure)",
+      "status": "completed",
+      "conclusion": "success",
+      "started_at": "2026-11-17T12:19:44Z",
+      "completed_at": "2026-11-17T12:26:03Z",
+      "failedSteps": []
+    },
+    {
+      "id": 134034983580,
+      "name": "verify (repair-recovery)",
+      "status": "completed",
+      "conclusion": "failure",
+      "started_at": "2026-11-17T12:19:44Z",
+      "completed_at": "2026-11-17T12:27:48Z",
+      "failedSteps": [
+        {
+          "name": "Run suites",
+          "conclusion": "failure"
+        }
+      ]
+    },
+    {
+      "id": 134034983612,
+      "name": "verify (execution)",
+      "status": "completed",
+      "conclusion": "success",
+      "started_at": "2026-11-17T12:19:45Z",
+      "completed_at": "2026-11-17T12:26:36Z",
+      "failedSteps": []
+    },
+    {
+      "id": 134034983688,
+      "name": "verify (alerts)",
+      "status": "completed",
+      "conclusion": "success",
+      "started_at": "2026-11-17T12:19:44Z",
+      "completed_at": "2026-11-17T12:24:34Z",
+      "failedSteps": []
+    },
+    {
+      "id": 134034983734,
+      "name": "runtime (php)",
+      "status": "completed",
+      "conclusion": "success",
+      "started_at": "2026-11-17T12:19:44Z",
+      "completed_at": "2026-11-17T12:20:32Z",
+      "failedSteps": []
+    },
+    {
+      "id": 134044893983,
+      "name": "shards (spool)",
+      "status": "completed",
+      "conclusion": "failure",
+      "started_at": "2026-11-17T12:38:04Z",
+      "completed_at": "2026-11-17T12:38:07Z",
+      "failedSteps": [
+        {
+          "name": "Require every job in this coverage partition",
+          "conclusion": "failure"
+        }
+      ]
+    },
+    {
+      "id": 134044946434,
+      "name": "verify",
+      "status": "completed",
+      "conclusion": "failure",
+      "started_at": "2026-11-17T12:38:09Z",
+      "completed_at": "2026-11-17T12:38:12Z",
+      "failedSteps": [
+        {
+          "name": "Require the selected coverage and its proof",
+          "conclusion": "failure"
+        }
+      ]
+    },
+    {
+      "id": 134044947854,
+      "name": "nightly-proof",
+      "status": "completed",
+      "conclusion": "skipped",
+      "started_at": "2026-11-17T12:38:08Z",
+      "completed_at": "2026-11-17T12:38:07Z",
+      "failedSteps": []
+    },
+    {
+      "id": 134044948342,
+      "name": "full-push-proof",
+      "status": "completed",
+      "conclusion": "skipped",
+      "started_at": "2026-11-17T12:38:08Z",
+      "completed_at": "2026-11-17T12:38:07Z",
+      "failedSteps": []
+    }
+  ]
+}

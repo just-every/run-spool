@@ -3,7 +3,7 @@
 Run Edit Run fleet, 17 November 2026 (UTC).
 
 Repository: just-every/run-spool. Product branch: cloud/sd-spool-import-sentry-3.
-Candidate: `427828960f1389e15f28b0b55a2a8c7ed2b86e80`. No PR created; the repository has a branch-push Verify.
+Candidate: `f30b750c3355ed4acaa20f950ef0c6e7c36ef1c4`. No PR created; the repository has a branch-push Verify.
 Only this declared repository was cloned or written. The complete plan is in
 PLAN.md; actual behavioral and check receipts are ROSTER-RECEIPT.json,
 CHECKS.json and CI-RECEIPT.json. The evidence ref is report custody only.
@@ -100,3 +100,17 @@ GAP TEAM-002: No real repository account, exact linked CODEOWNERS revision, acco
 GAP AUDIT-001: This round qualifies its new actions through local public doors, not every existing product action.
 GAP ERASE-001: Selective owner erasure of shared import custody remains held; downloaded copies/provider backups are outside the installation fence.
 EVIDENCE: ROSTER-RECEIPT.json, CHECKS.json, CI-RECEIPT.json and six synthetic browser PNGs; full publication scan remains the fleet lander's existing gate.
+
+## CI feedback and corrected candidate
+
+The first exact-SHA Verify (44081913572 on 427828960f1389e15f28b0b55a2a8c7ed2b86e80) failed three leaf jobs: runtime/old-archive, tunnel/multilingual restore, and repair-recovery/archive. CI-JOBS.json and the three sanitized job logs retain the actual failure diagnostics; environment sections and URL queries are omitted. They were each read once with gh run view --job --log-failed.
+
+The correction recognizes the exact pre-roster provenance discriminator and excludes only the declared absent store/objects when comparing earlier inventories. It also retains tableless compatibility rules when current archives carry roster custody without a ledger. Prior-release fixtures now model the new table's absence and the old discriminator explicitly. No foreign-schema or binding assertion was removed. The old-archive and multilingual suites pass locally after the fix; repair-recovery passed locally (six groups and 16 captures). The revised candidate and its exact roster/browser proof are pushed; its new Verify completed with failure, as recorded below. No green CI or READY is claimed from the earlier SHA.
+
+## Terminal outcome
+
+BLOCKED: exact-SHA Verify 44086779185 completed with failure on f30b750c3355ed4acaa20f950ef0c6e7c36ef1c4. The ten-call GitHub budget is exhausted (five first-run status/discovery reads, one failed-job listing, three one-time failed-job log reads, and the revised exact-SHA discovery). The latest failed-job diagnostics were NOT READ. The latest failure is not attributed to a guessed cause or treated as green. Fleet follow-up must inspect this exact run and obtain a successful exact-SHA Verify before landing.
+
+All targeted local checks now pass, including the old-archive, multilingual, complete repair-recovery and exact revised roster/ownership flows. REGRESSION-RECEIPT.json has actual completion output. The original CI failures are retained in CI-JOBS.json and three sanitized logs. No test guarding existing behavior was removed; the earlier-schema test changes declare only the added store/discriminator and preserve the unknown-object, occupied-target and binding assertions.
+
+Product commits are safely pushed on the named branch. No main/default branch, PR, release or deployment was written. Contract statuses remain unchanged. No READY or landing claim is made.

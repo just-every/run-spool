@@ -1,0 +1,36 @@
+verify (runtime)	Run suites	﻿2026-11-17T12:20:14.1684843Z ##[group]Run node tests/demo-capture.mjs && node tests/deployment-history.mjs && node tests/audit-history.mjs && node tests/old-archive.mjs && pnpm test:runtime && pnpm test:product && pnpm test:origins && pnpm test:dev-credentials
+verify (runtime)	Run suites	2026-11-17T12:20:14.1686199Z [36;1mnode tests/demo-capture.mjs && node tests/deployment-history.mjs && node tests/audit-history.mjs && node tests/old-archive.mjs && pnpm test:runtime && pnpm test:product && pnpm test:origins && pnpm test:dev-credentials[0m
+verify (runtime)	Run suites	2026-11-17T12:20:14.1704790Z shell: /usr/bin/bash -e {0}
+verify (runtime)	Run suites	2026-11-17T12:20:14.2522832Z (node:2979) ExperimentalWarning: SQLite is an experimental feature and might change at any time
+verify (runtime)	Run suites	2026-11-17T12:20:14.2524123Z (Use `node --trace-warnings ...` to show where the warning was created)
+verify (runtime)	Run suites	2026-11-17T12:20:18.5780503Z Demo capture: app 200; 3 recent events; 3 attributed transaction facts; restart unchanged
+verify (runtime)	Run suites	2026-11-17T12:20:19.0600947Z (node:3008) ExperimentalWarning: SQLite is an experimental feature and might change at any time
+verify (runtime)	Run suites	2026-11-17T12:20:19.0601571Z (Use `node --trace-warnings ...` to show where the warning was created)
+verify (runtime)	Run suites	2026-11-17T12:21:48.1037342Z [REL-002] first-release and reactivation candidates, exact regression alert and two commits with recorded deployment window, older-release spike comparison, audited reject and confirm without occurrence changes, restore and erasure; desktop and phone passed
+verify (runtime)	Run suites	2026-11-17T12:22:10.8203165Z REL-001 passed: CI and owner start/progress/success/failure/rollback, idempotency/conflicts, one overdue notice over two ticks, environments, enrichment, denials, inert restore, erasure and 1440/390.
+verify (runtime)	Run suites	2026-11-17T12:22:11.3008672Z (node:3339) ExperimentalWarning: SQLite is an experimental feature and might change at any time
+verify (runtime)	Run suites	2026-11-17T12:22:11.3009587Z (Use `node --trace-warnings ...` to show where the warning was created)
+verify (runtime)	Run suites	2026-11-17T12:22:49.8302646Z AUDIT-001 passed: atomic owner/deploy/ingest transaction facts, denied/stale request outcomes, agent and notification facts, fixed snapshot cursor/JSON/CSV, restart, archive payload append restore, previous-format legacy facts, project erasure and 1440/390 history/export/error/denied/empty.
+verify (runtime)	Run suites	2026-11-17T12:22:56.1151887Z (node:3451) ExperimentalWarning: SQLite is an experimental feature and might change at any time
+verify (runtime)	Run suites	2026-11-17T12:22:56.1152985Z (Use `node --trace-warnings ...` to show where the warning was created)
+verify (runtime)	Run suites	2026-11-17T12:23:03.4302767Z file:///tmp/spool-old-archive-mPLMmn/portability.mjs:235
+verify (runtime)	Run suites	2026-11-17T12:23:03.4305475Z   if (!condition) throw new PortabilityError(code, status);
+verify (runtime)	Run suites	2026-11-17T12:23:03.4305894Z                         ^
+verify (runtime)	Run suites	2026-11-17T12:23:03.4306118Z 
+verify (runtime)	Run suites	2026-11-17T12:23:03.4306382Z PortabilityError: staged_table:spool_import_proposals
+verify (runtime)	Run suites	2026-11-17T12:23:03.4307122Z     at insist (file:///tmp/spool-old-archive-mPLMmn/portability.mjs:235:25)
+verify (runtime)	Run suites	2026-11-17T12:23:03.4307838Z     at Object.read (file:///tmp/spool-old-archive-mPLMmn/portability.mjs:17931:7)
+verify (runtime)	Run suites	2026-11-17T12:23:03.4308546Z     at read (file:///home/runner/work/run-spool/run-spool/tests/old-archive.mjs:70:297)
+verify (runtime)	Run suites	2026-11-17T12:23:03.4309520Z     at file:///tmp/spool-old-archive-mPLMmn/portability.mjs:23569:214
+verify (runtime)	Run suites	2026-11-17T12:23:03.4310452Z     at Array.map (<anonymous>)
+verify (runtime)	Run suites	2026-11-17T12:23:03.4310973Z     at file:///tmp/spool-old-archive-mPLMmn/portability.mjs:23569:179
+verify (runtime)	Run suites	2026-11-17T12:23:03.4311932Z     at transfer.portabilityPolicy.validateStaged (file:///home/runner/work/run-spool/run-spool/tests/old-archive.mjs:70:57)
+verify (runtime)	Run suites	2026-11-17T12:23:03.4312932Z     at finalizeLeasedImport (file:///tmp/spool-old-archive-mPLMmn/portability.mjs:17935:25)
+verify (runtime)	Run suites	2026-11-17T12:23:03.4313729Z     at process.processTicksAndRejections (node:internal/process/task_queues:105:5)
+verify (runtime)	Run suites	2026-11-17T12:23:03.4314824Z     at async withImportLease (file:///tmp/spool-old-archive-mPLMmn/portability.mjs:15026:12) {
+verify (runtime)	Run suites	2026-11-17T12:23:03.4315474Z   code: 'staged_table:spool_import_proposals',
+verify (runtime)	Run suites	2026-11-17T12:23:03.4315873Z   status: 400
+verify (runtime)	Run suites	2026-11-17T12:23:03.4316124Z }
+verify (runtime)	Run suites	2026-11-17T12:23:03.4316259Z 
+verify (runtime)	Run suites	2026-11-17T12:23:03.4316366Z Node.js v22.20.0
+verify (runtime)	Run suites	2026-11-17T12:23:03.4578311Z ##[error]Process completed with exit code 1.
