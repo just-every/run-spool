@@ -267,6 +267,14 @@
     {
       "source": "src/modules/portability/README.md",
       "reason": "Base module documentation, copied byte for byte with the module (base-copies.json)"
+    },
+    {
+      "source": "docs/INTERNAL-PRODUCT-NOTES.md",
+      "reason": "Historical implementation, publication and verification notes for maintainers"
+    },
+    {
+      "source": "docs/INTERNAL-USER-IDENTITY.md",
+      "reason": "Maintainer identity implementation history"
     }
   ]
 }

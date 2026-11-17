@@ -1,10 +1,6 @@
 # Framework setup
 
-Connect an existing Sentry SDK to your Spool project, or configure a new application using the framework steps below. These guides cover exception capture; publishing a guide does not qualify every feature of that framework's SDK.
-
-The manual instructions below use published packages. As of 2026-11-12, npm serves `@just-every/spool` 0.1.0 with only the `spool-sourcemaps` command. The `spool-setup` wizard and Spool tunnel helpers are in the repository’s unreleased SDK source (currently versioned 0.2.0), not on npm; see [unpublished guided setup](#unpublished-guided-setup). Installing the Spool app does not publish or upgrade that SDK.
-
-Only fresh Next.js App Router and Django applications are exercised by Spool's guided-setup journey. The other frameworks have manual instructions, not generated patches or fresh-framework qualification. Runtime qualification, hosted delivery, trusted tunnel addresses and native devices retain their separate limits in the [engineering notes](SENTRY-SWITCHING.md#runtime-qualification).
+Connect an existing Sentry SDK to your Spool project, or configure a new application using the framework steps below. These guides cover exception capture.
 
 Choose your framework:
 
@@ -16,13 +12,16 @@ Choose your framework:
 - [Laravel](#laravel)
 - [ASP.NET Core](#aspnet-core)
 
+<details>
+<summary>Details</summary>
+
 ## Before you start
 
 Create or select a project in Spool and copy its **Sentry DSN** from **Capture**. Set `SPOOL_DSN` in your application's environment to that complete value; keep the key, host and numeric project path together. Use the ingest DSN, never an owner session, agent key or deploy key. If Sentry is already installed, keep your capture calls and change its DSN to this value.
 
 Add your browser application's exact origin in **Capture** before sending browser events. Keep private server settings and deploy keys out of browser bundles. Browser DSNs are public ingest credentials and still depend on that origin policy. Set an optional release in `SPOOL_RELEASE` and environment in `SPOOL_ENVIRONMENT`; JavaScript source-map uploads must use the same release and build as capture.
 
-After configuring a framework, trigger a deliberate exception in a development request or test action. Open **Issues** in Spool and check the exception and release. A successful HTTP response from an unrelated endpoint is not an intake receipt. The guided command reports success only when Spool returns its own receipt for the test event. Review the [capture guide](capture.md#4-check-it-works) for the workbench checks.
+After configuring a framework, trigger a deliberate exception in a development request or test action. Open **Issues** in Spool and check the exception and release. A successful HTTP response from an unrelated endpoint is not an intake receipt. Review the [capture guide](capture.md#4-check-it-works) for the workbench checks.
 
 ## React and Next.js
 
@@ -120,7 +119,7 @@ sentry_sdk.init(
 )
 ```
 
-Django, FastAPI and Starlette integrations are enabled by the SDK's defaults when their framework is installed. For FastAPI, place `app = FastAPI()` after this initialization. Raise a development request exception and confirm the issue in Spool. Export `SPOOL_DSN` before starting the application; a `.env` file alone does not load environment variables into Python. The unpublished wizard generates patches only for Django; FastAPI uses manual setup.
+Django, FastAPI and Starlette integrations are enabled by the SDK's defaults when their framework is installed. For FastAPI, place `app = FastAPI()` after this initialization. Raise a development request exception and confirm the issue in Spool. Export `SPOOL_DSN` before starting the application; a `.env` file alone does not load environment variables into Python.
 
 ## Spring
 
@@ -137,7 +136,7 @@ sentry.dsn=${SPOOL_DSN}
 sentry.environment=${SPOOL_ENVIRONMENT:production}
 ```
 
-Set `SPOOL_DSN` before starting the application. Existing Spring applications keep their Sentry capture calls and replace the configured DSN. Throw an exception from a development controller and confirm it in Spool. This is manual setup guidance; Spring framework behavior is not qualified by the fresh Next.js and Django journey. Java stacks do not use JavaScript source maps.
+Set `SPOOL_DSN` before starting the application. Existing Spring applications keep their Sentry capture calls and replace the configured DSN. Throw an exception from a development controller and confirm it in Spool. Java stacks do not use JavaScript source maps.
 
 ## Rails
 
@@ -162,7 +161,7 @@ Sentry.init do |config|
 end
 ```
 
-Set the environment before starting Rails. Raise an exception in a development controller and check the issue in Spool. This is a manual integration guide; fresh Rails qualification is not claimed. Ruby stacks need no JavaScript source maps; use the [JavaScript step](#javascript-source-maps) for a bundled frontend.
+Set the environment before starting Rails. Raise an exception in a development controller and check the issue in Spool. Ruby stacks need no JavaScript source maps; use the [JavaScript step](#javascript-source-maps) for a bundled frontend.
 
 ## Laravel
 
@@ -185,7 +184,7 @@ use Sentry\Laravel\Integration;
 })
 ```
 
-Older Laravel applications should retain the exception-handler integration for their installed Sentry package. Trigger a development request exception and confirm it in Spool. Laravel setup is manual and not fresh-framework qualified here. PHP stacks need no JavaScript source maps; a Vite frontend still needs the [JavaScript step](#javascript-source-maps).
+Older Laravel applications should retain the exception-handler integration for their installed Sentry package. Trigger a development request exception and confirm it in Spool. PHP stacks need no JavaScript source maps; a Vite frontend still needs the [JavaScript step](#javascript-source-maps).
 
 ## ASP.NET Core
 
@@ -208,7 +207,7 @@ var app = builder.Build();
 app.Run();
 ```
 
-Set `SPOOL_DSN` in the host environment, then trigger an exception from a development endpoint and inspect the issue in Spool. Existing applications keep their capture calls and update the DSN. This is manual ASP.NET Core guidance, not fresh-framework qualification; .NET stacks do not use JavaScript source maps.
+Set `SPOOL_DSN` in the host environment, then trigger an exception from a development endpoint and inspect the issue in Spool. Existing applications keep their capture calls and update the DSN. .NET stacks do not use JavaScript source maps.
 
 ## JavaScript source maps
 
@@ -247,30 +246,21 @@ npx -p @just-every/spool spool-sourcemaps --endpoint "$SPOOL_ENDPOINT" \
   --key-env SPOOL_DEPLOY_KEY ./dist/app.js
 ```
 
-Serve the rewritten JavaScript: the tool stamps a matching debug ID into each bundle and its map, registers the release and uploads the map privately. The capture release and dist must equal the upload's release and build. A refused upload fails the build; trigger a real error after deployment and check its original file and line in Spool. SDK 0.1.0 prints `{"uploaded":1}` for one successful CLI upload and exits 0; it does not accept `--json`. Its Vite/Rollup plugin is silent on success. Confirm the original-source frame rather than expecting the newer unpublished SDK’s readable summary. Current artifact bounds apply; this guide makes no large-map or native-symbolication claim.
+Serve the rewritten JavaScript: the tool stamps a matching debug ID into each bundle and its map, registers the release and uploads the map privately. The capture release and dist must equal the upload's release and build. A refused upload fails the build; trigger a real error after deployment and check its original file and line in Spool.
 
 ## Replace tunnelRoute
 
 Sentry's Next.js `tunnelRoute` rewrite targets Sentry's hosted ingest, so it cannot send to Spool. The manual examples above send directly to Spool: remove `tunnelRoute` from the Sentry build configuration and omit the browser SDK’s `tunnel` option. Allow your app’s exact origin in Capture and check a real exception in Issues. Direct requests may be blocked by a browser extension; this path does not claim blocker resistance.
 
-Spool’s `spoolTunnelRoute` and `nodeTunnel` helpers are in unreleased source, not the published SDK 0.1.0. Do not import `@just-every/spool/next` or `@just-every/spool/tunnel` after an npm install of that version. With a separately supplied artifact that includes those exports, the browser can use `tunnel: '/monitoring'` and a same-origin server handler. The [engineering notes](SENTRY-SWITCHING.md#runtime-qualification) describe that separate qualification and its limits.
+The published SDK does not include `spoolTunnelRoute` or `nodeTunnel`. If your existing browser configuration uses `tunnel: '/monitoring'`, remove it for this direct-capture path too. Use the manual instructions above without adding an unreleased relay helper.
 
 ## Unpublished guided setup
 
-The repository’s current SDK source is versioned 0.2.0; its **Unreleased** changes include `spool-setup` for fresh Next.js App Router and Django applications. This wizard is **not yet on npm**, and the earlier owner-held 0.2.0 artifact is not a guarantee that it contains the wizard. Check the [SDK release notes](../packages/sdk/CHANGELOG.md). Use the manual instructions above with today’s npm packages.
-
-Only if you have a separately supplied SDK artifact that includes the `spool-setup` bin, install that artifact in your application with its own Node.js and npm, then run its installed command:
-
-```sh
-npx --no-install spool-setup --dsn "$SPOOL_DSN" --dir .
-```
-
-Review the printed patch before applying it. The command writes nothing until `--apply`; add `--install` to install the packages. For Django, choose your virtual environment with `--python .venv/bin/python`. A test event must receive Spool’s own receipt before any patch is printed or written. The wizard runs on macOS, Linux and WSL2. It is not a step for the published npm 0.1.0 package.
-
+Use the manual framework instructions above.
 
 ## Prepare Node.js and npm
 
-Run Edit Run fleet, 15 November 2026. The source-map build and upload commands need Node.js and npm in **your application’s repository**. The no-Node Spool installer supplies a private runtime for Spool, not for building your application.
+The source-map build and upload commands need Node.js and npm in **your application’s repository**. The no-Node Spool installer supplies a private runtime for Spool, not for building your application.
 
 1. Install the current Node.js LTS from [the official download page](https://nodejs.org/en/download), following its instructions for your operating system. npm is included.
 2. Open a fresh terminal in your application’s repository and run `node --version` and `npm --version`. Both must succeed before continuing.
@@ -279,3 +269,5 @@ Run Edit Run fleet, 15 November 2026. The source-map build and upload commands n
 5. Deploy those exact stamped bundles. Trigger a fresh exception and check Original source in the resulting Spool issue. Keep maps and build keys private.
 
 If another computer or CI builds the application, run these steps there instead. Bring its matching prepared map to Releases → Upload map, choose the same release/build, enter the bundle’s debug ID and select the file. The currently published picker accepts flat maps up to 256 KiB. Deploy the stamped bundle from that same build and trigger a new exception to check the mapping.
+
+</details>

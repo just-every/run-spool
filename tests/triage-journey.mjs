@@ -60,7 +60,7 @@ try {
  await registerReleaseAndReturn({page,origin,project:'cedar',name:'autumn-deliveries',build:'dispatch-a',api,capture:scenario=>capture(scenario,width)});
  const snippet=await page.getByLabel('SDK init',{exact:true}).innerText();assert.ok(snippet.includes(JSON.stringify(origin)));assert.ok(!snippet.includes('location.origin'));
  application=await startDispatchApp({endpoint:origin,project:'cedar',ingestKey:project.ingestKey,release:'autumn-deliveries',build:'dispatch-a',environment:'production',debugId:'dispatch-map'});
- await page.getByLabel('Exact application origin',{exact:true}).fill(application.origin);await page.getByRole('button',{name:'Allow browser origin',exact:true}).click();await page.getByRole('status').filter({hasText:'Allowed'}).waitFor();
+ await page.getByLabel('Your website address',{exact:true}).fill(application.origin);await page.getByRole('button',{name:'Allow website',exact:true}).click();await page.getByRole('status').filter({hasText:'Saved:'}).waitFor();
  const appPage=await context.newPage();async function throwInApp(){await appPage.goto(application.origin);await appPage.getByRole('button',{name:'Prepare delivery'}).click();await appPage.waitForFunction(()=>window.captureOutcome?.outcome==='accepted');return appPage.evaluate(()=>window.captureOutcome);}
  const admitted=await throwInApp();assert.ok(admitted.issue);checked('Real minified application throws and capture crosses a second loopback origin');
  const issuePath='/projects/cedar/issues/'+admitted.issue;
@@ -103,7 +103,7 @@ try {
  await settingsNavigation.getByRole('link',{name:'Projects & keys',exact:true}).click();
  if(width===1440){
   await expect(page.getByRole('heading',{name:'Project keys',exact:true})).toBeVisible();
-  await expect(page.getByRole('heading',{name:'Members',exact:true})).toBeHidden();
+  await expect(page.getByRole('heading',{name:'Who can use Spool?',exact:true})).toBeHidden();
   const created=page.waitForResponse(response=>new URL(response.url()).pathname==='/api/projects/cedar/keys'&&response.request().method()==='POST');
   await page.getByRole('button',{name:'Create deploy key',exact:true}).click();const createdResponse=await created;assert.equal(createdResponse.status(),201);
   const {hash:createdHash}=await createdResponse.json();
