@@ -11810,7 +11810,7 @@
       "executable": false
     },
     "tests/sentry-cli-compat.mjs": {
-      "sha256": "27b65b1d652c59a98f7cd75753f915a00bf28fb468c511bb97867fb6b2995ab2",
+      "sha256": "907d659568ebb2a21b65ccbeacd4b90835d211e66d7418ff74601601a876b2c7",
       "executable": false
     },
     "tests/sentry-cli/bundlers.mjs": {
@@ -11847,6 +11847,14 @@
     },
     "tests/sentry-cli/map-flow.mjs": {
       "sha256": "69d6b689123269e95a16ce7a0c5c73414a0433f83df359ede8e9afc83759e91c",
+      "executable": false
+    },
+    "tests/sentry-cli/owner-request-flow.mjs": {
+      "sha256": "b6e9fddf72e96e3e81ea57b0fb47fe5c112584f51979d7b24a9d3136caaba6b9",
+      "executable": false
+    },
+    "tests/sentry-cli/owner-request.mjs": {
+      "sha256": "30f32f7970074288c610cdbbc383c954abb228958fd4815308974875bccf8d16",
       "executable": false
     },
     "tests/sentry-cli/plugin-flow.mjs": {
