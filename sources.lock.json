@@ -3002,7 +3002,7 @@
       "executable": false
     },
     "docs/getting-started.md": {
-      "sha256": "aa9fd3c4d3fe852e237a6d8018e16d58811423dddb3bdb73df94897a335b4ccc",
+      "sha256": "6a9bae35a24554d9f338aa3ab39022d5b71eba9c239bbfc7a0f0c95b661608ce",
       "executable": false
     },
     "docs/GITHUB-CONNECTION.md": {
@@ -3026,7 +3026,7 @@
       "executable": false
     },
     "docs/install.md": {
-      "sha256": "089150970a437eb7009691c5df005c174d6f05b8d8fe03e5b503aeeffb93f050",
+      "sha256": "a1bb4cfdac884d58bcbc797d3605392b71030b89b8f27f3276bc59451fcc89ce",
       "executable": false
     },
     "docs/INTEGRATION-EGRESS.md": {
