@@ -32,6 +32,7 @@ import { queueNotices, dispatchNotices } from './domain/follow-up/notices';
 import { staticAssetResponse } from './base/static-assets';
 import { admitted, setupStateResponse } from './base/setup-state';
 import { lobbyResponse } from './base/lobby';
+import { localOwnerLobby } from './auth/local-owner-lobby.server';
 import { identity } from './identity';
 import { docsResponse, isDocsRequest } from './ui/docs/document.server';
 import { continueErasures } from './domain/erasure/service';
@@ -96,7 +97,7 @@ async function handle(request: Request, bindings: Bindings & AlertEnvironment, e
  const state = await setupStateResponse(request, env, setupClaimed); if (state) return state;
  // Admit the root before reading a native session; owners keep the workbench at /.
  if (path === '/' && (!admitted(request, env.AUTH_ORIGIN) || !await ownerSession(request,env,resolveMembership))) {
-  const lobby = await lobbyResponse(request, env, identity, setupClaimed); if (lobby) return lobby;
+  const lobby = await lobbyResponse(request, env, identity, setupClaimed); if (lobby) return localOwnerLobby(lobby, env);
  }
  if (isDocsRequest(request)) return docsResponse(request);
  // Independently mounted owner/auth handlers share the same agent denial.
