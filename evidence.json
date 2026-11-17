@@ -1,0 +1,46 @@
+{
+  "files": [
+    {
+      "blob": "ea6d989be0cc06b227bd01bb7da3e28132eeeaa8",
+      "bytes": 5786,
+      "path": "REPORT.md",
+      "sha256": "f9ea1e557b10bf130ac55f3f21dcf0be145717890c485ba9cd0f51720ff97b5c"
+    },
+    {
+      "blob": "b498a1b53ee60e4fdc11b07f0b1ad89b96d3bb44",
+      "bytes": 1179,
+      "path": "ci-runs.json",
+      "sha256": "a4f6e3f3b090ff82d9ac94ef268b80da2d02f9f2c5bf46dbbb6d7827617148ec"
+    },
+    {
+      "blob": "11dcd2f6e01720f7c224e0f69f245390bfb13f20",
+      "bytes": 15103,
+      "path": "existing-fix.patch",
+      "sha256": "6294eaba195f2ad3e1f9f5e57d8d3cd493e8ea56441911e9b89b46ee175bec71"
+    },
+    {
+      "blob": "dbc83136e16d586e6b3b940d5a780351b2e5b124",
+      "bytes": 603,
+      "path": "result.json",
+      "sha256": "723005c795ff3c9cac1338e7f471c3cae8f2c24146b322b6dfe6ced3de0b5c30"
+    },
+    {
+      "blob": "8511623e9e6e755ae12abce2a6a9f47b20e13dd1",
+      "bytes": 2512,
+      "path": "verification-receipt.json",
+      "sha256": "1e9c46fe597e6407ca301e2252481b8d4d8538455fbcf81f682aaabacd92b1b3"
+    },
+    {
+      "blob": "93c6473e426976cdce27e77f45cd42b405d1c266",
+      "bytes": 4187,
+      "path": "verify-no-change.py",
+      "sha256": "ac82d9c925b63c1fefbf2dcf4a2c5d10e176cd19a90c90381d7a49e15e9ac5f2"
+    }
+  ],
+  "product_branch": "cloud/gr-mt-spool-dep-2",
+  "product_head": "b261dba72dfbcb30cb9d271fe81cdeea206c89eb",
+  "ref": "refs/heads/evidence/gr-mt-spool-dep-2",
+  "repository": "just-every/run-spool",
+  "schema": 1,
+  "tag": "gr-mt-spool-dep-2"
+}

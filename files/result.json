@@ -1,0 +1,7 @@
+{
+  "status": "no-change",
+  "sha": "b261dba72dfbcb30cb9d271fe81cdeea206c89eb",
+  "summary": "Current default main already declares and locks Vite 8.2.4; prior fix e206a1ca9a631059818333837062a90bd225443d is an ancestor, with zero affected Vite resolutions in either lockfile.",
+  "tests": "Read-only YAML and manifest verification PASS; remote HEAD/main equality PASS; original-fix ancestry PASS; clean-tree and no-new-commit checks PASS; exact-main Verify runs 44103866483 and 44087040126 completed/success. No local install, build or typecheck rerun because no product change.",
+  "security": true
+}

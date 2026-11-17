@@ -1,0 +1,77 @@
+{
+  "advisory": "GHSA-698v-4r3x-3vcv",
+  "author": "Run Edit Run fleet",
+  "branch": "cloud/gr-mt-spool-dep-2",
+  "contract_clause_changes": [],
+  "current_affected_after": 0,
+  "current_affected_before": 0,
+  "declared_vite": "8.2.4",
+  "default_ref_probe": [
+    "ref: refs/heads/main\tHEAD",
+    "b261dba72dfbcb30cb9d271fe81cdeea206c89eb\tHEAD",
+    "b261dba72dfbcb30cb9d271fe81cdeea206c89eb\trefs/heads/main"
+  ],
+  "exact_main_successful_verify": [
+    {
+      "conclusion": "success",
+      "event": "push",
+      "head_sha": "b261dba72dfbcb30cb9d271fe81cdeea206c89eb",
+      "html_url": "https://github.com/just-every/run-spool/actions/runs/44103866483",
+      "id": 44103866483,
+      "name": "Verify",
+      "status": "completed"
+    },
+    {
+      "conclusion": "success",
+      "event": "push",
+      "head_sha": "b261dba72dfbcb30cb9d271fe81cdeea206c89eb",
+      "html_url": "https://github.com/just-every/run-spool/actions/runs/44087040126",
+      "id": 44087040126,
+      "name": "Verify",
+      "status": "completed"
+    }
+  ],
+  "github_api_calls": 1,
+  "head": "b261dba72dfbcb30cb9d271fe81cdeea206c89eb",
+  "local_install_build_typecheck": "not run: no product changes; exact-main completed successful Verify recorded",
+  "local_product_changed_files": [],
+  "lockfiles": [
+    {
+      "affected_resolutions": 0,
+      "package_versions": [
+        "8.2.4"
+      ],
+      "path": "pnpm-lock.yaml",
+      "sha256": "61726f845e343e3bd524818e0b14d32b559e108e016f3a0fad725cae00fcee8f",
+      "snapshot_versions": [
+        "8.2.4(@types/node@22.20.5)(esbuild@0.28.2)(jiti@2.7.0)(terser@5.51.2)"
+      ]
+    },
+    {
+      "affected_resolutions": 0,
+      "package_versions": [],
+      "path": "src/modules/mail/pnpm-lock.yaml",
+      "sha256": "65eea51d3f37f0ee7a4fadbda7c9d6d177fd6bfa1df844aa50a5afacfcf872a5",
+      "snapshot_versions": []
+    }
+  ],
+  "new_product_commits": 0,
+  "origin_main": "b261dba72dfbcb30cb9d271fe81cdeea206c89eb",
+  "original_fix": "e206a1ca9a631059818333837062a90bd225443d",
+  "original_fix_affected_after": 0,
+  "original_fix_affected_before": 1,
+  "original_fix_before_vite": [
+    "8.2.2"
+  ],
+  "original_fix_is_main_ancestor": true,
+  "product_publication_scan": "not run: no product changes, commits or push; evidence uses the dedicated report-only entrypoint",
+  "recorded_at": "2026-11-17T15:32:34.711208+00:00",
+  "related_alerts": [
+    20,
+    18
+  ],
+  "repository": "just-every/run-spool",
+  "status": "no-change",
+  "tests_added": 0,
+  "tests_removed": 0
+}
