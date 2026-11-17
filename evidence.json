@@ -1,10 +1,10 @@
 {
   "files": [
     {
-      "blob": "aa4668a054660d5ab0e172a9073ad76a77f9c9a8",
-      "bytes": 15232,
+      "blob": "4f785cb041efcbe1355d31b188a32884048a94b4",
+      "bytes": 15668,
       "path": "REPORT.md",
-      "sha256": "02592d296453f85e0534ed729146797dd7e70e4979674ba894a19da652a9c65f"
+      "sha256": "07c374be224ecfc1ebc68209435fce043e050f514d04b4fe7f984dcbebf48b40"
     },
     {
       "blob": "279bb691429cb341341b356e8c02f6fa5833f689",
@@ -571,6 +571,18 @@
       "sha256": "14cee29b7bd19487e15f4013d4fb85016e022ef21d230676971a6490c88436d2"
     },
     {
+      "blob": "dc89539685d4ea823a44a185a4ecd9715b0d5c21",
+      "bytes": 380,
+      "path": "merged-correction-worktree-receipt.json",
+      "sha256": "32d9a93aa95c937f69f3ea0ed7afcfe682eb08b21baee71b5d9e6a1b48055a11"
+    },
+    {
+      "blob": "12d75fef1fe55e70e3e9d949f23a86d58cfb73f8",
+      "bytes": 111482,
+      "path": "merged-correction-worktree.patch",
+      "sha256": "007a66020507ae5f89e2931f104f275b172556489ced08d15553d235b567a5cb"
+    },
+    {
       "blob": "0e7940ea42212e471e69bd482f1fd89c599e5f2a",
       "bytes": 238,
       "path": "merged-integration-check-final.txt",
@@ -671,6 +683,12 @@
       "bytes": 387,
       "path": "previous-release-native-diagnostic.txt",
       "sha256": "c30f236b698a521631c9b497faa51b61c425d92471f2ab0fabc0fcdeba9c6d93"
+    },
+    {
+      "blob": "1a191efa0cd5cef7572f7a0a6d7f4fc565f07c84",
+      "bytes": 752,
+      "path": "product-bundle-receipt.json",
+      "sha256": "e21729dbb55ede8960584f1526c2addd56ed0896a92487ad2b13b8107f038f04"
     },
     {
       "blob": "30f50e5d77b405e05bfa99f9e889783e5fe7ffe1",

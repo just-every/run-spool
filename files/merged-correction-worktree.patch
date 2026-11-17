@@ -1,0 +1,1262 @@
+diff --git a/docs/IMPORT-READS.md b/docs/IMPORT-READS.md
+index 0146b16..acd7e31 100644
+--- a/docs/IMPORT-READS.md
++++ b/docs/IMPORT-READS.md
+@@ -57,3 +57,55 @@ creation date. Those key fields are null with `key_metadata_not_provided`.
+ Supplying real values requires metadata from the trust producer and an additive
+ owner-claim configuration contract; first-seen and revocation dates are not
+ creation dates. No trust or credential model is added here.
++
++## Documented Sentry capture accounting
++
++The owner plan, status, reconcile and history reads add `sentry` for Sentry
++sources. `collections` distinguishes response records, unique records, duplicate
++rows, mapped records and rejected records, with UTF-8 payload bytes. `fields`
++contains an exact JSON pointer, source location, encoded value byte count,
++disposition and readable reason for every scalar and empty container in every
++unique source record. Numeric array indices are preserved; `arrays` separately
++names each array's element count and wholly omitted indices. Earlier exceptions,
++unused symbolicated stacks, frame locals, non-environment tags, unsupported
++nested extensions and rejected records are therefore visible individually.
++`transformed` means converted, scrubbed or bounded, rather than exact preservation.
++The existing mapping still retains only its selected exception and supported
++historical projection. This report does not expand event fidelity.
++
++`capture.inventory` contains the adapter's API page counts, source response
++bytes/hashes, sanitized bytes/hashes and complete opaque cursor chain. The parser
++checks sanitized hashes and counts against the actual bundled responses; source
++hashes describe the pre-redaction capture and are exporter attestations, not a
++provider signature. `capture.redactions` names credential locations without
++values. Raw HTTP headers and URLs are excluded from the uploaded bundle.
++
++`loaders` lists every source key's inert loader, rate and active-state settings.
++`replacementScriptTag` is null with a reason: import creates no Spool key and
++cannot supply a usable replacement tag. Create a fresh native ingest key and
++approve the loader settings during cutover. Roster, alerts and ownership have
++source-only dispositions; they grant no access and activate no work.
++
++`byteLedger` gives each source identity its actual source/native byte totals,
++signed difference, duplicate count, transformed/unmapped field counts and native
++targets; both columns sum to their separately reported totals.
++
++Source and native byte totals measure different encodings. Source payload bytes
++include duplicate response rows and unsupported fields; native bytes count the
++present native target values plus provenance. Projection, scrubbing, duplicate
++collapse, derived identities and timestamps explain why equality is not a
++migration invariant. Source bytes, sanitized response bytes, wrapper bytes and
++native bytes remain separate. Reports contain locations and counts, not source
++field values. Missing or erasure-withdrawn snapshots retain the existing null /
++unavailable policy.
++
++Sentry alone admits at most 1,000 parsed records including its manifest, still
++within 2 MiB. Other importers retain their previous 500-record quota. Apply and
++undo remain bounded resumable door operations. Native set fencing compares all
++native columns, identities, revisions and exact provenance in fixed queries;
++it does not accept a revision marker as proof that a native row is unchanged.
++The kit's separate 2 MiB read/value, SQL size and 1,000-statement request limits
++remain authoritative and return named refusals. Larger organizations are not
++qualified by this bounded profile.
++
++Signed: Run Edit Run fleet, 17 November 2026.
+diff --git a/docs/SENTRY-SWITCHING.md b/docs/SENTRY-SWITCHING.md
+index 595722b..13521de 100644
+--- a/docs/SENTRY-SWITCHING.md
++++ b/docs/SENTRY-SWITCHING.md
+@@ -262,3 +262,49 @@ owner-claim key ring (Base's `verifyRerGrant`). Without that trust it answers
+ 404; without a grant 401; another action, an expired grant, another
+ installation, owner or audience, a wrong key, or a key revoked under **Revoke
+ key** 403; a malformed body 400; any method but POST 405.
++
++## Generate a documented-schema import fixture
++
++No Sentry account is needed for this synthetic experiment. From the checkout:
++
++```sh
++node scripts/fixtures/sentry-organization.mjs /tmp/spool-sentry-baseline baseline
++node scripts/fixtures/sentry-organization.mjs /tmp/spool-sentry-scaled scaled
++```
++
++Each directory contains a deterministic `capture.json`, sanitized `bundle.json`,
++page/byte/redaction `receipt.json` and public `documentation.json` links. The
++baseline has eight issues/events; scaled has 260 of each, exceeding the former
++500-record limit. Both include projects, keys, issues, event details, releases,
++workflows/detectors, singleton ownership and members/teams. The wrapper is Spool's
++format, not a universal native Sentry export. Response objects use the linked
++Sentry `/api/0/` schemas. Events use singleton event detail responses, not SDK wire
++JSON or list summaries. Ownership gets a project-scoped singleton identity and
++needs no invented provider ID. Lists retain complete `Link` acquisition chains,
++including an empty terminal page and overlapping equal issue rows. Issue lists
++request every state (`query=`), avoiding Sentry's default unresolved subset.
++
++For an already captured, authorized offline response file:
++
++```sh
++node scripts/sentry-export.mjs CAPTURE.json BUNDLE.json RECEIPT.json
++```
++
++This command never calls Sentry. It checks endpoints, page chains and collection
++scope, refuses truncated/cross-origin links and strips credentials before any
++upload can be constructed. Repeated removed values are redacted across every response page, including encoded forms;
++a credential reflected in a field name refuses the capture. Keep capture files private: only sanitized bundles reach the import
++door, and only the path/count report belongs in shared evidence. Credential
++refusal and exact owner/project authority checks remain in the existing door.
++Use the existing `scripts/sentry-import.mjs dry-run --file BUNDLE.json` owner path
++with its documented endpoint and session environment options, review the returned
++fingerprint, then explicitly apply. Owner reads expose the accounting described
++in [IMPORT-READS.md](IMPORT-READS.md).
++
++These fixtures qualify inventory and loss accounting only. No native invitations,
++source key activation, live alerts or replacement loader script are created.
++Other MIG-001 collections, richer event fidelity, arbitrary-size migration,
++full Sentry API/Terraform compatibility, real-account dual run and cutover remain
++unproved. The existing public door and product release status are unchanged.
++
++Signed: Run Edit Run fleet, 17 November 2026.
+diff --git a/scripts/fixtures/sentry-organization.mjs b/scripts/fixtures/sentry-organization.mjs
+new file mode 100644
+index 0000000..9c34250
+--- /dev/null
++++ b/scripts/fixtures/sentry-organization.mjs
+@@ -0,0 +1,71 @@
++#!/usr/bin/env node
++import { mkdir, writeFile } from 'node:fs/promises';
++import { resolve } from 'node:path';
++import { pathToFileURL } from 'node:url';
++import { schema, endpoints, exportCapture } from '../sentry-export.mjs';
++
++// Fixed synthetic values, based on the linked public API response schemas. No provider calls.
++export const documentation = {
++ projects:'https://docs.sentry.io/api/organizations/list-an-organizations-projects/',
++ keys:'https://docs.sentry.io/api/projects/list-a-projects-client-keys/',
++ issues:'https://docs.sentry.io/api/events/list-a-projects-issues/',
++ events:'https://docs.sentry.io/api/events/retrieve-an-event-for-a-project/',
++ releases:'https://docs.sentry.io/api/releases/list-an-organizations-releases/',
++ workflows:'https://docs.sentry.io/api/monitors/fetch-alerts/',
++ detectors:'https://docs.sentry.io/api/monitors/fetch-an-organizations-monitors/',
++ ownership:'https://docs.sentry.io/api/projects/retrieve-ownership-configuration-for-a-project/',
++ members:'https://docs.sentry.io/api/organizations/list-an-organizations-members/',
++ teams:'https://docs.sentry.io/api/teams/list-an-organizations-teams/',
++ pagination:'https://docs.sentry.io/api/pagination/',
++};
++const date='2026-02-02T00:00:00Z',org='synthetic-spool-1',project='checkout';
++const url=path=>'https://sentry.invalid'+path;
++export function sentryOrganization(profile='baseline') {
++ if(!['baseline','scaled'].includes(profile))throw new Error('Expected baseline or scaled');
++ const size=profile==='scaled'?260:8;
++ const capture={schema,synthetic:true,organization:{id:'synthetic-spool-1',slug:org,region:'us'},
++  window:{start:'2026-02-01T00:00:00Z',end:'2026-02-03T00:00:00Z'},
++  omissions:['Synthetic documented API captures only; all other MIG-001 families and real buyer cutover remain unqualified.'],collections:[]};
++ const paths=endpoints(org,project);
++ const list=(kind,rows,scope=null)=>{
++  const base=new URL(url(paths[kind]));base.searchParams.set('per_page','100');if(kind==='issues')base.searchParams.set('query','');
++  const pageSize=100,parts=[];
++  for(let offset=0;offset<rows.length;offset+=pageSize)parts.push(rows.slice(offset,offset+pageSize));
++  if(!parts.length)parts.push([]);parts.push([]); // Empty terminal page is actually acquired.
++  const responses=parts.map((part,index)=>{
++   const current=new URL(base),next=new URL(base);if(index)current.searchParams.set('cursor',`opaque-%E7%8C%AB-%25-${index}`);
++   const cursor=`opaque-%E7%8C%AB-%25-${index+1}`;next.searchParams.set('cursor',cursor);
++   return {url:current.href,status:200,link:`<${next.href}>; rel="next"; results="${index<parts.length-1}"; cursor="${cursor}"`,body:JSON.stringify(part)};
++  });capture.collections.push({kind,project:scope,responses});
++ };
++ list('projects',[{id:'synthetic-project-1',slug:project,name:'Checkout 猫 café',dateCreated:date,platform:'javascript',teams:[{id:'synthetic-team-1',slug:'checkout',name:'Checkout'}],environments:['production','staging'],features:['releases']}]);
++ list('releases',[{version:'checkout@1.0.0',dateCreated:date,projects:[{slug:project,name:'Checkout',platform:'javascript'}],dateReleased:date,commitCount:2,lastCommit:{id:'a'.repeat(40),message:'Synthetic change',repository:{name:'synthetic-spool-1',provider:{id:'github',name:'GitHub'}}}}]);
++ list('keys',[{id:'synthetic-key-1',name:'Browser loader',public:'synthetic-spool-key-1',secret:'[removed]',isActive:false,
++  rateLimit:{count:37,window:60},dsn:{public:'https://synthetic-spool-key-1@ingest.invalid/42',secret:'[removed]',cdn:'https://js.sentry-cdn.com/synthetic-spool-key-1.min.js'},
++  browserSdkVersion:'latest',dynamicSdkLoaderOptions:{hasReplay:true,hasPerformance:false,hasDebug:true,hasFeedback:true,hasLogsAndMetrics:false}}],project);
++ list('teams',[{id:'synthetic-team-1',slug:'checkout',name:'Checkout فريق',dateCreated:date,memberCount:2,hasAccess:true}]);
++ list('members',[{id:'synthetic-member-1',email:'synthetic-spool-1@example.test',name:'Synthetic member',orgRole:'admin',pending:true,expired:false,flags:{'sso:linked':false},user:null}]);
++ list('workflows',[{id:'synthetic-workflow-1',name:'Checkout error alert',enabled:false,detectorIds:['synthetic-detector-1'],triggers:{id:'synthetic-trigger-1',logicType:'any',conditions:[{id:'synthetic-trigger-condition-1',type:'detector_changed',comparison:'high',conditionResult:true}],actions:[]},actionFilters:[{id:'synthetic-filter-1',logicType:'any',conditions:[],actions:[{id:'synthetic-action-1',type:'email',status:'disabled',integrationId:null,config:{targetType:'Team',targetIdentifier:'synthetic-team-1',targetDisplay:'Checkout'},data:{fallthroughType:'ActiveMembers'}}]}],config:{frequency:30},unknownExtension:{nested:[{code:'source-only'}]}}]);
++ list('detectors',[{id:'synthetic-detector-1',name:'Checkout errors',type:'error',projectId:'synthetic-project-1',enabled:false,config:{},conditionGroup:{id:'synthetic-condition-group-1',logicType:'any',conditions:[{id:'synthetic-condition-1',type:'event_frequency_count',comparison:100,conditionResult:true}],actions:[]},dataSources:[{id:'synthetic-data-source-1',type:'snuba_query_subscription',sourceId:'synthetic-query-1',queryObj:{id:'synthetic-query-1',snubaQuery:{dataset:'events',eventTypes:['error'],aggregate:'count()',query:'event.type:error',timeWindow:60,environment:'production'}}}]}]);
++ capture.collections.push({kind:'ownership',project,responses:[{url:url(paths.ownership),status:200,body:JSON.stringify({raw:'path:src/checkout/* #checkout',schema:{$version:1,rules:[{matcher:{type:'path',pattern:'src/checkout/*'},owners:[{type:'team',id:'synthetic-team-1',name:'checkout'}]}]},fallthrough:true,autoAssignment:false,codeownersAutoSync:false})}]});
++ const issues=Array.from({length:size},(_,i)=>({id:`synthetic-issue-${i}`,shortId:`CHECKOUT-${i+1}`,title:`Checkout failure ${i}`,status:i%3===0?'resolved':i%3===1?'ignored':'unresolved',firstSeen:date,lastSeen:date,count:'99',userCount:3,assignedTo:{type:'team',id:'synthetic-team-1',name:'Checkout'},statusDetails:{},priority:'high'}));
++ list('issues',[...issues,structuredClone(issues[0])],project);
++ capture.collections.push({kind:'events',project,responses:issues.map((issue,i)=>{
++  const eventID=i.toString(16).padStart(32,'0');
++  return {url:url(paths.events+eventID+'/'),status:200,body:JSON.stringify({eventID,groupID:issue.id,title:issue.title,release:{version:'checkout@1.0.0',shortVersion:'1.0.0'},dist:'build-1',environment:'production',dateCreated:date,dateReceived:'2026-02-02T00:00:01Z',tags:[{key:'environment',value:'production'},{key:'region',value:'synthetic'}],contexts:{browser:{name:'Synthetic browser'}},
++   entries:[{type:'exception',data:{values:[{type:'Error',value:'Earlier exception',stacktrace:{frames:[{filename:'earlier.js',lineNo:1,colNo:1}] }},{type:'TypeError',value:issue.title,mechanism:{handled:true,type:'generic'},rawStacktrace:{frames:[{filename:'src/checkout.ts',absPath:'https://checkout.example.test/app.js',lineNo:12,colNo:4,function:'checkout',vars:{ordinary:'safe'}}]},stacktrace:{frames:[{filename:'src/original.ts',lineNo:3,colNo:2,function:'original'}]}}]}},
++    {type:'breadcrumbs',data:{values:[{type:'default',category:'navigation',message:'Checkout opened',data:{method:'GET',status_code:200},event_id:'source-only'}]}},
++    {type:'request',data:{method:'GET',url:'https://checkout.example.test/',headers:[['Accept','application/json']]}}]})};
++ })});
++ return capture;
++}
++export async function writeFixture(directory,profile='baseline') {
++ const capture=sentryOrganization(profile),{bundle,receipt}=exportCapture(capture);
++ await mkdir(directory,{recursive:true});
++ for(const [name,value] of Object.entries({capture,bundle,receipt,documentation}))await writeFile(resolve(directory,name+'.json'),JSON.stringify(value,null,2)+'\n',{mode:0o600});
++ return receipt;
++}
++if(process.argv[1]&&import.meta.url===pathToFileURL(process.argv[1]).href) {
++ const [directory,profile]=process.argv.slice(2);if(!directory)throw new Error('Expected output directory [baseline|scaled]');
++ console.log(JSON.stringify(await writeFixture(directory,profile)));
++}
+diff --git a/scripts/installer/local.mjs b/scripts/installer/local.mjs
+index b20e169..f3b2e66 100644
+--- a/scripts/installer/local.mjs
++++ b/scripts/installer/local.mjs
+@@ -31,7 +31,7 @@ export const commandAdapter = createCommandAdapter(adapter, {
+  // Local dev identity: the local-only Worker entry, the build output rer build scans for the dev layer, and its local owner journey.
+  devIdentity: { entry: 'src/server.dev.ts', output: ['dist'], emailLinkTest: 'tests/owner-erasure.mjs' },
+  localOnlyKeys: ['RER_DEV_ORIGIN', 'RER_DEV_IDENTITY'],
+- product: model.product.name, mailOffSignIn: '~/.local/bin/rer signin',
++ product: model.product.name, mailOffSignIn: 'rer signin',
+  // Hosted setup defaults to a real provider; local setup opens the owner session without email.
+  input: { names: { email: 'OWNER_EMAIL', name: 'displayName' }, defaults: async () => ({ MAIL_PROVIDER: 'development', MAIL_FROM: 'auth@localhost.test' }) },
+ });
+diff --git a/scripts/sentry-export.mjs b/scripts/sentry-export.mjs
+new file mode 100644
+index 0000000..d2bab88
+--- /dev/null
++++ b/scripts/sentry-export.mjs
+@@ -0,0 +1,124 @@
++#!/usr/bin/env node
++import { createHash } from 'node:crypto';
++import { readFile, writeFile } from 'node:fs/promises';
++import { pathToFileURL } from 'node:url';
++import { removeCredentials, assertNoCredentials, reflectedCredentialMatcher } from '../src/modules/import-kit/src/provenance/credentials.ts';
++
++export const schema = 'sentry-web-api-0-capture-v1';
++export const bytesOf = value => Buffer.byteLength(JSON.stringify(value));
++export const digest = value => createHash('sha256').update(value).digest('hex');
++const fail = code => { throw new Error(`Sentry capture refused: ${code}`); };
++const cursorOf = url => url.searchParams.get('cursor');
++/** Sentry's opaque next cursor comes from Link, only when results=true. Never fetch a supplied host. */
++export function nextPage(link, current) {
++  if (typeof link !== 'string' || link.length > 8192) fail('invalid_link');
++  const links = link.split(/,\s*(?=<)/).map(part => {
++    const match = /^\s*<([^>]+)>\s*((?:;\s*[\w]+="[^"]*")*)\s*$/.exec(part);
++    if (!match) fail('invalid_link');
++    const params = Object.fromEntries([...match[2].matchAll(/;\s*(\w+)="([^"]*)"/g)].map(m => [m[1],m[2]]));
++    return {url:match[1],...params};
++  }).filter(row => row.rel === 'next');
++  if (links.length !== 1 || !['true','false'].includes(links[0].results)) fail('next_link_required');
++  const next = links[0], url = new URL(next.url,current), here = new URL(current);
++  if (url.origin !== here.origin || url.pathname !== here.pathname || url.username || url.password || url.hash) fail('cross_scope_link');
++  if (!cursorOf(url) || next.cursor !== cursorOf(url)) fail('cursor_link_mismatch');
++  const query = u => [...u.searchParams].filter(([key])=>key!=='cursor').sort();
++  if (JSON.stringify(query(url)) !== JSON.stringify(query(here))) fail('query_changed');
++  return next.results === 'true' ? url : null;
++}
++const family = kind => ['keys','ownership'].includes(kind) ? kind : ['teams','members'].includes(kind) ? 'roster' : ['workflows','detectors'].includes(kind) ? 'alerts' : kind;
++export const endpoints = (org,project) => ({
++  projects:`/api/0/organizations/${org}/projects/`, releases:`/api/0/organizations/${org}/releases/`,
++  teams:`/api/0/organizations/${org}/teams/`, members:`/api/0/organizations/${org}/members/`,
++  workflows:`/api/0/organizations/${org}/workflows/`, detectors:`/api/0/organizations/${org}/detectors/`,
++  keys:`/api/0/projects/${org}/${project}/keys/`, ownership:`/api/0/projects/${org}/${project}/ownership/`,
++  issues:`/api/0/projects/${org}/${project}/issues/`, events:`/api/0/projects/${org}/${project}/events/`,
++});
++function checkEndpoint(kind,project,url,org) {
++  const expected=endpoints(encodeURIComponent(org),project===null?'':encodeURIComponent(project))[kind];
++  if (!expected || (['keys','ownership','issues','events'].includes(kind) ? !project : project!==null)) fail('unsupported_collection_scope');
++  if (kind==='events') {
++    if (!url.pathname.startsWith(expected) || !/^[a-f0-9]{32}\/$/.test(url.pathname.slice(expected.length))) fail('event_detail_required');
++  } else if (url.pathname!==expected) fail('endpoint_mismatch');
++  if (url.username || url.password || url.hash) fail('endpoint_credentials');
++  for(const key of url.searchParams.keys())if(!['cursor','per_page','query','start','end','statsPeriod'].includes(key))fail('unsupported_query');
++  const size=url.searchParams.get('per_page');if(size!==null&&(!/^[1-9][0-9]*$/.test(size)||Number(size)>100))fail('page_size');
++  if(kind==='issues'&&url.searchParams.get('query')!=='')fail('all_issue_states_required');
++}
++/** Offline, bounded response capture adapter. It makes no provider calls and never accepts auth headers. */
++export function exportCapture(capture) {
++  if(capture?.schema!==schema || !Array.isArray(capture.collections) || !capture.collections.length || capture.collections.length>100)fail('schema');
++  const organization=capture.organization;
++  if(!organization||typeof organization.slug!=='string'||!organization.slug||organization.slug.length>200)fail('organization');
++  const output={format:'spool-sentry-org-export',version:1,organization,window:capture.window,collections:[],omissions:capture.omissions??[]};
++  const inventory=[],redactions=[],cleanPages=new Map(),secrets=[];let totalBytes=0;
++ // Gather removals across the entire capture before projecting any page: a
++ // credential from a later response must not survive in an earlier one.
++ for(const collection of capture.collections){
++  if(!Array.isArray(collection.responses))fail('response_pages');
++  for(const page of collection.responses){
++   if(typeof page?.body!=='string')fail('http_response');
++   totalBytes+=Buffer.byteLength(page.body);if(totalBytes>2*1024*1024)fail('capture_byte_limit');
++   let response;try{response=JSON.parse(page.body)}catch{fail('invalid_json')}
++   const clean=removeCredentials(response);cleanPages.set(page,{response,clean});secrets.push(...clean.secrets);
++  }
++ }
++ const reflected=reflectedCredentialMatcher([...new Set(secrets)]);
++  for(const collection of capture.collections) {
++    const {kind,project}=collection;
++    if(!Array.isArray(collection.responses)||!collection.responses.length||collection.responses.length>(kind==='events'?1000:100))fail('response_pages');
++    let expected=null, origin=null; const seen=new Set(),pages=[];
++    for(const [index,page] of collection.responses.entries()) {
++      if(typeof page.body!=='string'||typeof page.url!=='string'||page.status!==200)fail('http_response');
++      const url=new URL(page.url);checkEndpoint(kind,project,url,organization.slug);
++      origin??=url.origin;if(url.origin!==origin)fail('origin_changed');
++      if(seen.has(url.href))fail('repeated_page');seen.add(url.href);
++      if(kind!=='events'&&(index===0 ? cursorOf(url)!==null : url.href!==expected?.href))fail('broken_page_chain');
++      const {response,clean}=cleanPages.get(page);
++      if(['ownership','events'].includes(kind) ? !response||Array.isArray(response)||typeof response!=='object' : !Array.isArray(response))fail('response_shape');
++      if(Array.isArray(response)&&response.length>100)fail('response_page_size');
++      let next=null;
++      if(kind!=='ownership'&&kind!=='events')next=nextPage(page.link,url);
++      if(kind!=='events'&&(index===collection.responses.length-1)!==(next===null))fail('incomplete_page_chain');
++      // URL userinfo can repeat in public-key/loader fields as well as secret fields.
++      // Remove every reflection, including encoded forms, before constructing custody.
++      const screen=(v,path='')=>{
++        if(typeof v==='string'&&reflected(v)){clean.removed.push({path,field:{kind:'reflected'}});return '[removed]'}
++        if(Array.isArray(v))return v.map((child,i)=>screen(child,path+'/'+i));
++        if(v&&typeof v==='object')return Object.fromEntries(Object.entries(v).map(([key,child])=>{
++          if(reflected(key))fail('reflected_credential_key');
++          return [key,screen(child,path+'/'+key.replaceAll('~','~0').replaceAll('/','~1'))];
++        }));
++        return v;
++      };
++      clean.value=screen(clean.value);assertNoCredentials(clean.value);
++      const base=`/collections/${output.collections.length}/pages/${kind==='events'?0:index}/response`;
++      for(const item of clean.removed)redactions.push({path:base+(kind==='ownership'?'/0':kind==='events'?`/${index}`:'')+item.path,disposition:'redacted',reason:'Credential removed before upload; original value is not retained.'});
++      const rows=['ownership','events'].includes(kind)?[clean.value]:clean.value;
++      const sanitizedBody=JSON.stringify(clean.value);
++      inventory.push({kind,family:family(kind),project,page:index,cursor:cursorOf(url),nextCursor:next?cursorOf(next):null,
++        records:rows.length,sourceBytes:Buffer.byteLength(page.body),sourceSha256:digest(page.body),
++        sanitizedBytes:Buffer.byteLength(sanitizedBody),sanitizedSha256:digest(sanitizedBody)});
++      pages.push({cursor:index===0?null:cursorOf(url),nextCursor:next?cursorOf(next):null,response:rows});expected=next;
++    }
++    // Event details are distinct singleton responses; gather them into the existing event collection.
++    const held=output.collections.find(c=>c.kind===kind&&c.project===project);
++    if(held&&kind!=='events')fail('duplicate_collection');
++    if(held)held.pages[0].response.push(...pages[0].response);
++    else output.collections.push({kind,project,pages:kind==='events'?[{cursor:null,nextCursor:null,response:pages.flatMap(p=>p.response)}]:pages});
++  }
++  // Evidence travels in the checked manifest; there are no raw response URLs or headers in custody.
++  output.capture={schema,inventory,redactions};
++  if(reflected(JSON.stringify(output)))fail('reflected_credential_metadata');
++  assertNoCredentials(output);
++  return {bundle:output,receipt:{schema,synthetic:capture.synthetic===true,inventory,redactions,
++    sourceBytes:inventory.reduce((n,p)=>n+p.sourceBytes,0),sanitizedBytes:inventory.reduce((n,p)=>n+p.sanitizedBytes,0),bundleBytes:bytesOf(output)}};
++}
++if(process.argv[1]&&import.meta.url===pathToFileURL(process.argv[1]).href) {
++  const [input,output,receipt,...extra]=process.argv.slice(2);
++  if(!input||!output||!receipt||extra.length)throw new Error('Usage: node scripts/sentry-export.mjs CAPTURE.json BUNDLE.json RECEIPT.json');
++  const data=await readFile(input);if(data.length>8*1024*1024)fail('capture_file_limit');
++  const result=exportCapture(JSON.parse(new TextDecoder('utf-8',{fatal:true}).decode(data)));
++  await writeFile(output,JSON.stringify(result.bundle),{mode:0o600,flag:'wx'});
++  await writeFile(receipt,JSON.stringify(result.receipt,null,2)+'\n',{mode:0o600,flag:'wx'});
++}
+diff --git a/sources.lock.json b/sources.lock.json
+index bbaf910..7f9449a 100644
+--- a/sources.lock.json
++++ b/sources.lock.json
+@@ -3018,7 +3018,7 @@
+       "executable": false
+     },
+     "docs/IMPORT-READS.md": {
+-      "sha256": "9ebf64785924290489af1bea558af55cb75936418e5a1f4820fea5c841184327",
++      "sha256": "9c2aa861ffdb30cffb48cddd5bbc1cbaf19abf12af87f410db5fba0efd3cfadf",
+       "executable": false
+     },
+     "docs/INBOUND-FILTERS.md": {
+@@ -3722,7 +3722,7 @@
+       "executable": false
+     },
+     "docs/SENTRY-SWITCHING.md": {
+-      "sha256": "3b1ff65c7518a2754bdb26f58c6e4583f9f6d2f82ed8a2ff3e83c36ab54864b6",
++      "sha256": "9e1a684fb268eaff049c1618aa7906565492164687b0a2558a934da22964e1d6",
+       "executable": false
+     },
+     "docs/SHORT-IDS.md": {
+@@ -5289,6 +5289,10 @@
+       "sha256": "d2a65622a919fb630c9759eb937edb2e06ab1ad7c18212389f6d509fb06db7f3",
+       "executable": false
+     },
++    "scripts/fixtures/sentry-organization.mjs": {
++      "sha256": "ea80e7414ac753e3e90caa25acc386f6b5448171389645026c6075cdb1223b38",
++      "executable": false
++    },
+     "scripts/hosted.mjs": {
+       "sha256": "3fc6dac12d02b83f3544b41e16b1c5345c0af1aa3ac2d97c6c073622e7942ce0",
+       "executable": false
+@@ -5361,6 +5365,10 @@
+       "sha256": "a18337174a8f2d546180a3fd96b7bd4ae5d62578af419fd5f1bad6e75e73243e",
+       "executable": false
+     },
++    "scripts/sentry-export.mjs": {
++      "sha256": "20424ef1eedef0484a4da53d6bdb724a3cce04285d85e5aa08df53fb0935ce65",
++      "executable": false
++    },
+     "scripts/sentry-import.mjs": {
+       "sha256": "2552f6f7f2be9b0e2c37930fc0fdc5b48de88aa8bfa8e7ba42230bce3c61bcf0",
+       "executable": false
+@@ -6998,7 +7006,7 @@
+       "executable": false
+     },
+     "src/domain/sentry-import/door.server.ts": {
+-      "sha256": "d3a45ddbc65592577dac31351de97b7e3ebc8abafc3712892128a51cfd2c7bdf",
++      "sha256": "adf2dfe273d249329ac0b9f90cb88c22432b2235738b8ef32ead81eeafd215da",
+       "executable": false
+     },
+     "src/domain/sentry-import/event.ts": {
+@@ -7010,7 +7018,7 @@
+       "executable": false
+     },
+     "src/domain/sentry-import/owner-reads.server.ts": {
+-      "sha256": "e37d9c8c78fe2fbe12685a42ec435d69892a56716b783ada89db6f5e0b509be8",
++      "sha256": "6c0b9621e7991d593b08c66198382b84cdcf6baa3fb9f573d066806646d6e3b1",
+       "executable": false
+     },
+     "src/domain/sentry-import/read-labels.ts": {
+@@ -7026,11 +7034,11 @@
+       "executable": false
+     },
+     "src/domain/sentry-import/source.ts": {
+-      "sha256": "a705d23ed0ddabf93610a62924f5a064245dae645fd1c681d2aaca837ae727c0",
++      "sha256": "e479587fc0529d93951193bed9fb34d5624db7493850e27f1c37e676f4e701de",
+       "executable": false
+     },
+     "src/domain/sentry-import/targets.ts": {
+-      "sha256": "a183228210f20689abaa48bbf87ab491b7061a60ac2aa0922433e63ea8ea74d5",
++      "sha256": "6400b943b69085f0326e87ae72cd90b36c57df9cbc48935f3e26c3a95f698b1c",
+       "executable": false
+     },
+     "src/domain/sentry/agent-evidence.ts": {
+@@ -11281,6 +11289,14 @@
+       "sha256": "d02431f374627909debade3766543c06b5c547bd8290d9d859210506225ce84a",
+       "executable": false
+     },
++    "tests/fixtures/sentry/documentation.json": {
++      "sha256": "842280acada13e3708167e236c4d33cbaf36f84616ff7132298996855a79cd1f",
++      "executable": false
++    },
++    "tests/fixtures/sentry/documented-capture.json": {
++      "sha256": "44e6582ad5620e33b311791ca5f7795dcdf0ecfdd245d47fa428ec91a5e21ae0",
++      "executable": false
++    },
+     "tests/fixtures/sentry/organization.json": {
+       "sha256": "ea096ab1647753b5bbd89c85754c46bfcc2bd213fc56ed01358cd51a74e189ba",
+       "executable": false
+@@ -11878,13 +11894,21 @@
+       "executable": false
+     },
+     "tests/sentry-import.mjs": {
+-      "sha256": "ee755555002e33066a6a8d22d422938e6a9125870d70bcdb7631b2153cd63c2d",
++      "sha256": "aecab4d08d87b209e24a872b419261f8302f745e3acf52217050b84cc9b5e2ff",
++      "executable": false
++    },
++    "tests/sentry-import/field-accounting.mjs": {
++      "sha256": "a857b2d521e05f004d444da78c7f8d018238b0e7d1af26afbf4d7ff7af338f9f",
+       "executable": false
+     },
+     "tests/sentry-import/reads.mjs": {
+       "sha256": "bc691f9582fee9b7c08a2ceecf289c549d264b25b8a7454e7b8d940b1d117339",
+       "executable": false
+     },
++    "tests/sentry-import/schema-pages.mjs": {
++      "sha256": "99a4a36cf2ee6f2b42fc22d2bb33b9c95240d5b06c97d34e4f2e6a2cdeb9244f",
++      "executable": false
++    },
+     "tests/sentry-invalid-event-flow.mjs": {
+       "sha256": "b2911edf3f40ab1f0efffb74ffc4932f0fc34f9b57ad590255ebfd9b6b10249c",
+       "executable": false
+diff --git a/src/domain/portability.ts b/src/domain/portability.ts
+index 8345c38..13946e1 100644
+--- a/src/domain/portability.ts
++++ b/src/domain/portability.ts
+@@ -272,6 +272,15 @@ laterTables.unshift({tables:[],migrations:['0109_feedback_review.sql']});
+ // Identity synchronization and temporary connection status add no archive rows.
+ for(const later of laterTables)later.migrations.push('0110_member_identity.sql','0111_capture_sources.sql');
+ laterTables.unshift({tables:[],migrations:['0110_member_identity.sql','0111_capture_sources.sql']});
++// The identity trigger is installation behavior, not an archived owner row.
++// Older releases lack it; a no-ledger archive may carry either known inventory.
++// Compare the entire selected inventory below so foreign or modified objects
++// still refuse instead of being installed as new behavior.
++function previousMemberIdentityObjects(objects:any[],manifest:any){
++ const present=Array.isArray(manifest.migrations)?manifest.migrations.includes('0110_member_identity.sql'):
++  Array.isArray(manifest.schemaObjects)&&manifest.schemaObjects.some((object:any)=>object.name==='spool_member_identity');
++ return present?objects:objects.filter(object=>object.name!=='spool_member_identity');
++}
+ function beforeProjectMetricObjects(objects:any[],manifest:any){
+  const added=[['0106_project_metric_alerts.sql',['alert_metric_states','alert_metric_events']],['0107_sentry_transactions.sql',['sentry_transactions']],['0108_alert_notify_targets.sql',['alert_target_destinations','alert_intent_recipients']]] as const;
+  const missing:string[]=added.filter(([migration])=>!manifest.migrations?.includes(migration)).flatMap(([,tables])=>[...tables]);
+@@ -297,12 +306,12 @@ async function earlierManifest(db: D1Database, manifest: any) {
+  const tableless = [...new Set(laterTables.filter(later => !later.tables.length).flatMap(later => later.migrations))];
+  for (const later of laterTables) {
+   // A set that adds no archived table matches today's schema, so it applies only to an archive missing its migrations.
+-  if (!later.tables.length && !(Array.isArray(manifest.migrations) && later.migrations.some(name => !manifest.migrations.includes(name)) && tableless.every(name => manifest.migrations.includes(name) || later.migrations.includes(name))) && !(later.migrations.length===1 && later.migrations[0]==='0109_feedback_review.sql' && !manifest.migrations?.length)) continue;
++  const reviewOnly=later.tables.length===0 && later.migrations.includes('0109_feedback_review.sql');
++  if (!later.tables.length && !(Array.isArray(manifest.migrations) && later.migrations.some(name => !manifest.migrations.includes(name)) && tableless.every(name => manifest.migrations.includes(name) || later.migrations.includes(name))) && !(reviewOnly && !manifest.migrations?.length)) continue;
+   const missing=later.tables.filter(name=>!carriedReporting||!reportingNames.includes(name));
+   if(later.tables.length&&!missing.length)continue;
+   // An archive that records no migration list is either older than 0054 (issue_resolutions in its first form) or a current
+   // format that carries none: try the recorded reading first, then today's form of that table.
+-  const reviewOnly=later.tables.length===0 && later.migrations.length===1 && later.migrations[0]==='0109_feedback_review.sql';
+   const earlierWith = (before0054: boolean) => reviewOnly ? current.tables.map((table:any)=>beforeFeedbackReview(table,manifest)) : current.tables.filter((table: any) => !missing.includes(table.name)).map((table:any)=>beforeFeedbackReview(beforeProjectMetrics(beforeAgentAttribution(table,manifest),manifest),manifest)).map((table:any)=>table.name==='issue_resolutions'&&before0054?{...table,sql:table.sql.replace('CREATE TABLE \"issue_resolutions\"','CREATE TABLE issue_resolutions').replace("('plain','current','next','named')","('plain','current')")}:table);
+   let earlier: any[] | undefined;
+   for (const before0054 of new Set([!manifest.migrations?.includes('0054_release_resolution_dist.sql'), false])) {
+@@ -314,7 +323,7 @@ async function earlierManifest(db: D1Database, manifest: any) {
+   // A recognized native table upgrade must retain a complete, known object
+   // inventory. An unrecorded index/trigger is never installed or acknowledged.
+   // Archives without an object inventory still require Base's legacy replay.
+-  if(product.schemaObjects!==undefined && canonicalJson(product.schemaObjects)!==canonicalJson(reviewOnly?current.schemaObjects:beforeProjectMetricObjects(previousRelayPrivacyObjects(previousNativeSymbolObjects(current.schemaObjects,manifest),manifest),manifest)))throw new PortabilityError('legacy_schema_object_inventory');
++  if(product.schemaObjects!==undefined && canonicalJson(product.schemaObjects)!==canonicalJson(previousMemberIdentityObjects(reviewOnly?current.schemaObjects:beforeProjectMetricObjects(previousRelayPrivacyObjects(previousNativeSymbolObjects(current.schemaObjects,manifest),manifest),manifest),manifest)))throw new PortabilityError('legacy_schema_object_inventory');
+   // Normalize this positively matched native inventory to the destination. The
+   // original binding and source history are checked before finalize; platform
+   // bookkeeping is never installed as product data or presented as new history.
+diff --git a/src/domain/sentry-import/door.server.ts b/src/domain/sentry-import/door.server.ts
+index 5dc19ee..6d77937 100644
+--- a/src/domain/sentry-import/door.server.ts
++++ b/src/domain/sentry-import/door.server.ts
+@@ -23,8 +23,9 @@ import { sourceId as rollbarId } from '../rollbar-import/identity.ts';
+  * `/api/operator/import/*`) and Business (signed grants, `/api/rer/import/*`)
+  * share Base's door, its lineage, history and undo. */
+ export const doorDestination = 'spool-owner';
++const sentryLimits = { maxBytes: 2 * 1024 * 1024, maxRecordBytes: 2 * 1024 * 1024, maxRecords: 1000 };
+ const operatorPrefix = '/api/operator/import/', grantPrefix = '/api/rer/import/', namespacePrefix = 'sentry-org:';
+-const limits = { maxBytes: 2 * 1024 * 1024, maxRecordBytes: 2 * 1024 * 1024, maxRecords: 500 };
++const legacyLimits = { maxBytes: 2 * 1024 * 1024, maxRecordBytes: 2 * 1024 * 1024, maxRecords: 500 };
+ 
+ /** The permanent door key for settings, lineage and history. The first key an
+  * installation stored stays; before that it is RER's owner-claim installation
+@@ -84,6 +85,7 @@ async function activeOwner(db: D1Database) {
+ export async function ownerReadRequest(env:ManagedBindings, session:OwnerSession, key:string, namespace:string, source?:ImportDoorSource):Promise<DoorRequest> {
+  const resolved = source ?? await importSource(env.DB,key,namespace);
+  if (!resolved) throw new DoorError('unknown_import_source',400);
++ const limits = namespace === 'sentry' || namespace.startsWith(namespacePrefix) ? sentryLimits : legacyLimits;
+  const epoch = await erasures(env.DB,doorDestination), owner = ownerImportPredicate(session), fence = doorFence(key,namespace,doorDestination,epoch);
+  return {options:{database:env.DB,targets:sentryTargets,ownerPrincipalId:session.operator.id,destination:doorDestination,format:'json',limits,...resolved},
+   authority:{sql:`(${owner.sql}) AND (${fence.sql})`,params:[...owner.params,...fence.params ?? []]},via:'operator',epoch,
+@@ -113,6 +115,10 @@ async function grantResponse(request: Request, env: ManagedBindings) {
+  const owner = await env.DB.prepare("SELECT id FROM oa_operators WHERE role='owner' AND status='active' AND email=?").bind(claim.expectedEmail).first<{ id: string }>();
+  if (!owner) return Response.json({ error: 'not_found' }, { status: 404 });
+  const key = await doorKey(env);
++ const name=request.headers.get('Authorization');
++ // Choose a bounded source quota only. Base still verifies the signature, owner, exact namespace and every action.
++ let sentry=false;try{const payload=JSON.parse(Buffer.from(name?.split('.')[1]??'', 'base64url').toString());sentry=payload.namespace==='sentry'||typeof payload.namespace==='string'&&payload.namespace.startsWith(namespacePrefix)}catch{}
++ const limits=sentry?sentryLimits:legacyLimits;
+  return createImportDoorHandler({ database: env.DB, targets: sentryTargets, claim, installationId: key,
+   ownerPrincipalId: owner.id, destination: doorDestination, format: 'json', limits,
+   source: namespace => importSource(env.DB, key, namespace) })(request);
+@@ -146,7 +152,7 @@ async function operatorResponse(request: Request, env: ManagedBindings) {
+   }
+  }
+  const response = await createImportOperatorHandler({ database: env.DB, targets: sentryTargets, installationId: key, appOrigin: env.AUTH_ORIGIN,
+-  ownerEmail: owner.email, ownerPrincipalId: owner.id, namespace: name, destination: doorDestination, format: 'json', limits, ...source,
++  ownerEmail: owner.email, ownerPrincipalId: owner.id, namespace: name, destination: doorDestination, format: 'json', limits:read.options.limits, ...source,
+   authorize: async () => predicate })(request);
+  if (!response) return response;
+  try { return await ownerReadResponse(read,response,action); }
+diff --git a/src/domain/sentry-import/owner-reads.server.ts b/src/domain/sentry-import/owner-reads.server.ts
+index 7ee10d5..86574c6 100644
+--- a/src/domain/sentry-import/owner-reads.server.ts
++++ b/src/domain/sentry-import/owner-reads.server.ts
+@@ -1,3 +1,4 @@
++import { sentryFieldAccounting, sourceLeaves } from './source.ts';
+ import { rollbarComparison } from '../rollbar-import/comparison.ts';
+ import type { DoorRequest, DoorSnapshot } from '../../modules/import-kit/src/door/types.ts';
+ import type { PersistedImport } from '../../modules/import-kit/src/types.ts';
+@@ -67,7 +68,8 @@ export async function readOwnerPlan(request:DoorRequest, planId:string, inventor
+  const rejected = snapshot?.plan.entries.filter(e => e.rejection).map(entry => ({kind:entry.source.kind,sourceId:entry.source.sourceId,
+   reason:entry.rejection!, reasonCode:rejectionReasonCode(entry.rejection!), ...recordLabel(entry.source,snapshot!)})) ?? null;
+  const comparison=snapshot?rollbarComparison(snapshot,live):undefined;
+- const details = {...(comparison?{comparison}:{}),...snapshot?{bugsnag:bugsnagReport(snapshot)}:{},organization, organizationReasonCode:organization === null ? (snapshot ? 'organization_unavailable' : 'snapshot_withdrawn') : null,
++ const sentry=snapshot?sentryAccounting(snapshot,live):undefined;
++ const details = {...(sentry?{sentry}:{}),...(comparison?{comparison}:{}),...snapshot?{bugsnag:bugsnagReport(snapshot)}:{},organization, organizationReasonCode:organization === null ? (snapshot ? 'organization_unavailable' : 'snapshot_withdrawn') : null,
+   projectIds, projectIdsReasonCode:snapshot ? null : 'snapshot_withdrawn',
+   counts:snapshot?.plan.counts ?? null, countsReasonCode:snapshot ? null : 'snapshot_withdrawn',
+   rejected, rejectedReasonCode:snapshot ? null : 'snapshot_withdrawn',
+@@ -94,3 +96,55 @@ export async function ownerReadResponse(request:DoorRequest, response:Response,
+  await finishOwnerRead(request);
+  return Response.json(body,{status:response.status,headers:response.headers});
+ }
++
++/** Value-free loss ledger, derived from the immutable plan rather than a caller's claimed totals. */
++function sentryAccounting(snapshot:DoorSnapshot, live:PersistedImport) {
++ const manifest=snapshot.plan.entries.find(entry=>entry.source.kind==='manifest');
++ const meta=manifest?.source.payload as any;
++ if(!meta?.organization?.slug||meta.vendor)return undefined;
++ const records=snapshot.plan.source.records,entries=snapshot.plan.entries;
++ const collections=[...new Set(records.filter(r=>r.kind!=='manifest').map(r=>r.kind))].map(kind=>{
++  const source=records.filter(r=>r.kind===kind),unique=entries.filter(e=>e.source.kind===kind);
++  return {kind,records:source.length,unique:unique.length,duplicates:source.length-unique.length,
++   payloadBytes:source.reduce((n,r)=>n+new TextEncoder().encode(JSON.stringify((r.payload as any).data)).length,0),
++   mapped:unique.filter(e=>e.effects.length).length,rejected:unique.filter(e=>e.rejection).length};
++ });
++ const fields=entries.filter(e=>e.source.kind!=='manifest').flatMap(entry=>{
++  const data=(entry.source.payload as any).data;
++  return sentryFieldAccounting(entry.source.kind,data,entry.rejection).map(field=>({kind:entry.source.kind,sourceId:entry.source.sourceId,location:entry.source.location.pointer??null,...field}));
++ });
++ const arrays=entries.filter(e=>e.source.kind!=='manifest').flatMap(entry=>{
++  const result:{kind:string;sourceId:string;path:string;elements:number;omitted:number[]}[]=[];
++  const local=new Map(sentryFieldAccounting(entry.source.kind,(entry.source.payload as any).data,entry.rejection).map(f=>[f.path,f.disposition]));
++  const walk=(value:any,path='')=>{
++   if(Array.isArray(value))result.push({kind:entry.source.kind,sourceId:entry.source.sourceId,path,elements:value.length,
++    omitted:value.flatMap((child:any,i:number)=>sourceLeaves(child,`${path}/${i}`).every(leaf=>['unmapped','rejected'].includes(local.get(leaf.path)??''))?[i]:[])});
++   if(value&&typeof value==='object')for(const [key,child] of Object.entries(value))walk(child,`${path}/${key.replace(/~/g,'~0').replace(/\//g,'~1')}`);
++  };walk((entry.source.payload as any).data);return result;
++ });
++ const targetIds=new Set(snapshot.records.flatMap(record=>record.targets.map(target=>canonicalJson([target.kind,target.id]))));
++ const native=live.rows.filter(row=>targetIds.has(canonicalJson([row.targetKind,row.targetId])));
++ const loaders=entries.filter(e=>e.source.kind==='keys').map(entry=>{
++  const p=entry.source.payload as any,d=p.data;
++  return {sourceId:entry.source.sourceId,project:p.project,sourceKeyId:d.id,settings:{isActive:d.isActive??null,rateLimit:d.rateLimit??null,browserSdkVersion:d.browserSdkVersion??null,dynamicSdkLoaderOptions:d.dynamicSdkLoaderOptions??null},replacementScriptTag:null,
++   reason:'No key was minted. Create a Spool ingest key and approve its loader settings before replacing the source script.'};
++ });
++ const fieldGroups=new Map<string,typeof fields>();
++ for(const field of fields){const key=canonicalJson([field.kind,field.sourceId]);const group=fieldGroups.get(key)??[];group.push(field);fieldGroups.set(key,group)}
++ const byteLedger=entries.filter(e=>e.source.kind!=='manifest').map(entry=>{
++  const source=records.filter(r=>r.kind===entry.source.kind&&r.sourceId===entry.source.sourceId);
++  const sourceBytes=source.reduce((n,r)=>n+new TextEncoder().encode(JSON.stringify((r.payload as any).data)).length,0);
++  const targets=snapshot.records.find(r=>r.kind===entry.source.kind&&r.sourceId===entry.source.sourceId)?.targets??[];
++  const present=native.filter(row=>targets.some(target=>target.kind===row.targetKind&&target.id===row.targetId));
++  const nativeBytes=present.reduce((n,row)=>n+new TextEncoder().encode(canonicalJson(row.value)).length,0);
++  const own=fieldGroups.get(canonicalJson([entry.source.kind,entry.source.sourceId]))??[];
++  return {kind:entry.source.kind,sourceId:entry.source.sourceId,sourceBytes,nativeBytes,difference:sourceBytes-nativeBytes,
++   duplicates:source.length-1,unmappedFields:own.filter(f=>f.disposition==='unmapped').length,transformedFields:own.filter(f=>f.disposition==='transformed').length,
++   targets:present.map(row=>({kind:row.targetKind,id:row.targetId})),
++   reason:entry.rejection?'Rejected record has no native bytes.':!targets.length?'Unsupported record has no native bytes.':'Native projection includes converted fields, derived identities and source provenance; omitted fields and repeated source rows are counted separately.'};
++ });
++ return {collections,fields,arrays,loaders,byteLedger,capture:meta.capture??null,
++  sourcePayloadBytes:collections.reduce((n,c)=>n+c.payloadBytes,0),
++  nativeBytes:native.reduce((n,row)=>n+new TextEncoder().encode(canonicalJson(row.value)).length,0),
++  byteReason:'Source payload bytes include duplicates and unsupported fields. Native bytes count present target values and provenance; scrubbing, projection, deduplication and derived identities change their encoding. These totals are not expected to match.'};
++}
+diff --git a/src/domain/sentry-import/source.ts b/src/domain/sentry-import/source.ts
+index 92160ee..cbedcef 100644
+--- a/src/domain/sentry-import/source.ts
++++ b/src/domain/sentry-import/source.ts
+@@ -1,3 +1,4 @@
++import { sha256 } from '../../modules/import-kit/src/provenance/identity.ts';
+ import type { Json, ParsedRecord } from '../../modules/import-kit/src/types.ts';
+ export const importFormat = 'spool-sentry-org-export';
+ export const mappingVersion = 'spool-sentry-org-v1';
+@@ -10,7 +11,7 @@ function fields(value: any, allowed: string[]) {
+ }
+ export function parseSentryOrganization(value: Json): ParsedRecord[] {
+     const bundle = value as any;
+-    fields(bundle,['format','version','organization','window','collections','omissions']);
++    fields(bundle,['format','version','organization','window','collections','omissions','capture']);
+     if (bundle.format !== importFormat || bundle.version !== 1) throw new Error('Unsupported organization bundle format');
+     fields(bundle.organization,['id','slug','region']); fields(bundle.window,['start','end']);
+     const organization = sourceText(bundle.organization.slug,'organization'); sourceText(bundle.organization.id,'organization id');
+@@ -18,13 +19,14 @@ export function parseSentryOrganization(value: Json): ParsedRecord[] {
+     const start=Date.parse(bundle.window.start),end=Date.parse(bundle.window.end);
+     if (!Number.isFinite(start) || !Number.isFinite(end) || start>end) throw new Error('Invalid export window');
+     if (!Array.isArray(bundle.collections) || !bundle.collections.length || bundle.collections.length>100 || !Array.isArray(bundle.omissions) || bundle.omissions.some((s:any)=>typeof s!=='string' || s.length>500)) throw new Error('Invalid collections or omissions');
+-    const records: ParsedRecord[]=[{kind:'manifest',sourceId:organization,payload:{organization:bundle.organization,window:bundle.window,omissions:bundle.omissions},pointer:''}];
++    if(bundle.capture!==undefined)validateCapture(bundle);
++    const records: ParsedRecord[]=[{kind:'manifest',sourceId:organization,payload:{organization:bundle.organization,window:bundle.window,omissions:bundle.omissions,...bundle.capture?{capture:bundle.capture}:{}},pointer:''}];
+     const collectionKeys=new Set<string>();
+     for (const [collectionIndex,collection] of bundle.collections.entries()) {
+       fields(collection,['kind','project','pages']);
+       const kind=sourceText(collection.kind,'collection kind');
+       const project=collection.project===null ? null : sourceText(collection.project,'collection project');
+-      if (['issues','events'].includes(kind) && !project || ['projects','releases'].includes(kind) && project!==null) throw new Error('Collection scope mismatch');
++      if (['issues','events','keys','ownership'].includes(kind) && !project || ['projects','releases'].includes(kind) && project!==null) throw new Error('Collection scope mismatch');
+       const key=JSON.stringify([kind,project]); if(collectionKeys.has(key))throw new Error('Duplicate collection');collectionKeys.add(key);
+       if(!Array.isArray(collection.pages)||!collection.pages.length||collection.pages.length>100)throw new Error('Invalid pages');
+       let expected: string|null=null; const cursors=new Set<string|null>();
+@@ -36,7 +38,7 @@ export function parseSentryOrganization(value: Json): ParsedRecord[] {
+         expected=page.nextCursor;
+         for (const [rowIndex,row] of page.response.entries()) {
+           if(!row || typeof row!=='object'||Array.isArray(row))throw new Error('Invalid API record');
+-          const id=sourceText(kind==='events' ? row.eventID : kind==='releases' ? row.version : row.id,'source id');
++          const id=sourceText(kind==='ownership' ? 'ownership' : kind==='events' ? row.eventID : kind==='releases' ? row.version : row.id,'source id');
+           records.push({kind,sourceId:JSON.stringify([organization,project,id]),payload:{organization,project,data:row},pointer:`/collections/${collectionIndex}/pages/${pageIndex}/response/${rowIndex}`});
+         }
+       }
+@@ -45,3 +47,85 @@ export function parseSentryOrganization(value: Json): ParsedRecord[] {
+     const rank:Record<string,number>={manifest:0,projects:1,releases:2,issues:3,events:4};
+     return records.sort((a,b)=>(rank[a.kind]??5)-(rank[b.kind]??5));
+ }
++
++export type FieldDisposition = {path:string; disposition:'mapped'|'transformed'|'unmapped'|'rejected'|'redacted'; bytes:number; reason:string};
++const escaped=(key:string)=>key.replace(/~/g,'~0').replace(/\//g,'~1');
++/** Every scalar and empty container at an exact JSON pointer, including every array index. No values leave this function. */
++export function sourceLeaves(value:any, path='', depth=0):{path:string;bytes:number;redacted?:boolean}[] {
++ if(depth>64)throw new Error('Sentry source depth limit');
++ if(value&&typeof value==='object'&&Object.keys(value).length)return Object.entries(value).flatMap(([key,child])=>sourceLeaves(child,`${path}/${escaped(key)}`,depth+1));
++ return [{path,bytes:new TextEncoder().encode(JSON.stringify(value)).length,...value==='[removed]'?{redacted:true}:{}}];
++}
++/** The existing API mapper's actual projection; unsupported fields never inherit a parent's mapped status. */
++export function sentryFieldAccounting(kind:string,data:any,rejection?:string):FieldDisposition[] {
++ if(rejection)return sourceLeaves(data).map(({path,bytes,redacted})=>({path,bytes,disposition:redacted?'redacted':'rejected',reason:redacted?'Credential removed before upload; only an exporter marker remains.':'Record rejected; no native effects.'}));
++ const retained=new Set<string>(),changed=new Set<string>();
++ const keep=(...paths:string[])=>paths.forEach(path=>retained.add('/'+path));
++ const transform=(...paths:string[])=>paths.forEach(path=>changed.add('/'+path));
++ if(kind==='projects'){keep('id','slug');transform('name','dateCreated')}
++ if(kind==='releases'){
++  keep('version');transform('dateCreated');
++  if(Array.isArray(data.projects))data.projects.forEach((_:any,i:number)=>keep(`projects/${i}/slug`));
++ }
++ if(kind==='issues'){keep('id');transform('title','status','firstSeen','lastSeen')}
++ if(kind==='events'){
++  transform('eventID','groupID','dist','environment');
++  transform(typeof data.release==='object'?'release/version':'release');
++  transform(data.dateCreated!==undefined?'dateCreated':'dateReceived');
++  if(!data.environment&&Array.isArray(data.tags))data.tags.forEach((tag:any,i:number)=>{if(tag?.key==='environment')transform(`tags/${i}/key`,`tags/${i}/value`)});
++  const entries=data.entries;
++  if(Array.isArray(entries)){
++   const e=entries.findIndex((e:any)=>e?.type==='exception'),b=entries.findIndex((e:any)=>e?.type==='breadcrumbs');
++   const values=entries[e]?.data?.values;
++   if(Array.isArray(values)&&values.length){
++    const i=values.length-1,p=`entries/${e}/data/values/${i}`,ex=values[i],stack=ex.rawStacktrace?'rawStacktrace':'stacktrace';
++    transform(`entries/${e}/type`,`${p}/type`,`${p}/value`);
++    const frames=ex[stack]?.frames;
++    if(Array.isArray(frames))frames.forEach((frame:any,j:number)=>{
++     // Shared sanitizer retains first/last 500 rich frames; the diagnostic view is separately capped at 30.
++     if(frames.length>1000&&j>=500&&j<frames.length-500)return;
++     for(const key of ['filename','absPath','lineNo','colNo','function'])if(frame?.[key]!==undefined)transform(`${p}/${stack}/frames/${j}/${key}`);
++    });
++   }
++   const crumbs=entries[b]?.data?.values;
++   if(Array.isArray(crumbs)){
++    transform(`entries/${b}/type`);
++    crumbs.forEach((crumb:any,i:number)=>{for(const key of ['type','category','level','timestamp','message','data'])if(crumb?.[key]!==undefined)for(const leaf of sourceLeaves(crumb[key]))transform(`entries/${b}/data/values/${i}/${key}${leaf.path}`)});
++   }
++  }
++ }
++ return sourceLeaves(data).map(({path,bytes,redacted})=>{
++  const disposition=redacted?'redacted':retained.has(path)?'mapped':changed.has(path)?'transformed':'unmapped';
++  let reason=redacted?'Credential removed before upload; only an exporter marker remains.':rejection?'Record rejected; no native effects.':disposition==='mapped'?'Retained as native identity or source provenance.':disposition==='transformed'?'Converted, scrubbed or bounded by the native historical projection.':'Not represented in native history; private source only.';
++  if(disposition==='unmapped'&&!['projects','releases','issues','events'].includes(kind))reason='Unsupported source collection; no native target or authority is created.';
++  if(disposition==='unmapped'&&kind==='events'&&path.includes('/vars/'))reason='Frame locals are not forwarded by the historical API adapter.';
++  return {path,bytes,disposition,reason};
++ });
++}
++
++function validateCapture(bundle:any) {
++ const capture=bundle.capture;
++ fields(capture,['schema','inventory','redactions']);
++ if(capture.schema!=='sentry-web-api-0-capture-v1'||!Array.isArray(capture.inventory)||capture.inventory.length>2000||!Array.isArray(capture.redactions)||capture.redactions.length>10000)throw new Error('Invalid capture inventory');
++ const seen=new Set<string>();
++ for(const row of capture.inventory){
++  fields(row,['kind','family','project','page','cursor','nextCursor','records','sourceBytes','sourceSha256','sanitizedBytes','sanitizedSha256']);
++  const collection=bundle.collections.find((c:any)=>c.kind===row.kind&&c.project===row.project);
++  const key=JSON.stringify([row.kind,row.project,row.page]);
++  if(!collection||seen.has(key)||!Number.isSafeInteger(row.page)||row.page<0)throw new Error('Invalid capture inventory');seen.add(key);
++  const page=collection.pages[row.kind==='events'?0:row.page];
++  const data=row.kind==='events'?page?.response[row.page]:row.kind==='ownership'?page?.response[0]:page?.response;
++  if(data===undefined)throw new Error('Invalid capture inventory');
++  if(row.kind!=='events'&&(row.cursor!==page.cursor||row.nextCursor!==page.nextCursor))throw new Error('Capture cursor mismatch');
++  const body=JSON.stringify(data);
++  if(row.records!==(Array.isArray(data)?data.length:1)||row.sanitizedBytes!==new TextEncoder().encode(body).length||row.sanitizedSha256!==sha256(body)||!Number.isSafeInteger(row.sourceBytes)||row.sourceBytes<0||!/^[a-f0-9]{64}$/.test(row.sourceSha256))throw new Error('Capture response mismatch');
++ }
++ for(const collection of bundle.collections){
++  const pages=collection.kind==='events'?collection.pages[0].response.length:collection.pages.length;
++  for(let page=0;page<pages;page++)if(!seen.has(JSON.stringify([collection.kind,collection.project,page])))throw new Error('Incomplete capture inventory');
++ }
++ for(const row of capture.redactions){
++  fields(row,['path','disposition','reason']);
++  if(typeof row.path!=='string'||row.path.length>1000||!row.path.startsWith('/collections/')||/[\u0000-\u001f]/.test(row.path)||row.disposition!=='redacted'||row.reason!=='Credential removed before upload; original value is not retained.')throw new Error('Invalid redaction inventory');
++ }
++}
+diff --git a/src/domain/sentry-import/targets.ts b/src/domain/sentry-import/targets.ts
+index 321f0b9..045cb84 100644
+--- a/src/domain/sentry-import/targets.ts
++++ b/src/domain/sentry-import/targets.ts
+@@ -40,7 +40,13 @@ export const sentryTargets:D1TargetAdapter={
+     return [sql(`INSERT INTO ${a.table}(${a.columns.join(',')}) VALUES(${a.columns.map(()=>'?').join(',')}) ON CONFLICT(${a.keys.join(',')}) DO UPDATE SET ${a.columns.filter(key=>!a.keys.includes(key)).map(key=>`${key}=excluded.${key}`).join(',')}`,...a.columns.map(key=>native[key])),
+       value.source===null?sql('DELETE FROM sentry_import_targets WHERE kind=? AND id=?',row.targetKind,row.targetId):sql('INSERT INTO sentry_import_targets(kind,id,revision,source) VALUES(?,?,?,?) ON CONFLICT(kind,id) DO UPDATE SET revision=excluded.revision,source=excluded.source',row.targetKind,row.targetId,row.revision,canonicalJson(value.source))];
+   },
+-  remove(destination,kind,id){const a=address(destination,kind,id);return [sql(`DELETE FROM ${a.table} WHERE ${a.where}`,...a.values),sql('DELETE FROM sentry_import_targets WHERE kind=? AND id=?',kind,id)]},
++  remove(destination,kind,id){
++    const a=address(destination,kind,id);
++    return [sql(`DELETE FROM ${a.table} WHERE ${a.where}`,...a.values),sql('DELETE FROM sentry_import_targets WHERE kind=? AND id=?',kind,id),
++      // Prefixes have no project FK. Remove only this deleted imported project's
++      // prefix, so undo restores its auxiliary graph as well as its four targets.
++      ...kind==='project'?[sql('DELETE FROM short_id_prefixes WHERE project=? AND NOT EXISTS(SELECT 1 FROM projects WHERE id=?)',id,id)]:[]];
++  },
+   // The native set an import guards is its own imported targets, read in one
+   // query per kind however many rows exist; ingested evidence stays outside it.
+   async list(db,destination){
+@@ -53,6 +59,27 @@ export const sentryTargets:D1TargetAdapter={
+     }
+     return rows;
+   },
++  // Compact, exact comparisons use every listed native column and custody value.
++  // No revision-only shortcut or digest of caller-supplied metadata can hide an edit.
++  matchesMany(rows,destination){
++    if(destination!=='spool-owner')throw new Error('Invalid import destination');
++    const guards:D1Sql[]=[];
++    for(const [kind,d] of Object.entries(definitions)){
++      const expected=rows.filter(row=>row.targetKind===kind).map(row=>{
++        const a=address(destination,kind,row.targetId),value=row.value as any;
++        if(!value?.native||value.source===null||Object.keys(value.native).some(key=>!a.columns.includes(key))||a.columns.some(key=>!(key in value.native)))throw new Error('Native row schema changed');
++        return [row.targetId,row.revision,canonicalJson(value.source),...a.columns.map(key=>value.native[key])];
++      });
++      const match=d.columns.map((key,i)=>`n.${key} IS json_extract(e.value,'$[${i+3}]')`).join(' AND ');
++      guards.push(sql(`(SELECT COUNT(*) FROM sentry_import_targets WHERE kind=?)=? AND NOT EXISTS(
++        SELECT 1 FROM json_each(?) e WHERE NOT EXISTS(
++          SELECT 1 FROM sentry_import_targets m JOIN ${d.table} n ON ${d.keys.map((key,i)=>`n.${key}=${d.keys.length===1?'m.id':`json_extract(m.id,'$[${i}]')`}`).join(' AND ')}
++          WHERE m.kind=? AND m.id=json_extract(e.value,'$[0]') AND m.revision=json_extract(e.value,'$[1]')
++          AND m.source=json_extract(e.value,'$[2]') AND ${match}))`,kind,expected.length,JSON.stringify(expected),kind));
++    }
++    guards.push(this.matchesCount!(rows.length,destination));
++    return guards;
++  },
+   matchesCount(count,destination){
+     if(destination!=='spool-owner')throw new Error('Invalid import destination');
+     return sql(`(SELECT COUNT(*) FROM sentry_import_targets)=? AND NOT EXISTS(SELECT 1 FROM sentry_import_targets m WHERE ${Object.entries(definitions).map(([kind,d])=>`(m.kind='${kind}' AND NOT EXISTS(SELECT 1 FROM ${d.table} n WHERE ${d.keys.map((key,index)=>`n.${key}=${d.keys.length===1?'m.id':`json_extract(m.id,'$[${index}]')`}`).join(' AND ')}))`).join(' OR ')})`,count);
+diff --git a/tests/fixtures/sentry/documentation.json b/tests/fixtures/sentry/documentation.json
+new file mode 100644
+index 0000000..a5debd0
+--- /dev/null
++++ b/tests/fixtures/sentry/documentation.json
+@@ -0,0 +1,13 @@
++{
++  "projects": "https://docs.sentry.io/api/organizations/list-an-organizations-projects/",
++  "keys": "https://docs.sentry.io/api/projects/list-a-projects-client-keys/",
++  "issues": "https://docs.sentry.io/api/events/list-a-projects-issues/",
++  "events": "https://docs.sentry.io/api/events/retrieve-an-event-for-a-project/",
++  "releases": "https://docs.sentry.io/api/releases/list-an-organizations-releases/",
++  "workflows": "https://docs.sentry.io/api/monitors/fetch-alerts/",
++  "detectors": "https://docs.sentry.io/api/monitors/fetch-an-organizations-monitors/",
++  "ownership": "https://docs.sentry.io/api/projects/retrieve-ownership-configuration-for-a-project/",
++  "members": "https://docs.sentry.io/api/organizations/list-an-organizations-members/",
++  "teams": "https://docs.sentry.io/api/teams/list-an-organizations-teams/",
++  "pagination": "https://docs.sentry.io/api/pagination/"
++}
+diff --git a/tests/fixtures/sentry/documented-capture.json b/tests/fixtures/sentry/documented-capture.json
+new file mode 100644
+index 0000000..599fc18
+--- /dev/null
++++ b/tests/fixtures/sentry/documented-capture.json
+@@ -0,0 +1,219 @@
++{
++  "schema": "sentry-web-api-0-capture-v1",
++  "synthetic": true,
++  "organization": {
++    "id": "synthetic-spool-1",
++    "slug": "synthetic-spool-1",
++    "region": "us"
++  },
++  "window": {
++    "start": "2026-02-01T00:00:00Z",
++    "end": "2026-02-03T00:00:00Z"
++  },
++  "omissions": [
++    "Synthetic documented API captures only; all other MIG-001 families and real buyer cutover remain unqualified."
++  ],
++  "collections": [
++    {
++      "kind": "projects",
++      "project": null,
++      "responses": [
++        {
++          "url": "https://sentry.invalid/api/0/organizations/synthetic-spool-1/projects/?per_page=100",
++          "status": 200,
++          "link": "<https://sentry.invalid/api/0/organizations/synthetic-spool-1/projects/?per_page=100&cursor=opaque-%25E7%258C%25AB-%2525-1>; rel=\"next\"; results=\"true\"; cursor=\"opaque-%E7%8C%AB-%25-1\"",
++          "body": "[{\"id\":\"synthetic-project-1\",\"slug\":\"checkout\",\"name\":\"Checkout 猫 café\",\"dateCreated\":\"2026-02-02T00:00:00Z\",\"platform\":\"javascript\",\"teams\":[{\"id\":\"synthetic-team-1\",\"slug\":\"checkout\",\"name\":\"Checkout\"}],\"environments\":[\"production\",\"staging\"],\"features\":[\"releases\"]}]"
++        },
++        {
++          "url": "https://sentry.invalid/api/0/organizations/synthetic-spool-1/projects/?per_page=100&cursor=opaque-%25E7%258C%25AB-%2525-1",
++          "status": 200,
++          "link": "<https://sentry.invalid/api/0/organizations/synthetic-spool-1/projects/?per_page=100&cursor=opaque-%25E7%258C%25AB-%2525-2>; rel=\"next\"; results=\"false\"; cursor=\"opaque-%E7%8C%AB-%25-2\"",
++          "body": "[]"
++        }
++      ]
++    },
++    {
++      "kind": "releases",
++      "project": null,
++      "responses": [
++        {
++          "url": "https://sentry.invalid/api/0/organizations/synthetic-spool-1/releases/?per_page=100",
++          "status": 200,
++          "link": "<https://sentry.invalid/api/0/organizations/synthetic-spool-1/releases/?per_page=100&cursor=opaque-%25E7%258C%25AB-%2525-1>; rel=\"next\"; results=\"true\"; cursor=\"opaque-%E7%8C%AB-%25-1\"",
++          "body": "[{\"version\":\"checkout@1.0.0\",\"dateCreated\":\"2026-02-02T00:00:00Z\",\"projects\":[{\"slug\":\"checkout\",\"name\":\"Checkout\",\"platform\":\"javascript\"}],\"dateReleased\":\"2026-02-02T00:00:00Z\",\"commitCount\":2,\"lastCommit\":{\"id\":\"aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa\",\"message\":\"Synthetic change\",\"repository\":{\"name\":\"synthetic-spool-1\",\"provider\":{\"id\":\"github\",\"name\":\"GitHub\"}}}}]"
++        },
++        {
++          "url": "https://sentry.invalid/api/0/organizations/synthetic-spool-1/releases/?per_page=100&cursor=opaque-%25E7%258C%25AB-%2525-1",
++          "status": 200,
++          "link": "<https://sentry.invalid/api/0/organizations/synthetic-spool-1/releases/?per_page=100&cursor=opaque-%25E7%258C%25AB-%2525-2>; rel=\"next\"; results=\"false\"; cursor=\"opaque-%E7%8C%AB-%25-2\"",
++          "body": "[]"
++        }
++      ]
++    },
++    {
++      "kind": "keys",
++      "project": "checkout",
++      "responses": [
++        {
++          "url": "https://sentry.invalid/api/0/projects/synthetic-spool-1/checkout/keys/?per_page=100",
++          "status": 200,
++          "link": "<https://sentry.invalid/api/0/projects/synthetic-spool-1/checkout/keys/?per_page=100&cursor=opaque-%25E7%258C%25AB-%2525-1>; rel=\"next\"; results=\"true\"; cursor=\"opaque-%E7%8C%AB-%25-1\"",
++          "body": "[{\"id\":\"synthetic-key-1\",\"name\":\"Browser loader\",\"public\":\"synthetic-spool-key-1\",\"secret\":\"[removed]\",\"isActive\":false,\"rateLimit\":{\"count\":37,\"window\":60},\"dsn\":{\"public\":\"https://synthetic-spool-key-1@ingest.invalid/42\",\"secret\":\"[removed]\",\"cdn\":\"https://js.sentry-cdn.com/synthetic-spool-key-1.min.js\"},\"browserSdkVersion\":\"latest\",\"dynamicSdkLoaderOptions\":{\"hasReplay\":true,\"hasPerformance\":false,\"hasDebug\":true,\"hasFeedback\":true,\"hasLogsAndMetrics\":false}}]"
++        },
++        {
++          "url": "https://sentry.invalid/api/0/projects/synthetic-spool-1/checkout/keys/?per_page=100&cursor=opaque-%25E7%258C%25AB-%2525-1",
++          "status": 200,
++          "link": "<https://sentry.invalid/api/0/projects/synthetic-spool-1/checkout/keys/?per_page=100&cursor=opaque-%25E7%258C%25AB-%2525-2>; rel=\"next\"; results=\"false\"; cursor=\"opaque-%E7%8C%AB-%25-2\"",
++          "body": "[]"
++        }
++      ]
++    },
++    {
++      "kind": "teams",
++      "project": null,
++      "responses": [
++        {
++          "url": "https://sentry.invalid/api/0/organizations/synthetic-spool-1/teams/?per_page=100",
++          "status": 200,
++          "link": "<https://sentry.invalid/api/0/organizations/synthetic-spool-1/teams/?per_page=100&cursor=opaque-%25E7%258C%25AB-%2525-1>; rel=\"next\"; results=\"true\"; cursor=\"opaque-%E7%8C%AB-%25-1\"",
++          "body": "[{\"id\":\"synthetic-team-1\",\"slug\":\"checkout\",\"name\":\"Checkout فريق\",\"dateCreated\":\"2026-02-02T00:00:00Z\",\"memberCount\":2,\"hasAccess\":true}]"
++        },
++        {
++          "url": "https://sentry.invalid/api/0/organizations/synthetic-spool-1/teams/?per_page=100&cursor=opaque-%25E7%258C%25AB-%2525-1",
++          "status": 200,
++          "link": "<https://sentry.invalid/api/0/organizations/synthetic-spool-1/teams/?per_page=100&cursor=opaque-%25E7%258C%25AB-%2525-2>; rel=\"next\"; results=\"false\"; cursor=\"opaque-%E7%8C%AB-%25-2\"",
++          "body": "[]"
++        }
++      ]
++    },
++    {
++      "kind": "members",
++      "project": null,
++      "responses": [
++        {
++          "url": "https://sentry.invalid/api/0/organizations/synthetic-spool-1/members/?per_page=100",
++          "status": 200,
++          "link": "<https://sentry.invalid/api/0/organizations/synthetic-spool-1/members/?per_page=100&cursor=opaque-%25E7%258C%25AB-%2525-1>; rel=\"next\"; results=\"true\"; cursor=\"opaque-%E7%8C%AB-%25-1\"",
++          "body": "[{\"id\":\"synthetic-member-1\",\"email\":\"synthetic-spool-1@example.test\",\"name\":\"Synthetic member\",\"orgRole\":\"admin\",\"pending\":true,\"expired\":false,\"flags\":{\"sso:linked\":false},\"user\":null}]"
++        },
++        {
++          "url": "https://sentry.invalid/api/0/organizations/synthetic-spool-1/members/?per_page=100&cursor=opaque-%25E7%258C%25AB-%2525-1",
++          "status": 200,
++          "link": "<https://sentry.invalid/api/0/organizations/synthetic-spool-1/members/?per_page=100&cursor=opaque-%25E7%258C%25AB-%2525-2>; rel=\"next\"; results=\"false\"; cursor=\"opaque-%E7%8C%AB-%25-2\"",
++          "body": "[]"
++        }
++      ]
++    },
++    {
++      "kind": "workflows",
++      "project": null,
++      "responses": [
++        {
++          "url": "https://sentry.invalid/api/0/organizations/synthetic-spool-1/workflows/?per_page=100",
++          "status": 200,
++          "link": "<https://sentry.invalid/api/0/organizations/synthetic-spool-1/workflows/?per_page=100&cursor=opaque-%25E7%258C%25AB-%2525-1>; rel=\"next\"; results=\"true\"; cursor=\"opaque-%E7%8C%AB-%25-1\"",
++          "body": "[{\"id\":\"synthetic-workflow-1\",\"name\":\"Checkout error alert\",\"enabled\":false,\"detectorIds\":[\"synthetic-detector-1\"],\"triggers\":{\"id\":\"synthetic-trigger-1\",\"logicType\":\"any\",\"conditions\":[{\"id\":\"synthetic-trigger-condition-1\",\"type\":\"detector_changed\",\"comparison\":\"high\",\"conditionResult\":true}],\"actions\":[]},\"actionFilters\":[{\"id\":\"synthetic-filter-1\",\"logicType\":\"any\",\"conditions\":[],\"actions\":[{\"id\":\"synthetic-action-1\",\"type\":\"email\",\"status\":\"disabled\",\"integrationId\":null,\"config\":{\"targetType\":\"Team\",\"targetIdentifier\":\"synthetic-team-1\",\"targetDisplay\":\"Checkout\"},\"data\":{\"fallthroughType\":\"ActiveMembers\"}}]}],\"config\":{\"frequency\":30},\"unknownExtension\":{\"nested\":[{\"code\":\"source-only\"}]}}]"
++        },
++        {
++          "url": "https://sentry.invalid/api/0/organizations/synthetic-spool-1/workflows/?per_page=100&cursor=opaque-%25E7%258C%25AB-%2525-1",
++          "status": 200,
++          "link": "<https://sentry.invalid/api/0/organizations/synthetic-spool-1/workflows/?per_page=100&cursor=opaque-%25E7%258C%25AB-%2525-2>; rel=\"next\"; results=\"false\"; cursor=\"opaque-%E7%8C%AB-%25-2\"",
++          "body": "[]"
++        }
++      ]
++    },
++    {
++      "kind": "detectors",
++      "project": null,
++      "responses": [
++        {
++          "url": "https://sentry.invalid/api/0/organizations/synthetic-spool-1/detectors/?per_page=100",
++          "status": 200,
++          "link": "<https://sentry.invalid/api/0/organizations/synthetic-spool-1/detectors/?per_page=100&cursor=opaque-%25E7%258C%25AB-%2525-1>; rel=\"next\"; results=\"true\"; cursor=\"opaque-%E7%8C%AB-%25-1\"",
++          "body": "[{\"id\":\"synthetic-detector-1\",\"name\":\"Checkout errors\",\"type\":\"error\",\"projectId\":\"synthetic-project-1\",\"enabled\":false,\"config\":{},\"conditionGroup\":{\"id\":\"synthetic-condition-group-1\",\"logicType\":\"any\",\"conditions\":[{\"id\":\"synthetic-condition-1\",\"type\":\"event_frequency_count\",\"comparison\":100,\"conditionResult\":true}],\"actions\":[]},\"dataSources\":[{\"id\":\"synthetic-data-source-1\",\"type\":\"snuba_query_subscription\",\"sourceId\":\"synthetic-query-1\",\"queryObj\":{\"id\":\"synthetic-query-1\",\"snubaQuery\":{\"dataset\":\"events\",\"eventTypes\":[\"error\"],\"aggregate\":\"count()\",\"query\":\"event.type:error\",\"timeWindow\":60,\"environment\":\"production\"}}}]}]"
++        },
++        {
++          "url": "https://sentry.invalid/api/0/organizations/synthetic-spool-1/detectors/?per_page=100&cursor=opaque-%25E7%258C%25AB-%2525-1",
++          "status": 200,
++          "link": "<https://sentry.invalid/api/0/organizations/synthetic-spool-1/detectors/?per_page=100&cursor=opaque-%25E7%258C%25AB-%2525-2>; rel=\"next\"; results=\"false\"; cursor=\"opaque-%E7%8C%AB-%25-2\"",
++          "body": "[]"
++        }
++      ]
++    },
++    {
++      "kind": "ownership",
++      "project": "checkout",
++      "responses": [
++        {
++          "url": "https://sentry.invalid/api/0/projects/synthetic-spool-1/checkout/ownership/",
++          "status": 200,
++          "body": "{\"raw\":\"path:src/checkout/* #checkout\",\"schema\":{\"$version\":1,\"rules\":[{\"matcher\":{\"type\":\"path\",\"pattern\":\"src/checkout/*\"},\"owners\":[{\"type\":\"team\",\"id\":\"synthetic-team-1\",\"name\":\"checkout\"}]}]},\"fallthrough\":true,\"autoAssignment\":false,\"codeownersAutoSync\":false}"
++        }
++      ]
++    },
++    {
++      "kind": "issues",
++      "project": "checkout",
++      "responses": [
++        {
++          "url": "https://sentry.invalid/api/0/projects/synthetic-spool-1/checkout/issues/?per_page=100&query=",
++          "status": 200,
++          "link": "<https://sentry.invalid/api/0/projects/synthetic-spool-1/checkout/issues/?per_page=100&query=&cursor=opaque-%25E7%258C%25AB-%2525-1>; rel=\"next\"; results=\"true\"; cursor=\"opaque-%E7%8C%AB-%25-1\"",
++          "body": "[{\"id\":\"synthetic-issue-0\",\"shortId\":\"CHECKOUT-1\",\"title\":\"Checkout failure 0\",\"status\":\"resolved\",\"firstSeen\":\"2026-02-02T00:00:00Z\",\"lastSeen\":\"2026-02-02T00:00:00Z\",\"count\":\"99\",\"userCount\":3,\"assignedTo\":{\"type\":\"team\",\"id\":\"synthetic-team-1\",\"name\":\"Checkout\"},\"statusDetails\":{},\"priority\":\"high\"},{\"id\":\"synthetic-issue-1\",\"shortId\":\"CHECKOUT-2\",\"title\":\"Checkout failure 1\",\"status\":\"ignored\",\"firstSeen\":\"2026-02-02T00:00:00Z\",\"lastSeen\":\"2026-02-02T00:00:00Z\",\"count\":\"99\",\"userCount\":3,\"assignedTo\":{\"type\":\"team\",\"id\":\"synthetic-team-1\",\"name\":\"Checkout\"},\"statusDetails\":{},\"priority\":\"high\"},{\"id\":\"synthetic-issue-2\",\"shortId\":\"CHECKOUT-3\",\"title\":\"Checkout failure 2\",\"status\":\"unresolved\",\"firstSeen\":\"2026-02-02T00:00:00Z\",\"lastSeen\":\"2026-02-02T00:00:00Z\",\"count\":\"99\",\"userCount\":3,\"assignedTo\":{\"type\":\"team\",\"id\":\"synthetic-team-1\",\"name\":\"Checkout\"},\"statusDetails\":{},\"priority\":\"high\"},{\"id\":\"synthetic-issue-3\",\"shortId\":\"CHECKOUT-4\",\"title\":\"Checkout failure 3\",\"status\":\"resolved\",\"firstSeen\":\"2026-02-02T00:00:00Z\",\"lastSeen\":\"2026-02-02T00:00:00Z\",\"count\":\"99\",\"userCount\":3,\"assignedTo\":{\"type\":\"team\",\"id\":\"synthetic-team-1\",\"name\":\"Checkout\"},\"statusDetails\":{},\"priority\":\"high\"},{\"id\":\"synthetic-issue-4\",\"shortId\":\"CHECKOUT-5\",\"title\":\"Checkout failure 4\",\"status\":\"ignored\",\"firstSeen\":\"2026-02-02T00:00:00Z\",\"lastSeen\":\"2026-02-02T00:00:00Z\",\"count\":\"99\",\"userCount\":3,\"assignedTo\":{\"type\":\"team\",\"id\":\"synthetic-team-1\",\"name\":\"Checkout\"},\"statusDetails\":{},\"priority\":\"high\"},{\"id\":\"synthetic-issue-5\",\"shortId\":\"CHECKOUT-6\",\"title\":\"Checkout failure 5\",\"status\":\"unresolved\",\"firstSeen\":\"2026-02-02T00:00:00Z\",\"lastSeen\":\"2026-02-02T00:00:00Z\",\"count\":\"99\",\"userCount\":3,\"assignedTo\":{\"type\":\"team\",\"id\":\"synthetic-team-1\",\"name\":\"Checkout\"},\"statusDetails\":{},\"priority\":\"high\"},{\"id\":\"synthetic-issue-6\",\"shortId\":\"CHECKOUT-7\",\"title\":\"Checkout failure 6\",\"status\":\"resolved\",\"firstSeen\":\"2026-02-02T00:00:00Z\",\"lastSeen\":\"2026-02-02T00:00:00Z\",\"count\":\"99\",\"userCount\":3,\"assignedTo\":{\"type\":\"team\",\"id\":\"synthetic-team-1\",\"name\":\"Checkout\"},\"statusDetails\":{},\"priority\":\"high\"},{\"id\":\"synthetic-issue-7\",\"shortId\":\"CHECKOUT-8\",\"title\":\"Checkout failure 7\",\"status\":\"ignored\",\"firstSeen\":\"2026-02-02T00:00:00Z\",\"lastSeen\":\"2026-02-02T00:00:00Z\",\"count\":\"99\",\"userCount\":3,\"assignedTo\":{\"type\":\"team\",\"id\":\"synthetic-team-1\",\"name\":\"Checkout\"},\"statusDetails\":{},\"priority\":\"high\"},{\"id\":\"synthetic-issue-0\",\"shortId\":\"CHECKOUT-1\",\"title\":\"Checkout failure 0\",\"status\":\"resolved\",\"firstSeen\":\"2026-02-02T00:00:00Z\",\"lastSeen\":\"2026-02-02T00:00:00Z\",\"count\":\"99\",\"userCount\":3,\"assignedTo\":{\"type\":\"team\",\"id\":\"synthetic-team-1\",\"name\":\"Checkout\"},\"statusDetails\":{},\"priority\":\"high\"}]"
++        },
++        {
++          "url": "https://sentry.invalid/api/0/projects/synthetic-spool-1/checkout/issues/?per_page=100&query=&cursor=opaque-%25E7%258C%25AB-%2525-1",
++          "status": 200,
++          "link": "<https://sentry.invalid/api/0/projects/synthetic-spool-1/checkout/issues/?per_page=100&query=&cursor=opaque-%25E7%258C%25AB-%2525-2>; rel=\"next\"; results=\"false\"; cursor=\"opaque-%E7%8C%AB-%25-2\"",
++          "body": "[]"
++        }
++      ]
++    },
++    {
++      "kind": "events",
++      "project": "checkout",
++      "responses": [
++        {
++          "url": "https://sentry.invalid/api/0/projects/synthetic-spool-1/checkout/events/00000000000000000000000000000000/",
++          "status": 200,
++          "body": "{\"eventID\":\"00000000000000000000000000000000\",\"groupID\":\"synthetic-issue-0\",\"title\":\"Checkout failure 0\",\"release\":{\"version\":\"checkout@1.0.0\",\"shortVersion\":\"1.0.0\"},\"dist\":\"build-1\",\"environment\":\"production\",\"dateCreated\":\"2026-02-02T00:00:00Z\",\"dateReceived\":\"2026-02-02T00:00:01Z\",\"tags\":[{\"key\":\"environment\",\"value\":\"production\"},{\"key\":\"region\",\"value\":\"synthetic\"}],\"contexts\":{\"browser\":{\"name\":\"Synthetic browser\"}},\"entries\":[{\"type\":\"exception\",\"data\":{\"values\":[{\"type\":\"Error\",\"value\":\"Earlier exception\",\"stacktrace\":{\"frames\":[{\"filename\":\"earlier.js\",\"lineNo\":1,\"colNo\":1}]}},{\"type\":\"TypeError\",\"value\":\"Checkout failure 0\",\"mechanism\":{\"handled\":true,\"type\":\"generic\"},\"rawStacktrace\":{\"frames\":[{\"filename\":\"src/checkout.ts\",\"absPath\":\"https://checkout.example.test/app.js\",\"lineNo\":12,\"colNo\":4,\"function\":\"checkout\",\"vars\":{\"ordinary\":\"safe\"}}]},\"stacktrace\":{\"frames\":[{\"filename\":\"src/original.ts\",\"lineNo\":3,\"colNo\":2,\"function\":\"original\"}]}}]}},{\"type\":\"breadcrumbs\",\"data\":{\"values\":[{\"type\":\"default\",\"category\":\"navigation\",\"message\":\"Checkout opened\",\"data\":{\"method\":\"GET\",\"status_code\":200},\"event_id\":\"source-only\"}]}},{\"type\":\"request\",\"data\":{\"method\":\"GET\",\"url\":\"https://checkout.example.test/\",\"headers\":[[\"Accept\",\"application/json\"]]}}]}"
++        },
++        {
++          "url": "https://sentry.invalid/api/0/projects/synthetic-spool-1/checkout/events/00000000000000000000000000000001/",
++          "status": 200,
++          "body": "{\"eventID\":\"00000000000000000000000000000001\",\"groupID\":\"synthetic-issue-1\",\"title\":\"Checkout failure 1\",\"release\":{\"version\":\"checkout@1.0.0\",\"shortVersion\":\"1.0.0\"},\"dist\":\"build-1\",\"environment\":\"production\",\"dateCreated\":\"2026-02-02T00:00:00Z\",\"dateReceived\":\"2026-02-02T00:00:01Z\",\"tags\":[{\"key\":\"environment\",\"value\":\"production\"},{\"key\":\"region\",\"value\":\"synthetic\"}],\"contexts\":{\"browser\":{\"name\":\"Synthetic browser\"}},\"entries\":[{\"type\":\"exception\",\"data\":{\"values\":[{\"type\":\"Error\",\"value\":\"Earlier exception\",\"stacktrace\":{\"frames\":[{\"filename\":\"earlier.js\",\"lineNo\":1,\"colNo\":1}]}},{\"type\":\"TypeError\",\"value\":\"Checkout failure 1\",\"mechanism\":{\"handled\":true,\"type\":\"generic\"},\"rawStacktrace\":{\"frames\":[{\"filename\":\"src/checkout.ts\",\"absPath\":\"https://checkout.example.test/app.js\",\"lineNo\":12,\"colNo\":4,\"function\":\"checkout\",\"vars\":{\"ordinary\":\"safe\"}}]},\"stacktrace\":{\"frames\":[{\"filename\":\"src/original.ts\",\"lineNo\":3,\"colNo\":2,\"function\":\"original\"}]}}]}},{\"type\":\"breadcrumbs\",\"data\":{\"values\":[{\"type\":\"default\",\"category\":\"navigation\",\"message\":\"Checkout opened\",\"data\":{\"method\":\"GET\",\"status_code\":200},\"event_id\":\"source-only\"}]}},{\"type\":\"request\",\"data\":{\"method\":\"GET\",\"url\":\"https://checkout.example.test/\",\"headers\":[[\"Accept\",\"application/json\"]]}}]}"
++        },
++        {
++          "url": "https://sentry.invalid/api/0/projects/synthetic-spool-1/checkout/events/00000000000000000000000000000002/",
++          "status": 200,
++          "body": "{\"eventID\":\"00000000000000000000000000000002\",\"groupID\":\"synthetic-issue-2\",\"title\":\"Checkout failure 2\",\"release\":{\"version\":\"checkout@1.0.0\",\"shortVersion\":\"1.0.0\"},\"dist\":\"build-1\",\"environment\":\"production\",\"dateCreated\":\"2026-02-02T00:00:00Z\",\"dateReceived\":\"2026-02-02T00:00:01Z\",\"tags\":[{\"key\":\"environment\",\"value\":\"production\"},{\"key\":\"region\",\"value\":\"synthetic\"}],\"contexts\":{\"browser\":{\"name\":\"Synthetic browser\"}},\"entries\":[{\"type\":\"exception\",\"data\":{\"values\":[{\"type\":\"Error\",\"value\":\"Earlier exception\",\"stacktrace\":{\"frames\":[{\"filename\":\"earlier.js\",\"lineNo\":1,\"colNo\":1}]}},{\"type\":\"TypeError\",\"value\":\"Checkout failure 2\",\"mechanism\":{\"handled\":true,\"type\":\"generic\"},\"rawStacktrace\":{\"frames\":[{\"filename\":\"src/checkout.ts\",\"absPath\":\"https://checkout.example.test/app.js\",\"lineNo\":12,\"colNo\":4,\"function\":\"checkout\",\"vars\":{\"ordinary\":\"safe\"}}]},\"stacktrace\":{\"frames\":[{\"filename\":\"src/original.ts\",\"lineNo\":3,\"colNo\":2,\"function\":\"original\"}]}}]}},{\"type\":\"breadcrumbs\",\"data\":{\"values\":[{\"type\":\"default\",\"category\":\"navigation\",\"message\":\"Checkout opened\",\"data\":{\"method\":\"GET\",\"status_code\":200},\"event_id\":\"source-only\"}]}},{\"type\":\"request\",\"data\":{\"method\":\"GET\",\"url\":\"https://checkout.example.test/\",\"headers\":[[\"Accept\",\"application/json\"]]}}]}"
++        },
++        {
++          "url": "https://sentry.invalid/api/0/projects/synthetic-spool-1/checkout/events/00000000000000000000000000000003/",
++          "status": 200,
++          "body": "{\"eventID\":\"00000000000000000000000000000003\",\"groupID\":\"synthetic-issue-3\",\"title\":\"Checkout failure 3\",\"release\":{\"version\":\"checkout@1.0.0\",\"shortVersion\":\"1.0.0\"},\"dist\":\"build-1\",\"environment\":\"production\",\"dateCreated\":\"2026-02-02T00:00:00Z\",\"dateReceived\":\"2026-02-02T00:00:01Z\",\"tags\":[{\"key\":\"environment\",\"value\":\"production\"},{\"key\":\"region\",\"value\":\"synthetic\"}],\"contexts\":{\"browser\":{\"name\":\"Synthetic browser\"}},\"entries\":[{\"type\":\"exception\",\"data\":{\"values\":[{\"type\":\"Error\",\"value\":\"Earlier exception\",\"stacktrace\":{\"frames\":[{\"filename\":\"earlier.js\",\"lineNo\":1,\"colNo\":1}]}},{\"type\":\"TypeError\",\"value\":\"Checkout failure 3\",\"mechanism\":{\"handled\":true,\"type\":\"generic\"},\"rawStacktrace\":{\"frames\":[{\"filename\":\"src/checkout.ts\",\"absPath\":\"https://checkout.example.test/app.js\",\"lineNo\":12,\"colNo\":4,\"function\":\"checkout\",\"vars\":{\"ordinary\":\"safe\"}}]},\"stacktrace\":{\"frames\":[{\"filename\":\"src/original.ts\",\"lineNo\":3,\"colNo\":2,\"function\":\"original\"}]}}]}},{\"type\":\"breadcrumbs\",\"data\":{\"values\":[{\"type\":\"default\",\"category\":\"navigation\",\"message\":\"Checkout opened\",\"data\":{\"method\":\"GET\",\"status_code\":200},\"event_id\":\"source-only\"}]}},{\"type\":\"request\",\"data\":{\"method\":\"GET\",\"url\":\"https://checkout.example.test/\",\"headers\":[[\"Accept\",\"application/json\"]]}}]}"
++        },
++        {
++          "url": "https://sentry.invalid/api/0/projects/synthetic-spool-1/checkout/events/00000000000000000000000000000004/",
++          "status": 200,
++          "body": "{\"eventID\":\"00000000000000000000000000000004\",\"groupID\":\"synthetic-issue-4\",\"title\":\"Checkout failure 4\",\"release\":{\"version\":\"checkout@1.0.0\",\"shortVersion\":\"1.0.0\"},\"dist\":\"build-1\",\"environment\":\"production\",\"dateCreated\":\"2026-02-02T00:00:00Z\",\"dateReceived\":\"2026-02-02T00:00:01Z\",\"tags\":[{\"key\":\"environment\",\"value\":\"production\"},{\"key\":\"region\",\"value\":\"synthetic\"}],\"contexts\":{\"browser\":{\"name\":\"Synthetic browser\"}},\"entries\":[{\"type\":\"exception\",\"data\":{\"values\":[{\"type\":\"Error\",\"value\":\"Earlier exception\",\"stacktrace\":{\"frames\":[{\"filename\":\"earlier.js\",\"lineNo\":1,\"colNo\":1}]}},{\"type\":\"TypeError\",\"value\":\"Checkout failure 4\",\"mechanism\":{\"handled\":true,\"type\":\"generic\"},\"rawStacktrace\":{\"frames\":[{\"filename\":\"src/checkout.ts\",\"absPath\":\"https://checkout.example.test/app.js\",\"lineNo\":12,\"colNo\":4,\"function\":\"checkout\",\"vars\":{\"ordinary\":\"safe\"}}]},\"stacktrace\":{\"frames\":[{\"filename\":\"src/original.ts\",\"lineNo\":3,\"colNo\":2,\"function\":\"original\"}]}}]}},{\"type\":\"breadcrumbs\",\"data\":{\"values\":[{\"type\":\"default\",\"category\":\"navigation\",\"message\":\"Checkout opened\",\"data\":{\"method\":\"GET\",\"status_code\":200},\"event_id\":\"source-only\"}]}},{\"type\":\"request\",\"data\":{\"method\":\"GET\",\"url\":\"https://checkout.example.test/\",\"headers\":[[\"Accept\",\"application/json\"]]}}]}"
++        },
++        {
++          "url": "https://sentry.invalid/api/0/projects/synthetic-spool-1/checkout/events/00000000000000000000000000000005/",
++          "status": 200,
++          "body": "{\"eventID\":\"00000000000000000000000000000005\",\"groupID\":\"synthetic-issue-5\",\"title\":\"Checkout failure 5\",\"release\":{\"version\":\"checkout@1.0.0\",\"shortVersion\":\"1.0.0\"},\"dist\":\"build-1\",\"environment\":\"production\",\"dateCreated\":\"2026-02-02T00:00:00Z\",\"dateReceived\":\"2026-02-02T00:00:01Z\",\"tags\":[{\"key\":\"environment\",\"value\":\"production\"},{\"key\":\"region\",\"value\":\"synthetic\"}],\"contexts\":{\"browser\":{\"name\":\"Synthetic browser\"}},\"entries\":[{\"type\":\"exception\",\"data\":{\"values\":[{\"type\":\"Error\",\"value\":\"Earlier exception\",\"stacktrace\":{\"frames\":[{\"filename\":\"earlier.js\",\"lineNo\":1,\"colNo\":1}]}},{\"type\":\"TypeError\",\"value\":\"Checkout failure 5\",\"mechanism\":{\"handled\":true,\"type\":\"generic\"},\"rawStacktrace\":{\"frames\":[{\"filename\":\"src/checkout.ts\",\"absPath\":\"https://checkout.example.test/app.js\",\"lineNo\":12,\"colNo\":4,\"function\":\"checkout\",\"vars\":{\"ordinary\":\"safe\"}}]},\"stacktrace\":{\"frames\":[{\"filename\":\"src/original.ts\",\"lineNo\":3,\"colNo\":2,\"function\":\"original\"}]}}]}},{\"type\":\"breadcrumbs\",\"data\":{\"values\":[{\"type\":\"default\",\"category\":\"navigation\",\"message\":\"Checkout opened\",\"data\":{\"method\":\"GET\",\"status_code\":200},\"event_id\":\"source-only\"}]}},{\"type\":\"request\",\"data\":{\"method\":\"GET\",\"url\":\"https://checkout.example.test/\",\"headers\":[[\"Accept\",\"application/json\"]]}}]}"
++        },
++        {
++          "url": "https://sentry.invalid/api/0/projects/synthetic-spool-1/checkout/events/00000000000000000000000000000006/",
++          "status": 200,
++          "body": "{\"eventID\":\"00000000000000000000000000000006\",\"groupID\":\"synthetic-issue-6\",\"title\":\"Checkout failure 6\",\"release\":{\"version\":\"checkout@1.0.0\",\"shortVersion\":\"1.0.0\"},\"dist\":\"build-1\",\"environment\":\"production\",\"dateCreated\":\"2026-02-02T00:00:00Z\",\"dateReceived\":\"2026-02-02T00:00:01Z\",\"tags\":[{\"key\":\"environment\",\"value\":\"production\"},{\"key\":\"region\",\"value\":\"synthetic\"}],\"contexts\":{\"browser\":{\"name\":\"Synthetic browser\"}},\"entries\":[{\"type\":\"exception\",\"data\":{\"values\":[{\"type\":\"Error\",\"value\":\"Earlier exception\",\"stacktrace\":{\"frames\":[{\"filename\":\"earlier.js\",\"lineNo\":1,\"colNo\":1}]}},{\"type\":\"TypeError\",\"value\":\"Checkout failure 6\",\"mechanism\":{\"handled\":true,\"type\":\"generic\"},\"rawStacktrace\":{\"frames\":[{\"filename\":\"src/checkout.ts\",\"absPath\":\"https://checkout.example.test/app.js\",\"lineNo\":12,\"colNo\":4,\"function\":\"checkout\",\"vars\":{\"ordinary\":\"safe\"}}]},\"stacktrace\":{\"frames\":[{\"filename\":\"src/original.ts\",\"lineNo\":3,\"colNo\":2,\"function\":\"original\"}]}}]}},{\"type\":\"breadcrumbs\",\"data\":{\"values\":[{\"type\":\"default\",\"category\":\"navigation\",\"message\":\"Checkout opened\",\"data\":{\"method\":\"GET\",\"status_code\":200},\"event_id\":\"source-only\"}]}},{\"type\":\"request\",\"data\":{\"method\":\"GET\",\"url\":\"https://checkout.example.test/\",\"headers\":[[\"Accept\",\"application/json\"]]}}]}"
++        },
++        {
++          "url": "https://sentry.invalid/api/0/projects/synthetic-spool-1/checkout/events/00000000000000000000000000000007/",
++          "status": 200,
++          "body": "{\"eventID\":\"00000000000000000000000000000007\",\"groupID\":\"synthetic-issue-7\",\"title\":\"Checkout failure 7\",\"release\":{\"version\":\"checkout@1.0.0\",\"shortVersion\":\"1.0.0\"},\"dist\":\"build-1\",\"environment\":\"production\",\"dateCreated\":\"2026-02-02T00:00:00Z\",\"dateReceived\":\"2026-02-02T00:00:01Z\",\"tags\":[{\"key\":\"environment\",\"value\":\"production\"},{\"key\":\"region\",\"value\":\"synthetic\"}],\"contexts\":{\"browser\":{\"name\":\"Synthetic browser\"}},\"entries\":[{\"type\":\"exception\",\"data\":{\"values\":[{\"type\":\"Error\",\"value\":\"Earlier exception\",\"stacktrace\":{\"frames\":[{\"filename\":\"earlier.js\",\"lineNo\":1,\"colNo\":1}]}},{\"type\":\"TypeError\",\"value\":\"Checkout failure 7\",\"mechanism\":{\"handled\":true,\"type\":\"generic\"},\"rawStacktrace\":{\"frames\":[{\"filename\":\"src/checkout.ts\",\"absPath\":\"https://checkout.example.test/app.js\",\"lineNo\":12,\"colNo\":4,\"function\":\"checkout\",\"vars\":{\"ordinary\":\"safe\"}}]},\"stacktrace\":{\"frames\":[{\"filename\":\"src/original.ts\",\"lineNo\":3,\"colNo\":2,\"function\":\"original\"}]}}]}},{\"type\":\"breadcrumbs\",\"data\":{\"values\":[{\"type\":\"default\",\"category\":\"navigation\",\"message\":\"Checkout opened\",\"data\":{\"method\":\"GET\",\"status_code\":200},\"event_id\":\"source-only\"}]}},{\"type\":\"request\",\"data\":{\"method\":\"GET\",\"url\":\"https://checkout.example.test/\",\"headers\":[[\"Accept\",\"application/json\"]]}}]}"
++        }
++      ]
++    }
++  ]
++}
+diff --git a/tests/sentry-import.mjs b/tests/sentry-import.mjs
+index e3ec1aa..323645f 100644
+--- a/tests/sentry-import.mjs
++++ b/tests/sentry-import.mjs
+@@ -1,3 +1,5 @@
++import { schemaPages } from './sentry-import/schema-pages.mjs';
++import { fieldAccounting } from './sentry-import/field-accounting.mjs';
+ import { bugsnagMigrationFlow } from './bugsnag-import.mjs';
+ import assert from 'node:assert/strict';
+ import { createHash } from 'node:crypto';
+@@ -12,6 +14,7 @@ import { sentryImportCli, sentryDoorClient } from '../scripts/sentry-import.mjs'
+ import { readableImport, unknownTimes, refusedImportReads } from './sentry-import/reads.mjs';
+ // Hosted auth sends invitations through the existing mail-provider edge;
+ // development mode intentionally suppresses mail and cannot prove member reads.
++await schemaPages();
+ const worker=await admissionRuntime({}, {port:15523,hostedMail:true}),{origin}=worker;
+ let stopping;
+ const stopWorker=()=>stopping??=worker.close();
+@@ -120,6 +123,7 @@ try{
+   await json(`/api/projects/${importedProject.id}/releases`,'POST',{name:'native-cite',build:'b1',commits:[{sha:'e'.repeat(40),message:`Fixes ${imported.short_id.toLowerCase()}`,author:{name:'Importer',email:'importer@example.test'}}]});
+   assert.deepEqual((await json(`/api/projects/${importedProject.id}/commits/link-log`)).rows.map(r=>[r.citation,r.reason]),[[`Fixes ${imported.short_id.toLowerCase()}`,'inaccessible']]);
+   assert.deepEqual((await json(`/api/projects/${importedProject.id}/issues`))[0],imported,'a citation of imported history changes nothing');
++  await fieldAccounting({origin,cookie,scratch,json,req});
+   const nativeArchive=await (await req('/api/archive')).arrayBuffer();
+   await req('/auth/signout','POST',{});
+   assert.equal((await req('/api/operator/import/status','POST',{planId:secondPlan.planId},{'X-Import-Source':'sentry-org:fixture-org'})).status,401);
+diff --git a/tests/sentry-import/field-accounting.mjs b/tests/sentry-import/field-accounting.mjs
+new file mode 100644
+index 0000000..f46bcf1
+--- /dev/null
++++ b/tests/sentry-import/field-accounting.mjs
+@@ -0,0 +1,131 @@
++import assert from 'node:assert/strict';
++import { readFile, writeFile } from 'node:fs/promises';
++import { join, dirname } from 'node:path';
++import { sentryOrganization } from '../../scripts/fixtures/sentry-organization.mjs';
++import { exportCapture } from '../../scripts/sentry-export.mjs';
++import { sentryDoorClient } from '../../scripts/sentry-import.mjs';
++import { archiveProjection } from '../archive.mjs';
++
++// Independent traversal of the supplied API responses: never calls the product's enumerator or mapper.
++function leaves(value,path='') {
++ const entries=value&&typeof value==='object'?Object.entries(value):[];
++ return entries.length?entries.flatMap(([key,v])=>leaves(v,path+'/'+key.replaceAll('~','~0').replaceAll('/','~1'))):[path];
++}
++// Schema-specific expectations are declared independently of the product's mapper.
++function disposition(kind,path) {
++ if(kind==='keys'&&['/public','/secret','/dsn/secret','/dsn/cdn'].includes(path))return 'redacted';
++ const exact={projects:['/id','/slug'],releases:['/version'],issues:['/id']};
++ const converted={projects:['/name','/dateCreated'],releases:['/dateCreated'],issues:['/title','/status','/firstSeen','/lastSeen'],events:['/eventID','/groupID','/dist','/environment','/release/version','/dateCreated','/entries/0/type','/entries/0/data/values/1/type','/entries/0/data/values/1/value','/entries/1/type']};
++ if(exact[kind]?.includes(path))return 'mapped';
++ if(converted[kind]?.includes(path))return 'transformed';
++ if(kind==='releases'&&/^\/projects\/\d+\/slug$/.test(path))return 'mapped';
++ if(kind==='events'&&(/^\/entries\/0\/data\/values\/1\/rawStacktrace\/frames\/0\/(filename|absPath|lineNo|colNo|function)$/.test(path)||/^\/entries\/1\/data\/values\/0\/(type|category|message|data\/(method|status_code))$/.test(path)))return 'transformed';
++ return 'unmapped';
++}
++export async function fieldAccounting({origin,cookie,scratch,json,req}) {
++ const receipt=[];
++ for(const profile of ['baseline','scaled']) {
++  const capture=sentryOrganization(profile),{bundle,receipt:acquisition}=exportCapture(capture);
++  const path=join(scratch,`documented-${profile}.json`);await writeFile(path,JSON.stringify(bundle),{mode:0o600});
++  const client=sentryDoorClient({endpoint:origin,cookie,organization:bundle.organization.slug});
++  const before=await archiveProjection(await req('/api/archive'));
++  const planned=await client.plan(await readFile(path));
++  assert.deepEqual((await archiveProjection(await req('/api/archive'))).data,before.data,'documented-schema review has no native effect');
++  const facts=planned.sentry;
++  assert.ok(facts,'owner plan exposes source accounting');
++  assert.equal(new Set(acquisition.inventory.map(row=>row.family)).size,8);
++  assert.deepEqual(facts.capture, bundle.capture);
++  console.log(`Sentry accounting ${profile}: planned ${planned.counts.input} records, ${facts.fields.length} field dispositions.`);
++  assert.equal(planned.counts.duplicates,1);
++  assert.equal(planned.counts.rejected,0);
++  if(profile==='scaled')assert.ok(planned.counts.input>500,'scaled graph passes the former 500-record fence');
++  const seen=new Set();let unique=0;
++  for(const collection of bundle.collections)for(const page of collection.pages)for(const data of page.response) {
++   const id=collection.kind==='ownership'?'ownership':collection.kind==='releases'?data.version:collection.kind==='events'?data.eventID:data.id;
++   const sourceId=JSON.stringify([bundle.organization.slug,collection.project,id]),key=JSON.stringify([collection.kind,sourceId]);
++   if(seen.has(key))continue;seen.add(key);unique++;
++   const actual=facts.fields.filter(row=>row.kind===collection.kind&&row.sourceId===sourceId);
++   assert.deepEqual(actual.map(row=>row.path).sort(),leaves(data).sort(),'every independent actual scalar/empty container has exactly one disposition');
++   assert.ok(actual.every(row=>row.reason&&row.location&&Number.isSafeInteger(row.bytes)));
++   for(const row of actual)assert.equal(row.disposition,disposition(collection.kind,row.path),`${collection.kind} ${row.path}: independent schema disposition`);
++   if(!['projects','issues','events','releases'].includes(collection.kind))assert.ok(actual.every(row=>['unmapped','redacted'].includes(row.disposition)),'unsupported families never claim native mapping');
++  }
++  assert.equal(unique+1,planned.counts.unique);
++  const events=facts.fields.filter(row=>row.kind==='events');
++  assert.ok(events.some(row=>row.path==='/entries/0/data/values/0/type'&&row.disposition==='unmapped'),'earlier exception is explicitly lost');
++  assert.ok(events.some(row=>row.path==='/entries/0/data/values/1/rawStacktrace/frames/0/lineNo'&&row.disposition==='transformed'));
++  assert.ok(events.some(row=>row.path==='/entries/0/data/values/1/stacktrace/frames/0/lineNo'&&row.disposition==='unmapped'),'unused symbolicated coordinates are named');
++  assert.ok(facts.arrays.some(row=>row.path==='/entries/0/data/values'&&row.omitted.includes(0)),'array loss lists the exact earlier exception index');
++  assert.equal(facts.loaders.length,1);assert.equal(facts.loaders[0].replacementScriptTag,null);assert.match(facts.loaders[0].reason,/No key was minted/);
++  assert.equal(facts.loaders[0].settings.rateLimit.count,37);
++  const args={planId:planned.planId,reviewedFingerprint:planned.fingerprint};
++  // Invoke one batch directly, then reopen status and resume through the public client.
++  const first=await client.call('apply',args);
++  assert.ok(['applying','completed'].includes(first.job.state));
++  if(profile==='scaled')assert.equal(first.job.state,'applying','large apply really pauses at a bounded prefix');
++  const resumed=sentryDoorClient({endpoint:origin,cookie,organization:bundle.organization.slug});
++  assert.equal((await resumed.status(planned.planId)).job.id,first.job.id);
++  const applied=await resumed.apply(planned.planId,planned.fingerprint);assert.equal(applied.job.state,'completed');
++  const report=await resumed.reconcile(planned.planId);assert.equal(report.ok,true);
++  assert.equal(report.sentry.sourcePayloadBytes,facts.sourcePayloadBytes);
++  assert.equal(report.sentry.byteLedger.reduce((n,r)=>n+r.sourceBytes,0),report.sentry.sourcePayloadBytes);
++  assert.equal(report.sentry.byteLedger.reduce((n,r)=>n+r.nativeBytes,0),report.sentry.nativeBytes);
++  for(const row of report.sentry.byteLedger)assert.equal(row.difference,row.sourceBytes-row.nativeBytes);
++  assert.ok(report.sentry.nativeBytes>0);assert.notEqual(report.sentry.nativeBytes,report.sentry.sourcePayloadBytes);
++  const count=new Set(capture.collections.find(c=>c.kind==='issues').responses.flatMap(p=>JSON.parse(p.body)).map(row=>row.id)).size;
++  const kinds={project:1,release:1,issue:count,event:count};
++  assert.deepEqual(report.counts.byKind,kinds);
++  const full=await archiveProjection(await req('/api/archive'));
++  const imported=full.data.projects.find(p=>p.name==='Checkout 猫 café');assert.ok(imported);
++  assert.deepEqual(await json(`/api/projects/${imported.id}/keys`),[],'source keys never become native authority');
++  const issue=(await json(`/api/projects/${imported.id}/issues`))[0];
++  const packet=await json(`/api/projects/${imported.id}/issues/${issue.id}/packet`);
++  assert.equal(packet.events[0].event.frames[0].line,12,'reported converted coordinates actually reach native evidence');
++  // Byte-identical reviewed apply is idempotent; a catch-up of exact source adds no rows.
++  assert.equal((await resumed.apply(planned.planId,planned.fingerprint)).job.id,first.job.id);
++  const same=await resumed.plan(await readFile(path),{catchup:true});
++  assert.equal(same.summary.created,0);assert.equal(same.summary.updated,0);
++  await resumed.apply(same.planId,same.fingerprint);
++  assert.deepEqual((await archiveProjection(await req('/api/archive'))).data,full.data,'exact re-import preserves native rows and provenance');
++  await resumed.undo(same.planId);await resumed.undo(planned.planId);
++  assert.deepEqual((await archiveProjection(await req('/api/archive'))).data,before.data,'newest-first undo exactly restores populated native state');
++  if(process.env.SPOOL_IMPORT_RECEIPT)await writeFile(join(dirname(process.env.SPOOL_IMPORT_RECEIPT),`${profile}-accounting.json`),JSON.stringify(report.sentry,null,2)+'\n');
++  receipt.push({profile,sourceRecords:planned.counts.input,unique:planned.counts.unique,duplicates:planned.counts.duplicates,fields:facts.fields.length,arrays:facts.arrays.length,sourceBytes:acquisition.sourceBytes,bundleBytes:acquisition.bundleBytes,sourcePayloadBytes:facts.sourcePayloadBytes,nativeBytes:report.sentry.nativeBytes,byKind:kinds,interrupted:first.job.state==='applying',reconciled:report.ok});
++ }
++ // Refusals report every actual field of a rejected record without reflecting its values.
++ const {bundle}=exportCapture(sentryOrganization());
++ bundle.collections.find(c=>c.kind==='issues').pages[0].response[0].status='unsupported';delete bundle.capture;
++ const client=sentryDoorClient({endpoint:origin,cookie,organization:bundle.organization.slug});
++ // Change the overlapping duplicate too, keeping this a state rejection rather than a duplicate conflict.
++ const rows=bundle.collections.find(c=>c.kind==='issues').pages[0].response;rows.at(-1).status='unsupported';
++ const rejected=await client.plan(Buffer.from(JSON.stringify(bundle)));
++ assert.ok(rejected.counts.rejected>0);
++ const fields=rejected.sentry.fields.filter(row=>row.kind==='issues'&&row.sourceId.endsWith('"synthetic-issue-0"]'));
++ assert.ok(fields.length&&fields.every(row=>row.disposition==='rejected'));
++ assert.equal((await client.call('undo',{planId:rejected.planId})).state,'cancelled');
++ const beforeRefusals=(await archiveProjection(await req('/api/archive'))).data;
++ const conflict=structuredClone(bundle);conflict.collections.find(c=>c.kind==='issues').pages[0].response.at(-1).title='Conflicting duplicate';
++ await assert.rejects(client.plan(Buffer.from(JSON.stringify(conflict))),error=>error.status===422&&error.code==='source_duplicate_source_conflict');
++ const overflow=structuredClone(bundle),issueCollection=overflow.collections.find(c=>c.kind==='issues');
++ issueCollection.pages=[{cursor:null,nextCursor:null,response:Array.from({length:1001},(_,i)=>({...rows[0],id:`synthetic-overflow-${i}`}))}];
++ await assert.rejects(client.plan(Buffer.from(JSON.stringify(overflow))),error=>error.status===413&&error.code==='source_record_limit');
++ const malformed=exportCapture(sentryOrganization()).bundle;delete malformed.capture;
++ const malformedEvent=malformed.collections.find(c=>c.kind==='events').pages[0].response[0];
++ malformedEvent.entries[0].data.values=[null];
++ const malformedPlan=await client.plan(Buffer.from(JSON.stringify(malformed)));
++ const malformedFields=malformedPlan.sentry.fields.filter(row=>row.kind==='events'&&row.sourceId.endsWith('"00000000000000000000000000000000"]'));
++ assert.ok(malformedFields.length&&malformedFields.every(row=>row.disposition==='rejected'),'malformed rejected events still have a complete readable ledger');
++ assert.equal((await client.call('undo',{planId:malformedPlan.planId})).state,'cancelled');
++ const deepStack=exportCapture(sentryOrganization()).bundle;delete deepStack.capture;
++ const event=deepStack.collections.find(c=>c.kind==='events').pages[0].response[0];
++ const frame=event.entries[0].data.values[1].rawStacktrace.frames[0];
++ event.entries[0].data.values[1].rawStacktrace.frames=Array.from({length:1002},(_,i)=>({...frame,lineNo:i+1}));
++ const trimmed=await client.plan(Buffer.from(JSON.stringify(deepStack)));
++ const omissions=trimmed.sentry.arrays.find(row=>row.sourceId.endsWith('"00000000000000000000000000000000"]')&&row.path==='/entries/0/data/values/1/rawStacktrace/frames');
++ assert.deepEqual(omissions.omitted,[500,501],'middle-frame loss names every omitted array element');
++ assert.equal((await client.call('undo',{planId:trimmed.planId})).state,'cancelled');
++ assert.deepEqual((await archiveProjection(await req('/api/archive'))).data,beforeRefusals,'duplicate, quota and stack review paths preserve native state');
++ console.log('Sentry fieldAccounting: complete independent path/array oracle, eight-family inventory, loader refusal, >500-record pause/resume, reconcile, exact re-import and undo passed.');
++ if(process.env.SPOOL_IMPORT_RECEIPT)await writeFile(process.env.SPOOL_IMPORT_RECEIPT,JSON.stringify({synthetic:true,test:'fieldAccounting',profiles:receipt},null,2)+'\n');
++ return receipt;
++}
+diff --git a/tests/sentry-import/schema-pages.mjs b/tests/sentry-import/schema-pages.mjs
+new file mode 100644
+index 0000000..9d158d8
+--- /dev/null
++++ b/tests/sentry-import/schema-pages.mjs
+@@ -0,0 +1,62 @@
++import assert from 'node:assert/strict';
++import { createServer } from 'node:http';
++import { sentryOrganization } from '../../scripts/fixtures/sentry-organization.mjs';
++import { exportCapture, nextPage } from '../../scripts/sentry-export.mjs';
++
++export async function schemaPages() {
++ for(const profile of ['baseline','scaled']) {
++  const original=sentryOrganization(profile);
++  assert.deepEqual(sentryOrganization(profile),original,'fixed fixture generation has no clock or random input');
++  const expected=exportCapture(original);
++  const routes=new Map(original.collections.flatMap(c=>c.responses.map(p=>[new URL(p.url).pathname+new URL(p.url).search,p])));
++  let origin;
++  const server=createServer((req,res)=>{
++   const page=routes.get(req.url);if(!page){res.writeHead(404);res.end();return}
++   res.writeHead(page.status,{'Content-Type':'application/json',...page.link?{Link:page.link.replaceAll('https://sentry.invalid',origin)}:{}});res.end(page.body);
++  });
++  await new Promise(resolve=>server.listen(0,'127.0.0.1',resolve));origin=`http://127.0.0.1:${server.address().port}`;
++  try {
++   const acquired=structuredClone(original);
++   for(const collection of acquired.collections) {
++    const singles=['events','ownership'].includes(collection.kind),responses=[];
++    let next=new URL(collection.responses[0].url.replace('https://sentry.invalid',origin));
++    for(let page=0;next;page++) {
++     assert.ok(page<1000,'bounded API acquisition');
++     const response=await fetch(next,{redirect:'error'});assert.equal(response.status,200);
++     const body=await response.text(),link=response.headers.get('link');responses.push({url:next.href,status:response.status,body,...link?{link}:{}});
++     next=singles?(collection.kind==='events'&&collection.responses[page+1]?new URL(collection.responses[page+1].url.replace('https://sentry.invalid',origin)):null):nextPage(link,next);
++    }
++    collection.responses=responses;
++   }
++   assert.deepEqual(exportCapture(acquired),expected,'locally acquired documented responses preserve exact body hashes and accounting');
++  } finally {await new Promise(resolve=>server.close(resolve))}
++ }
++ const source=sentryOrganization();
++ const refusal=(edit,pattern)=>{const bad=structuredClone(source);edit(bad);assert.throws(()=>exportCapture(bad),pattern)};
++ refusal(c=>c.collections[0].responses.pop(),/incomplete_page_chain/);
++ refusal(c=>c.collections[0].responses[0].link=c.collections[0].responses[0].link.replace('sentry.invalid','elsewhere.invalid'),/cross_scope_link/);
++ refusal(c=>c.collections[0].responses[0].link=c.collections[0].responses[0].link.replace('results="true"','results="false"'),/incomplete_page_chain/);
++ refusal(c=>c.collections[0].responses[1].url=c.collections[0].responses[0].url,/repeated_page/);
++ refusal(c=>c.collections[0].responses[0].body='[',/invalid_json/);
++ refusal(c=>c.collections[0].responses[0].status=403,/http_response/);
++ refusal(c=>c.collections[0].kind='not-a-sentry-endpoint',/unsupported_collection_scope|endpoint_mismatch/);
++ const key=source.collections.find(c=>c.kind==='keys').responses[0],rows=JSON.parse(key.body),secret='local-'+Array.from({length:32},(_,i)=>String.fromCharCode(65+i%26)).join('');
++ rows[0].secret=secret;rows[0].dsn.secret='https://synthetic:'+secret+'@ingest.invalid/42?access_token='+secret;key.body=JSON.stringify(rows);
++ const redacted=exportCapture(source);
++ assert.ok(!JSON.stringify(redacted).includes(secret),'credential is removed before an upload can be constructed');
++ assert.ok(redacted.receipt.redactions.some(r=>r.path.endsWith('/secret')));
++ rows[0].reflection=secret;key.body=JSON.stringify(rows);
++ const reflected=exportCapture(source);assert.ok(!JSON.stringify(reflected).includes(secret));
++ assert.ok(reflected.receipt.redactions.some(r=>r.path.endsWith('/reflection')),'reflected values are removed and named before upload');
++ rows[0][secret]='unsafe key';key.body=JSON.stringify(rows);assert.throws(()=>exportCapture(source),/reflected_credential_key/);
++ const across=sentryOrganization(),later=across.collections.find(c=>c.kind==='keys').responses[0];
++ const laterRows=JSON.parse(later.body);laterRows[0].secret=secret;later.body=JSON.stringify(laterRows);
++ const earlier=across.collections.find(c=>c.kind==='projects').responses[0],earlierRows=JSON.parse(earlier.body);
++ earlierRows[0].name='Repeated '+encodeURIComponent(secret);earlier.body=JSON.stringify(earlierRows);
++ const scrubbed=exportCapture(across);
++ assert.equal(scrubbed.bundle.collections.find(c=>c.kind==='projects').pages[0].response[0].name,'[removed]','a credential discovered later is removed from earlier responses');
++ assert.ok(scrubbed.receipt.redactions.some(row=>row.path.endsWith('/name')));
++ across.organization.id=secret;
++ assert.throws(()=>exportCapture(across),/reflected_credential_metadata/,'metadata cannot retain credentials removed from response pages');
++ console.log('Sentry schemaPages: deterministic local API acquisition, opaque Link completion, singleton responses and pre-upload redaction passed.');
++}

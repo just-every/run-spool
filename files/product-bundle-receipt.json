@@ -1,0 +1,9 @@
+{
+  "recorded_utc": "2026-11-17T19:45:49.062893+00:00",
+  "head": "a99b4001ba8fb87b2f6e033163f7d64be7b2c520",
+  "path": "/home/agent/rer-consolidation/work/sd-spool-design-setup-2/product-a99b4001ba8f.bundle",
+  "sha256": "72f4c6a44860b0ebb5910cff3bd1b43d902068e7023f9703c6fa513411bca938",
+  "verified": true,
+  "kind": "incremental recovery bundle; prerequisite current main is published",
+  "verification": "The bundle contains this ref:\na99b4001ba8fb87b2f6e033163f7d64be7b2c520 HEAD\nThe bundle requires these 2 refs:\n6263ba70f1d0fce4ea1df7e6bf7b4f0d827489e1 \n3b7a3ebe545f3bd9c6a979ca04d5687c6a375b09 \nThe bundle uses this hash algorithm: sha1\n/home/agent/rer-consolidation/work/sd-spool-design-setup-2/product-a99b4001ba8f.bundle is okay\n"
+}

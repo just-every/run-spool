@@ -101,3 +101,5 @@ Earlier diagnostic mistakes are retained transparently: the initial small Minifl
 - Clause counts unchanged: Core 23/45/19, Agent 0/9/9, full target 23/54/28 (done/partial/missing). Core migrations 103 to 105.
 - Prior exact-SHA Verify: 44139169162 on 837686de2ba65ede6cb31b6b2fce6d666a7340ce, completed/failure. Ten GitHub calls used; no further watcher or API call was started. No READY or landing is claimed.
 - Complete actual non-secret results are returned separately through evidence/sd-spool-design-setup-2. Evidence publication does not signal product acceptance.
+
+A verified incremental recovery bundle is retained outside the clone at /home/agent/rer-consolidation/work/sd-spool-design-setup-2/product-a99b4001ba8f.bundle (SHA-256 72f4c6a44860b0ebb5910cff3bd1b43d902068e7023f9703c6fa513411bca938). It requires the published main history. The bundle receipt and both pre-save recovery patches are included in the public report packet; the bundle bytes and all private runtime fixtures are excluded.
