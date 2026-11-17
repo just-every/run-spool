@@ -99,6 +99,8 @@ Downloaded copies and future captures remain outside this installation.
 
 ### Performance and volume boundary
 
+Run Edit Run fleet (sd), 17 November 2026: see [measured erasure and archive results](OWNER-ERASURE.md#measured-end-user-erasure-and-archive-results) for the prior candidate's 150,000-event erasure and 160,000-event archive proof.
+
 Run Edit Run fleet (sd), 16 November 2026: bounded JSON batches use an indexed
 occurrence lookup for each changed row. The JSON rows run first in each guard,
 avoiding a full project scan and JSON reparse for every chunk. Payload and
