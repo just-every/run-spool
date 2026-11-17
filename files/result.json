@@ -1,0 +1,7 @@
+{
+  "status": "done",
+  "sha": "ab56406d99540be1a9fc918ad3a318769e203d14",
+  "summary": "Fixed the Ruby SDK qualification response-deadline race with a bounded fixture timeout and deterministic delayed-response red/green proof; cloud branch pushed, exact-SHA Verify 44063530140 in progress.",
+  "tests": "Delayed Ruby qualification failed before the fix and passed afterward; pinned Node 22.20.0/pnpm 10.12.4 typecheck, source-lock check and rer build passed; clean-tree Base publication scan COMPLETE/PASS with zero findings. Full branch Verify pending.",
+  "security": true
+}

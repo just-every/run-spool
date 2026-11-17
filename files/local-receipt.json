@@ -1,0 +1,76 @@
+{
+  "author": "Run Edit Run fleet",
+  "date": "2026-11-17",
+  "head": "ab56406d99540be1a9fc918ad3a318769e203d14",
+  "base": "7ece18059c1c7924a5b6f9cc816a7af3900136d5",
+  "branch": "cloud/gr-mt-spool-ci-18",
+  "versions": {
+    "node": "22.20.0",
+    "pnpm": "10.12.4",
+    "ruby": "3.3.10",
+    "bundler": "2.5.22",
+    "sentry-ruby": "7.1.0",
+    "rack": "3.2.6"
+  },
+  "checks": [
+    {
+      "command": "pnpm install --frozen-lockfile",
+      "exit": 0
+    },
+    {
+      "command": "cloud_run npx -y @runeditrun/rer setup --owner-email fleet@runeditrun.com --non-interactive",
+      "exit": 0,
+      "log": "private setup log excluded from publication"
+    },
+    {
+      "command": "cloud_run npx -y @runeditrun/rer build",
+      "exit": 0
+    },
+    {
+      "command": "cloud_run pnpm typecheck",
+      "exit": 0,
+      "file": "typecheck.log"
+    },
+    {
+      "command": "cloud_run node tests/sdk-runtimes.mjs ruby",
+      "stage": "delayed reference collector with default SDK deadline before fix",
+      "exit": 1,
+      "file": "ruby-before.log",
+      "assertion": "real client reports contain every before_send discard with its exact category and quantity"
+    },
+    {
+      "command": "cloud_run node tests/sdk-runtimes.mjs ruby",
+      "stage": "same delayed reference with ten-second fixture response deadline",
+      "exit": 0,
+      "file": "ruby-after.log"
+    },
+    {
+      "command": "node scripts/edition-authoring/cli.mjs lock",
+      "exit": 0,
+      "file": "source-lock.log"
+    },
+    {
+      "command": "pnpm source:check",
+      "exit": 0,
+      "file": "source-lock.log"
+    },
+    {
+      "command": "git diff --check",
+      "exit": 0
+    },
+    {
+      "command": "pnpm source:check",
+      "stage": "exact committed candidate",
+      "exit": 0,
+      "note": "/tmp/gr-mt-spool-ci-18-source-check.log retained locally"
+    }
+  ],
+  "registration_delta": 0,
+  "contract_status_changes": [],
+  "scope": "Ruby SDK qualification timing; no application or workflow changes",
+  "assertions": "Existing Q1-Q7 and exact before_send quantity assertions retained; reference response delayed 2500ms; Spool receives unchanged fixture with only DSN changed",
+  "screens": [
+    "ruby-issue-1440.png",
+    "ruby-issue-390.png"
+  ]
+}

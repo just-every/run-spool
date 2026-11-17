@@ -1,0 +1,172 @@
+{
+  "files": [
+    {
+      "blob": "2d1dd481fc7ce7de4f0b51a26d20702fced89c94",
+      "bytes": 1397,
+      "path": "PLAN.md",
+      "sha256": "a25ea9da21420d7ae9f014ca7eb16fde3958e47b55fbe2a635697c9e902223ee"
+    },
+    {
+      "blob": "2a50f49391cff4e56a509be03dc5de3d6b573c6a",
+      "bytes": 8737,
+      "path": "REPORT.md",
+      "sha256": "2886cac845f02957150386fbf4106924068f969cd02bad68eeae0335523940fe"
+    },
+    {
+      "blob": "9508dea0a6141d1cc165210697589123b56e93cd",
+      "bytes": 452,
+      "path": "bundle-receipt.json",
+      "sha256": "3f5b1f6189ba7c4318d357efcf7f390e27a54221f7e5f6bf2f430bac8f8eff13"
+    },
+    {
+      "blob": "0db659f1b886e10476da7e4fa2e8def1aef9af2c",
+      "bytes": 439,
+      "path": "candidate-ci.json",
+      "sha256": "57409571de9db4ccaa901d445be8154ed0fe8b706cdf59b03a13ac0c62d1c7d8"
+    },
+    {
+      "blob": "55bfeff023c4ae17dc59e12f86f446b1960e6b53",
+      "bytes": 85,
+      "path": "candidate-identity.txt",
+      "sha256": "148bad84b5b174568017df50d58e073566703d43c6c9fe7fa6f1af04420adf55"
+    },
+    {
+      "blob": "00676b318041e29a236a0ef9d48a028b2c0dd9e3",
+      "bytes": 293,
+      "path": "counts.json",
+      "sha256": "d1f3168fe197a20f18ca0217f62a1b76dc86de9782c726f5c44a7e2ac87e1581"
+    },
+    {
+      "blob": "cb77ed0d2c522eb40f76c3836b88232e998d6f25",
+      "bytes": 3441,
+      "path": "current-main-jobs.json",
+      "sha256": "3e417745fcae6e595dcc877e6fea4aded498918fda1085ae3a1c25f54dd7fc9f"
+    },
+    {
+      "blob": "a2f2a48fe3b2085adff51cde31260cf31a30454b",
+      "bytes": 1626,
+      "path": "current-main-runs.json",
+      "sha256": "38a6919b7896d1d3bfd3cb627c0ec9a2b33d8b7db09868cf737a4794a2de0009"
+    },
+    {
+      "blob": "6ce4a43e3b1b4c3512af809180be74901c656a48",
+      "bytes": 2647,
+      "path": "current-runtime-failure.log",
+      "sha256": "632f795bd310e507ece8f0085df1c499f97206a42ffe49e59e8cd6dfe5bf8a6c"
+    },
+    {
+      "blob": "81bf374fe15058e88956e2338cb53c7cae9c86ea",
+      "bytes": 834,
+      "path": "custody-receipt.json",
+      "sha256": "b964b6487d8adff5b98a2e9d75f10922866b736b41d1630642499aa3b268ab85"
+    },
+    {
+      "blob": "aaeb0d5d5c4d1a6a47f2e0935031e377f9bd1a6c",
+      "bytes": 2441,
+      "path": "github-receipt.json",
+      "sha256": "4fd4cc2b058462ae457941d9a3f8473a1c3652fc4be814c38ecbeccb4b61acb6"
+    },
+    {
+      "blob": "4d4dfc0e5f81100efdb547eb4a1908878f995b1e",
+      "bytes": 2255,
+      "path": "local-receipt.json",
+      "sha256": "92f5dfc961014bde612d140cbd1bf41e0e08e709e558a2c12e990f112965f03f"
+    },
+    {
+      "blob": "340785216d176186fca1b8b33eb5598bdbcac235",
+      "bytes": 4227,
+      "path": "original-ruby-failure.log",
+      "sha256": "cbc0c3d59cf687a45335fe1ebb049b5d68212fd02ef8191e3e055230a97ce5c0"
+    },
+    {
+      "blob": "a9f72d1019fb622ab9e948488606223af4896818",
+      "bytes": 908,
+      "path": "product-push.log",
+      "sha256": "510347e513d29b83c730bf0c497431dbfbaf3d66e13c51327b6f89d1189de0ed"
+    },
+    {
+      "blob": "d90a5ae1d50760568772ee22ad749455ec4acb33",
+      "bytes": 559,
+      "path": "publication-invocation-corrected-publication-scan.json",
+      "sha256": "ed3febad7d58d1a7398b4d415f0ed4145861b30fc205b8bd53efbab77175c3fa"
+    },
+    {
+      "blob": "e69de29bb2d1d6434b8b29ae775ad8c2e48c5391",
+      "bytes": 0,
+      "path": "publication-invocation-corrected-publication-scan.stderr",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "blob": "2e41f18aa6685017d1b4eb2ec4a367adf6e7188d",
+      "bytes": 886309,
+      "path": "publication-local-runtime-publication-scan.json",
+      "sha256": "1168ca4c2e5ebc143c119636a5998061dea86bde28485c512c6320c47570d707"
+    },
+    {
+      "blob": "e69de29bb2d1d6434b8b29ae775ad8c2e48c5391",
+      "bytes": 0,
+      "path": "publication-local-runtime-publication-scan.stderr",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "blob": "d6477364c610fdb22efece7f7127ba951a17dd24",
+      "bytes": 883297,
+      "path": "publication-scan.json",
+      "sha256": "29c88d4afde59c2b2f72b0d90c2926aa824329268df9345066f005e98479bfec"
+    },
+    {
+      "blob": "e69de29bb2d1d6434b8b29ae775ad8c2e48c5391",
+      "bytes": 0,
+      "path": "publication-scan.stderr",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "blob": "6269c70e76ffaa8afe9a042fdc46561153bab9f9",
+      "bytes": 578,
+      "path": "result.json",
+      "sha256": "7b60381a196fcc26c664b94daf0bebfba7f8288203bcd72b5a524b24ea9a8ff0"
+    },
+    {
+      "blob": "8971702964480d5c2e18f258b016f34c777b0191",
+      "bytes": 723,
+      "path": "ruby-after.log",
+      "sha256": "b4936b6e99582e11be8b0e3f44083ab72a297640c3aae77bb238ea4944fcdf6d"
+    },
+    {
+      "blob": "e253cb56dba5284f29d0c280c84a7cf70953d60c",
+      "bytes": 1778,
+      "path": "ruby-before.log",
+      "sha256": "6b978e378b9e8798bfa01dafde8f21d7e9efd4c2f38c79fa7638076e97a5ec05"
+    },
+    {
+      "blob": "72b39050b098847cb3e34ee95ed94cd95994d77a",
+      "bytes": 638706,
+      "path": "ruby-issue-1440.png",
+      "sha256": "24e58dded4203f04b215fb2dbd5c33c7d38b56944ca58c5580c2561df1f8938b"
+    },
+    {
+      "blob": "a7f20301284a3ef83866c04f6911fcb683963f74",
+      "bytes": 479494,
+      "path": "ruby-issue-390.png",
+      "sha256": "941ac873a70ea4438c164722944883f32b01d7f042f195ef34dd5cad68e97494"
+    },
+    {
+      "blob": "a74f6345a6b202a01ebd0bdab85091f9eee80248",
+      "bytes": 957228,
+      "path": "source-lock.log",
+      "sha256": "9ac083784520dd0e8be7df4b4a37043d7249f8a79635621addad55a93a5b5dd4"
+    },
+    {
+      "blob": "a63d54fc70d7d2c596490d328f6506c1df3d8fdc",
+      "bytes": 125,
+      "path": "typecheck.log",
+      "sha256": "b3e5b1378e65d3d0a415f78a5655d9e42c61c138ccfab95a2bd4ba10147c6754"
+    }
+  ],
+  "product_branch": "cloud/gr-mt-spool-ci-18",
+  "product_head": "ab56406d99540be1a9fc918ad3a318769e203d14",
+  "ref": "refs/heads/evidence/gr-mt-spool-ci-18",
+  "repository": "just-every/run-spool",
+  "schema": 1,
+  "tag": "gr-mt-spool-ci-18"
+}

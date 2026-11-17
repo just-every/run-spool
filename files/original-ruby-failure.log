@@ -1,0 +1,76 @@
+2026-11-15T19:10:27.6923592Z (node:2697) ExperimentalWarning: SQLite is an experimental feature and might change at any time
+2026-11-15T19:10:27.6924776Z (Use `node --trace-warnings ...` to show where the warning was created)
+2026-11-15T19:10:50.7755112Z node:internal/modules/run_main:123
+2026-11-15T19:10:50.7755528Z     triggerUncaughtException(
+2026-11-15T19:10:50.7755826Z     ^
+2026-11-15T19:10:50.7755955Z 
+2026-11-15T19:10:50.7756298Z AssertionError [ERR_ASSERTION]: ruby: Spool outcomes reconcile with SDK-sent items
+2026-11-15T19:10:50.7756767Z + actual - expected
+2026-11-15T19:10:50.7757744Z ... Skipped lines
+2026-11-15T19:10:50.7757996Z 
+2026-11-15T19:10:50.7758125Z   [
+2026-11-15T19:10:50.7758647Z     [
+2026-11-15T19:10:50.7758939Z       'accepted',
+2026-11-15T19:10:50.7759311Z       3
+2026-11-15T19:10:50.7759615Z     ],
+2026-11-15T19:10:50.7759971Z ...
+2026-11-15T19:10:50.7760268Z     [
+2026-11-15T19:10:50.7760749Z +     'client_discarded:log_byte:network_error',
+2026-11-15T19:10:50.7761253Z +     521
+2026-11-15T19:10:50.7761614Z +   ],
+2026-11-15T19:10:50.7761881Z +   [
+2026-11-15T19:10:50.7762318Z +     'client_discarded:log_item:network_error',
+2026-11-15T19:10:50.7762725Z +     1
+2026-11-15T19:10:50.7762990Z +   ],
+2026-11-15T19:10:50.7763247Z +   [
+2026-11-15T19:10:50.7763662Z +     'client_discarded:monitor:network_error',
+2026-11-15T19:10:50.7764117Z +     1
+2026-11-15T19:10:50.7764422Z +   ],
+2026-11-15T19:10:50.7764713Z +   [
+2026-11-15T19:10:50.7765161Z +     'client_discarded:span:network_error',
+2026-11-15T19:10:50.7765616Z +     2
+2026-11-15T19:10:50.7765927Z +   ],
+2026-11-15T19:10:50.7766548Z +   [
+2026-11-15T19:10:50.7767208Z +     'client_discarded:transaction:network_error',
+2026-11-15T19:10:50.7767672Z +     1
+2026-11-15T19:10:50.7767941Z +   ],
+2026-11-15T19:10:50.7768245Z +   [
+2026-11-15T19:10:50.7768576Z       'sentry_unsupported_attachment',
+2026-11-15T19:10:50.7768957Z       7
+2026-11-15T19:10:50.7769251Z     ],
+2026-11-15T19:10:50.7769522Z     [
+2026-11-15T19:10:50.7769898Z       'sentry_unsupported_other_telemetry',
+2026-11-15T19:10:50.7770206Z 
+2026-11-15T19:10:50.7770646Z     at file:///home/runner/work/run-spool/run-spool/tests/sdk-runtimes.mjs:41:10
+2026-11-15T19:10:50.7771498Z     at process.processTicksAndRejections (node:internal/process/task_queues:105:5) {
+2026-11-15T19:10:50.7772208Z   generatedMessage: false,
+2026-11-15T19:10:50.7772641Z   code: 'ERR_ASSERTION',
+2026-11-15T19:10:50.7773001Z   actual: [
+2026-11-15T19:10:50.7773328Z     [ 'accepted', 3 ],
+2026-11-15T19:10:50.7773715Z     [ 'check_in_unrouted', 2 ],
+2026-11-15T19:10:50.7774208Z     [ 'client_discarded:error:before_send', 2 ],
+2026-11-15T19:10:50.7774817Z     [ 'client_discarded:log_byte:network_error', 521 ],
+2026-11-15T19:10:50.7775415Z     [ 'client_discarded:log_item:network_error', 1 ],
+2026-11-15T19:10:50.7775958Z     [ 'client_discarded:monitor:network_error', 1 ],
+2026-11-15T19:10:50.7776523Z     [ 'client_discarded:span:network_error', 2 ],
+2026-11-15T19:10:50.7777583Z     [ 'client_discarded:transaction:network_error', 1 ],
+2026-11-15T19:10:50.7778133Z     [ 'sentry_unsupported_attachment', 7 ],
+2026-11-15T19:10:50.7778958Z     [ 'sentry_unsupported_other_telemetry', 3 ],
+2026-11-15T19:10:50.7779416Z     [ 'session_stored', 1 ],
+2026-11-15T19:10:50.7780110Z     [ 'transaction_stored', 4 ]
+2026-11-15T19:10:50.7780544Z   ],
+2026-11-15T19:10:50.7780930Z   expected: [
+2026-11-15T19:10:50.7781356Z     [ 'accepted', 3 ],
+2026-11-15T19:10:50.7781751Z     [ 'check_in_unrouted', 2 ],
+2026-11-15T19:10:50.7782197Z     [ 'client_discarded:error:before_send', 2 ],
+2026-11-15T19:10:50.7782689Z     [ 'sentry_unsupported_attachment', 7 ],
+2026-11-15T19:10:50.7783214Z     [ 'sentry_unsupported_other_telemetry', 3 ],
+2026-11-15T19:10:50.7783659Z     [ 'session_stored', 1 ],
+2026-11-15T19:10:50.7784062Z     [ 'transaction_stored', 4 ]
+2026-11-15T19:10:50.7784448Z   ],
+2026-11-15T19:10:50.7784983Z   operator: 'deepStrictEqual',
+2026-11-15T19:10:50.7785468Z   diff: 'simple'
+2026-11-15T19:10:50.7785788Z }
+2026-11-15T19:10:50.7785941Z 
+2026-11-15T19:10:50.7786056Z Node.js v22.20.0
+2026-11-15T19:10:50.7961753Z ##[error]Process completed with exit code 1.

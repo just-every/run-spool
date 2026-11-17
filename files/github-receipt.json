@@ -1,0 +1,76 @@
+{
+  "author": "Run Edit Run fleet",
+  "date": "2026-11-17",
+  "calls_used": 7,
+  "calls_maximum": 10,
+  "commands": [
+    {
+      "command": "gh api repos/just-every/run-spool/actions/runs/43750723397/jobs?per_page=100",
+      "result": "completed; Ruby runtime root failure job 132924276019; aggregate failures follow"
+    },
+    {
+      "command": "gh run view 43750723397 --repo just-every/run-spool --job 132924276019 --log-failed",
+      "exit": 0,
+      "stdout_bytes": 0,
+      "archive": "run-log-43750723397-1794769703.zip",
+      "read_offline": "26_runtime (ruby).txt"
+    },
+    {
+      "command": "gh api repos/just-every/run-spool/actions/runs?head_sha=7ece18059c1c7924a5b6f9cc816a7af3900136d5&per_page=100",
+      "attempts": [
+        {
+          "attempt": 1,
+          "http": 401
+        },
+        {
+          "attempt": 2,
+          "after_seconds": 15,
+          "refresh": true,
+          "http": 401
+        },
+        {
+          "attempt": 3,
+          "after_seconds": 45,
+          "refresh": true,
+          "http": 200
+        }
+      ],
+      "receipt": "current-main-runs.json"
+    },
+    {
+      "command": "gh api repos/just-every/run-spool/actions/runs/44045714537/jobs?per_page=100",
+      "receipt": "current-main-jobs.json"
+    },
+    {
+      "command": "gh run view 44045714537 --repo just-every/run-spool --job 133911463949 --log-failed",
+      "exit": 0,
+      "stdout_bytes": 0,
+      "archive": "run-log-44045714537-1794903553.zip",
+      "read_offline": "15_verify (runtime).txt"
+    }
+  ],
+  "additional_scanner_invocations": [
+    {
+      "outcome": "interrupted before reference resolver",
+      "api_phases": 0
+    },
+    {
+      "outcome": "COMPLETE/FAIL due ignored local runtime state",
+      "api_phases": 1,
+      "phase_seconds": 2.500519
+    },
+    {
+      "outcome": "COMPLETE/PASS clean exact-tree worktree",
+      "api_phases": 1,
+      "phase_seconds": 2.461118
+    }
+  ],
+  "budget_note": "Seven investigation invocations (including two 401s), two completed publication reference-resolver phases and one exact-SHA CI discovery exhaust the conservative ten-call budget. No further API poll; no READY claim.",
+  "direct_investigation_invocations": 7,
+  "candidate_ci_discovery_invocations": 1,
+  "completed_publication_reference_resolver_phases": 2,
+  "remaining_direct_ci_budget": 0,
+  "candidate_run": 44063530140,
+  "candidate_ci": "in_progress",
+  "terminal_custody": "PUSHED"
+}

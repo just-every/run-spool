@@ -1,0 +1,35 @@
+2026-11-17T08:21:09.2392296Z (node:2453) ExperimentalWarning: SQLite is an experimental feature and might change at any time
+2026-11-17T08:21:09.2393577Z (Use `node --trace-warnings ...` to show where the warning was created)
+2026-11-17T08:21:14.2785872Z Demo capture: app 200; 3 recent events; 3 attributed transaction facts; restart unchanged
+2026-11-17T08:21:14.7704754Z (node:2485) ExperimentalWarning: SQLite is an experimental feature and might change at any time
+2026-11-17T08:22:36.9267156Z (Use `node --trace-warnings ...` to show where the warning was created)
+2026-11-17T08:22:36.9268541Z [REL-002] first-release and reactivation candidates, exact regression alert and two commits with recorded deployment window, older-release spike comparison, audited reject and confirm without occurrence changes, restore and erasure; desktop and phone passed
+2026-11-17T08:22:48.0459016Z node:internal/deps/undici/undici:13510
+2026-11-17T08:22:48.0459652Z       Error.captureStackTrace(err);
+2026-11-17T08:22:48.0460263Z             ^
+2026-11-17T08:22:48.0460446Z 
+2026-11-17T08:22:48.0460674Z TypeError: fetch failed
+2026-11-17T08:22:48.0461071Z     at node:internal/deps/undici/undici:13510:13
+2026-11-17T08:22:48.0461773Z     at async file:///home/runner/work/run-spool/run-spool/tests/deployment-history.mjs:71:646 {
+2026-11-17T08:22:48.0462442Z   [cause]: SocketError: other side closed
+2026-11-17T08:22:48.0462983Z       at Socket.<anonymous> (node:internal/deps/undici/undici:6294:28)
+2026-11-17T08:22:48.0463539Z       at Socket.emit (node:events:531:35)
+2026-11-17T08:22:48.0463933Z       at Socket.emit (node:domain:489:12)
+2026-11-17T08:22:48.0464354Z       at endReadableNT (node:internal/streams/readable:1698:12)
+2026-11-17T08:22:48.0464842Z       at process.processTicksAndRejections (node:internal/process/task_queues:90:21) {
+2026-11-17T08:22:48.0465334Z     code: 'UND_ERR_SOCKET',
+2026-11-17T08:22:48.0465559Z     socket: {
+2026-11-17T08:22:48.0465761Z       localAddress: '127.0.0.1',
+2026-11-17T08:22:48.0466003Z       localPort: 58748,
+2026-11-17T08:22:48.0466219Z       remoteAddress: undefined,
+2026-11-17T08:22:48.0466445Z       remotePort: undefined,
+2026-11-17T08:22:48.0466669Z       remoteFamily: undefined,
+2026-11-17T08:22:48.0466885Z       timeout: undefined,
+2026-11-17T08:22:48.0467084Z       bytesWritten: 623875,
+2026-11-17T08:22:48.0467288Z       bytesRead: 260
+2026-11-17T08:22:48.0467469Z     }
+2026-11-17T08:22:48.0467628Z   }
+2026-11-17T08:22:48.0467791Z }
+2026-11-17T08:22:48.0467885Z 
+2026-11-17T08:22:48.0468129Z Node.js v22.20.0
+2026-11-17T08:22:48.0912059Z ##[error]Process completed with exit code 1.

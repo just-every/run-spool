@@ -1,0 +1,16 @@
+{
+  "head": "ab56406d99540be1a9fc918ad3a318769e203d14",
+  "repository": "just-every/run-spool",
+  "observed_at": 1794910690.6185532,
+  "runs": [
+    {
+      "id": 44063530140,
+      "name": "Verify",
+      "event": "push",
+      "status": "in_progress",
+      "conclusion": null,
+      "head_sha": "ab56406d99540be1a9fc918ad3a318769e203d14",
+      "html_url": "https://github.com/just-every/run-spool/actions/runs/44063530140"
+    }
+  ]
+}

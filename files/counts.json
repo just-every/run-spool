@@ -1,0 +1,17 @@
+{
+  "author": "Run Edit Run fleet",
+  "date": "2026-11-17",
+  "before": {
+    "done": 23,
+    "partial": 54,
+    "missing": 28
+  },
+  "after": {
+    "done": 23,
+    "partial": 54,
+    "missing": 28
+  },
+  "registrations_added": 0,
+  "registrations_deleted": 0,
+  "clause_status_changes": []
+}

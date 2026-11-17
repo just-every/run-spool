@@ -1,0 +1,12 @@
+{
+  "author": "Run Edit Run fleet",
+  "date": "2026-11-17",
+  "head": "ab56406d99540be1a9fc918ad3a318769e203d14",
+  "branch": "cloud/gr-mt-spool-ci-18",
+  "path": "/home/agent/rer-consolidation/work/push-rescue/gr-mt-spool-ci-18-ab56406.bundle",
+  "sha256": "43a3784fa500049aade11eeddcc7905f0f506f96bdbf5a6a0f6da644f0028ebf",
+  "verified": true,
+  "full_history": true,
+  "published": false,
+  "meaning": "Recovery data only; no READY or push claim"
+}

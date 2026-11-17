@@ -1,0 +1,62 @@
+(node:17012) ExperimentalWarning: SQLite is an experimental feature and might change at any time
+(Use `node --trace-warnings ...` to show where the warning was created)
+[33m▲ [43;33m[[43;30mWARNING[43;33m][0m [1mProxy environment variables detected. We'll use your proxy for fetch requests.[0m
+
+
+node:internal/modules/run_main:123
+    triggerUncaughtException(
+    ^
+
+AssertionError [ERR_ASSERTION]: ruby: real client reports contain every before_send discard with its exact category and quantity
++ actual - expected
+
+  [
+    [
+      'client_discarded:error:before_send',
+      2
+    ],
++   [
++     'client_discarded:error:network_error',
++     2
++   ],
++   [
++     'client_discarded:log_byte:network_error',
++     1039
++   ],
++   [
++     'client_discarded:log_item:network_error',
++     2
++   ],
++   [
++     'client_discarded:monitor:network_error',
++     2
++   ],
++   [
++     'client_discarded:span:network_error',
++     4
++   ],
++   [
++     'client_discarded:transaction:network_error',
++     2
++   ]
+  ]
+
+    at file:///home/agent/rer-consolidation/work/maint/gr-mt-spool-ci-18/repo/tests/sdk-runtimes.mjs:35:30
+    at process.processTicksAndRejections (node:internal/process/task_queues:105:5) {
+  generatedMessage: false,
+  code: 'ERR_ASSERTION',
+  actual: [
+    [ 'client_discarded:error:before_send', 2 ],
+    [ 'client_discarded:error:network_error', 2 ],
+    [ 'client_discarded:log_byte:network_error', 1039 ],
+    [ 'client_discarded:log_item:network_error', 2 ],
+    [ 'client_discarded:monitor:network_error', 2 ],
+    [ 'client_discarded:span:network_error', 4 ],
+    [ 'client_discarded:transaction:network_error', 2 ]
+  ],
+  expected: [ [ 'client_discarded:error:before_send', 2 ] ],
+  operator: 'deepStrictEqual',
+  diff: 'simple'
+}
+
+Node.js v22.20.0
