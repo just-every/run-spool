@@ -1,0 +1,18 @@
+# Actual failed-job log; workflow environment blocks removed; credentials and URL queries masked.
+build	Check source and portable contract	﻿2026-11-17T16:28:46.0863225Z ##[group]Run pnpm run check -- --profile first-party
+build	Check source and portable contract	2026-11-17T16:28:46.0863516Z pnpm run check -- --profile first-party
+build	Check source and portable contract	2026-11-17T16:28:46.0863701Z pnpm source:check
+build	Check source and portable contract	2026-11-17T16:28:46.0863906Z node scripts/edition-authoring/cli.mjs verify-base --offline
+build	Check source and portable contract	2026-11-17T16:28:46.0881806Z shell: /usr/bin/bash -e {0}
+build	Check source and portable contract	2026-11-17T16:28:46.0882481Z ##[endgroup]
+build	Check source and portable contract	2026-11-17T16:28:46.2647311Z 
+build	Check source and portable contract	2026-11-17T16:28:46.2648164Z > @errors/errors-workbench@0.7.14 check /home/runner/work/run-spool/run-spool
+build	Check source and portable contract	2026-11-17T16:28:46.2648501Z > rer check -- --profile first-party
+build	Check source and portable contract	2026-11-17T16:28:46.2648614Z 
+build	Check source and portable contract	2026-11-17T16:28:47.5304560Z 
+build	Check source and portable contract	2026-11-17T16:28:47.5305558Z > @errors/errors-workbench@0.7.14 source:check /home/runner/work/run-spool/run-spool
+build	Check source and portable contract	2026-11-17T16:28:47.5306144Z > node scripts/edition-authoring/cli.mjs check
+build	Check source and portable contract	2026-11-17T16:28:47.5306456Z 
+build	Check source and portable contract	2026-11-17T16:28:47.8702669Z Stale lock or source/tool integrity mismatch; run changes to inspect intentional edits before lock
+build	Check source and portable contract	2026-11-17T16:28:47.8975216Z  ELIFECYCLE  Command failed with exit code 1.
+build	Check source and portable contract	2026-11-17T16:28:47.9148701Z ##[error]Process completed with exit code 1.

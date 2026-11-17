@@ -1,0 +1,9 @@
+{
+  "suite": "sources",
+  "exit_code": 0,
+  "command": "node scripts/edition-authoring/cli.mjs lock && node scripts/edition-authoring/cli.mjs check",
+  "ended_at": "2026-11-17T16:25:31.362864+00:00",
+  "head_when_run": "6263ba70f1d0fce4ea1df7e6bf7b4f0d827489e1",
+  "index_tree": "c2175f1063c91aa764d7142af2c9d1e21a04f3f0",
+  "unstaged_source_files": []
+}

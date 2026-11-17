@@ -1,0 +1,12 @@
+{
+  "suite": "team",
+  "exit_code": 0,
+  "command": "node /tmp/spool-team-run.mjs (imports and runs tests/team-flow.mjs#teamFlow)",
+  "ended_at": "2026-11-17T16:14:53.486349+00:00",
+  "head_when_run": "6263ba70f1d0fce4ea1df7e6bf7b4f0d827489e1",
+  "index_tree": "466bc46cf50ce851352fadcd6b20eefa8c4c5509",
+  "unstaged_source_files": [
+    "src/ui/workbench/ProjectKeyFacts.tsx",
+    "src/ui/workbench/SettingsView.tsx"
+  ]
+}

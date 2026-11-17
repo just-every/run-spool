@@ -1,0 +1,14 @@
+{
+  "product_head": "739c7ff1575296fd329c69769364f030618a7b11",
+  "status": "unqueried",
+  "conclusion": null,
+  "github_calls_used": 10,
+  "github_calls_limit": 10,
+  "reason": "Ten-call task budget exhausted after diagnosing two prior runs; no additional API request made for the final pushed head.",
+  "latest_queried_run_id": 44127951968,
+  "latest_queried_head": "6dd5e7d9fefe27777c5d0771d3b53f331382d088",
+  "latest_queried_conclusion": "failure",
+  "latest_failure": "Generated deployment recipe omitted migration 0110; regenerated with pnpm integration:sync and checked locally.",
+  "custody": "PUSHED; no READY or exact-SHA green claim",
+  "written_at": "2026-11-17T16:47:09.717219+00:00"
+}

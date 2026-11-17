@@ -1,0 +1,11 @@
+{
+  "suite": "triage",
+  "exit_code": 0,
+  "command": "node tests/triage-journey.mjs (isolated retry after transient ECONNRESET)",
+  "ended_at": "2026-11-17T16:25:21.087569+00:00",
+  "head_when_run": "6263ba70f1d0fce4ea1df7e6bf7b4f0d827489e1",
+  "index_tree": "d6afb7a04d26d371a20837b5dc97184e3aa44787",
+  "unstaged_source_files": [
+    "src/ui/workbench/WorkspaceView.tsx"
+  ]
+}

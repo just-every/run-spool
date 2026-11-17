@@ -1,0 +1,14 @@
+{
+  "repository": "just-every/run-spool",
+  "branch": "cloud/sd-spool-design-keys-1",
+  "head": "6dd5e7d9fefe27777c5d0771d3b53f331382d088",
+  "remote_ref": "refs/heads/cloud/sd-spool-design-keys-1",
+  "confirmed_at": "2026-11-17T16:39:19.226095+00:00",
+  "guard_command": "python3 $HOME/rer-consolidation/.tools/cloud-push.py origin cloud/sd-spool-design-keys-1",
+  "guard_result_observed": "PUSH_OK branch=cloud/sd-spool-design-keys-1",
+  "guard_attempt": 1,
+  "confirmation_command": "git ls-remote --refs origin refs/heads/cloud/sd-spool-design-keys-1",
+  "confirmation_exit_code": 0,
+  "product_tree": "98396411b6ccf437b02d4602f51a84e52c9871e1",
+  "history": "Two normal fleet commits; no rewrite or force push."
+}

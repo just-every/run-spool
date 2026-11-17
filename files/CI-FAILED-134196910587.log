@@ -1,0 +1,21 @@
+# Actual failed-job log; workflow environment blocks removed; credentials and URL queries masked.
+build	Check integration and types	﻿2026-11-17T16:39:01.1043467Z ##[group]Run pnpm integration:check
+build	Check integration and types	2026-11-17T16:39:01.1043895Z pnpm integration:check
+build	Check integration and types	2026-11-17T16:39:01.1044171Z pnpm typecheck
+build	Check integration and types	2026-11-17T16:39:01.1064642Z shell: /usr/bin/bash -e {0}
+build	Check integration and types	2026-11-17T16:39:01.1065792Z ##[endgroup]
+build	Check integration and types	2026-11-17T16:39:01.3905692Z 
+build	Check integration and types	2026-11-17T16:39:01.3906932Z > @errors/errors-workbench@0.7.14 integration:check /home/runner/work/run-spool/run-spool
+build	Check integration and types	2026-11-17T16:39:01.3907771Z > node scripts/sync-integration.mjs --check
+build	Check integration and types	2026-11-17T16:39:01.3908056Z 
+build	Check integration and types	2026-11-17T16:39:01.5184508Z file:///home/runner/work/run-spool/run-spool/scripts/sync-integration.mjs:68
+build	Check integration and types	2026-11-17T16:39:01.5185826Z       throw Error(`Stale integration ${name}; build the application and regenerate with pnpm integration:sync`);
+build	Check integration and types	2026-11-17T16:39:01.5186673Z             ^
+build	Check integration and types	2026-11-17T16:39:01.5186876Z 
+build	Check integration and types	2026-11-17T16:39:01.5187587Z Error: Stale integration management/integration/deployment-spec.json; build the application and regenerate with pnpm integration:sync
+build	Check integration and types	2026-11-17T16:39:01.5188555Z     at integrationRecipe (file:///home/runner/work/run-spool/run-spool/scripts/sync-integration.mjs:68:13)
+build	Check integration and types	2026-11-17T16:39:01.5189334Z     at async file:///home/runner/work/run-spool/run-spool/scripts/sync-integration.mjs:76:3
+build	Check integration and types	2026-11-17T16:39:01.5189738Z 
+build	Check integration and types	2026-11-17T16:39:01.5190354Z Node.js v22.20.0
+build	Check integration and types	2026-11-17T16:39:01.5343419Z  ELIFECYCLE  Command failed with exit code 1.
+build	Check integration and types	2026-11-17T16:39:01.5565670Z ##[error]Process completed with exit code 1.

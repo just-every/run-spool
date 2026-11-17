@@ -1,0 +1,16 @@
+{
+  "contract_before": {
+    "done": 23,
+    "partial": 54,
+    "missing": 28
+  },
+  "contract_after": {
+    "done": 23,
+    "partial": 54,
+    "missing": 28
+  },
+  "application_suites_before": 21,
+  "application_suites_after": 21,
+  "new_suite_registrations": 0,
+  "clause_status_changes": []
+}

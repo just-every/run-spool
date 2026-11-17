@@ -1,0 +1,32 @@
+{
+  "checked_at": "2026-11-17T16:48:24.323720+00:00",
+  "range": "origin/main..HEAD",
+  "all_parents_included": true,
+  "commits": [
+    {
+      "head": "739c7ff1575296fd329c69769364f030618a7b11",
+      "author_name": "Run Edit Run fleet",
+      "author_email": "fleet@runeditrun.com",
+      "committer_name": "Run Edit Run fleet",
+      "committer_email": "fleet@runeditrun.com",
+      "trailers": ""
+    },
+    {
+      "head": "6dd5e7d9fefe27777c5d0771d3b53f331382d088",
+      "author_name": "Run Edit Run fleet",
+      "author_email": "fleet@runeditrun.com",
+      "committer_name": "Run Edit Run fleet",
+      "committer_email": "fleet@runeditrun.com",
+      "trailers": ""
+    },
+    {
+      "head": "08265b641c58352aa90844d616cab14ad4b103b4",
+      "author_name": "Run Edit Run fleet",
+      "author_email": "fleet@runeditrun.com",
+      "committer_name": "Run Edit Run fleet",
+      "committer_email": "fleet@runeditrun.com",
+      "trailers": ""
+    }
+  ],
+  "result": "passed"
+}

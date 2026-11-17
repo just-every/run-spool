@@ -1,0 +1,14 @@
+{
+  "scope": "final product diff only; fleet publication scan remains separate",
+  "range": "origin/main..HEAD",
+  "stamp": "2026-11-17T16:48:24.406544+00:00",
+  "patch_sha256": "96a99013b0aa18ba26b2dafd7f1bb85bebb9e5e946df079f698faa38d7886b70",
+  "product_head": "739c7ff1575296fd329c69769364f030618a7b11",
+  "product_tree": "5a134db975620a2ecbaa60dbde9a284a00321406",
+  "pattern_families_checked": [
+    "private_key",
+    "github_token",
+    "stripe_live"
+  ],
+  "findings": []
+}

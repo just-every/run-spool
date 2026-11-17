@@ -1,0 +1,120 @@
+{
+  "product_head": "739c7ff1575296fd329c69769364f030618a7b11",
+  "product_tree": "5a134db975620a2ecbaa60dbde9a284a00321406",
+  "checks": [
+    {
+      "receipt": "check-typecheck.json",
+      "suite": "typecheck",
+      "exit_code": 0,
+      "head_when_run": "6263ba70f1d0fce4ea1df7e6bf7b4f0d827489e1",
+      "index_tree": "c2175f1063c91aa764d7142af2c9d1e21a04f3f0",
+      "ended_at": "2026-11-17T16:26:07.064705+00:00"
+    },
+    {
+      "receipt": "check-build.json",
+      "suite": "build",
+      "exit_code": 0,
+      "head_when_run": "6263ba70f1d0fce4ea1df7e6bf7b4f0d827489e1",
+      "index_tree": "c2175f1063c91aa764d7142af2c9d1e21a04f3f0",
+      "ended_at": "2026-11-17T16:26:42.867883+00:00"
+    },
+    {
+      "receipt": "check-final-build.json",
+      "suite": "final-build",
+      "exit_code": 0,
+      "head_when_run": "6dd5e7d9fefe27777c5d0771d3b53f331382d088",
+      "index_tree": "98396411b6ccf437b02d4602f51a84e52c9871e1",
+      "ended_at": "2026-11-17T16:39:00.094666+00:00"
+    },
+    {
+      "receipt": "check-native-check.json",
+      "suite": "native-check",
+      "exit_code": 0,
+      "head_when_run": "08265b641c58352aa90844d616cab14ad4b103b4",
+      "index_tree": "98396411b6ccf437b02d4602f51a84e52c9871e1",
+      "ended_at": "2026-11-17T16:36:33.966239+00:00"
+    },
+    {
+      "receipt": "check-source-and-base.json",
+      "suite": "source-and-base",
+      "exit_code": 0,
+      "head_when_run": "08265b641c58352aa90844d616cab14ad4b103b4",
+      "index_tree": "98396411b6ccf437b02d4602f51a84e52c9871e1",
+      "ended_at": "2026-11-17T16:36:35.903447+00:00"
+    },
+    {
+      "receipt": "check-committed-source.json",
+      "suite": "committed-source",
+      "exit_code": 0,
+      "head_when_run": "6dd5e7d9fefe27777c5d0771d3b53f331382d088",
+      "index_tree": "98396411b6ccf437b02d4602f51a84e52c9871e1",
+      "ended_at": "2026-11-17T16:40:40.931257+00:00"
+    },
+    {
+      "receipt": "check-contract-docs.json",
+      "suite": "contract-docs",
+      "exit_code": 0,
+      "head_when_run": "6263ba70f1d0fce4ea1df7e6bf7b4f0d827489e1",
+      "index_tree": "c2175f1063c91aa764d7142af2c9d1e21a04f3f0",
+      "ended_at": "2026-11-17T16:26:11.360565+00:00"
+    },
+    {
+      "receipt": "check-triage.json",
+      "suite": "triage",
+      "exit_code": 0,
+      "head_when_run": "6263ba70f1d0fce4ea1df7e6bf7b4f0d827489e1",
+      "index_tree": "d6afb7a04d26d371a20837b5dc97184e3aa44787",
+      "ended_at": "2026-11-17T16:25:21.087569+00:00"
+    },
+    {
+      "receipt": "check-alerts.json",
+      "suite": "alerts",
+      "exit_code": 0,
+      "head_when_run": "6263ba70f1d0fce4ea1df7e6bf7b4f0d827489e1",
+      "index_tree": "466bc46cf50ce851352fadcd6b20eefa8c4c5509",
+      "ended_at": "2026-11-17T16:14:22.691809+00:00"
+    },
+    {
+      "receipt": "check-team.json",
+      "suite": "team",
+      "exit_code": 0,
+      "head_when_run": "6263ba70f1d0fce4ea1df7e6bf7b4f0d827489e1",
+      "index_tree": "466bc46cf50ce851352fadcd6b20eefa8c4c5509",
+      "ended_at": "2026-11-17T16:14:53.486349+00:00"
+    },
+    {
+      "receipt": "check-erasure-ui.json",
+      "suite": "erasure-ui",
+      "exit_code": 0,
+      "head_when_run": "6263ba70f1d0fce4ea1df7e6bf7b4f0d827489e1",
+      "index_tree": "c2175f1063c91aa764d7142af2c9d1e21a04f3f0",
+      "ended_at": "2026-11-17T16:27:01.166318+00:00"
+    },
+    {
+      "receipt": "check-final-ci-build.json",
+      "suite": "final-ci-build",
+      "exit_code": 0,
+      "head_when_run": "739c7ff1575296fd329c69769364f030618a7b11",
+      "index_tree": "5a134db975620a2ecbaa60dbde9a284a00321406",
+      "ended_at": "2026-11-17T16:48:14.197280+00:00"
+    },
+    {
+      "receipt": "check-browser-proof.json",
+      "suite": "browser-proof",
+      "exit_code": 0,
+      "head_when_run": "739c7ff1575296fd329c69769364f030618a7b11",
+      "index_tree": "5a134db975620a2ecbaa60dbde9a284a00321406",
+      "ended_at": "2026-11-17T16:48:41.190705+00:00"
+    },
+    {
+      "receipt": "check-key-dialog-proof.json",
+      "suite": "key-dialog-proof",
+      "exit_code": 0,
+      "head_when_run": "739c7ff1575296fd329c69769364f030618a7b11",
+      "index_tree": "5a134db975620a2ecbaa60dbde9a284a00321406",
+      "ended_at": "2026-11-17T16:48:49.795539+00:00"
+    }
+  ],
+  "behavioral_source_matches_implementation_commit": "08265b641c58352aa90844d616cab14ad4b103b4",
+  "qualification": "Successful behavioral checks retain their actual tested index trees. Final follow-ups change only the source lock and generated deployment recipe; src/, tests/, migrations/ and the requested documentation are byte-identical to the implementation commit. The final candidate passes the exact CI build-step commands locally. Exact-SHA hosted Verify is unqueried after the ten-call budget; no READY claim."
+}

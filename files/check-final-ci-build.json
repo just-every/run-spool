@@ -1,0 +1,9 @@
+{
+  "suite": "final-ci-build",
+  "exit_code": 0,
+  "command": "pnpm run check -- --profile first-party; source check; verify-base --offline; rer build; pnpm integration:check; pnpm typecheck",
+  "ended_at": "2026-11-17T16:48:14.197280+00:00",
+  "head_when_run": "739c7ff1575296fd329c69769364f030618a7b11",
+  "index_tree": "5a134db975620a2ecbaa60dbde9a284a00321406",
+  "unstaged_source_files": []
+}

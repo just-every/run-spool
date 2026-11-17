@@ -1,0 +1,11 @@
+{
+  "width": 1440,
+  "elapsed_ms": 5558,
+  "captures": [
+    "erasure-preview-1440.png",
+    "erasure-confirmation-1440.png",
+    "erasure-progress-1440.png",
+    "erasure-receipt-1440.png"
+  ],
+  "result": "passed"
+}

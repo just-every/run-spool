@@ -1,0 +1,9 @@
+{
+  "suite": "committed-source",
+  "exit_code": 0,
+  "command": "node scripts/edition-authoring/cli.mjs check (corrected committed tree after final build)",
+  "ended_at": "2026-11-17T16:40:40.931257+00:00",
+  "head_when_run": "6dd5e7d9fefe27777c5d0771d3b53f331382d088",
+  "index_tree": "98396411b6ccf437b02d4602f51a84e52c9871e1",
+  "unstaged_source_files": []
+}

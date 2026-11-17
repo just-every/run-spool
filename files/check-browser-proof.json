@@ -1,0 +1,9 @@
+{
+  "suite": "browser-proof",
+  "exit_code": 0,
+  "command": "node /tmp/spool-after.mjs after (final exact SHA; 1440 and 390)",
+  "ended_at": "2026-11-17T16:48:41.190705+00:00",
+  "head_when_run": "739c7ff1575296fd329c69769364f030618a7b11",
+  "index_tree": "5a134db975620a2ecbaa60dbde9a284a00321406",
+  "unstaged_source_files": []
+}

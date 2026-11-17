@@ -1,0 +1,16 @@
+# Actual failed-job log; workflow environment blocks removed; credentials and URL queries masked.
+verify	Require the selected coverage and its proof	﻿2026-11-17T16:28:57.9263687Z ##[group]Run set -euo pipefail
+verify	Require the selected coverage and its proof	2026-11-17T16:28:57.9265584Z set -euo pipefail
+verify	Require the selected coverage and its proof	2026-11-17T16:28:57.9266199Z test "$PLAN" = success
+verify	Require the selected coverage and its proof	2026-11-17T16:28:57.9266939Z case "$CONTRACT_DOCS:$PUSH_PROOF:$NIGHTLY_PROOF" in
+verify	Require the selected coverage and its proof	2026-11-17T16:28:57.9267798Z   *failure*|*cancelled*) exit 1 ;;
+verify	Require the selected coverage and its proof	2026-11-17T16:28:57.9268410Z esac
+verify	Require the selected coverage and its proof	2026-11-17T16:28:57.9268976Z case "$COVERAGE" in
+verify	Require the selected coverage and its proof	2026-11-17T16:28:57.9269778Z   reuse) test "$SKIP" = true && test "$SHARDS" = skipped && test "$LIGHT" = skipped ;;
+verify	Require the selected coverage and its proof	2026-11-17T16:28:57.9270730Z   light) test "$SKIP" = false && test "$LIGHT" = success && test "$SHARDS" = skipped ;;
+verify	Require the selected coverage and its proof	2026-11-17T16:28:57.9271810Z   full) test "$LIGHT" = skipped && { test "$SHARDS" = success || { test "$HAS_SHARDS" = false && test "$SHARDS" = skipped; }; } ;;
+verify	Require the selected coverage and its proof	2026-11-17T16:28:57.9272583Z   *) exit 1 ;;
+verify	Require the selected coverage and its proof	2026-11-17T16:28:57.9272998Z esac
+verify	Require the selected coverage and its proof	2026-11-17T16:28:57.9474044Z shell: /usr/bin/bash -e {0}
+verify	Require the selected coverage and its proof	2026-11-17T16:28:57.9479311Z ##[endgroup]
+verify	Require the selected coverage and its proof	2026-11-17T16:28:57.9619405Z ##[error]Process completed with exit code 1.

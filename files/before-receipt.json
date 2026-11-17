@@ -1,0 +1,23 @@
+{
+  "phase": "before",
+  "source": "6263ba70f1d0fce4ea1df7e6bf7b4f0d827489e1",
+  "stamp": "2026-11-17T15:48:51.631Z",
+  "widths": [
+    1440,
+    390
+  ],
+  "screens": [
+    "keys",
+    "new-key",
+    "key-other-page",
+    "invitation-created",
+    "invitation-accept",
+    "alert-feed",
+    "alert-rules",
+    "notification-settings",
+    "discussion",
+    "erasure",
+    "archive"
+  ],
+  "result": "captured"
+}

@@ -1,0 +1,14 @@
+{
+  "queried_at": "2026-11-17T16:38:18.860606+00:00",
+  "product_head": "6dd5e7d9fefe27777c5d0771d3b53f331382d088",
+  "runs": [
+    {
+      "id": 44127951968,
+      "name": "Verify",
+      "status": "in_progress",
+      "conclusion": null,
+      "head_sha": "6dd5e7d9fefe27777c5d0771d3b53f331382d088",
+      "html_url": "https://github.com/just-every/run-spool/actions/runs/44127951968"
+    }
+  ]
+}

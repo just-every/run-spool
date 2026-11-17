@@ -1,0 +1,94 @@
+[
+  {
+    "conclusion": "success",
+    "failed_steps": [],
+    "id": 134196789533,
+    "name": "plan",
+    "status": "completed"
+  },
+  {
+    "conclusion": "success",
+    "failed_steps": [],
+    "id": 134196910586,
+    "name": "contract-docs",
+    "status": "completed"
+  },
+  {
+    "conclusion": "failure",
+    "failed_steps": [
+      {
+        "name": "Check integration and types",
+        "number": 10
+      }
+    ],
+    "id": 134196910587,
+    "name": "build",
+    "status": "completed"
+  },
+  {
+    "conclusion": "skipped",
+    "failed_steps": [],
+    "id": 134196914607,
+    "name": "commands",
+    "status": "completed"
+  },
+  {
+    "conclusion": "skipped",
+    "failed_steps": [],
+    "id": 134196915194,
+    "name": "light",
+    "status": "completed"
+  },
+  {
+    "conclusion": "skipped",
+    "failed_steps": [],
+    "id": 134197602066,
+    "name": "runtime (${{ matrix.runtime }})",
+    "status": "completed"
+  },
+  {
+    "conclusion": "skipped",
+    "failed_steps": [],
+    "id": 134197602654,
+    "name": "verify (${{ matrix.shard }})",
+    "status": "completed"
+  },
+  {
+    "conclusion": "failure",
+    "failed_steps": [
+      {
+        "name": "Require every job in this coverage partition",
+        "number": 2
+      }
+    ],
+    "id": 134197605429,
+    "name": "shards (spool)",
+    "status": "completed"
+  },
+  {
+    "conclusion": "failure",
+    "failed_steps": [
+      {
+        "name": "Require the selected coverage and its proof",
+        "number": 2
+      }
+    ],
+    "id": 134197662103,
+    "name": "verify",
+    "status": "completed"
+  },
+  {
+    "conclusion": "skipped",
+    "failed_steps": [],
+    "id": 134197662751,
+    "name": "full-push-proof",
+    "status": "completed"
+  },
+  {
+    "conclusion": "skipped",
+    "failed_steps": [],
+    "id": 134197662954,
+    "name": "nightly-proof",
+    "status": "completed"
+  }
+]

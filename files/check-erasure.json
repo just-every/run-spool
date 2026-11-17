@@ -1,0 +1,9 @@
+{
+  "suite": "erasure",
+  "exit_code": 1,
+  "command": "node tests/project-erasure.mjs",
+  "ended_at": "2026-11-17T16:17:14.208723+00:00",
+  "head_when_run": "6263ba70f1d0fce4ea1df7e6bf7b4f0d827489e1",
+  "index_tree": "d6afb7a04d26d371a20837b5dc97184e3aa44787",
+  "unstaged_source_files": []
+}
