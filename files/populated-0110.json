@@ -1,0 +1,15 @@
+{
+  "synthetic": true,
+  "test": "populated0109To0110",
+  "priorMigrations": 103,
+  "migration": "0110_sentry_roster_proposals.sql",
+  "preservedTables": 279,
+  "preservedRows": 46,
+  "beforeAndAfterProvenance": 4,
+  "beforeAndAfterProjectGrants": 1,
+  "beforeAndAfterServiceScopes": 1,
+  "proposalsImmediatelyAfterUpgrade": 0,
+  "afterNewProposal": 1,
+  "foreignKeyViolations": 0,
+  "passed": true
+}

@@ -1,0 +1,26 @@
+[33m▲ [43;33m[[43;30mWARNING[43;33m][0m [1mProxy environment variables detected. We'll use your proxy for fetch requests.[0m
+
+
+PROBE SDK-011 invalid-only: framed JSON and conversion failures -> typed event invalid_item; no identity, scrubbing, release, issue or alert writes; exact refusal usage
+PROBE SDK-011 order and accounting: each invalid kind before and after two valid companions -> accepted=25, invalid_item=21; one retained occurrence and accepted unit per valid error
+PROBE SDK-011 refusal boundaries: malformed framing and store -> whole request refused; refusal-accounting and event-storage faults -> 503 with no partial product writes
+PROBE SDK-011 authority: invalid, foreign and revoked grants and denied origin -> no companions admitted or conversion refusals attributed
+OTLP HTTP flow passed: located log/JS exception, resource association, privacy/deduplication, full/partial rejection accounting, framing/limits, project CORS/grant revocation and shared native budget.
+PROBE FIND-001 priority filtering and ordering: 90 captured issues, four cursor pages, three two-page priority filters, combined predicates, exact JSON and CSV identities and priorities, and changed-query cursor refusals passed.
+[FIND-003] persisted metric widgets, same-occurrence queries, SDK008 counts, sessions, no-release, saved review tables, report definitions, revisions, sharing, bounded safe exports and capacity refusals passed
+[API-001] occurrence and feedback pages reconcile with owner UI reads; scope refusals, withdrawal and erasure passed
+[FIND-003] exact retained totals, saved-query read-back and widget equality, DST calendar buckets, history exclusions, acknowledgement and resolution quantiles, ownership, SDK-008 identity policy, SDK-005 health, no-release, discards and JSON and CSV public report doors passed
+SDK-009 an explicit dist 'sentry-no-dist' stays distinct from no dist, and next/named-release resolution regresses only on a later release (bulk; two auto semvers and two SHA releases).
+[TEAM-003] server deadlines, additional occurrences, shared affected-user definition, shown forecast, snooze, one follow-up and bulk suppression preview passed
+file:///home/agent/rer-consolidation/work/sd-spool-import-sentry-4/repo/tests/worker.mjs:91
+  throw new Error('Test Worker failed: '+JSON.stringify(result));
+        ^
+
+Error: Test Worker failed: {"failed":true,"failure":{"type":"AssertionError","location":"tests/worker.mjs:73:39","code":"ERR_ASSERTION","actual":false,"expected":true,"migration":{"category":"unknown","status":null}},"cleanupFailures":[],"worker":{"redacted":true,"lines":4,"networkConnectionLost":false,"d1Error":false,"sqliteError":false,"mentions":{"typeError":false,"referenceError":false,"rangeError":false,"syntaxError":false,"invalidProject":false,"instanceofOperand":false,"temporalDeadZone":false,"undefinedAccess":false,"notDefined":false,"internalError":false,"scriptNoResponse":false,"contextNotFinalized":false,"scrub":false,"apiErrorHandler":false}}}
+    at startTestWorker (file:///home/agent/rer-consolidation/work/sd-spool-import-sentry-4/repo/tests/worker.mjs:91:9)
+    at async reviewInboxFlow (file:///home/agent/rer-consolidation/work/sd-spool-import-sentry-4/repo/tests/review-inbox-flow.mjs:38:63)
+    at async bulkTriageFlow (file:///home/agent/rer-consolidation/work/sd-spool-import-sentry-4/repo/tests/bulk-triage-flow.mjs:32:2)
+    at async investigationFlow (file:///home/agent/rer-consolidation/work/sd-spool-import-sentry-4/repo/tests/investigation-flow.mjs:35:2)
+    at async file:///home/agent/rer-consolidation/work/sd-spool-import-sentry-4/repo/tests/sentry-http.mjs:120:3
+
+Node.js v24.19.0

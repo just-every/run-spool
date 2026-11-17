@@ -1,0 +1,42 @@
+7a4ac8fd1005303e64cbfb4b115d47bb26af14d5
+parents: 3b7a3ebe545f3bd9c6a979ca04d5687c6a375b09
+author: Run Edit Run fleet <fleet@runeditrun.com>
+committer: Run Edit Run fleet <fleet@runeditrun.com>
+Add inert Sentry roster and ownership review on capture-aware main [skip ci]
+
+add57abe369d1bb40f5bc33a741bf2b9d2327cfd
+parents: 7a4ac8fd1005303e64cbfb4b115d47bb26af14d5
+author: Run Edit Run fleet <fleet@runeditrun.com>
+committer: Run Edit Run fleet <fleet@runeditrun.com>
+Verify native roster authorization and portable Sentry proposals [skip ci]
+
+93c9fcff8b6cfe1b3349e1950e035ba60673d171
+parents: add57abe369d1bb40f5bc33a741bf2b9d2327cfd
+author: Run Edit Run fleet <fleet@runeditrun.com>
+committer: Run Edit Run fleet <fleet@runeditrun.com>
+Scope ownership preview to its source roster and document erasure holds [skip ci]
+
+6c8d6c332954ef7fef300af7cfa2608745455ef8
+parents: 93c9fcff8b6cfe1b3349e1950e035ba60673d171
+author: Run Edit Run fleet <fleet@runeditrun.com>
+committer: Run Edit Run fleet <fleet@runeditrun.com>
+Record source review and native invitation actions distinctly [skip ci]
+
+2bcd3819c9d75d77bcff60445499cca1291dedf4
+parents: 6c8d6c332954ef7fef300af7cfa2608745455ef8
+author: Run Edit Run fleet <fleet@runeditrun.com>
+committer: Run Edit Run fleet <fleet@runeditrun.com>
+Preserve earlier archive inventories with Sentry review custody [skip ci]
+
+6eea98d125d2f603e4324afbea7c65da0b786de3
+parents: 2bcd3819c9d75d77bcff60445499cca1291dedf4
+author: Run Edit Run fleet <fleet@runeditrun.com>
+committer: Run Edit Run fleet <fleet@runeditrun.com>
+Document archive compatibility and qualify the linear Sentry roster replay
+
+8d44b36e050201ea0923e4d767ba346f9466328e
+parents: 6eea98d125d2f603e4324afbea7c65da0b786de3
+author: Run Edit Run fleet <fleet@runeditrun.com>
+committer: Run Edit Run fleet <fleet@runeditrun.com>
+Preserve main verification images in the regenerated source lock
+

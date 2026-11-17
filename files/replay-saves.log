@@ -1,0 +1,88 @@
+rer toolchain: node v24.19.0 pnpm 10.12.4 (pins 22.20.0 / 10.12.4)
+Auto-merging sources.lock.json
+[cloud/sd-spool-import-sentry-4 93c9fcf] Scope ownership preview to its source roster and document erasure holds [skip ci]
+ 4 files changed, 24 insertions(+), 10 deletions(-)
+Run Edit Run fleet <fleet@runeditrun.com>
+Run Edit Run fleet <fleet@runeditrun.com>
+
+Run Edit Run fleet <fleet@runeditrun.com>
+Run Edit Run fleet <fleet@runeditrun.com>
+
+Run Edit Run fleet <fleet@runeditrun.com>
+Run Edit Run fleet <fleet@runeditrun.com>
+
+Identity and complete message/trailer inspection passed for 3 candidate commits, including all side parents.
+fleet Git: removed 0 credential-bearing GitHub URL rewrite sections
+PUSH attempt=1/5 command=git push --porcelain origin HEAD:refs/heads/cloud/sd-spool-import-sentry-4
+PUSH_CREDENTIAL sha256_16=8addacf6ac95b0bc bundle_file_age_seconds=578 token_issue_age=unknown
+fleet Git: removed 0 credential-bearing GitHub URL rewrite sections
+To https://github.com/just-every/run-spool.git
+ 	HEAD:refs/heads/cloud/sd-spool-import-sentry-4	add57ab..93c9fcf
+Done
+remote: 
+remote: GitHub found 21 vulnerabilities on just-every/run-spool's default branch (16 moderate, 5 low). To find out more, visit:        
+remote:      https://github.com/just-every/run-spool/security/dependabot        
+remote: 
+PUSH_OK branch=cloud/sd-spool-import-sentry-4
+Auto-merging sources.lock.json
+[cloud/sd-spool-import-sentry-4 6c8d6c3] Record source review and native invitation actions distinctly [skip ci]
+ 3 files changed, 6 insertions(+), 4 deletions(-)
+Run Edit Run fleet <fleet@runeditrun.com>
+Run Edit Run fleet <fleet@runeditrun.com>
+
+Run Edit Run fleet <fleet@runeditrun.com>
+Run Edit Run fleet <fleet@runeditrun.com>
+
+Run Edit Run fleet <fleet@runeditrun.com>
+Run Edit Run fleet <fleet@runeditrun.com>
+
+Run Edit Run fleet <fleet@runeditrun.com>
+Run Edit Run fleet <fleet@runeditrun.com>
+
+Identity and complete message/trailer inspection passed for 4 candidate commits, including all side parents.
+fleet Git: removed 0 credential-bearing GitHub URL rewrite sections
+PUSH attempt=1/5 command=git push --porcelain origin HEAD:refs/heads/cloud/sd-spool-import-sentry-4
+PUSH_CREDENTIAL sha256_16=8addacf6ac95b0bc bundle_file_age_seconds=610 token_issue_age=unknown
+fleet Git: removed 0 credential-bearing GitHub URL rewrite sections
+To https://github.com/just-every/run-spool.git
+ 	HEAD:refs/heads/cloud/sd-spool-import-sentry-4	93c9fcf..6c8d6c3
+Done
+remote: 
+remote: GitHub found 21 vulnerabilities on just-every/run-spool's default branch (16 moderate, 5 low). To find out more, visit:        
+remote:      https://github.com/just-every/run-spool/security/dependabot        
+remote: 
+PUSH_OK branch=cloud/sd-spool-import-sentry-4
+Auto-merging sources.lock.json
+[cloud/sd-spool-import-sentry-4 2bcd381] Preserve earlier archive inventories with Sentry review custody [skip ci]
+ 6 files changed, 36 insertions(+), 11 deletions(-)
+ create mode 100644 tests/fixtures/archive-before-sentry-roster.mjs
+Run Edit Run fleet <fleet@runeditrun.com>
+Run Edit Run fleet <fleet@runeditrun.com>
+
+Run Edit Run fleet <fleet@runeditrun.com>
+Run Edit Run fleet <fleet@runeditrun.com>
+
+Run Edit Run fleet <fleet@runeditrun.com>
+Run Edit Run fleet <fleet@runeditrun.com>
+
+Run Edit Run fleet <fleet@runeditrun.com>
+Run Edit Run fleet <fleet@runeditrun.com>
+
+Run Edit Run fleet <fleet@runeditrun.com>
+Run Edit Run fleet <fleet@runeditrun.com>
+
+Identity and complete message/trailer inspection passed for 5 candidate commits, including all side parents.
+fleet Git: removed 0 credential-bearing GitHub URL rewrite sections
+PUSH attempt=1/5 command=git push --porcelain origin HEAD:refs/heads/cloud/sd-spool-import-sentry-4
+PUSH_CREDENTIAL sha256_16=8addacf6ac95b0bc bundle_file_age_seconds=643 token_issue_age=unknown
+fleet Git: removed 0 credential-bearing GitHub URL rewrite sections
+To https://github.com/just-every/run-spool.git
+ 	HEAD:refs/heads/cloud/sd-spool-import-sentry-4	6c8d6c3..2bcd381
+Done
+remote: 
+remote: GitHub found 21 vulnerabilities on just-every/run-spool's default branch (16 moderate, 5 low). To find out more, visit:        
+remote:      https://github.com/just-every/run-spool/security/dependabot        
+remote: 
+PUSH_OK branch=cloud/sd-spool-import-sentry-4
+Auto-merging sources.lock.json
+M  docs/SENTRY-ROSTER-IMPORT.md

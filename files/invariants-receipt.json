@@ -1,0 +1,21 @@
+{
+  "mappingVersion": "spool-sentry-org-v2",
+  "authorityReadFence": true,
+  "authorityWriteFence": true,
+  "files": [
+    {
+      "path": "migrations/core/0110_sentry_roster_proposals.sql",
+      "sha256": "d88d992bf20a0697cd58991c4a78148dd0730acdcf9ae3837a8e3184ab16c8eb"
+    },
+    {
+      "path": "src/domain/sentry-import/targets.ts",
+      "sha256": "076715ed6f01264e1ae120661b7942c3fc714bb3c685f7ecbcee17ebfb35a6fa"
+    },
+    {
+      "path": "src/domain/sentry-import/source.ts",
+      "sha256": "ca0acaf078fa2f860ed6da7b1b8a18acdfec5a72c9a874f2cb632b21a65b8b50"
+    }
+  ],
+  "mergeCommits": [],
+  "assertedSourceInvariants": true
+}

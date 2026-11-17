@@ -1,0 +1,22 @@
+{
+  "test": "sentryTargetsAuthorityFence",
+  "synthetic": true,
+  "unchangedControl": true,
+  "cases": [
+    {
+      "kind": "member-grant",
+      "readRevisionFenced": true,
+      "sqlGuardRefused": true,
+      "projectPreserved": true,
+      "nativeAuthorityPreserved": true
+    },
+    {
+      "kind": "service-scope",
+      "readRevisionFenced": true,
+      "sqlGuardRefused": true,
+      "projectPreserved": true,
+      "nativeAuthorityPreserved": true
+    }
+  ],
+  "passed": true
+}

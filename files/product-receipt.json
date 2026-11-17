@@ -1,0 +1,21 @@
+{
+  "repository": "just-every/run-spool",
+  "branch": "cloud/sd-spool-import-sentry-4",
+  "head": "8d44b36e050201ea0923e4d767ba346f9466328e",
+  "base": "3b7a3ebe545f3bd9c6a979ca04d5687c6a375b09",
+  "remoteRef": "refs/heads/cloud/sd-spool-import-sentry-4",
+  "remoteHead": "8d44b36e050201ea0923e4d767ba346f9466328e",
+  "replayedCommits": 6,
+  "sourceLockCorrectionCommits": 1,
+  "commits": 7,
+  "mergeCommits": 0,
+  "author": "Run Edit Run fleet <fleet@runeditrun.com>",
+  "committer": "Run Edit Run fleet <fleet@runeditrun.com>",
+  "at": "2026-11-17T20:31:24Z",
+  "pushed": true,
+  "ready": true,
+  "verifyRun": 44170066809,
+  "verifyConclusion": "success",
+  "verifyHead": "8d44b36e050201ea0923e4d767ba346f9466328e",
+  "verifyUrl": "https://github.com/just-every/run-spool/actions/runs/44170066809"
+}

@@ -1,0 +1,105 @@
+{
+  "sourceHead": "f30b750c3355ed4acaa20f950ef0c6e7c36ef1c4",
+  "files": [
+    {
+      "path": "docs/SENTRY-ROSTER-IMPORT.md",
+      "identicalToGatedHead": false
+    },
+    {
+      "path": "management/integration/deployment-spec.json",
+      "identicalToGatedHead": true
+    },
+    {
+      "path": "migrations/core/0110_sentry_roster_proposals.sql",
+      "identicalToGatedHead": true
+    },
+    {
+      "path": "src/domain/audit/classify.ts",
+      "identicalToGatedHead": true
+    },
+    {
+      "path": "src/domain/erasure/declaration.ts",
+      "identicalToGatedHead": true
+    },
+    {
+      "path": "src/domain/erasure/owner-declaration.ts",
+      "identicalToGatedHead": true
+    },
+    {
+      "path": "src/domain/erasure/service.ts",
+      "identicalToGatedHead": true
+    },
+    {
+      "path": "src/domain/members/archive.ts",
+      "identicalToGatedHead": true
+    },
+    {
+      "path": "src/domain/members/import-model.ts",
+      "identicalToGatedHead": true
+    },
+    {
+      "path": "src/domain/members/imports.ts",
+      "identicalToGatedHead": true
+    },
+    {
+      "path": "src/domain/members/routes.ts",
+      "identicalToGatedHead": true
+    },
+    {
+      "path": "src/domain/portability.ts",
+      "identicalToGatedHead": true
+    },
+    {
+      "path": "src/domain/sentry-import/archive.ts",
+      "identicalToGatedHead": true
+    },
+    {
+      "path": "src/domain/sentry-import/mapping.ts",
+      "identicalToGatedHead": true
+    },
+    {
+      "path": "src/domain/sentry-import/source.ts",
+      "identicalToGatedHead": false
+    },
+    {
+      "path": "src/domain/sentry-import/targets.ts",
+      "identicalToGatedHead": false
+    },
+    {
+      "path": "src/ui/workbench/ImportedMembers.tsx",
+      "identicalToGatedHead": true
+    },
+    {
+      "path": "src/ui/workbench/Members.tsx",
+      "identicalToGatedHead": true
+    },
+    {
+      "path": "tests/archive.mjs",
+      "identicalToGatedHead": true
+    },
+    {
+      "path": "tests/fixtures/archive-before-project-metrics.mjs",
+      "identicalToGatedHead": true
+    },
+    {
+      "path": "tests/fixtures/archive-before-sentry-roster.mjs",
+      "identicalToGatedHead": true
+    },
+    {
+      "path": "tests/old-archive.mjs",
+      "identicalToGatedHead": true
+    },
+    {
+      "path": "tests/repair-recovery/archive.mjs",
+      "identicalToGatedHead": true
+    },
+    {
+      "path": "tests/sentry-import.mjs",
+      "identicalToGatedHead": false
+    },
+    {
+      "path": "tests/sentry-import/roster-ownership.mjs",
+      "identicalToGatedHead": false
+    }
+  ]
+}

@@ -1,0 +1,38 @@
+{
+  "before": {
+    "done": 23,
+    "partial": 54,
+    "missing": 28,
+    "total": 105
+  },
+  "after": {
+    "done": 23,
+    "partial": 54,
+    "missing": 28,
+    "total": 105
+  },
+  "clauses": [
+    {
+      "id": "MIG-001",
+      "before": "partial",
+      "after": "partial"
+    },
+    {
+      "id": "TEAM-001",
+      "before": "done",
+      "after": "done"
+    },
+    {
+      "id": "AUDIT-001",
+      "before": "partial",
+      "after": "partial"
+    },
+    {
+      "id": "ERASE-001",
+      "before": "done",
+      "after": "done"
+    }
+  ],
+  "contractUnchanged": true,
+  "viewsUnchanged": true
+}

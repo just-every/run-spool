@@ -1,0 +1,4 @@
+[33m▲ [43;33m[[43;30mWARNING[43;33m][0m [1mProxy environment variables detected. We'll use your proxy for fetch requests.[0m
+
+
+{"synthetic":true,"test":"populated0109To0110","priorMigrations":103,"migration":"0110_sentry_roster_proposals.sql","preservedTables":279,"preservedRows":46,"beforeAndAfterProvenance":4,"beforeAndAfterProjectGrants":1,"beforeAndAfterServiceScopes":1,"proposalsImmediatelyAfterUpgrade":0,"afterNewProposal":1,"foreignKeyViolations":0,"passed":true}

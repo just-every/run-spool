@@ -1,0 +1,63 @@
+rer toolchain: node v24.19.0 pnpm 10.12.4 (pins 22.20.0 / 10.12.4)
+2026-11-17T19:48:29Z
+CHECK contract-write
+PASS contract-write
+2026-11-17T19:48:29Z
+CHECK contract-check
+PASS contract-check
+2026-11-17T19:48:30Z
+CHECK source-lock
+PASS source-lock
+2026-11-17T19:48:31Z
+CHECK install
+PASS install
+fleet cloud commit hook installed; repository hooks preserved
+2026-11-17T19:48:39Z
+CHECK first-party
+PASS first-party
+2026-11-17T19:48:41Z
+CHECK source-check
+PASS source-check
+2026-11-17T19:48:42Z
+CHECK base-offline
+PASS base-offline
+2026-11-17T19:48:42Z
+CHECK build-app
+PASS build-app
+2026-11-17T19:49:15Z
+CHECK integration-check
+PASS integration-check
+2026-11-17T19:49:15Z
+CHECK typecheck
+PASS typecheck
+2026-11-17T19:49:39Z
+CHECK rer-build
+PASS rer-build
+2026-11-17T19:50:25Z
+CHECK roster-ownership
+PASS roster-ownership
+2026-11-17T19:51:34Z
+CHECK old-archive
+PASS old-archive
+2026-11-17T19:55:11Z
+CHECK sentry-http
+rer toolchain: node v22.20.0 pnpm 10.12.4 (pins 22.20.0 / 10.12.4)
+Node pinned retry: v22.20.0
+2026-11-17T20:01:15Z
+CHECK sentry-http-retry
+PASS sentry-http-retry
+2026-11-17T20:21:26Z
+CHECK sentry-import
+PASS sentry-import
+2026-11-17T20:29:36Z
+CHECK source-lock-final
+PASS source-lock-final
+2026-11-17T20:29:37Z
+CHECK source-check-final
+PASS source-check-final
+2026-11-17T20:29:39Z
+CHECK integration-check-final
+PASS integration-check-final
+2026-11-17T20:29:40Z
+CHECK contract-check-final
+PASS contract-check-final

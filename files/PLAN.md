@@ -1,0 +1,11 @@
+# Linear replay plan
+
+1. Establish fleet identity, credential helper, push guard and repository-preserving commit hooks. Clone only just-every/run-spool with depth one and blob filtering, then deepen for the six-commit source history.
+2. Confirm source f30b750c3355ed4acaa20f950ef0c6e7c36ef1c4 and base 3b7a3ebe545f3bd9c6a979ca04d5687c6a375b09. Create cloud/sd-spool-import-sentry-4 directly from origin/main.
+3. Replay c61934a, 76369f5, 0b08480, 4278289, c0f0cd9 and f30b750 as ordinary commits. Preserve their original roster/ownership implementation and native grant undo fence. Reconcile parser scopes with capture validation and keys; map ownership by project slug at mapping v2. Extend field accounting to represent inert review records accurately; missing source timestamps remain rejected.
+4. Retain main's CONTRACT.md judgments, release metadata and generated views. Run contract write/check and restore the generated views to main; no status/gap/evidence changes or release claims. Regenerate integration migration ledger/spec and sources.lock.json last before each commit. Publish intermediate saves with [skip ci] after identity/message checks using the fleet push guard.
+5. Run the local Verify build commands in order, then roster/ownership, old archive and SDK import shard. Prove migration 0110 over populated 0109, authority preservation, native archive compatibility, and 1440/390 browser proof. Save actual non-secret reports/receipts outside the product checkout.
+6. Inspect all candidate commits, ensure zero merge commits, publish the final branch and poll exact-SHA Verify via gh REST with one watcher, at least 300 seconds between calls and at most ten GitHub calls. Do not merge main, refresh Base, edit release metadata or self-submit.
+7. Publish the explicitly selected complete report packet on evidence/sd-spool-import-sentry-4; report product and evidence custody separately and emit lane POST plus final READY/PUSHED/BLOCKED provenance honestly.
+
+Scope interpretation: replay the complete 26-file independently gated round, including its member, erasure, portability and existing UI wiring, since these are necessary parts of the six requested commits. Limit new reconciliation edits to import parsing/accounting and their tests/docs/generated lock/spec. No new UI design is introduced.
