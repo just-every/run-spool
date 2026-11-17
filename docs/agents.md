@@ -4,8 +4,8 @@ A coding agent, such as Claude Code or Codex, can read Spool's evidence directly
 
 ## Create a key
 
-1. Open **Settings** for the project.
-2. Under **Project keys**, choose **Create agent key**.
+1. Open Settings for the project.
+2. Under Project keys, choose Create agent key.
 3. Copy the key when Spool shows it. It is shown once.
 
 An agent key works for one project only. Revoke it from **Settings** whenever you like.
