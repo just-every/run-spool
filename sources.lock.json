@@ -3602,83 +3602,83 @@
       "executable": false
     },
     "docs/retained-verification/team004/empty-link-log-1440.png": {
-      "sha256": "41c7b17ba1e3eceaeb4e8ea4aef158c96460c8d309f62f9192e06f48d0ac7032",
+      "sha256": "515c3987d0c5bc508568f62e0e295648c89560c06aa4d5a79b146c31b2810514",
       "executable": false
     },
     "docs/retained-verification/team004/empty-link-log-390.png": {
-      "sha256": "a21f376223a32de0435563510784902ccbae637cbe8b8161150321395fe137c1",
+      "sha256": "124dac0cf79ebaece6dbeba801e9ae28c4fe31a8844700069a96c1ffae808f1a",
       "executable": false
     },
     "docs/retained-verification/team004/empty-timeline-1440.png": {
-      "sha256": "9289d042da8a047e332fa8290eb3bab079b94ef720e83d54d48d7a2c4575446f",
+      "sha256": "f0f3507064e6c2a4b46a25d1a7c30d691038c2cf8e37546ace29fe41e1c3f239",
       "executable": false
     },
     "docs/retained-verification/team004/empty-timeline-390.png": {
-      "sha256": "8909c97ad66a6149feac09d327e53b3e2c7a7b03fa78fe594f8969aa60cb9f1b",
+      "sha256": "466723f42bcfd2b02a408dad4544f78ee728674b57c6c78ad97b494e89edb3ee",
       "executable": false
     },
     "docs/retained-verification/team004/issue-list-1440.png": {
-      "sha256": "07e40f8f8c506d9a5a2feca1c8efcc7ef74dc8fea50d4451f7e799935c49b039",
+      "sha256": "231e83e5a7dd1699d2a21b196a18a0ee3d2dcf449f7bc24b76dc51503ded1057",
       "executable": false
     },
     "docs/retained-verification/team004/issue-list-390.png": {
-      "sha256": "c206fade8f75b643db25648a439be20c5e8982ad8c9169d3adc9d742de8f4ba0",
+      "sha256": "8745c9bf0adc940aa3b7a46888f920f699552460d574a45be369cf76bf91a987",
       "executable": false
     },
     "docs/retained-verification/team004/linked-1440.png": {
-      "sha256": "6f66c615f0ae79f49eb0650d53eadd577fdbfe67d4cfc9b11c9bd6aa98046c92",
+      "sha256": "6da78ad6c22e1859144a386e2e47cfe7474b843b73077fd5c219fef058f382e6",
       "executable": false
     },
     "docs/retained-verification/team004/linked-390.png": {
-      "sha256": "a98e9d2607fd77b42aabbe5a3fa6283970bb8c67936e6fc3dd7e6bdb01e1ca83",
+      "sha256": "df9259481b7a99e94d86ee9bf3c75471136862653ab59ec7ee7d78b6667252ac",
       "executable": false
     },
     "docs/retained-verification/team004/logged-unknown-1440.png": {
-      "sha256": "5df2483c00279936fb0fcabe4cefdf27213999a5de4427d15245c06fc27a4c9a",
+      "sha256": "df9642c92e55fb24ab7fb64d56c122c66b82e7d6efc07da0de01dfe1095c5fa1",
       "executable": false
     },
     "docs/retained-verification/team004/logged-unknown-390.png": {
-      "sha256": "10fc8f8b0bc968800c95e4a60bbbe8421fae8bfd32309ba8fd1ebe97ad944cc4",
+      "sha256": "032917891561d98754b7c19b29729673983f097a54ef6647dd61cae626d17233",
       "executable": false
     },
     "docs/retained-verification/team004/merged-alias-1440.png": {
-      "sha256": "0bd6bf85ce4c21d17dccd16f5d1f8775a30a3fa3970f2d18e713347dcec6deb9",
+      "sha256": "e92add178667b0f1e6f47e516c4ce5e7e5a2dae91e723fc3d59d1910c30b8bac",
       "executable": false
     },
     "docs/retained-verification/team004/merged-alias-390.png": {
-      "sha256": "7a8399677fae21b2fdde00e675e541de12ff3a3456249ec2a1c570463b0a6c50",
+      "sha256": "95ffe392608fd357b26e9b33b6cbf27f107445a7a0d73b3e4941fa759f6ef298",
       "executable": false
     },
     "docs/retained-verification/team004/regressed-1440.png": {
-      "sha256": "35070ef6356871f7b4fb865f4f6ca7f042b0b74841dd73668d1d7b5321474818",
+      "sha256": "9cac67c0e094836748d90feffddfba18bfe8f5554a3a4e22188928c0b4b7cb2b",
       "executable": false
     },
     "docs/retained-verification/team004/regressed-390.png": {
-      "sha256": "bb753fe2ed1211c09d53d3df783d4aa285cbaa0c908ef08057a367382bbea5ce",
+      "sha256": "99759ef63038da7abece9b814edd692995e4963b3e74aa415db0c027d1eac7cb",
       "executable": false
     },
     "docs/retained-verification/team004/resolved-1440.png": {
-      "sha256": "5a32a00975d792586fbadc4cb791c5401615f3be56f6bdada1c93e9d1758d4cd",
+      "sha256": "09b7df4458c0d835d8d7d46f702f22f80445b1df709806458f30fc8be6eff5e6",
       "executable": false
     },
     "docs/retained-verification/team004/resolved-390.png": {
-      "sha256": "5cad0e0cdcd3633df33773d3faa483795567937f7101f64ad7a6badc8b0fa936",
+      "sha256": "0170166527b0b5bc9e138a9a4215ea31f3c3da00df6962626b73cf84e5627f38",
       "executable": false
     },
     "docs/retained-verification/team004/sharing-off-1440.png": {
-      "sha256": "a17e7b39dc8be7d7efff967fd53923c2099f20de2461c69d93edc76775b4173a",
+      "sha256": "836f1067a68d2da71677bdd7bec16feda83ec37f3ec6ed49a3a09e9a92378db6",
       "executable": false
     },
     "docs/retained-verification/team004/sharing-off-390.png": {
-      "sha256": "28e557384b1204bfb56ce7083988862712fb34f09b26d2a0a06263d1e93d412a",
+      "sha256": "812f2f7dd2ba202c8ad5f38fb6e4b1b55a309c819793ab6ac709dae92824dbf3",
       "executable": false
     },
     "docs/retained-verification/team004/sharing-on-1440.png": {
-      "sha256": "f543c0d3f0851a79ca92911946554f8cce2a6409dffbb084fa9342886a60bd7c",
+      "sha256": "c79c4dbf4484037243d579b1600bac8ee866e04090d47f4487badf1b8a753b4e",
       "executable": false
     },
     "docs/retained-verification/team004/sharing-on-390.png": {
-      "sha256": "4cf16cc7aabd23dcefb536120f5ca71a02196fe74117b9f03feef82950ab237a",
+      "sha256": "f093142af09df10e851d9107c9eb8db2f66c49afb4c1dd74267b9836c6dade38",
       "executable": false
     },
     "docs/RETENTION.md": {
@@ -3706,7 +3706,7 @@
       "executable": false
     },
     "docs/SENTRY-ROSTER-IMPORT.md": {
-      "sha256": "c664c079d42702572771ac9e633bed618cc6bfd05bbd2c8fa07c9b78571a2d6b",
+      "sha256": "646711122f497f818a9bff6d4bb73c5f6a1dfc924d27b6d6893c1cff2d264cc4",
       "executable": false
     },
     "docs/SENTRY-SCRUBBING.md": {
@@ -11890,7 +11890,7 @@
       "executable": false
     },
     "tests/sentry-import/roster-ownership.mjs": {
-      "sha256": "518dd7bfc9af81245824e7810d899ff8bc66a0f6e6c3af83a89dde5792bb6970",
+      "sha256": "0f4b2eac12c8e991030caab67395574ee30fa3c2fde6c5f5e99fc2969cba90b7",
       "executable": false
     },
     "tests/sentry-import/schema-pages.mjs": {
