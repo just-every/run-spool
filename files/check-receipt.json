@@ -1,0 +1,7 @@
+{
+  "inject_verification_exit": 0,
+  "typecheck_exit": 0,
+  "typecheck_command": "pnpm typecheck",
+  "node": "22.20.0",
+  "pnpm": "10.12.4"
+}

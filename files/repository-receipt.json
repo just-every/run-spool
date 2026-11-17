@@ -1,0 +1,30 @@
+{
+  "repository": "just-every/run-spool",
+  "branch": "cloud/gr-mt-spool-code-3",
+  "head": "337a4cacd736ad172f397f318bb766fa5402ed9a",
+  "origin_main": "337a4cacd736ad172f397f318bb766fa5402ed9a",
+  "tree": "192c25ffd5ec71b0a3c79b218332048d249ffa4e",
+  "already_fixed_by": "0a883e4820be7f95c93bc76470ee5af0344c1d4b",
+  "fix_is_ancestor_of_origin_main": true,
+  "product_changes": [],
+  "new_product_commits": 0,
+  "product_pushed": false,
+  "pull_request": null,
+  "clause_changes": [],
+  "contract_counts_before": {
+    "done": 23,
+    "partial": 54,
+    "missing": 28,
+    "total": 105
+  },
+  "contract_counts_after": {
+    "done": 23,
+    "partial": 54,
+    "missing": 28,
+    "total": 105
+  },
+  "inject_blob": "3075fa573fbb4960d59b76522dcff7683cca5398",
+  "ci_run_ids": [],
+  "ci_note": "No product candidate created or pushed; no new Verify requested.",
+  "publication_note": "Only report-only evidence ref is published; no product publication scan or product push is needed for no-change."
+}

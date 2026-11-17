@@ -1,0 +1,64 @@
+{
+  "files": [
+    {
+      "blob": "3c91dadc801e22822f808cb805738518f2a48d30",
+      "bytes": 6686,
+      "path": "REPORT.md",
+      "sha256": "54f232f53a4764e3aced9668b8bd1262bfa98065cb145e5a151f2387844e51bc"
+    },
+    {
+      "blob": "fb6b9bc7652021dc3aaa1d7589936fdab50fb959",
+      "bytes": 1437,
+      "path": "alert-api-receipt.json",
+      "sha256": "7c9855dddb43e07168369d23cac98859e3496cc634861e09c672df976cabb418"
+    },
+    {
+      "blob": "616cff692934718b84cac2722853c9b0e042f215",
+      "bytes": 142,
+      "path": "check-receipt.json",
+      "sha256": "518e5091a72f791684528b89e90d6af9041c33abf461a3f42d69ba517298afab"
+    },
+    {
+      "blob": "26371fa45d3323215625ff93e0d005e3b65d3eab",
+      "bytes": 1730,
+      "path": "inject-history.txt",
+      "sha256": "2366c500be16d3c6dbfc4fde374c1b573b65e02e74cd011910f3e1ebaa05d973"
+    },
+    {
+      "blob": "420569e349375f5a2b4ab1a390070e840453e666",
+      "bytes": 1177,
+      "path": "inject-verification.json",
+      "sha256": "69e9a876ed4e1ccf37adb4bb4d3bf7a0e745e83d914037f3e514b3af151d1f78"
+    },
+    {
+      "blob": "27c73a02c4bdbb62f09690f2225a7db62e0b34ef",
+      "bytes": 4403,
+      "path": "inject-verification.mjs",
+      "sha256": "c76fb6f7370cd7b495aba546bada7970181b8134bb947d1002a2a9321700c335"
+    },
+    {
+      "blob": "205968836e878148070da21d57e500f53a634be3",
+      "bytes": 999,
+      "path": "repository-receipt.json",
+      "sha256": "860e4f5db1e2eae46681bd0ed4891436de69a87fcdb7bc7cf27ee4226812c737"
+    },
+    {
+      "blob": "edd387755428e137bb43cc0cd42ece4dd4c2c98c",
+      "bytes": 566,
+      "path": "result.json",
+      "sha256": "b0df0c09b86e677ff7ae3187eb01d80553c3fe3e7ba71d0eb295f435517975ea"
+    },
+    {
+      "blob": "72e4c254489258fb0fb2916b93e0d30317348471",
+      "bytes": 126,
+      "path": "typecheck.log",
+      "sha256": "4561095060742b61197b082386f457661f2fa67809897ff847fd7c1480136683"
+    }
+  ],
+  "product_branch": "cloud/gr-mt-spool-code-3",
+  "product_head": "337a4cacd736ad172f397f318bb766fa5402ed9a",
+  "ref": "refs/heads/evidence/gr-mt-spool-code-3",
+  "repository": "just-every/run-spool",
+  "schema": 1,
+  "tag": "gr-mt-spool-code-3"
+}

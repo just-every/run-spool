@@ -1,0 +1,18 @@
+625fdfedf570d7a59ec4a0d38b76fbee17cc6783 2026-10-23T12:10:08Z Resolve bounded indexed source maps and preserve debugger metadata [skip ci]
+0a883e4820be7f95c93bc76470ee5af0344c1d4b 2026-10-15T16:37:26+10:00 Pin rer 0.2.13, refresh Base auth and erasure, offer managed alert settings
+a2e7bffed0a4c089f570ddd2876595396f6d7e54 2026-10-13T13:48:35+10:00 v0.1.0
+
+diff --git a/packages/sdk/src/sourcemaps/inject.mjs b/packages/sdk/src/sourcemaps/inject.mjs
+index e23cb04..8b1d256 100644
+--- a/packages/sdk/src/sourcemaps/inject.mjs
++++ b/packages/sdk/src/sourcemaps/inject.mjs
+@@ -18,7 +18,8 @@ export function injectDebugId(code, inputMap) {
+   const hex = createHash('sha256').update(code).update('\0').update(JSON.stringify(map)).digest('hex');
+   const debugId = `${hex.slice(0,8)}-${hex.slice(8,12)}-4${hex.slice(13,16)}-8${hex.slice(17,20)}-${hex.slice(20,32)}`;
+   // A block-local initializer has an empty completion, preserving directive-only eval results.
+-  const registration = `;{const _spoolDebugRegistration=(()=>{try{const g=globalThis,s=(new Error()).stack;if(s){g._sentryDebugIds=g._sentryDebugIds||{};g._sentryDebugIds[s]=${JSON.stringify(debugId)};g._sentryDebugIdIdentifier="sentry-dbid-${debugId}"}}catch{}})();}`;
++  // debugId is built from hex digits and hyphens only, so it is quoted as is.
++  const registration = `;{const _spoolDebugRegistration=(()=>{try{const g=globalThis,s=(new Error()).stack;if(s){g._sentryDebugIds=g._sentryDebugIds||{};g._sentryDebugIds[s]="${debugId}";g._sentryDebugIdIdentifier="sentry-dbid-${debugId}"}}catch{}})();}`;
+   code = insertRegistration(code, map, position, registration);
+   map.debug_id = debugId;
+   return { code: `${code}\n//# debugId=${debugId}\n`, map, debugId };

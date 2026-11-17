@@ -1,0 +1,49 @@
+{
+  "passed": true,
+  "node": "v22.20.0",
+  "head": "337a4cacd736ad172f397f318bb766fa5402ed9a",
+  "checks": 9,
+  "rows": [
+    {
+      "name": "ordinary script",
+      "passed": true,
+      "debugId": "f80b3da9-7fab-4fc9-8c86-42649b340556"
+    },
+    {
+      "name": "strict script",
+      "passed": true,
+      "debugId": "90aa01e0-c179-484c-87c5-9399864d9185"
+    },
+    {
+      "name": "directive-only eval",
+      "passed": true,
+      "debugId": "ec0662dc-581d-4f76-8e1f-fe1f8fc3c802"
+    },
+    {
+      "name": "source directive lookalike",
+      "passed": true,
+      "debugId": "914382c3-3cd7-40fd-86fc-0eb7d374a04c"
+    },
+    {
+      "name": "source map comment",
+      "passed": true,
+      "debugId": "a85b8a07-d266-4481-84ec-9f2ced57fee5"
+    },
+    {
+      "name": "source coordinates preserved after registration",
+      "passed": true
+    },
+    {
+      "name": "indexed map normalization and reinjection",
+      "passed": true
+    },
+    {
+      "name": "externally supplied JavaScript-shaped debug IDs rejected",
+      "passed": true
+    },
+    {
+      "name": "source map strings cannot become executable registration code",
+      "passed": true
+    }
+  ]
+}

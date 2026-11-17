@@ -1,0 +1,7 @@
+{
+  "status": "no-change",
+  "sha": "337a4cacd736ad172f397f318bb766fa5402ed9a",
+  "summary": "Alert 9 is already fixed on current origin/main: 0a883e4820be7f95c93bc76470ee5af0344c1d4b removed JSON.stringify from executable registration; generated debug IDs contain only SHA-256 hex digits and hyphens, confirmed by nine runtime/source-map checks.",
+  "tests": "Pinned Node 22.20.0 / pnpm 10.12.4: pnpm install --frozen-lockfile PASS; node packet/inject-verification.mjs <repo> PASS (9 checks); pnpm typecheck PASS. No product files modified.",
+  "security": false
+}
