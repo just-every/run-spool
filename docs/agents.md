@@ -15,7 +15,7 @@ An agent key works for one project only. Revoke it from **Settings** whenever yo
 
 ## Local agent access
 
-In local `rer dev`, a dev-minted agent key also requires this checkout's private gate. In the printed `RER_OPEN` link, privately copy the fragment value after `rer-dev=` and before any `&`, then enter it at this hidden Bash prompt:
+In local `~/.local/bin/rer dev`, a dev-minted agent key also requires this checkout's private gate. In the printed `RER_OPEN` link, privately copy the fragment value after `rer-dev=` and before any `&`, then enter it at this hidden Bash prompt:
 
 ```sh
 read -r -s -p 'Private rer-dev fragment value: ' SPOOL_DEV_KEY; printf '\n'

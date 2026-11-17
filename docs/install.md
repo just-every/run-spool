@@ -10,16 +10,16 @@ One line, as on the [Run page](https://run-spool.com/run), installs rer, clones 
 curl -fsSL https://runeditrun.com/install.sh | sh -s -- dev just-every/run-spool
 ```
 
-Already have Node 22 or later? `npx -y @runeditrun/rer dev just-every/run-spool` does the same. If the installer prints a line that puts `rer` on your PATH, run that line too. To start it again later, run the same line from the same folder, or `cd run-spool && rer dev`.
+Already have Node 22 or later? `npx -y @runeditrun/rer dev just-every/run-spool` does the same. To start it again later, run `cd run-spool && ~/.local/bin/rer dev`. If you see 'command not found', run `~/.local/bin/rer cli path` and paste the line it prints.
 
-`rer dev` installs everything, prepares the local database and prints `RER_OPEN`. First start chooses `owner@run-spool.test` for the `run-spool` folder above without asking for an email; it does this with piped input too. Another folder name produces `owner@<sanitized-folder-name>.test`. An existing installation keeps its owner. Open `RER_OPEN` in a browser on this computer to enter signed in as the owner. Keep it private: it carries this checkout's dev key. Local sign-in sends no real email.
+Open the private owner link printed in your terminal, and keep it private. On the setup page, enter your name, your email and what to call this installation. You can change these later in Settings: General for the installation name, Members for your name and email.
 
 <details>
 <summary>Details</summary>
 
-For separate lifecycle steps, `rer install` installs the locked dependencies and `rer setup` prepares or preserves the owner and local settings, then stops its temporary app. Run `rer dev` afterwards to start Spool. Explicit `rer setup` prompts for missing required answers when stdin is a terminal (unless `--json` or `--non-interactive` is set). Piping an email alone is not a setup answer.
+For separate lifecycle steps, `~/.local/bin/rer install` installs the locked dependencies and `~/.local/bin/rer setup` prepares or preserves the owner and local settings, then stops its temporary app. Run `~/.local/bin/rer dev` afterwards to start Spool. Explicit `~/.local/bin/rer setup` prompts for missing required answers when stdin is a terminal (unless `--json` or `--non-interactive` is set). Piping an email alone is not a setup answer.
 
-To choose your real email before first start, run the same line with `setup` in place of `dev` (interactive `rer setup`) instead of going straight to `rer dev`. If dev already made a temporary owner, stop dev first and supply `OWNER_EMAIL` through the answers file to replace that temporary address while keeping its data. Saved answers are reused, so an existing address is not prompted again. Keep addresses and secrets out of shell arguments.
+To choose your real email before first start, run the same line with `setup` in place of `dev` (interactive `~/.local/bin/rer setup`) instead of going straight to `~/.local/bin/rer dev`. If dev already made a temporary owner, stop dev first and supply `OWNER_EMAIL` through the answers file to replace that temporary address while keeping its data. Saved answers are reused, so an existing address is not prompted again. Keep addresses and secrets out of shell arguments.
 
 For non-interactive setup, work from the Spool checkout and create an ignored private answers file:
 
@@ -38,7 +38,7 @@ Open that file in your editor and save a JSON object using the installer field n
 Then run:
 
 ```sh
-rer setup --answers .rer/local/setup-answers.json --non-interactive
+~/.local/bin/rer setup --answers .rer/local/setup-answers.json --non-interactive
 rer dev
 ```
 
@@ -58,7 +58,7 @@ Use **Send test error** to check that the key and release receive an error from 
 
 ## Stopping and starting
 
-With terminal (TTY) output, `rer dev` stays in the foreground; stop it with Ctrl+C. With non-TTY output, it returns once ready and leaves the server running in the background; stop it with `rer dev --stop`. You can also stop it from another terminal. Use `--foreground` or `--detach` to choose explicitly. Your owner, projects and events are kept on this computer and are still there the next time you run `rer dev`.
+With terminal (TTY) output, `~/.local/bin/rer dev` stays in the foreground; stop it with Ctrl+C. With non-TTY output, it returns once ready and leaves the server running in the background; stop it with `~/.local/bin/rer dev --stop`. You can also stop it from another terminal. Use `--foreground` or `--detach` to choose explicitly. Your owner, projects and events are kept on this computer and are still there the next time you run `~/.local/bin/rer dev`.
 
 Stop dev before deploying, verifying, resetting or transferring local data.
 

@@ -29,7 +29,7 @@ If configuration is still required, have the administrator check the origins, ow
 
 ## Hosted installation
 
-The shipped self-hosted `rer deploy` declaration does not expose these owner-claim bindings. There is no supported Settings or optional-secret route to add them on that deployment. A Business-provisioned installation receives them from its provisioning administrator. Ask that administrator to configure or repair the existing trust; do not change the Worker through the provider dashboard or invent deployment commands.
+The shipped self-hosted `~/.local/bin/rer deploy` declaration does not expose these owner-claim bindings. There is no supported Settings or optional-secret route to add them on that deployment. A Business-provisioned installation receives them from its provisioning administrator. Ask that administrator to configure or repair the existing trust; do not change the Worker through the provider dashboard or invent deployment commands.
 
 ## Import as the owner without Business trust
 

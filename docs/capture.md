@@ -80,7 +80,7 @@ For a check from inside Spool, first-project setup has **Send test error**, whic
 
 ## Keys for anything outside this checkout
 
-Run Spool with `rer dev` and open the private `RER_OPEN` link to create your project and keys. With rer dev v2 (using the rer version pinned in [package.json](../package.json)), your application can use the dev-minted ingest key against local Spool directly. Your build can use a dev-minted deploy key there too. Neither needs the checkout's private owner gate, even when the application or build runs from another repository on this computer.
+Run Spool with `~/.local/bin/rer dev` and open the private `RER_OPEN` link to create your project and keys. With rer dev v2 (using the rer version pinned in [package.json](../package.json)), your application can use the dev-minted ingest key against local Spool directly. Your build can use a dev-minted deploy key there too. Neither needs the checkout's private owner gate, even when the application or build runs from another repository on this computer.
 
 | Key | Scope | Local dev gate required? |
 | --- | --- | --- |
@@ -92,7 +92,7 @@ Allow your browser application's exact origin on **Capture**, and register its r
 
 The `rer-dev` fragment is the private checkout gate used for owner entry and local read-only agent access. For a trusted local coding agent, extract only that value privately into `SPOOL_DEV_KEY` and use the absolute path to Spool's CLI from your app repository; see [local agent access](WITH-YOUR-AGENT.md#local-agent-access). Keep the gate out of shared configuration and source control.
 
-Deployed Spool refuses every dev-minted key, including ingest and deploy keys. Sign in to the deployed installation and create fresh keys for that installation. Private archives exclude all project grants, including dev-minted grants; recreate keys after restore. Local mail is suppressed, so no email or mailbox workaround is needed. Stop with `rer dev --stop` before deploy, verify, reset or data transfer.
+Deployed Spool refuses every dev-minted key, including ingest and deploy keys. Sign in to the deployed installation and create fresh keys for that installation. Private archives exclude all project grants, including dev-minted grants; recreate keys after restore. Local mail is suppressed, so no email or mailbox workaround is needed. Stop with `~/.local/bin/rer dev --stop` before deploy, verify, reset or data transfer.
 
 ## Already using Sentry? Point your DSN here
 
