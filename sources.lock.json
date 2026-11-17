@@ -3018,7 +3018,7 @@
       "executable": false
     },
     "docs/IMPORT-READS.md": {
-      "sha256": "9ebf64785924290489af1bea558af55cb75936418e5a1f4820fea5c841184327",
+      "sha256": "9c2aa861ffdb30cffb48cddd5bbc1cbaf19abf12af87f410db5fba0efd3cfadf",
       "executable": false
     },
     "docs/INBOUND-FILTERS.md": {
@@ -3714,7 +3714,7 @@
       "executable": false
     },
     "docs/SENTRY-SWITCHING.md": {
-      "sha256": "3b1ff65c7518a2754bdb26f58c6e4583f9f6d2f82ed8a2ff3e83c36ab54864b6",
+      "sha256": "d5e1e193a6284ecd10771a589983981c407ee3b952cb50d9dd206f0ce737436a",
       "executable": false
     },
     "docs/SHORT-IDS.md": {
@@ -6974,7 +6974,7 @@
       "executable": false
     },
     "src/domain/sentry-import/door.server.ts": {
-      "sha256": "d3a45ddbc65592577dac31351de97b7e3ebc8abafc3712892128a51cfd2c7bdf",
+      "sha256": "adf2dfe273d249329ac0b9f90cb88c22432b2235738b8ef32ead81eeafd215da",
       "executable": false
     },
     "src/domain/sentry-import/event.ts": {
@@ -6986,7 +6986,7 @@
       "executable": false
     },
     "src/domain/sentry-import/owner-reads.server.ts": {
-      "sha256": "e37d9c8c78fe2fbe12685a42ec435d69892a56716b783ada89db6f5e0b509be8",
+      "sha256": "6c0b9621e7991d593b08c66198382b84cdcf6baa3fb9f573d066806646d6e3b1",
       "executable": false
     },
     "src/domain/sentry-import/read-labels.ts": {
@@ -7002,11 +7002,11 @@
       "executable": false
     },
     "src/domain/sentry-import/source.ts": {
-      "sha256": "a705d23ed0ddabf93610a62924f5a064245dae645fd1c681d2aaca837ae727c0",
+      "sha256": "9c0076695c98c5f033a6f78ff890c89b18f39bbdca0074c1a82954bab86ea8fb",
       "executable": false
     },
     "src/domain/sentry-import/targets.ts": {
-      "sha256": "a183228210f20689abaa48bbf87ab491b7061a60ac2aa0922433e63ea8ea74d5",
+      "sha256": "6400b943b69085f0326e87ae72cd90b36c57df9cbc48935f3e26c3a95f698b1c",
       "executable": false
     },
     "src/domain/sentry/agent-evidence.ts": {
@@ -11830,7 +11830,7 @@
       "executable": false
     },
     "tests/sentry-import.mjs": {
-      "sha256": "ee755555002e33066a6a8d22d422938e6a9125870d70bcdb7631b2153cd63c2d",
+      "sha256": "aecab4d08d87b209e24a872b419261f8302f745e3acf52217050b84cc9b5e2ff",
       "executable": false
     },
     "tests/sentry-import/reads.mjs": {

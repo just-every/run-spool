@@ -40,7 +40,13 @@ export const sentryTargets:D1TargetAdapter={
     return [sql(`INSERT INTO ${a.table}(${a.columns.join(',')}) VALUES(${a.columns.map(()=>'?').join(',')}) ON CONFLICT(${a.keys.join(',')}) DO UPDATE SET ${a.columns.filter(key=>!a.keys.includes(key)).map(key=>`${key}=excluded.${key}`).join(',')}`,...a.columns.map(key=>native[key])),
       value.source===null?sql('DELETE FROM sentry_import_targets WHERE kind=? AND id=?',row.targetKind,row.targetId):sql('INSERT INTO sentry_import_targets(kind,id,revision,source) VALUES(?,?,?,?) ON CONFLICT(kind,id) DO UPDATE SET revision=excluded.revision,source=excluded.source',row.targetKind,row.targetId,row.revision,canonicalJson(value.source))];
   },
-  remove(destination,kind,id){const a=address(destination,kind,id);return [sql(`DELETE FROM ${a.table} WHERE ${a.where}`,...a.values),sql('DELETE FROM sentry_import_targets WHERE kind=? AND id=?',kind,id)]},
+  remove(destination,kind,id){
+    const a=address(destination,kind,id);
+    return [sql(`DELETE FROM ${a.table} WHERE ${a.where}`,...a.values),sql('DELETE FROM sentry_import_targets WHERE kind=? AND id=?',kind,id),
+      // Prefixes have no project FK. Remove only this deleted imported project's
+      // prefix, so undo restores its auxiliary graph as well as its four targets.
+      ...kind==='project'?[sql('DELETE FROM short_id_prefixes WHERE project=? AND NOT EXISTS(SELECT 1 FROM projects WHERE id=?)',id,id)]:[]];
+  },
   // The native set an import guards is its own imported targets, read in one
   // query per kind however many rows exist; ingested evidence stays outside it.
   async list(db,destination){
@@ -52,6 +58,27 @@ export const sentryTargets:D1TargetAdapter={
       for(const {import_target_id,import_revision,import_source,...native} of results)rows.push({destination,targetKind:kind,targetId:import_target_id,revision:import_revision,value:{native,source:JSON.parse(import_source)}});
     }
     return rows;
+  },
+  // Compact, exact comparisons use every listed native column and custody value.
+  // No revision-only shortcut or digest of caller-supplied metadata can hide an edit.
+  matchesMany(rows,destination){
+    if(destination!=='spool-owner')throw new Error('Invalid import destination');
+    const guards:D1Sql[]=[];
+    for(const [kind,d] of Object.entries(definitions)){
+      const expected=rows.filter(row=>row.targetKind===kind).map(row=>{
+        const a=address(destination,kind,row.targetId),value=row.value as any;
+        if(!value?.native||value.source===null||Object.keys(value.native).some(key=>!a.columns.includes(key))||a.columns.some(key=>!(key in value.native)))throw new Error('Native row schema changed');
+        return [row.targetId,row.revision,canonicalJson(value.source),...a.columns.map(key=>value.native[key])];
+      });
+      const match=d.columns.map((key,i)=>`n.${key} IS json_extract(e.value,'$[${i+3}]')`).join(' AND ');
+      guards.push(sql(`(SELECT COUNT(*) FROM sentry_import_targets WHERE kind=?)=? AND NOT EXISTS(
+        SELECT 1 FROM json_each(?) e WHERE NOT EXISTS(
+          SELECT 1 FROM sentry_import_targets m JOIN ${d.table} n ON ${d.keys.map((key,i)=>`n.${key}=${d.keys.length===1?'m.id':`json_extract(m.id,'$[${i}]')`}`).join(' AND ')}
+          WHERE m.kind=? AND m.id=json_extract(e.value,'$[0]') AND m.revision=json_extract(e.value,'$[1]')
+          AND m.source=json_extract(e.value,'$[2]') AND ${match}))`,kind,expected.length,JSON.stringify(expected),kind));
+    }
+    guards.push(this.matchesCount!(rows.length,destination));
+    return guards;
   },
   matchesCount(count,destination){
     if(destination!=='spool-owner')throw new Error('Invalid import destination');
