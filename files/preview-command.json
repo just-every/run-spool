@@ -1,0 +1,10 @@
+{
+  "candidate": "8d26df622ca844d93cfa9d13afeb601b3765e68d",
+  "command": "perl -e 'alarm 2400; exec @ARGV' -- node tests/end-user-erasure-preview.mjs",
+  "exit": 0,
+  "browser": "/usr/bin/chromium",
+  "widths": [
+    1440,
+    390
+  ]
+}

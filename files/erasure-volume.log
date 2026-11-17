@@ -1,0 +1,5 @@
+[33m▲ [43;33m[[43;30mWARNING[43;33m][0m [1mProxy environment variables detected. We'll use your proxy for fetch requests.[0m
+
+
+SCALE_ADMISSION {"candidate":"8d26df622ca844d93cfa9d13afeb601b3765e68d","runId":"sd-spool-sdk027-7-erasure-20261117T015919Z","requestedVolume":150000,"status":200,"requestedRestoreMs":287049.218114,"retainedVolume":150000}
+PROBE SDK-027 volume: {"requestedVolume":150000,"admittedVolume":150000,"overCapStatus":200,"completionMs":30236.272297999996,"receiptSeconds":8.081,"claim":"acceptance point 5 timed; other gaps remain"}

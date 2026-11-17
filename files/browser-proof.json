@@ -1,0 +1,62 @@
+{
+  "candidate": "8d26df622ca844d93cfa9d13afeb601b3765e68d",
+  "fixture": "synthetic Spool end-user erasure preview",
+  "files": [
+    {
+      "file": "preview-matching-1440.png",
+      "viewportWidth": 1440,
+      "imageWidth": 1064,
+      "imageHeight": 1213,
+      "sha256": "2da940be5e7c070ce6faedff67ca6f498982a20ee09eed017cff5aec8136d607"
+    },
+    {
+      "file": "preview-matching-390.png",
+      "viewportWidth": 390,
+      "imageWidth": 342,
+      "imageHeight": 1974,
+      "sha256": "d6e3b77c68e76f004123b6d3f40ac97a300d094fef71304d568d6d48ce5fe054"
+    },
+    {
+      "file": "preview-complete-1440.png",
+      "viewportWidth": 1440,
+      "imageWidth": 1064,
+      "imageHeight": 1003,
+      "sha256": "23ff421b667f60b831d9a0db39f62fcaf4b20e4a639b31769be1f0a4e8088309"
+    },
+    {
+      "file": "preview-complete-390.png",
+      "viewportWidth": 390,
+      "imageWidth": 342,
+      "imageHeight": 2005,
+      "sha256": "53edc8b066bc8f85e08457ffe8aaf020fe5a5f98191ab561fb25295813415a4b"
+    },
+    {
+      "file": "preview-unavailable-1440.png",
+      "viewportWidth": 1440,
+      "imageWidth": 1064,
+      "imageHeight": 961,
+      "sha256": "c9ea14a62830d662d97a412cec80c459b10ea00f2033860ac8f65d9b6f6e4d0e"
+    },
+    {
+      "file": "preview-unavailable-390.png",
+      "viewportWidth": 390,
+      "imageWidth": 342,
+      "imageHeight": 1674,
+      "sha256": "9591d62ff1908c1ba99cbb05618ca3bb4e7b17bbcded26ddcdd60725dca51713"
+    },
+    {
+      "file": "preview-search-after-1440.png",
+      "viewportWidth": 1440,
+      "imageWidth": 1440,
+      "imageHeight": 1000,
+      "sha256": "0edf43aae13df369e5032dd8af603bc7cb5d3d07e038dbc49aec54aaa18cc81b"
+    },
+    {
+      "file": "preview-search-after-390.png",
+      "viewportWidth": 390,
+      "imageWidth": 390,
+      "imageHeight": 1280,
+      "sha256": "197047e7450dd5d9e0d90c3cd0798d1c8cd4ff926f47cc1d0715c09590c98139"
+    }
+  ]
+}

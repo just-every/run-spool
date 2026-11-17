@@ -1,0 +1,6 @@
+{
+  "candidate": "8d26df622ca844d93cfa9d13afeb601b3765e68d",
+  "test": "tests/feedback-flow.mjs#feedbackFlow",
+  "command": "perl -e 'alarm 2400; exec @ARGV' -- node /tmp/spool-sdk027-feedback.mjs",
+  "exit": 1
+}

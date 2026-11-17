@@ -1,0 +1,22 @@
+ docs/FEEDBACK.md                            |  85 +++++++++++-
+ management/integration/deployment-spec.json |   6 +
+ migrations/core/0109_feedback_review.sql    |   4 +
+ sources.lock.json                           |  46 ++++---
+ src/domain/erasure/end-user.ts              |   2 +-
+ src/domain/feedback/admission.ts            |   4 +-
+ src/domain/feedback/archive.ts              |  16 ++-
+ src/domain/feedback/input.ts                |   7 +-
+ src/domain/feedback/private.ts              |  76 +++++++++++
+ src/domain/feedback/review.ts               |  84 ++++++++++++
+ src/domain/feedback/routes.ts               |   4 +
+ src/domain/members/resolver.ts              |   3 +-
+ src/domain/portability.ts                   |  13 +-
+ src/ui/workbench/FeedbackPanel.tsx          |  46 ++++++-
+ src/ui/workbench/SettingsView.tsx           |   3 +-
+ src/ui/workbench/feedback.css               |   6 +
+ tests/feedback-flow.mjs                     | 198 +++++++++++++++++++++++++++-
+ tests/old-archive.mjs                       |  24 +++-
+ tests/repair-recovery/archive.mjs           |  12 +-
+ tests/runtimes/browser.mjs                  |   4 +-
+ tests/runtimes/feedback-proof.mjs           |   4 +-
+ 21 files changed, 603 insertions(+), 44 deletions(-)

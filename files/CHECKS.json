@@ -1,0 +1,49 @@
+{
+  "candidate": "8d26df622ca844d93cfa9d13afeb601b3765e68d",
+  "checks": {
+    "preview-command.json": {
+      "candidate": "8d26df622ca844d93cfa9d13afeb601b3765e68d",
+      "command": "perl -e 'alarm 2400; exec @ARGV' -- node tests/end-user-erasure-preview.mjs",
+      "exit": 0,
+      "browser": "/usr/bin/chromium",
+      "widths": [
+        1440,
+        390
+      ]
+    },
+    "feedback-command.json": {
+      "candidate": "8d26df622ca844d93cfa9d13afeb601b3765e68d",
+      "test": "tests/feedback-flow.mjs#feedbackFlow",
+      "command": "perl -e 'alarm 2400; exec @ARGV' -- node /tmp/spool-sdk027-feedback.mjs",
+      "browser": "/usr/bin/chromium",
+      "exit": 0,
+      "attempt": 2,
+      "firstAttempt": "harness lacked Chromium executable override; no product assertion failed"
+    },
+    "erasure-command.json": {
+      "runId": "sd-spool-sdk027-7-erasure-20261117T015919Z",
+      "candidate": "8d26df622ca844d93cfa9d13afeb601b3765e68d",
+      "command": "perl -e 'alarm 2400; exec @ARGV' -- node tests/end-user-erasure-volume.mjs",
+      "exit": 0
+    },
+    "archive-command.json": {
+      "runId": "sd-spool-sdk027-7-archive-20261117T020230Z",
+      "candidate": "8d26df622ca844d93cfa9d13afeb601b3765e68d",
+      "command": "perl -e 'alarm 2400; exec @ARGV' -- node tests/end-user-erasure-volume.mjs --archive-160000",
+      "exit": 0
+    }
+  },
+  "typecheck": "passed",
+  "sourceCheck": "passed",
+  "contractDocs": "passed",
+  "gitDiffCheck": "passed",
+  "productWorkingTree": "clean",
+  "linearCandidate": true,
+  "sdk027": "PARTIAL unchanged",
+  "ciRunId": 43999610919,
+  "ciStatus": "completed",
+  "ciConclusion": "success",
+  "ciUrl": "https://github.com/just-every/run-spool/actions/runs/43999610919",
+  "githubApiCalls": 5,
+  "terminalProductCustody": "READY"
+}

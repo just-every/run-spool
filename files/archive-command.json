@@ -1,0 +1,6 @@
+{
+  "runId": "sd-spool-sdk027-7-archive-20261117T020230Z",
+  "candidate": "8d26df622ca844d93cfa9d13afeb601b3765e68d",
+  "command": "perl -e 'alarm 2400; exec @ARGV' -- node tests/end-user-erasure-volume.mjs --archive-160000",
+  "exit": 0
+}

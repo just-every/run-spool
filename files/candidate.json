@@ -1,0 +1,57 @@
+{
+  "repository": "just-every/run-spool",
+  "branch": "cloud/sd-spool-sdk027-7",
+  "head": "8d26df622ca844d93cfa9d13afeb601b3765e68d",
+  "base": "3308d2c15143af65c448e8d8494fb052adbf459e",
+  "carry": "dce7b40c301abe897d3a6a393a11097f556ac0cb",
+  "linear": true,
+  "freshMainPreservedExactly": true,
+  "carriedFilesEqualPriorCandidate": true,
+  "typecheck": "passed",
+  "sourceCheck": "passed",
+  "contractDocsCheck": "passed",
+  "diffCredentialShapeCheck": "passed",
+  "publicationScan": "Mac lander only; not run in cloud",
+  "identityAndTrailers": "fleet author and committer, no trailers",
+  "testRegistrationsAdded": 0,
+  "testRegistrationsRemoved": 0,
+  "carryComparisonFiles": [
+    "docs/FEEDBACK.md",
+    "management/integration/deployment-spec.json",
+    "migrations/core/0109_feedback_review.sql",
+    "sources.lock.json",
+    "src/domain/erasure/end-user.ts",
+    "src/domain/feedback/admission.ts",
+    "src/domain/feedback/archive.ts",
+    "src/domain/feedback/input.ts",
+    "src/domain/feedback/private.ts",
+    "src/domain/feedback/review.ts",
+    "src/domain/feedback/routes.ts",
+    "src/domain/members/resolver.ts",
+    "src/domain/portability.ts",
+    "src/ui/workbench/FeedbackPanel.tsx",
+    "src/ui/workbench/SettingsView.tsx",
+    "src/ui/workbench/feedback.css",
+    "tests/feedback-flow.mjs",
+    "tests/old-archive.mjs",
+    "tests/repair-recovery/archive.mjs",
+    "tests/runtimes/browser.mjs",
+    "tests/runtimes/feedback-proof.mjs"
+  ],
+  "explanation": "Every difference from dce7b40c is main\u2019s newer SDK-004 change; sources.lock.json combines those hashes with the unchanged carry hashes. Exact byte comparisons passed for all five carried files and all other SDK-004 changed files.",
+  "testRegistrationsBeforeAfter": "unchanged; 0 added, 0 removed",
+  "acceptanceCountsBeforeAfter": {
+    "Core": {
+      "done": 23,
+      "partial": 45,
+      "missing": 19,
+      "total": 87
+    },
+    "Agent surface": {
+      "done": 0,
+      "partial": 9,
+      "missing": 9,
+      "total": 18
+    }
+  }
+}

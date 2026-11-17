@@ -1,0 +1,21 @@
+Candidate commits and messages:
+8d26df622ca844d93cfa9d13afeb601b3765e68d
+Admit proven SDK-027 scale linearly on current main
+
+Carry the archive capacity and indexed identity validation, full-volume public journey, and measured documentation from dce7b40c onto 3308d2c1. Preserve main’s newer SDK-004 consented-feedback contact behavior and truthful erasure wording unchanged. No contract judgments or generated views change.
+
+
+Candidate identities and trailers:
+Run Edit Run fleet <fleet@runeditrun.com>
+Run Edit Run fleet <fleet@runeditrun.com>
+
+
+Merge commits: none
+Product working tree: clean
+Changed files:
+docs/OWNER-ERASURE.md
+docs/USER-IDENTITY.md
+sources.lock.json
+src/domain/archive.ts
+src/domain/identities/archive.ts
+tests/end-user-erasure-volume.mjs

@@ -1,0 +1,17 @@
+{
+  "candidate": "8d26df622ca844d93cfa9d13afeb601b3765e68d",
+  "runId": "sd-spool-sdk027-7-archive-20261117T020230Z",
+  "startedAt": "2026-11-17T02:02:31.625Z",
+  "completedAt": "2026-11-17T02:18:18.707Z",
+  "requestedVolume": 160000,
+  "admittedVolume": 160000,
+  "requestedRestoreMs": 293267.30071700003,
+  "archiveMs": 387473.62051100004,
+  "archivedEvents": 160000,
+  "archivedIdentities": 160000,
+  "overBudget": {
+    "volume": 160001,
+    "status": 400,
+    "error": "Archive event budget"
+  }
+}

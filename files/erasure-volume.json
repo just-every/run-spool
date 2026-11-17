@@ -1,0 +1,84 @@
+{
+  "candidate": "8d26df622ca844d93cfa9d13afeb601b3765e68d",
+  "runId": "sd-spool-sdk027-7-erasure-20261117T015919Z",
+  "startedAt": "2026-11-17T01:59:20.628Z",
+  "completedAt": "2026-11-17T02:05:10.647Z",
+  "requestedVolume": 150000,
+  "requestedVolumeProof": "admitted and timed",
+  "overCap": {
+    "attempted": true,
+    "volume": 150000,
+    "status": 200,
+    "error": null,
+    "requestedRestoreMs": 287049.218114
+  },
+  "admittedVolume": 150000,
+  "before": {
+    "retained": 150000,
+    "matched": 150000
+  },
+  "after": {
+    "retained": 150000,
+    "matched": 0
+  },
+  "completionMs": 30236.272297999996,
+  "receipt": {
+    "id": "9f1fc1f8a71d4f6aa7c8ae51dc9a5c50",
+    "phase": "complete",
+    "planned": {
+      "event_identities": 150000,
+      "health_sessions": 0,
+      "search_tags": 150000,
+      "captured_text_events": 150000,
+      "issue_titles": 1,
+      "alert_titles": 1
+    },
+    "deleted": {
+      "event_identities": 150000,
+      "health_sessions": 0,
+      "search_tags": 150000,
+      "captured_text_events": 150000,
+      "issue_titles": 1,
+      "alert_titles": 1
+    },
+    "retained": [
+      {
+        "table": "feedback",
+        "reason": "Consented feedback contact, screenshots and replies stay in the feedback inbox. End-user erasure does not match feedback by contact or remove these details by the supplied identity. To remove them, the installation owner must withdraw the report in the feedback inbox. Deleting matching events also deletes reports attached to those exact occurrences."
+      },
+      {
+        "table": "attachments",
+        "reason": "Attachment ingestion and identity metadata are not retained; there is no attachment identity matching store."
+      },
+      {
+        "table": "replays",
+        "reason": "Replay ingestion and identity metadata are not retained; there is no replay identity matching store."
+      },
+      {
+        "table": "captured_text",
+        "reason": "0 event records contain only ambiguous partial-token copies; 0 event records contain matching content that cannot be redacted without changing immutable grouping provenance. Those copies stay. Unknown aliases, encoded text, exception/stack/context copies and independent derived snapshots cannot be fully correlated by this door."
+      },
+      {
+        "table": "health_sessions",
+        "reason": "Only session DID hashes equal to the supplied value are matched. Different aliases and anonymous session aggregates cannot be correlated."
+      },
+      {
+        "table": "external_copies",
+        "reason": "Downloaded archives, delivered messages, provider backups and future incoming captures are outside this installation. A fresh destination needs the later archive as its trusted erasure journal."
+      }
+    ],
+    "blobs": {
+      "total": 0,
+      "deleted": 0
+    },
+    "requestedAt": "2026-11-17T02:04:58.428Z",
+    "committedAt": "2026-11-17T02:04:58.428Z",
+    "completedAt": "2026-11-17T02:05:06.509Z",
+    "seconds": 8.081,
+    "exceptions": [
+      "Only exact retained event identities and literally equal session DIDs are matched; the retained-scope list names uncorrelatable stores.",
+      "The existing portability redaction checkpoint refuses pre-erasure archives here, or with a trusted later journal on a fresh installation.",
+      "Downloaded copies, delivered messages, provider backups and future captures are outside this operation."
+    ]
+  }
+}

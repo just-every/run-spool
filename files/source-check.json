@@ -1,0 +1,6 @@
+{
+  "ok": true,
+  "command": "pnpm source:check",
+  "schemaVersion": 1,
+  "edition": "just-every/spool"
+}
