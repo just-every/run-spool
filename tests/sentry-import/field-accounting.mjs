@@ -13,6 +13,9 @@ function leaves(value,path='') {
 }
 // Schema-specific expectations are declared independently of the product's mapper.
 function disposition(kind,path) {
+ if(['members','ownership'].includes(kind))return 'rejected'; // These captures lack required source timestamps.
+ if(kind==='teams'&&['/id','/slug','/name'].includes(path))return 'mapped';
+ if(kind==='teams'&&path==='/dateCreated'||kind==='projects'&&/^\/teams\/\d+\/(id|slug)$/.test(path))return 'transformed';
  if(kind==='keys'&&['/public','/secret','/dsn/secret','/dsn/cdn'].includes(path))return 'redacted';
  const exact={projects:['/id','/slug'],releases:['/version'],issues:['/id']};
  const converted={projects:['/name','/dateCreated'],releases:['/dateCreated'],issues:['/title','/status','/firstSeen','/lastSeen'],events:['/eventID','/groupID','/dist','/environment','/release/version','/dateCreated','/entries/0/type','/entries/0/data/values/1/type','/entries/0/data/values/1/value','/entries/1/type']};
@@ -37,18 +40,18 @@ export async function fieldAccounting({origin,cookie,scratch,json,req}) {
   assert.deepEqual(facts.capture, bundle.capture);
   console.log(`Sentry accounting ${profile}: planned ${planned.counts.input} records, ${facts.fields.length} field dispositions.`);
   assert.equal(planned.counts.duplicates,1);
-  assert.equal(planned.counts.rejected,0);
+  assert.equal(planned.counts.rejected,2,'member and ownership captures without source timestamps remain rejected, never invented');
   if(profile==='scaled')assert.ok(planned.counts.input>500,'scaled graph passes the former 500-record fence');
   const seen=new Set();let unique=0;
   for(const collection of bundle.collections)for(const page of collection.pages)for(const data of page.response) {
-   const id=collection.kind==='ownership'?'ownership':collection.kind==='releases'?data.version:collection.kind==='events'?data.eventID:data.id;
+   const id=collection.kind==='ownership'?collection.project:collection.kind==='releases'?data.version:collection.kind==='events'?data.eventID:data.id;
    const sourceId=JSON.stringify([bundle.organization.slug,collection.project,id]),key=JSON.stringify([collection.kind,sourceId]);
    if(seen.has(key))continue;seen.add(key);unique++;
    const actual=facts.fields.filter(row=>row.kind===collection.kind&&row.sourceId===sourceId);
    assert.deepEqual(actual.map(row=>row.path).sort(),leaves(data).sort(),'every independent actual scalar/empty container has exactly one disposition');
    assert.ok(actual.every(row=>row.reason&&row.location&&Number.isSafeInteger(row.bytes)));
    for(const row of actual)assert.equal(row.disposition,disposition(collection.kind,row.path),`${collection.kind} ${row.path}: independent schema disposition`);
-   if(!['projects','issues','events','releases'].includes(collection.kind))assert.ok(actual.every(row=>['unmapped','redacted'].includes(row.disposition)),'unsupported families never claim native mapping');
+   if(!['projects','issues','events','releases','teams','members','ownership'].includes(collection.kind))assert.ok(actual.every(row=>['unmapped','redacted'].includes(row.disposition)),'unsupported families never claim native mapping');
   }
   assert.equal(unique+1,planned.counts.unique);
   const events=facts.fields.filter(row=>row.kind==='events');
@@ -73,7 +76,7 @@ export async function fieldAccounting({origin,cookie,scratch,json,req}) {
   for(const row of report.sentry.byteLedger)assert.equal(row.difference,row.sourceBytes-row.nativeBytes);
   assert.ok(report.sentry.nativeBytes>0);assert.notEqual(report.sentry.nativeBytes,report.sentry.sourcePayloadBytes);
   const count=new Set(capture.collections.find(c=>c.kind==='issues').responses.flatMap(p=>JSON.parse(p.body)).map(row=>row.id)).size;
-  const kinds={project:1,release:1,issue:count,event:count};
+  const kinds={project:1,release:1,issue:count,event:count,'import-proposal':1};
   assert.deepEqual(report.counts.byKind,kinds);
   const full=await archiveProjection(await req('/api/archive'));
   const imported=full.data.projects.find(p=>p.name==='Checkout 猫 café');assert.ok(imported);

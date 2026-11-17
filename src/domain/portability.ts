@@ -431,3 +431,7 @@ export async function restoreArchive(service: any, source: ReadableStream<Uint8A
   text += decoder.decode(); return await legacyRecords(service, JSON.parse(text));
  } finally { await legacyReader.cancel(); }
 }
+
+// Pending Sentry review records remain inert when an older archive is restored.
+for(const later of laterTables){if(!later.tables.includes('spool_import_proposals'))later.tables.push('spool_import_proposals');later.migrations.push('0110_sentry_roster_proposals.sql')}
+laterTables.unshift({tables:['spool_import_proposals'],migrations:['0110_sentry_roster_proposals.sql']});

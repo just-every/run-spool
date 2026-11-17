@@ -2,6 +2,7 @@ import type { D1TargetAdapter, D1Database, D1Sql } from '../../modules/import-ki
 import type { TargetRow } from '../../modules/import-kit/src/types.ts';
 import { sha256, canonicalJson } from '../../modules/import-kit/src/provenance/identity.ts';
 const definitions:Record<string,{table:string;keys:string[];columns:string[]}>= {
+  'import-proposal':{table:'spool_import_proposals',keys:['id'],columns:['id','project','kind','payload','state','version','created']},
   project:{table:'projects',keys:['id'],columns:['id','name','created']},
   release:{table:'releases',keys:['project','name'],columns:['project','name','seq','build','created']},
   issue:{table:'issues',keys:['id'],columns:['id','project','fingerprint','algorithm','title','state','revision','count','first_seen','last_seen','resolved_seq','latest_release_seq']},
@@ -20,7 +21,8 @@ async function read(db:D1Database,destination:string,kind:string,id:string):Prom
   const native=await db.prepare(`SELECT * FROM ${a.table} WHERE ${a.where}`).bind(...a.values).first();
   const metadata=await db.prepare('SELECT revision,source FROM sentry_import_targets WHERE kind=? AND id=?').bind(kind,id).first();
   if(!native){if(metadata)throw new Error('Imported native row missing');return undefined}
-  return {destination,targetKind:kind,targetId:id,revision:metadata?.revision??`native:${sha256(canonicalJson(native))}`,value:{native,source:metadata?JSON.parse(metadata.source):null}};
+  const bound=kind==='project'&&metadata&&await db.prepare('SELECT 1 FROM spool_project_grants WHERE project=? UNION ALL SELECT 1 FROM spool_service_scopes WHERE project=?').bind(id,id).first();
+  return {destination,targetKind:kind,targetId:id,revision:bound?`authorized:${metadata.revision}`:metadata?.revision??`native:${sha256(canonicalJson(native))}`,value:{native,source:metadata?JSON.parse(metadata.source):null}};
 }
 export const sentryTargets:D1TargetAdapter={
   read,
@@ -29,9 +31,10 @@ export const sentryTargets:D1TargetAdapter={
     if(!row)return sql(`NOT EXISTS(SELECT 1 FROM ${a.table} WHERE ${a.where}) AND NOT EXISTS(SELECT 1 FROM sentry_import_targets WHERE kind=? AND id=?)`,...a.values,kind,id);
     const value=row.value as any,native=value.native;
     if(!native||Object.keys(native).some(key=>!a.columns.includes(key))||a.columns.some(key=>!(key in native)))throw new Error('Native row schema changed');
+    const authority=kind==='project'&&value.source!==null?' AND NOT EXISTS(SELECT 1 FROM spool_project_grants WHERE project=? UNION ALL SELECT 1 FROM spool_service_scopes WHERE project=?)':'';
     const terms=a.columns.map(key=>`${key} IS ?`).join(' AND ');
     const metadata=value.source===null?sql('NOT EXISTS(SELECT 1 FROM sentry_import_targets WHERE kind=? AND id=?)',kind,id):sql('EXISTS(SELECT 1 FROM sentry_import_targets WHERE kind=? AND id=? AND revision=? AND source=?)',kind,id,row.revision,canonicalJson(value.source));
-    return sql(`EXISTS(SELECT 1 FROM ${a.table} WHERE ${terms}) AND (${metadata.sql})`,...a.columns.map(key=>native[key]),...metadata.params!);
+    return sql(`EXISTS(SELECT 1 FROM ${a.table} WHERE ${terms}) AND (${metadata.sql})${authority}`,...a.columns.map(key=>native[key]),...metadata.params!,...authority?[id,id]:[]);
   },
   write(row){
     const a=address(row.destination,row.targetKind,row.targetId),value=row.value as any,native=value.native;

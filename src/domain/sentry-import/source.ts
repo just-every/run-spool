@@ -1,7 +1,7 @@
 import { sha256 } from '../../modules/import-kit/src/provenance/identity.ts';
 import type { Json, ParsedRecord } from '../../modules/import-kit/src/types.ts';
 export const importFormat = 'spool-sentry-org-export';
-export const mappingVersion = 'spool-sentry-org-v1';
+export const mappingVersion = 'spool-sentry-org-v2';
 export function sourceText(value: unknown, field: string): string {
   if (typeof value !== 'string' || !value.trim() || value.length > 200 || /[\u0000-\u001f]/.test(value)) throw new Error(`Invalid ${field}`);
   return value;
@@ -23,11 +23,13 @@ export function parseSentryOrganization(value: Json): ParsedRecord[] {
     const records: ParsedRecord[]=[{kind:'manifest',sourceId:organization,payload:{organization:bundle.organization,window:bundle.window,omissions:bundle.omissions,...bundle.capture?{capture:bundle.capture}:{}},pointer:''}];
     const collectionKeys=new Set<string>();
     for (const [collectionIndex,collection] of bundle.collections.entries()) {
-      fields(collection,['kind','project','pages']);
+      fields(collection,['kind','project','team','pages']);
       const kind=sourceText(collection.kind,'collection kind');
       const project=collection.project===null ? null : sourceText(collection.project,'collection project');
-      if (['issues','events','keys','ownership'].includes(kind) && !project || ['projects','releases'].includes(kind) && project!==null) throw new Error('Collection scope mismatch');
-      const key=JSON.stringify([kind,project]); if(collectionKeys.has(key))throw new Error('Duplicate collection');collectionKeys.add(key);
+      if (['issues','events','keys','ownership'].includes(kind) && !project || ['projects','releases','members','teams','team-members'].includes(kind) && project!==null) throw new Error('Collection scope mismatch');
+      const team=kind==='team-members'?sourceText(collection.team,'team slug'):null;
+      if(kind!=='team-members'&&collection.team!==undefined)throw new Error('Unexpected team scope');
+      const key=JSON.stringify([kind,project,team]); if(collectionKeys.has(key))throw new Error('Duplicate collection');collectionKeys.add(key);
       if(!Array.isArray(collection.pages)||!collection.pages.length||collection.pages.length>100)throw new Error('Invalid pages');
       let expected: string|null=null; const cursors=new Set<string|null>();
       for (const [pageIndex,page] of collection.pages.entries()) {
@@ -38,12 +40,14 @@ export function parseSentryOrganization(value: Json): ParsedRecord[] {
         expected=page.nextCursor;
         for (const [rowIndex,row] of page.response.entries()) {
           if(!row || typeof row!=='object'||Array.isArray(row))throw new Error('Invalid API record');
-          const id=sourceText(kind==='ownership' ? 'ownership' : kind==='events' ? row.eventID : kind==='releases' ? row.version : row.id,'source id');
-          records.push({kind,sourceId:JSON.stringify([organization,project,id]),payload:{organization,project,data:row},pointer:`/collections/${collectionIndex}/pages/${pageIndex}/response/${rowIndex}`});
+          const id=sourceText(kind==='ownership'?project:kind==='events' ? row.eventID : kind==='releases' ? row.version : row.id,'source id');
+          records.push({kind,sourceId:JSON.stringify(team?[organization,project,team,id]:[organization,project,id]),payload:{organization,project,...team?{team}:{},data:row},pointer:`/collections/${collectionIndex}/pages/${pageIndex}/response/${rowIndex}`});
         }
       }
     }
-    if(!collectionKeys.has(JSON.stringify(['projects',null])) || !collectionKeys.has(JSON.stringify(['releases',null])))throw new Error('Projects and releases collections required');
+    if(!collectionKeys.has(JSON.stringify(['projects',null,null])) || !collectionKeys.has(JSON.stringify(['releases',null,null])))throw new Error('Projects and releases collections required');
+    const exportedProjects=records.filter(r=>r.kind==='projects').map(r=>(r.payload as any).data.slug);
+    for(const record of records)if(['members','teams','team-members'].includes(record.kind))(record.payload as any).projects=exportedProjects;
     const rank:Record<string,number>={manifest:0,projects:1,releases:2,issues:3,events:4};
     return records.sort((a,b)=>(rank[a.kind]??5)-(rank[b.kind]??5));
 }
@@ -68,6 +72,21 @@ export function sentryFieldAccounting(kind:string,data:any,rejection?:string):Fi
   if(Array.isArray(data.projects))data.projects.forEach((_:any,i:number)=>keep(`projects/${i}/slug`));
  }
  if(kind==='issues'){keep('id');transform('title','status','firstSeen','lastSeen')}
+ if(kind==='projects'&&Array.isArray(data.teams))data.teams.forEach((_:any,i:number)=>transform(`teams/${i}/id`,`teams/${i}/slug`));
+ if(kind==='members'){keep('id','user/id');transform('email','name','orgRole','pending','expired','dateCreated')}
+ if(kind==='teams'){
+  keep('id','slug','name');transform('dateCreated');
+  if(Array.isArray(data.projects))data.projects.forEach((_:any,i:number)=>transform(`projects/${i}/slug`));
+ }
+ if(kind==='team-members')transform('id','teamRole');
+ if(kind==='ownership'){
+  // Exact source history is private, disabled review data. Source activation
+  // flags are retained as history and never become executable native settings.
+  for(const leaf of sourceLeaves(data))retained.add(leaf.path);
+  transform('dateCreated','lastUpdated','isActive','autoAssignment','codeownersAutoSync');
+  for(const path of changed)retained.delete(path);
+ }
+
  if(kind==='events'){
   transform('eventID','groupID','dist','environment');
   transform(typeof data.release==='object'?'release/version':'release');
@@ -97,7 +116,8 @@ export function sentryFieldAccounting(kind:string,data:any,rejection?:string):Fi
  return sourceLeaves(data).map(({path,bytes,redacted})=>{
   const disposition=redacted?'redacted':retained.has(path)?'mapped':changed.has(path)?'transformed':'unmapped';
   let reason=redacted?'Credential removed before upload; only an exporter marker remains.':rejection?'Record rejected; no native effects.':disposition==='mapped'?'Retained as native identity or source provenance.':disposition==='transformed'?'Converted, scrubbed or bounded by the native historical projection.':'Not represented in native history; private source only.';
-  if(disposition==='unmapped'&&!['projects','releases','issues','events'].includes(kind))reason='Unsupported source collection; no native target or authority is created.';
+  if(disposition==='unmapped'&&!['projects','releases','issues','events','members','teams','team-members','ownership'].includes(kind))reason='Unsupported source collection; no native target or authority is created.';
+  if(['members','teams','team-members','ownership'].includes(kind)&&['mapped','transformed'].includes(disposition))reason='Retained or converted for pending, disabled review only; no invitation, trust, access or live ownership is created.';
   if(disposition==='unmapped'&&kind==='events'&&path.includes('/vars/'))reason='Frame locals are not forwarded by the historical API adapter.';
   return {path,bytes,disposition,reason};
  });

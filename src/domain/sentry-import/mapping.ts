@@ -1,3 +1,4 @@
+import { memberIdentity, proposalId, timestamp } from '../members/import-model';
 import { sha256, canonicalJson } from '../../modules/import-kit/src/provenance/identity.ts';
 import type { ImportMapping, MappingResult, SourceBundle, SourceRecord } from '../../modules/import-kit/src/types.ts';
 import { identity, scrub } from '../privacy.ts';
@@ -80,6 +81,49 @@ export function organizationMapping(bundle:SourceBundle,operationKey:string,vend
         const seen=new Set<string>();
         for(const linked of data.projects){const slug=sourceText(linked.slug,'release project');if(seen.has(slug))continue;seen.add(slug);if(!projects.has(slug))throw new Error('Release project missing');const key=JSON.stringify([slug,name]);if((distSets.get(key)?.size??0)>1)throw new Error('Multiple distributions for one release are outside the native release contract');const build=[...distSets.get(key)??[]][0]??absentDist;const project=projectId(org,slug);
           result.effects.push(...effects('release',JSON.stringify([project,name]),{project,name,seq:seqs.get(key)!,build,created:time(data.dateCreated)},{organization:org,project:slug,id:name}).effects)}
+        return result;
+      }
+      if(vendor==='sentry'&&['members','teams','team-members','ownership'].includes(record.kind)){
+        const available=[...projects.keys()].filter(slug=>!projectErrors.has(slug));
+        if(!available.length)throw new Error('Roster requires an accepted project for erasure custody');
+        const sourceTeams=bundle.records.filter(r=>r.kind==='teams').map(r=>(r.payload as any).data);
+        const teamProjects=(team:any)=>available.filter(slug=>{
+          const row=projects.get(slug);
+          return Array.isArray(row.teams)&&row.teams.some((t:any)=>t.id===team.id||t.slug===team.slug)
+            || Array.isArray(team.projects)&&team.projects.some((p:any)=>p.slug===slug);
+        });
+        if(record.kind==='team-members')return {effects:[],unmapped:[{reason:'Team membership is represented by the pending roster scopes; no access is granted.'}]};
+        let kind:string,payload:any,slug:string,created:number;
+        if(record.kind==='members'){
+          kind='member';const member=memberIdentity(data),scopes=new Map<string,string>(),teamIds:string[]=[];
+          for(const team of sourceTeams){
+            const linked=bundle.records.filter(r=>r.kind==='team-members'&&(r.payload as any).team===team.slug&&(r.payload as any).data.id===data.id);
+            if(!linked.length)continue;
+            teamIds.push(sourceText(team.id,'team id'));
+            for(const r of linked){const role=(r.payload as any).data.teamRole;if(!['member','contributor','admin'].includes(role))throw new Error('Unsupported source team role; no scope is broadened');
+              if(member.projectRole)for(const project of teamProjects(team))scopes.set(project,scopes.get(project)==='maintainer'||member.projectRole==='maintainer'||role==='admin'?'maintainer':'member');}
+          }
+          slug=[...scopes.keys()].sort()[0]??available[0];created=member.sourceCreated;
+          payload={...member,sourceId:data.id,sourceRole:data.orgRole,teamIds,grants:[...scopes].sort().map(([slug,role])=>({project:projectId(org,slug),role})),
+            dropped:['user (including verified email, SSO, password and 2FA trust)','flags','inviteStatus','inviterName'],
+            sourceUserId:typeof data.user?.id==='string'?data.user.id:null};
+        }else if(record.kind==='teams'){
+          kind='team';sourceText(data.id,'team id');sourceText(data.slug,'team slug');sourceText(data.name,'team name');created=timestamp(data.dateCreated);
+          const linked=teamProjects(data);slug=linked[0]??available[0];
+          payload={sourceId:data.id,slug:data.slug,name:data.name,projects:linked.map(slug=>projectId(org,slug)),
+            memberIds:bundle.records.filter(r=>r.kind==='team-members'&&(r.payload as any).team===data.slug).map(r=>(r.payload as any).data.id),dropped:['access','hasAccess','isMember','teamRole','flags','avatar']};
+        }else{
+          kind='ownership';slug=sourceText(p.project,'ownership project');if(!projects.has(slug)||projectErrors.has(slug))throw new Error('Ownership project missing or rejected');
+          created=timestamp(data.dateCreated);timestamp(data.lastUpdated);
+          if(typeof data.raw!=='string'||!data.schema||!Array.isArray(data.schema.rules))throw new Error('Ownership raw and schema required');
+          payload={...data,enabled:false,sourceId:slug,sourceRevision:data.lastUpdated,
+            dropped:['isActive (disabled)','autoAssignment (not activated)','codeownersAutoSync (no provider consent or fetch)']};
+        }
+        const sourceId=sourceText(kind==='ownership'?slug:data.id,'source id'),id=proposalId(org,kind,sourceId);
+        const result=effects('import-proposal',id,{id,project:projectId(org,slug),kind,payload:canonicalJson(payload),state:'pending',version:1,created},{organization:org,project:slug,id:sourceId});
+        result.unmapped=omitted(data,record.kind==='members'?['id','email','name','orgRole','pending','expired','dateCreated','user']:record.kind==='teams'?['id','slug','name','dateCreated','projects']:['raw','schema','dateCreated','lastUpdated']);
+        if(record.kind==='members')result.unmapped.push({field:'user',reason:'User identity is retained only for ownership matching. Verification, SSO, 2FA, sessions and credentials confer no trust.'});
+        if(record.kind==='ownership')result.unmapped.push({field:'schema',reason:'Exact rules are disabled proposals. Unsupported matchers and unresolved owners require native review; source-order preview is not a repository revision.'});
         return result;
       }
       if(!['issues','events'].includes(record.kind))return {effects:[],unmapped:[{reason:'Unsupported collection retained in the private source journal, without native effects.'}]};
