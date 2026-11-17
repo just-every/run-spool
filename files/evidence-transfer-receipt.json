@@ -1,0 +1,9 @@
+{
+  "repository": "just-every/run-spool",
+  "ref": "refs/heads/evidence/gr-mt-spool-dep-4",
+  "head": "dc47a0e592437181052f9e7a135aea4b3dfde52e",
+  "productHead": "3a154292e69253edb1d3b786a75fcd1c39047bc7",
+  "productCheckoutPreserved": true,
+  "evidenceLine": "EVIDENCE repo=just-every/run-spool ref=refs/heads/evidence/gr-mt-spool-dep-4 head=dc47a0e592437181052f9e7a135aea4b3dfde52e",
+  "publication": "report-only; does not grant READY"
+}

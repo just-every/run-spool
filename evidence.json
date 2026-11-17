@@ -7,10 +7,10 @@
       "sha256": "8193ceabf0a4cd38724fcefae895e33fee542c0c65a2d3b139c286bec5f66cf5"
     },
     {
-      "blob": "f2f2da6855775771e72e5f8c144863c0e5808f04",
-      "bytes": 9947,
+      "blob": "cba0ed5364ddcbf6cc3fd716397c3849b86faf6c",
+      "bytes": 10336,
       "path": "REPORT.md",
-      "sha256": "43fe2b0d29b2295fd28123afb0800b14b8655a50d9d47a3eb1fc770734a51e75"
+      "sha256": "c3813bc0bc4b31beab5fed0c59f4aaf6003ad2111b121d3f0b27fafe872947a3"
     },
     {
       "blob": "e1bc93fd2ae86fc8401d59d917adc05ca0b6f4ab",
@@ -73,6 +73,12 @@
       "sha256": "07ead69e6d89c174641a1405b053605920a148ba0a84f1db37f25942f3ae8bcb"
     },
     {
+      "blob": "8aca748e0b895cb66641d405446eea97c879c1da",
+      "bytes": 442,
+      "path": "evidence-transfer-receipt.json",
+      "sha256": "483d16a7d2d3a9de01dadd6f6ebe01d11d499ce175c8d0b0e4ff24d9b1daa266"
+    },
+    {
       "blob": "c126d0c189b76e70e891d483f32ddfff28a9d745",
       "bytes": 490,
       "path": "identity-receipt.json",
@@ -89,6 +95,12 @@
       "bytes": 974,
       "path": "log-manifest.json",
       "sha256": "8e9e22d0203cfd71ab4e10d9e4e77b054f213f35ae1638ef17b48f9b595f1cb6"
+    },
+    {
+      "blob": "6911a2dc99b39e3159b72a18aad717ed8c42d77f",
+      "bytes": 273,
+      "path": "private-cleanup-receipt.json",
+      "sha256": "bd43802caa0d93e754e02aebb173df5398e570265b001c6f4771bef52cbec3e6"
     },
     {
       "blob": "706f16ba0924160ac9ce07eeedc9e9f86f7f907f",
