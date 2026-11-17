@@ -45,6 +45,8 @@ rer dev
 
 The `--answers` path must be relative and contained inside the checkout. Absolute paths, `..` traversal and symlinks are refused; the file must be owned by you, regular, unshared by hard links and readable/writable only by you (`0600`). `.rer/` is already ignored by this checkout. Do not place the file in a shared directory or commit it.
 
+If you opened the app address and cannot sign in as the local owner, open a terminal in your `run-spool` folder and run `~/.local/bin/rer dev --as owner`. Open the private sign-in link it prints on this computer and keep that link private. After registering a release in **Releases**, the confirmation beside **Register release** names the release; **Return to capture test** takes you back to **Capture**. — sd, 2026-11-17.
+
 ## Your first project
 
 The first time you open Spool, `/setup` offers project creation or archive restore. For a new project, give it a name and a short identifier, such as `web-app`. If you are moving existing evidence, choose **Restore a private archive** before creating a project.
