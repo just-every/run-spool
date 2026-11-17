@@ -11,7 +11,18 @@
   "utc": "2026-11-17T18:57:01.246216+00:00",
   "pr": null,
   "limitations": [
+    "ALERT-001 requires absent-session preview refusal; requested behavior changes that requirement, requiring clause/release reconciliation outside this no-release-metadata lease",
     "Sentry source rule carry has no native mapping on supplied main",
     "validate:release is not a package script"
-  ]
+  ],
+  "taskDisposition": "BLOCKED",
+  "lastObservedCI": {
+    "conclusion": null,
+    "head_sha": "dfd4d220dccf5a044c46613260e5b8f6cdf6a091",
+    "html_url": "https://github.com/just-every/run-spool/actions/runs/44153158707",
+    "status": "in_progress",
+    "utc": "2026-11-17T19:11:20.020596+00:00",
+    "run": 44153158707,
+    "calls": 4
+  }
 }

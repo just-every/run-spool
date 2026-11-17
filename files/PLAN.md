@@ -13,3 +13,5 @@ No contract clause claimed; this is a move-in fault fix (main-pack-dedup-1, 17 N
 7. Keep full non-secret results/receipts outside product source and publish the explicit packet to the separate evidence ref.
 
 Scope finding: main at 3b7a3ebe545f3bd9c6a979ca04d5687c6a375b09 has no Sentry native alert-rule target or apply mapping: organizationMapping handles project/release/issue/event; unsupported collections remain private source only. A future rule-carry round must use the waiting enablement when that path exists. Do not change native archive restore's intentional disabled-rule safety policy or invent a source-to-destination authorization mapping.
+
+Stop condition reached after preserving the candidate: ALERT-001 explicitly requires preview refusal for a session condition without session data. The requested waiting behavior changes that requirement. The brief requires STOP/BLOCKED for a meaning change needing a RELEASE.json entry, and prohibits editing release metadata in this lease. Keep product work stopped, preserve the pushed branch, record the exact CI result and publish the corrected complete evidence packet.
