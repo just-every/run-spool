@@ -1,0 +1,28 @@
+{
+  "runId": 44122879533,
+  "jobId": 134179490118,
+  "job": "verify (tunnel)",
+  "command": "pnpm test:sentry:sdk",
+  "test": "tests/checkin-flow.mjs:78 checkInFlow",
+  "actual": 3,
+  "expected": 4,
+  "outcome": "check_in_routed",
+  "scope": "unchanged Sentry check-in journey; no causal link to the ip-address upgrade established",
+  "propagatedFailures": [
+    "shards (spool)",
+    "verify"
+  ],
+  "contractDocsExceptionApplicable": false,
+  "unchangedFilesVerified": [
+    "tests/checkin-flow.mjs",
+    "tests/sentry-sdk.mjs",
+    "src/domain/checkins/forward.ts",
+    "src/domain/checkins/intake.ts",
+    "src/domain/checkins/outcomes.ts"
+  ],
+  "jobConclusionCounts": {
+    "success": 25,
+    "skipped": 4,
+    "failure": 3
+  }
+}

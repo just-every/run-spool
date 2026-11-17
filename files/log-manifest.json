@@ -1,0 +1,36 @@
+{
+  "author": "Run Edit Run fleet",
+  "date": "2026-11-17",
+  "logs": [
+    {
+      "file": "install.log",
+      "bytes": 1036,
+      "sha256": "2d91bf5c60aa31ecb3c74214ec1853721e53377b0f9d8d0b79ff0495201c4653"
+    },
+    {
+      "file": "build.log",
+      "bytes": 14280,
+      "sha256": "780c687dc5c567b4a786d11ac09ad2a2d70302583ffb3b68df54b493c26a799e"
+    },
+    {
+      "file": "typecheck.log",
+      "bytes": 125,
+      "sha256": "4a3c53cb2e7c6cf53626659b1d9251060f3771b56f6fd440ee2e162251b0df87"
+    },
+    {
+      "file": "dependency-smoke.log",
+      "bytes": 249,
+      "sha256": "c2c99dee71224a6d49482e3a370719c7929e47c82b2109e8857d333103e8ac9e"
+    },
+    {
+      "file": "source-lock.log",
+      "bytes": 478847,
+      "sha256": "492a1e4b25c8c3d70e616e87c3881a0282b50b319e473dea02233670699f9627"
+    },
+    {
+      "file": "source-check.log",
+      "bytes": 479021,
+      "sha256": "6ff8bf5d7c8242a7df3e8e6abcd28f05fb0d6fc9532657334d0ab2dc22f7609e"
+    }
+  ]
+}

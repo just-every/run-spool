@@ -1,0 +1,68 @@
+{
+  "author": "Run Edit Run fleet",
+  "date": "2026-11-17",
+  "base": "6263ba70f1d0fce4ea1df7e6bf7b4f0d827489e1",
+  "head": "3a154292e69253edb1d3b786a75fcd1c39047bc7",
+  "branch": "cloud/gr-mt-spool-dep-4",
+  "node": "22.20.0",
+  "pnpm": "10.12.4",
+  "dependencyChain": [
+    "@errors/agent",
+    "@modelcontextprotocol/sdk@1.32.1",
+    "express-rate-limit@8.7.1",
+    "ip-address@10.7.6"
+  ],
+  "beforeVersions": [
+    "10.7.3"
+  ],
+  "afterVersions": [
+    "10.7.6"
+  ],
+  "vulnerableVersionCountBefore": 1,
+  "vulnerableVersionCountAfter": 0,
+  "changedFiles": [
+    "pnpm-lock.yaml",
+    "sources.lock.json"
+  ],
+  "unrelatedPackageChanges": 0,
+  "contractClauseChanges": 0,
+  "permanentTestChanges": 0,
+  "commands": [
+    {
+      "command": "pnpm --recursive update ip-address --depth Infinity --lockfile-only",
+      "exit": 0
+    },
+    {
+      "command": "pnpm install --frozen-lockfile --network-concurrency=2 --child-concurrency=2",
+      "exit": 0
+    },
+    {
+      "command": "cloud_run npx -y @runeditrun/rer setup --owner-email fleet@runeditrun.com --non-interactive",
+      "exit": 0
+    },
+    {
+      "command": "cloud_run npx -y @runeditrun/rer build",
+      "exit": 0
+    },
+    {
+      "command": "pnpm typecheck",
+      "exit": 0
+    },
+    {
+      "command": "cloud_run node <packet>/dependency-smoke.mjs",
+      "exit": 0
+    },
+    {
+      "command": "node scripts/edition-authoring/cli.mjs lock",
+      "exit": 0
+    },
+    {
+      "command": "pnpm source:check",
+      "exit": 0
+    },
+    {
+      "command": "git diff --check",
+      "exit": 0
+    }
+  ]
+}

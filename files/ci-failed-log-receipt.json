@@ -1,0 +1,7 @@
+{
+  "command": "gh run view 44122879533 --repo just-every/run-spool --job 134179490118 --log-failed",
+  "exit": 0,
+  "runId": 44122879533,
+  "jobId": 134179490118,
+  "reads": 1
+}

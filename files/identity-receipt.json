@@ -1,0 +1,14 @@
+{
+  "command": "git log origin/main..HEAD --format=\"%an <%ae>%n%cn <%ce>%n%(trailers:only,unfold)\"",
+  "scope": "all reachable candidate commits including side parents",
+  "status": "passed",
+  "commits": [
+    {
+      "sha": "3a154292e69253edb1d3b786a75fcd1c39047bc7",
+      "author": "Run Edit Run fleet <fleet@runeditrun.com>",
+      "committer": "Run Edit Run fleet <fleet@runeditrun.com>",
+      "trailers": [],
+      "message": "Upgrade transitive ip-address to 10.7.6"
+    }
+  ]
+}

@@ -1,0 +1,7 @@
+{
+  "status": "cannot",
+  "sha": "3a154292e69253edb1d3b786a75fcd1c39047bc7",
+  "summary": "Patched ip-address 10.7.3 to 10.7.6 and published the scoped fix, but exact-SHA Verify 44122879533 failed the unchanged checkInFlow routed-outcome assertion (3 versus 4); landing is blocked pending CI triage.",
+  "tests": "Frozen install, rer setup, rer build, typecheck, IPv6 parsing/zone and HTTP rate-limit smoke, source lock/check and publication scan all passed; publication COMPLETE/PASS with zero findings. Exact-SHA Verify failed verify (tunnel): pnpm test:sentry:sdk, tests/checkin-flow.mjs:78; aggregate shards (spool) and verify also failed. Failed assertion log read once; no re-run, assertion weakening or unrelated application change.",
+  "security": true
+}

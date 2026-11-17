@@ -1,0 +1,55 @@
+{
+  "branch": "cloud/gr-mt-spool-dep-4",
+  "head": "3a154292e69253edb1d3b786a75fcd1c39047bc7",
+  "base": "6263ba70f1d0fce4ea1df7e6bf7b4f0d827489e1",
+  "shallow": false,
+  "commits": 1,
+  "cleanTrackedTree": true,
+  "diffStat": "pnpm-lock.yaml    | 8 ++++----\n sources.lock.json | 2 +-\n 2 files changed, 5 insertions(+), 5 deletions(-)",
+  "productPushed": true,
+  "ciRunIds": [
+    44122879533
+  ],
+  "prUrl": null,
+  "pushedHead": "3a154292e69253edb1d3b786a75fcd1c39047bc7",
+  "publicationScan": {
+    "status": "PASS",
+    "complete": true,
+    "findings": 0
+  },
+  "remoteRefVerified": true,
+  "ciStatus": "completed",
+  "ciConclusion": "failure",
+  "ciUrl": "https://github.com/just-every/run-spool/actions/runs/44122879533",
+  "ready": false,
+  "blockers": [
+    {
+      "runId": 44122879533,
+      "jobId": 134179490118,
+      "job": "verify (tunnel)",
+      "command": "pnpm test:sentry:sdk",
+      "test": "tests/checkin-flow.mjs:78 checkInFlow",
+      "actual": 3,
+      "expected": 4,
+      "outcome": "check_in_routed",
+      "scope": "unchanged Sentry check-in journey; no causal link to the ip-address upgrade established",
+      "propagatedFailures": [
+        "shards (spool)",
+        "verify"
+      ],
+      "contractDocsExceptionApplicable": false,
+      "unchangedFilesVerified": [
+        "tests/checkin-flow.mjs",
+        "tests/sentry-sdk.mjs",
+        "src/domain/checkins/forward.ts",
+        "src/domain/checkins/intake.ts",
+        "src/domain/checkins/outcomes.ts"
+      ],
+      "jobConclusionCounts": {
+        "success": 25,
+        "skipped": 4,
+        "failure": 3
+      }
+    }
+  ]
+}

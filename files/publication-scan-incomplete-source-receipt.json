@@ -1,0 +1,9 @@
+{
+  "head": "3a154292e69253edb1d3b786a75fcd1c39047bc7",
+  "scannerSourceHead": "513669ac81ac15506740ca9d2089a1c753e03455",
+  "scannerAcquisition": "gh api repository tarball; no Base clone",
+  "gitleaks": "8.30.1; upstream archive SHA-256 verified",
+  "exit": 1,
+  "seconds": 386.77,
+  "command": "node <Base scanner>/scripts/publish-check.mjs --repo <product clone> --ref HEAD --public-base https://github.com/just-every/run-spool#main --project just-every/spool --repository https://github.com/just-every/run-spool --timeout-seconds 600"
+}

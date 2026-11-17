@@ -1,0 +1,10 @@
+{
+  "path": "/home/agent/rer-consolidation/work/gr-mt-spool-dep-4/recovery/gr-mt-spool-dep-4.bundle",
+  "head": "3a154292e69253edb1d3b786a75fcd1c39047bc7",
+  "sha256": "2178898dd39a7690f37c9993acae0d397c2f4176cfda5c24aba264792efd5e75",
+  "verified": true,
+  "productPushed": true,
+  "pushRejected": false,
+  "bundleContains": "Git history and refs only; no generated runtime state or credential file",
+  "cloneCleanup": "after evidence publication; verified bundle retained outside clone"
+}

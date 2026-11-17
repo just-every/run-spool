@@ -1,0 +1,93 @@
+{
+  "head": "3a154292e69253edb1d3b786a75fcd1c39047bc7",
+  "repository": "just-every/run-spool",
+  "runId": 44122879533,
+  "calls": [
+    {
+      "call": 1,
+      "observedAt": "2026-11-17T16:11:31.519299+00:00",
+      "endpoint": "repos/just-every/run-spool/actions/runs?head_sha=3a154292e69253edb1d3b786a75fcd1c39047bc7&per_page=100",
+      "runs": [
+        {
+          "id": 44122879533,
+          "name": "Verify",
+          "event": "push",
+          "status": "in_progress",
+          "conclusion": null,
+          "head_sha": "3a154292e69253edb1d3b786a75fcd1c39047bc7",
+          "html_url": "https://github.com/just-every/run-spool/actions/runs/44122879533"
+        }
+      ]
+    },
+    {
+      "call": 2,
+      "observedAt": "2026-11-17T16:16:32.087582+00:00",
+      "endpoint": "repos/just-every/run-spool/actions/runs/44122879533",
+      "run": {
+        "id": null,
+        "name": null,
+        "status": "in_progress",
+        "conclusion": null,
+        "head_sha": "3a154292e69253edb1d3b786a75fcd1c39047bc7",
+        "html_url": "https://github.com/just-every/run-spool/actions/runs/44122879533"
+      }
+    },
+    {
+      "call": 3,
+      "observedAt": "2026-11-17T16:21:32.658927+00:00",
+      "endpoint": "repos/just-every/run-spool/actions/runs/44122879533",
+      "run": {
+        "id": null,
+        "name": null,
+        "status": "in_progress",
+        "conclusion": null,
+        "head_sha": "3a154292e69253edb1d3b786a75fcd1c39047bc7",
+        "html_url": "https://github.com/just-every/run-spool/actions/runs/44122879533"
+      }
+    },
+    {
+      "call": 4,
+      "observedAt": "2026-11-17T16:26:33.123183+00:00",
+      "endpoint": "repos/just-every/run-spool/actions/runs/44122879533",
+      "run": {
+        "id": null,
+        "name": null,
+        "status": "in_progress",
+        "conclusion": null,
+        "head_sha": "3a154292e69253edb1d3b786a75fcd1c39047bc7",
+        "html_url": "https://github.com/just-every/run-spool/actions/runs/44122879533"
+      }
+    },
+    {
+      "call": 5,
+      "observedAt": "2026-11-17T16:31:33.613062+00:00",
+      "endpoint": "repos/just-every/run-spool/actions/runs/44122879533",
+      "run": {
+        "id": null,
+        "name": null,
+        "status": "in_progress",
+        "conclusion": null,
+        "head_sha": "3a154292e69253edb1d3b786a75fcd1c39047bc7",
+        "html_url": "https://github.com/just-every/run-spool/actions/runs/44122879533"
+      }
+    },
+    {
+      "call": 6,
+      "observedAt": "2026-11-17T16:36:34.083160+00:00",
+      "endpoint": "repos/just-every/run-spool/actions/runs/44122879533",
+      "run": {
+        "id": null,
+        "name": null,
+        "status": "completed",
+        "conclusion": "failure",
+        "head_sha": "3a154292e69253edb1d3b786a75fcd1c39047bc7",
+        "html_url": "https://github.com/just-every/run-spool/actions/runs/44122879533"
+      }
+    }
+  ],
+  "status": "completed",
+  "conclusion": "failure",
+  "maxManualCalls": 8,
+  "manualApiCallsBeforeWatcher": 1,
+  "scannerApiCalls": "scanner-managed GraphQL visibility queries; not instrumented"
+}

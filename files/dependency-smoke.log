@@ -1,0 +1,1 @@
+{"status":"passed","ordinaryIPv6AndZone":true,"oversizedMalformedZoneRefused":true,"zoneMilliseconds":69,"zoneDeadlineMilliseconds":5000,"sharedSubnetAndIndependentAddressStatuses":[200,200,429,200,200],"retryAfterPresent":true,"serverClosed":true}
