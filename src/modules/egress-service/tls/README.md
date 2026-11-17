@@ -3,7 +3,7 @@
 Production `egress.wasm` is built from [src/lib.rs](src/lib.rs) with Rust **1.90.0**, the
 `wasm32-unknown-unknown` target, wasm-bindgen **0.2.114**, and LLVM clang/llvm-ar
 **21.1.8**. `Cargo.lock` fixes every transitive crate. The direct TLS inputs are
-[rustls 0.23.45](https://docs.rs/rustls/0.23.45/rustls/),
+[rustls 0.23.46](https://docs.rs/rustls/0.23.46/rustls/),
 [ring 0.17.14](https://docs.rs/ring/0.17.14/ring/), and
 [webpki-roots 1.0.9](https://docs.rs/webpki-roots/1.0.9/webpki_roots/).
 The roots crate compiles its Mozilla trust-anchor snapshot into the module;
@@ -58,8 +58,9 @@ artifacts let ordinary Base verification and relocated edition checks run
 without requiring a Rust toolchain. Rebuild verification is an explicit release
 step; it is not a claim that every consumer's CI recompiles Rust.
 
-Production WASM is **605,169 bytes**. The complete 12-module Worker is **645,795 bytes**, including **8,715 bytes** of
-generated glue, as recorded with the OD08-1b evidence. Initial OD08-1b attempt 1 used
+Production WASM with rustls 0.23.46 is **618,505 bytes**. The OD08-1b evidence recorded
+**605,169 bytes** of production WASM and a **645,795-byte** 12-module Worker, including
+**8,715 bytes** of generated glue. Initial OD08-1b attempt 1 used
 rustls 0.23.35/webpki-roots 1.0.4; subsequent qualification uses the versions
 above. Byte reproducibility is demonstrated with the declared compiler toolchain,
 not claimed across arbitrary LLVM versions.
