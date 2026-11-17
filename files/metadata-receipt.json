@@ -1,0 +1,34 @@
+{
+  "author": "Run Edit Run fleet",
+  "date": "2026-11-17T03:12:19Z",
+  "status": "passed",
+  "main": "8d26df622ca844d93cfa9d13afeb601b3765e68d",
+  "baseline_tag": "v0.7.13",
+  "baseline_commit": "e35ebeca36a855cdbe7c0685b7c5324170d17a2a",
+  "versions": {
+    "before": "0.7.13",
+    "after": "0.7.14",
+    "previousVersion": "0.7.13"
+  },
+  "migration_count": {
+    "before": 102,
+    "after": 103
+  },
+  "new_migrations": [
+    "migrations/core/0109_feedback_review.sql"
+  ],
+  "existing_migrations_unchanged": true,
+  "rer_pin": "0.2.118",
+  "contract_status_changes": [],
+  "notes_equal_in_changelog_release_json_and_release_md": true,
+  "old_changelog_sections_preserved": true,
+  "release_md_created_because_absent": true,
+  "tests_added": 0,
+  "tests_removed": 0,
+  "typecheck_exit": 0,
+  "release_availability_observation": {
+    "tag_v0_7_14": "absent by git ls-remote",
+    "github_releases": "No v0.7.14 among the ten returned latest records; v0.7.13 latest published at 2026-11-16T14:00:22Z",
+    "api_calls": 1
+  }
+}

@@ -1,0 +1,54 @@
+8d26df6 Admit proven SDK-027 scale linearly on current main
+3308d2c Reapply SDK-004 feedback review linearly on current main
+e29a9f4 Keep unrelated capture bytes intact during selective erasure
+22befd6 Remove captured attention titles from erasure exports [skip ci]
+854f195 Recognize raw captured aliases against retained identity hashes [skip ci]
+5b920aa Exercise captured-text and identity queries in committed scale journey [skip ci]
+91ea11d Erase attributable captured copies and expose owner identity queries [skip ci]
+8d6c4e3 Use indexed occurrence lookups for erasure batch guards [skip ci]
+a037966 Join batched erasure payload updates by event identity
+25d5794 Qualify end-user search-tag erasure through the owner journey
+1b3f0b1 Match raw search tags against retained private identity hashes [skip ci]
+bce4ad6 Remove retained identity copies from searchable event tags [skip ci]
+2011d48 Verify erasure receipts, attached feedback and admitted-volume timing
+7632c3f Add owner-confirmed retained user erasure and archive fence [skip ci]
+e1bbf84 Upgrade transitive seroval to 1.6.11
+
+ docs/FEEDBACK.md                            |  85 +++++++++++-
+ docs/OWNER-ERASURE.md                       |  70 ++++++++++
+ docs/USER-IDENTITY.md                       | 114 ++++++++++++++++
+ management/integration/deployment-spec.json |   6 +
+ migrations/core/0109_feedback_review.sql    |   4 +
+ package.json                                |   3 +-
+ pnpm-lock.yaml                              |  23 ++--
+ sources.lock.json                           |  88 +++++++++----
+ src/domain/archive.ts                       |  10 +-
+ src/domain/erasure/archive.ts               |   2 +-
+ src/domain/erasure/end-user.ts              | 104 +++++++++++++++
+ src/domain/erasure/service.ts               |   6 +-
+ src/domain/feedback/admission.ts            |   4 +-
+ src/domain/feedback/archive.ts              |  16 ++-
+ src/domain/feedback/input.ts                |   7 +-
+ src/domain/feedback/private.ts              |  76 +++++++++++
+ src/domain/feedback/review.ts               |  84 ++++++++++++
+ src/domain/feedback/routes.ts               |   4 +
+ src/domain/identities/archive.ts            |   4 +-
+ src/domain/identities/erasure-preview.ts    |  69 +++++-----
+ src/domain/identities/erasure-search.ts     | 119 +++++++++++++++++
+ src/domain/identities/erasure-text.ts       |  29 ++++
+ src/domain/identities/routes.ts             |   9 ++
+ src/domain/identities/search.ts             |  22 ++++
+ src/domain/members/resolver.ts              |   3 +-
+ src/domain/portability.ts                   |  13 +-
+ src/ui/workbench/EndUserErasurePreview.tsx  |  74 ++++++++---
+ src/ui/workbench/FeedbackPanel.tsx          |  46 ++++++-
+ src/ui/workbench/SettingsView.tsx           |   3 +-
+ src/ui/workbench/feedback.css               |   6 +
+ tests/end-user-erasure-preview.mjs          | 145 ++++++++++++++++++--
+ tests/end-user-erasure-volume.mjs           |  80 +++++++++++
+ tests/feedback-flow.mjs                     | 198 +++++++++++++++++++++++++++-
+ tests/old-archive.mjs                       |  24 +++-
+ tests/repair-recovery/archive.mjs           |  12 +-
+ tests/runtimes/browser.mjs                  |   4 +-
+ tests/runtimes/feedback-proof.mjs           |   4 +-
+ 37 files changed, 1435 insertions(+), 135 deletions(-)

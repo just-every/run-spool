@@ -1,0 +1,51 @@
+{
+  "author": "Run Edit Run fleet",
+  "date": "2026-11-17 UTC",
+  "final_candidate": "1853e3b3b59d49853b5ee7678f851d6de8343fbf",
+  "checks_run_before_commit": true,
+  "head_during_local_checks": "8d26df622ca844d93cfa9d13afeb601b3765e68d",
+  "checked_working_files_equal_final_candidate": {
+    "CHANGELOG.md": "e1c1c6db7763ddee8d575197dbae0fdcc63e5e1d34de10d2daf09523ffa3eea7",
+    "RELEASE.json": "7fd9aadc37051c5b38ec94e03201e1527703d08cdcdb1cd01904d78f6ca44fa1",
+    "RELEASE.md": "c83a8f2ad07f7e57814c0e7d6f2448d794175d9c6b1954133cc0a061932f940e",
+    "package.json": "a55bfbcbda9fa6b8d2b5f0f6a082f33a1d283dc3adecfc6256759f3527bea67e",
+    "seed.json": "db0f7f28a05d8d5821ff038ca471ce8c9117b9ca2ba6aebfefb9c8d0b6d1b4e6",
+    "sources.lock.json": "1b20c417520d0dcee02f9f7d48594166b7d1ce1f0dde14476032810d7ca151f3"
+  },
+  "checks": [
+    {
+      "command": "pnpm typecheck",
+      "exit": 0,
+      "log": "typecheck.log",
+      "log_bytes": 188,
+      "log_sha256": "d24e643786b2318b8099f4214cf47f0a1b65f505e181e9651ab2a74c5ef9547d",
+      "log_modified_utc": "2026-11-17T03:11:13.427752+00:00"
+    },
+    {
+      "command": "pnpm run check -- --profile first-party",
+      "exit": 0,
+      "log": "package-check.log",
+      "log_bytes": 342,
+      "log_sha256": "03e6febf471f8473ce3e2c8f4f354fdc18c82ea4e4eda54b210bd79f2d41ad43",
+      "log_modified_utc": "2026-11-17T03:12:54.842286+00:00"
+    },
+    {
+      "command": "node scripts/edition-authoring/cli.mjs lock",
+      "exit": 0,
+      "log": "source-lock.log",
+      "log_bytes": 478527,
+      "log_sha256": "35fff91a06c460284bf9f916b68e6eafcd28f5df92c0e7ef51511b3de4fc75c8",
+      "log_modified_utc": "2026-11-17T03:12:23.686186+00:00"
+    },
+    {
+      "command": "pnpm source:check",
+      "exit": 0,
+      "log": "source-check.log",
+      "log_bytes": 478764,
+      "log_sha256": "737d4b05f727f781acde25e462c9d52967fee216c3958e087eb7d585dcd3eabb",
+      "log_modified_utc": "2026-11-17T03:12:25.154153+00:00"
+    }
+  ],
+  "exact_sha_gate": "GitHub Verify run 44008607802",
+  "full_suite_local": "not run; metadata-only touched checks plus typecheck, per instructions"
+}

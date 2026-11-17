@@ -1,0 +1,20 @@
+{
+  "status": "passed",
+  "changed_files": [
+    "CHANGELOG.md",
+    "RELEASE.json",
+    "RELEASE.md",
+    "package.json",
+    "seed.json",
+    "sources.lock.json"
+  ],
+  "lock_changed_entries": [
+    "CHANGELOG.md",
+    "RELEASE.json",
+    "RELEASE.md",
+    "package.json",
+    "seed.json"
+  ],
+  "secret_shaped_value_review": "passed",
+  "full_publication_scan": "Deferred to the fleet Mac per cloud task instructions; no COMPLETE cloud scan claimed."
+}

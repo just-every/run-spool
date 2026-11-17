@@ -1,0 +1,57 @@
+{
+  "repository": "just-every/run-spool",
+  "branch": "cloud/sd-spool-release-0-7-14",
+  "head": "1853e3b3b59d49853b5ee7678f851d6de8343fbf",
+  "base": "8d26df622ca844d93cfa9d13afeb601b3765e68d",
+  "parent_count": 1,
+  "product_commit_count": 1,
+  "identity_review": "passed",
+  "author": "Run Edit Run fleet <fleet@runeditrun.com>",
+  "committer": "Run Edit Run fleet <fleet@runeditrun.com>",
+  "trailers": [],
+  "push": "succeeded first attempt",
+  "working_tree": "clean",
+  "tag_created": false,
+  "release_created": false,
+  "pr_created": false,
+  "clauses_changed": [],
+  "source_lock_check": "passed",
+  "typecheck": "passed",
+  "package_check": "passed",
+  "setup": {
+    "status": "passed",
+    "migrations_applied": 103,
+    "owner": "fleet synthetic task owner",
+    "raw_private_setup_output_excluded": true
+  },
+  "ci": {
+    "runs": [
+      {
+        "conclusion": null,
+        "event": "push",
+        "head_branch": "cloud/sd-spool-release-0-7-14",
+        "head_sha": "1853e3b3b59d49853b5ee7678f851d6de8343fbf",
+        "html_url": "https://github.com/just-every/run-spool/actions/runs/44008607802",
+        "id": 44008607802,
+        "name": "Verify",
+        "status": "in_progress"
+      }
+    ],
+    "total_count": 1
+  },
+  "github_api_calls_used": 8,
+  "ci_latest": {
+    "observed_at": "2026-11-17T03:38:34.687023+00:00",
+    "run_id": 44008607802,
+    "github_api_calls_used": 8,
+    "conclusion": "success",
+    "head_sha": "1853e3b3b59d49853b5ee7678f851d6de8343fbf",
+    "html_url": "https://github.com/just-every/run-spool/actions/runs/44008607802",
+    "status": "completed"
+  },
+  "remote_product_ref_rechecked": true,
+  "remote_head": "1853e3b3b59d49853b5ee7678f851d6de8343fbf",
+  "terminal_product_status": "READY",
+  "terminal_line": "READY branch=cloud/sd-spool-release-0-7-14 head=1853e3b3b59d49853b5ee7678f851d6de8343fbf",
+  "completed_at_utc": "2026-11-17T03:39:18Z"
+}

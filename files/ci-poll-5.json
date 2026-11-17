@@ -1,0 +1,9 @@
+{
+  "observed_at": "2026-11-17T03:38:34.687023+00:00",
+  "run_id": 44008607802,
+  "github_api_calls_used": 8,
+  "conclusion": "success",
+  "head_sha": "1853e3b3b59d49853b5ee7678f851d6de8343fbf",
+  "html_url": "https://github.com/just-every/run-spool/actions/runs/44008607802",
+  "status": "completed"
+}
