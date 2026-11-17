@@ -1,3 +1,4 @@
+import { DownloadBackup } from './DownloadBackup';
 import { useRef } from 'react';
 import { Details } from './Details';
 import { download, useDraft, type Run } from './shared';
@@ -7,7 +8,7 @@ import { ownerFetch } from './client';
 export function ArchiveSettings({ busy, empty, run, refresh, allowDownload = true }: { busy: boolean; empty: boolean; run: Run; refresh: () => void; allowDownload?: boolean }) {
   const selection = useRef(0);
   const [restore, setRestore] = useDraft<any>('archive-restore', null), [error, setError] = useDraft('archive-error', ''), [result, setResult] = useDraft('archive-result', '');
-  return <section className="evidence"><h2>{allowDownload ? 'Archive and restore' : 'Choose your private archive'}</h2><p>Archives include private source maps. Owner sessions and credential grants are excluded. Restore requires an empty installation. Create new project keys after restoring.</p>{allowDownload && <button className="text-button" disabled={busy} onClick={() => void run(async () => { const response = await ownerFetch('/api/archive', { credentials: 'same-origin' }); if (!response.ok) throw new Error('Archive download failed. Sign in and try again.'); download(await response.text(), 'spool-private-archive.jsonl'); })}>Download private archive</button>}
+  return <section className="evidence"><h2>{allowDownload ? 'Archive and restore' : 'Choose your private archive'}</h2><p>Archives include private source maps. Owner sessions and credential grants are excluded. Restore requires an empty installation. Create new project keys after restoring.</p>{allowDownload && <DownloadBackup {...{busy,run}}/>}
     <label className="form-field">Archive to restore · max 16 MiB<input type="file" accept=".json,.jsonl,application/json,application/x-ndjson" aria-invalid={!!error} aria-describedby={error ? 'archive-error' : undefined} onChange={event => {
       const current = ++selection.current, file = event.target.files?.[0]; setRestore(null); setError(''); if (!file) return;
       void (async () => { try { if (file.size > 16 * 1024 * 1024) throw new Error('Use the local import command for archives over 16 MiB.'); const text = await file.text(); let preview: any; try { preview = JSON.parse(text.split('\n')[0]); if (preview.kind !== 'manifest') preview = JSON.parse(text); } catch { throw new Error('This file is not a readable Spool archive. Choose a private archive downloaded from Spool, or download it again.'); }

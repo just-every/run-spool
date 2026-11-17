@@ -5,3 +5,9 @@ export async function workbenchLink(page,name,exact=true){
  if(page.viewportSize().width<=760&&await menu.getAttribute('aria-expanded')!=='true')await menu.click();
  return page.getByRole('navigation',{name:'Workbench'}).getByRole('link',{name,exact});
 }
+
+export async function openAlertDetails(page) {
+ const details=page.locator('.alerts-view > details');
+ await details.waitFor({state:'attached'});
+ if(!await details.evaluate(element=>element.open))await details.locator(':scope > summary').click();
+}

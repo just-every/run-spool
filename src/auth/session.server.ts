@@ -1,3 +1,4 @@
+import { invitationPage } from './invitation.server';
 import { AuthError, createOperatorAuth, createAuthHandler, securityHeaders } from '../modules/operator-auth/index.mjs';
 import { readInput } from '../modules/operator-auth/input.mjs';
 import { createDependencies } from '../modules/dependencies/index.mjs';
@@ -55,7 +56,7 @@ export async function authResponse(request: Request, env: Bindings) {
  const config = authConfig(env), clientIp = () => request.headers.get('CF-Connecting-IP') ?? '';
  const claimOwner = (token: string) => createIdpOwnerClaimHandler({ db: env.DB, authConfig: config, clientIp, expectedPin: undefined })(new Request(config.origin + '/auth/owner-claim', { method: 'POST', headers: { Host: new URL(config.origin).host, Origin: config.origin, 'Content-Type': 'application/json' }, body: JSON.stringify({ token }) }));
  const linked = await createDependencies({ db: env.DB, origin: config.origin, name: 'Spool', provider: env.IDENTITY_PROVIDER || undefined, local: config.local, auth, claimOwner }).handle(request);
- return linked ?? createAuthHandler(auth)(request);
+ return invitationPage(request,env,auth,linked ?? await createAuthHandler(auth)(request));
 }
 export function ownerWrite(request: Request, env: Bindings) {
  const url = new URL(request.url);

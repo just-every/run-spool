@@ -1,3 +1,5 @@
+import { plural } from './readable';
+import { DownloadBackup } from './DownloadBackup';
 import { useEffect, useRef, useState } from 'react';
 import { Field, type Request, type Run } from './shared';
 import { ErasureCounts, ErasureReceipt, KeptOnPurpose } from './ErasureReceipt';
@@ -5,7 +7,7 @@ import { erasureTotal } from './erasureLabels';
 
 // Owner-only project erasure (ERASE-001, Base BASE-DATA-003): count-only preview, typed
 // confirmation, then a receipt with counts and times. Values never appear here.
-export function ProjectErasure({ project, request, run, busy, onErased }: { project: string; request: Request; run: Run; busy: boolean; onErased: (receipt: any) => void }) {
+export function ProjectErasure({ project, projectName, request, run, busy, onErased }: { project: string; projectName: string; request: Request; run: Run; busy: boolean; onErased: (receipt: any) => void }) {
   const [preview, setPreview] = useState<any>(null), [typed, setTyped] = useState(''), [receipt, setReceipt] = useState<any>(null);
   const [progressError, setProgressError] = useState('');
   useEffect(() => {
@@ -25,19 +27,22 @@ export function ProjectErasure({ project, request, run, busy, onErased }: { proj
   if (receipt) return <ErasureReceipt receipt={receipt} progressError={progressError} onContinue={() => onErased(receipt)} />;
   return <section className="evidence" aria-labelledby="erasure-title">
     <h2 id="erasure-title">Erase this project</h2>
-    <p>Erasure permanently deletes this project and everything recorded for it: occurrences, issues, releases, source maps, keys, origins, alerts and their delivery history, repairs, reproducers, fix workflows, exposure reports and Sentry import records. It cannot be undone.</p>
+    <p>Preview what you’ll delete before you confirm.</p>
     <button className="text-button" disabled={busy} onClick={() => void run(async () => { setPreview(await request(`/api/projects/${project}/erasure`)); setTyped(''); })}>Preview erasure</button>
     {preview && <>
-      <p role="status">{erasureTotal(preview.deleted)} rows will be deleted.</p>
-      <ErasureCounts title="Will be deleted" counts={preview.deleted} />
-      <ErasureCounts title="Kept without their project link" counts={preview.redacted} />
-      <KeptOnPurpose preview={preview} />
+      <p role="status">This deletes {projectName}: {preview.deleted.issues??0} {plural(preview.deleted.issues??0,'issue')}, {preview.deleted.events??0} {plural(preview.deleted.events??0,'error')}, {preview.deleted.credentials??0} {plural(preview.deleted.credentials??0,'key')}, {preview.deleted.alert_rules??0} {plural(preview.deleted.alert_rules??0,'alert rule')}. It can’t be undone.</p>
+      <DownloadBackup {...{busy,run}} label="Download a backup first"/>
+      <details><summary>Details</summary><p>{erasureTotal(preview.deleted)} rows will be deleted.</p>
+       <ErasureCounts title="Will be deleted" counts={preview.deleted} />
+       <ErasureCounts title="Kept without their project link" counts={preview.redacted} />
+       <KeptOnPurpose preview={preview} />
+      </details>
       {preview.hold ? <p role="alert">Another erasure is still running. Try again after it completes.</p> : <>
         <Field label={`Type ${project} to confirm`} value={typed} autoComplete="off" spellCheck={false} onChange={event => setTyped(event.target.value)} />
         <button className="danger-button" disabled={busy || typed !== project} onClick={() => void run(async () => {
           // The receipt heading takes focus as it mounts, so focus never passes through an empty frame.
           setReceipt(await request(`/api/projects/${project}/erasure`, 'POST', { confirm: typed, planHash: preview.planHash }));
-        })}>Erase project</button>
+        })}>Delete project</button>
       </>}
     </>}
   </section>;

@@ -75,6 +75,7 @@ try {
  // An existing capture key predates the loader migration; migrations preserve it too.
  const existingProject = (await rows(upgrade, 'SELECT id FROM projects ORDER BY created,id'))[0].id;
  await upgrade.prepare("INSERT INTO credentials(hash,project,kind,created,revoked) VALUES(?,?,'ingest',1,NULL)").bind('a'.repeat(64), existingProject).run();
+ await upgrade.prepare("INSERT INTO credentials(hash,project,kind,created,revoked) VALUES(?,?,'agent',2,9),(?,?,'deploy',3,NULL)").bind('b'.repeat(64),existingProject,'c'.repeat(64),existingProject).run();
  const oldTables = await rows(upgrade, "SELECT name,sql FROM sqlite_master WHERE type='table' AND name NOT LIKE 'sqlite_%' AND name NOT LIKE '_cf_%' ORDER BY name");
  const beforeUpgrade = new Map(await Promise.all(oldTables.map(async ({name}) => [name, canonicalRows(await rows(upgrade, `SELECT * FROM "${name}"`))])));
  const added = migrations.filter(migration => !released.some(old => old.name === migration.name));
@@ -85,7 +86,8 @@ try {
   const upgradedRows=await rows(upgrade, `SELECT * FROM "${name}"`);
   if(name==='feedback')assert.ok(upgradedRows.every(row=>row.private_data===null),'upgrade invents no contact, screenshot or reply consent for historical feedback');
   if(name==='alert_mail_jobs')assert.ok(upgradedRows.every(row=>row.agent_attribution===null),'upgrade never invents a first-send agent identity for historical mail');
-  assert.deepEqual(canonicalRows(name==='feedback'?upgradedRows.map(({private_data,...row})=>row):name==='alert_mail_jobs'?upgradedRows.map(({agent_attribution,...row})=>row):upgradedRows), beforeUpgrade.get(name), `populated upgrade preserves every pre-existing row: ${name}`);
+  if(name==='credentials')assert.ok(upgradedRows.every(row=>row.name===''&&row.last_used===null),'upgrade leaves historical key names blank and last use unknown');
+  assert.deepEqual(canonicalRows(name==='feedback'?upgradedRows.map(({private_data,...row})=>row):name==='alert_mail_jobs'?upgradedRows.map(({agent_attribution,...row})=>row):name==='credentials'?upgradedRows.map(({name,last_used,...row})=>row):upgradedRows), beforeUpgrade.get(name), `populated upgrade preserves every pre-existing row: ${name}`);
   const currentSql=(await upgrade.prepare("SELECT sql FROM sqlite_master WHERE type='table' AND name=?").bind(name).first()).sql;
   if(name==='audit_context'){
    assert.equal(currentSql,sql.replace(/\)\s*$/,', native_start INTEGER NOT NULL DEFAULT 0)'), 'native audit attribution adds only its declared default-zero cursor to the released context');
@@ -101,6 +103,10 @@ try {
    assert.equal(withoutColumn(currentSql,'private_data'),sql,'private review preserves all released feedback columns and constraints');
    const column=(await rows(upgrade,"PRAGMA table_info('feedback')")).find(column=>column.name==='private_data');
    assert.deepEqual({type:column.type,notnull:column.notnull,default:column.dflt_value},{type:'TEXT',notnull:0,default:'NULL'});
+  }else if(name==='credentials'){
+   assert.equal(withoutColumn(withoutColumn(currentSql,'last_used'),'name'),sql,'key metadata preserves every released credential column and constraint');
+   const columns=await rows(upgrade,"PRAGMA table_info('credentials')");
+   assert.deepEqual(columns.filter(column=>['name','last_used'].includes(column.name)).map(({name,type,notnull,dflt_value})=>({name,type,notnull,dflt_value})),[{name:'name',type:'TEXT',notnull:1,dflt_value:"''"},{name:'last_used',type:'INTEGER',notnull:0,dflt_value:null}]);
   }else if(name==='alerts'){
    assert.equal(currentSql.replace('issue TEXT REFERENCES issues(id)','issue TEXT NOT NULL REFERENCES issues(id)').replace(", CHECK((kind='metric' AND issue IS NULL) OR (kind<>'metric' AND issue IS NOT NULL))",''),sql,'metric feed changes only issue nullability and its kind constraint');
   }else if(name!=='spool_audit_events')assert.equal(currentSql,sql,`populated upgrade preserves released table schema: ${name}`);

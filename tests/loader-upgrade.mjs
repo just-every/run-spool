@@ -20,8 +20,11 @@ export async function loaderUpgrade({browser, applicationOrigin, dsns, defaults}
   await page.waitForFunction(()=>window.Sentry.getClient?.());
   await page.getByRole('button',{name:'Capture checkout error',exact:true}).click();await page.evaluate(()=>Sentry.flush(10000));
   const [issue]=await request(`/api/projects/${project.id}/issues`);assert.equal(issue.count,1,'the existing key captures before the additive upgrade');
+  const capturedKeys=await request(`/api/projects/${project.id}/keys`);
+  assert.deepEqual(capturedKeys.map(({last_used,...row})=>row),beforeKeys.map(({last_used,...row})=>row),'capture changes no key authority or name');
+  assert.ok(capturedKeys.every(row=>Number.isSafeInteger(row.last_used)&&row.last_used>=row.created),'successful capture records last use');
   await worker.migrate('0061_loader_settings.sql');
-  assert.deepEqual(await request(`/api/projects/${project.id}/keys`),beforeKeys,'the populated upgrade preserves existing capture keys');
+  assert.deepEqual(await request(`/api/projects/${project.id}/keys`),capturedKeys,'the populated upgrade preserves existing capture keys');
   const snapshot=await request(`/api/projects/${project.id}/keys/${await hash(key)}/loader`);
   assert.deepEqual(snapshot.settings,defaults,'existing keys acquire the same conservative defaults as new keys');
   const bundles=[];page.on('request',req=>{if(new URL(req.url()).pathname==='/spool-sentry-sdk.js')bundles.push(req.url())});

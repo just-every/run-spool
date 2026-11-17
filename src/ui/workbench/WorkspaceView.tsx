@@ -1,4 +1,4 @@
-import { Link } from '@tanstack/react-router';
+import { NewKeyDialog } from './NewKeyDialog';
 import { useEffect, useState, type ReactNode } from 'react';
 import { hrefFor, useDestination } from './location';
 import type { useProjectData } from './useProjectData';
@@ -25,7 +25,7 @@ export function WorkspaceView({ workspace, data, renderAlerts }: { workspace: Re
   const { projects, ownerName, access, revision, notice, readFailure, busy, run, refresh } = workspace;
   const route = useDestination(), project = route.project || projects[0]?.id || '', currentProject = projects.find(row => row.id === project);
   const attention = useAttention(project, data.issues);
-  const [freshKey, setFreshKey] = useDraft<{ project: string; value: string; dsn?: string; kind?: string } | null>('fresh-key', null);
+  const [freshKey, setFreshKey] = useState<{ project: string; value: string; dsn?: string; kind?: string; path: string } | null>(null);
   const [target, setTarget] = useDraft<(UploadTarget & { project: string }) | undefined>('upload-target', undefined);
   const onIssue = (id: string) => route.go(project, 'issues', id);
   // After an erasure the receipt stays on screen while the app moves to the project that remains, or to the start of a new one.
@@ -38,10 +38,10 @@ export function WorkspaceView({ workspace, data, renderAlerts }: { workspace: Re
   // Drop the erased project once the route has left it, so the switcher never offers it and no frame says it is unavailable.
   useEffect(() => { if (leaving && route.project !== leaving) { workspace.removeProject(leaving); setLeaving(''); refresh(); } }, [leaving, route.project]);
   useEffect(() => { if ((route.pathname === '/' || route.redirect) && projects.length && !leaving) route.go(project, 'issues', undefined, true); }, [route.pathname, route.redirect, projects.length, project, leaving]);
-  useEffect(() => { document.getElementById('content')?.focus({ preventScroll: true }); }, [route.pathname]);
+  useEffect(() => { document.getElementById(erased ? 'erasure-receipt' : 'content')?.focus({ preventScroll: true }); }, [route.pathname, erased]);
   useEffect(() => { document.title = `${access?.role === 'billing' ? 'Settings' : data.packet?.issue?.title ?? titles[route.view]} · Spool`; }, [route.view, data.packet?.issue?.title, access?.role]);
-  useEffect(() => { setFreshKey(value => value?.project === project ? value : null); }, [project]);
-  function created(row: any) { workspace.addProject({ id: row.id, name: row.name, role: 'owner' }); setFreshKey({ project: row.id, value: row.ingestKey, dsn: row.dsn, kind: 'ingest' }); route.go(row.id, 'capture'); refresh(); }
+  useEffect(() => { setFreshKey(value => value && value.project === project && value.path === route.pathname ? value : null); }, [project,route.pathname]);
+  function created(row: any) { workspace.addProject({ id: row.id, name: row.name, role: 'owner' }); setFreshKey({ project: row.id, value: row.ingestKey, dsn: row.dsn, kind: 'ingest', path: hrefFor(row.id,'capture') }); route.go(row.id, 'capture'); refresh(); }
   const billing = access?.role === 'billing';
   const projectRole = currentProject?.role ?? access?.projects.find(row => row.id === project)?.role;
   const readOnly = access?.role === 'read-only' || projectRole === 'read-only';
@@ -51,7 +51,7 @@ export function WorkspaceView({ workspace, data, renderAlerts }: { workspace: Re
   const controls = { project, busy, run, refresh, request: api };
   let content: ReactNode;
   if (access && (!projects.length || route.view === 'settings' || billing)) {
-    content = <SettingsView key={`settings-${project}`} {...controls} access={access} revision={revision} projects={projects} keys={data.keys} releases={data.releases} onCreated={created} onErased={onErased} onKey={grant => setFreshKey({ project, value: grant.key, dsn: grant.dsn, kind: grant.kind })} />;
+    content = <SettingsView key={`settings-${project}`} {...controls} access={access} revision={revision} projects={projects} keys={data.keys} releases={data.releases} onCreated={created} onErased={onErased} onKey={grant => setFreshKey({ project, value: grant.key, dsn: grant.dsn, kind: grant.kind, path: route.pathname })} />;
   } else if (route.view === 'issues') {
     content = issueView
       ? <IssueView key={route.issue} {...controls} readOnly={readOnly} manageProject={manageProject} manageOrganization={manageOrganization} packet={data.packet} panels={data.panels} status={data.packetStatus} alert={data.packet ? issueAlert(data.packet.issue) : undefined} onViewed={attention.markViewed} rail={data.packet && <EvidenceRail packet={data.packet} outcomes={data.outcomes} />} onUpload={(release, debugId) => { setTarget({ id: crypto.randomUUID(), project, release, debugId, issue: route.issue! }); route.go(project, 'releases'); }} />
@@ -72,7 +72,7 @@ export function WorkspaceView({ workspace, data, renderAlerts }: { workspace: Re
         <header className="hero"><div className="crumb">{currentProject?.name ?? 'Your installation'} / {billing ? 'Settings' : titles[route.view]}</div><h1>{billing || (!projects.length && access?.role !== 'owner' && access?.role !== 'admin') ? 'Settings' : !projects.length ? 'Create your first project' : issueView ? data.packet?.issue?.title ?? 'Issue' : titles[route.view]}</h1>{!issueView && (billing || route.view === 'settings' || route.view === 'alerts') && <p className="description">{billing || route.view === 'settings' ? descriptions.settings : descriptions.alerts}</p>}</header>
         {(readFailure || data.failed) && <div role="alert" className="callout status-notice"><p><strong>{data.stale || readFailure ? 'Retained information is stale.' : 'Evidence unavailable.'}</strong> {data.failed || readFailure}</p><button className="text-button" disabled={busy} onClick={refresh}>Try again</button></div>}
         {notice && <p role="alert" className="callout status-notice">{notice}</p>}
-        {!readOnly && !billing && !(route.view === 'capture' && freshKey?.kind === 'ingest') && freshKey && freshKey.project === project && (freshKey.kind === 'agent' ? <AgentHandoff project={project} agentKey={freshKey.value} onDismiss={() => setFreshKey(null)} /> : <div className="callout secret-key"><strong>Copy this key now. It stays in this signed-in page’s memory until you dismiss it or reload.</strong><div data-secret="project-key"><CodeBlock label="Project key" code={freshKey.value} /></div>{freshKey.kind === 'ingest' && <p>Use it as <code>ingestKey</code> in the Spool SDK’s <code>init</code>, then <Link className="inline-link" to={hrefFor(project, 'capture') as any}>open Capture to copy and test this key</Link>.</p>}{freshKey.dsn && <SentryIntake dsn={freshKey.dsn} />}{freshKey.kind === 'deploy' && <p>Store this deploy key in your CI secret store. Pass its environment variable name to the source-map CLI or build plugin.</p>}<button onClick={() => setFreshKey(null)}>Dismiss key</button></div>)}
+        {!readOnly && !billing && route.view !== 'capture' && freshKey && freshKey.project === project && freshKey.path === route.pathname && <NewKeyDialog onDismiss={()=>setFreshKey(null)}>{freshKey.kind==='agent'?<AgentHandoff project={project} agentKey={freshKey.value} onDismiss={()=>setFreshKey(null)}/>:<><div data-secret="project-key"><CodeBlock label="Project key" code={freshKey.value}/></div>{freshKey.dsn&&<SentryIntake dsn={freshKey.dsn}/>}</>}</NewKeyDialog>}
         {erased && <ErasureReceipt receipt={erased.receipt} onContinue={() => { setErased(null); route.go(erased.next, 'issues'); }} />}
         {content}
       </>}
