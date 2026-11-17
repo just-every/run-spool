@@ -1,0 +1,9 @@
+{
+  "at": "2026-11-17T16:15:01.017Z",
+  "checks": [
+    "prioritySearchFlow + prioritySearchScreen(1440)",
+    "reviewInboxFlow",
+    "releaseIdentityFlow"
+  ],
+  "status": "passed"
+}

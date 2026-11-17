@@ -1,0 +1,46 @@
+{
+  "head": "6263ba70f1d0fce4ea1df7e6bf7b4f0d827489e1",
+  "results": [
+    {
+      "width": 1440,
+      "item": "D9",
+      "disabled": true
+    },
+    {
+      "width": 390,
+      "item": "D9",
+      "disabled": true
+    },
+    {
+      "width": 1440,
+      "item": "D15",
+      "firstRowY": 978.953125
+    },
+    {
+      "width": 1440,
+      "item": "D5,D7,D16",
+      "assignmentY": 4188.640625,
+      "resolutionVisible": true
+    },
+    {
+      "width": 390,
+      "item": "D15",
+      "firstRowY": 1368.5
+    },
+    {
+      "width": 390,
+      "item": "D5,D7,D16",
+      "assignmentY": 5511.09375,
+      "resolutionVisible": true
+    },
+    {
+      "item": "D6",
+      "sameIssue": false,
+      "resolvedSetupState": "resolved"
+    },
+    {
+      "item": "D22",
+      "retryOnInvalidKey": true
+    }
+  ]
+}

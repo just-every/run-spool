@@ -1,0 +1,63 @@
+{
+  "head": "27fad43daffe62ee44efec89b0f5cadde0177a42",
+  "repository": "just-every/run-spool",
+  "calls": 6,
+  "observations": [
+    {
+      "status": "in_progress",
+      "conclusion": null,
+      "head_sha": "27fad43daffe62ee44efec89b0f5cadde0177a42",
+      "html_url": "https://github.com/just-every/run-spool/actions/runs/44130811317",
+      "observed_at": "2026-11-17T16:54:14Z"
+    },
+    {
+      "conclusion": null,
+      "head_sha": "27fad43daffe62ee44efec89b0f5cadde0177a42",
+      "html_url": "https://github.com/just-every/run-spool/actions/runs/44130811317",
+      "status": "in_progress",
+      "observed_at": "2026-11-17T16:59:14Z"
+    },
+    {
+      "conclusion": null,
+      "head_sha": "27fad43daffe62ee44efec89b0f5cadde0177a42",
+      "html_url": "https://github.com/just-every/run-spool/actions/runs/44130811317",
+      "status": "in_progress",
+      "observed_at": "2026-11-17T17:04:14Z"
+    },
+    {
+      "conclusion": null,
+      "head_sha": "27fad43daffe62ee44efec89b0f5cadde0177a42",
+      "html_url": "https://github.com/just-every/run-spool/actions/runs/44130811317",
+      "status": "in_progress",
+      "observed_at": "2026-11-17T17:09:14Z"
+    },
+    {
+      "conclusion": null,
+      "head_sha": "27fad43daffe62ee44efec89b0f5cadde0177a42",
+      "html_url": "https://github.com/just-every/run-spool/actions/runs/44130811317",
+      "status": "in_progress",
+      "observed_at": "2026-11-17T17:14:14Z"
+    },
+    {
+      "conclusion": "failure",
+      "head_sha": "27fad43daffe62ee44efec89b0f5cadde0177a42",
+      "html_url": "https://github.com/just-every/run-spool/actions/runs/44130811317",
+      "status": "completed",
+      "observed_at": "2026-11-17T17:19:14Z"
+    }
+  ],
+  "run_id": 44130811317,
+  "ended_at": "2026-11-17T17:19:14Z",
+  "conclusion": "failure",
+  "total_task_api_calls": 10,
+  "failed_log_command": "gh run view 44130811317 --repo just-every/run-spool --log-failed",
+  "failed_log_exit": 0,
+  "replacement_candidate": {
+    "head": "a510bbb5505f8468c833bb42cd43350396438f83",
+    "branch": "cloud/sd-spool-design-issues-1",
+    "product_push_verified": true,
+    "status": "unobserved",
+    "reason": "Ten-call task GitHub API budget exhausted; do not infer success.",
+    "local_correction": "owner-setup event derives registered release/build from captured sample; owner-setup flow exit 0"
+  }
+}

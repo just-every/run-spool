@@ -1,0 +1,88 @@
+{
+  "schema": 1,
+  "author": "Run Edit Run fleet",
+  "at": "2026-11-17T17:32:11.637069+00:00",
+  "final_candidate": {
+    "head": "a510bbb5505f8468c833bb42cd43350396438f83",
+    "tree": "a5c873c00a99c3c7e41a99ad0663b2b2b7387489",
+    "branch": "cloud/sd-spool-design-issues-1",
+    "worktree_clean": true
+  },
+  "checks": [
+    {
+      "command": "cloud_run npx -y @runeditrun/rer setup --owner-email fleet@runeditrun.com --non-interactive",
+      "exit": 0
+    },
+    {
+      "command": "pnpm typecheck",
+      "exit": 0,
+      "source": "final candidate source",
+      "log": "typecheck.log"
+    },
+    {
+      "command": "node scripts/edition-authoring/cli.mjs lock && pnpm source:check",
+      "exit": 0,
+      "source": "final candidate tree",
+      "log": "source-check.log"
+    },
+    {
+      "command": "node src/base/contract-docs.mjs check",
+      "exit": 0,
+      "source": "unchanged contract and generated views",
+      "log": "contract-check.log"
+    },
+    {
+      "command": "cloud_run node tests/triage-journey.mjs",
+      "exit": 0,
+      "head": "23790586377bcc17a91f771d0004edc09cfd239d",
+      "groups": 22,
+      "captures": 104,
+      "widths": [
+        1440,
+        390
+      ],
+      "log": "triage-check.log"
+    },
+    {
+      "command": "prioritySearchFlow, prioritySearchScreen(1440), reviewInboxFlow, releaseIdentityFlow",
+      "exit": 0,
+      "source": "before final navigation and focus follow-ups",
+      "receipt": "touched-receipt.json",
+      "log": "touched-check.log"
+    },
+    {
+      "command": "teamTriage(owner, member, project, 1440)",
+      "exit": 0,
+      "source": "includes pending Comment focus fix, before its commit",
+      "log": "team-check.log",
+      "new_assertion": "hold real discussion GET; press primary Comment with no editor mounted; release GET; editor is focused before posting"
+    },
+    {
+      "command": "cloud_run npx -y @runeditrun/rer build",
+      "exit": 0,
+      "head": "a510bbb5505f8468c833bb42cd43350396438f83",
+      "log": "candidate-build.log"
+    },
+    {
+      "command": "cloud_run node /tmp/spool-after.mjs",
+      "exit": 0,
+      "head": "a510bbb5505f8468c833bb42cd43350396438f83",
+      "assertion_width": 1440,
+      "proof_widths": [
+        1440,
+        390
+      ],
+      "receipt": "journey-receipt.json",
+      "log": "candidate-journey.log"
+    },
+    {
+      "command": "RER_CHROMIUM_EXECUTABLE_PATH=/usr/bin/chromium cloud_run node tests/owner-setup-flow.mjs",
+      "exit": 0,
+      "source": "final correction before its commit; same test and source tree",
+      "log": "owner-setup-fixed.log",
+      "assertions": "native key issuance, sample-derived release/build, replacement ingest succeeds, revoked key refused, archive restore retains mapped roles"
+    }
+  ],
+  "publication_scan": "Fleet Mac publication scan required; unavailable in this cloud task. Focused staged-diff credential-shape check passed.",
+  "ci_qualification": "Final exact-SHA Verify unobserved; ten-call task API budget exhausted. Parent Verify failure retained in ci-receipt.json."
+}

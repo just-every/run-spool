@@ -1,0 +1,43 @@
+{
+  "author": "Run Edit Run fleet",
+  "at": "2026-11-17T17:32:20.897Z",
+  "candidate": "a510bbb5505f8468c833bb42cd43350396438f83",
+  "assertionWidth": 1440,
+  "proofWidths": [
+    1440,
+    390
+  ],
+  "checks": [
+    "D7: open issue hides resolution options",
+    "D5: current project member assignment, persisted header/list/Activity and person-specific filtering",
+    "D6,D16: Resolve confirmation and direct resend of the setup sample regresses the same issue",
+    "D6: Capture uses the setup and issue resend fingerprint and names the persisted regression",
+    "D15: rows first at 1440/390; collapsed filters retain Assigned to me and reset",
+    "D16: Comment opens the real editor and AI steps remain behind Details",
+    "D22: invalid key names the selected project, offers real key creation, and hides exact-event retry",
+    "D9: new-project test enabled, registers release and receives an event"
+  ],
+  "screens": [
+    {
+      "width": 1440,
+      "item": "D5,D7,D16",
+      "assignmentY": 564.546875
+    },
+    {
+      "width": 390,
+      "item": "D5,D7,D16",
+      "assignmentY": 672.453125
+    },
+    {
+      "width": 1440,
+      "item": "D15",
+      "firstRowY": 407.96875
+    },
+    {
+      "width": 390,
+      "item": "D15",
+      "firstRowY": 414.734375
+    }
+  ],
+  "pageErrors": []
+}

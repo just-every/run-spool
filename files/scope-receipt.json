@@ -1,0 +1,41 @@
+{
+  "schema": 1,
+  "author": "Run Edit Run fleet",
+  "date": "2026-11-17",
+  "base": "6263ba70f1d0fce4ea1df7e6bf7b4f0d827489e1",
+  "scope": [
+    "Spool-D5",
+    "Spool-D6",
+    "Spool-D7",
+    "Spool-D9",
+    "Spool-D15",
+    "Spool-D16",
+    "Spool-D22"
+  ],
+  "contractBefore": {
+    "done": 23,
+    "partial": 54,
+    "missing": 28,
+    "total": 105
+  },
+  "contractAfter": {
+    "done": 23,
+    "partial": 54,
+    "missing": 28,
+    "total": 105
+  },
+  "clauseStatusChanges": [],
+  "releaseMetadataChanged": false,
+  "newStores": false,
+  "testSuiteEntrypointsAdded": 0,
+  "testSuiteEntrypointsRemoved": 0,
+  "notes": [
+    "Assignment stores existing erasable audit person aliases in the existing issue_assignments responsibility field. Legacy label API remains compatible. No new account, access grant or notification is implied.",
+    "Public cloud publication scan is delegated to the fleet Mac, as required by the cloud adaptation.",
+    "12ui improve required an unavailable account connection; no generated design or alignment is claimed."
+  ],
+  "final_candidate": "a510bbb5505f8468c833bb42cd43350396438f83",
+  "final_tree": "a5c873c00a99c3c7e41a99ad0663b2b2b7387489",
+  "changed_files": 39,
+  "product_commits": 5
+}

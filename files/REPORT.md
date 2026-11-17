@@ -1,0 +1,25 @@
+# Spool Issues design fixes — sd-spool-design-issues-1
+
+Author: Run Edit Run fleet (sd), 2026-11-17T17:32:11.637069+00:00.
+
+Repository: just-every/run-spool. Product branch: `cloud/sd-spool-design-issues-1`. Final candidate: `a510bbb5505f8468c833bb42cd43350396438f83`. Tree: `a5c873c00a99c3c7e41a99ad0663b2b2b7387489`. Base: `6263ba70f1d0fce4ea1df7e6bf7b4f0d827489e1`. Product pushes succeeded through the required cloud guard; every candidate author and committer is Run Edit Run fleet <fleet@runeditrun.com>, with no co-author trailers. No PR, tag, main push, deployment or landing submission was made.
+
+D5, D6, D7, D9, D15, D16 and D22 are implemented. Rows begin at about 408px at 1440 and 415px at 390, versus 979px and 1369px before. The assignee is in the first screen, with real project-member identity, a personal filter and Activity. The setup, Capture and resolved-issue test controls share a fingerprint; Capture registers a new project's release and reports the actual new or regression alert by its triggering event. Resolve exposes its preset after the action is chosen. Assign, Resolve and Comment are primary; Comment also waits for its editor to load. Invalid keys offer a real key-creation destination, with no ineffective exact-event retry. Viewing words stay in Details, including removal of the old navigation badge.
+
+The full plan is in [PLAN.md](PLAN.md); per-item results and before/after measurements are in [RESULTS.md](RESULTS.md). [DIAGNOSTICS.md](DIAGNOSTICS.md) records the resolved local findings, including phone reflow, pending Comment focus and keeping person aliases in durable grouping snapshots. No source or contract work outside these journeys is claimed.
+
+Validation records: [CHECKS.json](CHECKS.json), [journey-receipt.json](journey-receipt.json), [touched-receipt.json](touched-receipt.json), [scope-receipt.json](scope-receipt.json), and the actual check logs. The complete triage journey passed 22 groups with 104 captures on `23790586377bcc17a91f771d0004edc09cfd239d`. Later changes removed navigation viewing badges, retained pending Comment focus (tested with the real discussion request held), and kept grouping snapshots on bounded person aliases. Typecheck, source integrity and the relevant team/focused browser checks were rerun. The final candidate is rebuilt and photographed at both widths separately, as recorded by its exact-SHA receipt.
+
+Product custody is **PUSHED**, not READY. The last observed Verify, run `44130811317` for parent `27fad43daffe62ee44efec89b0f5cadde0177a42`, completed with failure. Its full triage journey passed 22 groups / 104 captures; the later owner-setup key-rotation assertion got 422 instead of 201 because its event used the old hard-coded release/build tuple. The final commit derives that tuple from the sample actually captured by the browser, preserving both successful replacement-key ingestion and revoked-key refusal. The corrected owner-setup journey passed locally, including archive restore and mapped-role assertions. `ci-failure.md` preserves the actual relevant log excerpt without the workflow environment dump.
+
+The final head `a510bbb5505f8468c833bb42cd43350396438f83` was pushed after that local correction. Its exact-SHA Verify has not been observed: the ten-call GitHub budget was exhausted by discovery, spaced status reads and one failed-log archive read. No result from another SHA qualifies it. Runs `44127079041` (2379058) and `44128234719` (170970d) were superseded, with last observations in progress. Five product commits are retained without rewriting published history. The fleet must qualify the final SHA before landing; no self-submission was made.
+
+Contract counts are unchanged: **23 done / 54 partial / 28 missing / 105 total**. No clause Status, Gap or Evidence changed. No suite entrypoint was added or removed. No release metadata, dependency/rer pin, Base refresh, generated acceptance view or unrelated legacy prose changed. The seed's source lock was regenerated last and checked.
+
+No contract clause claimed; these are owner-journey design fixes (DIRECT 87).
+
+The fleet Mac still owns the complete publication scan and landing. The cloud performed a focused staged-diff credential check; it does not claim that this is the fleet publication scan. 12ui improve was attempted but required an unavailable account connection, so no generated 12ui design/alignment is claimed; the supplied UX decisions and actual browser proofs are the design basis.
+
+Out-of-scope notes: GitHub reported 21 existing default-branch dependency alerts (16 moderate, 5 low). Verify retains its existing runtime and test matrices; no workflow or dependency changes belong to this lease. No hosted, external-provider or broader contract acceptance is claimed.
+
+The report and receipts are published only through the separate `evidence/sd-spool-design-issues-1` ref; that publication is independent of product readiness. The terminal message supplies the exact evidence ref/head and product custody line.
