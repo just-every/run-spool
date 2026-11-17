@@ -5273,6 +5273,10 @@
       "sha256": "d2a65622a919fb630c9759eb937edb2e06ab1ad7c18212389f6d509fb06db7f3",
       "executable": false
     },
+    "scripts/fixtures/sentry-organization.mjs": {
+      "sha256": "ea80e7414ac753e3e90caa25acc386f6b5448171389645026c6075cdb1223b38",
+      "executable": false
+    },
     "scripts/hosted.mjs": {
       "sha256": "3fc6dac12d02b83f3544b41e16b1c5345c0af1aa3ac2d97c6c073622e7942ce0",
       "executable": false
@@ -5343,6 +5347,10 @@
     },
     "scripts/rollbar-import.mjs": {
       "sha256": "a18337174a8f2d546180a3fd96b7bd4ae5d62578af419fd5f1bad6e75e73243e",
+      "executable": false
+    },
+    "scripts/sentry-export.mjs": {
+      "sha256": "4c9c9f50a1e403fb42b168a0b4ee5d3d1c86c06b53ff106052d47df533e8689b",
       "executable": false
     },
     "scripts/sentry-import.mjs": {
@@ -7006,7 +7014,7 @@
       "executable": false
     },
     "src/domain/sentry-import/source.ts": {
-      "sha256": "9c0076695c98c5f033a6f78ff890c89b18f39bbdca0074c1a82954bab86ea8fb",
+      "sha256": "e479587fc0529d93951193bed9fb34d5624db7493850e27f1c37e676f4e701de",
       "executable": false
     },
     "src/domain/sentry-import/targets.ts": {
@@ -11241,6 +11249,14 @@
       "sha256": "d02431f374627909debade3766543c06b5c547bd8290d9d859210506225ce84a",
       "executable": false
     },
+    "tests/fixtures/sentry/documentation.json": {
+      "sha256": "842280acada13e3708167e236c4d33cbaf36f84616ff7132298996855a79cd1f",
+      "executable": false
+    },
+    "tests/fixtures/sentry/documented-capture.json": {
+      "sha256": "44e6582ad5620e33b311791ca5f7795dcdf0ecfdd245d47fa428ec91a5e21ae0",
+      "executable": false
+    },
     "tests/fixtures/sentry/organization.json": {
       "sha256": "ea096ab1647753b5bbd89c85754c46bfcc2bd213fc56ed01358cd51a74e189ba",
       "executable": false
@@ -11841,8 +11857,16 @@
       "sha256": "aecab4d08d87b209e24a872b419261f8302f745e3acf52217050b84cc9b5e2ff",
       "executable": false
     },
+    "tests/sentry-import/field-accounting.mjs": {
+      "sha256": "a857b2d521e05f004d444da78c7f8d018238b0e7d1af26afbf4d7ff7af338f9f",
+      "executable": false
+    },
     "tests/sentry-import/reads.mjs": {
       "sha256": "bc691f9582fee9b7c08a2ceecf289c549d264b25b8a7454e7b8d940b1d117339",
+      "executable": false
+    },
+    "tests/sentry-import/schema-pages.mjs": {
+      "sha256": "e904dde6cbd8a3f525bb416d05dc4cd8a484ec2a2f3ed22f60a3cf9f89d3284a",
       "executable": false
     },
     "tests/sentry-invalid-event-flow.mjs": {
