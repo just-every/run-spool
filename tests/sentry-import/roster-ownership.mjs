@@ -111,7 +111,7 @@ export async function rosterOwnershipFlow(){
   assert.equal((await json('/api/owner/erasure')).hold,'shared_import_custody','owner erasure names retained source custody');
   console.log('Roster stage: archive');
   const auditBefore=(await json('/api/audit/export?format=json')).rows;
-  const archive=await (await req('/api/archive')).text(),audit=await (await req('/api/audit/export')).text();for(const email of members.map(m=>m.email))assert.ok(!audit.includes(email),'portable audit contains no source email');assert.ok(!audit.includes('src/checkout.ts'));
+  const archive=await (await req('/api/archive')).text(),audit=await (await req('/api/audit/export')).text();assert.ok(JSON.parse(audit).rows.some(f=>f.action==='member.invite'),'the separate native authorization records its invitation action');for(const email of members.map(m=>m.email))assert.ok(!audit.includes(email),'portable audit contains no source email');assert.ok(!audit.includes('src/checkout.ts'));
   // Current native archive restores pending proposals, never active members or
   // mail/session/ownership authority. Safe permanent facts survive portability.
   console.log('Roster stage: restore start');
