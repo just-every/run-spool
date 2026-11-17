@@ -624,6 +624,12 @@
       "name": "0109_feedback_review.sql",
       "sha256": "991615f887a895a3d6be01b805dc543a8a05c8274312b02788b170b73b52c06f",
       "sql": "-- Consent-scoped contact, raster screenshot and bounded reply ledger share the\n-- report's existing custody: one row, one withdrawal/retention/erasure fence.\nALTER TABLE feedback ADD COLUMN private_data TEXT DEFAULT NULL\n CHECK(private_data IS NULL OR (json_valid(private_data) AND length(private_data)<=240000));\n"
+    },
+    {
+      "binding": "DB",
+      "name": "0110_key_names_and_use.sql",
+      "sha256": "cd9ca4a03781f55cd5ea882a787b888f0263a062353c5a5aa46d443b1085236d",
+      "sql": "-- Descriptive key metadata stays with excluded credential grants, never archives.\nALTER TABLE credentials ADD COLUMN name TEXT NOT NULL DEFAULT '';\nALTER TABLE credentials ADD COLUMN last_used INTEGER;\n"
     }
   ],
   "compatibilityDate": "2026-09-08",
