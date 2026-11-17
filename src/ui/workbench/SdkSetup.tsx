@@ -1,5 +1,5 @@
 import { useEffect, useState, type FormEvent } from 'react';
-import { captureException } from '../../domain/capture';
+import { sendTestSample, testResult, testResultLabel } from './testSample';
 import { receiptLabel } from './CaptureReceipts';
 import { hrefFor, sourceMapHref } from './location';
 import type { Request } from './shared';
@@ -83,25 +83,22 @@ export function SentryIntake({ dsn }: { dsn?: string }) {
 }
 
 /** Registers the release if it is new, then sends one real exception through the same capture code the SDK ships. */
-export function SendTestError({ project, ingestKey, release, build, request, onReceived }: { project: string; ingestKey: string; release: string; build: string; request: Request; onReceived?: () => void }) {
+export function SendTestError({ project, ingestKey, release, build, request, onReceived, buttonLabel = 'Send test error' }: { buttonLabel?: string; project: string; ingestKey: string; release: string; build: string; request: Request; onReceived?: () => void }) {
   const [busy, setBusy] = useState(false), [outcome, setOutcome] = useState<any>(null), [failure, setFailure] = useState('');
   async function send() {
     setBusy(true); setOutcome(null); setFailure('');
     try {
       await request(`/api/projects/${encodeURIComponent(project)}/releases`, 'POST', { name: release, build });
-      let exception: Error;
-      try { const order: any = {}; order.customer.email; throw new Error('Unexpected test result'); } catch (error) { exception = error as Error; }
-      // A distinct type labels the issue and keeps test captures out of real TypeError groups.
-      exception.name = 'SpoolTestError';
-      const received = await captureException(exception, { endpoint: location.origin, project, ingestKey, release, build, environment: 'spool-test', credentials: 'same-origin' });
+      const received = await testResult(request,project,await sendTestSample({ endpoint: location.origin, project, ingestKey, release, build, environment: 'spool-test', credentials: 'same-origin' }));
       setOutcome(received); if (received.outcome === 'accepted' || received.outcome === 'duplicate') onReceived?.();
     } catch (error) { setFailure((error as Error).message || 'The release could not be registered.'); }
     finally { setBusy(false); }
   }
   return <div className="send-test">
-    <button className="primary-button" type="button" disabled={busy || !ingestKey} onClick={() => void send()}>{busy ? 'Sending…' : 'Send test error'}</button>
-    <p className="muted">Registers release <code>{release}</code> build <code>{build}</code> if it is new, then sends one error with this key from this page. It checks the key and release, not your app’s browser origin.</p>
-    <p role="status">{failure ? `Not sent: ${failure}` : !outcome ? '' : outcome.outcome === 'accepted' || outcome.outcome === 'duplicate' ? 'Test error received.' : `Not received: ${outcome.reason ? receiptLabel(outcome.reason) : outcome.outcome}.`}</p>
+    <button className="primary-button" type="button" disabled={busy || !ingestKey} onClick={() => void send()}>{busy ? 'Sending…' : buttonLabel}</button>
+    {!ingestKey&&<p>Paste your saved ingest key to enable the test. <a className="inline-link" href={hrefFor(project, 'capture')+'#test-capture'}>Open Capture</a>.</p>}
+    <p className="muted">Registers release <code>{release}</code> build <code>{build}</code> if it is new and sends Spool’s sample with this key, so you can expect a new test issue, another event on the same issue, or a regression if you resolved it.</p>
+    <p role="status">{failure ? `Not sent: ${failure}` : !outcome ? '' : outcome.outcome === 'accepted' || outcome.outcome === 'duplicate' ? testResultLabel(outcome) : `Not received: ${outcome.reason ? receiptLabel(outcome.reason) : outcome.outcome}.`}</p>
     {outcome?.issue && <a className="inline-link" href={hrefFor(project, 'issues', outcome.issue)}>Open the test issue</a>}
   </div>;
 }

@@ -180,3 +180,50 @@ span.frame-function{font-family:var(--font-text)}
 .grouping-event{display:grid;grid-template-columns:auto minmax(0,1fr);column-gap:.65rem;align-items:start;margin-block:.5rem}
 .grouping-event input[type="checkbox"]{width:auto;min-height:0;margin-top:.3rem}
 .grouping-event a{grid-column:2;justify-self:start}
+
+/* Keep the daily queue and its primary actions in the first screen. */
+.issue-count-line{margin:0 0 12px;font-size:14px;font-variant-numeric:tabular-nums;line-height:1.6}
+.issue-search-bar{display:flex;align-items:end;gap:12px;flex-wrap:wrap;margin-bottom:16px}
+.issue-search-bar>.form-field{flex:1;min-width:180px;margin:0}
+.issue-filter-panel{width:auto}
+.issue-filter-panel>summary,.issue-secondary-actions>summary{cursor:pointer;min-height:44px;display:flex;align-items:center;justify-content:center;padding:8px 16px;border:var(--inner-border);border-radius:var(--radius-input);font-size:14px}
+.issue-filter-panel[open]{width:100%}
+.issue-filter-panel[open]>summary{width:fit-content}
+.issue-filter-content{padding:16px 0 4px}
+.issue-filter-content .issue-filters{grid-template-columns:repeat(auto-fit,minmax(160px,1fr));margin-bottom:12px}
+.status-legend{font-size:14px;line-height:1.6}
+.issue-table .issue-select{display:inline-flex;vertical-align:middle;margin-right:8px;min-height:24px}
+.issue-table .short-id{display:inline-block;margin-right:8px}
+.issue-table .issue-open{line-height:1.4}
+.issue-table th,.issue-table td{padding-top:12px;padding-bottom:12px}
+.issue-main-actions{margin:0 0 20px}
+.issue-triage-controls{display:flex;gap:20px;align-items:end;flex-wrap:wrap;margin-bottom:12px}
+.issue-triage-controls>.form-field{min-width:140px}
+.assignment-picker{flex:1;min-width:220px}
+.assignment-picker .form-field{flex:1;min-width:160px;margin:0}
+.issue-assignee{font-size:14px;margin:0 0 8px}
+.issue-main-actions .button-row{display:flex;align-items:end;gap:12px;flex-wrap:wrap}
+.issue-secondary-actions{position:relative;margin-left:auto}
+.issue-secondary-actions[open]{flex-basis:100%;display:flex;flex-wrap:wrap;gap:12px}
+.issue-secondary-actions>summary{width:48px}
+.resolve-issue{padding:16px 0;display:flex;align-items:end;gap:12px;flex-wrap:wrap}
+.resolution-note{font-size:14px;margin:12px 0 4px}
+@media(max-width:600px){
+ .issue-count-line{font-size:13px;margin-bottom:8px}
+ .issue-search-bar{gap:8px;margin-bottom:12px}
+ .issue-table tr{padding:12px 0}
+ .issue-table th{padding-bottom:8px}
+ .issue-table td{padding-top:3px;padding-bottom:3px}
+ .issue-triage-controls{gap:12px}
+ .assignment-picker{min-width:0;width:100%}
+ .assignment-picker .button-row{flex-wrap:nowrap}
+ .issue-secondary-actions[open]{display:block}
+ .issue-secondary-actions[open]>button{display:block}
+}
+@media(max-width:600px){
+ .issue-triage-controls{display:block}
+ .issue-triage-controls>.form-field{width:100%;min-width:0}
+ .assignment-picker{margin-top:12px}
+ .assignment-picker .form-field{min-width:0}
+ .assignment-picker select{min-width:0;width:100%}
+}

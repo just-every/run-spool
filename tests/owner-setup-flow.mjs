@@ -44,7 +44,9 @@ export async function ownerSetupFlow() {
    for(const tail of ['/recipients','/destinations','/deliveries/synthetic-spool-unknown'])await denied(req(root+'/alerting'+tail,'GET',undefined,actor));await denied(req('/api/organization','GET',undefined,actor));
   }
   await denied(req(root+'/keys','POST',{kind:'ingest'},''));
-  const event={version:1,eventId:'synthetic-spool-revoked',release:'spool-setup',build:'browser-test',environment:'spool-test',type:'SyntheticSpoolError',message:'Synthetic key lifecycle',frames:[{file:'synthetic.js',line:1,column:0,function:'capture'}]};
+  const captured=(await json(root+'/issues'))[0];assert.ok(captured,'the browser sent its setup sample');
+  const sample=(await json(root+'/issues/'+captured.id+'/packet')).events[0].event;
+  const event={version:1,eventId:'synthetic-spool-revoked',release:sample.release,build:sample.build,environment:'spool-test',type:'SyntheticSpoolError',message:'Synthetic key lifecycle',frames:[{file:'synthetic.js',line:1,column:0,function:'capture'}]};
   const ingest=key=>req('/api/ingest/'+project.id,'POST',event,'',{Authorization:'Bearer '+key});
   await json(root+'/keys/'+grant.hash,'DELETE');await denied(ingest(grant.key));
   const replacement=await json(root+'/keys','POST',{kind:'ingest'});assert.equal((await ingest(replacement.key)).status,201);await denied(ingest(grant.key));
