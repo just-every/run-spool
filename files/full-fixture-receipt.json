@@ -1,0 +1,109 @@
+{
+  "partial_schema": "6617199f1658acee31a348d6a0c14d4f9681ecb0183118a42b583bd8d3952b94",
+  "full_schema": "6617199f1658acee31a348d6a0c14d4f9681ecb0183118a42b583bd8d3952b94",
+  "same_schema": true,
+  "same_objects": true,
+  "populated_tables": [
+    {
+      "name": "alert_history",
+      "count": 1
+    },
+    {
+      "name": "alert_rule_configs",
+      "count": 1
+    },
+    {
+      "name": "alert_rules",
+      "count": 1
+    },
+    {
+      "name": "alerts",
+      "count": 9
+    },
+    {
+      "name": "artifacts",
+      "count": 3
+    },
+    {
+      "name": "audit",
+      "count": 55
+    },
+    {
+      "name": "browser_origins",
+      "count": 3
+    },
+    {
+      "name": "events",
+      "count": 12
+    },
+    {
+      "name": "identity_policies",
+      "count": 3
+    },
+    {
+      "name": "issue_activity",
+      "count": 12
+    },
+    {
+      "name": "issue_priorities",
+      "count": 6
+    },
+    {
+      "name": "issue_recurrence_boundaries",
+      "count": 3
+    },
+    {
+      "name": "issue_resolutions",
+      "count": 6
+    },
+    {
+      "name": "issue_short_ids",
+      "count": 6
+    },
+    {
+      "name": "issues",
+      "count": 6
+    },
+    {
+      "name": "outcomes",
+      "count": 10
+    },
+    {
+      "name": "projects",
+      "count": 3
+    },
+    {
+      "name": "release_builds",
+      "count": 6
+    },
+    {
+      "name": "release_metadata",
+      "count": 6
+    },
+    {
+      "name": "releases",
+      "count": 6
+    },
+    {
+      "name": "repair_checks",
+      "count": 4
+    },
+    {
+      "name": "repairs",
+      "count": 3
+    },
+    {
+      "name": "sentry_project_aliases",
+      "count": 3
+    },
+    {
+      "name": "short_id_prefixes",
+      "count": 3
+    }
+  ],
+  "full_payload_descriptors": [
+    {
+      "name": "safe_audit"
+    }
+  ]
+}

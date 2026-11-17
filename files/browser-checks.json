@@ -1,0 +1,19 @@
+{
+  "headAtTest": "6263ba70f1d0fce4ea1df7e6bf7b4f0d827489e1",
+  "treeDiff": "README.md                                |  28 +++----\n docs/BUSINESS-IMPORT-TRUST.md            |  11 ++-\n docs/FRAMEWORK-SETUP.md                  |  40 ++++-----\n docs/GITHUB-CONNECTION.md                |  11 ++-\n docs/GROUPING-RULES.md                   |   9 ++-\n docs/INTEGRATION-EGRESS.md               |  15 ++--\n docs/INTERNAL-PRODUCT-NOTES.md           | 101 +++++++++++++++++++++++\n docs/INTERNAL-USER-IDENTITY.md           | 135 +++++++++++++++++++++++++++++++\n docs/NOTIFICATIONS.md                    |   9 ++-\n docs/SUPPORTED-LANGUAGES.md              |   9 ++-\n docs/USER-IDENTITY.md                    | 131 +++---------------------------\n docs/agents.md                           |  11 ++-\n docs/capture.md                          |  23 +++---\n docs/getting-started.md                  |  25 +++---\n docs/install.md                          |  23 +++---\n docs/site.json                           |   8 ++\n migrations/core/0110_member_identity.sql |   8 ++\n migrations/core/0111_capture_sources.sql |   8 ++\n scripts/installer/local.mjs              |   2 +-\n src/auth/local-identity.server.mjs       |  11 +--\n src/domain/admission.ts                  |   2 +\n src/domain/api.ts                        |   7 +-\n src/domain/audit/classify.ts             |   1 +\n src/domain/audit/types.ts                |   2 +-\n src/domain/capture-sources.ts            |  17 ++++\n src/domain/erasure/declaration.ts        |   2 +-\n src/domain/members/routes.ts             |  10 ++-\n src/domain/origins.ts                    |  12 +++\n src/domain/portability.ts                |   5 +-\n src/ui/BrowserOrigins.tsx                |  18 +++--\n src/ui/Wordmark.tsx                      |   4 +-\n src/ui/setup/Setup.tsx                   |  37 +++++----\n src/ui/setup/SetupIdentity.tsx           |  41 ++++++++++\n src/ui/setup/setup.css                   |  12 ++-\n src/ui/workbench/CaptureView.tsx         |   5 +-\n src/ui/workbench/GeneralSettings.tsx     |  22 +++++\n src/ui/workbench/Members.tsx             |   9 ++-\n src/ui/workbench/Navigation.tsx          |   6 +-\n src/ui/workbench/OwnIdentity.tsx         |  33 ++++++++\n src/ui/workbench/ProjectForm.tsx         |   5 +-\n src/ui/workbench/SdkSetup.tsx            |  40 ++-------\n src/ui/workbench/SettingsView.tsx        |  11 ++-\n src/ui/workbench/WorkspaceView.tsx       |   5 +-\n src/ui/workbench/captureStatus.ts        |  25 ++++--\n src/ui/workbench/identityMessage.ts      |  11 +++\n src/ui/workbench/localEndpoint.tsx       |  12 +++\n src/ui/workbench/shell.css               |   4 +\n tests/browser-origins-runtime.mjs        |   7 +-\n tests/owner-setup-browser.mjs            |   3 +-\n tests/setup-journey.mjs                  |  14 ++--\n tests/team-browser.mjs                   |  61 ++++++++++++--\n tests/triage-journey.mjs                 |   4 +-\n vite/docs/markdown.ts                    |  16 +++-\n 53 files changed, 752 insertions(+), 329 deletions(-)",
+  "assertionWidth": 1440,
+  "proofWidths": [
+    1440,
+    390
+  ],
+  "started_utc": "2026-11-17T17:34:44.798Z",
+  "checks": [
+    "first-project identity, keyboard flow, real capture, website allow, key copy and source-map journey",
+    "public getting-started and capture docs render at both proof widths",
+    "organization rename, personal name/email editing, immediately visible member invitations and current-role safeguards",
+    "local invitations, duplicate recovery and invitee authority",
+    "owner capture/key lifecycle, scoped team mapping and archive restore"
+  ],
+  "finished_utc": "2026-11-17T17:37:21.778Z",
+  "completed": true
+}

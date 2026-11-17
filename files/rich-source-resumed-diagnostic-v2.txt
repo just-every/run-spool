@@ -1,0 +1,12 @@
+(node:29510) ExperimentalWarning: SQLite is an experimental feature and might change at any time
+(Use `node --trace-warnings ...` to show where the warning was created)
+STEP setup/startDev
+STEP setup/dev-ready
+END setup/dev-ready seconds=71.134
+END setup/startDev seconds=71.220
+{"journey":"repair-recovery","stage":"verdicts","type":"AssertionError","message":"same fingerprint\n+ actual - expected\n\n+ 'e974cfc241e048633dbb2a49438c8f86b627ba0a50d2dd2298d0697886f76a14'\n- 'bb7ecb4e7471546b9ee7b65250e6670cf0a25e8055c1602b1be7e2cf2b421256'\n","stack":["    at verdictProof (file:///home/agent/rer-consolidation/work/sd-spool-design-setup-2/run-spool/tests/repair-recovery/verdicts.mjs:21:61)","    at async file:///home/agent/rer-consolidation/work/sd-spool-design-setup-2/run-spool/tests/.rich-source-diagnostic.mjs:31:34"]}
+STEP setup/stopDev
+STEP setup/dev-stop
+END setup/dev-stop seconds=0.221
+END setup/stopDev seconds=0.223
+Repair recovery cleanup: [{"name":"capture","outcome":"stopped"},{"name":"browser","outcome":"stopped"},{"name":"checkout","outcome":"stopped","children":"stopped","directory":"preserved"}]

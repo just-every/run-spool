@@ -1,0 +1,15 @@
+--- a/tests/repair-recovery/archive.mjs
++++ b/tests/repair-recovery/archive.mjs
+@@ -45,8 +45,10 @@
+ // recorded migration prefix and table inventory consistent with that release.
+ async function beforeFeedbackReviewRelease(manifest){
+  await beforeRelayPrivacy(manifest);
+- if(manifest.migrations)manifest.migrations=manifest.migrations.filter(name=>name!=='0109_feedback_review.sql');
+- if(manifest.migrationLedger)manifest.migrationLedger={...manifest.migrationLedger,entries:manifest.migrationLedger.entries.filter(entry=>entry.name!=='0109_feedback_review.sql')};
++ const later=['0109_feedback_review.sql','0110_member_identity.sql','0111_capture_sources.sql'];
++ if(manifest.migrations)manifest.migrations=manifest.migrations.filter(name=>!later.includes(name));
++ if(manifest.migrationLedger)manifest.migrationLedger={...manifest.migrationLedger,entries:manifest.migrationLedger.entries.filter(entry=>!later.includes(entry.name))};
++ if(manifest.schemaObjects)manifest.schemaObjects=manifest.schemaObjects.filter(object=>object.name!=='spool_member_identity');
+  const migration=await readFile(new URL('../../migrations/core/0040_feedback.sql',import.meta.url),'utf8');
+  const sql=/CREATE TABLE feedback \([\s\S]*?\n\);/.exec(migration)[0].replace(/;$/,'');
+  manifest.tables=manifest.tables.map(table=>table.name==='feedback'?{...table,sql,columns:table.columns.filter(column=>column.name!=='private_data')}:table);

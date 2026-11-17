@@ -1,0 +1,34 @@
+2026-11-17T17:40:14.9238365Z ##[group]Run node tests/demo-capture.mjs && node tests/deployment-history.mjs && node tests/audit-history.mjs && node tests/old-archive.mjs && pnpm test:runtime && pnpm test:product && pnpm test:origins && pnpm test:dev-credentials
+2026-11-17T17:40:14.9240266Z [36;1mnode tests/demo-capture.mjs && node tests/deployment-history.mjs && node tests/audit-history.mjs && node tests/old-archive.mjs && pnpm test:runtime && pnpm test:product && pnpm test:origins && pnpm test:dev-credentials[0m
+2026-11-17T17:40:14.9260505Z shell: /usr/bin/bash -e {0}
+[CI runner environment block omitted]
+2026-11-17T17:40:14.9263551Z ##[endgroup]
+2026-11-17T17:40:15.0286976Z (node:2662) ExperimentalWarning: SQLite is an experimental feature and might change at any time
+2026-11-17T17:40:15.0288679Z (Use `node --trace-warnings ...` to show where the warning was created)
+2026-11-17T17:40:20.3738391Z Demo capture: app 200; 3 recent events; 3 attributed transaction facts; restart unchanged
+2026-11-17T17:40:21.0043271Z (node:2692) ExperimentalWarning: SQLite is an experimental feature and might change at any time
+2026-11-17T17:40:21.0044063Z (Use `node --trace-warnings ...` to show where the warning was created)
+2026-11-17T17:41:40.1299978Z [REL-002] first-release and reactivation candidates, exact regression alert and two commits with recorded deployment window, older-release spike comparison, audited reject and confirm without occurrence changes, restore and erasure; desktop and phone passed
+2026-11-17T17:41:56.2575185Z REL-001 passed: CI and owner start/progress/success/failure/rollback, idempotency/conflicts, one overdue notice over two ticks, environments, enrichment, denials, inert restore, erasure and 1440/390.
+2026-11-17T17:41:56.8527069Z (node:3001) ExperimentalWarning: SQLite is an experimental feature and might change at any time
+2026-11-17T17:41:56.8528632Z (Use `node --trace-warnings ...` to show where the warning was created)
+2026-11-17T17:42:29.1196855Z AUDIT-001 passed: atomic owner/deploy/ingest transaction facts, denied/stale request outcomes, agent and notification facts, fixed snapshot cursor/JSON/CSV, restart, archive payload append restore, previous-format legacy facts, project erasure and 1440/390 history/export/error/denied/empty.
+2026-11-17T17:42:35.1966734Z (node:3109) ExperimentalWarning: SQLite is an experimental feature and might change at any time
+2026-11-17T17:42:35.1968181Z (Use `node --trace-warnings ...` to show where the warning was created)
+2026-11-17T17:42:44.9140356Z PASS populated published release upgrades preserve existing rows and columns with declared attribution additions: 176 tables, 118 rows before and after
+2026-11-17T17:42:59.9297125Z PASS populated 0068 upgrade: 201 tables preserved; five additive migrations applied
+2026-11-17T17:43:29.6103589Z file:///tmp/spool-old-archive-t1ryOy/portability.mjs:23840
+2026-11-17T17:43:29.6106614Z     if (product.schemaObjects !== void 0 && canonicalJson(product.schemaObjects) !== canonicalJson(reviewOnly ? current.schemaObjects : beforeProjectMetricObjects(previousRelayPrivacyObjects(previousNativeSymbolObjects(current.schemaObjects, manifest), manifest), manifest))) throw new PortabilityError("legacy_schema_object_inventory");
+2026-11-17T17:43:29.6110028Z                                                                                                                                                                                                                                                                                           ^
+2026-11-17T17:43:29.6110902Z 
+2026-11-17T17:43:29.6111125Z PortabilityError: legacy_schema_object_inventory
+2026-11-17T17:43:29.6111682Z     at earlierManifest (file:///tmp/spool-old-archive-t1ryOy/portability.mjs:23840:283)
+2026-11-17T17:43:29.6112655Z     at async restoreArchive (file:///tmp/spool-old-archive-t1ryOy/portability.mjs:23978:118)
+2026-11-17T17:43:29.6113351Z     at async Module.restoreStream (file:///tmp/spool-old-archive-t1ryOy/portability.mjs:23947:3)
+2026-11-17T17:43:29.6114016Z     at async file:///home/runner/work/run-spool/run-spool/tests/old-archive.mjs:148:2 {
+2026-11-17T17:43:29.6114492Z   code: 'legacy_schema_object_inventory',
+2026-11-17T17:43:29.6114782Z   status: 400
+2026-11-17T17:43:29.6114987Z }
+2026-11-17T17:43:29.6115098Z 
+2026-11-17T17:43:29.6115191Z Node.js v22.20.0
+2026-11-17T17:43:29.6632717Z ##[error]Process completed with exit code 1.

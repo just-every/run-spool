@@ -1,0 +1,9 @@
+{
+  "recorded_utc": "2026-11-17T18:27:30.471154+00:00",
+  "base": "837686de2ba65ede6cb31b6b2fce6d666a7340ce",
+  "file": "/home/agent/rer-consolidation/work/sd-spool-design-setup-2/correction-worktree.patch",
+  "sha256": "d96fd1faa71346dde63d4db0653c09e6fd57f7ddcaf926472ca9623a8fb50ca2",
+  "reverse_apply_check": "passed against current worktree",
+  "scope": "Unpublished correction recovery copy while full repair/recovery runs; not READY or evidence of a push.",
+  "packet_copy": "correction-worktree.patch"
+}

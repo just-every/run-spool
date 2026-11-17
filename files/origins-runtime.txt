@@ -1,0 +1,11 @@
+
+> @errors/errors-workbench@0.7.14 test:origins /home/agent/rer-consolidation/work/sd-spool-design-setup-2/run-spool
+> node tests/browser-origins-runtime.mjs
+
+(node:3056) ExperimentalWarning: SQLite is an experimental feature and might change at any time
+(Use `node --trace-warnings ...` to show where the warning was created)
+verify
+Heavy job admitted: Spool verify:suite [18d9daf59463]
+(node:3078) ExperimentalWarning: SQLite is an experimental feature and might change at any time
+(Use `node --trace-warnings ...` to show where the warning was created)
+Browser-origin non-browser runtime gates passed: 11 groups. Actual two-origin Chrome capture/a11y remain blocked and unclaimed.

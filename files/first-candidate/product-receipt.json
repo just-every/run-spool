@@ -1,0 +1,113 @@
+{
+  "recorded_utc": "2026-11-17T17:42:03.980559+00:00",
+  "repository": "just-every/run-spool",
+  "branch": "cloud/sd-spool-design-setup-2",
+  "head": "837686de2ba65ede6cb31b6b2fce6d666a7340ce",
+  "tree": "fe58f3c72640037b183d36184cc6dbf99ef467de",
+  "base": "6263ba70f1d0fce4ea1df7e6bf7b4f0d827489e1",
+  "prepared_head": "3f6f5dd9f2f1bba3dc282c3eb910e5dffd4a3d81",
+  "identity": [
+    "Run Edit Run fleet <fleet@runeditrun.com>",
+    "Run Edit Run fleet <fleet@runeditrun.com>"
+  ],
+  "product_commit_count": 1,
+  "merge_commit_count": 0,
+  "product_push": "success; first guard attempt",
+  "product_diff": {
+    "files": 55,
+    "insertions": 848,
+    "deletions": 373
+  },
+  "browser_inputs_match_committed_bytes": true,
+  "browser_input_file_count": 54,
+  "browser_proofs": [
+    {
+      "file": "browser/setup-1440.png",
+      "bytes": 152983,
+      "sha256": "bc1d023bc572749883ce10b809e60f07de3c22499ab7ccd1073e53360c584f89"
+    },
+    {
+      "file": "browser/setup-390.png",
+      "bytes": 117480,
+      "sha256": "290c8427d476af693faf0044b0f790e3ba28cce940ea89b64ff0ff573aa6066e"
+    },
+    {
+      "file": "browser/setup-connected-1440.png",
+      "bytes": 373029,
+      "sha256": "f1ba1f3cf1ccbe93767a4bf89d1c1af3051d7af864d0ec79e2427e05ef89233b"
+    },
+    {
+      "file": "browser/setup-connected-390.png",
+      "bytes": 324954,
+      "sha256": "fa85a06b3cd917f9ededa916e9cd599f07cd922a12b70662d9e38447876bee80"
+    },
+    {
+      "file": "browser/members-1440.png",
+      "bytes": 100502,
+      "sha256": "5ad4061b373bf2cd4862f6c4484cffa95215b55551e5bac0b5cc45b460024fcc"
+    },
+    {
+      "file": "browser/members-390.png",
+      "bytes": 99176,
+      "sha256": "9e23fc723731f4372bca0d88f6bcc8c405537c3c8a2bc59a637d58922a17ba5b"
+    },
+    {
+      "file": "browser/local-members-1440.png",
+      "bytes": 122238,
+      "sha256": "cd6eb96dd6d6a581495671c3868443ad0be4aab3cd35bc3b87a03f775238a902"
+    },
+    {
+      "file": "browser/local-members-390.png",
+      "bytes": 113476,
+      "sha256": "e60b99b7c3707dc8935149008d35fbee1f42569f3695e2b30b17984ce5a6ed39"
+    },
+    {
+      "file": "browser/general-1440.png",
+      "bytes": 66815,
+      "sha256": "7449701329c9ea679105085666e2e6db147dbea564e39fd2a55064848f7d095d"
+    },
+    {
+      "file": "browser/general-390.png",
+      "bytes": 45765,
+      "sha256": "ac629f5207a30243f7c26267e61f8446400aa1cbca829927b96fb78c7094c6bd"
+    },
+    {
+      "file": "browser/capture-1440.png",
+      "bytes": 679470,
+      "sha256": "3dd355dc36e86fcf4688867d963fbddcac962fe3ee751b8e95334203a871ed69"
+    },
+    {
+      "file": "browser/capture-390.png",
+      "bytes": 597313,
+      "sha256": "34763bd364ad1745a5d887abfa818d197b6b0ee13b26027cf89811ba885663f3"
+    },
+    {
+      "file": "browser/docs-start-1440.png",
+      "bytes": 415433,
+      "sha256": "48c37b2f4bb05f15f07628712c42bad83386249f40f6444d8a1aaf3c3b67f9ee"
+    },
+    {
+      "file": "browser/docs-start-390.png",
+      "bytes": 345527,
+      "sha256": "b428dfa791c50cd56c34d7eaa89c25ca18bcf02a6fb70ce0c4791232a08b56c2"
+    },
+    {
+      "file": "browser/docs-capture-1440.png",
+      "bytes": 146859,
+      "sha256": "1217634a5d689f9d6639f89d40f225886ee1cf4c549e2729df6349c8b27e58ba"
+    },
+    {
+      "file": "browser/docs-capture-390.png",
+      "bytes": 97610,
+      "sha256": "f545d59d4f10427b7c02d6dff4aeb1a17f49b3da9f79daf0228884c689bcc55c"
+    }
+  ],
+  "contract_changes": [],
+  "generated_views_committed": false,
+  "pr": null,
+  "post_commit_source_check": "pass",
+  "local_check_scope": "Complete build equivalents, integration, source integrity, origin runtime and targeted owner/browser journeys. Initial generic-fixture failure corrected by testing real rer dev; product source unchanged. Local invitation proof also ran on the exact committed SHA.",
+  "ci_run_id": 44139169162,
+  "ci_status": "awaiting exact-SHA result",
+  "landing": "fleet only; main not pushed"
+}

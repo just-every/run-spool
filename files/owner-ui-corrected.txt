@@ -1,0 +1,20 @@
+[33m▲ [43;33m[[43;30mWARNING[43;33m][0m [1mProxy environment variables detected. We'll use your proxy for fetch requests.[0m
+
+
+(node:13352) ExperimentalWarning: SQLite is an experimental feature and might change at any time
+(Use `node --trace-warnings ...` to show where the warning was created)
+DESIGN_CHECK first-project identity, keyboard flow, real capture, website allow, key copy and source-map journey
+DESIGN_CHECK public getting-started and capture docs render at both proof widths
+DESIGN_CHECK organization rename, personal name/email editing, immediately visible member invitations and current-role safeguards
+Local mail journey: starting emitted app
+Local mail journey: emitted app ready
+Local mail journey: owner and project created
+Local mail journey: pending native link available after reload
+Local mail journey: missing-link recovery, copy and native verification complete
+PROBE TEAM-001 local invitation: suppressed mail; copy after reload; same native expiring token; second browser acceptance once; roles, expiry, read-only denial and archive exclusion preserved.
+PROBE GOV-001 local verification: request produces no completed proof and native transfer still refuses without email confirmation.
+DESIGN_CHECK local invitations, duplicate recovery and invitee authority
+Owner setup: team roster and pending role mapping; exact project authority; denied contacts and ingest issuance/revocation; copied key and received native synthetic event; revoked key remains refused.
+Owner setup: archive restore preserves distinct native mapped roles and grants without creating identities, sessions or credentials.
+DESIGN_CHECK owner capture/key lifecycle, scoped team mapping and archive restore
+Prepared design setup checks passed.

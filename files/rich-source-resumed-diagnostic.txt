@@ -1,0 +1,12 @@
+(node:29044) ExperimentalWarning: SQLite is an experimental feature and might change at any time
+(Use `node --trace-warnings ...` to show where the warning was created)
+STEP setup/startDev
+STEP setup/dev-ready
+END setup/dev-ready seconds=80.097
+END setup/startDev seconds=80.196
+{"journey":"repair-recovery","stage":"recording","type":"Error","message":"No legacy fixture database","stack":["    at legacyMailRows (file:///home/agent/rer-consolidation/work/sd-spool-design-setup-2/run-spool/tests/legacy-mail.mjs:11:21)","    at snapshot (file:///home/agent/rer-consolidation/work/sd-spool-design-setup-2/run-spool/tests/repair-recovery/state.mjs:8:22)","    at async recordingProof (file:///home/agent/rer-consolidation/work/sd-spool-design-setup-2/run-spool/tests/repair-recovery/recording.mjs:7:12)","    at async file:///home/agent/rer-consolidation/work/sd-spool-design-setup-2/run-spool/tests/.rich-source-diagnostic.mjs:37:35"]}
+STEP setup/stopDev
+STEP setup/dev-stop
+END setup/dev-stop seconds=0.471
+END setup/stopDev seconds=0.481
+Repair recovery cleanup: [{"name":"capture","outcome":"stopped"},{"name":"browser","outcome":"stopped"},{"name":"checkout","outcome":"stopped","children":"stopped","directory":"preserved"}]

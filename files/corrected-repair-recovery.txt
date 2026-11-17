@@ -1,0 +1,45 @@
+
+> @errors/errors-workbench@0.7.14 test:repair-recovery /home/agent/rer-consolidation/work/sd-spool-design-setup-2/run-spool
+> node tests/repair-recovery.mjs
+
+(node:17558) ExperimentalWarning: SQLite is an experimental feature and might change at any time
+(Use `node --trace-warnings ...` to show where the warning was created)
+verify
+Heavy job admitted: Spool verify:suite [18d9daf59463]
+(node:17580) ExperimentalWarning: SQLite is an experimental feature and might change at any time
+(Use `node --trace-warnings ...` to show where the warning was created)
+STEP setup/startDev
+STEP setup/dev-ready
+END setup/dev-ready seconds=78.935
+END setup/startDev seconds=79.034
+STEP setup/stopDev
+STEP setup/dev-stop
+END setup/dev-stop seconds=0.222
+END setup/stopDev seconds=0.228
+STEP setup/reset
+END setup/reset seconds=2.576
+STEP setup/setup
+END setup/setup seconds=156.601
+STEP setup/startDev
+STEP setup/dev-ready
+END setup/dev-ready seconds=83.959
+END setup/startDev seconds=84.056
+STEP setup/stopDev
+STEP setup/dev-stop
+END setup/dev-stop seconds=0.204
+END setup/stopDev seconds=0.206
+STEP setup/reset
+END setup/reset seconds=1.746
+STEP setup/setup
+END setup/setup seconds=160.037
+STEP setup/startDev
+STEP setup/dev-ready
+END setup/dev-ready seconds=86.242
+END setup/startDev seconds=86.373
+{"journey":"repair-recovery","stage":"archive","type":"Error","message":"POST /api/restore: HTTP 409 other","stack":["    at json (file://[REDACTED]/tests/agent-handoff/runtime.mjs:43:238)","    at async Object.resetRestore (file://[REDACTED]/tests/agent-handoff/runtime.mjs:44:1073)","    at async archiveProof (file://[REDACTED]/tests/repair-recovery/archive.mjs:71:2)","    at async file://[REDACTED]/tests/repair-recovery.mjs:43:32"]}
+STEP setup/stopDev
+STEP setup/dev-stop
+END setup/dev-stop seconds=0.207
+END setup/stopDev seconds=0.209
+Repair recovery cleanup: [{"name":"capture","outcome":"stopped"},{"name":"browser","outcome":"stopped"},{"name":"checkout","outcome":"stopped","children":"stopped","directory":"removed"}]
+ ELIFECYCLE  Command failed with exit code 1.

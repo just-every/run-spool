@@ -1,0 +1,11 @@
+{
+  "command": [
+    "node",
+    "tests/old-archive.mjs"
+  ],
+  "exit": 0,
+  "finished_utc": "2026-11-17T18:14:28.317943+00:00",
+  "log": "corrected-old-archive.txt",
+  "portability_source_sha256": "b41e4a67a42c46068d45e2751a08d9ef74ca16a1f41c3183082f387b1b09f1ff",
+  "checks": "Populated upgrade, pre-metric hashed-ledger restore, native archive restore, occupied-target refusal, mismatched schema and corrupted binding refusal, current archive and bookkeeping exclusions."
+}

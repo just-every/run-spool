@@ -1,0 +1,13 @@
+(node:30239) ExperimentalWarning: SQLite is an experimental feature and might change at any time
+(Use `node --trace-warnings ...` to show where the warning was created)
+STEP setup/startDev
+STEP setup/dev-ready
+END setup/dev-ready seconds=77.991
+END setup/startDev seconds=78.084
+RICH_SOURCE_CAPTURED
+{"journey":"repair-recovery","stage":"archive","type":"Error","message":"Intentional diagnostic stop after source capture","stack":["    at file:///home/agent/rer-consolidation/work/sd-spool-design-setup-2/run-spool/tests/.full-source-diagnostic.mjs:43:156"]}
+STEP setup/stopDev
+STEP setup/dev-stop
+END setup/dev-stop seconds=0.166
+END setup/stopDev seconds=0.171
+Repair recovery cleanup: [{"name":"capture","outcome":"stopped"},{"name":"browser","outcome":"stopped"},{"name":"checkout","outcome":"stopped","children":"stopped","directory":"removed"}]

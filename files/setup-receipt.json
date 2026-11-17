@@ -1,0 +1,17 @@
+{
+  "command": [
+    "npx",
+    "-y",
+    "@runeditrun/rer",
+    "setup",
+    "--owner-email",
+    "fleet@runeditrun.com",
+    "--non-interactive"
+  ],
+  "exit": 0,
+  "core_migrations_applied": 105,
+  "owner": "set up through native setup",
+  "runtime": "project Node 22.20.0 selected by rer",
+  "finished_utc": "2026-11-17T17:17:43.730059+00:00",
+  "receipt_source": "observed successful setup command and its completion summary; private settings and full installer logs are excluded from the public packet"
+}

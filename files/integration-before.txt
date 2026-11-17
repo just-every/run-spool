@@ -1,0 +1,15 @@
+ WARN  Unsupported engine: wanted: {"node":"22.20.0"} (current: {"node":"v24.19.0","pnpm":"10.12.4"})
+
+> @errors/errors-workbench@0.7.14 integration:check /home/agent/rer-consolidation/work/sd-spool-design-setup-2/run-spool
+> node scripts/sync-integration.mjs --check
+
+file:///home/agent/rer-consolidation/work/sd-spool-design-setup-2/run-spool/scripts/sync-integration.mjs:68
+      throw Error(`Stale integration ${name}; build the application and regenerate with pnpm integration:sync`);
+            ^
+
+Error: Stale integration management/integration/deployment-spec.json; build the application and regenerate with pnpm integration:sync
+    at integrationRecipe (file:///home/agent/rer-consolidation/work/sd-spool-design-setup-2/run-spool/scripts/sync-integration.mjs:68:13)
+    at async file:///home/agent/rer-consolidation/work/sd-spool-design-setup-2/run-spool/scripts/sync-integration.mjs:76:3
+
+Node.js v24.19.0
+ ELIFECYCLE  Command failed with exit code 1.

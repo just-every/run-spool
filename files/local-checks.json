@@ -1,0 +1,656 @@
+[
+  {
+    "name": "integration-before",
+    "command": [
+      "pnpm",
+      "integration:check"
+    ],
+    "started_utc": "2026-11-17T17:18:01.600906+00:00",
+    "finished_utc": "2026-11-17T17:18:02.237076+00:00",
+    "exit": 1,
+    "log": "integration-before.txt"
+  },
+  {
+    "name": "integration-sync",
+    "command": [
+      "pnpm",
+      "integration:sync"
+    ],
+    "started_utc": "2026-11-17T17:18:02.237409+00:00",
+    "finished_utc": "2026-11-17T17:18:02.812731+00:00",
+    "exit": 0,
+    "log": "integration-sync.txt"
+  },
+  {
+    "name": "source-lock-provisional",
+    "command": [
+      "node",
+      "scripts/edition-authoring/cli.mjs",
+      "lock"
+    ],
+    "started_utc": "2026-11-17T17:18:02.813068+00:00",
+    "finished_utc": "2026-11-17T17:18:03.829870+00:00",
+    "exit": 0,
+    "log": "source-lock-provisional.txt"
+  },
+  {
+    "name": "contract-check",
+    "command": [
+      "node",
+      "src/base/contract-docs.mjs",
+      "check"
+    ],
+    "started_utc": "2026-11-17T17:18:03.873112+00:00",
+    "finished_utc": "2026-11-17T17:18:04.169382+00:00",
+    "exit": 0,
+    "log": "contract-check.txt"
+  },
+  {
+    "name": "source-copies",
+    "command": [
+      "node",
+      "scripts/edition-authoring/cli.mjs",
+      "verify-base",
+      "--offline"
+    ],
+    "started_utc": "2026-11-17T17:18:04.169798+00:00",
+    "finished_utc": "2026-11-17T17:18:04.460577+00:00",
+    "exit": 0,
+    "log": "source-copies.txt"
+  },
+  {
+    "name": "source-check",
+    "command": [
+      "pnpm",
+      "source:check"
+    ],
+    "started_utc": "2026-11-17T17:18:04.460869+00:00",
+    "finished_utc": "2026-11-17T17:18:05.637982+00:00",
+    "exit": 0,
+    "log": "source-check.txt"
+  },
+  {
+    "name": "typecheck",
+    "command": [
+      "pnpm",
+      "typecheck"
+    ],
+    "started_utc": "2026-11-17T17:18:05.638443+00:00",
+    "finished_utc": "2026-11-17T17:18:25.117235+00:00",
+    "exit": 0,
+    "log": "typecheck.txt"
+  },
+  {
+    "name": "syntax-0",
+    "command": [
+      "node",
+      "--check",
+      "scripts/installer/local.mjs"
+    ],
+    "started_utc": "2026-11-17T17:18:25.124175+00:00",
+    "finished_utc": "2026-11-17T17:18:25.225988+00:00",
+    "exit": 0,
+    "log": "syntax-0.txt"
+  },
+  {
+    "name": "syntax-1",
+    "command": [
+      "node",
+      "--check",
+      "src/auth/local-identity.server.mjs"
+    ],
+    "started_utc": "2026-11-17T17:18:25.226509+00:00",
+    "finished_utc": "2026-11-17T17:18:25.311525+00:00",
+    "exit": 0,
+    "log": "syntax-1.txt"
+  },
+  {
+    "name": "syntax-2",
+    "command": [
+      "node",
+      "--check",
+      "tests/browser-origins-runtime.mjs"
+    ],
+    "started_utc": "2026-11-17T17:18:25.311883+00:00",
+    "finished_utc": "2026-11-17T17:18:25.385216+00:00",
+    "exit": 0,
+    "log": "syntax-2.txt"
+  },
+  {
+    "name": "syntax-3",
+    "command": [
+      "node",
+      "--check",
+      "tests/owner-setup-browser.mjs"
+    ],
+    "started_utc": "2026-11-17T17:18:25.385763+00:00",
+    "finished_utc": "2026-11-17T17:18:25.453665+00:00",
+    "exit": 0,
+    "log": "syntax-3.txt"
+  },
+  {
+    "name": "syntax-4",
+    "command": [
+      "node",
+      "--check",
+      "tests/setup-journey.mjs"
+    ],
+    "started_utc": "2026-11-17T17:18:25.453990+00:00",
+    "finished_utc": "2026-11-17T17:18:25.526518+00:00",
+    "exit": 0,
+    "log": "syntax-4.txt"
+  },
+  {
+    "name": "syntax-5",
+    "command": [
+      "node",
+      "--check",
+      "tests/team-browser.mjs"
+    ],
+    "started_utc": "2026-11-17T17:18:25.527270+00:00",
+    "finished_utc": "2026-11-17T17:18:25.614183+00:00",
+    "exit": 0,
+    "log": "syntax-5.txt"
+  },
+  {
+    "name": "syntax-6",
+    "command": [
+      "node",
+      "--check",
+      "tests/triage-journey.mjs"
+    ],
+    "started_utc": "2026-11-17T17:18:25.614561+00:00",
+    "finished_utc": "2026-11-17T17:18:25.685388+00:00",
+    "exit": 0,
+    "log": "syntax-6.txt"
+  },
+  {
+    "name": "validate-first-party",
+    "command": [
+      "pnpm",
+      "run",
+      "check",
+      "--",
+      "--profile",
+      "first-party"
+    ],
+    "started_utc": "2026-11-17T17:18:25.686106+00:00",
+    "finished_utc": "2026-11-17T17:18:28.276458+00:00",
+    "exit": 0,
+    "log": "validate-first-party.txt"
+  },
+  {
+    "name": "build-app",
+    "command": [
+      "python3",
+      "/tmp/rer-reap.py",
+      "npx",
+      "-y",
+      "@runeditrun/rer",
+      "build"
+    ],
+    "started_utc": "2026-11-17T17:18:28.277020+00:00",
+    "finished_utc": "2026-11-17T17:19:04.361442+00:00",
+    "exit": 0,
+    "log": "build-app.txt"
+  },
+  {
+    "name": "build-site",
+    "command": [
+      "python3",
+      "/tmp/rer-reap.py",
+      "npx",
+      "-y",
+      "@runeditrun/rer",
+      "build",
+      "--site"
+    ],
+    "started_utc": "2026-11-17T17:19:04.362268+00:00",
+    "finished_utc": "2026-11-17T17:19:13.332563+00:00",
+    "exit": 0,
+    "log": "build-site.txt"
+  },
+  {
+    "name": "integration-check",
+    "command": [
+      "pnpm",
+      "integration:check"
+    ],
+    "started_utc": "2026-11-17T17:19:13.333246+00:00",
+    "finished_utc": "2026-11-17T17:19:13.930495+00:00",
+    "exit": 0,
+    "log": "integration-check.txt"
+  },
+  {
+    "name": "origins-runtime",
+    "command": [
+      "python3",
+      "/tmp/rer-reap.py",
+      "pnpm",
+      "test:origins"
+    ],
+    "started_utc": "2026-11-17T17:20:29.334363+00:00",
+    "finished_utc": "2026-11-17T17:32:27.675221+00:00",
+    "exit": 0,
+    "log": "origins-runtime.txt"
+  },
+  {
+    "name": "owner-ui",
+    "command": [
+      "python3",
+      "/tmp/rer-reap.py",
+      "node",
+      ".artifacts/design-setup-check.mjs"
+    ],
+    "started_utc": "2026-11-17T17:32:27.678550+00:00",
+    "finished_utc": "2026-11-17T17:33:08.109803+00:00",
+    "exit": 1,
+    "log": "owner-ui.txt"
+  },
+  {
+    "name": "owner-ui-corrected",
+    "command": [
+      "python3",
+      "/tmp/rer-reap.py",
+      "node",
+      ".artifacts/design-setup-check.mjs"
+    ],
+    "started_utc": "2026-11-17T17:34:42.883084+00:00",
+    "finished_utc": "2026-11-17T17:37:21.844873+00:00",
+    "exit": 0,
+    "log": "owner-ui-corrected.txt"
+  },
+  {
+    "name": "agent-surface-check",
+    "command": [
+      "pnpm",
+      "agent-surface:check"
+    ],
+    "started_utc": "2026-11-17T17:37:21.845905+00:00",
+    "finished_utc": "2026-11-17T17:37:22.389950+00:00",
+    "exit": 0,
+    "log": "agent-surface-check.txt"
+  },
+  {
+    "name": "source-lock-final",
+    "command": [
+      "node",
+      "scripts/edition-authoring/cli.mjs",
+      "lock"
+    ],
+    "started_utc": "2026-11-17T17:38:04.787170+00:00",
+    "finished_utc": "2026-11-17T17:38:05.842712+00:00",
+    "exit": 0,
+    "log": "source-lock-final.txt"
+  },
+  {
+    "name": "source-check-final",
+    "command": [
+      "pnpm",
+      "source:check"
+    ],
+    "started_utc": "2026-11-17T17:38:05.843751+00:00",
+    "finished_utc": "2026-11-17T17:38:07.162787+00:00",
+    "exit": 0,
+    "log": "source-check-final.txt"
+  },
+  {
+    "name": "integration-check-final",
+    "command": [
+      "pnpm",
+      "integration:check"
+    ],
+    "started_utc": "2026-11-17T17:38:07.163269+00:00",
+    "finished_utc": "2026-11-17T17:38:07.686572+00:00",
+    "exit": 0,
+    "log": "integration-check-final.txt"
+  },
+  {
+    "name": "local-mail-exact-sha-proof",
+    "command": [
+      "python3",
+      "/tmp/rer-reap.py",
+      "node",
+      ".artifacts/local-mail-proof.mjs"
+    ],
+    "started_utc": "2026-11-17T17:40:20.734700+00:00",
+    "finished_utc": "2026-11-17T17:40:35.557889+00:00",
+    "exit": 0,
+    "log": "local-mail-exact-sha-proof.txt"
+  },
+  {
+    "name": "corrected-contract-check",
+    "command": [
+      "node",
+      "src/base/contract-docs.mjs",
+      "check"
+    ],
+    "started_utc": "2026-11-17T18:13:28.850962+00:00",
+    "finished_utc": "2026-11-17T18:13:29.153287+00:00",
+    "exit": 0,
+    "log": "corrected-contract-check.txt"
+  },
+  {
+    "name": "corrected-source-copies",
+    "command": [
+      "node",
+      "scripts/edition-authoring/cli.mjs",
+      "verify-base",
+      "--offline"
+    ],
+    "started_utc": "2026-11-17T18:13:29.154269+00:00",
+    "finished_utc": "2026-11-17T18:13:29.892396+00:00",
+    "exit": 0,
+    "log": "corrected-source-copies.txt"
+  },
+  {
+    "name": "corrected-source-lock-provisional",
+    "command": [
+      "node",
+      "scripts/edition-authoring/cli.mjs",
+      "lock"
+    ],
+    "started_utc": "2026-11-17T18:13:29.892900+00:00",
+    "finished_utc": "2026-11-17T18:13:31.622924+00:00",
+    "exit": 0,
+    "log": "corrected-source-lock-provisional.txt"
+  },
+  {
+    "name": "corrected-source-check",
+    "command": [
+      "pnpm",
+      "source:check"
+    ],
+    "started_utc": "2026-11-17T18:13:31.623532+00:00",
+    "finished_utc": "2026-11-17T18:13:32.908627+00:00",
+    "exit": 0,
+    "log": "corrected-source-check.txt"
+  },
+  {
+    "name": "corrected-typecheck",
+    "command": [
+      "pnpm",
+      "typecheck"
+    ],
+    "started_utc": "2026-11-17T18:13:32.909288+00:00",
+    "finished_utc": "2026-11-17T18:14:04.871194+00:00",
+    "exit": 0,
+    "log": "corrected-typecheck.txt"
+  },
+  {
+    "name": "corrected-syntax-installer",
+    "command": [
+      "node",
+      "--check",
+      "scripts/installer/local.mjs"
+    ],
+    "started_utc": "2026-11-17T18:14:04.872258+00:00",
+    "finished_utc": "2026-11-17T18:14:04.932002+00:00",
+    "exit": 0,
+    "log": "corrected-syntax-installer.txt"
+  },
+  {
+    "name": "corrected-validation",
+    "command": [
+      "pnpm",
+      "run",
+      "check",
+      "--",
+      "--profile",
+      "first-party"
+    ],
+    "started_utc": "2026-11-17T18:14:04.932848+00:00",
+    "finished_utc": "2026-11-17T18:14:09.102920+00:00",
+    "exit": 0,
+    "log": "corrected-validation.txt"
+  },
+  {
+    "name": "corrected-build-app",
+    "command": [
+      "python3",
+      "/tmp/rer-reap.py",
+      "npx",
+      "-y",
+      "@runeditrun/rer",
+      "build"
+    ],
+    "started_utc": "2026-11-17T18:14:09.103471+00:00",
+    "finished_utc": "2026-11-17T18:15:03.641828+00:00",
+    "exit": 0,
+    "log": "corrected-build-app.txt"
+  },
+  {
+    "name": "corrected-build-site",
+    "command": [
+      "python3",
+      "/tmp/rer-reap.py",
+      "npx",
+      "-y",
+      "@runeditrun/rer",
+      "build",
+      "--site"
+    ],
+    "started_utc": "2026-11-17T18:15:03.643071+00:00",
+    "finished_utc": "2026-11-17T18:15:14.516784+00:00",
+    "exit": 0,
+    "log": "corrected-build-site.txt"
+  },
+  {
+    "name": "corrected-integration-check",
+    "command": [
+      "pnpm",
+      "integration:check"
+    ],
+    "started_utc": "2026-11-17T18:15:14.517305+00:00",
+    "finished_utc": "2026-11-17T18:15:15.091339+00:00",
+    "exit": 0,
+    "log": "corrected-integration-check.txt"
+  },
+  {
+    "name": "corrected-mail-off",
+    "command": [
+      "python3",
+      "/tmp/rer-reap.py",
+      "node",
+      ".artifacts/corrected-mail-off.mjs"
+    ],
+    "started_utc": "2026-11-17T18:15:15.091958+00:00",
+    "finished_utc": "2026-11-17T18:15:17.675442+00:00",
+    "exit": 0,
+    "log": "corrected-mail-off.txt"
+  },
+  {
+    "name": "corrected-repair-recovery",
+    "command": [
+      "python3",
+      "/tmp/rer-reap.py",
+      "pnpm",
+      "test:repair-recovery"
+    ],
+    "started_utc": "2026-11-17T18:17:08.393007+00:00",
+    "finished_utc": "2026-11-17T18:36:38.888912+00:00",
+    "exit": 1,
+    "log": "corrected-repair-recovery.txt"
+  },
+  {
+    "name": "merged-contract-generation",
+    "command": [
+      "node",
+      "src/base/contract-docs.mjs",
+      "write"
+    ],
+    "started_utc": "2026-11-17T19:39:25.825534+00:00",
+    "finished_utc": "2026-11-17T19:39:26.210731+00:00",
+    "exit": 0,
+    "log": "merged-contract-generation.txt"
+  },
+  {
+    "name": "merged-contract-check",
+    "command": [
+      "node",
+      "src/base/contract-docs.mjs",
+      "check"
+    ],
+    "started_utc": "2026-11-17T19:39:26.277825+00:00",
+    "finished_utc": "2026-11-17T19:39:26.594800+00:00",
+    "exit": 0,
+    "log": "merged-contract-check.txt"
+  },
+  {
+    "name": "merged-source-copies",
+    "command": [
+      "node",
+      "scripts/edition-authoring/cli.mjs",
+      "verify-base",
+      "--offline"
+    ],
+    "started_utc": "2026-11-17T19:39:26.597753+00:00",
+    "finished_utc": "2026-11-17T19:39:27.095504+00:00",
+    "exit": 0,
+    "log": "merged-source-copies.txt"
+  },
+  {
+    "name": "merged-source-lock-provisional",
+    "command": [
+      "node",
+      "scripts/edition-authoring/cli.mjs",
+      "lock"
+    ],
+    "started_utc": "2026-11-17T19:39:27.096842+00:00",
+    "finished_utc": "2026-11-17T19:39:28.631762+00:00",
+    "exit": 0,
+    "log": "merged-source-lock-provisional.txt"
+  },
+  {
+    "name": "merged-source-check",
+    "command": [
+      "pnpm",
+      "source:check"
+    ],
+    "started_utc": "2026-11-17T19:39:28.634598+00:00",
+    "finished_utc": "2026-11-17T19:39:30.048809+00:00",
+    "exit": 0,
+    "log": "merged-source-check.txt"
+  },
+  {
+    "name": "merged-typecheck",
+    "command": [
+      "pnpm",
+      "typecheck"
+    ],
+    "started_utc": "2026-11-17T19:39:30.053523+00:00",
+    "finished_utc": "2026-11-17T19:40:08.140631+00:00",
+    "exit": 0,
+    "log": "merged-typecheck.txt"
+  },
+  {
+    "name": "merged-syntax",
+    "command": [
+      "node",
+      "--input-type=module",
+      "-e",
+      "import {execFileSync} from 'node:child_process';for(const p of process.argv.slice(1))execFileSync(process.execPath,['--check',p],{stdio:'inherit'});",
+      "src/auth/local-identity.server.mjs",
+      "tests/browser-origins-runtime.mjs",
+      "tests/owner-setup-browser.mjs",
+      "tests/setup-journey.mjs",
+      "tests/team-browser.mjs",
+      "tests/triage-journey.mjs"
+    ],
+    "started_utc": "2026-11-17T19:40:08.171954+00:00",
+    "finished_utc": "2026-11-17T19:40:08.502001+00:00",
+    "exit": 0,
+    "log": "merged-syntax.txt"
+  },
+  {
+    "name": "merged-validation",
+    "command": [
+      "pnpm",
+      "run",
+      "check",
+      "--",
+      "--profile",
+      "first-party"
+    ],
+    "started_utc": "2026-11-17T19:40:08.504867+00:00",
+    "finished_utc": "2026-11-17T19:40:13.115500+00:00",
+    "exit": 0,
+    "log": "merged-validation.txt"
+  },
+  {
+    "name": "merged-build-app",
+    "command": [
+      "python3",
+      "/tmp/rer-reap.py",
+      "npx",
+      "-y",
+      "@runeditrun/rer",
+      "build"
+    ],
+    "started_utc": "2026-11-17T19:40:13.116611+00:00",
+    "finished_utc": "2026-11-17T19:41:01.001356+00:00",
+    "exit": 0,
+    "log": "merged-build-app.txt"
+  },
+  {
+    "name": "merged-build-site",
+    "command": [
+      "python3",
+      "/tmp/rer-reap.py",
+      "npx",
+      "-y",
+      "@runeditrun/rer",
+      "build",
+      "--site"
+    ],
+    "started_utc": "2026-11-17T19:41:01.015385+00:00",
+    "finished_utc": "2026-11-17T19:41:12.346895+00:00",
+    "exit": 0,
+    "log": "merged-build-site.txt"
+  },
+  {
+    "name": "merged-integration-check",
+    "command": [
+      "pnpm",
+      "integration:check"
+    ],
+    "started_utc": "2026-11-17T19:41:12.347646+00:00",
+    "finished_utc": "2026-11-17T19:41:13.279713+00:00",
+    "exit": 0,
+    "log": "merged-integration-check.txt"
+  },
+  {
+    "name": "merged-source-lock-final",
+    "command": [
+      "node",
+      "scripts/edition-authoring/cli.mjs",
+      "lock"
+    ],
+    "started_utc": "2026-11-17T19:41:43.754459+00:00",
+    "finished_utc": "2026-11-17T19:41:45.015285+00:00",
+    "exit": 0,
+    "log": "merged-source-lock-final.txt"
+  },
+  {
+    "name": "merged-source-check-final",
+    "command": [
+      "pnpm",
+      "source:check"
+    ],
+    "started_utc": "2026-11-17T19:41:45.015919+00:00",
+    "finished_utc": "2026-11-17T19:41:46.673446+00:00",
+    "exit": 0,
+    "log": "merged-source-check-final.txt"
+  },
+  {
+    "name": "merged-integration-check-final",
+    "command": [
+      "pnpm",
+      "integration:check"
+    ],
+    "started_utc": "2026-11-17T19:41:46.674294+00:00",
+    "finished_utc": "2026-11-17T19:41:47.267365+00:00",
+    "exit": 0,
+    "log": "merged-integration-check-final.txt"
+  }
+]

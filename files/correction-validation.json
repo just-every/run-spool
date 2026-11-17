@@ -1,0 +1,32 @@
+{
+  "recorded_utc": "2026-11-17T19:43:38.954993+00:00",
+  "head": "a99b4001ba8fb87b2f6e033163f7d64be7b2c520",
+  "portability_source_sha256": "b41e4a67a42c46068d45e2751a08d9ef74ca16a1f41c3183082f387b1b09f1ff",
+  "old_archive_exit": 0,
+  "mail_off_exit": 0,
+  "full_repair_recovery_exit": 1,
+  "previous_release_http": 409,
+  "previous_release_error": "schema_mismatch:migration_history",
+  "full_no_ledger_http": 200,
+  "scratch_corrected_fixture_http": 200,
+  "source_lock": "regenerated last and checked",
+  "required_checks": [
+    "merged-contract-generation",
+    "merged-contract-check",
+    "merged-source-copies",
+    "merged-source-lock-provisional",
+    "merged-source-check",
+    "merged-typecheck",
+    "merged-syntax",
+    "merged-validation",
+    "merged-build-app",
+    "merged-build-site",
+    "merged-integration-check",
+    "merged-source-lock-final",
+    "merged-source-check-final",
+    "merged-integration-check-final"
+  ],
+  "scope_extension_patch": "fixture-scope-extension.patch",
+  "approval": "pending; repository fixture not edited",
+  "blocker": "tests/repair-recovery/archive.mjs:71 constructs a previous-release archive with noncontiguous migration history (0102\u20130109 removed, 0110/0111 retained); fixture source is outside the explicit lease. Scope-extension approval is pending."
+}

@@ -1,0 +1,251 @@
+{
+  "repository": "just-every/run-spool",
+  "head_sha": "837686de2ba65ede6cb31b6b2fce6d666a7340ce",
+  "calls": [
+    {
+      "at_utc": "2026-11-17T17:38:19.343375+00:00",
+      "command": [
+        "gh",
+        "api",
+        "repos/just-every/run-spool/actions/runs?head_sha=837686de2ba65ede6cb31b6b2fce6d666a7340ce&per_page=100"
+      ],
+      "exit": 0
+    },
+    {
+      "at_utc": "2026-11-17T17:43:19.304257+00:00",
+      "command": [
+        "gh",
+        "api",
+        "repos/just-every/run-spool/actions/runs/44139169162",
+        "--jq",
+        "{status,conclusion,head_sha,html_url}"
+      ],
+      "exit": 0
+    },
+    {
+      "at_utc": "2026-11-17T17:48:19.355081+00:00",
+      "command": [
+        "gh",
+        "api",
+        "repos/just-every/run-spool/actions/runs/44139169162",
+        "--jq",
+        "{status,conclusion,head_sha,html_url}"
+      ],
+      "exit": 0
+    },
+    {
+      "at_utc": "2026-11-17T17:53:19.886933+00:00",
+      "command": [
+        "gh",
+        "api",
+        "repos/just-every/run-spool/actions/runs/44139169162",
+        "--jq",
+        "{status,conclusion,head_sha,html_url}"
+      ],
+      "exit": 0
+    },
+    {
+      "at_utc": "2026-11-17T17:58:19.339305+00:00",
+      "command": [
+        "gh",
+        "api",
+        "repos/just-every/run-spool/actions/runs/44139169162",
+        "--jq",
+        "{status,conclusion,head_sha,html_url}"
+      ],
+      "exit": 0
+    },
+    {
+      "at_utc": "2026-11-17T18:03:19.357843+00:00",
+      "command": [
+        "gh",
+        "api",
+        "repos/just-every/run-spool/actions/runs/44139169162",
+        "--jq",
+        "{status,conclusion,head_sha,html_url}"
+      ],
+      "exit": 0
+    },
+    {
+      "at_utc": "2026-11-17T18:03:20.967137+00:00",
+      "command": [
+        "gh",
+        "api",
+        "repos/just-every/run-spool/actions/runs/44139169162/jobs?per_page=100"
+      ],
+      "exit": 0
+    },
+    {
+      "at_utc": "2026-11-17T18:03:54.032453+00:00",
+      "command": [
+        "gh",
+        "run",
+        "view",
+        "44139169162",
+        "--repo",
+        "just-every/run-spool",
+        "--job",
+        "134237871392",
+        "--log-failed"
+      ],
+      "exit": 1,
+      "error": "failed to get run log: stream error: stream ID 1; INTERNAL_ERROR; received from peer\n"
+    },
+    {
+      "at_utc": "2026-11-17T18:05:50.783341+00:00",
+      "command": [
+        "gh",
+        "run",
+        "view",
+        "44139169162",
+        "--repo",
+        "just-every/run-spool",
+        "--job",
+        "134237871480",
+        "--log-failed"
+      ],
+      "exit": 1,
+      "transport": "HTTP/2 disabled after a peer stream error on the first archive command; this is the first read of this failed job",
+      "error": "failed to get run log: unexpected EOF\n"
+    },
+    {
+      "at_utc": "2026-11-17T18:06:01.417989+00:00",
+      "command": [
+        "gh",
+        "run",
+        "view",
+        "44139169162",
+        "--repo",
+        "just-every/run-spool",
+        "--job",
+        "134237871608",
+        "--log-failed"
+      ],
+      "exit": 0,
+      "transport": "HTTP/2 disabled after a peer stream error on the first archive command; this is the first read of this failed job",
+      "log": "ci-failed-job-134237871608.txt"
+    }
+  ],
+  "runs": [
+    {
+      "at_utc": "2026-11-17T17:38:19.343854+00:00",
+      "id": 44139169162,
+      "name": "Verify",
+      "head_sha": "837686de2ba65ede6cb31b6b2fce6d666a7340ce",
+      "status": "in_progress",
+      "conclusion": null,
+      "html_url": "https://github.com/just-every/run-spool/actions/runs/44139169162",
+      "event": "push"
+    },
+    {
+      "at_utc": "2026-11-17T17:43:19.304701+00:00",
+      "conclusion": null,
+      "head_sha": "837686de2ba65ede6cb31b6b2fce6d666a7340ce",
+      "html_url": "https://github.com/just-every/run-spool/actions/runs/44139169162",
+      "status": "in_progress",
+      "id": 44139169162
+    },
+    {
+      "at_utc": "2026-11-17T17:48:19.355555+00:00",
+      "conclusion": null,
+      "head_sha": "837686de2ba65ede6cb31b6b2fce6d666a7340ce",
+      "html_url": "https://github.com/just-every/run-spool/actions/runs/44139169162",
+      "status": "in_progress",
+      "id": 44139169162
+    },
+    {
+      "at_utc": "2026-11-17T17:53:19.889286+00:00",
+      "conclusion": null,
+      "head_sha": "837686de2ba65ede6cb31b6b2fce6d666a7340ce",
+      "html_url": "https://github.com/just-every/run-spool/actions/runs/44139169162",
+      "status": "in_progress",
+      "id": 44139169162
+    },
+    {
+      "at_utc": "2026-11-17T17:58:19.341865+00:00",
+      "conclusion": null,
+      "head_sha": "837686de2ba65ede6cb31b6b2fce6d666a7340ce",
+      "html_url": "https://github.com/just-every/run-spool/actions/runs/44139169162",
+      "status": "in_progress",
+      "id": 44139169162
+    },
+    {
+      "at_utc": "2026-11-17T18:03:19.358888+00:00",
+      "conclusion": "failure",
+      "head_sha": "837686de2ba65ede6cb31b6b2fce6d666a7340ce",
+      "html_url": "https://github.com/just-every/run-spool/actions/runs/44139169162",
+      "status": "completed",
+      "id": 44139169162
+    }
+  ],
+  "conclusion": "failure",
+  "run_id": 44139169162,
+  "failed_jobs": [
+    {
+      "id": 134237871392,
+      "name": "verify (runtime)",
+      "html_url": "https://github.com/just-every/run-spool/actions/runs/44139169162/job/134237871392",
+      "steps": [
+        {
+          "name": "Run suites",
+          "conclusion": "failure"
+        }
+      ]
+    },
+    {
+      "id": 134237871480,
+      "name": "verify (owner-ui)",
+      "html_url": "https://github.com/just-every/run-spool/actions/runs/44139169162/job/134237871480",
+      "steps": [
+        {
+          "name": "Run suites",
+          "conclusion": "failure"
+        }
+      ]
+    },
+    {
+      "id": 134237871608,
+      "name": "verify (repair-recovery)",
+      "html_url": "https://github.com/just-every/run-spool/actions/runs/44139169162/job/134237871608",
+      "steps": [
+        {
+          "name": "Run suites",
+          "conclusion": "failure"
+        }
+      ]
+    },
+    {
+      "id": 134249751076,
+      "name": "shards (spool)",
+      "html_url": "https://github.com/just-every/run-spool/actions/runs/44139169162/job/134249751076",
+      "steps": [
+        {
+          "name": "Require every job in this coverage partition",
+          "conclusion": "failure"
+        }
+      ]
+    },
+    {
+      "id": 134249800070,
+      "name": "verify",
+      "html_url": "https://github.com/just-every/run-spool/actions/runs/44139169162/job/134249800070",
+      "steps": [
+        {
+          "name": "Require the selected coverage and its proof",
+          "conclusion": "failure"
+        }
+      ]
+    }
+  ],
+  "cached_logs": [
+    {
+      "job": 134237871392,
+      "file": "ci-cached-job-134237871392.txt"
+    },
+    {
+      "job": 134237871480,
+      "file": "ci-cached-job-134237871480.txt"
+    }
+  ],
+  "cache_read_note": "The successful repair-recovery archive command cached the whole run archive. Runtime and owner-ui logs were extracted locally without another network call or retry. CI runner environment blocks were omitted from public log copies."
+}

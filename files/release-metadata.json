@@ -1,0 +1,15 @@
+{
+  "checked_utc": "2026-11-17T17:25:10.390758+00:00",
+  "versions": {
+    "package.json": "0.7.14",
+    "seed.json": "0.7.14",
+    "RELEASE.json": "0.7.14"
+  },
+  "contract_sha256": "ee9c871bfa25a110d3f3e61924164c75cc17ea412cb775f2e0621f114ab3594b",
+  "contract_bytes": "unchanged",
+  "release_metadata": "unchanged",
+  "release_entry_requirement": "No contract-meaning change; no RELEASE.json entry requested by the repository checks.",
+  "core_migrations_before": 103,
+  "core_migrations_after": 105,
+  "validation": "pnpm run check -- --profile first-party passed; source and integration validation receipts are separate"
+}

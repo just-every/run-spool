@@ -1,0 +1,57 @@
+{
+  "recorded_utc": "2026-11-17T19:43:38.954993+00:00",
+  "repository": "just-every/run-spool",
+  "branch": "cloud/sd-spool-design-setup-2",
+  "head": "a99b4001ba8fb87b2f6e033163f7d64be7b2c520",
+  "tree": "f68980a4b66a29350a2a8787892fc82e451ccf1b",
+  "base": "3b7a3ebe545f3bd9c6a979ca04d5687c6a375b09",
+  "initial_base": "6263ba70f1d0fce4ea1df7e6bf7b4f0d827489e1",
+  "previous_candidate": "837686de2ba65ede6cb31b6b2fce6d666a7340ce",
+  "candidate_commits": [
+    "a99b4001ba8fb87b2f6e033163f7d64be7b2c520",
+    "837686de2ba65ede6cb31b6b2fce6d666a7340ce"
+  ],
+  "merge_commits": [
+    "a99b4001ba8fb87b2f6e033163f7d64be7b2c520"
+  ],
+  "merge_policy": "Required by cloud adaptation after published save; no history rewritten",
+  "diff": {
+    "files": 54,
+    "insertions": 858,
+    "deletions": 374
+  },
+  "product_push": "success",
+  "save_ci": "skip ci",
+  "custody": "BLOCKED",
+  "blocker": "tests/repair-recovery/archive.mjs:71 constructs a previous-release archive with noncontiguous migration history (0102\u20130109 removed, 0110/0111 retained); fixture source is outside the explicit lease. Scope-extension approval is pending.",
+  "contract_changes": [],
+  "core_counts_before_after": [
+    23,
+    45,
+    19
+  ],
+  "agent_counts_before_after": [
+    0,
+    9,
+    9
+  ],
+  "full_counts_before_after": [
+    23,
+    54,
+    28
+  ],
+  "core_migrations_before": 103,
+  "core_migrations_after": 105,
+  "generated_views_committed": false,
+  "pr": null,
+  "ci": {
+    "previous_run": 44139169162,
+    "previous_head": "837686de2ba65ede6cb31b6b2fce6d666a7340ce",
+    "previous_conclusion": "failure",
+    "github_calls_used": 10,
+    "latest_head": "a99b4001ba8fb87b2f6e033163f7d64be7b2c520",
+    "latest_run_id": null,
+    "latest_status": "not observed; saved with skip ci; full local recovery assertion remains blocked on fixture scope",
+    "ready": false
+  }
+}

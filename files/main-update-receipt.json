@@ -1,0 +1,11 @@
+{
+  "recorded_utc": "2026-11-17T19:18:04.837936+00:00",
+  "initial_main": "6263ba70f1d0fce4ea1df7e6bf7b4f0d827489e1",
+  "updated_main": "3b7a3ebe545f3bd9c6a979ca04d5687c6a375b09",
+  "new_commits": [
+    "3b7a3eb Redact Sentry credential reflections across capture pages",
+    "0272d5c Keep rejected Sentry records readable and verify bounded import recovery",
+    "00fdfa9 Add documented Sentry captures and exhaustive import accounting [skip ci]"
+  ],
+  "policy": "The initial candidate was linear. After a published save, the cloud adaptation requires merge updated main and prohibits rebasing published history; retain all newer main changes."
+}
