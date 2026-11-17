@@ -25,8 +25,9 @@ importedMembers.post('/:id/preview',async c=>{
  const row=await s(c.env.DB,"SELECT * FROM spool_import_proposals WHERE id=? AND kind='ownership' AND version=?",c.req.param('id'),expected).first<any>();
  if(!row)return c.json({error:'Ownership proposal changed'},409);
  const payload=JSON.parse(row.payload),preview=ownershipPreview(payload,input.samples);
- const members=(await s(c.env.DB,"SELECT payload FROM spool_import_proposals WHERE kind='member'").all<any>()).results.map(row=>JSON.parse(row.payload));
- const teams=(await s(c.env.DB,"SELECT payload FROM spool_import_proposals WHERE kind='team'").all<any>()).results.map(row=>JSON.parse(row.payload));
+ const related=(await s(c.env.DB,"SELECT p.kind,p.payload FROM spool_import_proposals p JOIN sentry_import_targets m ON m.kind='import-proposal' AND m.id=p.id JOIN sentry_import_targets own ON own.kind='import-proposal' AND own.id=? WHERE json_extract(m.source,'$.organization')=json_extract(own.source,'$.organization')",row.id).all<any>()).results;
+ const members=related.filter(row=>row.kind==='member').map(row=>JSON.parse(row.payload));
+ const teams=related.filter(row=>row.kind==='team').map(row=>JSON.parse(row.payload));
  return c.json({...preview,rules:preview.rules.map((rule:any)=>({...rule,owners:rule.owners?.map((owner:any)=>({...owner,resolved:owner.type==='user'?members.some(member=>member.sourceUserId===owner.id):owner.type==='team'&&teams.some(team=>team.sourceId===owner.id)}))})),
   requirement:'Disabled proposal only. A linked repository revision and native ownership authority are required before live routing; no provider consent or notification is imported.'});
 });

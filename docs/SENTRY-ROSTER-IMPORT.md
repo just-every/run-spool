@@ -84,7 +84,8 @@ only; it never copies source email, raw ownership or sample paths. Project
 erasure withdraws shared review records, import lineage and private originals;
 shared proposals are removed whole rather than retaining another project's
 copy of personal fields. Owner self-erasure holds while shared import review
-custody exists, including after native archive restore. Erase those projects
+custody exists, including after native archive restore (an ambiguous restored owner roster may
+raise its attribution hold first). Erase those projects
 first. Externally downloaded exports, sent mail and provider backups remain
 outside the installation fence.
 

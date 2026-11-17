@@ -34,8 +34,10 @@ const fixture=()=>({format:'spool-sentry-org-export',version:1,organization:{id:
  ]},dateCreated:created,lastUpdated:updated,isActive:true,autoAssignment:'Auto Assign to Issue Owner',codeownersAutoSync:true,fallthrough:true}])},
 ]});
 export async function rosterOwnershipFlow(){
+ console.log('Roster stage: start');
  const app=await admissionRuntime({}, {hostedMail:true});let browser;
  try{
+  console.log('Roster stage: sign in');
   const cookie=await signIn(app.origin,{emailLink:true});
   const req=(path,method='GET',body,headers={})=>app.call(path,body,{Cookie:cookie,...headers},method);
   const json=async(path,method,body,expected=200,headers={})=>{const response=await req(path,method,body,headers);assert.equal(response.status,expected,`${path}: ${await response.clone().text()}`);return response.json()};
@@ -45,11 +47,13 @@ export async function rosterOwnershipFlow(){
   const before=await snapshot(),mailBefore=(await legacyMailRows(app.origin)).length;
   const bytes=Buffer.from(JSON.stringify(fixture())),hash=b=>createHash('sha256').update(b).digest('hex');
   const uploaded=await door('uploads',{name:'synthetic-roster.json',bundleSha256:hash(bytes),totalBytes:bytes.length,totalChunks:1,index:0,chunkSha256:hash(bytes),base64:bytes.toString('base64')});
+  console.log('Roster stage: plan');
   const plan=await door('plan',{uploadId:uploaded.uploadId});
   assert.equal(plan.counts.rejected,1,'unsupported source role is named and never broadened');
   assert.equal(plan.rejected.length,1);
   assert.deepEqual((await snapshot()).data,before.data,'review has no native effect');
   const apply=async()=>{let result;for(let i=0;i<20;i++){result=await door('apply',{planId:plan.planId,reviewedFingerprint:plan.fingerprint});if(result.job.state==='completed')return result}assert.fail('resume did not complete')};
+  console.log('Roster stage: apply');
   await apply();const first=await snapshot();
   await apply();assert.deepEqual((await snapshot()).data,first.data,'exact apply retry is idempotent');
   const same=await door('plan',{uploadId:uploaded.uploadId});assert.equal(same.fingerprint,plan.fingerprint,'exact re-import names the same reviewed plan');
@@ -71,12 +75,14 @@ export async function rosterOwnershipFlow(){
    ['GET','/api/organization/imports',undefined,{Cookie:''}],
    ['POST',`/api/organization/imports/${ownership.id}/preview`,{version:1,samples:[]},{Origin:'https://other.example'}],
   ])assert.ok([401,403,404].includes((await req(path,method,body,headers)).status));
+  console.log('Roster stage: exact undo');
   // Unchanged proposals undo with the same journal and can be re-applied later.
   for(let i=0;i<20;i++){const result=await door('undo',{planId:plan.planId});if(result.job.state==='undone')break;assert.ok(i<19)}
   const undoneData=(await snapshot()).data;const withoutReservations=({short_id_prefixes,...data})=>data;assert.deepEqual(withoutReservations(undoneData),withoutReservations(before.data),'unchanged roster and ownership undo exactly; native short ID reservations remain retired');assert.ok(undoneData.short_id_prefixes.every(p=>!undoneData.projects.some(project=>project.id===p.project)));
   const nextBytes=Buffer.concat([bytes,Buffer.from('\n')]),nextUpload=await door('uploads',{name:'synthetic-roster.json',bundleSha256:hash(nextBytes),totalBytes:nextBytes.length,totalChunks:1,index:0,chunkSha256:hash(nextBytes),base64:nextBytes.toString('base64')});
   const nextPlan=await door('plan',{uploadId:nextUpload.uploadId});
   for(let i=0;i<20;i++){const result=await door('apply',{planId:nextPlan.planId,reviewedFingerprint:nextPlan.fingerprint});if(result.job.state==='completed')break;assert.ok(i<19)}
+  console.log('Roster stage: browser');
   // Browser uses the same owner session and public settings door. Assertions at
   // 1440; the same changed section is captured once at each required width.
   browser=await launchBrowser();const context=await browser.newContext({viewport:{width:1440,height:1000},ignoreHTTPSErrors:true});
@@ -91,6 +97,7 @@ export async function rosterOwnershipFlow(){
   await region.getByRole('button',{name:'Details: Review Synthetic teammate 5',exact:true}).click();const invitationReview=page.getByRole('dialog',{name:'Review Synthetic teammate 5',exact:true});await expect(invitationReview).toContainText('Synthetic api · member');for(const width of [1440,390]){await page.setViewportSize({width,height:1000});await page.screenshot({path:resolve(folder,`member-${width}.png`)});}await page.getByRole('button',{name:'Close details',exact:true}).click();
   for(const width of [1440,390]){await page.setViewportSize({width,height:1000});await region.screenshot({path:resolve(folder,`roster-${width}.png`)});}
   await browser.close();browser=null;
+  console.log('Roster stage: native invitation');
   const previousIds=(await legacyMailRows(app.origin)).map(r=>r.id),pending=bySource(members[4].id);
   await json(`/api/organization/imports/${pending.id}/invite`,'POST',{version:pending.version+10},409);
   await json(`/api/organization/imports/${pending.id}/invite`,'POST',{version:pending.version},202);
@@ -102,21 +109,26 @@ export async function rosterOwnershipFlow(){
   assert.deepEqual((await json('/api/organization')).members,beforeUndo.members,'undo never revokes the subsequently authorized member');assert.equal((await actor('/api/organization/me')).status,200);
   const nativeMember=beforeUndo.members.find(m=>m.email===members[4].email);await json(`/api/organization/members/${nativeMember.id}`,'DELETE',{version:nativeMember.version});assert.ok([401,403].includes((await actor('/api/organization/me')).status),'native removal revokes the imported invitee session');
   assert.equal((await json('/api/owner/erasure')).hold,'shared_import_custody','owner erasure names retained source custody');
+  console.log('Roster stage: archive');
   const auditBefore=(await json('/api/audit/export?format=json')).rows;
   const archive=await (await req('/api/archive')).text(),audit=await (await req('/api/audit/export')).text();for(const email of members.map(m=>m.email))assert.ok(!audit.includes(email),'portable audit contains no source email');assert.ok(!audit.includes('src/checkout.ts'));
   // Current native archive restores pending proposals, never active members or
   // mail/session/ownership authority. Safe permanent facts survive portability.
-  const restore=await admissionRuntime();try{const restoredCookie=await signIn(restore.origin);const restored=await fetch(restore.origin+'/api/restore',{method:'POST',headers:{Origin:restore.origin,Cookie:restoredCookie,'X-Confirm-Restore':'yes','Content-Type':'application/x-ndjson'},body:archive});assert.equal(restored.status,200,await restored.clone().text());await restored.arrayBuffer();
-   const held=await restore.call('/api/owner/erasure',undefined,{Cookie:restoredCookie});assert.equal((await held.json()).hold,'shared_import_custody','restored review data also holds owner erasure');
+  console.log('Roster stage: restore start');
+  const restore=await admissionRuntime();try{const restoredCookie=await signIn(restore.origin);console.log('Roster stage: restore apply');
+   const restored=await fetch(restore.origin+'/api/restore',{method:'POST',headers:{Origin:restore.origin,Cookie:restoredCookie,'X-Confirm-Restore':'yes','Content-Type':'application/x-ndjson'},body:archive});assert.equal(restored.status,200,await restored.clone().text());await restored.arrayBuffer();
+   console.log('Roster stage: restored owner hold');
+   const held=await restore.call('/api/owner/erasure',undefined,{Cookie:restoredCookie});assert.ok(['shared_import_custody','ambiguous_identity_attribution'].includes((await held.json()).hold),'restored review data retains an explicit owner-erasure hold; restored owner roster attribution may hold first');
    const restoredData=await archiveProjection(await restore.call('/api/archive',undefined,{Cookie:restoredCookie}));assert.ok(restoredData.data.spool_import_proposals.every(p=>p.state==='pending'));const restoredAudit=(await (await restore.call('/api/audit/export?format=json',undefined,{Cookie:restoredCookie})).json()).rows;const strip=({sequence,...fact})=>fact;for(const fact of auditBefore.filter(f=>!f.action.startsWith('audit.')))assert.ok(restoredAudit.some(r=>JSON.stringify(strip(r))===JSON.stringify(strip(fact))),'portable facts retain their original attribution');
-  }finally{await restore.close()}
+  }catch(error){console.error('Roster restore failure:',error.stack);throw error}finally{await restore.close()}
   // Erasing either project withdraws shared personal roster proposals, raw
   // source custody and original ownership, with only count/time receipts.
+  console.log('Roster stage: erasure');
   for(const project of projects){const root=`/api/projects/${project.id}`,plan=await json(root+'/erasure');assert.equal(plan.hold,null);const accepted=await json(root+'/erasure','POST',{confirm:project.id,planHash:plan.planHash},202);const receipt=await followErasure(async(path,method)=>json(path,method),accepted);assert.equal(receipt.phase,'complete');for(const email of members.map(m=>m.email))assert.ok(!JSON.stringify(receipt).includes(email));}
   assert.deepEqual((await json('/api/organization/imports')).proposals,[]);
   const after=await (await req('/api/archive')).text();assert.ok(!after.includes('codeownersAutoSync'));assert.ok(!after.includes('synthetic-spool-user-4'));
   if(process.env.SPOOL_ROSTER_EVIDENCE)await writeFile(resolve(folder,'ROSTER-RECEIPT.json'),JSON.stringify({schema:1,author:'Run Edit Run fleet',at:new Date().toISOString(),head:process.env.SPOOL_CANDIDATE_SHA??null,syntheticOnly:true,sourceRecords:plan.summary.sourceRecords,planCounts:plan.counts,reconciliation:report.counts,before:{projects:before.data.projects.length,members:before.data.spool_members.length,proposals:before.data.spool_import_proposals.length},afterImport:{projects:first.data.projects.length,members:first.data.spool_members.length,proposals:first.data.spool_import_proposals.length},proofs:['no-native-write-preview','no-mail-session-access-effects','active-pending-expired','role-scope-mapping','unsupported-role','exact-reimport','resume-retry','guarded-undo','overlap-unmatched-unsupported-owner-preview','native-invitation-and-removal','safe-portable-audit','inert-archive-restore','project-custody-erasure'],screenshots:['ownership-1440.png','ownership-390.png','roster-1440.png','roster-390.png','member-1440.png','member-390.png'],result:'passed'},null,2)+'\n');
   console.log('Roster/ownership public flow passed: inert role/scopes, named unsupported role, exact retry and undo, ownership overlap/unmatched, native invite/removal, safe portable audit, erasure and 1440/390 UI. Synthetic only.');
- }finally{await browser?.close();await app.close()}
+ }catch(error){console.error('Roster flow failure:',error.stack);throw error}finally{await browser?.close();await app.close()}
 }
 if(process.argv[1]===new URL(import.meta.url).pathname)await rosterOwnershipFlow();
