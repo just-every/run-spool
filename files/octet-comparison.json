@@ -1,0 +1,18 @@
+{
+  "asciiValueOctetsAccepted": {
+    "before": 92,
+    "after": 90
+  },
+  "changes": [
+    {
+      "ascii": 44,
+      "before": true,
+      "after": false
+    },
+    {
+      "ascii": 92,
+      "before": true,
+      "after": false
+    }
+  ]
+}

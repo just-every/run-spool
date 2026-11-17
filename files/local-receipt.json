@@ -1,0 +1,177 @@
+{
+  "author": "Run Edit Run fleet",
+  "date": "2026-11-17",
+  "repository": "just-every/run-spool",
+  "branch": "cloud/gr-mt-spool-code-2",
+  "sha": "b475196559aa9f029bba9a17cf12bbd83ed6403f",
+  "scope": {
+    "alert": 15,
+    "rule": "js/overly-large-range",
+    "file": "src/modules/portability/cli-options.mjs",
+    "contractChanges": [],
+    "registeredTestsAdded": 0,
+    "provenanceFiles": [
+      "base-copies.json",
+      "sources.lock.json"
+    ]
+  },
+  "checks": [
+    {
+      "command": "node cookie-regression.mjs <repo> (original main source)",
+      "exit": 1,
+      "result": "Reproduced: ASCII 44 (comma) was accepted",
+      "receipt": "regression-before.log"
+    },
+    {
+      "command": "node cookie-regression.mjs <repo> (candidate)",
+      "exit": 0,
+      "result": "90 valid octets accepted; 38 excluded ASCII octets refused before HTTP",
+      "receipt": "regression-after.log"
+    },
+    {
+      "command": "pnpm typecheck",
+      "exit": 0,
+      "node": "22.20.0",
+      "pnpm": "10.12.4",
+      "receipt": "typecheck.log"
+    },
+    {
+      "command": "node scripts/edition-authoring/cli.mjs lock",
+      "exit": 0,
+      "receipt": "source-lock.log"
+    },
+    {
+      "command": "pnpm source:check",
+      "exit": 0,
+      "receipt": "source-check.log"
+    },
+    {
+      "command": "node src/base/contract-docs.mjs check",
+      "exit": 0,
+      "receipt": "contract-check.log"
+    },
+    {
+      "command": "node scripts/edition-authoring/cli.mjs adapt-base src/modules/portability/cli-options.mjs",
+      "exit": 0,
+      "receipt": "adaptation-receipt.json"
+    },
+    {
+      "command": "node scripts/edition-authoring/cli.mjs verify-base --offline",
+      "exit": 0,
+      "receipt": "verify-base.log"
+    },
+    {
+      "command": "pnpm run check -- --profile first-party",
+      "exit": 0,
+      "receipt": "rer-check.log"
+    }
+  ],
+  "behaviorComparison": {
+    "beforeAcceptedAsciiValueOctets": 92,
+    "afterAcceptedAsciiValueOctets": 90,
+    "removedOctets": [
+      44,
+      92
+    ],
+    "unchangedOtherAsciiOctets": 126
+  },
+  "acceptanceCounts": {
+    "before": {
+      "done": 23,
+      "partial": 54,
+      "missing": 28,
+      "total": 105
+    },
+    "after": {
+      "done": 23,
+      "partial": 54,
+      "missing": 28,
+      "total": 105
+    }
+  },
+  "publication": {
+    "status": "PASS",
+    "baseArchiveRevision": "4a43a4bd537d4b0f75db05d8249230386984644c",
+    "receipt": "publication-scan.json",
+    "firstAttempt": {
+      "status": "INCOMPLETE",
+      "complete": false,
+      "rule": "scan.deadline-exceeded",
+      "seconds": 300,
+      "receipt": "publication-scan-timeout.json"
+    },
+    "retryTimeoutSeconds": 7200,
+    "publicBase": "https://github.com/just-every/run-spool.git#main",
+    "baseArchiveSha256": "b5b9a22848558d986767541216f6663fec9538dc3a88fbea9151b9b24624d0e9",
+    "setupAttempt": {
+      "status": "FAIL",
+      "complete": true,
+      "receipt": "publication-scan-setup-failure.json",
+      "reason": "Scanner extraction omitted root edition-authoring dependency; optional --project argument used repository slug instead of logical identity. Dependency restored and correct logical project just-every/spool verified before final scan."
+    },
+    "complete": true,
+    "findings": 0,
+    "commit": "b475196559aa9f029bba9a17cf12bbd83ed6403f",
+    "tree": "a7c2fce5049a5ac60b5bc2ba60985eb75f395463",
+    "seconds": 414.591711,
+    "commits": 984,
+    "blobs": 8213,
+    "firstCandidatePassReceipt": "publication-scan-first-candidate.json"
+  },
+  "ci": {
+    "status": "in_progress",
+    "runId": 44083687947,
+    "headSha": "b475196559aa9f029bba9a17cf12bbd83ed6403f",
+    "url": "https://github.com/just-every/run-spool/actions/runs/44083687947",
+    "receipt": "ci-final.json",
+    "polls": [
+      {
+        "conclusion": null,
+        "head_sha": "b475196559aa9f029bba9a17cf12bbd83ed6403f",
+        "html_url": "https://github.com/just-every/run-spool/actions/runs/44083687947",
+        "status": "in_progress"
+      },
+      {
+        "conclusion": null,
+        "head_sha": "b475196559aa9f029bba9a17cf12bbd83ed6403f",
+        "html_url": "https://github.com/just-every/run-spool/actions/runs/44083687947",
+        "status": "in_progress"
+      },
+      {
+        "conclusion": null,
+        "head_sha": "b475196559aa9f029bba9a17cf12bbd83ed6403f",
+        "html_url": "https://github.com/just-every/run-spool/actions/runs/44083687947",
+        "status": "in_progress"
+      }
+    ],
+    "run_id": 44083687947,
+    "conclusion": null,
+    "head_sha": "b475196559aa9f029bba9a17cf12bbd83ed6403f",
+    "html_url": "https://github.com/just-every/run-spool/actions/runs/44083687947"
+  },
+  "githubCallsByBuilder": 10,
+  "preservation": {
+    "bundle": "preservation/candidate-final.bundle",
+    "verified": true,
+    "sha256": "3c40b49ac67cd2f04de5eabcd274865359d279471033549a2b27130bc9b741eb"
+  },
+  "productPush": {
+    "status": "pushed",
+    "attempts": 1,
+    "receipt": "push-final-receipt.log"
+  },
+  "firstCandidate": {
+    "sha": "f5141684dc88f64ddbbcab6171bbdeaa3f88ca16",
+    "ci": {
+      "run_id": 44081476721,
+      "conclusion": "failure",
+      "head_sha": "f5141684dc88f64ddbbcab6171bbdeaa3f88ca16",
+      "html_url": "https://github.com/just-every/run-spool/actions/runs/44081476721",
+      "status": "completed"
+    },
+    "reason": "verify-base --offline requires the modified Base copy to be declared as an intentional adaptation; addressed by adapt-base with retained upstream baseline."
+  },
+  "terminalCustody": "PUSHED",
+  "blockers": [],
+  "remaining": "Exact-SHA Verify still running at the final permitted query; no READY claim."
+}

@@ -1,0 +1,11 @@
+{
+  "adapted": "src/modules/portability/cli-options.mjs",
+  "revision": "c2efb501cbc148c2aee4d5e1107ebdba81469006",
+  "sha256": "b9f966f13711e879b3dbc7ed036f1c607ee81d47f8a48ba2edd4eb2a33275526",
+  "acknowledged": {
+    "sha256": "b1f26ef74bba1467e312762ad74bb51a55b6c3829842d35b461c8e10cdbefa0a",
+    "mode": "100644"
+  },
+  "record": "base-copies.json"
+}
+
