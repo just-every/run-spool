@@ -4442,7 +4442,16 @@
         "modules/portability/transient-tables.mjs",
         "modules/portability/worker-history.d.mts",
         "modules/portability/worker-history.mjs"
-      ]
+      ],
+      "adapted": {
+        "src/modules/portability/cli-options.mjs": "c2efb501cbc148c2aee4d5e1107ebdba81469006"
+      },
+      "acknowledged": {
+        "src/modules/portability/cli-options.mjs": {
+          "sha256": "b1f26ef74bba1467e312762ad74bb51a55b6c3829842d35b461c8e10cdbefa0a",
+          "mode": "100644"
+        }
+      }
     },
     {
       "path": "src/router.tsx",
