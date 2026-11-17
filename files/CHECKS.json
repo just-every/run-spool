@@ -1,0 +1,189 @@
+{
+  "author": "Run Edit Run fleet",
+  "date": "2026-11-17",
+  "repository": "just-every/run-spool",
+  "branch": "cloud/gr-mt-spool-dep-14",
+  "head": "ffb7313731236239f63765acc380c7678c80bb54",
+  "base": "7ece18059c1c7924a5b6f9cc816a7af3900136d5",
+  "environment": {
+    "node": "22.20.0 for build/typecheck/runtime; initial install used 24.19.0 and rer setup bootstrapped 22.20.0",
+    "pnpm": "10.12.4",
+    "ruby": "3.3.10",
+    "bundler": "2.5.22",
+    "chromium": "/usr/bin/chromium"
+  },
+  "checks": [
+    {
+      "command": "pnpm install --frozen-lockfile",
+      "exit_code": 0,
+      "status": "passed",
+      "log": "install.log",
+      "bytes": 3535,
+      "sha256": "6aef856484efe775c8674c0047193babe6802e8036f3437f30748eaf72613410"
+    },
+    {
+      "command": "cloud_run npx -y @runeditrun/rer setup --owner-email fleet@runeditrun.com --non-interactive",
+      "exit_code": 0,
+      "status": "passed",
+      "log": "setup.log",
+      "bytes": 12670,
+      "sha256": "ae13b9533972385201d0cc3074001418c08bd67211f10269557adfbbf2c8b820"
+    },
+    {
+      "command": "gem install bundler -v 2.5.22 --no-document",
+      "exit_code": 0,
+      "status": "passed",
+      "log": "bundler-install.log",
+      "bytes": 54,
+      "sha256": "c35c8dd05faf2e0b62ed7198870c8fb4879b185be8919d11e5ebc23b7839b47f"
+    },
+    {
+      "command": "bundle _2.5.22_ lock --update rack",
+      "exit_code": 0,
+      "status": "passed",
+      "log": "bundle-lock.log",
+      "bytes": 229,
+      "sha256": "d6165cbe9e6b7cd118262f943ae92d9578ed6ad5c1095807b1f79884b9feb67e"
+    },
+    {
+      "command": "bundle _2.5.22_ install --jobs 2",
+      "exit_code": 0,
+      "status": "passed",
+      "log": "bundle-install.log",
+      "bytes": 482,
+      "sha256": "b1b2bacc649b1568681e2e50ccce5d45c1795c294f852ec3f0582fc3ebd1f613"
+    },
+    {
+      "command": "cloud_run npx -y @runeditrun/rer build",
+      "exit_code": 0,
+      "status": "passed",
+      "log": "build.log",
+      "bytes": 12273,
+      "sha256": "5b4f92c2b02f04f5eeff2aaf487a28aec2e9f21b66a7a948f80681e33f6547ba"
+    },
+    {
+      "command": "pnpm typecheck",
+      "exit_code": 0,
+      "status": "passed",
+      "log": "typecheck.log",
+      "bytes": 126,
+      "sha256": "79112d2f0ae09417de302fadcaa6cb5ffaacce286c1026c3b23c5980278a5470"
+    },
+    {
+      "command": "node tests/sdk-runtimes.mjs ruby",
+      "exit_code": 0,
+      "status": "passed",
+      "log": "ruby-runtime.log",
+      "bytes": 723,
+      "sha256": "f13d47e7ce3a5764ac6083779162681b95dd005b30ba6613aabda7e7b773bdb9"
+    },
+    {
+      "command": "node src/base/contract-docs.mjs check",
+      "exit_code": 0,
+      "status": "passed",
+      "log": "contract-check.log",
+      "bytes": 70,
+      "sha256": "b04031901cfff3e9bc42a429b52cbc14c2442ffb68817fd62a245ac52847b422"
+    },
+    {
+      "command": "node scripts/edition-authoring/cli.mjs lock",
+      "exit_code": 0,
+      "status": "passed",
+      "log": "source-lock.log",
+      "bytes": 478527,
+      "sha256": "c3930cac9b7862d1d20db5d4df44d8d320eef3d9528b2dbf7eebc22f9f8eef79"
+    },
+    {
+      "command": "pnpm source:check",
+      "exit_code": 0,
+      "status": "passed",
+      "log": "source-check.log",
+      "bytes": 478702,
+      "sha256": "4c89b89b6498d96ffbe483bce0396ff58709c8e98cd9c98f10e2904135aeeb5a"
+    },
+    {
+      "command": "cloud_run node tests/sdk-runtimes.mjs ruby (after commit)",
+      "exit_code": 0,
+      "status": "passed",
+      "head": "ffb7313731236239f63765acc380c7678c80bb54",
+      "log": "ruby-runtime-committed.log",
+      "bytes": 723,
+      "sha256": "e59d5fd8f80102e146f24e9b9c777c7262be0e3b2a2955e58682c5dae764be70"
+    }
+  ],
+  "source_lock_changed_paths": [
+    "tests/runtimes/ruby/Gemfile",
+    "tests/runtimes/ruby/Gemfile.lock"
+  ],
+  "dependencies": {
+    "rack": {
+      "relationship": "direct",
+      "before": "3.2.6",
+      "after": "3.2.8"
+    },
+    "other_gem_versions_changed": 0,
+    "platforms_changed": 0
+  },
+  "test_changes": {
+    "added": 0,
+    "deleted": 0,
+    "skipped": 0,
+    "weakened": 0
+  },
+  "clauses": {
+    "changed": 0,
+    "full_target_before": {
+      "done": 23,
+      "partial": 54,
+      "missing": 28,
+      "total": 105
+    },
+    "full_target_after": {
+      "done": 23,
+      "partial": 54,
+      "missing": 28,
+      "total": 105
+    }
+  },
+  "browser_proof": [
+    {
+      "path": "ruby-issue-1440.png",
+      "width": 1440,
+      "sha256": "100e7763b64ebc653f15a4f66fc2c0f93981a8b4bc72957439c865ad7e895898",
+      "reviewed": true,
+      "head": "ffb7313731236239f63765acc380c7678c80bb54"
+    },
+    {
+      "path": "ruby-issue-390.png",
+      "width": 390,
+      "sha256": "09851461fb62540078376e470d153e9e35dd2f4ef72ffde413934e321555da3d",
+      "reviewed": true,
+      "head": "ffb7313731236239f63765acc380c7678c80bb54"
+    }
+  ],
+  "runtime_outcomes": {
+    "runtime": "ruby",
+    "sdk": "sentry-ruby 7.1.0",
+    "sent": {
+      "check_in": 2,
+      "event": 3,
+      "attachment": 7,
+      "log": 3,
+      "transaction": 4,
+      "client_report": 2,
+      "sessions": 1
+    },
+    "outcomes": {
+      "accepted": 3,
+      "check_in_unrouted": 2,
+      "client_discarded:error:before_send": 2,
+      "sentry_unsupported_attachment": 7,
+      "sentry_unsupported_other_telemetry": 3,
+      "session_stored": 1,
+      "transaction_stored": 4
+    },
+    "identity": [
+      "[\"synthetic-spool-ruby@1.0.0\",\"[sentry:no-dist]\"]"
+    ]
+  }
+}

@@ -1,0 +1,7 @@
+{
+  "status": "cannot",
+  "sha": "ffb7313731236239f63765acc380c7678c80bb54",
+  "summary": "Rack was upgraded from 3.2.6 to 3.2.8 with no unrelated gem changes and pushed; exact-SHA Verify is blocked by the unchanged inbound-filter browser autosave assertion.",
+  "tests": "PASS: frozen pnpm install, rer setup/build, pnpm typecheck, Bundler 2.5.22 lock/install, Ruby runtime journey before and after commit, contract check and source check, COMPLETE/PASS publication scan with zero findings. CI Verify 44050340503 failed in tests/inbound-filter-flow.mjs:127; CI Ruby runtime, build and contract-docs passed.",
+  "security": true
+}

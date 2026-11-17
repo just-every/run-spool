@@ -1,0 +1,49 @@
+diff --git a/sources.lock.json b/sources.lock.json
+index d9f4e229..abe521ed 100644
+--- a/sources.lock.json
++++ b/sources.lock.json
+@@ -11730,11 +11730,11 @@
+       "executable": false
+     },
+     "tests/runtimes/ruby/Gemfile": {
+-      "sha256": "259ee1e8b041db01952af8a992f330aa38010410a5e3df91b2f6f0f579fb2c99",
++      "sha256": "3fc93578fcf34cf5de9ecadc50fd38810d9acbc307e6047c451542899dfd44f2",
+       "executable": false
+     },
+     "tests/runtimes/ruby/Gemfile.lock": {
+-      "sha256": "1cef48bafc54ff4c525e044f1a9af61e89f81d5c7347c8b3ba42e3e4d65f43d5",
++      "sha256": "a5848a1faf5b5466a536fe70afd19ab0145d6e5f26872981977f5199f9a6e7b3",
+       "executable": false
+     },
+     "tests/runtimes/rust.mjs": {
+diff --git a/tests/runtimes/ruby/Gemfile b/tests/runtimes/ruby/Gemfile
+index fe26bf67..e4277c69 100644
+--- a/tests/runtimes/ruby/Gemfile
++++ b/tests/runtimes/ruby/Gemfile
+@@ -1,3 +1,3 @@
+ source 'https://rubygems.org'
+ gem 'sentry-ruby', '7.1.0'
+-gem 'rack', '3.2.6'
++gem 'rack', '3.2.8'
+diff --git a/tests/runtimes/ruby/Gemfile.lock b/tests/runtimes/ruby/Gemfile.lock
+index f620568b..7b06f687 100644
+--- a/tests/runtimes/ruby/Gemfile.lock
++++ b/tests/runtimes/ruby/Gemfile.lock
+@@ -4,7 +4,7 @@ GEM
+     bigdecimal (4.1.3)
+     concurrent-ruby (1.3.8)
+     logger (1.7.0)
+-    rack (3.2.6)
++    rack (3.2.8)
+     sentry-ruby (7.1.0)
+       bigdecimal
+       concurrent-ruby (~> 1.0, >= 1.0.2)
+@@ -15,7 +15,7 @@ PLATFORMS
+   x86_64-linux
+ 
+ DEPENDENCIES
+-  rack (= 3.2.6)
++  rack (= 3.2.8)
+   sentry-ruby (= 7.1.0)
+ 
+ BUNDLED WITH

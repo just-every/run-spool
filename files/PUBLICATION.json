@@ -1,0 +1,23 @@
+{
+  "status": "COMPLETE/PASS",
+  "head": "ffb7313731236239f63765acc380c7678c80bb54",
+  "tree": "192c25ffd5ec71b0a3c79b218332048d249ffa4e",
+  "findings": 0,
+  "pre_existing": 17,
+  "seconds": 415.521664,
+  "history_counts": {
+    "commits": 982,
+    "trees": 972,
+    "blobs": 8209,
+    "commitMessages": 982,
+    "tagMessages": 23
+  },
+  "scanner": {
+    "version": "0.2.121-dev.g0ecb7191",
+    "sha256": "dace44a03ce03a9402975c82e7f6c62a84c21671674722cfa6841d2b25fd600a",
+    "python": "3.12.14"
+  },
+  "push_succeeded": true,
+  "push_attempts": 1,
+  "product_branch": "cloud/gr-mt-spool-dep-14"
+}

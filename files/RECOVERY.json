@@ -1,0 +1,8 @@
+{
+  "path": "/home/agent/rer-consolidation/work/maint/gr-mt-spool-dep-14/candidate.bundle",
+  "head": "ffb7313731236239f63765acc380c7678c80bb54",
+  "sha256": "9e0d0a27d3b3d181991f18fa0d56e606c46c88746d3bf753c12cad3774a60fb7",
+  "verified": true,
+  "product_push_rejected": false,
+  "purpose": "Additional local recovery custody for the CI-blocked candidate; not READY and not evidence of landing."
+}

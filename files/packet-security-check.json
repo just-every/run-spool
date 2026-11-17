@@ -1,0 +1,13 @@
+{
+  "scanner": "gitleaks 8.30.1 default config",
+  "findings": 22,
+  "credential_findings": 0,
+  "classification": "All findings are source comparison keys or digests inside the exact public sources.lock.json. The source check output equals that JSON with only ok=true added; no injected values or environment dump is present.",
+  "public_metadata_equality_verified": true,
+  "other_scanned_packet_files_findings": 0,
+  "final_packet_scan": true,
+  "final_findings": 22,
+  "final_credential_findings": 0,
+  "ci_log_environment_blocks_omitted": true,
+  "private_entry_markers_found": 0
+}

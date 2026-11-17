@@ -1,0 +1,14 @@
+{
+  "source_repository": "runeditrun/base",
+  "transport": "gh api repos/runeditrun/base/tarball/main",
+  "api_calls": 1,
+  "archive_commit": "0ecb719121b6140f6fadc50b824c19e9bc6e96d0",
+  "archive_sha256": "ab0e41a040ba70f65b87b039bcd9b5e3c4fbe299e3f6e2a5f16e1d06cfea51ac",
+  "cli_version": "0.2.121-dev.g0ecb7191",
+  "source_files_modified": false,
+  "additional_metadata": "inventory.json records archive provenance for the supported vendored-source version reader",
+  "scanner_policy_modified": false,
+  "exclusions_added": false,
+  "archive_source_files_verified": 4866,
+  "archive_source_mismatches": []
+}

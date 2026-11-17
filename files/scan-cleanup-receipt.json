@@ -1,0 +1,14 @@
+{
+  "head": "ffb7313731236239f63765acc380c7678c80bb54",
+  "removed_generated_untracked_paths": [
+    ".dev.vars",
+    ".seed",
+    ".artifacts",
+    ".wrangler",
+    "dist",
+    ".rer"
+  ],
+  "tracked_files_removed": 0,
+  "scanner_exclusions_added": 0,
+  "reason": "Working-tree-only findings in setup/dev credentials, synthetic local database, test entry and build output; remove task-generated state and rescan the exact committed source tree."
+}

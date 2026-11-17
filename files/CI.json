@@ -1,0 +1,38 @@
+{
+  "repository": "just-every/run-spool",
+  "head": "ffb7313731236239f63765acc380c7678c80bb54",
+  "run_id": 44050340503,
+  "url": "https://github.com/just-every/run-spool/actions/runs/44050340503",
+  "status": "completed",
+  "conclusion": "failure",
+  "api_calls_used": 10,
+  "api_budget": 10,
+  "last_call_utc": "2026-11-17T09:16:57.521694+00:00",
+  "poll_interval_seconds": 300,
+  "tunnel_log_command": "gh run view 44050340503 --repo just-every/run-spool --job 133926948700 --log-failed",
+  "tunnel_log_exit": 0,
+  "shards_log_command": "gh run view 44050340503 --repo just-every/run-spool --job 133936306238 --log-failed",
+  "shards_log_exit": 0,
+  "verify_aggregate_log": "Not downloaded: ten-call GitHub budget exhausted after root-cause and shards logs.",
+  "blocker": "Verify failed in unchanged inbound-filter browser autosave journey: tests/inbound-filter-flow.mjs:127, AssertionError: the autosaved filters did not land.",
+  "root_failed_job_id": 133926948700,
+  "ruby_job_id": 133926948535,
+  "ruby_job_conclusion": "success",
+  "build_conclusion": "success",
+  "contract_docs_conclusion": "success",
+  "unchanged_files_verified": [
+    "tests/inbound-filter-flow.mjs",
+    "tests/sentry-sdk.mjs",
+    "src/routes",
+    "src/domain"
+  ],
+  "main_failure_reproduced": false,
+  "rerun_requested": false,
+  "published_log_redactions": {
+    "reason": "Omit complete GitHub step environment blocks; no environment dumps selected for evidence.",
+    "lines_removed": {
+      "ci-tunnel-failed.log": 6,
+      "ci-shards-failed.log": 7
+    }
+  }
+}
