@@ -58,6 +58,7 @@ export function sourceLeaves(value:any, path='', depth=0):{path:string;bytes:num
 }
 /** The existing API mapper's actual projection; unsupported fields never inherit a parent's mapped status. */
 export function sentryFieldAccounting(kind:string,data:any,rejection?:string):FieldDisposition[] {
+ if(rejection)return sourceLeaves(data).map(({path,bytes,redacted})=>({path,bytes,disposition:redacted?'redacted':'rejected',reason:redacted?'Credential removed before upload; only an exporter marker remains.':'Record rejected; no native effects.'}));
  const retained=new Set<string>(),changed=new Set<string>();
  const keep=(...paths:string[])=>paths.forEach(path=>retained.add('/'+path));
  const transform=(...paths:string[])=>paths.forEach(path=>changed.add('/'+path));
@@ -94,7 +95,7 @@ export function sentryFieldAccounting(kind:string,data:any,rejection?:string):Fi
   }
  }
  return sourceLeaves(data).map(({path,bytes,redacted})=>{
-  const disposition=redacted?'redacted':rejection?'rejected':retained.has(path)?'mapped':changed.has(path)?'transformed':'unmapped';
+  const disposition=redacted?'redacted':retained.has(path)?'mapped':changed.has(path)?'transformed':'unmapped';
   let reason=redacted?'Credential removed before upload; only an exporter marker remains.':rejection?'Record rejected; no native effects.':disposition==='mapped'?'Retained as native identity or source provenance.':disposition==='transformed'?'Converted, scrubbed or bounded by the native historical projection.':'Not represented in native history; private source only.';
   if(disposition==='unmapped'&&!['projects','releases','issues','events'].includes(kind))reason='Unsupported source collection; no native target or authority is created.';
   if(disposition==='unmapped'&&kind==='events'&&path.includes('/vars/'))reason='Frame locals are not forwarded by the historical API adapter.';
