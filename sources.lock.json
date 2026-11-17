@@ -11650,7 +11650,7 @@
       "executable": false
     },
     "tests/runtimes/harness.mjs": {
-      "sha256": "25321eff23d1d7288178c0405e278783dc630fc60e3e06acbc6012ca9058a844",
+      "sha256": "73acb859593025b45ce1be30b978a59364586e8742f5e0234f27605932618c2a",
       "executable": false
     },
     "tests/runtimes/java.mjs": {
@@ -11722,11 +11722,11 @@
       "executable": false
     },
     "tests/runtimes/ruby.mjs": {
-      "sha256": "a18d159615069a751deb5a76a2af5b62dc3437e31427a8a646c89a769e50010d",
+      "sha256": "d2de5a81f8058ada635e0305bc50928f19d08082ff4846231b18f5741ddcce4b",
       "executable": false
     },
     "tests/runtimes/ruby/app.rb": {
-      "sha256": "874a24056bccc90c8800736c3fe253eed399aaddf1cf8f5c0f4a10cef519a094",
+      "sha256": "8e907e58e8ee012766e0037ffb82af46e97faa8a6f572a4ab940028ec1c9e636",
       "executable": false
     },
     "tests/runtimes/ruby/Gemfile": {
@@ -11770,7 +11770,7 @@
       "executable": false
     },
     "tests/sdk-runtimes.mjs": {
-      "sha256": "38d12aa4653403a1a4ae880198bc1870fc4d3873b0b287b8c6d9baa8e08abd94",
+      "sha256": "9e736c32dc756843b17c14eed22423e85c52613092abe78b419a8eb1c61a24ab",
       "executable": false
     },
     "tests/sentry-cli-compat.mjs": {

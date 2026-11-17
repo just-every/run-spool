@@ -7,6 +7,11 @@ Sentry.init do |config|
   config.dsn = ENV.fetch('SPOOL_FIXTURE_DSN')
   config.environment = 'compatibility'
   config.traces_sample_rate = 1.0
+  # A busy test Worker may accept an envelope before its response reaches the SDK.
+  # Keep the default transport/integrations, but avoid reporting that accepted
+  # telemetry as a network discard after the default two-second read deadline.
+  # The reference collector deliberately takes 2.5 seconds to acknowledge it.
+  config.transport.timeout = 10
   config.before_send = lambda do |event, _hint|
     event.message == 'synthetic-spool-discard' ? nil : event
   end

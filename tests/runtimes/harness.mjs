@@ -1,13 +1,14 @@
 import assert from 'node:assert/strict';
 import {createServer} from 'node:http';
 import {spawn} from 'node:child_process';
+import {setTimeout as delay} from 'node:timers/promises';
 import {brotliDecompressSync,gunzipSync,inflateSync} from 'node:zlib';
 import {objectJson,parseEnvelope,unsupportedReason} from '../../src/domain/sentry/wire.ts';
 import {absentDist} from '../../src/domain/releases/build.ts';
 
 // Reference collector: the same unmodified SDK program first sends to this plain HTTP
 // server, so the test knows exactly which envelope items the SDK itself produced.
-export async function referenceCollector(){
+export async function referenceCollector({responseDelayMs=0}={}){
  const sent=[];
  const server=createServer(async(req,res)=>{
   res.setHeader('Access-Control-Allow-Origin','*');
@@ -17,6 +18,9 @@ export async function referenceCollector(){
   let bytes=Buffer.concat(chunks);const encoding=req.headers['content-encoding'];
   if(encoding==='gzip')bytes=gunzipSync(bytes);else if(encoding==='deflate')bytes=inflateSync(bytes);else if(encoding==='br')bytes=brotliDecompressSync(bytes);
   if(/envelope/.test(req.url)){const {items}=parseEnvelope(bytes);for(const item of items)sent.push({type:item.header.type,header:item.header,bytes:item.bytes})}
+  // Acceptance can finish before the SDK receives its response. Exercise that
+  // boundary without slowing the app or changing the SDK's emitted items.
+  if(responseDelayMs)await delay(responseDelayMs);
   res.setHeader('Content-Type','application/json');res.end('{}');
  });
  await new Promise(resolve=>server.listen(0,'127.0.0.1',resolve));

@@ -6,6 +6,8 @@ const here=resolve(import.meta.dirname,'ruby');
 const bundle=dir=>({BUNDLE_PATH:resolve(dir,'vendor'),BUNDLE_GEMFILE:resolve(dir,'Gemfile')});
 export default {
  name:'ruby',sdk:'sentry.ruby',version:'sentry-ruby 7.1.0',
+ // Exceed the SDK's default two-second response deadline deterministically.
+ responseDelayMs:2500,
  required:['event','sessions','transaction','log','attachment','check_in','client_report'],
  discards:[['client_discarded:error:before_send',2]],
  chain:['ZeroDivisionError','ArgumentError'],
