@@ -53,6 +53,7 @@ export function IssueView({ project, packet, panels, status, alert, busy, reques
 }) {
   const [allFrames, setAllFrames] = useState(false), [copied, setCopied] = useState(false);
   const [agentCommandOpen, setAgentCommandOpen] = useState(false);
+  const [commentRequest,setCommentRequest]=useState(0);
   const [resolution,setResolution]=useState('plain'),[resolutionRelease,setResolutionRelease]=useState('');
   const [testKey,setTestKey] = useDraft(`${project}.capture-key`, '');
   const [resolving,setResolving]=useState(false);
@@ -82,7 +83,7 @@ export function IssueView({ project, packet, panels, status, alert, busy, reques
           void run(async () => { const saved = await request(`/api/projects/${project}/issues/${group.id}`, 'PATCH', { state: e.target.value, revision: group.revision }); setLocalRevision({issue:group.id,revision:saved.revision}); refresh(); });
         }}>{states.filter(state=>state!=='suppressed'||group.state==='suppressed').map(state => <option key={state} value={state}>{stateLabel(state)}</option>)}</select></label>
         <AssignmentPicker {...{project,request,run,busy,refresh}} issue={group} onSaved={revision=>setLocalRevision({issue:group.id,revision})}/></div>
-        <div className="button-row">{group.state!=='resolved'&&<button className="primary-button" disabled={busy} onClick={()=>setResolving(true)}>Resolve</button>}<button className="text-button" onClick={()=>{document.getElementById('issue-discussion')?.scrollIntoView({block:'start'});document.querySelector<HTMLTextAreaElement>('#issue-discussion textarea')?.focus()}}>Comment</button>
+        <div className="button-row">{group.state!=='resolved'&&<button className="primary-button" disabled={busy} onClick={()=>setResolving(true)}>Resolve</button>}<button className="text-button" onClick={()=>{document.getElementById('issue-discussion')?.scrollIntoView({block:'start'});setCommentRequest(value=>value+1)}}>Comment</button>
         <details className="issue-secondary-actions"><summary aria-label="Issue actions" title="Issue actions">⋯</summary>
           <Details title="Fix with an AI coding assistant" triggerLabel="Fix with an AI coding assistant" onOpen={()=>setAgentCommandOpen(true)}>{agentCommandOpen&&<AgentPacketCommand project={project} issue={group.short_id??group.id}/>}</Details>
           <button className="text-button" onClick={()=>download(packet,`spool-${group.short_id??'issue'}-packet.json`)}>Download details for a developer</button>
@@ -122,7 +123,7 @@ export function IssueView({ project, packet, panels, status, alert, busy, reques
     </section>
     <EventExplorer key={`${project}:${group.id}`} project={project} issue={group.id} refresh={packet} onSelect={setSelectedEvent}/>
     <div className="issue-collaboration"><Suppression {...{project,request,run,busy,readOnly}} issue={group} onChange={refresh}/>
-    <Discussion project={project} issue={group.id} refresh={packet} request={request} onChanged={revision=>{if(Number.isSafeInteger(revision))setLocalRevision({issue:group.id,revision:revision!});refresh();}}/></div>
+    <Discussion focusRequest={commentRequest} project={project} issue={group.id} refresh={packet} request={request} onChanged={revision=>{if(Number.isSafeInteger(revision))setLocalRevision({issue:group.id,revision:revision!});refresh();}}/></div>
     <CommitTimeline project={project} issue={group.id} shortId={group.short_id} refresh={packet} request={request}/>
     <IssueImpact key={`${project}:${group.id}`} project={project} issue={group.id} refresh={packet}/>
     <AffectedUsers project={project} issue={group.id} {...{request}} refresh={packet}/>
