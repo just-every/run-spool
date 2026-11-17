@@ -51,26 +51,35 @@ export function exportCapture(capture) {
   const organization=capture.organization;
   if(!organization||typeof organization.slug!=='string'||!organization.slug||organization.slug.length>200)fail('organization');
   const output={format:'spool-sentry-org-export',version:1,organization,window:capture.window,collections:[],omissions:capture.omissions??[]};
-  const inventory=[],redactions=[]; let totalBytes=0;
+  const inventory=[],redactions=[],cleanPages=new Map(),secrets=[];let totalBytes=0;
+ // Gather removals across the entire capture before projecting any page: a
+ // credential from a later response must not survive in an earlier one.
+ for(const collection of capture.collections){
+  if(!Array.isArray(collection.responses))fail('response_pages');
+  for(const page of collection.responses){
+   if(typeof page?.body!=='string')fail('http_response');
+   totalBytes+=Buffer.byteLength(page.body);if(totalBytes>2*1024*1024)fail('capture_byte_limit');
+   let response;try{response=JSON.parse(page.body)}catch{fail('invalid_json')}
+   const clean=removeCredentials(response);cleanPages.set(page,{response,clean});secrets.push(...clean.secrets);
+  }
+ }
+ const reflected=reflectedCredentialMatcher([...new Set(secrets)]);
   for(const collection of capture.collections) {
     const {kind,project}=collection;
     if(!Array.isArray(collection.responses)||!collection.responses.length||collection.responses.length>(kind==='events'?1000:100))fail('response_pages');
     let expected=null, origin=null; const seen=new Set(),pages=[];
     for(const [index,page] of collection.responses.entries()) {
       if(typeof page.body!=='string'||typeof page.url!=='string'||page.status!==200)fail('http_response');
-      totalBytes+=Buffer.byteLength(page.body);if(totalBytes>2*1024*1024)fail('capture_byte_limit');
       const url=new URL(page.url);checkEndpoint(kind,project,url,organization.slug);
       origin??=url.origin;if(url.origin!==origin)fail('origin_changed');
       if(seen.has(url.href))fail('repeated_page');seen.add(url.href);
       if(kind!=='events'&&(index===0 ? cursorOf(url)!==null : url.href!==expected?.href))fail('broken_page_chain');
-      let response;try{response=JSON.parse(page.body)}catch{fail('invalid_json')}
+      const {response,clean}=cleanPages.get(page);
       if(['ownership','events'].includes(kind) ? !response||Array.isArray(response)||typeof response!=='object' : !Array.isArray(response))fail('response_shape');
       if(Array.isArray(response)&&response.length>100)fail('response_page_size');
       let next=null;
       if(kind!=='ownership'&&kind!=='events')next=nextPage(page.link,url);
       if(kind!=='events'&&(index===collection.responses.length-1)!==(next===null))fail('incomplete_page_chain');
-      const clean=removeCredentials(response);
-      const reflected=reflectedCredentialMatcher(clean.secrets);
       // URL userinfo can repeat in public-key/loader fields as well as secret fields.
       // Remove every reflection, including encoded forms, before constructing custody.
       const screen=(v,path='')=>{
@@ -100,6 +109,7 @@ export function exportCapture(capture) {
   }
   // Evidence travels in the checked manifest; there are no raw response URLs or headers in custody.
   output.capture={schema,inventory,redactions};
+  if(reflected(JSON.stringify(output)))fail('reflected_credential_metadata');
   assertNoCredentials(output);
   return {bundle:output,receipt:{schema,synthetic:capture.synthetic===true,inventory,redactions,
     sourceBytes:inventory.reduce((n,p)=>n+p.sourceBytes,0),sanitizedBytes:inventory.reduce((n,p)=>n+p.sanitizedBytes,0),bundleBytes:bytesOf(output)}};

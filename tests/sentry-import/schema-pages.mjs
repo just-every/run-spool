@@ -49,5 +49,14 @@ export async function schemaPages() {
  const reflected=exportCapture(source);assert.ok(!JSON.stringify(reflected).includes(secret));
  assert.ok(reflected.receipt.redactions.some(r=>r.path.endsWith('/reflection')),'reflected values are removed and named before upload');
  rows[0][secret]='unsafe key';key.body=JSON.stringify(rows);assert.throws(()=>exportCapture(source),/reflected_credential_key/);
+ const across=sentryOrganization(),later=across.collections.find(c=>c.kind==='keys').responses[0];
+ const laterRows=JSON.parse(later.body);laterRows[0].secret=secret;later.body=JSON.stringify(laterRows);
+ const earlier=across.collections.find(c=>c.kind==='projects').responses[0],earlierRows=JSON.parse(earlier.body);
+ earlierRows[0].name='Repeated '+encodeURIComponent(secret);earlier.body=JSON.stringify(earlierRows);
+ const scrubbed=exportCapture(across);
+ assert.equal(scrubbed.bundle.collections.find(c=>c.kind==='projects').pages[0].response[0].name,'[removed]','a credential discovered later is removed from earlier responses');
+ assert.ok(scrubbed.receipt.redactions.some(row=>row.path.endsWith('/name')));
+ across.organization.id=secret;
+ assert.throws(()=>exportCapture(across),/reflected_credential_metadata/,'metadata cannot retain credentials removed from response pages');
  console.log('Sentry schemaPages: deterministic local API acquisition, opaque Link completion, singleton responses and pre-upload redaction passed.');
 }

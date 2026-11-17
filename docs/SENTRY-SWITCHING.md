@@ -292,7 +292,7 @@ node scripts/sentry-export.mjs CAPTURE.json BUNDLE.json RECEIPT.json
 
 This command never calls Sentry. It checks endpoints, page chains and collection
 scope, refuses truncated/cross-origin links and strips credentials before any
-upload can be constructed. Repeated removed values are redacted at every field, including encoded forms;
+upload can be constructed. Repeated removed values are redacted across every response page, including encoded forms;
 a credential reflected in a field name refuses the capture. Keep capture files private: only sanitized bundles reach the import
 door, and only the path/count report belongs in shared evidence. Credential
 refusal and exact owner/project authority checks remain in the existing door.
