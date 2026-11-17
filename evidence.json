@@ -25,6 +25,12 @@
       "sha256": "8728c6b5b20e2b8ccc13935d212d014734795479dece3f3e63350841cc0a270e"
     },
     {
+      "blob": "27bec01acfa069e921cb23dab3042e0222f060b4",
+      "bytes": 511,
+      "path": "evidence-identity-receipt.jsonl",
+      "sha256": "857460bed5c34de1b2174266aea18beccb197779f9ad2bcc1a66b04eec469f1b"
+    },
+    {
       "blob": "223c04c2c51684cedddf3f0a20f54b1d23c8a8b8",
       "bytes": 11849,
       "path": "planner-receipt.json",
@@ -35,6 +41,12 @@
       "bytes": 673,
       "path": "publication-attempts.json",
       "sha256": "d54a83fe5b6792a9eca56149b9d7933f7a7e35ac4a7f8bb7e9b156f9e7917668"
+    },
+    {
+      "blob": "59d8b9ef2dc14194d9ed14d5a682ce87d13216a5",
+      "bytes": 1828,
+      "path": "transfer-receipt.json",
+      "sha256": "d5c20cb4793f43792a8dff5be868c09d1bf3530ba335fcf8f18611c19359efc4"
     }
   ],
   "product_branch": "main",
