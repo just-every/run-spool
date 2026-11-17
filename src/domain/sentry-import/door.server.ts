@@ -23,8 +23,9 @@ import { sourceId as rollbarId } from '../rollbar-import/identity.ts';
  * `/api/operator/import/*`) and Business (signed grants, `/api/rer/import/*`)
  * share Base's door, its lineage, history and undo. */
 export const doorDestination = 'spool-owner';
+const sentryLimits = { maxBytes: 2 * 1024 * 1024, maxRecordBytes: 2 * 1024 * 1024, maxRecords: 1000 };
 const operatorPrefix = '/api/operator/import/', grantPrefix = '/api/rer/import/', namespacePrefix = 'sentry-org:';
-const limits = { maxBytes: 2 * 1024 * 1024, maxRecordBytes: 2 * 1024 * 1024, maxRecords: 500 };
+const legacyLimits = { maxBytes: 2 * 1024 * 1024, maxRecordBytes: 2 * 1024 * 1024, maxRecords: 500 };
 
 /** The permanent door key for settings, lineage and history. The first key an
  * installation stored stays; before that it is RER's owner-claim installation
@@ -84,6 +85,7 @@ async function activeOwner(db: D1Database) {
 export async function ownerReadRequest(env:ManagedBindings, session:OwnerSession, key:string, namespace:string, source?:ImportDoorSource):Promise<DoorRequest> {
  const resolved = source ?? await importSource(env.DB,key,namespace);
  if (!resolved) throw new DoorError('unknown_import_source',400);
+ const limits = namespace === 'sentry' || namespace.startsWith(namespacePrefix) ? sentryLimits : legacyLimits;
  const epoch = await erasures(env.DB,doorDestination), owner = ownerImportPredicate(session), fence = doorFence(key,namespace,doorDestination,epoch);
  return {options:{database:env.DB,targets:sentryTargets,ownerPrincipalId:session.operator.id,destination:doorDestination,format:'json',limits,...resolved},
   authority:{sql:`(${owner.sql}) AND (${fence.sql})`,params:[...owner.params,...fence.params ?? []]},via:'operator',epoch,
@@ -113,6 +115,10 @@ async function grantResponse(request: Request, env: ManagedBindings) {
  const owner = await env.DB.prepare("SELECT id FROM oa_operators WHERE role='owner' AND status='active' AND email=?").bind(claim.expectedEmail).first<{ id: string }>();
  if (!owner) return Response.json({ error: 'not_found' }, { status: 404 });
  const key = await doorKey(env);
+ const name=request.headers.get('Authorization');
+ // Choose a bounded source quota only. Base still verifies the signature, owner, exact namespace and every action.
+ let sentry=false;try{const payload=JSON.parse(Buffer.from(name?.split('.')[1]??'', 'base64url').toString());sentry=payload.namespace==='sentry'||typeof payload.namespace==='string'&&payload.namespace.startsWith(namespacePrefix)}catch{}
+ const limits=sentry?sentryLimits:legacyLimits;
  return createImportDoorHandler({ database: env.DB, targets: sentryTargets, claim, installationId: key,
   ownerPrincipalId: owner.id, destination: doorDestination, format: 'json', limits,
   source: namespace => importSource(env.DB, key, namespace) })(request);
@@ -146,7 +152,7 @@ async function operatorResponse(request: Request, env: ManagedBindings) {
   }
  }
  const response = await createImportOperatorHandler({ database: env.DB, targets: sentryTargets, installationId: key, appOrigin: env.AUTH_ORIGIN,
-  ownerEmail: owner.email, ownerPrincipalId: owner.id, namespace: name, destination: doorDestination, format: 'json', limits, ...source,
+  ownerEmail: owner.email, ownerPrincipalId: owner.id, namespace: name, destination: doorDestination, format: 'json', limits:read.options.limits, ...source,
   authorize: async () => predicate })(request);
  if (!response) return response;
  try { return await ownerReadResponse(read,response,action); }

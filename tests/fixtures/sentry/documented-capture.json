@@ -1,0 +1,219 @@
+{
+  "schema": "sentry-web-api-0-capture-v1",
+  "synthetic": true,
+  "organization": {
+    "id": "synthetic-spool-1",
+    "slug": "synthetic-spool-1",
+    "region": "us"
+  },
+  "window": {
+    "start": "2026-02-01T00:00:00Z",
+    "end": "2026-02-03T00:00:00Z"
+  },
+  "omissions": [
+    "Synthetic documented API captures only; all other MIG-001 families and real buyer cutover remain unqualified."
+  ],
+  "collections": [
+    {
+      "kind": "projects",
+      "project": null,
+      "responses": [
+        {
+          "url": "https://sentry.invalid/api/0/organizations/synthetic-spool-1/projects/?per_page=100",
+          "status": 200,
+          "link": "<https://sentry.invalid/api/0/organizations/synthetic-spool-1/projects/?per_page=100&cursor=opaque-%25E7%258C%25AB-%2525-1>; rel=\"next\"; results=\"true\"; cursor=\"opaque-%E7%8C%AB-%25-1\"",
+          "body": "[{\"id\":\"synthetic-project-1\",\"slug\":\"checkout\",\"name\":\"Checkout 猫 café\",\"dateCreated\":\"2026-02-02T00:00:00Z\",\"platform\":\"javascript\",\"teams\":[{\"id\":\"synthetic-team-1\",\"slug\":\"checkout\",\"name\":\"Checkout\"}],\"environments\":[\"production\",\"staging\"],\"features\":[\"releases\"]}]"
+        },
+        {
+          "url": "https://sentry.invalid/api/0/organizations/synthetic-spool-1/projects/?per_page=100&cursor=opaque-%25E7%258C%25AB-%2525-1",
+          "status": 200,
+          "link": "<https://sentry.invalid/api/0/organizations/synthetic-spool-1/projects/?per_page=100&cursor=opaque-%25E7%258C%25AB-%2525-2>; rel=\"next\"; results=\"false\"; cursor=\"opaque-%E7%8C%AB-%25-2\"",
+          "body": "[]"
+        }
+      ]
+    },
+    {
+      "kind": "releases",
+      "project": null,
+      "responses": [
+        {
+          "url": "https://sentry.invalid/api/0/organizations/synthetic-spool-1/releases/?per_page=100",
+          "status": 200,
+          "link": "<https://sentry.invalid/api/0/organizations/synthetic-spool-1/releases/?per_page=100&cursor=opaque-%25E7%258C%25AB-%2525-1>; rel=\"next\"; results=\"true\"; cursor=\"opaque-%E7%8C%AB-%25-1\"",
+          "body": "[{\"version\":\"checkout@1.0.0\",\"dateCreated\":\"2026-02-02T00:00:00Z\",\"projects\":[{\"slug\":\"checkout\",\"name\":\"Checkout\",\"platform\":\"javascript\"}],\"dateReleased\":\"2026-02-02T00:00:00Z\",\"commitCount\":2,\"lastCommit\":{\"id\":\"aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa\",\"message\":\"Synthetic change\",\"repository\":{\"name\":\"synthetic-spool-1\",\"provider\":{\"id\":\"github\",\"name\":\"GitHub\"}}}}]"
+        },
+        {
+          "url": "https://sentry.invalid/api/0/organizations/synthetic-spool-1/releases/?per_page=100&cursor=opaque-%25E7%258C%25AB-%2525-1",
+          "status": 200,
+          "link": "<https://sentry.invalid/api/0/organizations/synthetic-spool-1/releases/?per_page=100&cursor=opaque-%25E7%258C%25AB-%2525-2>; rel=\"next\"; results=\"false\"; cursor=\"opaque-%E7%8C%AB-%25-2\"",
+          "body": "[]"
+        }
+      ]
+    },
+    {
+      "kind": "keys",
+      "project": "checkout",
+      "responses": [
+        {
+          "url": "https://sentry.invalid/api/0/projects/synthetic-spool-1/checkout/keys/?per_page=100",
+          "status": 200,
+          "link": "<https://sentry.invalid/api/0/projects/synthetic-spool-1/checkout/keys/?per_page=100&cursor=opaque-%25E7%258C%25AB-%2525-1>; rel=\"next\"; results=\"true\"; cursor=\"opaque-%E7%8C%AB-%25-1\"",
+          "body": "[{\"id\":\"synthetic-key-1\",\"name\":\"Browser loader\",\"public\":\"synthetic-spool-key-1\",\"secret\":\"[removed]\",\"isActive\":false,\"rateLimit\":{\"count\":37,\"window\":60},\"dsn\":{\"public\":\"https://synthetic-spool-key-1@ingest.invalid/42\",\"secret\":\"[removed]\",\"cdn\":\"https://js.sentry-cdn.com/synthetic-spool-key-1.min.js\"},\"browserSdkVersion\":\"latest\",\"dynamicSdkLoaderOptions\":{\"hasReplay\":true,\"hasPerformance\":false,\"hasDebug\":true,\"hasFeedback\":true,\"hasLogsAndMetrics\":false}}]"
+        },
+        {
+          "url": "https://sentry.invalid/api/0/projects/synthetic-spool-1/checkout/keys/?per_page=100&cursor=opaque-%25E7%258C%25AB-%2525-1",
+          "status": 200,
+          "link": "<https://sentry.invalid/api/0/projects/synthetic-spool-1/checkout/keys/?per_page=100&cursor=opaque-%25E7%258C%25AB-%2525-2>; rel=\"next\"; results=\"false\"; cursor=\"opaque-%E7%8C%AB-%25-2\"",
+          "body": "[]"
+        }
+      ]
+    },
+    {
+      "kind": "teams",
+      "project": null,
+      "responses": [
+        {
+          "url": "https://sentry.invalid/api/0/organizations/synthetic-spool-1/teams/?per_page=100",
+          "status": 200,
+          "link": "<https://sentry.invalid/api/0/organizations/synthetic-spool-1/teams/?per_page=100&cursor=opaque-%25E7%258C%25AB-%2525-1>; rel=\"next\"; results=\"true\"; cursor=\"opaque-%E7%8C%AB-%25-1\"",
+          "body": "[{\"id\":\"synthetic-team-1\",\"slug\":\"checkout\",\"name\":\"Checkout فريق\",\"dateCreated\":\"2026-02-02T00:00:00Z\",\"memberCount\":2,\"hasAccess\":true}]"
+        },
+        {
+          "url": "https://sentry.invalid/api/0/organizations/synthetic-spool-1/teams/?per_page=100&cursor=opaque-%25E7%258C%25AB-%2525-1",
+          "status": 200,
+          "link": "<https://sentry.invalid/api/0/organizations/synthetic-spool-1/teams/?per_page=100&cursor=opaque-%25E7%258C%25AB-%2525-2>; rel=\"next\"; results=\"false\"; cursor=\"opaque-%E7%8C%AB-%25-2\"",
+          "body": "[]"
+        }
+      ]
+    },
+    {
+      "kind": "members",
+      "project": null,
+      "responses": [
+        {
+          "url": "https://sentry.invalid/api/0/organizations/synthetic-spool-1/members/?per_page=100",
+          "status": 200,
+          "link": "<https://sentry.invalid/api/0/organizations/synthetic-spool-1/members/?per_page=100&cursor=opaque-%25E7%258C%25AB-%2525-1>; rel=\"next\"; results=\"true\"; cursor=\"opaque-%E7%8C%AB-%25-1\"",
+          "body": "[{\"id\":\"synthetic-member-1\",\"email\":\"synthetic-spool-1@example.test\",\"name\":\"Synthetic member\",\"orgRole\":\"admin\",\"pending\":true,\"expired\":false,\"flags\":{\"sso:linked\":false},\"user\":null}]"
+        },
+        {
+          "url": "https://sentry.invalid/api/0/organizations/synthetic-spool-1/members/?per_page=100&cursor=opaque-%25E7%258C%25AB-%2525-1",
+          "status": 200,
+          "link": "<https://sentry.invalid/api/0/organizations/synthetic-spool-1/members/?per_page=100&cursor=opaque-%25E7%258C%25AB-%2525-2>; rel=\"next\"; results=\"false\"; cursor=\"opaque-%E7%8C%AB-%25-2\"",
+          "body": "[]"
+        }
+      ]
+    },
+    {
+      "kind": "workflows",
+      "project": null,
+      "responses": [
+        {
+          "url": "https://sentry.invalid/api/0/organizations/synthetic-spool-1/workflows/?per_page=100",
+          "status": 200,
+          "link": "<https://sentry.invalid/api/0/organizations/synthetic-spool-1/workflows/?per_page=100&cursor=opaque-%25E7%258C%25AB-%2525-1>; rel=\"next\"; results=\"true\"; cursor=\"opaque-%E7%8C%AB-%25-1\"",
+          "body": "[{\"id\":\"synthetic-workflow-1\",\"name\":\"Checkout error alert\",\"enabled\":false,\"detectorIds\":[\"synthetic-detector-1\"],\"triggers\":{\"id\":\"synthetic-trigger-1\",\"logicType\":\"any\",\"conditions\":[{\"id\":\"synthetic-trigger-condition-1\",\"type\":\"detector_changed\",\"comparison\":\"high\",\"conditionResult\":true}],\"actions\":[]},\"actionFilters\":[{\"id\":\"synthetic-filter-1\",\"logicType\":\"any\",\"conditions\":[],\"actions\":[{\"id\":\"synthetic-action-1\",\"type\":\"email\",\"status\":\"disabled\",\"integrationId\":null,\"config\":{\"targetType\":\"Team\",\"targetIdentifier\":\"synthetic-team-1\",\"targetDisplay\":\"Checkout\"},\"data\":{\"fallthroughType\":\"ActiveMembers\"}}]}],\"config\":{\"frequency\":30},\"unknownExtension\":{\"nested\":[{\"code\":\"source-only\"}]}}]"
+        },
+        {
+          "url": "https://sentry.invalid/api/0/organizations/synthetic-spool-1/workflows/?per_page=100&cursor=opaque-%25E7%258C%25AB-%2525-1",
+          "status": 200,
+          "link": "<https://sentry.invalid/api/0/organizations/synthetic-spool-1/workflows/?per_page=100&cursor=opaque-%25E7%258C%25AB-%2525-2>; rel=\"next\"; results=\"false\"; cursor=\"opaque-%E7%8C%AB-%25-2\"",
+          "body": "[]"
+        }
+      ]
+    },
+    {
+      "kind": "detectors",
+      "project": null,
+      "responses": [
+        {
+          "url": "https://sentry.invalid/api/0/organizations/synthetic-spool-1/detectors/?per_page=100",
+          "status": 200,
+          "link": "<https://sentry.invalid/api/0/organizations/synthetic-spool-1/detectors/?per_page=100&cursor=opaque-%25E7%258C%25AB-%2525-1>; rel=\"next\"; results=\"true\"; cursor=\"opaque-%E7%8C%AB-%25-1\"",
+          "body": "[{\"id\":\"synthetic-detector-1\",\"name\":\"Checkout errors\",\"type\":\"error\",\"projectId\":\"synthetic-project-1\",\"enabled\":false,\"config\":{},\"conditionGroup\":{\"id\":\"synthetic-condition-group-1\",\"logicType\":\"any\",\"conditions\":[{\"id\":\"synthetic-condition-1\",\"type\":\"event_frequency_count\",\"comparison\":100,\"conditionResult\":true}],\"actions\":[]},\"dataSources\":[{\"id\":\"synthetic-data-source-1\",\"type\":\"snuba_query_subscription\",\"sourceId\":\"synthetic-query-1\",\"queryObj\":{\"id\":\"synthetic-query-1\",\"snubaQuery\":{\"dataset\":\"events\",\"eventTypes\":[\"error\"],\"aggregate\":\"count()\",\"query\":\"event.type:error\",\"timeWindow\":60,\"environment\":\"production\"}}}]}]"
+        },
+        {
+          "url": "https://sentry.invalid/api/0/organizations/synthetic-spool-1/detectors/?per_page=100&cursor=opaque-%25E7%258C%25AB-%2525-1",
+          "status": 200,
+          "link": "<https://sentry.invalid/api/0/organizations/synthetic-spool-1/detectors/?per_page=100&cursor=opaque-%25E7%258C%25AB-%2525-2>; rel=\"next\"; results=\"false\"; cursor=\"opaque-%E7%8C%AB-%25-2\"",
+          "body": "[]"
+        }
+      ]
+    },
+    {
+      "kind": "ownership",
+      "project": "checkout",
+      "responses": [
+        {
+          "url": "https://sentry.invalid/api/0/projects/synthetic-spool-1/checkout/ownership/",
+          "status": 200,
+          "body": "{\"raw\":\"path:src/checkout/* #checkout\",\"schema\":{\"$version\":1,\"rules\":[{\"matcher\":{\"type\":\"path\",\"pattern\":\"src/checkout/*\"},\"owners\":[{\"type\":\"team\",\"id\":\"synthetic-team-1\",\"name\":\"checkout\"}]}]},\"fallthrough\":true,\"autoAssignment\":false,\"codeownersAutoSync\":false}"
+        }
+      ]
+    },
+    {
+      "kind": "issues",
+      "project": "checkout",
+      "responses": [
+        {
+          "url": "https://sentry.invalid/api/0/projects/synthetic-spool-1/checkout/issues/?per_page=100&query=",
+          "status": 200,
+          "link": "<https://sentry.invalid/api/0/projects/synthetic-spool-1/checkout/issues/?per_page=100&query=&cursor=opaque-%25E7%258C%25AB-%2525-1>; rel=\"next\"; results=\"true\"; cursor=\"opaque-%E7%8C%AB-%25-1\"",
+          "body": "[{\"id\":\"synthetic-issue-0\",\"shortId\":\"CHECKOUT-1\",\"title\":\"Checkout failure 0\",\"status\":\"resolved\",\"firstSeen\":\"2026-02-02T00:00:00Z\",\"lastSeen\":\"2026-02-02T00:00:00Z\",\"count\":\"99\",\"userCount\":3,\"assignedTo\":{\"type\":\"team\",\"id\":\"synthetic-team-1\",\"name\":\"Checkout\"},\"statusDetails\":{},\"priority\":\"high\"},{\"id\":\"synthetic-issue-1\",\"shortId\":\"CHECKOUT-2\",\"title\":\"Checkout failure 1\",\"status\":\"ignored\",\"firstSeen\":\"2026-02-02T00:00:00Z\",\"lastSeen\":\"2026-02-02T00:00:00Z\",\"count\":\"99\",\"userCount\":3,\"assignedTo\":{\"type\":\"team\",\"id\":\"synthetic-team-1\",\"name\":\"Checkout\"},\"statusDetails\":{},\"priority\":\"high\"},{\"id\":\"synthetic-issue-2\",\"shortId\":\"CHECKOUT-3\",\"title\":\"Checkout failure 2\",\"status\":\"unresolved\",\"firstSeen\":\"2026-02-02T00:00:00Z\",\"lastSeen\":\"2026-02-02T00:00:00Z\",\"count\":\"99\",\"userCount\":3,\"assignedTo\":{\"type\":\"team\",\"id\":\"synthetic-team-1\",\"name\":\"Checkout\"},\"statusDetails\":{},\"priority\":\"high\"},{\"id\":\"synthetic-issue-3\",\"shortId\":\"CHECKOUT-4\",\"title\":\"Checkout failure 3\",\"status\":\"resolved\",\"firstSeen\":\"2026-02-02T00:00:00Z\",\"lastSeen\":\"2026-02-02T00:00:00Z\",\"count\":\"99\",\"userCount\":3,\"assignedTo\":{\"type\":\"team\",\"id\":\"synthetic-team-1\",\"name\":\"Checkout\"},\"statusDetails\":{},\"priority\":\"high\"},{\"id\":\"synthetic-issue-4\",\"shortId\":\"CHECKOUT-5\",\"title\":\"Checkout failure 4\",\"status\":\"ignored\",\"firstSeen\":\"2026-02-02T00:00:00Z\",\"lastSeen\":\"2026-02-02T00:00:00Z\",\"count\":\"99\",\"userCount\":3,\"assignedTo\":{\"type\":\"team\",\"id\":\"synthetic-team-1\",\"name\":\"Checkout\"},\"statusDetails\":{},\"priority\":\"high\"},{\"id\":\"synthetic-issue-5\",\"shortId\":\"CHECKOUT-6\",\"title\":\"Checkout failure 5\",\"status\":\"unresolved\",\"firstSeen\":\"2026-02-02T00:00:00Z\",\"lastSeen\":\"2026-02-02T00:00:00Z\",\"count\":\"99\",\"userCount\":3,\"assignedTo\":{\"type\":\"team\",\"id\":\"synthetic-team-1\",\"name\":\"Checkout\"},\"statusDetails\":{},\"priority\":\"high\"},{\"id\":\"synthetic-issue-6\",\"shortId\":\"CHECKOUT-7\",\"title\":\"Checkout failure 6\",\"status\":\"resolved\",\"firstSeen\":\"2026-02-02T00:00:00Z\",\"lastSeen\":\"2026-02-02T00:00:00Z\",\"count\":\"99\",\"userCount\":3,\"assignedTo\":{\"type\":\"team\",\"id\":\"synthetic-team-1\",\"name\":\"Checkout\"},\"statusDetails\":{},\"priority\":\"high\"},{\"id\":\"synthetic-issue-7\",\"shortId\":\"CHECKOUT-8\",\"title\":\"Checkout failure 7\",\"status\":\"ignored\",\"firstSeen\":\"2026-02-02T00:00:00Z\",\"lastSeen\":\"2026-02-02T00:00:00Z\",\"count\":\"99\",\"userCount\":3,\"assignedTo\":{\"type\":\"team\",\"id\":\"synthetic-team-1\",\"name\":\"Checkout\"},\"statusDetails\":{},\"priority\":\"high\"},{\"id\":\"synthetic-issue-0\",\"shortId\":\"CHECKOUT-1\",\"title\":\"Checkout failure 0\",\"status\":\"resolved\",\"firstSeen\":\"2026-02-02T00:00:00Z\",\"lastSeen\":\"2026-02-02T00:00:00Z\",\"count\":\"99\",\"userCount\":3,\"assignedTo\":{\"type\":\"team\",\"id\":\"synthetic-team-1\",\"name\":\"Checkout\"},\"statusDetails\":{},\"priority\":\"high\"}]"
+        },
+        {
+          "url": "https://sentry.invalid/api/0/projects/synthetic-spool-1/checkout/issues/?per_page=100&query=&cursor=opaque-%25E7%258C%25AB-%2525-1",
+          "status": 200,
+          "link": "<https://sentry.invalid/api/0/projects/synthetic-spool-1/checkout/issues/?per_page=100&query=&cursor=opaque-%25E7%258C%25AB-%2525-2>; rel=\"next\"; results=\"false\"; cursor=\"opaque-%E7%8C%AB-%25-2\"",
+          "body": "[]"
+        }
+      ]
+    },
+    {
+      "kind": "events",
+      "project": "checkout",
+      "responses": [
+        {
+          "url": "https://sentry.invalid/api/0/projects/synthetic-spool-1/checkout/events/00000000000000000000000000000000/",
+          "status": 200,
+          "body": "{\"eventID\":\"00000000000000000000000000000000\",\"groupID\":\"synthetic-issue-0\",\"title\":\"Checkout failure 0\",\"release\":{\"version\":\"checkout@1.0.0\",\"shortVersion\":\"1.0.0\"},\"dist\":\"build-1\",\"environment\":\"production\",\"dateCreated\":\"2026-02-02T00:00:00Z\",\"dateReceived\":\"2026-02-02T00:00:01Z\",\"tags\":[{\"key\":\"environment\",\"value\":\"production\"},{\"key\":\"region\",\"value\":\"synthetic\"}],\"contexts\":{\"browser\":{\"name\":\"Synthetic browser\"}},\"entries\":[{\"type\":\"exception\",\"data\":{\"values\":[{\"type\":\"Error\",\"value\":\"Earlier exception\",\"stacktrace\":{\"frames\":[{\"filename\":\"earlier.js\",\"lineNo\":1,\"colNo\":1}]}},{\"type\":\"TypeError\",\"value\":\"Checkout failure 0\",\"mechanism\":{\"handled\":true,\"type\":\"generic\"},\"rawStacktrace\":{\"frames\":[{\"filename\":\"src/checkout.ts\",\"absPath\":\"https://checkout.example.test/app.js\",\"lineNo\":12,\"colNo\":4,\"function\":\"checkout\",\"vars\":{\"ordinary\":\"safe\"}}]},\"stacktrace\":{\"frames\":[{\"filename\":\"src/original.ts\",\"lineNo\":3,\"colNo\":2,\"function\":\"original\"}]}}]}},{\"type\":\"breadcrumbs\",\"data\":{\"values\":[{\"type\":\"default\",\"category\":\"navigation\",\"message\":\"Checkout opened\",\"data\":{\"method\":\"GET\",\"status_code\":200},\"event_id\":\"source-only\"}]}},{\"type\":\"request\",\"data\":{\"method\":\"GET\",\"url\":\"https://checkout.example.test/\",\"headers\":[[\"Accept\",\"application/json\"]]}}]}"
+        },
+        {
+          "url": "https://sentry.invalid/api/0/projects/synthetic-spool-1/checkout/events/00000000000000000000000000000001/",
+          "status": 200,
+          "body": "{\"eventID\":\"00000000000000000000000000000001\",\"groupID\":\"synthetic-issue-1\",\"title\":\"Checkout failure 1\",\"release\":{\"version\":\"checkout@1.0.0\",\"shortVersion\":\"1.0.0\"},\"dist\":\"build-1\",\"environment\":\"production\",\"dateCreated\":\"2026-02-02T00:00:00Z\",\"dateReceived\":\"2026-02-02T00:00:01Z\",\"tags\":[{\"key\":\"environment\",\"value\":\"production\"},{\"key\":\"region\",\"value\":\"synthetic\"}],\"contexts\":{\"browser\":{\"name\":\"Synthetic browser\"}},\"entries\":[{\"type\":\"exception\",\"data\":{\"values\":[{\"type\":\"Error\",\"value\":\"Earlier exception\",\"stacktrace\":{\"frames\":[{\"filename\":\"earlier.js\",\"lineNo\":1,\"colNo\":1}]}},{\"type\":\"TypeError\",\"value\":\"Checkout failure 1\",\"mechanism\":{\"handled\":true,\"type\":\"generic\"},\"rawStacktrace\":{\"frames\":[{\"filename\":\"src/checkout.ts\",\"absPath\":\"https://checkout.example.test/app.js\",\"lineNo\":12,\"colNo\":4,\"function\":\"checkout\",\"vars\":{\"ordinary\":\"safe\"}}]},\"stacktrace\":{\"frames\":[{\"filename\":\"src/original.ts\",\"lineNo\":3,\"colNo\":2,\"function\":\"original\"}]}}]}},{\"type\":\"breadcrumbs\",\"data\":{\"values\":[{\"type\":\"default\",\"category\":\"navigation\",\"message\":\"Checkout opened\",\"data\":{\"method\":\"GET\",\"status_code\":200},\"event_id\":\"source-only\"}]}},{\"type\":\"request\",\"data\":{\"method\":\"GET\",\"url\":\"https://checkout.example.test/\",\"headers\":[[\"Accept\",\"application/json\"]]}}]}"
+        },
+        {
+          "url": "https://sentry.invalid/api/0/projects/synthetic-spool-1/checkout/events/00000000000000000000000000000002/",
+          "status": 200,
+          "body": "{\"eventID\":\"00000000000000000000000000000002\",\"groupID\":\"synthetic-issue-2\",\"title\":\"Checkout failure 2\",\"release\":{\"version\":\"checkout@1.0.0\",\"shortVersion\":\"1.0.0\"},\"dist\":\"build-1\",\"environment\":\"production\",\"dateCreated\":\"2026-02-02T00:00:00Z\",\"dateReceived\":\"2026-02-02T00:00:01Z\",\"tags\":[{\"key\":\"environment\",\"value\":\"production\"},{\"key\":\"region\",\"value\":\"synthetic\"}],\"contexts\":{\"browser\":{\"name\":\"Synthetic browser\"}},\"entries\":[{\"type\":\"exception\",\"data\":{\"values\":[{\"type\":\"Error\",\"value\":\"Earlier exception\",\"stacktrace\":{\"frames\":[{\"filename\":\"earlier.js\",\"lineNo\":1,\"colNo\":1}]}},{\"type\":\"TypeError\",\"value\":\"Checkout failure 2\",\"mechanism\":{\"handled\":true,\"type\":\"generic\"},\"rawStacktrace\":{\"frames\":[{\"filename\":\"src/checkout.ts\",\"absPath\":\"https://checkout.example.test/app.js\",\"lineNo\":12,\"colNo\":4,\"function\":\"checkout\",\"vars\":{\"ordinary\":\"safe\"}}]},\"stacktrace\":{\"frames\":[{\"filename\":\"src/original.ts\",\"lineNo\":3,\"colNo\":2,\"function\":\"original\"}]}}]}},{\"type\":\"breadcrumbs\",\"data\":{\"values\":[{\"type\":\"default\",\"category\":\"navigation\",\"message\":\"Checkout opened\",\"data\":{\"method\":\"GET\",\"status_code\":200},\"event_id\":\"source-only\"}]}},{\"type\":\"request\",\"data\":{\"method\":\"GET\",\"url\":\"https://checkout.example.test/\",\"headers\":[[\"Accept\",\"application/json\"]]}}]}"
+        },
+        {
+          "url": "https://sentry.invalid/api/0/projects/synthetic-spool-1/checkout/events/00000000000000000000000000000003/",
+          "status": 200,
+          "body": "{\"eventID\":\"00000000000000000000000000000003\",\"groupID\":\"synthetic-issue-3\",\"title\":\"Checkout failure 3\",\"release\":{\"version\":\"checkout@1.0.0\",\"shortVersion\":\"1.0.0\"},\"dist\":\"build-1\",\"environment\":\"production\",\"dateCreated\":\"2026-02-02T00:00:00Z\",\"dateReceived\":\"2026-02-02T00:00:01Z\",\"tags\":[{\"key\":\"environment\",\"value\":\"production\"},{\"key\":\"region\",\"value\":\"synthetic\"}],\"contexts\":{\"browser\":{\"name\":\"Synthetic browser\"}},\"entries\":[{\"type\":\"exception\",\"data\":{\"values\":[{\"type\":\"Error\",\"value\":\"Earlier exception\",\"stacktrace\":{\"frames\":[{\"filename\":\"earlier.js\",\"lineNo\":1,\"colNo\":1}]}},{\"type\":\"TypeError\",\"value\":\"Checkout failure 3\",\"mechanism\":{\"handled\":true,\"type\":\"generic\"},\"rawStacktrace\":{\"frames\":[{\"filename\":\"src/checkout.ts\",\"absPath\":\"https://checkout.example.test/app.js\",\"lineNo\":12,\"colNo\":4,\"function\":\"checkout\",\"vars\":{\"ordinary\":\"safe\"}}]},\"stacktrace\":{\"frames\":[{\"filename\":\"src/original.ts\",\"lineNo\":3,\"colNo\":2,\"function\":\"original\"}]}}]}},{\"type\":\"breadcrumbs\",\"data\":{\"values\":[{\"type\":\"default\",\"category\":\"navigation\",\"message\":\"Checkout opened\",\"data\":{\"method\":\"GET\",\"status_code\":200},\"event_id\":\"source-only\"}]}},{\"type\":\"request\",\"data\":{\"method\":\"GET\",\"url\":\"https://checkout.example.test/\",\"headers\":[[\"Accept\",\"application/json\"]]}}]}"
+        },
+        {
+          "url": "https://sentry.invalid/api/0/projects/synthetic-spool-1/checkout/events/00000000000000000000000000000004/",
+          "status": 200,
+          "body": "{\"eventID\":\"00000000000000000000000000000004\",\"groupID\":\"synthetic-issue-4\",\"title\":\"Checkout failure 4\",\"release\":{\"version\":\"checkout@1.0.0\",\"shortVersion\":\"1.0.0\"},\"dist\":\"build-1\",\"environment\":\"production\",\"dateCreated\":\"2026-02-02T00:00:00Z\",\"dateReceived\":\"2026-02-02T00:00:01Z\",\"tags\":[{\"key\":\"environment\",\"value\":\"production\"},{\"key\":\"region\",\"value\":\"synthetic\"}],\"contexts\":{\"browser\":{\"name\":\"Synthetic browser\"}},\"entries\":[{\"type\":\"exception\",\"data\":{\"values\":[{\"type\":\"Error\",\"value\":\"Earlier exception\",\"stacktrace\":{\"frames\":[{\"filename\":\"earlier.js\",\"lineNo\":1,\"colNo\":1}]}},{\"type\":\"TypeError\",\"value\":\"Checkout failure 4\",\"mechanism\":{\"handled\":true,\"type\":\"generic\"},\"rawStacktrace\":{\"frames\":[{\"filename\":\"src/checkout.ts\",\"absPath\":\"https://checkout.example.test/app.js\",\"lineNo\":12,\"colNo\":4,\"function\":\"checkout\",\"vars\":{\"ordinary\":\"safe\"}}]},\"stacktrace\":{\"frames\":[{\"filename\":\"src/original.ts\",\"lineNo\":3,\"colNo\":2,\"function\":\"original\"}]}}]}},{\"type\":\"breadcrumbs\",\"data\":{\"values\":[{\"type\":\"default\",\"category\":\"navigation\",\"message\":\"Checkout opened\",\"data\":{\"method\":\"GET\",\"status_code\":200},\"event_id\":\"source-only\"}]}},{\"type\":\"request\",\"data\":{\"method\":\"GET\",\"url\":\"https://checkout.example.test/\",\"headers\":[[\"Accept\",\"application/json\"]]}}]}"
+        },
+        {
+          "url": "https://sentry.invalid/api/0/projects/synthetic-spool-1/checkout/events/00000000000000000000000000000005/",
+          "status": 200,
+          "body": "{\"eventID\":\"00000000000000000000000000000005\",\"groupID\":\"synthetic-issue-5\",\"title\":\"Checkout failure 5\",\"release\":{\"version\":\"checkout@1.0.0\",\"shortVersion\":\"1.0.0\"},\"dist\":\"build-1\",\"environment\":\"production\",\"dateCreated\":\"2026-02-02T00:00:00Z\",\"dateReceived\":\"2026-02-02T00:00:01Z\",\"tags\":[{\"key\":\"environment\",\"value\":\"production\"},{\"key\":\"region\",\"value\":\"synthetic\"}],\"contexts\":{\"browser\":{\"name\":\"Synthetic browser\"}},\"entries\":[{\"type\":\"exception\",\"data\":{\"values\":[{\"type\":\"Error\",\"value\":\"Earlier exception\",\"stacktrace\":{\"frames\":[{\"filename\":\"earlier.js\",\"lineNo\":1,\"colNo\":1}]}},{\"type\":\"TypeError\",\"value\":\"Checkout failure 5\",\"mechanism\":{\"handled\":true,\"type\":\"generic\"},\"rawStacktrace\":{\"frames\":[{\"filename\":\"src/checkout.ts\",\"absPath\":\"https://checkout.example.test/app.js\",\"lineNo\":12,\"colNo\":4,\"function\":\"checkout\",\"vars\":{\"ordinary\":\"safe\"}}]},\"stacktrace\":{\"frames\":[{\"filename\":\"src/original.ts\",\"lineNo\":3,\"colNo\":2,\"function\":\"original\"}]}}]}},{\"type\":\"breadcrumbs\",\"data\":{\"values\":[{\"type\":\"default\",\"category\":\"navigation\",\"message\":\"Checkout opened\",\"data\":{\"method\":\"GET\",\"status_code\":200},\"event_id\":\"source-only\"}]}},{\"type\":\"request\",\"data\":{\"method\":\"GET\",\"url\":\"https://checkout.example.test/\",\"headers\":[[\"Accept\",\"application/json\"]]}}]}"
+        },
+        {
+          "url": "https://sentry.invalid/api/0/projects/synthetic-spool-1/checkout/events/00000000000000000000000000000006/",
+          "status": 200,
+          "body": "{\"eventID\":\"00000000000000000000000000000006\",\"groupID\":\"synthetic-issue-6\",\"title\":\"Checkout failure 6\",\"release\":{\"version\":\"checkout@1.0.0\",\"shortVersion\":\"1.0.0\"},\"dist\":\"build-1\",\"environment\":\"production\",\"dateCreated\":\"2026-02-02T00:00:00Z\",\"dateReceived\":\"2026-02-02T00:00:01Z\",\"tags\":[{\"key\":\"environment\",\"value\":\"production\"},{\"key\":\"region\",\"value\":\"synthetic\"}],\"contexts\":{\"browser\":{\"name\":\"Synthetic browser\"}},\"entries\":[{\"type\":\"exception\",\"data\":{\"values\":[{\"type\":\"Error\",\"value\":\"Earlier exception\",\"stacktrace\":{\"frames\":[{\"filename\":\"earlier.js\",\"lineNo\":1,\"colNo\":1}]}},{\"type\":\"TypeError\",\"value\":\"Checkout failure 6\",\"mechanism\":{\"handled\":true,\"type\":\"generic\"},\"rawStacktrace\":{\"frames\":[{\"filename\":\"src/checkout.ts\",\"absPath\":\"https://checkout.example.test/app.js\",\"lineNo\":12,\"colNo\":4,\"function\":\"checkout\",\"vars\":{\"ordinary\":\"safe\"}}]},\"stacktrace\":{\"frames\":[{\"filename\":\"src/original.ts\",\"lineNo\":3,\"colNo\":2,\"function\":\"original\"}]}}]}},{\"type\":\"breadcrumbs\",\"data\":{\"values\":[{\"type\":\"default\",\"category\":\"navigation\",\"message\":\"Checkout opened\",\"data\":{\"method\":\"GET\",\"status_code\":200},\"event_id\":\"source-only\"}]}},{\"type\":\"request\",\"data\":{\"method\":\"GET\",\"url\":\"https://checkout.example.test/\",\"headers\":[[\"Accept\",\"application/json\"]]}}]}"
+        },
+        {
+          "url": "https://sentry.invalid/api/0/projects/synthetic-spool-1/checkout/events/00000000000000000000000000000007/",
+          "status": 200,
+          "body": "{\"eventID\":\"00000000000000000000000000000007\",\"groupID\":\"synthetic-issue-7\",\"title\":\"Checkout failure 7\",\"release\":{\"version\":\"checkout@1.0.0\",\"shortVersion\":\"1.0.0\"},\"dist\":\"build-1\",\"environment\":\"production\",\"dateCreated\":\"2026-02-02T00:00:00Z\",\"dateReceived\":\"2026-02-02T00:00:01Z\",\"tags\":[{\"key\":\"environment\",\"value\":\"production\"},{\"key\":\"region\",\"value\":\"synthetic\"}],\"contexts\":{\"browser\":{\"name\":\"Synthetic browser\"}},\"entries\":[{\"type\":\"exception\",\"data\":{\"values\":[{\"type\":\"Error\",\"value\":\"Earlier exception\",\"stacktrace\":{\"frames\":[{\"filename\":\"earlier.js\",\"lineNo\":1,\"colNo\":1}]}},{\"type\":\"TypeError\",\"value\":\"Checkout failure 7\",\"mechanism\":{\"handled\":true,\"type\":\"generic\"},\"rawStacktrace\":{\"frames\":[{\"filename\":\"src/checkout.ts\",\"absPath\":\"https://checkout.example.test/app.js\",\"lineNo\":12,\"colNo\":4,\"function\":\"checkout\",\"vars\":{\"ordinary\":\"safe\"}}]},\"stacktrace\":{\"frames\":[{\"filename\":\"src/original.ts\",\"lineNo\":3,\"colNo\":2,\"function\":\"original\"}]}}]}},{\"type\":\"breadcrumbs\",\"data\":{\"values\":[{\"type\":\"default\",\"category\":\"navigation\",\"message\":\"Checkout opened\",\"data\":{\"method\":\"GET\",\"status_code\":200},\"event_id\":\"source-only\"}]}},{\"type\":\"request\",\"data\":{\"method\":\"GET\",\"url\":\"https://checkout.example.test/\",\"headers\":[[\"Accept\",\"application/json\"]]}}]}"
+        }
+      ]
+    }
+  ]
+}
