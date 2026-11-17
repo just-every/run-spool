@@ -1,3 +1,4 @@
+import { waitingForData } from './waiting';
 import { metricConfig, metricMeasure } from './metric-rules';
 import type { NativeAuthority } from '../agent-door/native-authority';
 import {primaryShortIdSql} from '../short-ids/lookup';
@@ -8,7 +9,7 @@ import { identityPolicyFence } from '../identities/policy';
 import { ownerBatch } from '../owner-authority';
 import { statement as s,type AlertEnvironment } from './types';
 import { ruleInput } from './rules';
-import { eventFilter,eligibleEvent,ruleConfig,userKey } from './filters';
+import { eventFilter,eligibleEvent,ruleConfig } from './filters';
 import { decision } from './measure';
 export const configSql="COALESCE((SELECT config FROM alert_rule_configs cfg WHERE cfg.rule_id=r.id),'{\"metric\":\"count\",\"filters\":{},\"tagKeys\":[]}')";
 export async function ruleDigest(b:any,revisions?:unknown){const {previewToken,...value}=b;return hash(canonical({value,...revisions?{scrubbing:revisions}:{}}))}
@@ -16,18 +17,17 @@ export async function previewRule(env:AlertEnvironment,session:NativeAuthority,p
  const {ruleId,...value}=raw,b=ruleInput(value,env,project,!!ruleId),config=b.kinds==='["metric"]'?metricConfig(JSON.parse(b.config)):ruleConfig(JSON.parse(b.config)),policy=await readIdentityPolicy(env.DB,project),time=Date.now(),end=Math.floor(time/b.windowMs)*b.windowMs,from=end-90*86400000;
  if(config.metric==='aggregate'){
   const metricEnd=Math.floor(time/60000)*60000,measurement=await metricMeasure(env.DB,project,config,metricEnd-b.windowMs,metricEnd);
-  const refusal=config.dataset==='sessions'&&!await s(env.DB,'SELECT 1 FROM health_sessions WHERE project=? UNION ALL SELECT 1 FROM health_aggregates WHERE project=? LIMIT 1',project,project).first()?'Session condition unavailable: project has no session data':null;
+  const waiting=await waitingForData(env.DB,project,config);
   const scrubbing=await scrubbingSnapshot(env.DB,project),revisions={project:scrubbing.revision,installation:scrubbing.installationRevision},token=crypto.randomUUID();
   await ownerBatch(env.DB,session,[scrubbingFence(env.DB,project,revisions.project),scrubbingFence(env.DB,null,revisions.installation),identityPolicyFence(env.DB,project,policy.revision),s(env.DB,'DELETE FROM alert_rule_previews WHERE project=? AND created<?',project,time-86400000),s(env.DB,'INSERT INTO alert_rule_previews VALUES(?,?,?,?,?,?)',token,project,ruleId??null,await ruleDigest(b,revisions),policy.revision,time)]);
-  return {token:refusal?null:token,refusal,owner:'Installation owner',destination:b.destination,window:{from:metricEnd-b.windowMs,to:metricEnd,durationMs:b.windowMs},matchedEvents:measurement.samples,transitions:[],decisions:[{...measurement,start:metricEnd-b.windowMs,end:metricEnd,metric:config.aggregate,issue_title:'Project metric',fired:false}],coverage:'Project-wide retained observations only; missing transaction or session samples leave status unchanged. Error counts are not extrapolated.'};
+  return {token,refusal:null,...waiting,owner:'Installation owner',destination:b.destination,window:{from:metricEnd-b.windowMs,to:metricEnd,durationMs:b.windowMs},matchedEvents:measurement.samples,transitions:[],decisions:[{...measurement,start:metricEnd-b.windowMs,end:metricEnd,metric:config.aggregate,issue_title:'Project metric',fired:false}],coverage:'Project-wide retained observations only; missing transaction or session samples leave status unchanged. Error counts are not extrapolated.'};
  }
  const f=eventFilter(config),rows=(await s(env.DB,`SELECT e.issue,CAST(e.received/? AS INTEGER)*? start,COUNT(*) count FROM events e WHERE e.project=? AND e.received>=? AND e.received<? AND ${eligibleEvent()} AND ${f.sql} GROUP BY e.issue,start ORDER BY start DESC,e.issue LIMIT 100`,b.windowMs,b.windowMs,project,from,end,...f.args).all<any>()).results;
  let refusal:string|null=null;
  if(config.metric==='users'){
   if(identityFields.every(k=>policy.policy[k]==='drop'))refusal='User condition unavailable: identity policy drops every user key';
-  else if(!(await s(env.DB,`SELECT 1 FROM events e LEFT JOIN event_identities x ON x.project=e.project AND x.event=e.id AND x.occurrence=e.occurrence WHERE e.project=? AND ${userKey} IS NOT NULL LIMIT 1`,project).first()))refusal='User condition unavailable: retained events have no user key';
  }
- if(config.metric==='session_percent'&&!await s(env.DB,'SELECT 1 FROM health_sessions WHERE project=? UNION ALL SELECT 1 FROM health_aggregates WHERE project=? LIMIT 1',project,project).first())refusal='Session condition unavailable: project has no session data';
+ const waiting=await waitingForData(env.DB,project,config);
  const decisions=[];
  if(b.kinds.includes('spike'))for(const row of rows)decisions.push(await decision(env.DB,project,config,row.issue,row.start,row.start+b.windowMs,b.threshold));
  const transitions=decisions.filter(d=>d.fired);
@@ -40,7 +40,7 @@ export async function previewRule(env:AlertEnvironment,session:NativeAuthority,p
  const scrubbing=await scrubbingSnapshot(env.DB,project),revisions={project:scrubbing.revision,installation:scrubbing.installationRevision};
  const token=refusal?null:crypto.randomUUID();
  await ownerBatch(env.DB,session,[scrubbingFence(env.DB,project,revisions.project),scrubbingFence(env.DB,null,revisions.installation),identityPolicyFence(env.DB,project,policy.revision),s(env.DB,'DELETE FROM alert_rule_previews WHERE project=? AND created<?',project,time-86400000),...token?[s(env.DB,'INSERT INTO alert_rule_previews VALUES(?,?,?,?,?,?)',token,project,ruleId??null,await ruleDigest(b,revisions),policy.revision,time)]:[]]);
- return {token,refusal,owner:'Installation owner',destination:b.destination,window:{from,to:end,durationMs:b.windowMs},matchedEvents:rows.reduce((n,r)=>n+r.count,0),transitions,decisions,coverage:'Retained complete windows, at most 100 issue/windows; transition history requires its retained trigger occurrence; historical imports never dispatch'};
+ return {token,refusal,...waiting,owner:'Installation owner',destination:b.destination,window:{from,to:end,durationMs:b.windowMs},matchedEvents:rows.reduce((n,r)=>n+r.count,0),transitions,decisions,coverage:'Retained complete windows, at most 100 issue/windows; transition history requires its retained trigger occurrence; historical imports never dispatch'};
 }
 export async function previewGuard(env:AlertEnvironment,project:string,id:string|null,b:any){
  if(!b.enabled)return [];

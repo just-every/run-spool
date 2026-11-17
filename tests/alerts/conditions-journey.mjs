@@ -32,7 +32,7 @@ export async function conditionsJourney(app,fixture){
  const userRule=rule('mail',{kinds:['spike'],threshold:3,config:config('users',{environment:'rules'})});
  let preview=await app.json(base+'/rules/preview','POST',userRule);assert.match(preview.refusal,/policy.*drops/i,'identity policy refusal precedes enable');assert.equal(preview.token,null);
  const sessionRule=rule('mail',{kinds:['spike'],threshold:30,config:config('session_percent',{environment:'sessions'})});
- preview=await app.json(base+'/rules/preview','POST',sessionRule);assert.match(preview.refusal,/no session data/i,'session data refusal never evaluates zero');
+ preview=await app.json(base+'/rules/preview','POST',sessionRule);assert.equal(preview.refusal,null);assert.ok(preview.token,'missing sessions do not block enabling');assert.equal(preview.waitingFor,'session');
  const identity=await app.json('/api/projects/web/identity-policy'),policy={id:'keep',email:'drop',username:'drop',ip_address:'drop'},ip=await app.json('/api/projects/web/identity-policy/preview','POST',{policy});
  await app.json('/api/projects/web/identity-policy','PUT',{revision:identity.revision,policy,token:ip.token});
  let id=100,issue;
@@ -85,7 +85,7 @@ export async function conditionsJourney(app,fixture){
  await app.json('/api/projects/web/identity-policy','PUT',{revision:currentPolicy.revision,policy:nextPolicy,token:nextPreview.token});
  const stalePolicy=await app.request(base+'/rules','POST',{...userRule,previewToken:policyPreview.token});assert.equal(stalePolicy.status,400,'identity policy revision changes invalidate an otherwise unchanged rule preview');await stalePolicy.body.cancel();
  const stale=await app.json(base+'/rules/preview','POST',userRule);const changed={...userRule,name:'Changed after preview',previewToken:stale.token};assert.equal((await app.request(base+'/rules','POST',changed)).status,400,'rule changes invalidate preview');
- console.log('ALERT-001 filters, retained-user windows, explicit session denominator, identity/session refusals, stale preview, durable deduplication, reactivation and plain Resolve passed');
+ console.log('ALERT-001 filters, retained-user windows, explicit session denominator, identity-policy refusal and waiting sessions, stale preview, durable deduplication, reactivation and plain Resolve passed');
 }
 
 // Every alert kind the product writes survives its own backup door; an unknown kind stays refused.

@@ -308,3 +308,5 @@ full Sentry API/Terraform compatibility, real-account dual run and cutover remai
 unproved. The existing public door and product release status are unchanged.
 
 Signed: Run Edit Run fleet, 17 November 2026.
+
+Alert rules can be turned on before their kind of live data arrives. An affected-user rule shows “Waiting for the first event with a user”; session rules show “Waiting for the first session”. They remain on, withhold alerts without matching data, and evaluate automatically as complete windows become available. Destination testing and review, capture privacy choices, and historical-import silence still apply. — Run Edit Run fleet, 17 November 2026.

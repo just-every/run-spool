@@ -1,3 +1,4 @@
+import { hasMatchingDataSql } from './waiting';
 import { levelTagSql } from './filters';
 import { configSql } from './preview';
 import { regressionSql } from '../releases/order';
@@ -31,6 +32,7 @@ export function routeStatements(db:D1Database,alertId:string,time:number,onlyRul
  CASE a.kind WHEN 'new_issue' THEN 'spool.issue.new' WHEN 'regression' THEN 'spool.issue.regressed' WHEN 'reactivation' THEN 'spool.issue.reactivated' WHEN 'metric' THEN 'spool.metric.changed' ELSE 'spool.issue.spike' END,?
  FROM alerts a JOIN alert_rules r ON r.project=a.project
  WHERE a.id=? AND r.enabled=1 AND a.payload IS NOT NULL AND (a.kind NOT IN ('spike','metric') OR json_extract(a.payload,'$.rule.revision')=r.revision) AND EXISTS(SELECT 1 FROM json_each(r.kinds) WHERE value=a.kind)
+ AND (a.kind IN ('spike','metric') OR EXISTS(SELECT 1 FROM (SELECT ${configSql} cfg,a.project project) observed WHERE ${hasMatchingDataSql('observed.cfg','observed.project')}))
  ${onlyRule?'AND r.id=?':''} ${trigger?`AND EXISTS(SELECT 1 FROM events e WHERE e.project=a.project AND e.id=? AND e.occurrence=? AND (json_extract(${configSql},'$.filters.environment') IS NULL OR e.environment=json_extract(${configSql},'$.filters.environment')) AND (json_extract(${configSql},'$.filters.release') IS NULL OR e.release=json_extract(${configSql},'$.filters.release')) AND ${levelTagSql(configSql)})`:''}
  AND (a.kind='metric' OR NOT EXISTS(SELECT 1 FROM alert_intents previous JOIN alerts prior ON prior.id=previous.alert_id WHERE previous.project=a.project AND previous.rule_id=r.id AND prior.issue=a.issue AND previous.created>? - COALESCE(json_extract(${configSql},'$.actionIntervalMinutes'),0)*60000 AND previous.created<=? AND previous.alert_id<>a.id))
  ON CONFLICT(id) DO NOTHING`,time,alertId,...(onlyRule?[onlyRule]:[]),...(trigger?[trigger.eventId,trigger.occurrence]:[]),time,time),

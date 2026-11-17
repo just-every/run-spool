@@ -3,7 +3,7 @@ import {destinationLabel,installationOwner} from './RuleSummary';
 import {receiptLabel} from '../workbench/CaptureReceipts';
 import {useDestination} from '../workbench/location';
 export type Sample={start?:number;end?:number;issue?:string;issue_short_id?:string;issue_title?:string;count?:number;reason?:string;metric?:string;value?:number|null;baseline?:number|null;threshold?:number;fired?:boolean;history?:Sample[];excluded?:Sample[];loss?:Sample[];reasons?:string[];[key:string]:any};
-export type Preview={token:string|null;refusal:string|null;owner:string;destination:string;window:{from:number;to:number;durationMs:number};transitions:Sample[];matchedEvents:number;decisions:Sample[];coverage?:string};
+export type Preview={token:string|null;refusal:string|null;waitingReason?:string|null;owner:string;destination:string;window:{from:number;to:number;durationMs:number};transitions:Sample[];matchedEvents:number;decisions:Sample[];coverage?:string};
 const rate=(value:number|null|undefined)=>value==null?'unavailable':value.toFixed(4);
 const plainReason=(reason:string)=>{const discarded=/^client_discarded:([^:]+):([^:]+)$/.exec(reason);return discarded?`${status(discarded[1])} · ${status(discarded[2])}`:receiptLabel(reason)};
 export function DecisionRow({sample,project,ruleName}:{sample:Sample;project:string;ruleName?:string}){
@@ -27,7 +27,7 @@ export function RulePreview({preview,project,destinations}:{preview:Preview;proj
  <h3>Rule preview</h3>
  <p>{installationOwner} · {destinationLabel(destinations.find(destination=>destination.id===preview.destination))}</p>
  <p>{date(preview.window.from)} – {date(preview.window.to)} · {preview.window.durationMs/60000} minute windows · {preview.matchedEvents} matching accepted events</p>
- {preview.refusal?<p role="alert" className="callout">{status(preview.refusal)}</p>:<p role="status">Preview ready</p>}
+ {preview.refusal?<p role="alert" className="callout">{status(preview.refusal)}</p>:<p role="status">{preview.waitingReason?`${preview.waitingReason}. You can turn this rule on now; it will evaluate automatically when matching data arrives.`:'Preview ready'}</p>}
  <h4>Matching transitions ({preview.transitions.length})</h4>
  {preview.transitions.length?<ul className="alert-records">{preview.transitions.map((sample,index)=><DecisionRow key={index} {...{sample,project}}/>)}</ul>:<p>No transitions in this sample.</p>}
  {!!preview.decisions.length&&<details><summary>Window decisions ({preview.decisions.length})</summary><ul className="alert-records">{preview.decisions.map((sample,index)=><DecisionRow key={index} {...{sample,project}}/>)}</ul></details>}
