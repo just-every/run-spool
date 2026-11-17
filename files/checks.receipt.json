@@ -1,0 +1,176 @@
+{
+  "author": "Run Edit Run fleet",
+  "date": "2026-11-17",
+  "repository": "just-every/run-spool",
+  "branch": "cloud/gr-mt-spool-dep-8",
+  "base": "6263ba70f1d0fce4ea1df7e6bf7b4f0d827489e1",
+  "head": "ec7147cf4d8a300dc1e8a3f4f631af357c8df67e",
+  "runtime": {
+    "node": "22.20.0",
+    "pnpm": "10.12.4"
+  },
+  "commands": [
+    {
+      "command": "pnpm install --frozen-lockfile (before change)",
+      "exit": 0
+    },
+    {
+      "command": "pnpm install --lockfile-only",
+      "exit": 0
+    },
+    {
+      "command": "pnpm install --frozen-lockfile (after change)",
+      "exit": 0
+    },
+    {
+      "command": "npx -y @runeditrun/rer setup --owner-email fleet@runeditrun.com --non-interactive",
+      "exit": 0,
+      "result": "103 migrations applied; local owner set up; temporary app stopped"
+    },
+    {
+      "command": "npx -y @runeditrun/rer build",
+      "exit": 0
+    },
+    {
+      "command": "pnpm typecheck",
+      "exit": 0
+    },
+    {
+      "command": "node scripts/edition-authoring/cli.mjs lock",
+      "exit": 0
+    },
+    {
+      "command": "pnpm source:check",
+      "exit": 0
+    },
+    {
+      "command": "git diff --check",
+      "exit": 0
+    },
+    {
+      "command": "node tests/sentry-cli-compat.mjs",
+      "exit": 0,
+      "result": "Sentry CLI journey passed, including Vite/esbuild/Rollup/webpack source-map upload and mapping, refusals, archive, restore and erasure"
+    },
+    {
+      "command": "pnpm why minimatch --json",
+      "exit": 0,
+      "result": "all installed minimatch instances resolve to 11.0.1"
+    }
+  ],
+  "dependency": {
+    "before": [
+      "minimatch@10.2.6"
+    ],
+    "after": [
+      "minimatch@11.0.1"
+    ],
+    "vulnerableVersionCountBefore": 1,
+    "vulnerableVersionCountAfter": 0,
+    "requiredNewTransitiveDependency": "@isaacs/nonrecursive-glob-match@1.1.0",
+    "parent": "glob@13.0.6, used by Sentry bundler plugins"
+  },
+  "changedFiles": [
+    "package.json",
+    "pnpm-lock.yaml",
+    "sources.lock.json"
+  ],
+  "clauses": {
+    "statusChanges": [],
+    "summaryBefore": {
+      "done": 23,
+      "partial": 54,
+      "missing": 28,
+      "total": 105
+    },
+    "summaryAfter": {
+      "done": 23,
+      "partial": 54,
+      "missing": 28,
+      "total": 105
+    }
+  },
+  "publication": {
+    "status": "PASS",
+    "complete": true,
+    "findings": 0,
+    "head": "ec7147cf4d8a300dc1e8a3f4f631af357c8df67e",
+    "tree": "5d4819cc6c51f253ec594abeb50d18e5082cb928",
+    "implementation": {
+      "version": "0.2.118",
+      "sha256": "c5f2d788f2f08764cd018e049b507c26f5ac01f651e2e8696398d89a5a886ffb",
+      "python": "3.12.14"
+    }
+  },
+  "ci": {
+    "conclusion": "failure",
+    "head_sha": "ec7147cf4d8a300dc1e8a3f4f631af357c8df67e",
+    "html_url": "https://github.com/just-every/run-spool/actions/runs/44142429130",
+    "status": "completed",
+    "run_id": 44142429130,
+    "polledAtEpoch": 1794939702.9296594,
+    "jobCounts": {
+      "success": 25,
+      "skipped": 4,
+      "failure": 3
+    },
+    "failedJobs": [
+      {
+        "conclusion": "failure",
+        "failed_steps": [
+          {
+            "conclusion": "failure",
+            "name": "Run suites (wizard, 8-minute deadline)",
+            "number": 11
+          }
+        ],
+        "html_url": "https://github.com/just-every/run-spool/actions/runs/44142429130/job/134249458782",
+        "id": 134249458782,
+        "name": "verify (wizard)",
+        "status": "completed"
+      },
+      {
+        "conclusion": "failure",
+        "failed_steps": [
+          {
+            "conclusion": "failure",
+            "name": "Require every job in this coverage partition",
+            "number": 2
+          }
+        ],
+        "html_url": "https://github.com/just-every/run-spool/actions/runs/44142429130/job/134262878746",
+        "id": 134262878746,
+        "name": "shards (spool)",
+        "status": "completed"
+      },
+      {
+        "conclusion": "failure",
+        "failed_steps": [
+          {
+            "conclusion": "failure",
+            "name": "Require the selected coverage and its proof",
+            "number": 2
+          }
+        ],
+        "html_url": "https://github.com/just-every/run-spool/actions/runs/44142429130/job/134262936513",
+        "id": 134262936513,
+        "name": "verify",
+        "status": "completed"
+      }
+    ],
+    "failureLog": {
+      "command": "gh run view 44142429130 --repo just-every/run-spool --job 134249458782 --log-failed",
+      "status": "NOT RUN",
+      "reason": "Ten-call GitHub budget exhausted after failed-job discovery; no archive download attempted."
+    }
+  },
+  "push": {
+    "status": "PUSH_OK",
+    "attempts": 1,
+    "branch": "cloud/gr-mt-spool-dep-8",
+    "head": "ec7147cf4d8a300dc1e8a3f4f631af357c8df67e",
+    "remoteConfirmed": true
+  },
+  "terminalStatus": "BLOCKED",
+  "blocker": "Exact-SHA Verify 44142429130 failed in verify (wizard), step Run suites (wizard, 8-minute deadline); root cause unestablished because the ten-call GitHub budget was exhausted before failure-log retrieval."
+}

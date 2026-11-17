@@ -1,0 +1,160 @@
+[
+  {
+    "name": "@errors/errors-workbench",
+    "version": "0.7.14",
+    "path": "/home/agent/rer-consolidation/work/maint/gr-mt-spool-dep-8/repo",
+    "private": true,
+    "devDependencies": {
+      "@sentry/esbuild-plugin": {
+        "from": "@sentry/esbuild-plugin",
+        "version": "11.8.0",
+        "resolved": "https://registry.npmjs.org/@sentry/esbuild-plugin/-/esbuild-plugin-11.8.0.tgz",
+        "path": "/home/agent/rer-consolidation/work/maint/gr-mt-spool-dep-8/repo/node_modules/.pnpm/@sentry+esbuild-plugin@11.8.0_@babel+core@7.29.7_rollup@4.64.12_webpack@5.112.0_esbuild@0.28.2_/node_modules/@sentry/esbuild-plugin",
+        "dependencies": {
+          "@sentry/bundler-plugins": {
+            "from": "@sentry/bundler-plugins",
+            "version": "11.8.0",
+            "resolved": "https://registry.npmjs.org/@sentry/bundler-plugins/-/bundler-plugins-11.8.0.tgz",
+            "path": "/home/agent/rer-consolidation/work/maint/gr-mt-spool-dep-8/repo/node_modules/.pnpm/@sentry+bundler-plugins@11.8.0_@babel+core@7.29.7_rollup@4.64.12_webpack@5.112.0_esbuild@0.28.2_/node_modules/@sentry/bundler-plugins",
+            "dependencies": {
+              "glob": {
+                "from": "glob",
+                "version": "13.0.6",
+                "resolved": "https://registry.npmjs.org/glob/-/glob-13.0.6.tgz",
+                "path": "/home/agent/rer-consolidation/work/maint/gr-mt-spool-dep-8/repo/node_modules/.pnpm/glob@13.0.6/node_modules/glob",
+                "dependencies": {
+                  "minimatch": {
+                    "from": "minimatch",
+                    "version": "11.0.1",
+                    "resolved": "https://registry.npmjs.org/minimatch/-/minimatch-11.0.1.tgz",
+                    "path": "/home/agent/rer-consolidation/work/maint/gr-mt-spool-dep-8/repo/node_modules/.pnpm/minimatch@11.0.1/node_modules/minimatch"
+                  }
+                }
+              }
+            }
+          }
+        }
+      },
+      "@sentry/node": {
+        "from": "@sentry/node",
+        "version": "11.6.0",
+        "resolved": "https://registry.npmjs.org/@sentry/node/-/node-11.6.0.tgz",
+        "path": "/home/agent/rer-consolidation/work/maint/gr-mt-spool-dep-8/repo/node_modules/.pnpm/@sentry+node@11.6.0_@babel+core@7.29.7_rollup@4.64.12_webpack@5.112.0_esbuild@0.28.2_/node_modules/@sentry/node",
+        "dependencies": {
+          "@sentry/bundler-plugins": {
+            "from": "@sentry/bundler-plugins",
+            "version": "11.6.0",
+            "resolved": "https://registry.npmjs.org/@sentry/bundler-plugins/-/bundler-plugins-11.6.0.tgz",
+            "path": "/home/agent/rer-consolidation/work/maint/gr-mt-spool-dep-8/repo/node_modules/.pnpm/@sentry+bundler-plugins@11.6.0_@babel+core@7.29.7_rollup@4.64.12_webpack@5.112.0_esbuild@0.28.2_/node_modules/@sentry/bundler-plugins",
+            "dependencies": {
+              "glob": {
+                "from": "glob",
+                "version": "13.0.6",
+                "resolved": "https://registry.npmjs.org/glob/-/glob-13.0.6.tgz",
+                "path": "/home/agent/rer-consolidation/work/maint/gr-mt-spool-dep-8/repo/node_modules/.pnpm/glob@13.0.6/node_modules/glob",
+                "dependencies": {
+                  "minimatch": {
+                    "from": "minimatch",
+                    "version": "11.0.1",
+                    "resolved": "https://registry.npmjs.org/minimatch/-/minimatch-11.0.1.tgz",
+                    "path": "/home/agent/rer-consolidation/work/maint/gr-mt-spool-dep-8/repo/node_modules/.pnpm/minimatch@11.0.1/node_modules/minimatch"
+                  }
+                }
+              }
+            }
+          }
+        }
+      },
+      "@sentry/rollup-plugin": {
+        "from": "@sentry/rollup-plugin",
+        "version": "11.8.0",
+        "resolved": "https://registry.npmjs.org/@sentry/rollup-plugin/-/rollup-plugin-11.8.0.tgz",
+        "path": "/home/agent/rer-consolidation/work/maint/gr-mt-spool-dep-8/repo/node_modules/.pnpm/@sentry+rollup-plugin@11.8.0_@babel+core@7.29.7_rollup@4.64.12_webpack@5.112.0_esbuild@0.28.2_/node_modules/@sentry/rollup-plugin",
+        "dependencies": {
+          "@sentry/bundler-plugins": {
+            "from": "@sentry/bundler-plugins",
+            "version": "11.8.0",
+            "resolved": "https://registry.npmjs.org/@sentry/bundler-plugins/-/bundler-plugins-11.8.0.tgz",
+            "path": "/home/agent/rer-consolidation/work/maint/gr-mt-spool-dep-8/repo/node_modules/.pnpm/@sentry+bundler-plugins@11.8.0_@babel+core@7.29.7_rollup@4.64.12_webpack@5.112.0_esbuild@0.28.2_/node_modules/@sentry/bundler-plugins",
+            "dependencies": {
+              "glob": {
+                "from": "glob",
+                "version": "13.0.6",
+                "resolved": "https://registry.npmjs.org/glob/-/glob-13.0.6.tgz",
+                "path": "/home/agent/rer-consolidation/work/maint/gr-mt-spool-dep-8/repo/node_modules/.pnpm/glob@13.0.6/node_modules/glob",
+                "dependencies": {
+                  "minimatch": {
+                    "from": "minimatch",
+                    "version": "11.0.1",
+                    "resolved": "https://registry.npmjs.org/minimatch/-/minimatch-11.0.1.tgz",
+                    "path": "/home/agent/rer-consolidation/work/maint/gr-mt-spool-dep-8/repo/node_modules/.pnpm/minimatch@11.0.1/node_modules/minimatch"
+                  }
+                }
+              }
+            }
+          }
+        }
+      },
+      "@sentry/vite-plugin": {
+        "from": "@sentry/vite-plugin",
+        "version": "11.8.0",
+        "resolved": "https://registry.npmjs.org/@sentry/vite-plugin/-/vite-plugin-11.8.0.tgz",
+        "path": "/home/agent/rer-consolidation/work/maint/gr-mt-spool-dep-8/repo/node_modules/.pnpm/@sentry+vite-plugin@11.8.0_@babel+core@7.29.7_rollup@4.64.12_webpack@5.112.0_esbuild@0.28.2_/node_modules/@sentry/vite-plugin",
+        "dependencies": {
+          "@sentry/bundler-plugins": {
+            "from": "@sentry/bundler-plugins",
+            "version": "11.8.0",
+            "resolved": "https://registry.npmjs.org/@sentry/bundler-plugins/-/bundler-plugins-11.8.0.tgz",
+            "path": "/home/agent/rer-consolidation/work/maint/gr-mt-spool-dep-8/repo/node_modules/.pnpm/@sentry+bundler-plugins@11.8.0_@babel+core@7.29.7_rollup@4.64.12_webpack@5.112.0_esbuild@0.28.2_/node_modules/@sentry/bundler-plugins",
+            "dependencies": {
+              "glob": {
+                "from": "glob",
+                "version": "13.0.6",
+                "resolved": "https://registry.npmjs.org/glob/-/glob-13.0.6.tgz",
+                "path": "/home/agent/rer-consolidation/work/maint/gr-mt-spool-dep-8/repo/node_modules/.pnpm/glob@13.0.6/node_modules/glob",
+                "dependencies": {
+                  "minimatch": {
+                    "from": "minimatch",
+                    "version": "11.0.1",
+                    "resolved": "https://registry.npmjs.org/minimatch/-/minimatch-11.0.1.tgz",
+                    "path": "/home/agent/rer-consolidation/work/maint/gr-mt-spool-dep-8/repo/node_modules/.pnpm/minimatch@11.0.1/node_modules/minimatch"
+                  }
+                }
+              }
+            }
+          }
+        }
+      },
+      "@sentry/webpack-plugin": {
+        "from": "@sentry/webpack-plugin",
+        "version": "11.8.0",
+        "resolved": "https://registry.npmjs.org/@sentry/webpack-plugin/-/webpack-plugin-11.8.0.tgz",
+        "path": "/home/agent/rer-consolidation/work/maint/gr-mt-spool-dep-8/repo/node_modules/.pnpm/@sentry+webpack-plugin@11.8.0_@babel+core@7.29.7_rollup@4.64.12_webpack@5.112.0_esbuild@0.28.2_/node_modules/@sentry/webpack-plugin",
+        "dependencies": {
+          "@sentry/bundler-plugins": {
+            "from": "@sentry/bundler-plugins",
+            "version": "11.8.0",
+            "resolved": "https://registry.npmjs.org/@sentry/bundler-plugins/-/bundler-plugins-11.8.0.tgz",
+            "path": "/home/agent/rer-consolidation/work/maint/gr-mt-spool-dep-8/repo/node_modules/.pnpm/@sentry+bundler-plugins@11.8.0_@babel+core@7.29.7_rollup@4.64.12_webpack@5.112.0_esbuild@0.28.2_/node_modules/@sentry/bundler-plugins",
+            "dependencies": {
+              "glob": {
+                "from": "glob",
+                "version": "13.0.6",
+                "resolved": "https://registry.npmjs.org/glob/-/glob-13.0.6.tgz",
+                "path": "/home/agent/rer-consolidation/work/maint/gr-mt-spool-dep-8/repo/node_modules/.pnpm/glob@13.0.6/node_modules/glob",
+                "dependencies": {
+                  "minimatch": {
+                    "from": "minimatch",
+                    "version": "11.0.1",
+                    "resolved": "https://registry.npmjs.org/minimatch/-/minimatch-11.0.1.tgz",
+                    "path": "/home/agent/rer-consolidation/work/maint/gr-mt-spool-dep-8/repo/node_modules/.pnpm/minimatch@11.0.1/node_modules/minimatch"
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+]

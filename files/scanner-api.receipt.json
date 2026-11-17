@@ -1,0 +1,10 @@
+{
+  "observedCalls": 1,
+  "calls": [
+    {
+      "pid": 14090,
+      "observedUTC": "2026-11-17T17:55:54Z"
+    }
+  ],
+  "note": "Read-only child-process observations during scanner network phase; no query, response, credential or environment retained."
+}

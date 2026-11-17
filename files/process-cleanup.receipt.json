@@ -1,0 +1,19 @@
+{
+  "setupAndTestAndScannerProcesses": {
+    "1236": {
+      "running": false
+    },
+    "2638": {
+      "running": false
+    },
+    "2665": {
+      "running": false
+    },
+    "3061": {
+      "running": false
+    }
+  },
+  "scanWorktreeRemoved": true,
+  "note": "Setup, test, scanner and CI watcher processes have exited. No server or browser remains running for this task. The clean product clone is retained for the blocked CI follow-up.",
+  "ciWatcherExited": true
+}
