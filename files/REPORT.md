@@ -2,7 +2,7 @@
 
 Repository: just-every/run-spool. Branch: cloud/sd-spool-design-keys-3.
 Final head: ba97984c5372e00bd6c28bb05eb37fb8c7f89928.
-Current exact-SHA Verify: 44182275861, awaiting completion.
+Exact-SHA Verify: [44182275861](https://github.com/just-every/run-spool/actions/runs/44182275861), completed/success on ba97984c5372e00bd6c28bb05eb37fb8c7f89928, observed 2026-11-17T22:01:42Z.
 
 ## Result
 
@@ -49,3 +49,7 @@ No contract clause claimed; these are owner-journey design fixes (DIRECT 87).
 Before and after: Core 23 done / 45 partial / 19 missing = 87; Agent surface 0 done / 9 partial / 9 missing = 18; Full target 23 done / 54 partial / 28 missing = 105. Clause status changes: none. CONTRACT.md, ACCEPTANCE.md, docs/CLAIMS.md and RELEASE.json are unchanged. The contract generator writes zero changed documents; check reports zero errors and warnings. The source lock was regenerated last and its check passes. Core migrations increase from 103 to 104 with 0110_key_names_and_use.sql.
 
 No PR, tag, release, deployment, Base refresh, default-branch write or landing was performed. Evidence publication is separate from product readiness. Local and synthetic provider-edge results qualify only their tested boundaries. The fleet's independent publication scan and landing remain on its own machine. Actual product, check and CI provenance is in the accompanying receipts; GitHub call accounting is in github-budget.json.
+
+## Terminal custody
+
+Product READY: cloud/sd-spool-design-keys-3 at ba97984c5372e00bd6c28bb05eb37fb8c7f89928. Exact-SHA Verify completed successfully; no workflow rerun was used. Six of the ten permitted GitHub calls were used, including the two original-run diagnostic calls. No blocker remains. The complete packet is republished separately to evidence/sd-spool-design-keys-3; its exact terminal ref/head is returned in the final message. Publication does not land the product or claim a contract clause.

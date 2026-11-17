@@ -3,13 +3,14 @@
   "repository": "just-every/run-spool",
   "workflow": "Verify",
   "run_id": 44182275861,
-  "conclusion": null,
+  "conclusion": "success",
   "head_sha": "ba97984c5372e00bd6c28bb05eb37fb8c7f89928",
   "html_url": "https://github.com/just-every/run-spool/actions/runs/44182275861",
-  "status": "in_progress",
-  "observed_utc": "2026-11-17T21:51:16Z",
-  "ready": false,
+  "status": "completed",
+  "observed_utc": "2026-11-17T22:01:42Z",
+  "ready": true,
   "reruns_used": 0,
-  "github_calls_used": 5,
-  "note": "Report-only preservation while exact-SHA Verify is still running; not acceptance or landing"
+  "github_calls_used": 6,
+  "workflow_gate": "completed/success on the exact final product SHA",
+  "acceptance_or_landing_claimed": false
 }
