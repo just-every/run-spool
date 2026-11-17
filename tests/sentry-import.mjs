@@ -1,3 +1,5 @@
+import { schemaPages } from './sentry-import/schema-pages.mjs';
+import { fieldAccounting } from './sentry-import/field-accounting.mjs';
 import { bugsnagMigrationFlow } from './bugsnag-import.mjs';
 import assert from 'node:assert/strict';
 import { createHash } from 'node:crypto';
@@ -12,6 +14,7 @@ import { sentryImportCli, sentryDoorClient } from '../scripts/sentry-import.mjs'
 import { readableImport, unknownTimes, refusedImportReads } from './sentry-import/reads.mjs';
 // Hosted auth sends invitations through the existing mail-provider edge;
 // development mode intentionally suppresses mail and cannot prove member reads.
+await schemaPages();
 const worker=await admissionRuntime({}, {port:15523,hostedMail:true}),{origin}=worker;
 let stopping;
 const stopWorker=()=>stopping??=worker.close();
@@ -120,6 +123,7 @@ try{
   await json(`/api/projects/${importedProject.id}/releases`,'POST',{name:'native-cite',build:'b1',commits:[{sha:'e'.repeat(40),message:`Fixes ${imported.short_id.toLowerCase()}`,author:{name:'Importer',email:'importer@example.test'}}]});
   assert.deepEqual((await json(`/api/projects/${importedProject.id}/commits/link-log`)).rows.map(r=>[r.citation,r.reason]),[[`Fixes ${imported.short_id.toLowerCase()}`,'inaccessible']]);
   assert.deepEqual((await json(`/api/projects/${importedProject.id}/issues`))[0],imported,'a citation of imported history changes nothing');
+  await fieldAccounting({origin,cookie,scratch,json,req});
   const nativeArchive=await (await req('/api/archive')).arrayBuffer();
   await req('/auth/signout','POST',{});
   assert.equal((await req('/api/operator/import/status','POST',{planId:secondPlan.planId},{'X-Import-Source':'sentry-org:fixture-org'})).status,401);

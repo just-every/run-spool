@@ -1,3 +1,4 @@
+import { sentryFieldAccounting, sourceLeaves } from './source.ts';
 import { rollbarComparison } from '../rollbar-import/comparison.ts';
 import type { DoorRequest, DoorSnapshot } from '../../modules/import-kit/src/door/types.ts';
 import type { PersistedImport } from '../../modules/import-kit/src/types.ts';
@@ -67,7 +68,8 @@ export async function readOwnerPlan(request:DoorRequest, planId:string, inventor
  const rejected = snapshot?.plan.entries.filter(e => e.rejection).map(entry => ({kind:entry.source.kind,sourceId:entry.source.sourceId,
   reason:entry.rejection!, reasonCode:rejectionReasonCode(entry.rejection!), ...recordLabel(entry.source,snapshot!)})) ?? null;
  const comparison=snapshot?rollbarComparison(snapshot,live):undefined;
- const details = {...(comparison?{comparison}:{}),...snapshot?{bugsnag:bugsnagReport(snapshot)}:{},organization, organizationReasonCode:organization === null ? (snapshot ? 'organization_unavailable' : 'snapshot_withdrawn') : null,
+ const sentry=snapshot?sentryAccounting(snapshot,live):undefined;
+ const details = {...(sentry?{sentry}:{}),...(comparison?{comparison}:{}),...snapshot?{bugsnag:bugsnagReport(snapshot)}:{},organization, organizationReasonCode:organization === null ? (snapshot ? 'organization_unavailable' : 'snapshot_withdrawn') : null,
   projectIds, projectIdsReasonCode:snapshot ? null : 'snapshot_withdrawn',
   counts:snapshot?.plan.counts ?? null, countsReasonCode:snapshot ? null : 'snapshot_withdrawn',
   rejected, rejectedReasonCode:snapshot ? null : 'snapshot_withdrawn',
@@ -93,4 +95,56 @@ export async function ownerReadResponse(request:DoorRequest, response:Response, 
  body.reasonLabels = importReadReasons;
  await finishOwnerRead(request);
  return Response.json(body,{status:response.status,headers:response.headers});
+}
+
+/** Value-free loss ledger, derived from the immutable plan rather than a caller's claimed totals. */
+function sentryAccounting(snapshot:DoorSnapshot, live:PersistedImport) {
+ const manifest=snapshot.plan.entries.find(entry=>entry.source.kind==='manifest');
+ const meta=manifest?.source.payload as any;
+ if(!meta?.organization?.slug||meta.vendor)return undefined;
+ const records=snapshot.plan.source.records,entries=snapshot.plan.entries;
+ const collections=[...new Set(records.filter(r=>r.kind!=='manifest').map(r=>r.kind))].map(kind=>{
+  const source=records.filter(r=>r.kind===kind),unique=entries.filter(e=>e.source.kind===kind);
+  return {kind,records:source.length,unique:unique.length,duplicates:source.length-unique.length,
+   payloadBytes:source.reduce((n,r)=>n+new TextEncoder().encode(JSON.stringify((r.payload as any).data)).length,0),
+   mapped:unique.filter(e=>e.effects.length).length,rejected:unique.filter(e=>e.rejection).length};
+ });
+ const fields=entries.filter(e=>e.source.kind!=='manifest').flatMap(entry=>{
+  const data=(entry.source.payload as any).data;
+  return sentryFieldAccounting(entry.source.kind,data,entry.rejection).map(field=>({kind:entry.source.kind,sourceId:entry.source.sourceId,location:entry.source.location.pointer??null,...field}));
+ });
+ const arrays=entries.filter(e=>e.source.kind!=='manifest').flatMap(entry=>{
+  const result:{kind:string;sourceId:string;path:string;elements:number;omitted:number[]}[]=[];
+  const local=new Map(sentryFieldAccounting(entry.source.kind,(entry.source.payload as any).data,entry.rejection).map(f=>[f.path,f.disposition]));
+  const walk=(value:any,path='')=>{
+   if(Array.isArray(value))result.push({kind:entry.source.kind,sourceId:entry.source.sourceId,path,elements:value.length,
+    omitted:value.flatMap((child:any,i:number)=>sourceLeaves(child,`${path}/${i}`).every(leaf=>['unmapped','rejected'].includes(local.get(leaf.path)??''))?[i]:[])});
+   if(value&&typeof value==='object')for(const [key,child] of Object.entries(value))walk(child,`${path}/${key.replace(/~/g,'~0').replace(/\//g,'~1')}`);
+  };walk((entry.source.payload as any).data);return result;
+ });
+ const targetIds=new Set(snapshot.records.flatMap(record=>record.targets.map(target=>canonicalJson([target.kind,target.id]))));
+ const native=live.rows.filter(row=>targetIds.has(canonicalJson([row.targetKind,row.targetId])));
+ const loaders=entries.filter(e=>e.source.kind==='keys').map(entry=>{
+  const p=entry.source.payload as any,d=p.data;
+  return {sourceId:entry.source.sourceId,project:p.project,sourceKeyId:d.id,settings:{isActive:d.isActive??null,rateLimit:d.rateLimit??null,browserSdkVersion:d.browserSdkVersion??null,dynamicSdkLoaderOptions:d.dynamicSdkLoaderOptions??null},replacementScriptTag:null,
+   reason:'No key was minted. Create a Spool ingest key and approve its loader settings before replacing the source script.'};
+ });
+ const fieldGroups=new Map<string,typeof fields>();
+ for(const field of fields){const key=canonicalJson([field.kind,field.sourceId]);const group=fieldGroups.get(key)??[];group.push(field);fieldGroups.set(key,group)}
+ const byteLedger=entries.filter(e=>e.source.kind!=='manifest').map(entry=>{
+  const source=records.filter(r=>r.kind===entry.source.kind&&r.sourceId===entry.source.sourceId);
+  const sourceBytes=source.reduce((n,r)=>n+new TextEncoder().encode(JSON.stringify((r.payload as any).data)).length,0);
+  const targets=snapshot.records.find(r=>r.kind===entry.source.kind&&r.sourceId===entry.source.sourceId)?.targets??[];
+  const present=native.filter(row=>targets.some(target=>target.kind===row.targetKind&&target.id===row.targetId));
+  const nativeBytes=present.reduce((n,row)=>n+new TextEncoder().encode(canonicalJson(row.value)).length,0);
+  const own=fieldGroups.get(canonicalJson([entry.source.kind,entry.source.sourceId]))??[];
+  return {kind:entry.source.kind,sourceId:entry.source.sourceId,sourceBytes,nativeBytes,difference:sourceBytes-nativeBytes,
+   duplicates:source.length-1,unmappedFields:own.filter(f=>f.disposition==='unmapped').length,transformedFields:own.filter(f=>f.disposition==='transformed').length,
+   targets:present.map(row=>({kind:row.targetKind,id:row.targetId})),
+   reason:entry.rejection?'Rejected record has no native bytes.':!targets.length?'Unsupported record has no native bytes.':'Native projection includes converted fields, derived identities and source provenance; omitted fields and repeated source rows are counted separately.'};
+ });
+ return {collections,fields,arrays,loaders,byteLedger,capture:meta.capture??null,
+  sourcePayloadBytes:collections.reduce((n,c)=>n+c.payloadBytes,0),
+  nativeBytes:native.reduce((n,row)=>n+new TextEncoder().encode(canonicalJson(row.value)).length,0),
+  byteReason:'Source payload bytes include duplicates and unsupported fields. Native bytes count present target values and provenance; scrubbing, projection, deduplication and derived identities change their encoding. These totals are not expected to match.'};
 }

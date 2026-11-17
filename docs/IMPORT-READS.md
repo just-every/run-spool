@@ -57,3 +57,55 @@ creation date. Those key fields are null with `key_metadata_not_provided`.
 Supplying real values requires metadata from the trust producer and an additive
 owner-claim configuration contract; first-seen and revocation dates are not
 creation dates. No trust or credential model is added here.
+
+## Documented Sentry capture accounting
+
+The owner plan, status, reconcile and history reads add `sentry` for Sentry
+sources. `collections` distinguishes response records, unique records, duplicate
+rows, mapped records and rejected records, with UTF-8 payload bytes. `fields`
+contains an exact JSON pointer, source location, encoded value byte count,
+disposition and readable reason for every scalar and empty container in every
+unique source record. Numeric array indices are preserved; `arrays` separately
+names each array's element count and wholly omitted indices. Earlier exceptions,
+unused symbolicated stacks, frame locals, non-environment tags, unsupported
+nested extensions and rejected records are therefore visible individually.
+`transformed` means converted, scrubbed or bounded, rather than exact preservation.
+The existing mapping still retains only its selected exception and supported
+historical projection. This report does not expand event fidelity.
+
+`capture.inventory` contains the adapter's API page counts, source response
+bytes/hashes, sanitized bytes/hashes and complete opaque cursor chain. The parser
+checks sanitized hashes and counts against the actual bundled responses; source
+hashes describe the pre-redaction capture and are exporter attestations, not a
+provider signature. `capture.redactions` names credential locations without
+values. Raw HTTP headers and URLs are excluded from the uploaded bundle.
+
+`loaders` lists every source key's inert loader, rate and active-state settings.
+`replacementScriptTag` is null with a reason: import creates no Spool key and
+cannot supply a usable replacement tag. Create a fresh native ingest key and
+approve the loader settings during cutover. Roster, alerts and ownership have
+source-only dispositions; they grant no access and activate no work.
+
+`byteLedger` gives each source identity its actual source/native byte totals,
+signed difference, duplicate count, transformed/unmapped field counts and native
+targets; both columns sum to their separately reported totals.
+
+Source and native byte totals measure different encodings. Source payload bytes
+include duplicate response rows and unsupported fields; native bytes count the
+present native target values plus provenance. Projection, scrubbing, duplicate
+collapse, derived identities and timestamps explain why equality is not a
+migration invariant. Source bytes, sanitized response bytes, wrapper bytes and
+native bytes remain separate. Reports contain locations and counts, not source
+field values. Missing or erasure-withdrawn snapshots retain the existing null /
+unavailable policy.
+
+Sentry alone admits at most 1,000 parsed records including its manifest, still
+within 2 MiB. Other importers retain their previous 500-record quota. Apply and
+undo remain bounded resumable door operations. Native set fencing compares all
+native columns, identities, revisions and exact provenance in fixed queries;
+it does not accept a revision marker as proof that a native row is unchanged.
+The kit's separate 2 MiB read/value, SQL size and 1,000-statement request limits
+remain authoritative and return named refusals. Larger organizations are not
+qualified by this bounded profile.
+
+Signed: Run Edit Run fleet, 17 November 2026.

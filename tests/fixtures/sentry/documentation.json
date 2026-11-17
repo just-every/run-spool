@@ -1,0 +1,13 @@
+{
+  "projects": "https://docs.sentry.io/api/organizations/list-an-organizations-projects/",
+  "keys": "https://docs.sentry.io/api/projects/list-a-projects-client-keys/",
+  "issues": "https://docs.sentry.io/api/events/list-a-projects-issues/",
+  "events": "https://docs.sentry.io/api/events/retrieve-an-event-for-a-project/",
+  "releases": "https://docs.sentry.io/api/releases/list-an-organizations-releases/",
+  "workflows": "https://docs.sentry.io/api/monitors/fetch-alerts/",
+  "detectors": "https://docs.sentry.io/api/monitors/fetch-an-organizations-monitors/",
+  "ownership": "https://docs.sentry.io/api/projects/retrieve-ownership-configuration-for-a-project/",
+  "members": "https://docs.sentry.io/api/organizations/list-an-organizations-members/",
+  "teams": "https://docs.sentry.io/api/teams/list-an-organizations-teams/",
+  "pagination": "https://docs.sentry.io/api/pagination/"
+}
