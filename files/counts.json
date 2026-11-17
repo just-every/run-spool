@@ -1,0 +1,17 @@
+{
+  "nativeRegistrationsBefore": 3,
+  "nativeRegistrationsAfter": 3,
+  "contractSummaryBefore": {
+    "done": 23,
+    "partial": 54,
+    "missing": 28,
+    "total": 105
+  },
+  "contractSummaryAfter": {
+    "done": 23,
+    "partial": 54,
+    "missing": 28,
+    "total": 105
+  },
+  "clauseStatusChanges": []
+}

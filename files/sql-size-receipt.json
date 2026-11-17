@@ -1,0 +1,4 @@
+{
+  "command": "pnpm exec rer size --statements /tmp/spool-route-statements.json --migrations migrations/core --json",
+  "exit": 0
+}

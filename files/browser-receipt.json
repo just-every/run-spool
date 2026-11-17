@@ -1,0 +1,70 @@
+{
+  "schema": 1,
+  "browser": "system Chromium",
+  "screens": [
+    {
+      "stage": "waiting",
+      "width": 1440,
+      "file": "rules-waiting-1440.png",
+      "enabled": [
+        1,
+        1,
+        1
+      ],
+      "waitingFor": [
+        "user_event",
+        "session",
+        "session"
+      ],
+      "assertions": true
+    },
+    {
+      "stage": "waiting",
+      "width": 390,
+      "file": "rules-waiting-390.png",
+      "enabled": [
+        1,
+        1,
+        1
+      ],
+      "waitingFor": [
+        "user_event",
+        "session",
+        "session"
+      ],
+      "assertions": false
+    },
+    {
+      "stage": "evaluating",
+      "width": 1440,
+      "file": "rules-evaluating-1440.png",
+      "enabled": [
+        1,
+        1,
+        1
+      ],
+      "waitingFor": [
+        null,
+        null,
+        null
+      ],
+      "assertions": true
+    },
+    {
+      "stage": "evaluating",
+      "width": 390,
+      "file": "rules-evaluating-390.png",
+      "enabled": [
+        1,
+        1,
+        1
+      ],
+      "waitingFor": [
+        null,
+        null,
+        null
+      ],
+      "assertions": false
+    }
+  ]
+}

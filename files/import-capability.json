@@ -1,0 +1,68 @@
+{
+  "schema": 1,
+  "kind": "current-main import capability probe",
+  "sourceKinds": [
+    "projects",
+    "releases",
+    "rules"
+  ],
+  "sourceRules": 2,
+  "job": "completed",
+  "reconciled": true,
+  "nativeTargets": {
+    "project": 1
+  },
+  "nativeRules": 0,
+  "ruleFieldDisposition": [
+    {
+      "path": "/actions",
+      "disposition": "unmapped",
+      "reason": "Unsupported source collection; no native target or authority is created."
+    },
+    {
+      "path": "/conditions/0/id",
+      "disposition": "unmapped",
+      "reason": "Unsupported source collection; no native target or authority is created."
+    },
+    {
+      "path": "/conditions/0/interval",
+      "disposition": "unmapped",
+      "reason": "Unsupported source collection; no native target or authority is created."
+    },
+    {
+      "path": "/conditions/0/value",
+      "disposition": "unmapped",
+      "reason": "Unsupported source collection; no native target or authority is created."
+    },
+    {
+      "path": "/id",
+      "disposition": "unmapped",
+      "reason": "Unsupported source collection; no native target or authority is created."
+    },
+    {
+      "path": "/name",
+      "disposition": "unmapped",
+      "reason": "Unsupported source collection; no native target or authority is created."
+    },
+    {
+      "path": "/aggregate",
+      "disposition": "unmapped",
+      "reason": "Unsupported source collection; no native target or authority is created."
+    },
+    {
+      "path": "/dataset",
+      "disposition": "unmapped",
+      "reason": "Unsupported source collection; no native target or authority is created."
+    },
+    {
+      "path": "/id",
+      "disposition": "unmapped",
+      "reason": "Unsupported source collection; no native target or authority is created."
+    },
+    {
+      "path": "/name",
+      "disposition": "unmapped",
+      "reason": "Unsupported source collection; no native target or authority is created."
+    }
+  ]
+}

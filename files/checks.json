@@ -1,0 +1,35 @@
+[
+  {
+    "check": "typecheck",
+    "command": [
+      "pnpm",
+      "typecheck"
+    ],
+    "exit": 0,
+    "utc": "2026-11-17T18:50:21.708752+00:00"
+  },
+  {
+    "check": "build",
+    "command": [
+      "python3",
+      "/tmp/rer-reap.py",
+      "npx",
+      "-y",
+      "@runeditrun/rer",
+      "build"
+    ],
+    "exit": 0,
+    "utc": "2026-11-17T18:51:32.240674+00:00"
+  },
+  {
+    "check": "native-alerts",
+    "command": [
+      "python3",
+      "/tmp/rer-reap.py",
+      "node",
+      "tests/alerts-native.mjs"
+    ],
+    "exit": 0,
+    "utc": "2026-11-17T18:55:01.566175+00:00"
+  }
+]

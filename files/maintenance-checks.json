@@ -1,0 +1,50 @@
+[
+  {
+    "check": "release-validation-requested",
+    "command": [
+      "pnpm",
+      "run",
+      "validate:release"
+    ],
+    "exit": 1
+  },
+  {
+    "check": "first-party-check",
+    "command": [
+      "pnpm",
+      "exec",
+      "rer",
+      "check",
+      "--profile",
+      "first-party"
+    ],
+    "exit": 0
+  },
+  {
+    "check": "contract-views",
+    "command": [
+      "node",
+      "src/base/contract-docs.mjs",
+      "check"
+    ],
+    "exit": 0
+  },
+  {
+    "check": "integration",
+    "command": [
+      "pnpm",
+      "integration:check"
+    ],
+    "exit": 0
+  },
+  {
+    "check": "base-copies",
+    "command": [
+      "node",
+      "scripts/edition-authoring/cli.mjs",
+      "verify-base",
+      "--offline"
+    ],
+    "exit": 0
+  }
+]

@@ -1,0 +1,5 @@
+ WARN  Unsupported engine: wanted: {"node":"22.20.0"} (current: {"node":"v24.19.0","pnpm":"10.12.4"})
+ WARN  Unsupported engine: wanted: {"node":"22.20.0"} (current: {"node":"v24.19.0","pnpm":"10.12.4"})
+ ERR_PNPM_NO_SCRIPT  Missing script: validate:release
+
+Command "validate:release" not found. Did you mean "pnpm run release"?

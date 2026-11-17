@@ -1,0 +1,31 @@
+[
+  {
+    "check": "source-lock",
+    "command": [
+      "node",
+      "scripts/edition-authoring/cli.mjs",
+      "lock"
+    ],
+    "exit": 0,
+    "utc": "2026-11-17T18:55:42.921220+00:00"
+  },
+  {
+    "check": "source-check",
+    "command": [
+      "pnpm",
+      "source:check"
+    ],
+    "exit": 0,
+    "utc": "2026-11-17T18:55:44.543489+00:00"
+  },
+  {
+    "check": "diff-check",
+    "command": [
+      "git",
+      "diff",
+      "--check"
+    ],
+    "exit": 0,
+    "utc": "2026-11-17T18:55:44.561899+00:00"
+  }
+]

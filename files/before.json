@@ -1,0 +1,19 @@
+[
+  {
+    "name": "Synthetic users",
+    "refusal": "User condition unavailable: retained events have no user key",
+    "tokenIssued": false,
+    "enableStatus": 400
+  },
+  {
+    "name": "Synthetic sessions",
+    "refusal": "Session condition unavailable: project has no session data",
+    "tokenIssued": false,
+    "enableStatus": 400
+  },
+  {
+    "scheduledStatus": 200,
+    "alerts": 0,
+    "rules": 0
+  }
+]

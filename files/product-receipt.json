@@ -1,0 +1,17 @@
+{
+  "repository": "just-every/run-spool",
+  "branch": "cloud/sd-spool-import-rules-1",
+  "head": "dfd4d220dccf5a044c46613260e5b8f6cdf6a091",
+  "base": "3b7a3ebe545f3bd9c6a979ca04d5687c6a375b09",
+  "remoteHead": "dfd4d220dccf5a044c46613260e5b8f6cdf6a091",
+  "productPush": "success on attempt 1",
+  "identity": "Run Edit Run fleet <fleet@runeditrun.com> for both author and committer",
+  "trailers": [],
+  "worktreeClean": true,
+  "utc": "2026-11-17T18:57:01.246216+00:00",
+  "pr": null,
+  "limitations": [
+    "Sentry source rule carry has no native mapping on supplied main",
+    "validate:release is not a package script"
+  ]
+}

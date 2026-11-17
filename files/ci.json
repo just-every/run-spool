@@ -1,0 +1,17 @@
+{
+  "calls": 1,
+  "lastDiscoveryUtc": "2026-11-17T18:56:18.209693+00:00",
+  "head": "dfd4d220dccf5a044c46613260e5b8f6cdf6a091",
+  "runs": [
+    {
+      "id": 44153158707,
+      "name": "Verify",
+      "head_branch": "cloud/sd-spool-import-rules-1",
+      "head_sha": "dfd4d220dccf5a044c46613260e5b8f6cdf6a091",
+      "event": "push",
+      "status": "in_progress",
+      "conclusion": null,
+      "html_url": "https://github.com/just-every/run-spool/actions/runs/44153158707"
+    }
+  ]
+}

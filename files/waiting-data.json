@@ -1,0 +1,158 @@
+{
+  "schema": 1,
+  "importedTargets": {
+    "project": 1,
+    "release": 1
+  },
+  "stages": [
+    {
+      "stage": "empty",
+      "rules": [
+        {
+          "name": "Synthetic affected users",
+          "enabled": 1,
+          "waitingFor": "user_event",
+          "metricValue": null
+        },
+        {
+          "name": "Synthetic crash-free sessions",
+          "enabled": 1,
+          "waitingFor": "session",
+          "metricValue": null
+        },
+        {
+          "name": "Synthetic affected sessions",
+          "enabled": 1,
+          "waitingFor": "session",
+          "metricValue": null
+        }
+      ],
+      "deliveries": 0
+    },
+    {
+      "stage": "nonmatching environment",
+      "rules": [
+        {
+          "name": "Synthetic affected users",
+          "enabled": 1,
+          "waitingFor": "user_event",
+          "metricValue": null
+        },
+        {
+          "name": "Synthetic crash-free sessions",
+          "enabled": 1,
+          "waitingFor": "session",
+          "metricValue": null
+        },
+        {
+          "name": "Synthetic affected sessions",
+          "enabled": 1,
+          "waitingFor": "session",
+          "metricValue": null
+        }
+      ],
+      "deliveries": 0
+    },
+    {
+      "stage": "events without a user",
+      "rules": [
+        {
+          "name": "Synthetic affected users",
+          "enabled": 1,
+          "waitingFor": "user_event",
+          "metricValue": null
+        },
+        {
+          "name": "Synthetic crash-free sessions",
+          "enabled": 1,
+          "waitingFor": "session",
+          "metricValue": null
+        },
+        {
+          "name": "Synthetic affected sessions",
+          "enabled": 1,
+          "waitingFor": "session",
+          "metricValue": null
+        }
+      ],
+      "deliveries": 0
+    },
+    {
+      "stage": "first matching session",
+      "rules": [
+        {
+          "name": "Synthetic affected users",
+          "enabled": 1,
+          "waitingFor": "user_event",
+          "metricValue": null
+        },
+        {
+          "name": "Synthetic crash-free sessions",
+          "enabled": 1,
+          "waitingFor": null,
+          "metricValue": 0
+        },
+        {
+          "name": "Synthetic affected sessions",
+          "enabled": 1,
+          "waitingFor": null,
+          "metricValue": null
+        }
+      ],
+      "deliveries": 1
+    },
+    {
+      "stage": "first matching user event",
+      "rules": [
+        {
+          "name": "Synthetic affected users",
+          "enabled": 1,
+          "waitingFor": null,
+          "metricValue": null
+        },
+        {
+          "name": "Synthetic crash-free sessions",
+          "enabled": 1,
+          "waitingFor": null,
+          "metricValue": 0
+        },
+        {
+          "name": "Synthetic affected sessions",
+          "enabled": 1,
+          "waitingFor": null,
+          "metricValue": null
+        }
+      ],
+      "deliveries": 1
+    },
+    {
+      "stage": "threshold reached",
+      "rules": [
+        {
+          "name": "Synthetic affected users",
+          "enabled": 1,
+          "waitingFor": null,
+          "metricValue": null
+        },
+        {
+          "name": "Synthetic crash-free sessions",
+          "enabled": 1,
+          "waitingFor": null,
+          "metricValue": 0
+        },
+        {
+          "name": "Synthetic affected sessions",
+          "enabled": 1,
+          "waitingFor": null,
+          "metricValue": null
+        }
+      ],
+      "deliveries": 3
+    }
+  ],
+  "onlySessions": {
+    "waitingFor": "user_event",
+    "afterFirstEvent": null,
+    "enabled": 1
+  }
+}
