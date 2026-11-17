@@ -10518,7 +10518,7 @@
       "executable": false
     },
     "src/ui/workbench/OperatorPanel.tsx": {
-      "sha256": "820fbdfdaad6d782ff1be4126b53849c6de30656b486ec8223f3b3da1f1ad775",
+      "sha256": "aa58716936334c707ce4afedad64314f69b31f8c4d8212ff9b8e216522c8a361",
       "executable": false
     },
     "src/ui/workbench/PersonalNotifications.tsx": {
@@ -11382,7 +11382,7 @@
       "executable": false
     },
     "tests/operator-ui.mjs": {
-      "sha256": "8fd046f3a5b248cdcee7c6eed06e7441dec1940698ae1a920b705f4837f477f1",
+      "sha256": "d47545f8420ccbc100583c2dacfedcb6d34780090ad054e1f846de07413562f4",
       "executable": false
     },
     "tests/otlp-flow.mjs": {
@@ -11458,7 +11458,7 @@
       "executable": false
     },
     "tests/product-runtime.mjs": {
-      "sha256": "e6dd888049a03f3fbef521385d3da1d34146eae681abfdf5e06f64e9e8148891",
+      "sha256": "833299e3fe7260061cdeec1eea617fd3d18aeffd018dac052a7dd5c771b48e91",
       "executable": false
     },
     "tests/project-erasure-cap.mjs": {
@@ -11563,6 +11563,14 @@
     },
     "tests/restore-refusal-ui.mjs": {
       "sha256": "d6de8b432a82ab8a4c657159cb7c018e4cc5430a18544592b5bf739de214d8b8",
+      "executable": false
+    },
+    "tests/restore-request-flow.mjs": {
+      "sha256": "74dc0ce52f8f7b3cd41e60025cebe10500748b78984e313160f6fa3026f8a180",
+      "executable": false
+    },
+    "tests/restore-request.mjs": {
+      "sha256": "3aa0e24f887e14aaf981127ea0faec1d98e47f4c20d55a5d9d692358530549b1",
       "executable": false
     },
     "tests/retention-archive.mjs": {

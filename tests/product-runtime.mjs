@@ -1,3 +1,5 @@
+import {restoreRequest} from './restore-request.mjs';
+import {restoreRequestFlow} from './restore-request-flow.mjs';
 import {chooseLocalAgentPolicy} from './agent-door/local-policy.mjs';
 import {localRuntime} from './local-runtime.mjs';
 import {nativeRefusal,outcomeTotals} from './admission-proof.mjs';
@@ -74,7 +76,8 @@ async function req(path,method='GET',value,headers={}){
  const requestId=requestSequence+1;
  let response;
  try {
-  response=await fetch(origin+path,{method,headers:{...(path==='/api/restore'?{'X-Confirm-Restore':'yes'}:{}),'X-Fixture-Request':String(++requestSequence),Origin:origin,...cookie?{Cookie:cookie}:{},...value?{'Content-Type':typeof value==='string'?'application/x-ndjson':'application/json'}:{},...headers},...value?{body:typeof value==='string'?value:JSON.stringify(value)}:{}});
+  const send = path === '/api/restore' ? restoreRequest : fetch;
+  response=await send(origin+path,{method,headers:{...(path==='/api/restore'?{'X-Confirm-Restore':'yes'}:{}),'X-Fixture-Request':String(++requestSequence),Origin:origin,...cookie?{Cookie:cookie}:{},...value?{'Content-Type':typeof value==='string'?'application/x-ndjson':'application/json'}:{},...headers},...value?{body:typeof value==='string'?value:JSON.stringify(value)}:{}});
  } catch(error) {error.productRequest={method,path,ordinal:requestId};throw error}
  Object.defineProperty(response,'fixtureRequest',{value:requestId});return response;
 }
@@ -83,6 +86,7 @@ async function login(options){cookie=await signIn(origin,options);await chooseLo
 async function setupLocation(expected){const r=await fetch(origin+'/setup',{headers:{Cookie:cookie},redirect:'manual'});assert.equal(r.status,expected?303:200);if(expected)assert.equal(r.headers.get('location'),'/');}
 
 try {
+ await restoreRequestFlow();
  await mkdir(artifactDirectory,{recursive:true});
  temporary=await mkdtemp(resolve(tmpdir(),'errors-acceptance-'));
  env={...process.env,WRANGLER_SEND_METRICS:'false',WRANGLER_LOG_PATH:resolve(temporary,'logs')};
