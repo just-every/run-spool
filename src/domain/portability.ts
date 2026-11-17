@@ -278,6 +278,13 @@ function beforeProjectMetrics(table:any,manifest:any){
  if(table.name!=='alerts'||manifest.migrations?.includes('0106_project_metric_alerts.sql'))return table;
  return {...table,sql:table.sql.replace('issue TEXT REFERENCES issues(id)','issue TEXT NOT NULL REFERENCES issues(id)').replace(", CHECK((kind='metric' AND issue IS NULL) OR (kind<>'metric' AND issue IS NOT NULL))",''),columns:table.columns.map((column:any)=>column.name==='issue'?{...column,notnull:1}:column)};
 }
+function beforeSentryRosterTable(table:any,manifest:any){
+ if(table.name!=='sentry_import_targets'||manifest.tables?.some((t:any)=>t.name==='spool_import_proposals'))return table;
+ return {...table,sql:table.sql.replace(",'import-proposal'",'').replace('CREATE TABLE "sentry_import_targets"','CREATE TABLE sentry_import_targets')};
+}
+function beforeSentryRosterObjects(objects:any[],manifest:any){
+ return manifest.tables?.some((t:any)=>t.name==='spool_import_proposals')?objects:objects.filter(o=>o.table!=='spool_import_proposals');
+}
 async function earlierManifest(db: D1Database, manifest: any) {
  const current = await catalogue(db, policy(portabilityPolicy));
  if (manifest?.kind !== 'manifest') return null;
@@ -291,8 +298,10 @@ async function earlierManifest(db: D1Database, manifest: any) {
  const carriedReporting=Array.isArray(product.tables)&&reportingNames.every(name=>product.tables.some((table:any)=>table.name===name));
  // Every set that adds no archived table matches the same schema; an archive that records its migrations takes the
  // one holding every such migration it lacks (0.5.1 archives lack 0054, 0055 and 0056), never only the newest.
- const tableless = [...new Set(laterTables.filter(later => !later.tables.length).flatMap(later => later.migrations))];
- for (const later of laterTables) {
+ const carriedRoster=product.tables.some((table:any)=>table.name==='spool_import_proposals');
+ const compatibleSets=carriedRoster?laterTables.map(later=>({tables:later.tables.filter(name=>name!=='spool_import_proposals'),migrations:later.migrations.filter(name=>name!=='0110_sentry_roster_proposals.sql')})).filter(later=>later.migrations.length):laterTables;
+ const tableless = [...new Set(compatibleSets.filter(later => !later.tables.length).flatMap(later => later.migrations))];
+ for (const later of compatibleSets) {
   // A set that adds no archived table matches today's schema, so it applies only to an archive missing its migrations.
   if (!later.tables.length && !(Array.isArray(manifest.migrations) && later.migrations.some(name => !manifest.migrations.includes(name)) && tableless.every(name => manifest.migrations.includes(name) || later.migrations.includes(name))) && !(later.migrations.length===1 && later.migrations[0]==='0109_feedback_review.sql' && !manifest.migrations?.length)) continue;
   const missing=later.tables.filter(name=>!carriedReporting||!reportingNames.includes(name));
@@ -300,7 +309,7 @@ async function earlierManifest(db: D1Database, manifest: any) {
   // An archive that records no migration list is either older than 0054 (issue_resolutions in its first form) or a current
   // format that carries none: try the recorded reading first, then today's form of that table.
   const reviewOnly=later.tables.length===0 && later.migrations.length===1 && later.migrations[0]==='0109_feedback_review.sql';
-  const earlierWith = (before0054: boolean) => reviewOnly ? current.tables.map((table:any)=>beforeFeedbackReview(table,manifest)) : current.tables.filter((table: any) => !missing.includes(table.name)).map((table:any)=>beforeFeedbackReview(beforeProjectMetrics(beforeAgentAttribution(table,manifest),manifest),manifest)).map((table:any)=>table.name==='issue_resolutions'&&before0054?{...table,sql:table.sql.replace('CREATE TABLE \"issue_resolutions\"','CREATE TABLE issue_resolutions').replace("('plain','current','next','named')","('plain','current')")}:table);
+  const earlierWith = (before0054: boolean) => reviewOnly ? current.tables.map((table:any)=>beforeFeedbackReview(table,manifest)) : current.tables.filter((table: any) => !missing.includes(table.name)).map((table:any)=>beforeSentryRosterTable(beforeFeedbackReview(beforeProjectMetrics(beforeAgentAttribution(table,manifest),manifest),manifest),manifest)).map((table:any)=>table.name==='issue_resolutions'&&before0054?{...table,sql:table.sql.replace('CREATE TABLE \"issue_resolutions\"','CREATE TABLE issue_resolutions').replace("('plain','current','next','named')","('plain','current')")}:table);
   let earlier: any[] | undefined;
   for (const before0054 of new Set([!manifest.migrations?.includes('0054_release_resolution_dist.sql'), false])) {
    const candidate = earlierWith(before0054);
@@ -311,7 +320,7 @@ async function earlierManifest(db: D1Database, manifest: any) {
   // A recognized native table upgrade must retain a complete, known object
   // inventory. An unrecorded index/trigger is never installed or acknowledged.
   // Archives without an object inventory still require Base's legacy replay.
-  if(product.schemaObjects!==undefined && canonicalJson(product.schemaObjects)!==canonicalJson(reviewOnly?current.schemaObjects:beforeProjectMetricObjects(previousRelayPrivacyObjects(previousNativeSymbolObjects(current.schemaObjects,manifest),manifest),manifest)))throw new PortabilityError('legacy_schema_object_inventory');
+  if(product.schemaObjects!==undefined && canonicalJson(product.schemaObjects)!==canonicalJson(reviewOnly?current.schemaObjects:beforeSentryRosterObjects(beforeProjectMetricObjects(previousRelayPrivacyObjects(previousNativeSymbolObjects(current.schemaObjects,manifest),manifest),manifest),manifest)))throw new PortabilityError('legacy_schema_object_inventory');
   // Normalize this positively matched native inventory to the destination. The
   // original binding and source history are checked before finalize; platform
   // bookkeeping is never installed as product data or presented as new history.

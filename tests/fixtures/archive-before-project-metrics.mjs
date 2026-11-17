@@ -1,5 +1,7 @@
+import {beforeSentryRoster} from './archive-before-sentry-roster.mjs';
 // Earlier fixtures describe the actual native inventory before metric alerts.
 export function beforeProjectMetrics(manifest){
+ beforeSentryRoster(manifest);
  const added=['0106_project_metric_alerts.sql','0107_sentry_transactions.sql','0108_alert_notify_targets.sql'];
  if(manifest.migrations)manifest.migrations=manifest.migrations.filter(name=>!added.includes(name));
  if(manifest.migrationLedger)manifest.migrationLedger={...manifest.migrationLedger,entries:manifest.migrationLedger.entries.filter(entry=>!added.includes(entry.name))};
