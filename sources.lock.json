@@ -3326,123 +3326,123 @@
       "executable": false
     },
     "docs/retained-verification/alert003/attention-1440.png": {
-      "sha256": "a4b9152014201befc168edf08446bcb26f502bc918c2e026e16563da3ae618b2",
+      "sha256": "7c006ed6abe24d457a25f8bb4410a6383b66fd3997937e9ccb92601a19d02a1b",
       "executable": false
     },
     "docs/retained-verification/alert003/attention-390.png": {
-      "sha256": "1433323ec62e0ea9efdf5004a920a68c6bd2590d5486769139b215540a8a9815",
+      "sha256": "ab19a4aeffe780d3865df61e55ef6eaa217e2c92817674f3c557a42d8c215ea1",
       "executable": false
     },
     "docs/retained-verification/alert003/bounced-1440.png": {
-      "sha256": "6a58941094700018b9e52d400e37cd790632d4f58af5564494681b393bea74e2",
+      "sha256": "51600b6957849cb567ddb73e9bb75f3be140f263e2bb667f316eb1d9d11cad1b",
       "executable": false
     },
     "docs/retained-verification/alert003/bounced-390.png": {
-      "sha256": "58c691dc57d536ea5907c630342c5b4cf77cd919f8cbcf6f58497359b7401f49",
+      "sha256": "02f2baa2dbc184f587e8f81edfe2912c3beabe1636fbd6e36b6f7fbb96aba10b",
       "executable": false
     },
     "docs/retained-verification/alert003/complained-1440.png": {
-      "sha256": "34a3952a2257ad0043b1875d00735c7a7309a21ede5abac129c8e462cb5270a1",
+      "sha256": "13e25307c0c056d14750a47fd56dde909e6f2ec2b60cef027f74d0fbff45bccb",
       "executable": false
     },
     "docs/retained-verification/alert003/complained-390.png": {
-      "sha256": "4db61780ccac519822c50f2883ef125d694cb6d54883291ef42b2522419f442e",
+      "sha256": "1004d878529ac680b4c6f41114cb9d31a186567c8f30652c82a81ac9f24424e7",
       "executable": false
     },
     "docs/retained-verification/alert003/controls-empty-1440.png": {
-      "sha256": "0511a07775031a1bfe333542044fd2fbcdfe691c27f538d194872ae19472e9cf",
+      "sha256": "92071d34ac2a037721f84b7f27925f4563a0a25083d7e072e8ba7b274fd21a17",
       "executable": false
     },
     "docs/retained-verification/alert003/controls-empty-390.png": {
-      "sha256": "4bd4653924a78452a33867d502770db26dbe80c043c6d66efc038dbfda3d89f4",
+      "sha256": "7d69e564cd0c0e952831b2b2056d07b73cfc56acdabe95559cd9383a4cc62b93",
       "executable": false
     },
     "docs/retained-verification/alert003/delivered-1440.png": {
-      "sha256": "25f0528005aa2ae71845ad94d11663215b5a24bab7eae30f936c8e9c91873e7e",
+      "sha256": "d59fc868c1fc9d77ee0b8c30267fbc327cd2e72c75bbe65a9b3a50d4669bbc62",
       "executable": false
     },
     "docs/retained-verification/alert003/delivered-390.png": {
-      "sha256": "fb970be1faca5f7984bab952a83bf67f32739a7ab9db0363f81e0f2f3caeabcd",
+      "sha256": "363ae107f5056fa3750b437141a6fe2dfe47318258ac0fe57608edd20414364f",
       "executable": false
     },
     "docs/retained-verification/alert003/deliveries-empty-1440.png": {
-      "sha256": "7ee1c013ac8654cd2825a55882651cb1f3cb864d33bc51a9771956f0f48b7077",
+      "sha256": "abb7ec9bc195ab3105e1901f87cc229f265268b4edddea4a80f76cd96b8aba70",
       "executable": false
     },
     "docs/retained-verification/alert003/deliveries-empty-390.png": {
-      "sha256": "4045f6bcdc9f5da3c903617b039d6a631771b01c230a2757a563e8c5406c40b5",
+      "sha256": "8cb6fdcdf6246473ceeec8d2fb17c75916d5b7391babc345adcda8c1d8983cfa",
       "executable": false
     },
     "docs/retained-verification/alert003/destinations-empty-1440.png": {
-      "sha256": "e1bf285bee7c7f365bdcbffa5d981a02c70b5554fa90dfcc993d6a506f46700d",
+      "sha256": "78f61c60072bdc510584c6c5ab1b6435e0f4f761dcf1e67c751542d8eba09bc1",
       "executable": false
     },
     "docs/retained-verification/alert003/destinations-empty-390.png": {
-      "sha256": "b3d3619f4f2771ca1b7d4a758780fc6d10a617ef7753d975a06a7b414ad502cf",
+      "sha256": "20fcfdb3794f0201fcea0a95dea14a4e16982738b68e836cbed2532f83ef7e1c",
       "executable": false
     },
     "docs/retained-verification/alert003/destinations-initial-1440.png": {
-      "sha256": "a5a01d237bbcdea10bb7fdb2a64e81eee0030b696f3e60ba978393fcf87f98fe",
+      "sha256": "578653c813e94ccacdff55081123928b2ab429a03cbfb2a37ed17f96656442d9",
       "executable": false
     },
     "docs/retained-verification/alert003/destinations-initial-390.png": {
-      "sha256": "38ee50744d90e565f52d97de68790e6501e4af8a9c803cf4d1821f72d074bacf",
+      "sha256": "d507aba2ae1347ecc155f2040bcb9c432ce36c5fbbea357074581092dc601499",
       "executable": false
     },
     "docs/retained-verification/alert003/digest-1440.png": {
-      "sha256": "73440861cf9863d7fd563cc4b39e516399c4555104ef18f2d16936f156a669e2",
+      "sha256": "fade555b909bfe0fb057c24622227b59c917bfbcf95f9b4ca6c9f1fac4be89b6",
       "executable": false
     },
     "docs/retained-verification/alert003/digest-390.png": {
-      "sha256": "3b0a6f85d454d9e44f042aa970e75ff135f536419e4526c96cb34582002f1121",
+      "sha256": "5eb073217b3b862e5e8b460be38465e333278dcb92dd29206c44bf613a00d7a6",
       "executable": false
     },
     "docs/retained-verification/alert003/disabled-review-1440.png": {
-      "sha256": "28acc67b18e862673baf55ab4e73f687428bc4414c112a18086105aed4af6704",
+      "sha256": "46aa6d9cc84cdb7bfc47506835b96018f7237191ad83d685cee82af3968a9e35",
       "executable": false
     },
     "docs/retained-verification/alert003/disabled-review-390.png": {
-      "sha256": "a383b2c2d2ec921d739662118be83efe58666804111a6dc6d4ffbf7201105268",
+      "sha256": "5ac8c7cedfd0c0de8c012a518e948e0e43a144cae093780d0701dc8779424904",
       "executable": false
     },
     "docs/retained-verification/alert003/expired-1440.png": {
-      "sha256": "b1e46955daa7baee4b2cd9797ab7059f359da0745578dc53870907578aa71f8c",
+      "sha256": "a88cee36e09039a9d71c9435b84a8007f1995f1ef8976dad78a9768fd37f3a89",
       "executable": false
     },
     "docs/retained-verification/alert003/expired-390.png": {
-      "sha256": "be15d8f5bcd50475cd1bf5f03403a5050b3fc0b8ab2e3f7536b34796a6bc2b7c",
+      "sha256": "6f08240e6e391055a5151729015b0e8dd1d3032abb5955f087ec0a0a9eb1ef11",
       "executable": false
     },
     "docs/retained-verification/alert003/failing-1440.png": {
-      "sha256": "8e7d98a23547aebdc4bb26efda999146160e8e1260750daa40a9d2d247d09559",
+      "sha256": "2c64818198c6adc3c6f14f017a23a41ab92e86c702fdf3aedca2bc477050f258",
       "executable": false
     },
     "docs/retained-verification/alert003/failing-390.png": {
-      "sha256": "38561f85b3ffded8bb1d9593537772c7ac07c0b2e1e49271ceca3aeb96c5e4ff",
+      "sha256": "fab38c4b28734f57d015c76388cc4f1887b1c110947bf8624ef3f328b6fb4dac",
       "executable": false
     },
     "docs/retained-verification/alert003/passing-1440.png": {
-      "sha256": "3ea66361bef942c2c5d846e35a9b691cc4ea4661c087955aedb2740759e214e5",
+      "sha256": "f526776e8a6ccb1d49523db8e58d0bce739afba7c4c2e2e4e2a9afa975b8db42",
       "executable": false
     },
     "docs/retained-verification/alert003/passing-390.png": {
-      "sha256": "79ce8470462f3e35afc1b95f439356380a1d4f835e575510e9ba741fef68bee7",
+      "sha256": "46412915897fb1412b73ef0d5229986a44916abc5e88cb0b37d6db196a642094",
       "executable": false
     },
     "docs/retained-verification/alert003/snoozed-1440.png": {
-      "sha256": "93ad11e282cebd652541482b2bb842c8c04a1a197802230846233e41b2223a81",
+      "sha256": "d8664208539d8a10ff60a97d0d2d38ba055f0097e0904980e97f3ac22321a65e",
       "executable": false
     },
     "docs/retained-verification/alert003/snoozed-390.png": {
-      "sha256": "2953fbbff321194242e576100c41a0d1c2a5c602fa82d03c1094c6b87a8de908",
+      "sha256": "9b10a78f83ce74d97f208b39d44229b603a96b8d3fd066fe13cd88b645a3b6dd",
       "executable": false
     },
     "docs/retained-verification/alert003/snoozed-delivery-1440.png": {
-      "sha256": "6caff941c490b6a7a2638c0b1246f4be66b87b900af2acd4aa7e66ad6b40a59f",
+      "sha256": "d7f6eadea76da25fff5f9f3c9fbe860b80ad4e5b86b33794ea86ffae7d24b5f1",
       "executable": false
     },
     "docs/retained-verification/alert003/snoozed-delivery-390.png": {
-      "sha256": "09ff7cd0f3b47c0fe216a0c7c81951e4faaeab4c5cf99593ee7ca6815cf96728",
+      "sha256": "03616cf14a6d4e3a5c74031322ab55ae7590690f6e6f6b116e3bfcb55f81cbc2",
       "executable": false
     },
     "docs/retained-verification/sdk001/browser-1440-diagnostics-1440.png": {
