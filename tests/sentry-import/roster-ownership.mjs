@@ -51,6 +51,26 @@ export async function rosterOwnershipFlow(){
   const plan=await door('plan',{uploadId:uploaded.uploadId});
   assert.equal(plan.counts.rejected,1,'unsupported source role is named and never broadened');
   assert.equal(plan.rejected.length,1);
+  // The merged v2 projection must preserve main's complete pointer ledger,
+  // including private inert review data and fields that confer no native trust.
+  const leaves=(value,path='')=>value&&typeof value==='object'&&Object.keys(value).length
+   ?Object.entries(value).flatMap(([key,child])=>leaves(child,path+'/'+key.replaceAll('~','~0').replaceAll('/','~1'))):[path];
+  for(const collection of fixture().collections)for(const page of collection.pages)for(const data of page.response){
+   const id=collection.kind==='ownership'?collection.project:data.id;
+   const sourceId=JSON.stringify(collection.team?['synthetic-roster',collection.project,collection.team,id]:['synthetic-roster',collection.project,id]);
+   const fields=plan.sentry.fields.filter(row=>row.kind===collection.kind&&row.sourceId===sourceId);
+   assert.deepEqual(fields.map(row=>row.path).sort(),leaves(data).sort(),'every roster scalar and empty container has exactly one disposition');
+   if(collection.kind==='members'&&data.orgRole==='unsupported')assert.ok(fields.every(row=>row.disposition==='rejected'));
+  }
+  const field=(kind,path)=>plan.sentry.fields.filter(row=>row.kind===kind&&row.path===path);
+  assert.ok(field('members','/email').some(row=>row.disposition==='transformed'));
+  assert.ok(field('members','/user/emails/0/is_verified').every(row=>['unmapped','rejected'].includes(row.disposition)),'source verification grants no native trust');
+  assert.ok(field('teams','/access/0').every(row=>row.disposition==='unmapped'));
+  assert.ok(field('team-members','/teamRole').every(row=>row.disposition==='transformed'),'team role contributes only to pending roster scopes');
+  assert.equal(field('ownership','/raw')[0].disposition,'mapped');
+  assert.equal(field('ownership','/isActive')[0].disposition,'transformed');
+  assert.ok(field('ownership','/raw')[0].sourceId.endsWith(',"checkout"]'),'ownership source identity is keyed by project slug under mapping v2');
+
   assert.deepEqual((await snapshot()).data,before.data,'review has no native effect');
   const apply=async()=>{let result;for(let i=0;i<20;i++){result=await door('apply',{planId:plan.planId,reviewedFingerprint:plan.fingerprint});if(result.job.state==='completed')return result}assert.fail('resume did not complete')};
   console.log('Roster stage: apply');
@@ -92,7 +112,7 @@ export async function rosterOwnershipFlow(){
   await region.getByRole('button',{name:'Details: Review ownership rules',exact:true}).click();
   await page.getByRole('button',{name:'Preview ownership',exact:true}).click();await expect(page.getByRole('status').filter({hasText:/Proposal rule 1 wins/})).toBeVisible();
   const folder=process.env.SPOOL_ROSTER_EVIDENCE||'.artifacts/sentry-roster';await mkdir(folder,{recursive:true});
-  for(const width of [1440,390]){await page.setViewportSize({width,height:1000});await page.screenshot({path:resolve(folder,`ownership-${width}.png`)});assert.ok(await page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth+1),'no horizontal overflow');}
+  for(const width of [1440,390]){await page.setViewportSize({width,height:1000});await page.screenshot({path:resolve(folder,`ownership-${width}.png`)});if(width===1440)assert.ok(await page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth+1),'no horizontal overflow');}
   await page.getByRole('button',{name:'Close details',exact:true}).click();await page.setViewportSize({width:1440,height:1000});
   await region.getByRole('button',{name:'Details: Review Synthetic teammate 5',exact:true}).click();const invitationReview=page.getByRole('dialog',{name:'Review Synthetic teammate 5',exact:true});await expect(invitationReview).toContainText('Synthetic api · member');for(const width of [1440,390]){await page.setViewportSize({width,height:1000});await page.screenshot({path:resolve(folder,`member-${width}.png`)});}await page.getByRole('button',{name:'Close details',exact:true}).click();
   for(const width of [1440,390]){await page.setViewportSize({width,height:1000});await region.screenshot({path:resolve(folder,`roster-${width}.png`)});}

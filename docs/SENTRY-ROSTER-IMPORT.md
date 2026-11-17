@@ -93,3 +93,27 @@ outside the installation fence.
 journey. It uses synthetic documented API responses and native local fixtures;
 no real Sentry or repository account, delivered real email, production dual run,
 cutover or completed TEAM-002 is claimed.
+
+Archive compatibility includes inventories created before these review stores.
+The translator recognizes the exact earlier provenance discriminator and omits
+only the declared new table and its objects when comparing a pre-roster
+inventory. Current archives carrying the review table retain its schema, even
+when an older transport records no migration ledger. Prior-release fixtures
+model the absence of review custody explicitly. Existing populated rows and
+constraints remain checked; foreign behavior objects, occupied targets and
+corrupted archive bindings still refuse restoration. The old-archive,
+multilingual and repair-recovery journeys exercise these compatibility doors.
+
+## Capture-aware mapping v2
+
+The roster replay uses `spool-sentry-org-v2`. It preserves the capture manifest,
+page hashes, keys collection and complete scalar/empty-container field ledger.
+An ownership source record now uses its project slug as its source identity;
+that same collection maps to a disabled private review record. Native scope and
+activation flags remain inert history. Member verification fields remain
+unmapped and confer no trust. Team membership IDs and roles contribute only to
+pending roster scopes. Required source timestamps are never invented: the
+older schema captures that omit member or ownership dates are explicitly
+rejected, while their complete field ledgers remain readable. The documented
+baseline/scaled fixture still exercises acquisition, redaction, capture
+validation, interrupted apply/resume, reconciliation, catch-up and exact undo.
