@@ -34,7 +34,9 @@ exported team projects. A team's admin proposes project maintainer; its member
 or contributor proposes member. Active, pending and expired source members all
 remain pending reviews. A new invitation always requires an owner's later
 choice, including for an expired source invitation. No original invitation link
-is copied. The native organization must already exist before invitation.
+is copied. The native organization must already exist before invitation. That separate
+owner action binds missing selected projects to the native organization before
+using native grant validation; the import itself never writes native teams.
 
 Exact private originals and source identities stay in the existing import
 journal. The plan reports record/byte counts and omitted top-level fields;

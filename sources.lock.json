@@ -3706,7 +3706,7 @@
       "executable": false
     },
     "docs/SENTRY-ROSTER-IMPORT.md": {
-      "sha256": "432f13a97a25adef449826206d1ce5ee14983baa3b80814d84b05a4bb68dda61",
+      "sha256": "49159364eef7d04291a8aeea95c12531f2f5608eb3653470b55132947a30085b",
       "executable": false
     },
     "docs/SENTRY-SCRUBBING.md": {
@@ -6442,7 +6442,7 @@
       "executable": false
     },
     "src/domain/members/imports.ts": {
-      "sha256": "adc234bdef1bbcc22144db64a26c12445e922ea130e1b3882693c0a813e87231",
+      "sha256": "6a04083748b9ee35f03245fe3a3700ec5b4788792324ee3de0a5682eed0c7a55",
       "executable": false
     },
     "src/domain/members/input.ts": {
@@ -10474,7 +10474,7 @@
       "executable": false
     },
     "src/ui/workbench/ImportedMembers.tsx": {
-      "sha256": "d08a6291bca9bf7265aecb8d2e76ed8d6cd13ad3b7bab1c9312754a75f9f4abe",
+      "sha256": "7d98da9ab523c3ad67cd66fb8868ac11d4506b6d17ea2832659be72078f3375c",
       "executable": false
     },
     "src/ui/workbench/inbound-filters.css": {
@@ -10518,7 +10518,7 @@
       "executable": false
     },
     "src/ui/workbench/Members.tsx": {
-      "sha256": "e6a3cb52f66ef6c59151973649c3c04ba67961f704c9f5be25ca63d2861cf9c8",
+      "sha256": "ef93b6426cf6ce0982d1033671f340bdf55c6ca5cbb24b8bf2639829598208ad",
       "executable": false
     },
     "src/ui/workbench/Navigation.tsx": {
@@ -11050,7 +11050,7 @@
       "executable": false
     },
     "tests/archive.mjs": {
-      "sha256": "80a34c4da3938db4fd37533b10d1a86c239ee14a20be7dd5bd19e9806ac919a8",
+      "sha256": "8893a8dd2919124cfb1939cf1dcf7deab5003144e8c73b2bb0a8b062be54f36c",
       "executable": false
     },
     "tests/audit-history.mjs": {
@@ -11886,7 +11886,7 @@
       "executable": false
     },
     "tests/sentry-import/roster-ownership.mjs": {
-      "sha256": "b1aae4a977d967fe788411df282fd0f52ecfb5924de7ceb442addf9b0ca9d1f2",
+      "sha256": "e674646430419884bee5d497304454ad6221b785e8ecd46a41b33ab172325ad6",
       "executable": false
     },
     "tests/sentry-import/schema-pages.mjs": {
