@@ -1,0 +1,15 @@
+{
+  "sourceHead": "2c061e5a68a555977ee4665cc76e1af13fe5a28a",
+  "screens": [
+    "General settings",
+    "Members invitation form",
+    "Capture after real separate-origin intake"
+  ],
+  "widths": [
+    1440,
+    390
+  ],
+  "assertedWidth": 1440,
+  "action": "Native installation-name save and title update; pristine native Members form filled without sending an invitation or generating credentials; phone captures only",
+  "credentialsRendered": false
+}

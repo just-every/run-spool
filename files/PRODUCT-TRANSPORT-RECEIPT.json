@@ -1,0 +1,26 @@
+{
+  "command": "pnpm test:product",
+  "exit": 1,
+  "failure": {
+    "type": "TypeError",
+    "location": "tests/product-runtime.mjs:77:12",
+    "cause": "UND_ERR_SOCKET: other side closed",
+    "method": "GET",
+    "path": "/api/archive",
+    "ordinal": 637
+  },
+  "assertionFailure": false,
+  "cleanupFailures": [],
+  "worker": {
+    "networkConnectionLost": false,
+    "d1Error": false,
+    "sqliteError": false,
+    "scriptNoResponse": false,
+    "internalError": false
+  },
+  "action": "One local retry for observed transport closure; no source or assertion changed",
+  "retry": {
+    "exit": 0,
+    "result": "Emitted Worker/D1 acceptance and real Chromium automatic capture passed; no API retry or assertion change"
+  }
+}

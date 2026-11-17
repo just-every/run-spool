@@ -1,0 +1,16 @@
+{
+  "base": "f44efc8c76f8f11753b89465cc3fcb7b64760570",
+  "branch": "cloud/sd-spool-design-setup-3",
+  "head": "2c061e5a68a555977ee4665cc76e1af13fe5a28a",
+  "kind": "intermediate product save [skip ci]",
+  "push": "success on first guarded attempt",
+  "identity": "Run Edit Run fleet <fleet@runeditrun.com> (author and committer)",
+  "trailers": [],
+  "linear": true,
+  "migrationNumbers": [
+    "0110_member_identity.sql",
+    "0111_capture_sources.sql"
+  ],
+  "finalFixtureRepair": "retained in working tree for final tested commit",
+  "CI": "intentionally skipped; not READY"
+}

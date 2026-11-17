@@ -1,0 +1,11 @@
+
+> @errors/errors-workbench@0.7.14 test:origins /workspace/run-spool
+> node tests/browser-origins-runtime.mjs
+
+(node:15229) ExperimentalWarning: SQLite is an experimental feature and might change at any time
+(Use `node --trace-warnings ...` to show where the warning was created)
+verify
+Heavy job admitted: Spool verify:suite [6179c8701e00]
+(node:15251) ExperimentalWarning: SQLite is an experimental feature and might change at any time
+(Use `node --trace-warnings ...` to show where the warning was created)
+Browser-origin non-browser runtime gates passed: 11 groups. Actual two-origin Chrome capture/a11y remain blocked and unclaimed.

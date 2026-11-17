@@ -1,0 +1,84 @@
+
+> @errors/errors-workbench@0.7.14 test:repair-recovery /workspace/run-spool
+> node tests/repair-recovery.mjs
+
+CLOUD_TEST_STARTUP_BUDGET startDev/dev-ready=180000ms; repository files and assertions unchanged
+(node:47755) ExperimentalWarning: SQLite is an experimental feature and might change at any time
+(Use `node --trace-warnings ...` to show where the warning was created)
+verify
+Heavy job admitted: Spool verify:suite [6179c8701e00]
+CLOUD_TEST_STARTUP_BUDGET startDev/dev-ready=180000ms; repository files and assertions unchanged
+(node:47777) ExperimentalWarning: SQLite is an experimental feature and might change at any time
+(Use `node --trace-warnings ...` to show where the warning was created)
+STEP setup/startDev
+STEP setup/dev-ready
+END setup/dev-ready seconds=68.279
+END setup/startDev seconds=68.375
+STEP setup/stopDev
+STEP setup/dev-stop
+END setup/dev-stop seconds=0.189
+END setup/stopDev seconds=0.193
+STEP setup/reset
+END setup/reset seconds=2.069
+STEP setup/setup
+END setup/setup seconds=139.590
+STEP setup/startDev
+STEP setup/dev-ready
+END setup/dev-ready seconds=75.522
+END setup/startDev seconds=75.624
+STEP setup/stopDev
+STEP setup/dev-stop
+END setup/dev-stop seconds=0.227
+END setup/stopDev seconds=0.232
+STEP setup/reset
+END setup/reset seconds=2.046
+STEP setup/setup
+END setup/setup seconds=130.145
+STEP setup/startDev
+STEP setup/dev-ready
+END setup/dev-ready seconds=66.970
+END setup/startDev seconds=67.038
+STEP setup/stopDev
+STEP setup/dev-stop
+END setup/dev-stop seconds=0.301
+END setup/stopDev seconds=0.305
+STEP setup/reset
+END setup/reset seconds=2.060
+STEP setup/setup
+END setup/setup seconds=128.034
+STEP setup/startDev
+STEP setup/dev-ready
+END setup/dev-ready seconds=71.775
+END setup/startDev seconds=71.845
+STEP setup/stopDev
+STEP setup/dev-stop
+END setup/dev-stop seconds=0.228
+END setup/stopDev seconds=0.231
+STEP setup/reset
+END setup/reset seconds=1.825
+STEP setup/setup
+END setup/setup seconds=130.964
+STEP setup/startDev
+STEP setup/dev-ready
+END setup/dev-ready seconds=82.393
+END setup/startDev seconds=82.492
+STEP setup/dev-stop
+END setup/dev-stop seconds=0.185
+STEP setup/stopDev
+END setup/stopDev seconds=0.000
+STEP setup/reset
+END setup/reset seconds=2.419
+STEP setup/import
+END setup/import seconds=82.573
+STEP setup/setup
+END setup/setup seconds=91.595
+STEP setup/startDev
+STEP setup/dev-ready
+END setup/dev-ready seconds=66.269
+END setup/startDev seconds=69.355
+Repair recovery public journey passed: 6 groups; 16 captures; verdicts a,b,c,e,f,d.
+STEP setup/stopDev
+STEP setup/dev-stop
+END setup/dev-stop seconds=0.707
+END setup/stopDev seconds=0.714
+Repair recovery cleanup: [{"name":"capture","outcome":"stopped"},{"name":"browser","outcome":"stopped"},{"name":"checkout","outcome":"stopped","children":"stopped","directory":"removed"}]

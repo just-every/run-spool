@@ -1,0 +1,14 @@
+{
+  "framework": {
+    "failedAssertion": "tests/runtime.mjs:68",
+    "repair": "Keep direct-capture instructions and explicit existing tunnel/SDK-helper warning",
+    "unchangedAssertion": true,
+    "laterObservedProbe": "PROBE SDK-020 G5 passed"
+  },
+  "egress": {
+    "failedJourney": "tests/setup-prerequisites.mjs openGuide (cron)",
+    "repair": "Restore accessible Base's egress-service owner steps link label",
+    "destinationUnchanged": true,
+    "unchangedAssertion": true
+  }
+}

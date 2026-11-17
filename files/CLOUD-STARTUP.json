@@ -1,0 +1,39 @@
+{
+  "stockCorrectedFullRun": {
+    "exit": 1,
+    "passed": "pre-repair and populated historical-release restore; foreign-object/data assertions unchanged",
+    "stopped": "third reset dev-start trace exceeded 90 seconds",
+    "cleanup": "children stopped, checkout removed"
+  },
+  "localAllowance": {
+    "module": "cloud-startup.mjs",
+    "calls": [
+      "startDev",
+      "dev-ready"
+    ],
+    "milliseconds": 180000,
+    "repositoryTraceSha256": "dd1e6266706360bb4cf82f419b3395ede1dceeb58a062bc39aca991e9aee2752",
+    "repositoryFileChanged": false,
+    "ciUsesOriginalHarness": true,
+    "scope": "Only the tests/repair-recovery.mjs Node entry; nested CLI/app processes do not register a load hook"
+  },
+  "otherPhases": "Stock Node loader; wizard rerun passed after removing inherited hook",
+  "accommodatedFullRun": {
+    "exit": 0,
+    "groups": 6,
+    "captures": 16,
+    "verdictCases": [
+      "a",
+      "b",
+      "c",
+      "d",
+      "e",
+      "f"
+    ],
+    "restoredTables": 101,
+    "repairs": 3,
+    "checks": 4,
+    "cleanup": "capture, browser, children stopped; checkout removed",
+    "endedUtc": "2026-11-17T23:06:08.260812+00:00"
+  }
+}

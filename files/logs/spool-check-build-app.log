@@ -1,0 +1,140 @@
+
+> @errors/errors-workbench@0.7.14 build:app /workspace/run-spool
+> node scripts/build-capture.mjs && vite build
+
+[33m▲ [43;33m[[43;30mWARNING[43;33m][0m [1mProxy environment variables detected. We'll use your proxy for fetch requests.[0m
+
+
+(!) Your Vite config uses features that are unsupported by `configLoader: 'native'`, which is planned to become the default in a future major version of Vite:
+  - import "./vite/document-boundary" without a file extension (vite.config.ts:6:34). Add the file extension
+  - import "./vite/docs-site" without a file extension (vite.config.ts:8:26). Add the file extension
+  - import "../src/auth/document-path" without a file extension (vite/document-boundary.ts:4:50). Add the file extension
+  - import "./docs/site" without a file extension (vite/docs-site.ts:2:27). Add the file extension
+  - import "./markdown" without a file extension (vite/docs/site.ts:3:43). Add the file extension
+  - import "../../src/base/run-site" without a file extension (vite/docs/site.ts:4:34). Add the file extension
+  - import "../../src/site/run" without a file extension (vite/docs/site.ts:5:21). Add the file extension
+  - import "./markdown" without a file extension (vite/docs/site.ts:6:30). Add the file extension
+  - import "../base/run-site" without a file extension (src/site/run.ts:1:30). Add the file extension
+  - import "../base/run-pricing" without a file extension (src/site/run.ts:2:28). Add the file extension
+  - import "./icon-head" without a file extension (src/base/run-site.ts:1:26). Add the file extension
+  - import "./run-chooser-style" without a file extension (src/base/run-site.ts:2:29). Add the file extension
+  - import "./identity" without a file extension (src/base/run-site.ts:11:53). Add the file extension
+  - import "./theme-frame" without a file extension (src/base/run-site.ts:12:21). Add the file extension
+  - import "./hosting-page" without a file extension (src/base/run-site.ts:13:34). Add the file extension
+Set `VITE_CONFIG_NATIVE_IGNORE_WARNING=true` to suppress this warning.
+(node:56814) ExperimentalWarning: SQLite is an experimental feature and might change at any time
+(Use `node --trace-warnings ...` to show where the warning was created)
+(!) Your Vite config uses features that are unsupported by `configLoader: 'native'`, which is planned to become the default in a future major version of Vite:
+  - import "./vite/document-boundary" without a file extension (vite.config.ts:6:34). Add the file extension
+  - import "./vite/docs-site" without a file extension (vite.config.ts:8:26). Add the file extension
+  - import "../src/auth/document-path" without a file extension (vite/document-boundary.ts:4:50). Add the file extension
+  - import "./docs/site" without a file extension (vite/docs-site.ts:2:27). Add the file extension
+  - import "./markdown" without a file extension (vite/docs/site.ts:3:43). Add the file extension
+  - import "../../src/base/run-site" without a file extension (vite/docs/site.ts:4:34). Add the file extension
+  - import "../../src/site/run" without a file extension (vite/docs/site.ts:5:21). Add the file extension
+  - import "./markdown" without a file extension (vite/docs/site.ts:6:30). Add the file extension
+  - import "../base/run-site" without a file extension (src/site/run.ts:1:30). Add the file extension
+  - import "./icon-head" without a file extension (src/base/run-site.ts:1:26). Add the file extension
+  - import "../base/run-pricing" without a file extension (src/site/run.ts:2:28). Add the file extension
+  - import "./run-chooser-style" without a file extension (src/base/run-site.ts:2:29). Add the file extension
+  - import "./identity" without a file extension (src/base/run-site.ts:11:53). Add the file extension
+  - import "./theme-frame" without a file extension (src/base/run-site.ts:12:21). Add the file extension
+  - import "./hosting-page" without a file extension (src/base/run-site.ts:13:34). Add the file extension
+Set `VITE_CONFIG_NATIVE_IGNORE_WARNING=true` to suppress this warning.
+(!) Your Vite config uses features that are unsupported by `configLoader: 'native'`, which is planned to become the default in a future major version of Vite:
+  - import "./vite/document-boundary" without a file extension (vite.config.ts:6:34). Add the file extension
+  - import "./vite/docs-site" without a file extension (vite.config.ts:8:26). Add the file extension
+  - import "../src/auth/document-path" without a file extension (vite/document-boundary.ts:4:50). Add the file extension
+  - import "./docs/site" without a file extension (vite/docs-site.ts:2:27). Add the file extension
+  - import "./markdown" without a file extension (vite/docs/site.ts:3:43). Add the file extension
+  - import "../../src/base/run-site" without a file extension (vite/docs/site.ts:4:34). Add the file extension
+  - import "../../src/site/run" without a file extension (vite/docs/site.ts:5:21). Add the file extension
+  - import "./markdown" without a file extension (vite/docs/site.ts:6:30). Add the file extension
+  - import "./icon-head" without a file extension (src/base/run-site.ts:1:26). Add the file extension
+  - import "../base/run-site" without a file extension (src/site/run.ts:1:30). Add the file extension
+  - import "./run-chooser-style" without a file extension (src/base/run-site.ts:2:29). Add the file extension
+  - import "../base/run-pricing" without a file extension (src/site/run.ts:2:28). Add the file extension
+  - import "./identity" without a file extension (src/base/run-site.ts:11:53). Add the file extension
+  - import "./theme-frame" without a file extension (src/base/run-site.ts:12:21). Add the file extension
+  - import "./hosting-page" without a file extension (src/base/run-site.ts:13:34). Add the file extension
+Set `VITE_CONFIG_NATIVE_IGNORE_WARNING=true` to suppress this warning.
+vite v8.2.4 building client environment for production...
+transforming...
+✓ 326 modules transformed.
+rendering chunks...
+computing gzip size...
+dist/client/.assetsignore                          0.02 kB
+dist/client/assets/identityMessage-BEYkxG4W.css    0.95 kB │ gzip:   0.40 kB
+dist/client/assets/setup-w0GLhK_l.css              3.31 kB │ gzip:   1.13 kB
+dist/client/assets/_-CSJXt6hy.css                 11.96 kB │ gzip:   2.87 kB
+dist/client/assets/index-BGBd6tDc.css             16.74 kB │ gzip:   4.23 kB
+dist/client/assets/_-DRsbiSPV.js                   0.07 kB │ gzip:   0.09 kB
+dist/client/assets/setup-BQfDF-3I.js               7.30 kB │ gzip:   2.68 kB
+dist/client/assets/Wordmark-BeBTXTZ_.js           14.40 kB │ gzip:   5.58 kB
+dist/client/assets/identityMessage-DgFzxJ0o.js    52.23 kB │ gzip:  19.09 kB
+dist/client/assets/index-ctGiVw-S.js             328.24 kB │ gzip: 106.32 kB
+dist/client/assets/_-0AzUXtmT.js                 413.74 kB │ gzip: 109.99 kB
+
+✓ built in 631ms
+vite v8.2.4 building ssr environment for production...
+transforming...
+✓ 1273 modules transformed.
+rendering chunks...
+Using secrets defined in .dev.vars
+computing gzip size...
+dist/server/wrangler.json                                      1.45 kB │ gzip:     0.72 kB
+dist/server/.vite/manifest.json                               11.19 kB │ gzip:     1.63 kB
+dist/server/assets/identityMessage-BEYkxG4W.css                0.95 kB │ gzip:     0.40 kB
+dist/server/assets/setup-w0GLhK_l.css                          3.31 kB │ gzip:     1.13 kB
+dist/server/assets/_-CSJXt6hy.css                             11.96 kB │ gzip:     2.87 kB
+dist/server/assets/router-BGBd6tDc.css                        16.74 kB │ gzip:     4.23 kB
+dist/server/assets/_-BYAIRDo_.js                               0.21 kB │ gzip:     0.15 kB
+dist/server/assets/empty-plugin-adapters-D_0twvAa.js           0.28 kB │ gzip:     0.18 kB
+dist/server/assets/start-CTCcpAul.js                           0.28 kB │ gzip:     0.20 kB
+dist/server/assets/types-gNK3Wo6M.js                           0.80 kB │ gzip:     0.37 kB
+dist/server/assets/_tanstack-start-manifest_v-C1k7UGL7.js      0.99 kB │ gzip:     0.45 kB
+dist/server/assets/rolldown-runtime-DC62tzP2.js                1.44 kB │ gzip:     0.67 kB
+dist/server/assets/useRouterState-DV_FpYmm.js                  2.00 kB │ gzip:     0.84 kB
+dist/server/assets/capture-Jcl-6Nhx.js                         4.17 kB │ gzip:     1.73 kB
+dist/server/assets/hash-B34pK5CR.js                            4.63 kB │ gzip:     2.13 kB
+dist/server/assets/storage-C6Fx_4P_.js                         5.11 kB │ gzip:     2.04 kB
+dist/server/assets/ClientOnly-CJaOBaL7.js                      6.22 kB │ gzip:     2.42 kB
+dist/server/assets/retention-policy-DLapC1t8.js                6.86 kB │ gzip:     2.31 kB
+dist/server/assets/payload-DHF07COB.js                         7.71 kB │ gzip:     2.44 kB
+dist/server/assets/slack.server-DX5Rpn-n.js                    7.93 kB │ gzip:     2.85 kB
+dist/server/assets/retire-C9Jr7ehZ.js                          8.49 kB │ gzip:     2.95 kB
+dist/server/assets/mail-C9LuzpmT.js                            8.72 kB │ gzip:     2.87 kB
+dist/server/assets/notifications-D_00F55z.js                   9.57 kB │ gzip:     2.96 kB
+dist/server/assets/context-DoLCzCCR.js                        10.41 kB │ gzip:     3.40 kB
+dist/server/assets/demo-BH3tmhgI.js                           13.59 kB │ gzip:     4.96 kB
+dist/server/assets/setup-BXO7CTp9.js                          13.99 kB │ gzip:     3.57 kB
+dist/server/assets/policy-xKkEZVBN.js                         18.22 kB │ gzip:     5.54 kB
+dist/server/assets/webhook.server-eEjg6Y9I.js                 18.86 kB │ gzip:     5.08 kB
+dist/server/assets/destinations.server-9pBrEVgK.js            19.62 kB │ gzip:     6.00 kB
+dist/server/assets/types-BTfUuPI5.js                          22.12 kB │ gzip:     6.07 kB
+dist/server/assets/Wordmark-C3zldpL0.js                       34.03 kB │ gzip:     9.69 kB
+dist/server/assets/identity-9nFsscYc.js                       34.83 kB │ gzip:    11.59 kB
+dist/server/assets/identityMessage-BZVnFWAD.js                39.80 kB │ gzip:    10.71 kB
+dist/server/assets/privacy-5it6da_0.js                        65.83 kB │ gzip:    19.97 kB
+dist/server/assets/audit-D56Fi0TH.js                          85.44 kB │ gzip:    21.91 kB
+dist/server/assets/router-DlsBU5Jl.js                         87.49 kB │ gzip:    23.41 kB
+dist/server/assets/config-BmWQ-RD9.js                        126.95 kB │ gzip:    31.16 kB
+dist/server/assets/standing-DbtRFTns.js                      226.16 kB │ gzip:    60.30 kB
+dist/server/assets/undo-snapshot-DjAcqMq7.js                 357.18 kB │ gzip:    88.82 kB
+dist/server/assets/session.server-BULUfixL.js                394.25 kB │ gzip:    97.73 kB
+dist/server/assets/_-DmfDEDdR.js                             736.38 kB │ gzip:   144.45 kB
+dist/server/assets/retention-Dx7AUk-z.js                   1,085.38 kB │ gzip:   258.85 kB
+dist/server/index.js                                       7,134.21 kB │ gzip: 1,209.04 kB
+
+[33m[INEFFECTIVE_DYNAMIC_IMPORT] [0msrc/domain/agent-door/index.server.ts is dynamically imported by src/domain/agent-door/standing.ts, src/domain/reproducers/runner-routes.ts but also statically imported by src/domain/agent-door/events.ts, src/domain/agent-door/legacy.ts, src/server.ts, dynamic import will not move module into another chunk.
+
+✓ built in 25.61s
+[33m[PLUGIN_TIMINGS] [0mPlugin hooks ran for 24.8s of this 25.6s build (97%).
+The slowest hooks, timed inside each callback (the wait before a callback starts is excluded, the time it awaits is included):
+  - rer:legacy-migration-evidence load (95%, 24.3s, 1267 calls)
+Additional hook time came from the hooks below and from hooks under 1s.
+2 hooks are listed without a time. Their calls overlapped, so the time inside one call includes work from other calls. To find their cost, profile the build with `node --cpu-prof`:
+  - tanstack-start-core:import-protection resolveId (4654 calls)
+  - tanstack-start-core::server-fn:ssr transform (15 calls)
+See https://rolldown.rs/reference/InputOptions.checks#plugintimings for more details.
+

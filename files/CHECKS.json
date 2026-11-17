@@ -1,0 +1,1095 @@
+[
+  {
+    "name": "native-export",
+    "command": [
+      "node",
+      "tests/native-export.mjs"
+    ],
+    "startedUtc": "2026-11-17T20:23:32.404703+00:00",
+    "exit": 0,
+    "endedUtc": "2026-11-17T20:23:32.563078+00:00",
+    "log": "spool-check-native-export.log",
+    "retainedLatestLogOnly": false
+  },
+  {
+    "name": "portable-contract",
+    "command": [
+      "pnpm",
+      "run",
+      "check",
+      "--",
+      "--profile",
+      "first-party"
+    ],
+    "startedUtc": "2026-11-17T20:23:32.563367+00:00",
+    "exit": 0,
+    "endedUtc": "2026-11-17T20:23:35.254368+00:00",
+    "log": "spool-check-portable-contract.log",
+    "retainedLatestLogOnly": false
+  },
+  {
+    "name": "source",
+    "command": [
+      "pnpm",
+      "source:check"
+    ],
+    "startedUtc": "2026-11-17T20:23:35.254800+00:00",
+    "exit": 0,
+    "endedUtc": "2026-11-17T20:23:36.266550+00:00",
+    "log": "spool-check-source.log",
+    "retainedLatestLogOnly": false
+  },
+  {
+    "name": "base-offline",
+    "command": [
+      "node",
+      "scripts/edition-authoring/cli.mjs",
+      "verify-base",
+      "--offline"
+    ],
+    "startedUtc": "2026-11-17T20:23:36.267022+00:00",
+    "exit": 0,
+    "endedUtc": "2026-11-17T20:23:36.562818+00:00",
+    "log": "spool-check-base-offline.log",
+    "retainedLatestLogOnly": false
+  },
+  {
+    "name": "build-app",
+    "command": [
+      "pnpm",
+      "run",
+      "build:app"
+    ],
+    "startedUtc": "2026-11-17T20:23:36.563351+00:00",
+    "exit": 0,
+    "endedUtc": "2026-11-17T20:24:07.389405+00:00",
+    "log": "spool-check-build-app.log",
+    "retainedLatestLogOnly": false
+  },
+  {
+    "name": "integration",
+    "command": [
+      "pnpm",
+      "integration:check"
+    ],
+    "startedUtc": "2026-11-17T20:24:07.390140+00:00",
+    "exit": 0,
+    "endedUtc": "2026-11-17T20:24:08.056775+00:00",
+    "log": "spool-check-integration.log",
+    "retainedLatestLogOnly": false
+  },
+  {
+    "name": "agent-surface",
+    "command": [
+      "node",
+      "scripts/agent-door/surface.mjs",
+      "--check"
+    ],
+    "startedUtc": "2026-11-17T20:24:08.057477+00:00",
+    "exit": 0,
+    "endedUtc": "2026-11-17T20:24:08.104376+00:00",
+    "log": "spool-check-agent-surface.log",
+    "retainedLatestLogOnly": false
+  },
+  {
+    "name": "typecheck",
+    "command": [
+      "pnpm",
+      "typecheck"
+    ],
+    "startedUtc": "2026-11-17T20:24:08.105064+00:00",
+    "exit": 0,
+    "endedUtc": "2026-11-17T20:24:31.511916+00:00",
+    "log": "spool-check-typecheck.log",
+    "retainedLatestLogOnly": false
+  },
+  {
+    "name": "contract-docs",
+    "command": [
+      "node",
+      "src/base/contract-docs.mjs",
+      "check"
+    ],
+    "startedUtc": "2026-11-17T20:24:31.512443+00:00",
+    "exit": 0,
+    "endedUtc": "2026-11-17T20:24:31.726281+00:00",
+    "log": "spool-check-contract-docs.log",
+    "retainedLatestLogOnly": false
+  },
+  {
+    "name": "repair-recovery",
+    "command": [
+      "pnpm",
+      "test:repair-recovery"
+    ],
+    "startedUtc": "2026-11-17T20:24:31.727469+00:00",
+    "exit": 1,
+    "endedUtc": "2026-11-17T20:45:01.823052+00:00",
+    "log": "spool-check-repair-recovery.log",
+    "retainedLatestLogOnly": false
+  },
+  {
+    "name": "runtime",
+    "command": [
+      "pnpm",
+      "test:runtime"
+    ],
+    "startedUtc": "2026-11-17T20:46:02.243600+00:00",
+    "exit": 1,
+    "endedUtc": "2026-11-17T20:46:20.328483+00:00",
+    "log": "spool-check-runtime.log",
+    "retainedLatestLogOnly": false
+  },
+  {
+    "name": "native-export",
+    "command": [
+      "node",
+      "tests/native-export.mjs"
+    ],
+    "cloudStartupAllowanceMs": 180000,
+    "startedUtc": "2026-11-17T20:47:38.880587+00:00",
+    "exit": 0,
+    "endedUtc": "2026-11-17T20:47:39.023613+00:00",
+    "log": "spool-check-native-export.log",
+    "retainedLatestLogOnly": false
+  },
+  {
+    "name": "portable-contract",
+    "command": [
+      "pnpm",
+      "run",
+      "check",
+      "--",
+      "--profile",
+      "first-party"
+    ],
+    "cloudStartupAllowanceMs": 180000,
+    "startedUtc": "2026-11-17T20:47:39.024372+00:00",
+    "exit": 0,
+    "endedUtc": "2026-11-17T20:47:42.430216+00:00",
+    "log": "spool-check-portable-contract.log",
+    "retainedLatestLogOnly": false
+  },
+  {
+    "name": "source",
+    "command": [
+      "pnpm",
+      "source:check"
+    ],
+    "cloudStartupAllowanceMs": 180000,
+    "startedUtc": "2026-11-17T20:47:42.431301+00:00",
+    "exit": 0,
+    "endedUtc": "2026-11-17T20:47:44.079604+00:00",
+    "log": "spool-check-source.log",
+    "retainedLatestLogOnly": false
+  },
+  {
+    "name": "base-offline",
+    "command": [
+      "node",
+      "scripts/edition-authoring/cli.mjs",
+      "verify-base",
+      "--offline"
+    ],
+    "cloudStartupAllowanceMs": 180000,
+    "startedUtc": "2026-11-17T20:47:44.081330+00:00",
+    "exit": 0,
+    "endedUtc": "2026-11-17T20:47:44.569295+00:00",
+    "log": "spool-check-base-offline.log",
+    "retainedLatestLogOnly": false
+  },
+  {
+    "name": "build-app",
+    "command": [
+      "pnpm",
+      "run",
+      "build:app"
+    ],
+    "cloudStartupAllowanceMs": 180000,
+    "startedUtc": "2026-11-17T20:47:44.570321+00:00",
+    "exit": 0,
+    "endedUtc": "2026-11-17T20:48:36.659312+00:00",
+    "log": "spool-check-build-app.log",
+    "retainedLatestLogOnly": false
+  },
+  {
+    "name": "integration",
+    "command": [
+      "pnpm",
+      "integration:check"
+    ],
+    "cloudStartupAllowanceMs": 180000,
+    "startedUtc": "2026-11-17T20:48:36.660303+00:00",
+    "exit": 0,
+    "endedUtc": "2026-11-17T20:48:37.454610+00:00",
+    "log": "spool-check-integration.log",
+    "retainedLatestLogOnly": false
+  },
+  {
+    "name": "agent-surface",
+    "command": [
+      "node",
+      "scripts/agent-door/surface.mjs",
+      "--check"
+    ],
+    "cloudStartupAllowanceMs": 180000,
+    "startedUtc": "2026-11-17T20:48:37.455417+00:00",
+    "exit": 0,
+    "endedUtc": "2026-11-17T20:48:37.500415+00:00",
+    "log": "spool-check-agent-surface.log",
+    "retainedLatestLogOnly": false
+  },
+  {
+    "name": "typecheck",
+    "command": [
+      "pnpm",
+      "typecheck"
+    ],
+    "cloudStartupAllowanceMs": 180000,
+    "startedUtc": "2026-11-17T20:48:37.501107+00:00",
+    "exit": 0,
+    "endedUtc": "2026-11-17T20:49:02.189435+00:00",
+    "log": "spool-check-typecheck.log",
+    "retainedLatestLogOnly": false
+  },
+  {
+    "name": "contract-docs",
+    "command": [
+      "node",
+      "src/base/contract-docs.mjs",
+      "check"
+    ],
+    "cloudStartupAllowanceMs": 180000,
+    "startedUtc": "2026-11-17T20:49:02.190187+00:00",
+    "exit": 0,
+    "endedUtc": "2026-11-17T20:49:02.415210+00:00",
+    "log": "spool-check-contract-docs.log",
+    "retainedLatestLogOnly": false
+  },
+  {
+    "name": "runtime",
+    "command": [
+      "pnpm",
+      "test:runtime"
+    ],
+    "cloudStartupAllowanceMs": 180000,
+    "startedUtc": "2026-11-17T20:49:02.415863+00:00",
+    "exit": 1,
+    "endedUtc": "2026-11-17T20:49:20.156915+00:00",
+    "log": "spool-check-runtime.log",
+    "retainedLatestLogOnly": false
+  },
+  {
+    "name": "native-export",
+    "command": [
+      "node",
+      "tests/native-export.mjs"
+    ],
+    "cloudStartupAllowanceMs": 180000,
+    "startedUtc": "2026-11-17T20:50:06.837975+00:00",
+    "exit": 0,
+    "endedUtc": "2026-11-17T20:50:06.973917+00:00",
+    "log": "spool-check-native-export.log",
+    "retainedLatestLogOnly": false
+  },
+  {
+    "name": "portable-contract",
+    "command": [
+      "pnpm",
+      "run",
+      "check",
+      "--",
+      "--profile",
+      "first-party"
+    ],
+    "cloudStartupAllowanceMs": 180000,
+    "startedUtc": "2026-11-17T20:50:06.974523+00:00",
+    "exit": 0,
+    "endedUtc": "2026-11-17T20:50:10.232891+00:00",
+    "log": "spool-check-portable-contract.log",
+    "retainedLatestLogOnly": false
+  },
+  {
+    "name": "source",
+    "command": [
+      "pnpm",
+      "source:check"
+    ],
+    "cloudStartupAllowanceMs": 180000,
+    "startedUtc": "2026-11-17T20:50:10.233545+00:00",
+    "exit": 0,
+    "endedUtc": "2026-11-17T20:50:11.621199+00:00",
+    "log": "spool-check-source.log",
+    "retainedLatestLogOnly": false
+  },
+  {
+    "name": "base-offline",
+    "command": [
+      "node",
+      "scripts/edition-authoring/cli.mjs",
+      "verify-base",
+      "--offline"
+    ],
+    "cloudStartupAllowanceMs": 180000,
+    "startedUtc": "2026-11-17T20:50:11.622932+00:00",
+    "exit": 0,
+    "endedUtc": "2026-11-17T20:50:11.950090+00:00",
+    "log": "spool-check-base-offline.log",
+    "retainedLatestLogOnly": false
+  },
+  {
+    "name": "build-app",
+    "command": [
+      "pnpm",
+      "run",
+      "build:app"
+    ],
+    "cloudStartupAllowanceMs": 180000,
+    "startedUtc": "2026-11-17T20:50:11.950829+00:00",
+    "exit": 0,
+    "endedUtc": "2026-11-17T20:50:54.219109+00:00",
+    "log": "spool-check-build-app.log",
+    "retainedLatestLogOnly": false
+  },
+  {
+    "name": "integration",
+    "command": [
+      "pnpm",
+      "integration:check"
+    ],
+    "cloudStartupAllowanceMs": 180000,
+    "startedUtc": "2026-11-17T20:50:54.219929+00:00",
+    "exit": 0,
+    "endedUtc": "2026-11-17T20:50:55.014575+00:00",
+    "log": "spool-check-integration.log",
+    "retainedLatestLogOnly": false
+  },
+  {
+    "name": "agent-surface",
+    "command": [
+      "node",
+      "scripts/agent-door/surface.mjs",
+      "--check"
+    ],
+    "cloudStartupAllowanceMs": 180000,
+    "startedUtc": "2026-11-17T20:50:55.015380+00:00",
+    "exit": 0,
+    "endedUtc": "2026-11-17T20:50:55.062638+00:00",
+    "log": "spool-check-agent-surface.log",
+    "retainedLatestLogOnly": false
+  },
+  {
+    "name": "typecheck",
+    "command": [
+      "pnpm",
+      "typecheck"
+    ],
+    "cloudStartupAllowanceMs": 180000,
+    "startedUtc": "2026-11-17T20:50:55.063428+00:00",
+    "exit": 0,
+    "endedUtc": "2026-11-17T20:51:18.591448+00:00",
+    "log": "spool-check-typecheck.log",
+    "retainedLatestLogOnly": false
+  },
+  {
+    "name": "contract-docs",
+    "command": [
+      "node",
+      "src/base/contract-docs.mjs",
+      "check"
+    ],
+    "cloudStartupAllowanceMs": 180000,
+    "startedUtc": "2026-11-17T20:51:18.592117+00:00",
+    "exit": 0,
+    "endedUtc": "2026-11-17T20:51:18.844501+00:00",
+    "log": "spool-check-contract-docs.log",
+    "retainedLatestLogOnly": false
+  },
+  {
+    "name": "runtime",
+    "command": [
+      "pnpm",
+      "test:runtime"
+    ],
+    "cloudStartupAllowanceMs": 180000,
+    "startedUtc": "2026-11-17T20:51:18.845600+00:00",
+    "exit": 1,
+    "endedUtc": "2026-11-17T20:51:36.591328+00:00",
+    "log": "spool-check-runtime.log",
+    "retainedLatestLogOnly": false
+  },
+  {
+    "name": "native-export",
+    "command": [
+      "node",
+      "tests/native-export.mjs"
+    ],
+    "cloudStartupAllowanceMs": 180000,
+    "startedUtc": "2026-11-17T20:51:56.927764+00:00",
+    "exit": 0,
+    "endedUtc": "2026-11-17T20:51:57.065071+00:00",
+    "log": "spool-check-native-export.log",
+    "retainedLatestLogOnly": false
+  },
+  {
+    "name": "portable-contract",
+    "command": [
+      "pnpm",
+      "run",
+      "check",
+      "--",
+      "--profile",
+      "first-party"
+    ],
+    "cloudStartupAllowanceMs": 180000,
+    "startedUtc": "2026-11-17T20:51:57.066040+00:00",
+    "exit": 0,
+    "endedUtc": "2026-11-17T20:52:01.637365+00:00",
+    "log": "spool-check-portable-contract.log",
+    "retainedLatestLogOnly": false
+  },
+  {
+    "name": "source",
+    "command": [
+      "pnpm",
+      "source:check"
+    ],
+    "cloudStartupAllowanceMs": 180000,
+    "startedUtc": "2026-11-17T20:52:01.638840+00:00",
+    "exit": 0,
+    "endedUtc": "2026-11-17T20:52:03.257747+00:00",
+    "log": "spool-check-source.log",
+    "retainedLatestLogOnly": false
+  },
+  {
+    "name": "base-offline",
+    "command": [
+      "node",
+      "scripts/edition-authoring/cli.mjs",
+      "verify-base",
+      "--offline"
+    ],
+    "cloudStartupAllowanceMs": 180000,
+    "startedUtc": "2026-11-17T20:52:03.258709+00:00",
+    "exit": 0,
+    "endedUtc": "2026-11-17T20:52:03.510681+00:00",
+    "log": "spool-check-base-offline.log",
+    "retainedLatestLogOnly": false
+  },
+  {
+    "name": "build-app",
+    "command": [
+      "pnpm",
+      "run",
+      "build:app"
+    ],
+    "cloudStartupAllowanceMs": 180000,
+    "startedUtc": "2026-11-17T20:52:03.511807+00:00",
+    "exit": 0,
+    "endedUtc": "2026-11-17T20:52:41.327893+00:00",
+    "log": "spool-check-build-app.log",
+    "retainedLatestLogOnly": false
+  },
+  {
+    "name": "integration",
+    "command": [
+      "pnpm",
+      "integration:check"
+    ],
+    "cloudStartupAllowanceMs": 180000,
+    "startedUtc": "2026-11-17T20:52:41.328787+00:00",
+    "exit": 0,
+    "endedUtc": "2026-11-17T20:52:42.988087+00:00",
+    "log": "spool-check-integration.log",
+    "retainedLatestLogOnly": false
+  },
+  {
+    "name": "agent-surface",
+    "command": [
+      "node",
+      "scripts/agent-door/surface.mjs",
+      "--check"
+    ],
+    "cloudStartupAllowanceMs": 180000,
+    "startedUtc": "2026-11-17T20:52:42.991221+00:00",
+    "exit": 0,
+    "endedUtc": "2026-11-17T20:52:43.069708+00:00",
+    "log": "spool-check-agent-surface.log",
+    "retainedLatestLogOnly": false
+  },
+  {
+    "name": "typecheck",
+    "command": [
+      "pnpm",
+      "typecheck"
+    ],
+    "cloudStartupAllowanceMs": 180000,
+    "startedUtc": "2026-11-17T20:53:42.108475+00:00",
+    "exit": 0,
+    "endedUtc": "2026-11-17T20:54:18.214021+00:00",
+    "log": "spool-check-typecheck.log",
+    "retainedLatestLogOnly": false
+  },
+  {
+    "name": "contract-docs",
+    "command": [
+      "node",
+      "src/base/contract-docs.mjs",
+      "check"
+    ],
+    "cloudStartupAllowanceMs": 180000,
+    "startedUtc": "2026-11-17T20:54:18.215757+00:00",
+    "exit": 0,
+    "endedUtc": "2026-11-17T20:54:18.475167+00:00",
+    "log": "spool-check-contract-docs.log",
+    "retainedLatestLogOnly": false
+  },
+  {
+    "name": "runtime",
+    "command": [
+      "pnpm",
+      "test:runtime"
+    ],
+    "cloudStartupAllowanceMs": 180000,
+    "startedUtc": "2026-11-17T20:54:18.475889+00:00",
+    "exit": 0,
+    "endedUtc": "2026-11-17T20:54:41.962000+00:00",
+    "log": "spool-check-runtime.log",
+    "retainedLatestLogOnly": true
+  },
+  {
+    "name": "product",
+    "command": [
+      "pnpm",
+      "test:product"
+    ],
+    "cloudStartupAllowanceMs": 180000,
+    "startedUtc": "2026-11-17T20:54:41.963705+00:00",
+    "exit": 1,
+    "endedUtc": "2026-11-17T20:57:36.421468+00:00",
+    "log": "spool-check-product.log",
+    "retainedLatestLogOnly": false
+  },
+  {
+    "name": "product",
+    "command": [
+      "pnpm",
+      "test:product"
+    ],
+    "cloudStartupAllowanceMs": 180000,
+    "startedUtc": "2026-11-17T20:58:43.769096+00:00",
+    "exit": 0,
+    "endedUtc": "2026-11-17T21:03:12.743520+00:00",
+    "log": "spool-check-product.log",
+    "retainedLatestLogOnly": true
+  },
+  {
+    "name": "origins",
+    "command": [
+      "pnpm",
+      "test:origins"
+    ],
+    "cloudStartupAllowanceMs": 180000,
+    "startedUtc": "2026-11-17T21:03:12.746568+00:00",
+    "exit": 0,
+    "endedUtc": "2026-11-17T21:18:08.828006+00:00",
+    "log": "spool-check-origins.log",
+    "retainedLatestLogOnly": true
+  },
+  {
+    "name": "accessibility",
+    "command": [
+      "pnpm",
+      "test:accessibility"
+    ],
+    "cloudStartupAllowanceMs": 180000,
+    "startedUtc": "2026-11-17T21:18:08.832584+00:00",
+    "exit": 0,
+    "endedUtc": "2026-11-17T21:26:07.248394+00:00",
+    "log": "spool-check-accessibility.log",
+    "retainedLatestLogOnly": true
+  },
+  {
+    "name": "admission",
+    "command": [
+      "pnpm",
+      "test:admission"
+    ],
+    "cloudStartupAllowanceMs": 180000,
+    "startedUtc": "2026-11-17T21:26:07.251242+00:00",
+    "exit": 1,
+    "endedUtc": "2026-11-17T21:29:54.053477+00:00",
+    "log": "spool-check-admission.log",
+    "retainedLatestLogOnly": false
+  },
+  {
+    "name": "admission",
+    "command": [
+      "pnpm",
+      "test:admission"
+    ],
+    "cloudStartupAllowanceMs": 180000,
+    "startedUtc": "2026-11-17T21:30:38.373481+00:00",
+    "exit": 0,
+    "endedUtc": "2026-11-17T21:36:40.902872+00:00",
+    "log": "spool-check-admission.log",
+    "retainedLatestLogOnly": true
+  },
+  {
+    "name": "native-export",
+    "command": [
+      "node",
+      "tests/native-export.mjs"
+    ],
+    "cloudStartupAllowanceMs": null,
+    "startedUtc": "2026-11-17T21:40:53.896469+00:00",
+    "exit": 0,
+    "endedUtc": "2026-11-17T21:40:54.020523+00:00",
+    "log": "spool-check-native-export.log",
+    "retainedLatestLogOnly": false
+  },
+  {
+    "name": "portable-contract",
+    "command": [
+      "pnpm",
+      "run",
+      "check",
+      "--",
+      "--profile",
+      "first-party"
+    ],
+    "cloudStartupAllowanceMs": null,
+    "startedUtc": "2026-11-17T21:40:54.021385+00:00",
+    "exit": 0,
+    "endedUtc": "2026-11-17T21:40:56.850917+00:00",
+    "log": "spool-check-portable-contract.log",
+    "retainedLatestLogOnly": false
+  },
+  {
+    "name": "source",
+    "command": [
+      "pnpm",
+      "source:check"
+    ],
+    "cloudStartupAllowanceMs": null,
+    "startedUtc": "2026-11-17T21:40:56.851986+00:00",
+    "exit": 0,
+    "endedUtc": "2026-11-17T21:40:57.989241+00:00",
+    "log": "spool-check-source.log",
+    "retainedLatestLogOnly": false
+  },
+  {
+    "name": "base-offline",
+    "command": [
+      "node",
+      "scripts/edition-authoring/cli.mjs",
+      "verify-base",
+      "--offline"
+    ],
+    "cloudStartupAllowanceMs": null,
+    "startedUtc": "2026-11-17T21:40:57.990220+00:00",
+    "exit": 0,
+    "endedUtc": "2026-11-17T21:40:58.231157+00:00",
+    "log": "spool-check-base-offline.log",
+    "retainedLatestLogOnly": false
+  },
+  {
+    "name": "build-app",
+    "command": [
+      "pnpm",
+      "run",
+      "build:app"
+    ],
+    "cloudStartupAllowanceMs": null,
+    "startedUtc": "2026-11-17T21:40:58.231910+00:00",
+    "exit": 0,
+    "endedUtc": "2026-11-17T21:41:30.568592+00:00",
+    "log": "spool-check-build-app.log",
+    "retainedLatestLogOnly": false
+  },
+  {
+    "name": "integration",
+    "command": [
+      "pnpm",
+      "integration:check"
+    ],
+    "cloudStartupAllowanceMs": null,
+    "startedUtc": "2026-11-17T21:41:30.569489+00:00",
+    "exit": 0,
+    "endedUtc": "2026-11-17T21:41:31.093977+00:00",
+    "log": "spool-check-integration.log",
+    "retainedLatestLogOnly": false
+  },
+  {
+    "name": "agent-surface",
+    "command": [
+      "node",
+      "scripts/agent-door/surface.mjs",
+      "--check"
+    ],
+    "cloudStartupAllowanceMs": null,
+    "startedUtc": "2026-11-17T21:41:31.094739+00:00",
+    "exit": 0,
+    "endedUtc": "2026-11-17T21:41:31.136208+00:00",
+    "log": "spool-check-agent-surface.log",
+    "retainedLatestLogOnly": false
+  },
+  {
+    "name": "typecheck",
+    "command": [
+      "pnpm",
+      "typecheck"
+    ],
+    "cloudStartupAllowanceMs": null,
+    "startedUtc": "2026-11-17T21:41:31.136965+00:00",
+    "exit": 0,
+    "endedUtc": "2026-11-17T21:41:59.204125+00:00",
+    "log": "spool-check-typecheck.log",
+    "retainedLatestLogOnly": false
+  },
+  {
+    "name": "contract-docs",
+    "command": [
+      "node",
+      "src/base/contract-docs.mjs",
+      "check"
+    ],
+    "cloudStartupAllowanceMs": null,
+    "startedUtc": "2026-11-17T21:41:59.205823+00:00",
+    "exit": 0,
+    "endedUtc": "2026-11-17T21:41:59.486115+00:00",
+    "log": "spool-check-contract-docs.log",
+    "retainedLatestLogOnly": false
+  },
+  {
+    "name": "commands",
+    "command": [
+      "pnpm",
+      "test:commands"
+    ],
+    "cloudStartupAllowanceMs": 180000,
+    "startedUtc": "2026-11-17T21:36:40.906895+00:00",
+    "exit": 1,
+    "endedUtc": "2026-11-17T21:43:16.471520+00:00",
+    "log": "spool-check-commands.log",
+    "retainedLatestLogOnly": false
+  },
+  {
+    "name": "commands",
+    "command": [
+      "pnpm",
+      "test:commands"
+    ],
+    "cloudStartupAllowanceMs": 180000,
+    "startedUtc": "2026-11-17T21:55:00.648581+00:00",
+    "exit": 0,
+    "endedUtc": "2026-11-17T22:15:30.802530+00:00",
+    "log": "spool-check-commands.log",
+    "retainedLatestLogOnly": true
+  },
+  {
+    "name": "wizard",
+    "command": [
+      "pnpm",
+      "test:wizard"
+    ],
+    "cloudStartupAllowanceMs": 180000,
+    "startedUtc": "2026-11-17T22:15:30.807425+00:00",
+    "exit": 1,
+    "endedUtc": "2026-11-17T22:16:31.294756+00:00",
+    "log": "spool-check-wizard.log",
+    "retainedLatestLogOnly": false
+  },
+  {
+    "name": "wizard",
+    "command": [
+      "pnpm",
+      "test:wizard"
+    ],
+    "cloudStartupAllowanceMs": null,
+    "startedUtc": "2026-11-17T22:19:08.496947+00:00",
+    "exit": 0,
+    "endedUtc": "2026-11-17T22:20:48.580719+00:00",
+    "log": "spool-check-wizard.log",
+    "retainedLatestLogOnly": true
+  },
+  {
+    "name": "project-erasure",
+    "command": [
+      "pnpm",
+      "test:project-erasure"
+    ],
+    "cloudStartupAllowanceMs": null,
+    "startedUtc": "2026-11-17T22:20:48.583425+00:00",
+    "exit": 0,
+    "endedUtc": "2026-11-17T22:36:40.054745+00:00",
+    "log": "spool-check-project-erasure.log",
+    "retainedLatestLogOnly": true
+  },
+  {
+    "name": "repair-recovery",
+    "command": [
+      "pnpm",
+      "test:repair-recovery"
+    ],
+    "cloudStartupAllowanceMs": 180000,
+    "startedUtc": "2026-11-17T22:36:40.180982+00:00",
+    "sourceHead": "2c061e5a68a555977ee4665cc76e1af13fe5a28a",
+    "log": "spool-check-repair-final.log",
+    "exit": 0,
+    "endedUtc": "2026-11-17T23:06:08.260812+00:00",
+    "retainedLatestLogOnly": true
+  },
+  {
+    "name": "native-export",
+    "command": [
+      "node",
+      "tests/native-export.mjs"
+    ],
+    "cloudStartupAllowanceMs": null,
+    "startedUtc": "2026-11-17T23:06:08.598583+00:00",
+    "exit": 0,
+    "endedUtc": "2026-11-17T23:06:09.418730+00:00",
+    "log": "spool-check-native-export.log",
+    "retainedLatestLogOnly": false
+  },
+  {
+    "name": "portable-contract",
+    "command": [
+      "pnpm",
+      "run",
+      "check",
+      "--",
+      "--profile",
+      "first-party"
+    ],
+    "cloudStartupAllowanceMs": null,
+    "startedUtc": "2026-11-17T23:06:09.420730+00:00",
+    "exit": 0,
+    "endedUtc": "2026-11-17T23:06:15.082830+00:00",
+    "log": "spool-check-portable-contract.log",
+    "retainedLatestLogOnly": false
+  },
+  {
+    "name": "source",
+    "command": [
+      "pnpm",
+      "source:check"
+    ],
+    "cloudStartupAllowanceMs": null,
+    "startedUtc": "2026-11-17T23:06:15.083940+00:00",
+    "exit": 0,
+    "endedUtc": "2026-11-17T23:06:35.420441+00:00",
+    "log": "spool-check-source.log",
+    "retainedLatestLogOnly": false
+  },
+  {
+    "name": "base-offline",
+    "command": [
+      "node",
+      "scripts/edition-authoring/cli.mjs",
+      "verify-base",
+      "--offline"
+    ],
+    "cloudStartupAllowanceMs": null,
+    "startedUtc": "2026-11-17T23:06:35.422804+00:00",
+    "exit": 0,
+    "endedUtc": "2026-11-17T23:06:36.555815+00:00",
+    "log": "spool-check-base-offline.log",
+    "retainedLatestLogOnly": false
+  },
+  {
+    "name": "build-app",
+    "command": [
+      "pnpm",
+      "run",
+      "build:app"
+    ],
+    "cloudStartupAllowanceMs": null,
+    "startedUtc": "2026-11-17T23:06:36.557761+00:00",
+    "exit": 0,
+    "endedUtc": "2026-11-17T23:07:29.920846+00:00",
+    "log": "spool-check-build-app.log",
+    "retainedLatestLogOnly": false
+  },
+  {
+    "name": "integration",
+    "command": [
+      "pnpm",
+      "integration:check"
+    ],
+    "cloudStartupAllowanceMs": null,
+    "startedUtc": "2026-11-17T23:07:29.923776+00:00",
+    "exit": 0,
+    "endedUtc": "2026-11-17T23:07:30.571271+00:00",
+    "log": "spool-check-integration.log",
+    "retainedLatestLogOnly": false
+  },
+  {
+    "name": "agent-surface",
+    "command": [
+      "node",
+      "scripts/agent-door/surface.mjs",
+      "--check"
+    ],
+    "cloudStartupAllowanceMs": null,
+    "startedUtc": "2026-11-17T23:07:30.572315+00:00",
+    "exit": 0,
+    "endedUtc": "2026-11-17T23:07:30.621041+00:00",
+    "log": "spool-check-agent-surface.log",
+    "retainedLatestLogOnly": false
+  },
+  {
+    "name": "typecheck",
+    "command": [
+      "pnpm",
+      "typecheck"
+    ],
+    "cloudStartupAllowanceMs": null,
+    "startedUtc": "2026-11-17T23:07:30.622073+00:00",
+    "exit": 0,
+    "endedUtc": "2026-11-17T23:07:58.224439+00:00",
+    "log": "spool-check-typecheck.log",
+    "retainedLatestLogOnly": false
+  },
+  {
+    "name": "contract-docs",
+    "command": [
+      "node",
+      "src/base/contract-docs.mjs",
+      "check"
+    ],
+    "cloudStartupAllowanceMs": null,
+    "startedUtc": "2026-11-17T23:07:58.225797+00:00",
+    "exit": 0,
+    "endedUtc": "2026-11-17T23:07:58.495724+00:00",
+    "log": "spool-check-contract-docs.log",
+    "retainedLatestLogOnly": false
+  },
+  {
+    "name": "native-export",
+    "command": [
+      "node",
+      "tests/native-export.mjs"
+    ],
+    "cloudStartupAllowanceMs": null,
+    "startedUtc": "2026-11-17T23:09:27.583588+00:00",
+    "exit": 0,
+    "endedUtc": "2026-11-17T23:09:27.715372+00:00",
+    "log": "spool-check-native-export.log",
+    "retainedLatestLogOnly": true
+  },
+  {
+    "name": "portable-contract",
+    "command": [
+      "pnpm",
+      "run",
+      "check",
+      "--",
+      "--profile",
+      "first-party"
+    ],
+    "cloudStartupAllowanceMs": null,
+    "startedUtc": "2026-11-17T23:09:27.716534+00:00",
+    "exit": 0,
+    "endedUtc": "2026-11-17T23:09:30.804551+00:00",
+    "log": "spool-check-portable-contract.log",
+    "retainedLatestLogOnly": true
+  },
+  {
+    "name": "source",
+    "command": [
+      "pnpm",
+      "source:check"
+    ],
+    "cloudStartupAllowanceMs": null,
+    "startedUtc": "2026-11-17T23:09:30.805873+00:00",
+    "exit": 0,
+    "endedUtc": "2026-11-17T23:09:31.956867+00:00",
+    "log": "spool-check-source.log",
+    "retainedLatestLogOnly": true
+  },
+  {
+    "name": "base-offline",
+    "command": [
+      "node",
+      "scripts/edition-authoring/cli.mjs",
+      "verify-base",
+      "--offline"
+    ],
+    "cloudStartupAllowanceMs": null,
+    "startedUtc": "2026-11-17T23:09:31.958528+00:00",
+    "exit": 0,
+    "endedUtc": "2026-11-17T23:09:32.226539+00:00",
+    "log": "spool-check-base-offline.log",
+    "retainedLatestLogOnly": true
+  },
+  {
+    "name": "build-app",
+    "command": [
+      "pnpm",
+      "run",
+      "build:app"
+    ],
+    "cloudStartupAllowanceMs": null,
+    "startedUtc": "2026-11-17T23:09:32.229884+00:00",
+    "exit": 0,
+    "endedUtc": "2026-11-17T23:10:01.641908+00:00",
+    "log": "spool-check-build-app.log",
+    "retainedLatestLogOnly": true
+  },
+  {
+    "name": "integration",
+    "command": [
+      "pnpm",
+      "integration:check"
+    ],
+    "cloudStartupAllowanceMs": null,
+    "startedUtc": "2026-11-17T23:10:01.643299+00:00",
+    "exit": 0,
+    "endedUtc": "2026-11-17T23:10:02.243637+00:00",
+    "log": "spool-check-integration.log",
+    "retainedLatestLogOnly": true
+  },
+  {
+    "name": "agent-surface",
+    "command": [
+      "node",
+      "scripts/agent-door/surface.mjs",
+      "--check"
+    ],
+    "cloudStartupAllowanceMs": null,
+    "startedUtc": "2026-11-17T23:10:02.244602+00:00",
+    "exit": 0,
+    "endedUtc": "2026-11-17T23:10:02.295620+00:00",
+    "log": "spool-check-agent-surface.log",
+    "retainedLatestLogOnly": true
+  },
+  {
+    "name": "typecheck",
+    "command": [
+      "pnpm",
+      "typecheck"
+    ],
+    "cloudStartupAllowanceMs": null,
+    "startedUtc": "2026-11-17T23:10:02.296566+00:00",
+    "exit": 0,
+    "endedUtc": "2026-11-17T23:10:36.232412+00:00",
+    "log": "spool-check-typecheck.log",
+    "retainedLatestLogOnly": true
+  },
+  {
+    "name": "contract-docs",
+    "command": [
+      "node",
+      "src/base/contract-docs.mjs",
+      "check"
+    ],
+    "cloudStartupAllowanceMs": null,
+    "startedUtc": "2026-11-17T23:10:36.237023+00:00",
+    "exit": 0,
+    "endedUtc": "2026-11-17T23:10:36.445138+00:00",
+    "log": "spool-check-contract-docs.log",
+    "retainedLatestLogOnly": true
+  }
+]

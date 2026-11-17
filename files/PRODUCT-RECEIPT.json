@@ -1,0 +1,286 @@
+{
+  "repository": "just-every/run-spool",
+  "branch": "cloud/sd-spool-design-setup-3",
+  "head": "e9e23f11c02328213a272d9a3394316d104638c9",
+  "main": "53b460837d5a58266c39d03a9f923e09e9c29fb7",
+  "utc": "2026-11-17T23:36:57.151537+00:00",
+  "identityAndTrailers": "e9e23f11c02328213a272d9a3394316d104638c9 Run Edit Run fleet <fleet@runeditrun.com> | Run Edit Run fleet <fleet@runeditrun.com>\n\n2c061e5a68a555977ee4665cc76e1af13fe5a28a Run Edit Run fleet <fleet@runeditrun.com> | Run Edit Run fleet <fleet@runeditrun.com>",
+  "merges": [
+    "e9e23f11c02328213a272d9a3394316d104638c9 Repair historical archive fixture and retain updated main"
+  ],
+  "mergeReason": "Cloud preservation requirement after published save; no published rewrite",
+  "latestLocalChecks": {
+    "native-export": {
+      "name": "native-export",
+      "command": [
+        "node",
+        "tests/native-export.mjs"
+      ],
+      "cloudStartupAllowanceMs": null,
+      "startedUtc": "2026-11-17T23:09:27.583588+00:00",
+      "exit": 0,
+      "endedUtc": "2026-11-17T23:09:27.715372+00:00",
+      "log": "spool-check-native-export.log",
+      "retainedLatestLogOnly": true
+    },
+    "portable-contract": {
+      "name": "portable-contract",
+      "command": [
+        "pnpm",
+        "run",
+        "check",
+        "--",
+        "--profile",
+        "first-party"
+      ],
+      "cloudStartupAllowanceMs": null,
+      "startedUtc": "2026-11-17T23:09:27.716534+00:00",
+      "exit": 0,
+      "endedUtc": "2026-11-17T23:09:30.804551+00:00",
+      "log": "spool-check-portable-contract.log",
+      "retainedLatestLogOnly": true
+    },
+    "source": {
+      "name": "source",
+      "command": [
+        "pnpm",
+        "source:check"
+      ],
+      "cloudStartupAllowanceMs": null,
+      "startedUtc": "2026-11-17T23:09:30.805873+00:00",
+      "exit": 0,
+      "endedUtc": "2026-11-17T23:09:31.956867+00:00",
+      "log": "spool-check-source.log",
+      "retainedLatestLogOnly": true
+    },
+    "base-offline": {
+      "name": "base-offline",
+      "command": [
+        "node",
+        "scripts/edition-authoring/cli.mjs",
+        "verify-base",
+        "--offline"
+      ],
+      "cloudStartupAllowanceMs": null,
+      "startedUtc": "2026-11-17T23:09:31.958528+00:00",
+      "exit": 0,
+      "endedUtc": "2026-11-17T23:09:32.226539+00:00",
+      "log": "spool-check-base-offline.log",
+      "retainedLatestLogOnly": true
+    },
+    "build-app": {
+      "name": "build-app",
+      "command": [
+        "pnpm",
+        "run",
+        "build:app"
+      ],
+      "cloudStartupAllowanceMs": null,
+      "startedUtc": "2026-11-17T23:09:32.229884+00:00",
+      "exit": 0,
+      "endedUtc": "2026-11-17T23:10:01.641908+00:00",
+      "log": "spool-check-build-app.log",
+      "retainedLatestLogOnly": true
+    },
+    "integration": {
+      "name": "integration",
+      "command": [
+        "pnpm",
+        "integration:check"
+      ],
+      "cloudStartupAllowanceMs": null,
+      "startedUtc": "2026-11-17T23:10:01.643299+00:00",
+      "exit": 0,
+      "endedUtc": "2026-11-17T23:10:02.243637+00:00",
+      "log": "spool-check-integration.log",
+      "retainedLatestLogOnly": true
+    },
+    "agent-surface": {
+      "name": "agent-surface",
+      "command": [
+        "node",
+        "scripts/agent-door/surface.mjs",
+        "--check"
+      ],
+      "cloudStartupAllowanceMs": null,
+      "startedUtc": "2026-11-17T23:10:02.244602+00:00",
+      "exit": 0,
+      "endedUtc": "2026-11-17T23:10:02.295620+00:00",
+      "log": "spool-check-agent-surface.log",
+      "retainedLatestLogOnly": true
+    },
+    "typecheck": {
+      "name": "typecheck",
+      "command": [
+        "pnpm",
+        "typecheck"
+      ],
+      "cloudStartupAllowanceMs": null,
+      "startedUtc": "2026-11-17T23:10:02.296566+00:00",
+      "exit": 0,
+      "endedUtc": "2026-11-17T23:10:36.232412+00:00",
+      "log": "spool-check-typecheck.log",
+      "retainedLatestLogOnly": true
+    },
+    "contract-docs": {
+      "name": "contract-docs",
+      "command": [
+        "node",
+        "src/base/contract-docs.mjs",
+        "check"
+      ],
+      "cloudStartupAllowanceMs": null,
+      "startedUtc": "2026-11-17T23:10:36.237023+00:00",
+      "exit": 0,
+      "endedUtc": "2026-11-17T23:10:36.445138+00:00",
+      "log": "spool-check-contract-docs.log",
+      "retainedLatestLogOnly": true
+    },
+    "repair-recovery": {
+      "name": "repair-recovery",
+      "command": [
+        "pnpm",
+        "test:repair-recovery"
+      ],
+      "cloudStartupAllowanceMs": 180000,
+      "startedUtc": "2026-11-17T22:36:40.180982+00:00",
+      "sourceHead": "2c061e5a68a555977ee4665cc76e1af13fe5a28a",
+      "log": "spool-check-repair-final.log",
+      "exit": 0,
+      "endedUtc": "2026-11-17T23:06:08.260812+00:00",
+      "retainedLatestLogOnly": true
+    },
+    "runtime": {
+      "name": "runtime",
+      "command": [
+        "pnpm",
+        "test:runtime"
+      ],
+      "cloudStartupAllowanceMs": 180000,
+      "startedUtc": "2026-11-17T20:54:18.475889+00:00",
+      "exit": 0,
+      "endedUtc": "2026-11-17T20:54:41.962000+00:00",
+      "log": "spool-check-runtime.log",
+      "retainedLatestLogOnly": true
+    },
+    "product": {
+      "name": "product",
+      "command": [
+        "pnpm",
+        "test:product"
+      ],
+      "cloudStartupAllowanceMs": 180000,
+      "startedUtc": "2026-11-17T20:58:43.769096+00:00",
+      "exit": 0,
+      "endedUtc": "2026-11-17T21:03:12.743520+00:00",
+      "log": "spool-check-product.log",
+      "retainedLatestLogOnly": true
+    },
+    "origins": {
+      "name": "origins",
+      "command": [
+        "pnpm",
+        "test:origins"
+      ],
+      "cloudStartupAllowanceMs": 180000,
+      "startedUtc": "2026-11-17T21:03:12.746568+00:00",
+      "exit": 0,
+      "endedUtc": "2026-11-17T21:18:08.828006+00:00",
+      "log": "spool-check-origins.log",
+      "retainedLatestLogOnly": true
+    },
+    "accessibility": {
+      "name": "accessibility",
+      "command": [
+        "pnpm",
+        "test:accessibility"
+      ],
+      "cloudStartupAllowanceMs": 180000,
+      "startedUtc": "2026-11-17T21:18:08.832584+00:00",
+      "exit": 0,
+      "endedUtc": "2026-11-17T21:26:07.248394+00:00",
+      "log": "spool-check-accessibility.log",
+      "retainedLatestLogOnly": true
+    },
+    "admission": {
+      "name": "admission",
+      "command": [
+        "pnpm",
+        "test:admission"
+      ],
+      "cloudStartupAllowanceMs": 180000,
+      "startedUtc": "2026-11-17T21:30:38.373481+00:00",
+      "exit": 0,
+      "endedUtc": "2026-11-17T21:36:40.902872+00:00",
+      "log": "spool-check-admission.log",
+      "retainedLatestLogOnly": true
+    },
+    "commands": {
+      "name": "commands",
+      "command": [
+        "pnpm",
+        "test:commands"
+      ],
+      "cloudStartupAllowanceMs": 180000,
+      "startedUtc": "2026-11-17T21:55:00.648581+00:00",
+      "exit": 0,
+      "endedUtc": "2026-11-17T22:15:30.802530+00:00",
+      "log": "spool-check-commands.log",
+      "retainedLatestLogOnly": true
+    },
+    "wizard": {
+      "name": "wizard",
+      "command": [
+        "pnpm",
+        "test:wizard"
+      ],
+      "cloudStartupAllowanceMs": null,
+      "startedUtc": "2026-11-17T22:19:08.496947+00:00",
+      "exit": 0,
+      "endedUtc": "2026-11-17T22:20:48.580719+00:00",
+      "log": "spool-check-wizard.log",
+      "retainedLatestLogOnly": true
+    },
+    "project-erasure": {
+      "name": "project-erasure",
+      "command": [
+        "pnpm",
+        "test:project-erasure"
+      ],
+      "cloudStartupAllowanceMs": null,
+      "startedUtc": "2026-11-17T22:20:48.583425+00:00",
+      "exit": 0,
+      "endedUtc": "2026-11-17T22:36:40.054745+00:00",
+      "log": "spool-check-project-erasure.log",
+      "retainedLatestLogOnly": true
+    }
+  },
+  "counts": {
+    "before": {
+      "done": 23,
+      "partial": 54,
+      "missing": 28,
+      "migrations": 103
+    },
+    "after": {
+      "done": 23,
+      "partial": 54,
+      "missing": 28,
+      "migrations": 105
+    }
+  },
+  "contractClauseChanges": [],
+  "pr": null,
+  "ci": {
+    "conclusion": "success",
+    "head_sha": "e9e23f11c02328213a272d9a3394316d104638c9",
+    "html_url": "https://github.com/just-every/run-spool/actions/runs/44197127158",
+    "status": "completed",
+    "runId": 44197127158,
+    "repository": "just-every/run-spool",
+    "observedUtc": "2026-11-17T23:36:28.278369+00:00"
+  },
+  "localRepairStartupAllowanceMs": 180000,
+  "browserProofApplicationSourceUnchanged": true,
+  "blockers": []
+}

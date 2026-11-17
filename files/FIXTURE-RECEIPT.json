@@ -1,0 +1,26 @@
+{
+  "utc": "2026-11-17T20:23:32.568843+00:00",
+  "engine": "Real Miniflare Worker/D1 + bundled src/domain/portability.ts; tracked d1 migration ledger; 105 current migrations",
+  "unchangedFixture": {
+    "exit": 0,
+    "observedRestoreError": "schema_mismatch:migration_history",
+    "log": "fixture-before.log"
+  },
+  "repairedFixture": {
+    "exit": 0,
+    "observedRestore": "success",
+    "log": "fixture-after.log"
+  },
+  "scope": "Historical fixture only: numeric cutoff >=109, ledger alignment, later schema-object exclusion; restore assertions unchanged",
+  "generatorResults": {
+    "integration": "deployment spec, setup digest and producer workflow regenerated; match",
+    "contractDocs": "wrote 0 documents; check current; main views restored",
+    "sourceLock": "regenerated last; source:check exit0"
+  },
+  "repairedPlatformLedger": {
+    "exit": 0,
+    "observedRestore": "success",
+    "ledger": "rer_migrations",
+    "log": "fixture-platform.log"
+  }
+}

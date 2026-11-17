@@ -1,0 +1,75 @@
+{
+  "sourceHead": "2c061e5a68a555977ee4665cc76e1af13fe5a28a",
+  "screens": [
+    "first project setup",
+    "General settings",
+    "Members invitation form",
+    "Capture after actual separate-origin browser intake"
+  ],
+  "credentialValuesRendered": false,
+  "files": [
+    {
+      "path": "proof/setup-1440.png",
+      "source": ".artifacts/first-run/1440-pending.png",
+      "width": 1440,
+      "height": 1305,
+      "sha256": "bc1d023bc572749883ce10b809e60f07de3c22499ab7ccd1073e53360c584f89"
+    },
+    {
+      "path": "proof/setup-390.png",
+      "source": ".artifacts/first-run/390-pending.png",
+      "width": 390,
+      "height": 1742,
+      "sha256": "290c8427d476af693faf0044b0f790e3ba28cce940ea89b64ff0ff573aa6066e"
+    },
+    {
+      "path": "proof/general-1440.png",
+      "source": ".artifacts/general-proof/general-1440.png",
+      "width": 1440,
+      "height": 1000,
+      "sha256": "7228a38c938c6ca07b3d238be7a4878acdab50cde1e66ff5fa40b52aad606653"
+    },
+    {
+      "path": "proof/general-390.png",
+      "source": ".artifacts/general-proof/general-390.png",
+      "width": 390,
+      "height": 994,
+      "sha256": "a43db77eb183ea79e1f2fc01105f064ce1ae7a05f8e5865dd0a179f55256e869"
+    },
+    {
+      "path": "proof/members-1440.png",
+      "source": ".artifacts/general-proof/members-1440.png",
+      "width": 1440,
+      "height": 1178,
+      "sha256": "83256b707ed9f66f3499cb3d4352a2ce1bac123ae29998630d4d93291b8e914c"
+    },
+    {
+      "path": "proof/members-390.png",
+      "source": ".artifacts/general-proof/members-390.png",
+      "width": 390,
+      "height": 1766,
+      "sha256": "07ab345fae554a970db183f8ba60d633ff5d825d7ebb58199ac631e0e129befb"
+    },
+    {
+      "path": "proof/capture-1440.png",
+      "source": ".artifacts/general-proof/capture-1440.png",
+      "width": 1440,
+      "height": 4786,
+      "sha256": "2d4ff08994d1a54b3b787c74d0cd185889a319b27a22b4b18460b0c8431b0117"
+    },
+    {
+      "path": "proof/capture-390.png",
+      "source": ".artifacts/general-proof/capture-390.png",
+      "width": 390,
+      "height": 7654,
+      "sha256": "ed6788af9cb725c4409045f53e2c189b1c87904fb2e44bff8779d6d3476ed480"
+    }
+  ],
+  "finalHead": "e9e23f11c02328213a272d9a3394316d104638c9",
+  "changedSinceBrowserSource": [
+    "pnpm-lock.yaml",
+    "sources.lock.json",
+    "tests/repair-recovery/archive.mjs"
+  ],
+  "applicationSourceUnchanged": true
+}

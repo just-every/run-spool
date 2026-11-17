@@ -1,0 +1,85 @@
+# sd-spool-design-setup-3
+
+Product repository: just-every/run-spool. Authorized product branch: cloud/sd-spool-design-setup-3. Evidence destination is separate: evidence/sd-spool-design-setup-3. No PR, tag, release, deployment, main push or Base refresh is authorized or performed.
+
+## Plan and implementation
+
+The complete execution plan is PLAN.md. Confirmed the prior candidate at a99b4001ba8fb87b2f6e033163f7d64be7b2c520. Initial main was 3b7a3ebe545f3bd9c6a979ca04d5687c6a375b09. Replayed the prior branch's net product changes on main without importing its merge commit. This carries the owner setup/capture/Settings Members and identity improvements, installation name and website-address work, product documentation and restart/recovery guidance, plus the two additive migrations and generated deployment specification.
+
+The fixture repair requested by this round is tests/repair-recovery/archive.mjs. beforeFeedbackReviewRelease now selects every migration numbered 109 or later for removal, instead of naming only 0109_feedback_review.sql. It trims both manifest.migrations and manifest.migrationLedger.entries, keeps hash entries aligned with the helper's retained migration list, and removes the later spool_member_identity trigger and capture_sources-related behavior objects from the historical schema inventory. This updates a deliberately old-release fixture for the intentional schema change. It does not weaken any restore, data-preservation, authority-exclusion or foreign-object-refusal assertion.
+
+## Reproduction and results
+
+The first unmodified full repair-recovery run completed its 1440/390 verdict browser states, then stopped at an existing 90-second trace deadline while restarting dev after its first archive reset. It did not reach the target restore assertion; cleanup stopped children and removed its isolated checkout. INITIAL-RUNS.json records this accurately.
+
+A direct check uses real Miniflare Worker/D1 databases, the candidate's bundled portability engine, current migration SQL/hashes, and the actual unchanged historical-fixture function. With a tracked native D1 ledger it reproduces schema_mismatch:migration_history before the repair, and restores successfully after the repair. The repaired fixture also restores with the platform rer_migrations hash ledger. See FIXTURE-RECEIPT.json, fixture-before.log, fixture-after.log, fixture-platform.log and fixture-reproduction.mjs. The scratch harness is evidence only and is not product code. To rerun it, place fixture-reproduction.mjs in the checkout's ignored .artifacts directory and run `node .artifacts/fixture-reproduction.mjs --repaired`; add `--platform` for the hashed platform ledger. The pre-repair mode is run against the unchanged fixture.
+
+Old-archive passed all populated-upgrade, native-historical restore, complete schema-object/hashed-ledger, occupied-target, corrupt-binding/mismatched-schema refusal and current-roundtrip checks. The published-release populated upgrade preserved 176 tables and 118 pre-existing rows. The 0068 upgrade preserved 201 tables. OLD-ARCHIVE-RECEIPT.json and old-archive.log contain the actual evidence.
+
+The cloud setup applied 105 migrations and stopped its temporary application. The public rer build passed. Regenerated the integration deployment spec, setup digest and producer workflow. The contract generator wrote zero changed documents and checked cleanly; restored main's generated acceptance and claims views as required. Regenerated sources.lock.json last and source:check passed. The ordered build and affected-journey run is recorded incrementally in CHECKS.json; its terminal outcome and exact product/CI provenance will be appended before publication.
+
+## Counts and acceptance boundaries
+
+Initial main has 103 core SQL migrations. The replayed candidate has 105: 0110_member_identity.sql and 0111_capture_sources.sql. Main will be read again immediately before the product push; if those numbers have been taken, this round's files and every reference will be renumbered and regenerated. If this round publishes first with 0110/0111, the sibling Sentry roster round must renumber its competing 0110.
+
+Contract judgments are unchanged: 23 done, 54 partial, 28 missing, 105 total. CONTRACT.md, ACCEPTANCE.md, docs/CLAIMS.md and RELEASE.json retain main's bytes. No clause meaning changed, and no RELEASE.json contract-change entry is warranted. This seed has no validate:release package script; its native portable contract/source/retained-Base checks and contract-doc generation/check are used without invoking publication or release creation. Shared installer text belongs to gr and is not changed by this replay.
+
+No contract clause claimed; these are owner-journey design fixes (DIRECT 87).
+
+Product READY/PUSHED custody and report publication are separate. Fleet publication scanning, independent acceptance and landing remain on the fleet machine. No local check or evidence receipt is represented as those decisions.
+
+## Cloud startup accommodation
+
+The first corrected full run passed the historical fixture restore and its unchanged foreign-object/data assertions, then encountered another existing 90-second dev-start trace timeout in the following roundtrip. Local verification uses a Node load hook outside the checkout to give only traceStep calls named startDev/dev-ready 180 seconds. It changes no repository bytes, data/assertion code, setup/restore behavior, or committed test. The exact-SHA GitHub Verify uses the original 90-second harness. This distinction is retained in CHECKS.json and final receipts; no stock full-run success is inferred from the timeout runs.
+
+## Framework guide repair discovered by touched checks
+
+The runtime journey caught a real replay regression at tests/runtime.mjs:68: moving engineering material out of FRAMEWORK-SETUP.md had removed the published guide's warning about an existing `tunnel: '/monitoring'` configuration and unavailable spoolTunnelRoute/nodeTunnel exports. Added a short user-facing warning in the leased framework guide: remove the old tunnel setting for direct capture; the published SDK lacks those helpers. The assertion is unchanged. Regenerated the source lock after this documentation edit and restarted the ordered build/touched checks.
+
+The next runtime attempt passed the entire framework publication probe (anonymous navigation, seven framework sections, source maps, Python guidance, tunnel replacement and generated static HTML), then failed in the Settings prerequisite-guide helper. The egress guide's pinned Base owner-procedure link had been renamed so the existing accessible-role selector could no longer find it. Restored the clear “Base's egress-service owner steps” link label in the leased INTEGRATION-EGRESS.md; its pinned destination and installation/receipt recipe remain unchanged. No test assertion was edited.
+
+Restoring the egress link's label alone was insufficient because the round's new Details disclosure hid it from the accessible guide navigation. Moved the one pinned owner-procedure link into the guide introduction, above the disclosure, and left the detailed deployment/receipt recipe collapsed. This preserves the owner's simpler guide while keeping its required operator next step available.
+
+The emitted Worker/D1 product suite initially encountered UND_ERR_SOCKET (“other side closed”) on GET /api/archive at request ordinal 637, with no assertion, D1, SQLite or Worker-script error and successful cleanup. One whole-suite retry, with no source or assertion change and no request retry, passed atomic retry, pre-scrub conflict, privacy, minified capture, CSRF, delayed release/regression, independent archive restore, retention and real Chromium automatic capture. PRODUCT-TRANSPORT-RECEIPT.json retains both outcomes.
+
+The admission run passed the changed identity/member/capture/local-invitation journeys, then its legacy discussion test attempted Playwright's missing default browser-cache executable (instead of the shared system-browser helper). Configured those local executable paths as wrappers around the mandated /usr/bin/chromium --no-sandbox, retained all arguments, and proved a real default Playwright launch/close. No source/test assertion changed. Admission was then restarted. CHROMIUM-RECEIPT.json records this environment repair.
+
+## Fresh main and product preservation
+
+Main advanced from 3b7a3eb to f44efc8c76f8f11753b89465cc3fcb7b64760570 with an egress TLS update and no new migration numbers or contract judgments. Preserved the complete unpublished patch outside the clone, reapplied it linearly onto that main, retained its new Base/copy records and regenerated the source lock. All nine ordered build/source/integration/type/contract checks passed on the new base.
+
+The public command harness clones HEAD without overlaying staged source. Its first run therefore used old main rather than the replay; that run was not accepted as candidate proof. Saved the replay and guide repairs as 2c061e5a68a555977ee4665cc76e1af13fe5a28a [skip ci] and pushed it immediately through the fleet guard after all-parent identity/trailer audit. The numeric historical-fixture repair and its regenerated lock were restored as the remaining final commit. Commands are rerun against the actual saved candidate. This save is preservation custody, not READY or CI success. SAVE-RECEIPT.json records it.
+
+The first wizard run reached real Django capture and Next.js configuration, then Node 22's CommonJS loader failed during the Next build while the cloud startup load hook was inherited globally. Scoped that external hook to the repair-recovery test entry only, and removed it from all other phases. Wizard is rerun with the stock Node loader. This is an environment correction, with no product or test-source change.
+
+The rerun wizard passed with the stock Node loader: reviewed patches matched applied bytes, fresh Django and Next.js apps captured real failures, the Next.js mapped failure was read, and refusal fixtures preserved their files. Browsers, servers and temporary apps were cleaned up. The public README command journey also passed against the saved candidate: fresh-clone package bootstrap, contract omission refusal, frozen install, setup failure/resume and owner preservation, dev/preview, independent setup and no-JS sign-in at 1440/390, production-preview owner session after restart, active reset refusal, validated CLI portability, reset/fresh owner and deploy dry run.
+
+Project erasure passed with the stock startup limits: seven groups and eight captures, with browser and isolated checkout cleanup successful. The full repaired recovery journey is run afterward; no project-erasure clause is promoted from this local proof.
+
+## Final local outcome and main preservation
+
+The full repaired recovery journey passed: six groups, sixteen captures, all six computed verdict cases, 101 restored product tables, three repair records and four checks. Public CLI export/import preserved every row while excluding source authority; retention preserved repair facts and marked removed snapshot events. Capture, browser, child processes and the isolated checkout were cleaned up. REPAIR-RECOVERY-RESULTS.json is the actual result file. This local full pass used the disclosed startup-only allowance; GitHub Verify uses the original harness.
+
+The final pre-push ref probe found main advanced again to 53b460837d5a58266c39d03a9f923e09e9c29fb7, updating only pnpm-lock.yaml's transitive qs resolution and its generated source-lock hash. Main still has 103 SQL migrations and neither 0110 nor 0111 is occupied. Retained 0110_member_identity.sql and 0111_capture_sources.sql, giving 105 migrations. If this candidate lands first, the Sentry roster round must renumber its competing migration.
+
+Because 2c061e5 was already published, the cloud task's explicit preservation instruction (“After a published save, merge updated main; never rebase published history or force push”) requires merging this new main. This overrides the earlier brief's linear-candidate request: the initial replay is linear, but the final candidate includes one main-preservation merge. No published history was rewritten. The merge retains main's dependency fix, with no new contract judgments to resolve. Reinstalled the frozen dependency lock, regenerated integration and contract documents (zero contract-document changes), restored main's acceptance/claims views, regenerated the source lock last, and reran all nine ordered build checks.
+
+## Published candidate and verification matrix
+
+Final product branch: cloud/sd-spool-design-setup-3. Final full SHA: e9e23f11c02328213a272d9a3394316d104638c9. Main incorporated: 53b460837d5a58266c39d03a9f923e09e9c29fb7. Both product commits use author and committer Run Edit Run fleet <fleet@runeditrun.com>, without coauthor trailers. Every candidate and side parent was audited before the guarded push, which succeeded on its first attempt. PRODUCT-PUSH.log is the actual sanitized terminal output. There is no PR. Product checkout was clean after the push.
+
+All latest local check outcomes are exit 0: native-export; portable first-party contract; source lock; retained-Base offline provenance; build:app; integration spec/digest/workflow; agent surface; TypeScript; contract docs; repair-recovery; runtime/framework guides; emitted Worker/D1 product; allowed-origin/ingest; accessibility/triage; owner/member admission; public README commands; framework wizard; project erasure; and old-archive with populated upgrades. The last nine build checks ran after incorporating main's locked qs update and after the final fixture/lock regeneration. Other journey results exercise identical application source; the final changes from the browser source save are the dependency lock from main, repair fixture and source lock. CHECKS.json preserves failures and reruns with timestamps; retained console logs correspond to the latest attempt per check, as explicitly marked.
+
+Eight selected browser screenshots show first-project setup, General settings (installation name), Members' pristine invitation form and Capture after an actual separate-origin minified browser event, once at 1440 and 390 for each screen. Assertions for the extra General/Members/Capture proof run at 1440; the 390 captures show reflow. No credential values are rendered in the selected proof. BROWSER-PROOF.json records dimensions, hashes, source save SHA and application-source equality with the final candidate. The first-project proof came from the successful public command journey. BROWSER-RECEIPT.json and browser-proof.mjs retain the additional actual proof procedure/result. These captures establish local interface behavior, not owner-account deployment or full capture coverage.
+
+The final pre-push main check left 0110_member_identity.sql and 0111_capture_sources.sql free. These remain the selected numbers, with 103 -> 105 migrations and all 103 prior SQL files byte-identical. Contract status remains 23 done / 54 partial / 28 missing (105 clauses); no clause status or meaning changed, and no generated acceptance/claims view or RELEASE.json change is committed. Unchanged contract, acceptance/claims view and release-record bytes relative to main are confirmed in GENERATORS.json.
+
+Verify run 44197127158 was discovered through REST for e9e23f11c02328213a272d9a3394316d104638c9. CI-STATUS.json contains the actual terminal observation when available; CI-CALLS.json records the bounded discovery/poll calls. Evidence publication and this report do not create READY or replace fleet publication scanning, independent acceptance or landing.
+
+## Terminal result
+
+READY product candidate: cloud/sd-spool-design-setup-3 at e9e23f11c02328213a272d9a3394316d104638c9. Exact-SHA Verify run 44197127158 completed successfully, observed 2026-11-17T23:36:28.278369+00:00: https://github.com/just-every/run-spool/actions/runs/44197127158 . This is the original committed CI harness, without the local startup allowance. Six REST calls were used, with at least 300 seconds between discovery/polls. No CI rerun or failed-job log request was needed. Actual responses and timestamps are in CI-CALLS.json and CI-STATUS.json.
+
+No unresolved builder blocker remains. The final candidate contains the required historical-fixture repair and retains migrations 0110/0111; 103 -> 105 migrations, unchanged 23 done / 54 partial / 28 missing. It has one required main-preservation merge after the first published save, as explained above. No PR was created. The complete plan, actual non-secret receipts, selected console logs and eight browser screenshots are explicitly selected for the evidence-only ref. Product HEAD/index are verified unchanged by report publication. The successful disposable product clone is removed only after the product ref and report transfer are verified; the full packet remains outside it for fleet retrieval and publication scanning.
+
+No contract clause claimed; these are owner-journey design fixes (DIRECT 87).

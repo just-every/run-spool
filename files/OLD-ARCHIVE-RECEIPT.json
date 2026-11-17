@@ -1,0 +1,19 @@
+{
+  "command": [
+    "node",
+    "tests/old-archive.mjs"
+  ],
+  "exit": 0,
+  "observedAtUtc": "2026-11-17T20:13:04.423904+00:00",
+  "log": "old-archive.log",
+  "logSha256": "eade5435b34e759545550e392c84c413a28ad4233179afb488ea8ab51d8b63f5",
+  "coverage": [
+    "populated published-release upgrade: 176 tables, 118 rows preserved",
+    "populated 0068 upgrade: 201 tables preserved; five additive migrations",
+    "pre-metric complete native objects and hashed migration ledger",
+    "old native archive into fresh destination with destination ledger",
+    "occupied target refusal without mutation",
+    "mismatched schema and corrupt binding refusal",
+    "current archive roundtrip; bookkeeping exclusions retain person-owned tables"
+  ]
+}

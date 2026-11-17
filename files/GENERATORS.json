@@ -1,0 +1,25 @@
+{
+  "utc": "2026-11-17T23:36:57.134606+00:00",
+  "main": "53b460837d5a58266c39d03a9f923e09e9c29fb7",
+  "head": "e9e23f11c02328213a272d9a3394316d104638c9",
+  "migrationsBefore": 103,
+  "migrationsAfter": 105,
+  "addedMigrations": [
+    "0110_member_identity.sql",
+    "0111_capture_sources.sql"
+  ],
+  "priorMigrationEntriesUnchanged": true,
+  "numericMigrationIdsUnique": true,
+  "generatedFiles": {
+    "management/integration/deployment-spec.json": "43ec7790f4fb0e6ac0d6996dac239713da558de14e49725e49b58b2ab554ab92",
+    "rer-project.json": "c3d73432d5c6b94f5022d6ec02e3453cbd2dbaa84722e23b4ce0022f17a5d1d8",
+    ".github/workflows/rer-managed.yml": "505e641e1ef3e8f41cb35657b4d4101cc80279bda55f78537ead0b7f5fa794c1",
+    "sources.lock.json": "1d3c312549c22bdf1823f2692ed14d787758e26b733f4fe7db5d4bbf1ef4bbd3"
+  },
+  "unchangedContractAndViewFiles": {
+    "CONTRACT.md": true,
+    "ACCEPTANCE.md": true,
+    "docs/CLAIMS.md": true,
+    "RELEASE.json": true
+  }
+}

@@ -1,0 +1,17 @@
+[
+  {
+    "command": "npx -y @runeditrun/rer setup --owner-email fleet@runeditrun.com --non-interactive",
+    "exit": 0,
+    "result": "Applied 105 local migrations, claimed owner, stopped setup runtime. Private setup output not selected for publication."
+  },
+  {
+    "command": "npx -y @runeditrun/rer build",
+    "exit": 0,
+    "result": "Your application is built; build complete (exit 0)."
+  },
+  {
+    "command": "node tests/repair-recovery.mjs",
+    "exit": 1,
+    "result": "Before fixture repair: browser verdict states completed; archive-stage first reset/restart exceeded the existing 90-second trace deadline. Cleanup stopped children and removed isolated checkout. Did not reach target historical-restore assertion."
+  }
+]

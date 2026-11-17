@@ -1,0 +1,30 @@
+
+> @errors/errors-workbench@0.7.14 test:wizard /workspace/run-spool
+> node tests/setup-flow.mjs
+
+(node:42726) ExperimentalWarning: SQLite is an experimental feature and might change at any time
+(Use `node --trace-warnings ...` to show where the warning was created)
+[wizard] pack and install setup command (0.0s)
+[wizard] start emitted Worker and sign in (4.2s)
+[33m▲ [43;33m[[43;30mWARNING[43;33m][0m [1mProxy environment variables detected. We'll use your proxy for fetch requests.[0m
+
+
+[wizard] DSN and framework refusals (10.2s)
+[wizard] linked file and settings refusals (11.2s)
+[wizard] install Django and configure its SDK (11.8s)
+
+[notice] A new release of pip is available: 25.0.1 -> 26.3
+[notice] To update, run: python -m pip install --upgrade pip
+[wizard] capture real Django failure (20.5s)
+[wizard] install Next.js (21.0s)
+[wizard] configure Next.js and install its SDK (31.2s)
+[wizard] build Next.js before map upload (40.3s)
+[wizard] wait for Next.js readiness (30-second deadline) (67.0s)
+[wizard] capture and read unmapped Next.js failure (68.0s)
+[wizard] read unmapped failure in Spool at desktop and phone widths (69.4s)
+[wizard] stop Next.js before map upload (10-second shutdown grace) (72.5s)
+[wizard] rebuild Next.js and upload maps (72.6s)
+[wizard] wait for Next.js readiness (30-second deadline) (91.3s)
+[wizard] capture and read mapped Next.js failure (91.6s)
+{"passed":true,"proof":"Packed spool-setup on fresh Django and Next.js apps: reviewable git-apply patch equals the applied change, SDK installed, test event accepted, configured apps report real failures; other frameworks get guidance; refused DSNs (bad, wrong key, redirect, not Spool, secret key, control characters), a link or hard link to a file outside the project, a link swapped in during the test event and a settings module that is not a dotted name write nothing."}
+[wizard] cleanup browsers, servers and temporary apps (97.2s)

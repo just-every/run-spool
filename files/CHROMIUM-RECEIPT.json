@@ -1,0 +1,13 @@
+{
+  "observedFailure": "Legacy discussion-flow.mjs launched Playwright's absent chromium_headless_shell-1243 executable directly instead of the shared launchBrowser helper",
+  "repair": "Default Chromium executable paths are wrapper scripts executing /usr/bin/chromium --no-sandbox with the original arguments",
+  "productOrTestSourceChanged": false,
+  "launchSmoke": "Real default Playwright Chromium launch and close passed",
+  "changedJourneysAlreadyPassed": [
+    "native name/email to member-row synchronization",
+    "installation-name save/reload",
+    "members invitation form",
+    "capture key/DSN handoff and real intake",
+    "local invitation accept/expiry/authority/archive exclusions"
+  ]
+}

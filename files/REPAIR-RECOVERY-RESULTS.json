@@ -1,0 +1,99 @@
+{
+  "checks": [
+    "owner-only revision-checked repair records with 404/400/409/401/403 refusals and unchanged rows",
+    "no mail, webhook, alert or delivery row from any repair write",
+    "verdicts (a) to (f) computed from second-origin minified capture",
+    "packet verification and repair history inside the agent CLI fence",
+    "pre-repair and populated archive restore, retention marks removed snapshot events",
+    "1440/390 panel states by clicking and keyboard, axe, focus and reflow"
+  ],
+  "captures": [
+    "/workspace/run-spool/.artifacts/repair-recovery/repair-empty-1440.png",
+    "/workspace/run-spool/.artifacts/repair-recovery/repair-a-deployed-no-events-1440.png",
+    "/workspace/run-spool/.artifacts/repair-recovery/repair-b-no-exercise-1440.png",
+    "/workspace/run-spool/.artifacts/repair-recovery/repair-c-no-recurrence-1440.png",
+    "/workspace/run-spool/.artifacts/repair-recovery/repair-e-older-release-1440.png",
+    "/workspace/run-spool/.artifacts/repair-recovery/repair-f-rejected-spike-1440.png",
+    "/workspace/run-spool/.artifacts/repair-recovery/repair-d-recurred-1440.png",
+    "/workspace/run-spool/.artifacts/repair-recovery/repair-empty-390.png",
+    "/workspace/run-spool/.artifacts/repair-recovery/repair-a-deployed-no-events-390.png",
+    "/workspace/run-spool/.artifacts/repair-recovery/repair-b-no-exercise-390.png",
+    "/workspace/run-spool/.artifacts/repair-recovery/repair-c-no-recurrence-390.png",
+    "/workspace/run-spool/.artifacts/repair-recovery/repair-e-older-release-390.png",
+    "/workspace/run-spool/.artifacts/repair-recovery/repair-f-rejected-spike-390.png",
+    "/workspace/run-spool/.artifacts/repair-recovery/repair-d-recurred-390.png",
+    "/workspace/run-spool/.artifacts/repair-recovery/restored-repair-1440.png",
+    "/workspace/run-spool/.artifacts/repair-recovery/restored-repair-390.png"
+  ],
+  "results": {
+    "steps": [
+      "create",
+      "checks",
+      "approve",
+      "merge",
+      "deploy"
+    ],
+    "states": {
+      "a": [
+        "no_capture_from_release",
+        "flow_not_exercised",
+        "map_missing",
+        "client_loss_unknown"
+      ],
+      "b": [
+        "flow_not_exercised",
+        "client_loss_unknown"
+      ],
+      "c": [
+        "no_recurrence_after_exercise"
+      ],
+      "e": {
+        "older": "cc70d104-4e73-435f-a32e-50bcc96ec047"
+      },
+      "f": [
+        "windowed_loss",
+        "client_loss_unknown"
+      ],
+      "d": {
+        "event": "db2ae7f7-4baa-4e1b-8ba1-a4232225c75d"
+      }
+    },
+    "packet": {
+      "bytes": 14976,
+      "verification": {
+        "state": "recurred",
+        "reason": "A retained occurrence associated with this group at admission, currently, or during this repair arrived in release 2026.10.2 (sequence 2) or a later registered release after 2026.10.2 was registered.",
+        "repair": "4b804968-6037-4e8d-9656-14009f0979c7",
+        "limits": "This verdict does not show users who never reached the affected flow, failures lost in the client before transport, or the same failure grouped differently after a rebuild."
+      }
+    },
+    "archive": {
+      "restoredTables": 101,
+      "repairs": 3,
+      "checks": 4,
+      "snapshot": [
+        {
+          "id": "1ae44eb4-ed69-4b95-81fd-33115a51a65e",
+          "state": "removed_by_retention"
+        }
+      ]
+    },
+    "deliveriesAfterRegression": 1
+  },
+  "cleanup": [
+    {
+      "name": "capture",
+      "outcome": "stopped"
+    },
+    {
+      "name": "browser",
+      "outcome": "stopped"
+    },
+    {
+      "name": "checkout",
+      "outcome": "stopped",
+      "children": "stopped",
+      "directory": "removed"
+    }
+  ]
+}
