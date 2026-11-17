@@ -6614,7 +6614,7 @@
       "executable": false
     },
     "src/domain/proposals/explanation.ts": {
-      "sha256": "ff50b5c1dd9164002ea7974cf42432fe8cd017466788a8f1c0c99113956c91ba",
+      "sha256": "7824f6bf21d432074ea7d9e1995237ccbde98e458865ef128b304f16a4b98542",
       "executable": false
     },
     "src/domain/proposals/input.ts": {
@@ -10446,7 +10446,7 @@
       "executable": false
     },
     "src/ui/workbench/GroupingExplanation.tsx": {
-      "sha256": "11ffc05f4d2543496594b88c013bf41685796624128ff0609e44c56ed6f53d95",
+      "sha256": "30bc9eb81c1a769cd6f924aec77c3c34111b19d2f871019c404c9a9867ff0891",
       "executable": false
     },
     "src/ui/workbench/GroupingProposals.tsx": {
