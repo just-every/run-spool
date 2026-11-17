@@ -1,0 +1,11 @@
+{
+  "exit": 0,
+  "report": "publication-scan.json",
+  "source": {
+    "commit": "fe4eaff04430dce0c63266a1f08a992a1790ea81",
+    "tree": "806588f42208ae5e8f68f0f3f2ad37f2a7fa8057"
+  },
+  "status": "PASS",
+  "complete": true,
+  "findings": 0
+}

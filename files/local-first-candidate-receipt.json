@@ -1,0 +1,107 @@
+{
+  "author": "Run Edit Run fleet",
+  "date": "2026-11-17",
+  "repository": "just-every/run-spool",
+  "branch": "cloud/gr-mt-spool-ci-20",
+  "head": "78a5a167bd88e2a9766846f94437eebb67cab9f8",
+  "node": "22.20.0",
+  "pnpm": "10.12.4",
+  "chromium": "/usr/bin/chromium",
+  "checks": [
+    {
+      "command": "pnpm install --frozen-lockfile",
+      "exit": 0,
+      "output_bytes": 3537,
+      "output_sha256": "d78f39eb058f48d666da965884b23eaa2edfeb37f8134107fc58bf448779162a"
+    },
+    {
+      "command": "npx -y @runeditrun/rer setup --owner-email fleet@runeditrun.com --non-interactive",
+      "exit": 0,
+      "output_bytes": 13003,
+      "output_sha256": "99a1a641f7cb084864fa0e383a4be13effd8434bb9772de5853b7891243088f1"
+    },
+    {
+      "command": "npx -y @runeditrun/rer build",
+      "exit": 0,
+      "output_bytes": 12206,
+      "output_sha256": "2192f13b659126ae879828d46bce48278ab8e1bcfdfc23d70eddbf5f045a297a"
+    },
+    {
+      "command": "node scripts/edition-authoring/cli.mjs lock",
+      "exit": 0,
+      "output_bytes": 478527,
+      "output_sha256": "15e3814608c1e8db81b6882d9e341b54c4411278336cc278072645046463e387"
+    },
+    {
+      "command": "pnpm source:check",
+      "exit": 0,
+      "output_bytes": 478701,
+      "output_sha256": "9011728cf4b98c6df1e549d68460de0efc40ac19f80537b5ff22eb59874cb6ca"
+    },
+    {
+      "command": "node src/base/contract-docs.mjs check",
+      "exit": 0,
+      "output_bytes": 70,
+      "output_sha256": "b04031901cfff3e9bc42a429b52cbc14c2442ffb68817fd62a245ac52847b422"
+    },
+    {
+      "command": "pnpm typecheck",
+      "exit": 0,
+      "log": "typecheck.log"
+    },
+    {
+      "command": "node tests/deployment-history.mjs (unmodified origin/main)",
+      "exit": 0,
+      "log": "deployment-before.log",
+      "note": "The original command passed once locally; the completed CI log supplies the observed intermittent UND_ERR_SOCKET failure. No false-positive claim."
+    },
+    {
+      "command": "node tests/deployment-history.mjs (candidate HEAD)",
+      "exit": 0,
+      "log": "deployment-after.log",
+      "proof": "REL-001 and REL-002 completed, including inert restore scheduled tick and callback refusal; browser screens at 1440 and 390."
+    }
+  ],
+  "assertion_call_sites": {
+    "before": 49,
+    "after": 49
+  },
+  "clause_counts": {
+    "before": {
+      "done": 23,
+      "partial": 54,
+      "missing": 28,
+      "total": 105
+    },
+    "after": {
+      "done": 23,
+      "partial": 54,
+      "missing": 28,
+      "total": 105
+    }
+  },
+  "clause_status_changes": [],
+  "publication": {
+    "report": "publication-scan.json",
+    "status": "PASS",
+    "complete": true,
+    "findings": 0,
+    "source": {
+      "commit": "78a5a167bd88e2a9766846f94437eebb67cab9f8",
+      "tree": "3863941bc12f3b5738c622bee5d03f93fd7e2d56"
+    },
+    "guarantees": {
+      "historyScanned": true,
+      "visualRecognition": false,
+      "environmentChecked": true
+    },
+    "implementation": {
+      "version": "0.2.118",
+      "sha256": "c5f2d788f2f08764cd018e049b507c26f5ac01f651e2e8696398d89a5a886ffb",
+      "python": "3.12.14"
+    },
+    "total_seconds": 424.385117,
+    "terminal_wrapper_exit": 1,
+    "note": "Structured scanner report is complete PASS with zero findings and exact commit/tree; terminal wrapper returned 1. The structured publication bar was independently validated before push."
+  }
+}

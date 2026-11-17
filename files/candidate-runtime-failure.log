@@ -1,0 +1,40 @@
+
+2026-11-17T11:48:31.3128913Z (node:3162) ExperimentalWarning: SQLite is an experimental feature and might change at any time
+2026-11-17T11:48:31.3130231Z (Use `node --trace-warnings ...` to show where the warning was created)
+2026-11-17T11:48:36.4249836Z Demo capture: app 200; 3 recent events; 3 attributed transaction facts; restart unchanged
+2026-11-17T11:48:37.0310832Z (node:3191) ExperimentalWarning: SQLite is an experimental feature and might change at any time
+2026-11-17T11:48:37.0312652Z (Use `node --trace-warnings ...` to show where the warning was created)
+2026-11-17T11:49:57.3052248Z [REL-002] first-release and reactivation candidates, exact regression alert and two commits with recorded deployment window, older-release spike comparison, audited reject and confirm without occurrence changes, restore and erasure; desktop and phone passed
+2026-11-17T11:50:14.2550957Z REL-001 passed: CI and owner start/progress/success/failure/rollback, idempotency/conflicts, one overdue notice over two ticks, environments, enrichment, denials, inert restore, erasure and 1440/390.
+2026-11-17T11:50:14.8385154Z (node:3525) ExperimentalWarning: SQLite is an experimental feature and might change at any time
+2026-11-17T11:50:14.8386456Z (Use `node --trace-warnings ...` to show where the warning was created)
+2026-11-17T11:50:47.7297953Z AUDIT-001 passed: atomic owner/deploy/ingest transaction facts, denied/stale request outcomes, agent and notification facts, fixed snapshot cursor/JSON/CSV, restart, archive payload append restore, previous-format legacy facts, project erasure and 1440/390 history/export/error/denied/empty.
+2026-11-17T11:50:53.6748452Z (node:3645) ExperimentalWarning: SQLite is an experimental feature and might change at any time
+2026-11-17T11:50:53.6749771Z (Use `node --trace-warnings ...` to show where the warning was created)
+2026-11-17T11:51:03.1916546Z PASS populated published release upgrades preserve existing rows and columns with declared attribution additions: 176 tables, 118 rows before and after
+2026-11-17T11:51:17.8855583Z PASS populated 0068 upgrade: 201 tables preserved; five additive migrations applied
+2026-11-17T11:52:02.1997103Z PASS pre-metric archive with complete native objects and hashed ledger restores into the metric schema
+2026-11-17T11:52:20.3060265Z PASS old native archive restores into a fresh migrated target with all product rows and destination ledger intact
+2026-11-17T11:52:34.8483218Z PASS old archive refuses an occupied target without changing its project
+2026-11-17T11:52:48.6330754Z PASS genuinely mismatched schema and corrupted original archive binding still refuse
+2026-11-17T11:53:09.7817734Z PASS current archive independently restores and mandatory bookkeeping exclusions retain person-owned tables
+2026-11-17T11:53:10.1767106Z 
+2026-11-17T11:53:10.1768347Z > @errors/errors-workbench@0.7.14 test:runtime /home/runner/work/run-spool/run-spool
+2026-11-17T11:53:10.1769026Z > node tests/runtime.mjs
+2026-11-17T11:53:10.1769233Z 
+2026-11-17T11:53:10.6046369Z (node:3736) ExperimentalWarning: SQLite is an experimental feature and might change at any time
+2026-11-17T11:53:10.6047668Z (Use `node --trace-warnings ...` to show where the warning was created)
+2026-11-17T11:53:17.5087062Z PROBE SDK-020 G5: anonymous docs navigation, seven configuration sections, source maps, Python guidance, tunnel replacement and generated static article passed.
+2026-11-17T11:53:21.0604004Z Settings prerequisite guides passed: Slack and cron reach pinned Base owner steps and a working receipt-to-binding recipe; Business trust links open locally and anonymously from the docs index.
+2026-11-17T11:53:21.2791454Z Spool runtime: DB health, server document gate, direct API gate, local owner admission, second-claim refusal and immediate revocation passed.
+2026-11-17T11:53:21.6344200Z 
+2026-11-17T11:53:21.6345305Z > @errors/errors-workbench@0.7.14 test:product /home/runner/work/run-spool/run-spool
+2026-11-17T11:53:21.6346003Z > node tests/product-runtime.mjs
+2026-11-17T11:53:21.6346255Z 
+2026-11-17T11:53:21.8124476Z (node:4015) ExperimentalWarning: SQLite is an experimental feature and might change at any time
+2026-11-17T11:53:21.8125787Z (Use `node --trace-warnings ...` to show where the warning was created)
+2026-11-17T11:55:22.2234323Z AI-005 agent grouping proposals show counterexamples and rate, alert and repair effects, and stay reversible passed.
+2026-11-17T11:55:51.8825481Z Product acceptance failed: {"failed":true,"failure":{"type":"TypeError","location":"tests/product-runtime.mjs:77:12","cause":{"code":"UND_ERR_SOCKET","message":"other side closed"},"http":{"method":"POST","path":"/api/restore","ordinal":690}},"cleanupFailures":[],"worker":{"redacted":true,"lines":743,"networkConnectionLost":false,"d1Error":false,"sqliteError":false,"mentions":{"typeError":false,"referenceError":false,"rangeError":false,"syntaxError":false,"invalidProject":false,"instanceofOperand":false,"temporalDeadZone":false,"undefinedAccess":false,"notDefined":false,"internalError":false,"scriptNoResponse":false,"contextNotFinalized":false,"scrub":false,"apiErrorHandler":false}}}
+2026-11-17T11:55:51.9417738Z  ELIFECYCLE  Command failed with exit code 1.
+2026-11-17T11:55:51.9718012Z ##[error]Process completed with exit code 1.
+2026-11-17T11:55:51.9795298Z 

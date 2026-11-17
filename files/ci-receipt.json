@@ -1,7 +1,7 @@
 {
   "repository": "just-every/run-spool",
   "branch": "cloud/gr-mt-spool-ci-20",
-  "head": "78a5a167bd88e2a9766846f94437eebb67cab9f8",
+  "head": "fe4eaff04430dce0c63266a1f08a992a1790ea81",
   "baseline": "337a4cacd736ad172f397f318bb766fa5402ed9a",
   "reported_main_failure": {
     "id": 44045714537,
@@ -11,42 +11,90 @@
   },
   "candidate_verify": {
     "conclusion": null,
-    "created_at": "2026-11-17T11:46:18Z",
-    "head_sha": "78a5a167bd88e2a9766846f94437eebb67cab9f8",
-    "html_url": "https://github.com/just-every/run-spool/actions/runs/44076996424",
-    "id": 44076996424,
+    "created_at": "2026-11-17T12:29:12Z",
+    "head_sha": "fe4eaff04430dce0c63266a1f08a992a1790ea81",
+    "html_url": "https://github.com/just-every/run-spool/actions/runs/44083568724",
+    "id": 44083568724,
     "name": "Verify",
     "status": "in_progress"
   },
-  "manual_github_invocations": 6,
+  "manual_github_invocations": 10,
   "notes": [
     "All three completed-run inspection invocations used GH_TOKEN explicitly loaded from the fleet decrypted bundle. No alternative credential used.",
     "The single optional artifact blob read was Forbidden and was not retried.",
     "Scanner internal reference checks are recorded by its own receipt."
   ],
-  "scanner_reference_resolver_invocations": 2,
-  "budget_count_so_far": 8,
-  "last_run_read_utc": "2026-11-17T11:58:13.840104+00:00",
+  "budget_count_so_far": 10,
+  "last_run_read_utc": "2026-11-17T12:29:30.482981+00:00",
   "product_pushed": true,
   "product_remote_ref": "refs/heads/cloud/gr-mt-spool-ci-20",
-  "budget_note": "Ten total counted GitHub command invocations: three initial inspection commands, two completed scanner reference resolver calls, discovery, and at most four further run reads. Git ref transport and evidence transport use Git rather than repository REST.",
-  "polls": [
-    {
-      "file": "candidate-poll-1.json",
-      "read_utc": "2026-11-17T11:52:56.303423+00:00",
-      "conclusion": null,
+  "budget_note": "Direct investigation/status/log commands: 10 of 10 used, listed in manual_call_commands. Mandatory publication scanner GraphQL resolver phases are separate and use the GraphQL quota; the earlier combined estimate was corrected, not represented as measured core REST requests.",
+  "polls": [],
+  "baseline_job_durations_seconds": {
+    "verify (repair-recovery)": 1266,
+    "verify (agent-handoff)": 1214,
+    "verify (sdk)": 836
+  },
+  "baseline_timing_source": "Already downloaded run-log-44045714537 ZIP, read locally; no additional GitHub request.",
+  "budget_accounting": "Ten direct investigation/status/log CLI invocations; the earlier combined estimate additionally counted two publication GraphQL resolver phases. Those mandatory publication phases use the separate GraphQL quota and remain recorded separately, not treated as measured core REST calls.",
+  "prior_candidate": {
+    "head": "78a5a167bd88e2a9766846f94437eebb67cab9f8",
+    "candidate_verify": {
+      "conclusion": "failure",
+      "created_at": "2026-11-17T11:46:18Z",
       "head_sha": "78a5a167bd88e2a9766846f94437eebb67cab9f8",
       "html_url": "https://github.com/just-every/run-spool/actions/runs/44076996424",
-      "status": "in_progress"
+      "id": 44076996424,
+      "name": "Verify",
+      "status": "completed"
     },
-    {
-      "file": "candidate-poll-2.json",
-      "read_utc": "2026-11-17T11:58:13.840104+00:00",
-      "conclusion": null,
-      "head_sha": "78a5a167bd88e2a9766846f94437eebb67cab9f8",
-      "html_url": "https://github.com/just-every/run-spool/actions/runs/44076996424",
-      "status": "in_progress"
-    }
+    "polls": [
+      {
+        "file": "candidate-poll-1.json",
+        "read_utc": "2026-11-17T11:52:56.303423+00:00",
+        "conclusion": null,
+        "head_sha": "78a5a167bd88e2a9766846f94437eebb67cab9f8",
+        "html_url": "https://github.com/just-every/run-spool/actions/runs/44076996424",
+        "status": "in_progress"
+      },
+      {
+        "file": "candidate-poll-2.json",
+        "read_utc": "2026-11-17T11:58:13.840104+00:00",
+        "conclusion": null,
+        "head_sha": "78a5a167bd88e2a9766846f94437eebb67cab9f8",
+        "html_url": "https://github.com/just-every/run-spool/actions/runs/44076996424",
+        "status": "in_progress"
+      },
+      {
+        "file": "candidate-poll-3.json",
+        "read_utc": "2026-11-17T12:11:30.541417+00:00",
+        "conclusion": "failure",
+        "head_sha": "78a5a167bd88e2a9766846f94437eebb67cab9f8",
+        "html_url": "https://github.com/just-every/run-spool/actions/runs/44076996424",
+        "status": "completed"
+      }
+    ],
+    "failed_jobs_file": "candidate-failed-jobs.json",
+    "failure_log": "candidate-runtime-failure.log"
+  },
+  "manual_call_budget": 10,
+  "manual_call_commands": [
+    "gh api .../runs/44045714537/jobs",
+    "gh run view 44045714537 --job 133911463949 --log-failed",
+    "gh api .../artifacts/14312140130/zip",
+    "gh api .../actions/runs?head_sha=78a5a167bd88e2a9766846f94437eebb67cab9f8",
+    "gh api .../actions/runs/44076996424 (poll 1)",
+    "gh api .../actions/runs/44076996424 (poll 2)",
+    "gh api .../actions/runs/44076996424 (poll 3)",
+    "gh api .../actions/runs/44076996424/jobs",
+    "gh run view 44076996424 --job 134018325488 --log-failed",
+    "gh api .../actions/runs?head_sha=fe4eaff04430dce0c63266a1f08a992a1790ea81"
   ],
-  "next_earliest_read_utc": "2026-11-17T12:03:13.840104+00:00"
+  "terminal_custody": "PUSHED",
+  "scanner_reference_resolver_phases": 3,
+  "remaining_direct_calls": 0,
+  "ready": false,
+  "result_file": "result.json",
+  "report_file": "REPORT.md",
+  "builder_receipt_finalized_utc": "2026-11-17T12:31:38.481278+00:00"
 }

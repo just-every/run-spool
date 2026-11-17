@@ -1,0 +1,12 @@
+(node:35806) ExperimentalWarning: SQLite is an experimental feature and might change at any time
+(Use `node --trace-warnings ...` to show where the warning was created)
+verify
+Heavy job admitted: Spool verify:suite [a17a22ec32a5]
+(node:35828) ExperimentalWarning: SQLite is an experimental feature and might change at any time
+(Use `node --trace-warnings ...` to show where the warning was created)
+▲ [WARNING] Proxy environment variables detected. We'll use your proxy for fetch requests.
+
+
+AI-005 agent grouping proposals show counterexamples and rate, alert and repair effects, and stay reversible passed.
+Spool emitted Worker/D1 acceptance passed: atomic retry, pre-scrub conflict, privacy, minified capture, CSRF, delayed release/regression, archive independent restore, retention.
+Real Chromium automatic exception, stored-group browsing/selection and separate Worker waitUntil transport also passed.

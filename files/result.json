@@ -1,0 +1,7 @@
+{
+  "status": "done",
+  "sha": "fe4eaff04430dce0c63266a1f08a992a1790ea81",
+  "summary": "Prevented stale local Worker socket reuse in deployment and product acceptance journeys; both observed failures are fixed locally, latest candidate pushed with Verify in progress and no READY claim.",
+  "tests": "Deployment journey: local PASS and CI 44076996424 PASS for REL-001/REL-002; product journey: full Worker/D1 + Chromium PASS, failed=false receipt; typecheck/source/contract checks PASS; exact-tree publication scan exit 0 COMPLETE/PASS zero findings; latest exact-SHA Verify 44083568724 in_progress, direct API budget exhausted.",
+  "security": true
+}

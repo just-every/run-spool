@@ -1,8 +1,8 @@
 {
-  "path": "/home/agent/rer-consolidation/work/maint/gr-mt-spool-ci-20/candidate.bundle",
-  "head": "78a5a167bd88e2a9766846f94437eebb67cab9f8",
-  "bytes": 86532691,
-  "sha256": "e91995a7b9063d2032b9bdbbc35d81a7bda9a5c046e311161507bd09439836eb",
+  "path": "/home/agent/rer-consolidation/work/maint/gr-mt-spool-ci-20/candidate-final.bundle",
+  "head": "fe4eaff04430dce0c63266a1f08a992a1790ea81",
+  "bytes": 86533428,
+  "sha256": "48442179a89454c2bac99ebb62682ef000d83cf794d982d39f961e03d6fa6625",
   "verified": true,
   "purpose": "Recovery data only; not READY or evidence of a product push."
 }
