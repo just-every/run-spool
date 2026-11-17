@@ -1,0 +1,6 @@
+Sentry owner read socket closed [UND_ERR_SOCKET]: /read; health check before retry 1/2
+Sentry owner read socket closed [ECONNRESET]: /reset; health check before retry 1/2
+Sentry owner read socket closed [UND_ERR_SOCKET]: /persistent; health check before retry 1/2
+Sentry owner read socket closed [UND_ERR_SOCKET]: /persistent; health check before retry 2/2
+Sentry owner read socket closed [UND_ERR_SOCKET]: /unavailable; health check before retry 1/2
+Sentry owner read recovery: closed/reset GETs recovered; POST not replayed; 403 not retried; persistent socket and unhealthy Worker bounded.

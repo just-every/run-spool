@@ -1,0 +1,48 @@
+{
+  "tag": "sd-spool-design-issues-3",
+  "repository": "just-every/run-spool",
+  "branch": "cloud/sd-spool-design-issues-3",
+  "baseline": "f44efc8c76f8f11753b89465cc3fcb7b64760570",
+  "original_round": "a510bbb5505f8468c833bb42cd43350396438f83",
+  "common_ancestor": "6263ba70f1d0fce4ea1df7e6bf7b4f0d827489e1",
+  "original_commits": [
+    "23790586377bcc17a91f771d0004edc09cfd239d Make Issues and test capture readable for owners",
+    "170970dcdbbd911ccc3f99f9b902d136c34420c1 Keep issue viewing counts inside Details",
+    "da6caa7ef6a14b9ac22974467974dfa462f67b29 Focus the comment editor after it loads",
+    "27fad43daffe62ee44efec89b0f5cadde0177a42 Keep member identity out of grouping snapshots",
+    "a510bbb5505f8468c833bb42cd43350396438f83 Use the captured sample release for key rotation checks"
+  ],
+  "setup": {
+    "command": "cloud_run timeout 600 npx -y @runeditrun/rer setup --owner-email fleet@runeditrun.com --non-interactive",
+    "exit": null,
+    "private_setup_output_excluded": true,
+    "completion_line_confirmed": true,
+    "result": "Setup complete: 103 migrations applied, owner set up; RER_SETUP_READY emitted. Numeric exit was not separately captured."
+  },
+  "counts_before": {
+    "Core": {
+      "done": 23,
+      "partial": 45,
+      "missing": 19,
+      "total": 87
+    },
+    "Agent surface": {
+      "done": 0,
+      "partial": 9,
+      "missing": 9,
+      "total": 18
+    },
+    "Full target": {
+      "done": 23,
+      "partial": 54,
+      "missing": 28,
+      "total": 105
+    }
+  },
+  "utc": "2026-11-17T21:35:03.717531+00:00",
+  "baseline_emitted_worker_sha256": "0dbe0d1a7cc5880a2061557b4ae336a2a21a51805f27fb6ca8d4f002fdb96914",
+  "baseline_repetition_3": "Uses the unchanged emitted baseline Worker and already-loaded Sentry test modules while source replay is prepared; no rebuild until it exits.",
+  "baseline_repetition_3_build_unchanged_verified": true,
+  "replay_save": "388c978d44e4e13cc952553618b93cef0efe7456",
+  "comparison_load_note": "Main repetition 2 overlapped a separate project-erasure startup probe; main repetition 3 overlapped typechecking. Candidate raw repetition 1 overlaps the independent Issues browser journey. All emitted Worker builds and Sentry harness sources are held constant per comparison case; proof-only Issues test edits do not affect the Sentry entrypoint."
+}

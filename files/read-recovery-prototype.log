@@ -1,0 +1,5 @@
+Sentry owner read socket closed: /read; health check before retry 1/2
+Sentry owner read socket closed: /persistent; health check before retry 1/2
+Sentry owner read socket closed: /persistent; health check before retry 2/2
+Sentry owner read socket closed: /unavailable; health check before retry 1/2
+Sentry owner read recovery: dropped GET recovered; POST not replayed; 403 not retried; persistent socket and unhealthy Worker bounded.
