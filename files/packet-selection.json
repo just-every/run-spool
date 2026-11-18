@@ -2,8 +2,8 @@
   "files": [
     {
       "path": "REPORT.md",
-      "bytes": 9763,
-      "sha256": "e809a1cadaf312f241d6b5a0d508ef8615567112d12d7f0b137f196b4a1fc48a"
+      "bytes": 10950,
+      "sha256": "82d2e976572ef753304b0e8124e7006b4e8c7f2d5b71ba0d6fb374785a797292"
     },
     {
       "path": "browser-proof-attempt-1.json",
@@ -172,8 +172,8 @@
     },
     {
       "path": "ci-calls.jsonl",
-      "bytes": 1716,
-      "sha256": "7cd7dd1d166b9699e00d4959489edd18eaf67e6d9f8035777c1f84c2c8915282"
+      "bytes": 1902,
+      "sha256": "2efd3d464a1e0bb8d90bdd48c53e693df214f061e605740401d0b580067dc4ca"
     },
     {
       "path": "ci-discovery.json",
@@ -226,6 +226,11 @@
       "sha256": "8ab9239c2f6332a84f34b77197471e08651724c1a348417c2044768dcaf8c2be"
     },
     {
+      "path": "ci-terminal-status-10.json",
+      "bytes": 262,
+      "sha256": "fb75cb9d4a218b08f3a491302dadb1341a057869d5c04262d42879fa690657b4"
+    },
+    {
       "path": "ci-terminal-status-9.json",
       "bytes": 259,
       "sha256": "7b80491c52ce4b9b9b16dde33e2a3e19e1cb46e09b3e27f3ab15bbfc3361b151"
@@ -249,6 +254,16 @@
       "path": "evidence-checkpoint-verification.json",
       "bytes": 33284,
       "sha256": "64dd2ed5febbd75ab3659f3f0d7c6f6f37040ab7ee6fd4bd47c4e5a069c1a467"
+    },
+    {
+      "path": "evidence-checkpoint.txt",
+      "bytes": 5356,
+      "sha256": "1c347a7a7fce92755f71bbff30e1a0f0afc449ee2e440375cd719b58f45f89fb"
+    },
+    {
+      "path": "evidence-completed-local-checkpoint.txt",
+      "bytes": 29067,
+      "sha256": "674acc5b3faf92e41c53dc451f63f79ce29da5cdabb0c063330e43ba0e7ae449"
     },
     {
       "path": "evidence-recovery-checkpoint.txt",
@@ -517,8 +532,8 @@
     },
     {
       "path": "product-receipt.json",
-      "bytes": 2134,
-      "sha256": "461d99abb54f891152f08d78050b742c729266d710d777a767df9c2bc87b6947"
+      "bytes": 2354,
+      "sha256": "90ab8548273493c1126b0d957a6b5e50b5b5b0352c1f05fd335bdc500a7bdd63"
     },
     {
       "path": "proof-final-source-check.log",
@@ -532,8 +547,8 @@
     },
     {
       "path": "provenance.json",
-      "bytes": 3644,
-      "sha256": "8ab9887b3360537fd9e718bb9f30a68fa409f861c611d82b72d45f59cd922062"
+      "bytes": 3964,
+      "sha256": "8769cfd2d4481fdf843b8b6256c2ce255c57773680bfb5e2eefa9479d6716533"
     },
     {
       "path": "read-recovery-faults.log",
@@ -779,5 +794,5 @@
   "secret_scan_passed": true,
   "symlinks": false,
   "selection": "Explicit named report/receipt files, actual completed check logs and final framed captures.",
-  "utc": "2026-11-18T00:03:45.593198+00:00"
+  "utc": "2026-11-18T00:12:46.761860+00:00"
 }

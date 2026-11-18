@@ -58,5 +58,6 @@
   "policy_recovery_save": "240376854a6d7f3bd89ec2054fa58be006ae722a",
   "initial_replay_linear": true,
   "later_main_merge_reason": "Cloud preservation rule requires updated main merge after published save; main advanced by qs lockfile patch. Published history is not rewritten.",
-  "terminal_merged_check_diff_sha256": "3dc034ead286acd79a8fd6ae1b1b6d370c25bbb073f70e237b255086b3b491b4"
+  "terminal_merged_check_diff_sha256": "3dc034ead286acd79a8fd6ae1b1b6d370c25bbb073f70e237b255086b3b491b4",
+  "comparison_hash_scope": "baseline_emitted_worker_sha256, candidate_emitted_worker_sha256 and ordered_build_preserves_candidate_worker_bytes describe the raw-comparison and first proof-build phases before the later policy fix. Terminal source is bound by final_head/final_tree and terminal_merged_check_diff_sha256."
 }

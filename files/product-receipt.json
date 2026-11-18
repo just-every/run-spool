@@ -67,10 +67,10 @@
     "reported_409_race_reproduced": false
   },
   "ci_run": 44201588936,
-  "ci_status": "in_progress",
+  "ci_status": "completed",
   "ready": false,
-  "utc": "2026-11-17T23:57:03.645074+00:00",
-  "ci_conclusion": null,
+  "utc": "2026-11-18T00:12:46.493611+00:00",
+  "ci_conclusion": "failure",
   "local_fixed_sentry": {
     "head": "fdcbe49c5f65a04faf69ce08ceddb72568bc41af",
     "exit": 0,
@@ -86,5 +86,7 @@
   "owner_journey_exit": 0,
   "local_completed_checks_passed": true,
   "ci_url": "https://github.com/just-every/run-spool/actions/runs/44201588936",
-  "ci_observed_utc": "2026-11-18T00:01:41.004210+00:00"
+  "ci_observed_utc": "2026-11-18T00:11:42.005452+00:00",
+  "terminal_status": "BLOCKED",
+  "blocker": "Verify 44201588936 failed on the exact final SHA. The ten-call GitHub budget is exhausted; this run's failed-job details were not fetched, so its cause is unclassified."
 }
