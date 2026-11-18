@@ -38,3 +38,9 @@ GAP AUDIT-001: The import approval is qualified through the permanent audit. The
 GAP ERASE-001: The alert import journey qualifies its project cascade. Existing production-scale qualifications remain separate.
 
 The cloud VM delegates the complete publication scan and landing to the fleet. The two platform playbook reads returned HTTP 404 through the supplied GitHub credential. Work followed the shipped builder rules and the repository instructions.
+
+## Validation
+
+Local build, typecheck, repository and contract checks, pinned Base check, integration check, source lock, the Sentry import suite, the native alert suite, the Alerts browser suite and the old-archive suite passed. The focused Sentry alert journey completed project erasure. The broader local project-erasure suite hit startup timers twice and the outer time limit on an isolated retry.
+
+Verify 44243712834 failed the repair-recovery archive journey with HTTP 409. Its historical fixture removed the roster proposal table while leaving the new alert-proposal migration in the recorded ledger. The follow-up commit rewinds both roster-era migration entries when the fixture removes that table. The previous-release archive then restored through the public restore route locally, and the existing unexpected-trigger refusal still returned HTTP 400. The final exact-SHA Verify status is in VALIDATION.json.

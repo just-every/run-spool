@@ -7,16 +7,16 @@
       "sha256": "bef9b4a908391ce559d01cea0af9b796f35bb5c18911ebdca69482d644769507"
     },
     {
-      "blob": "de6778c3d9b100c54f54727272ea673894a690a0",
-      "bytes": 4661,
+      "blob": "6954d98987d2e98ff4ec27b0d449e50c387915d0",
+      "bytes": 5581,
       "path": "REPORT.md",
-      "sha256": "3d904eda1afe99a001a5245f651ba813376e8dc67d4d4a0469f36f3ef967736f"
+      "sha256": "efc83f8b6ac31706976a3c3e27bc26fe4f003d155024f80e8f57f7e4c4113be1"
     },
     {
-      "blob": "c09130912b61f5d2ccea7359b20f3efe92060845",
-      "bytes": 1434,
+      "blob": "89d5e20bfd0404416765894fda4b76552742ebc3",
+      "bytes": 2228,
       "path": "VALIDATION.json",
-      "sha256": "d146eb7966f840640fbb0919f90ed36009194725e269f88e70813e795ed95ba9"
+      "sha256": "1477191fb4ea29f3aebe5e6c82e5ee0ff49b3b47c0d37ed6059d3190954fc3bc"
     },
     {
       "blob": "7a5bc57cd743715fcf8384b7c6bf635240b2901a",
@@ -32,7 +32,7 @@
     }
   ],
   "product_branch": "cloud/sd-spool-import-alerts-1",
-  "product_head": "7fc2357055b49a913f610a409aef252760a7d63c",
+  "product_head": "746d6e15cc835fdcb3642c7f8168ac9794150d36",
   "ref": "refs/heads/evidence/sd-spool-import-alerts-1",
   "repository": "just-every/run-spool",
   "schema": 1,

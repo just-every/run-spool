@@ -1,16 +1,30 @@
 {
-  "recordedAt": "2026-11-18T05:33:08Z",
+  "recordedAt": "2026-11-18T05:47:41Z",
   "repository": "just-every/run-spool",
   "branch": "cloud/sd-spool-import-alerts-1",
-  "productHead": "7fc2357055b49a913f610a409aef252760a7d63c",
+  "productHead": "746d6e15cc835fdcb3642c7f8168ac9794150d36",
   "mainBase": "0343c3c54b7249e4c708a60ca5648794dbc474b7",
   "verify": {
     "conclusion": null,
+    "head_sha": "746d6e15cc835fdcb3642c7f8168ac9794150d36",
+    "html_url": "https://github.com/just-every/run-spool/actions/runs/44246524029",
+    "id": 44246524029,
+    "name": "Verify",
+    "status": "in_progress"
+  },
+  "priorVerify": {
+    "conclusion": "failure",
     "head_sha": "7fc2357055b49a913f610a409aef252760a7d63c",
     "html_url": "https://github.com/just-every/run-spool/actions/runs/44243712834",
-    "status": "in_progress",
+    "status": "completed",
     "id": 44243712834,
-    "name": "Verify"
+    "name": "Verify",
+    "failedJob": {
+      "id": 134597987749,
+      "name": "verify (repair-recovery)",
+      "result": "HTTP 409 restoring the previous-release archive fixture in archiveProof",
+      "fix": "Remove migration 0114 from the historical fixture ledger when the fixture removes its proposal table."
+    }
   },
   "migration": "0114_sentry_alert_proposals.sql",
   "localChecks": {
@@ -25,13 +39,14 @@
     "alertsNative": "passed",
     "alertsBrowser": "passed on retry",
     "oldArchive": "passed",
-    "sentryImport": "retry running",
-    "projectErasure": "retry running"
+    "previousReleaseRestore": "passed with the repaired fixture; unrecognized trigger inventory refused",
+    "sentryImport": "passed on retry",
+    "projectErasure": "focused alert import cascade passed; broader local harness timed out"
   },
   "firstAttempts": {
     "sentryImport": "hit the local 480-second cap after the field-accounting, generic import, Bugsnag and roster assertions",
     "alertsBrowser": "hit the local cap after spending time in the job queue",
-    "projectErasure": "cold development server startup exceeded the harness 90-second cap"
+    "projectErasure": "first two attempts exceeded the cold development startup cap; the isolated run reached the public journey and hit the outer cap"
   },
   "browserProof": [
     "receipt-1440.png",
