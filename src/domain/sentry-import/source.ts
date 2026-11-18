@@ -1,4 +1,5 @@
 import { sha256 } from '../../modules/import-kit/src/provenance/identity.ts';
+import { sentryRuleKinds } from './alert-rules';
 import type { Json, ParsedRecord } from '../../modules/import-kit/src/types.ts';
 export const importFormat = 'spool-sentry-org-export';
 export const mappingVersion = 'spool-sentry-org-v2';
@@ -26,7 +27,7 @@ export function parseSentryOrganization(value: Json): ParsedRecord[] {
       fields(collection,['kind','project','team','pages']);
       const kind=sourceText(collection.kind,'collection kind');
       const project=collection.project===null ? null : sourceText(collection.project,'collection project');
-      if (['issues','events','keys','ownership'].includes(kind) && !project || ['projects','releases','members','teams','team-members'].includes(kind) && project!==null) throw new Error('Collection scope mismatch');
+      if (['issues','events','keys','ownership','rules'].includes(kind) && !project || ['projects','releases','members','teams','team-members'].includes(kind) && project!==null) throw new Error('Collection scope mismatch');
       const team=kind==='team-members'?sourceText(collection.team,'team slug'):null;
       if(kind!=='team-members'&&collection.team!==undefined)throw new Error('Unexpected team scope');
       const key=JSON.stringify([kind,project,team]); if(collectionKeys.has(key))throw new Error('Duplicate collection');collectionKeys.add(key);
@@ -40,8 +41,10 @@ export function parseSentryOrganization(value: Json): ParsedRecord[] {
         expected=page.nextCursor;
         for (const [rowIndex,row] of page.response.entries()) {
           if(!row || typeof row!=='object'||Array.isArray(row))throw new Error('Invalid API record');
-          const id=sourceText(kind==='ownership'?project:kind==='events' ? row.eventID : kind==='releases' ? row.version : row.id,'source id');
-          records.push({kind,sourceId:JSON.stringify(team?[organization,project,team,id]:[organization,project,id]),payload:{organization,project,...team?{team}:{},data:row},pointer:`/collections/${collectionIndex}/pages/${pageIndex}/response/${rowIndex}`});
+          const pointer = `/collections/${collectionIndex}/pages/${pageIndex}/response/${rowIndex}`;
+          const ruleIdentity = typeof row.id === 'string' && row.id.trim() ? row.id : Number.isSafeInteger(row.id) ? String(row.id) : pointer;
+          const id=sourceText(sentryRuleKinds.includes(kind) ? ruleIdentity : kind==='ownership'?project:kind==='events' ? row.eventID : kind==='releases' ? row.version : row.id,'source id');
+          records.push({kind,sourceId:JSON.stringify(team?[organization,project,team,id]:[organization,project,id]),payload:{organization,project,...team?{team}:{},data:row},pointer});
         }
       }
     }

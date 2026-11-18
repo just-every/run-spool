@@ -99,6 +99,7 @@ const rules: Rule[] = [
  {pattern:/^\/api\/projects\/(?<project>[^/]+)\/fixes\/(?<subject>[^/]+)\/advance$/,action:'fix.advance',kind:'workflow'},
  {pattern:/^\/api\/projects\/(?<project>[^/]+)\/feedback\/(?<subject>[^/]+)$/,methods:['DELETE'],action:'feedback.withdraw',kind:'feedback'},
  {pattern:/^\/api\/imports\/business$/,methods:['POST'],action:'import.settings',kind:'installation'},
+ {pattern:/^\/api\/imports\/business\/(?<subject>[^/]+)\/alert-rules$/,methods:['POST'],action:'import.apply',kind:'import'},
  {pattern:/^\/api\/imports\/business\/(?<subject>[^/]+)\/undo$/,action:'import.undo',kind:'import'},
  ...(['operator','rer'] as const).flatMap(authority => ([['uploads','import.upload'],['plan','import.plan'],['apply','import.apply'],['status','import.status'],['reconcile','import.reconcile'],['undo','import.undo']] as const).map(([path,action])=>({pattern:new RegExp('^/api/'+authority+'/import/'+path+'$'),action,kind:'installation' as const}))),
  {pattern:/^\/api\/rer\/import\/archive$/,action:'import.archive',kind:'installation'},

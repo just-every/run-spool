@@ -279,6 +279,9 @@ function beforeProjectMetrics(table:any,manifest:any){
  return {...table,sql:table.sql.replace('issue TEXT REFERENCES issues(id)','issue TEXT NOT NULL REFERENCES issues(id)').replace(", CHECK((kind='metric' AND issue IS NULL) OR (kind<>'metric' AND issue IS NOT NULL))",''),columns:table.columns.map((column:any)=>column.name==='issue'?{...column,notnull:1}:column)};
 }
 function beforeSentryRosterTable(table:any,manifest:any){
+ if(table.name==='spool_import_proposals' && !manifest.migrations?.includes('0114_sentry_alert_proposals.sql')) {
+  return {...table,sql:table.sql.replace('CREATE TABLE "spool_import_proposals"','CREATE TABLE spool_import_proposals').replace(",'alert'",'')};
+ }
  if(table.name!=='sentry_import_targets'||manifest.tables?.some((t:any)=>t.name==='spool_import_proposals'))return table;
  return {...table,sql:table.sql.replace(",'import-proposal'",'').replace('CREATE TABLE "sentry_import_targets"','CREATE TABLE sentry_import_targets')};
 }
@@ -442,5 +445,5 @@ export async function restoreArchive(service: any, source: ReadableStream<Uint8A
 }
 
 // Pending Sentry review records remain inert when an older archive is restored.
-for(const later of laterTables){if(!later.tables.includes('spool_import_proposals'))later.tables.push('spool_import_proposals');later.migrations.push('0110_sentry_roster_proposals.sql')}
-laterTables.unshift({tables:['spool_import_proposals'],migrations:['0110_sentry_roster_proposals.sql']});
+for(const later of laterTables){if(!later.tables.includes('spool_import_proposals'))later.tables.push('spool_import_proposals');later.migrations.push('0110_sentry_roster_proposals.sql','0114_sentry_alert_proposals.sql')}
+laterTables.unshift({tables:['spool_import_proposals'],migrations:['0110_sentry_roster_proposals.sql','0114_sentry_alert_proposals.sql']});
