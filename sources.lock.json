@@ -10758,7 +10758,7 @@
       "executable": false
     },
     "src/ui/workbench/SettingsView.tsx": {
-      "sha256": "a4d2319e578f185218137b45b2e6c84844de8d70fa477e6ef4307f7477badd2d",
+      "sha256": "b6dded1f422068f2a7738edf294a70bdcd270e8421395fce28bbb324f4dfdf01",
       "executable": false
     },
     "src/ui/workbench/shared.tsx": {
