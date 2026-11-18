@@ -54,7 +54,9 @@ export async function ownerSetupFlow() {
  }finally{await app.close();}
  const restored=await admissionRuntime();
  try{
-  const cookie=await signIn(restored.origin),response=await fetch(restored.origin+'/api/restore',{method:'POST',headers:{Origin:restored.origin,Cookie:cookie,'Content-Type':'application/x-ndjson','X-Confirm-Restore':'yes'},body:archive});assert.equal(response.status,200);await response.arrayBuffer();
+  const cookie=await signIn(restored.origin);
+  // Release the restore's connection before the follow-up read on this Worker.
+  const response=await fetch(restored.origin+'/api/restore',{method:'POST',headers:{Origin:restored.origin,Cookie:cookie,Connection:'close','Content-Type':'application/x-ndjson','X-Confirm-Restore':'yes'},body:archive});assert.equal(response.status,200);await response.arrayBuffer();
   const org=await (await restored.call('/api/organization',undefined,{Cookie:cookie})).json();
   for(const [id,role] of Object.entries(originalRoles)){const member=org.members.find(row=>row.id===id);assert.equal(member.role,role);assert.equal(member.state,'inert');assert.equal(member.operator_id,null);}
   assert.equal((await (await restored.call('/api/projects/synthetic-spool-setup/keys',undefined,{Cookie:cookie})).json()).length,0);

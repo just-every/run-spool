@@ -21,7 +21,8 @@ async function journey(width) {
  const checked=name=>evidence.checks.push({width,name});
 try {
  const cookie=await signIn(origin);await chooseLocalAgentPolicy(origin,cookie);
- async function api(path,method='GET',value){const response=await fetch(origin+path,{method,headers:{Cookie:cookie,Origin:origin,...value?{'Content-Type':'application/json'}:{}},...value?{body:JSON.stringify(value)}:{}});assert.ok(response.ok,`${method} ${path}: ${response.status}`);return path==='/api/archive'?archiveProjection(response):response.json();}
+ // Browser steps leave Node's sockets idle, and the next width starts a new Worker on the same port.
+ async function api(path,method='GET',value){const response=await fetch(origin+path,{method,headers:{Cookie:cookie,Origin:origin,Connection:'close',...value?{'Content-Type':'application/json'}:{}},...value?{body:JSON.stringify(value)}:{}});assert.ok(response.ok,`${method} ${path}: ${response.status}`);return path==='/api/archive'?archiveProjection(response):response.json();}
  browser=await launchBrowser();const context=await browser.newContext({viewport:{width,height:900},permissions:['clipboard-read','clipboard-write']});
  await context.addCookies([{name:cookie.split('=')[0],value:cookie.slice(cookie.indexOf('=')+1),url:origin}]);
  const page=await context.newPage(),pageErrors=[];page.on('pageerror',error=>pageErrors.push(error.message));page.setDefaultTimeout(15000);
@@ -131,7 +132,7 @@ try {
   await settingsNavigation.getByRole('link',{name:'Data & archive',exact:true}).click();
  }
  await capture('settings-data',width);
- const beforeDownload=await archiveProjection(await fetch(origin+'/api/archive',{headers:{Cookie:cookie}}));
+ const beforeDownload=await api('/api/archive');
  const [download]=await Promise.all([page.waitForEvent('download'),page.getByRole('button',{name:'Download private archive',exact:true}).click()]);
  assert.equal(await download.failure(),null);assert.equal(download.suggestedFilename(),'spool-private-archive.jsonl');
  const downloaded=await archiveProjection(new Response(await readFile(await download.path())));
@@ -156,7 +157,7 @@ try {
  }
  const destination=await startTestWorker(15483);
  try{
-  const destinationCookie=await signIn(destination.origin),headers={Cookie:destinationCookie,Origin:destination.origin};
+  const destinationCookie=await signIn(destination.origin),headers={Cookie:destinationCookie,Origin:destination.origin,Connection:'close'};
   if(width===1440)await damagedRestoreUI(browser,destination.origin,destinationCookie,downloaded.text,output);
   const restored=await fetch(destination.origin+'/api/restore',{method:'POST',headers:{...headers,'Content-Type':'application/x-ndjson','X-Confirm-Restore':'yes'},body:downloaded.text});
   assert.equal(restored.status,200,'the actual browser file restores into an independent empty installation');await restored.body?.cancel();
@@ -230,7 +231,7 @@ try {
  const diagnostics=await api('/api/projects','POST',{id:'synthetic-spool-1',name:'Synthetic item diagnostics'}),dsn=new URL(diagnostics.dsn);
  const diagnosticItems=[['statsd','synthetic-spool-1:1|c'],['statsd','synthetic-spool-2:1|c'],['synthetic-spool-3','{}'],['synthetic-spool-4','{}'],['synthetic-spool-5','{}'],['event',JSON.stringify({event_id:'7'.repeat(32),release:'synthetic-spool-1',message:'Synthetic diagnostic companion error'})]];
  const diagnosticWire='{}\n'+diagnosticItems.map(([type,body])=>JSON.stringify({type,length:Buffer.byteLength(body)})+'\n'+body).join('\n');
- const diagnosed=await fetch(origin+'/api'+dsn.pathname+'/envelope/?sentry_key='+dsn.username+'&sentry_version=7',{method:'POST',body:diagnosticWire});assert.equal(diagnosed.status,200);
+ const diagnosed=await fetch(origin+'/api'+dsn.pathname+'/envelope/?sentry_key='+dsn.username+'&sentry_version=7',{method:'POST',headers:{Connection:'close'},body:diagnosticWire});assert.equal(diagnosed.status,200);await diagnosed.body?.cancel();
  await page.goto(origin+'/projects/synthetic-spool-1/capture');await page.getByText('Unsupported statsd items',{exact:true}).waitFor();
  const receipts=page.locator('.capture-accounting');
  if(width===1440){
@@ -248,7 +249,7 @@ try {
   // frames as an ordinary TypeError to isolate the test marker's grouping.
   const sent=page.waitForResponse(response=>response.url()===origin+'/api/ingest/cedar'&&response.request().method()==='POST');
   await page.getByRole('button',{name:'Capture test exception',exact:true}).click();const response=await sent,event=response.request().postDataJSON(),test=await response.json();assert.equal(test.outcome,'accepted');
-  const ingest=async value=>{const response=await fetch(origin+'/api/ingest/cedar',{method:'POST',headers:{Origin:origin,Authorization:'Bearer '+project.ingestKey,'Content-Type':'application/json'},body:JSON.stringify(value)});assert.equal(response.status,201);return response.json();};
+  const ingest=async value=>{const response=await fetch(origin+'/api/ingest/cedar',{method:'POST',headers:{Origin:origin,Connection:'close',Authorization:'Bearer '+project.ingestKey,'Content-Type':'application/json'},body:JSON.stringify(value)});assert.equal(response.status,201);return response.json();};
   const real=await ingest({...event,eventId:crypto.randomUUID(),type:'TypeError',environment:'production'});assert.notEqual(test.issue,real.issue,'a test never joins the real issue with the same message and frames');
   const repeated=page.waitForResponse(response=>response.url()===origin+'/api/ingest/cedar'&&response.request().method()==='POST');await page.getByRole('button',{name:'Capture test exception',exact:true}).click();assert.equal((await (await repeated).json()).issue,test.issue);
   const issues=await api('/api/projects/cedar/issues'),testIssue=issues.find(row=>row.id===test.issue),realIssue=issues.find(row=>row.id===real.issue);

@@ -1,6 +1,7 @@
 import {testAndReview} from './alerts/runtime.mjs';
 import {reviewRule} from './alerts/preview-rule.mjs';
 import assert from 'node:assert/strict';
+import {expect} from '@playwright/test';
 /** Runs inside the existing triage browser and uses actual IssueView/ReleasesView. */
 export async function operatorUi({page,api,origin,project,issue,capture}){
  const root='/api/projects/'+project;
@@ -41,10 +42,12 @@ export async function operatorUi({page,api,origin,project,issue,capture}){
  assert.equal(await assignment.getAttribute('aria-invalid'),'true');
  assert.deepEqual((await api(root+'/operator-state')).assignments,beforeAssignment.assignments,'Refused private data changes no assignment');
  }
- if(page.viewportSize().width===1440){
+ const packetPattern='**/issues/'+issue+'/packet';
+ const packetRefresh=page.viewportSize().width===1440?Promise.withResolvers():null;
+ if(packetRefresh){
   // Hold the ordinary packet refresh so the comment receipt must advance
   // the same loaded view; no reload or automatic conflict retry can hide it.
-  await page.route('**/issues/'+issue+'/packet',route=>new Promise(resolve=>{page.once('spool:assignment-saved',()=>{void route.continue().then(resolve)})}));
+  await page.route(packetPattern,async route=>{await packetRefresh.promise;await route.continue();});
   await page.getByLabel('Comment',{exact:true}).fill('Synthetic assignment follow-up');
   const commented=page.waitForResponse(r=>r.url().endsWith('/comments')&&r.request().method()==='POST');
   await page.getByRole('button',{name:'Post comment',exact:true}).click();assert.equal((await commented).status(),201);
@@ -57,22 +60,22 @@ export async function operatorUi({page,api,origin,project,issue,capture}){
  }
  await assignment.fill('Browser operator');
  const [assigned]=await Promise.all([page.waitForResponse(r=>r.url().endsWith('/assignment')&&r.request().method()==='PATCH'),page.getByRole('button',{name:'Save assignment',exact:true}).click()]);
- if(page.viewportSize().width===1440){page.emit('spool:assignment-saved');await page.unroute('**/issues/'+issue+'/packet');}
+ packetRefresh?.resolve();
  assert.equal(assigned.status(),200);assert.equal((await assigned.json()).label,'Browser operator');
 
- if(page.viewportSize().width===1440){
+ if(packetRefresh){
   await page.getByRole('status').filter({hasText:/assignment.*saved/i}).waitFor();
   await capture('operator-assignment');
-  await page.waitForFunction(()=>!document.querySelector('input[maxlength="80"]')?.disabled);
+  await assignment.and(page.locator(':enabled')).waitFor();
+  await page.unroute(packetPattern);
   // Another writer really changes the issue while this loaded form stays stale.
   const current=await api(root+'/issues/'+issue+'/packet');
   await api(root+'/issues/'+issue+'/assignment','PATCH',{revision:current.issue.revision,label:'Another operator'});
   await assignment.fill('Browser operator draft');
   const refused=page.waitForResponse(r=>r.url().endsWith('/assignment')&&r.request().method()==='PATCH');
   await page.getByRole('button',{name:'Save assignment',exact:true}).click();assert.equal((await refused).status(),409,'A real concurrent write is still fenced');
-  const feedback=page.locator('#'+await assignment.getAttribute('aria-describedby'));
-  assert.match(await feedback.innerText(),/reload/i,'The conflict names a recovery action available on this screen');
-  assert.doesNotMatch(await feedback.innerText(),/preview/i,'Assignment has no preview action');
+  await expect(assignment,'The conflict names a recovery action available on this screen').toHaveAccessibleDescription(/reload/i);
+  await expect(assignment,'Assignment has no preview action').not.toHaveAccessibleDescription(/preview/i);
   assert.equal(await assignment.inputValue(),'Browser operator draft','A refused save preserves the draft');
   assert.equal((await api(root+'/operator-state')).assignments.find(row=>row.issue===issue).label,'Another operator','A stale assignment cannot overwrite another writer');
   await page.reload();await page.waitForFunction(()=>!document.querySelector('input[maxlength="80"]')?.disabled);
@@ -86,10 +89,23 @@ export async function operatorUi({page,api,origin,project,issue,capture}){
  const [unassigned]=await Promise.all([page.waitForResponse(r=>r.url().endsWith('/assignment')&&r.request().method()==='PATCH'),page.getByRole('button',{name:'Unassign',exact:true}).click()]);
  assert.equal(unassigned.status(),200);assert.equal((await unassigned.json()).label,null);
  await page.waitForFunction(()=>{const input=document.querySelector('input[maxlength="80"]');return input&&!input.disabled&&input.value==='';});
- await page.getByRole('button',{name:'Details: Suppression policies',exact:true}).click();const dialog=page.getByRole('dialog');await dialog.waitFor();
- await dialog.getByRole('button',{name:'Add suppression policy',exact:true}).click();
- await page.waitForFunction(()=>document.querySelector('dialog[open]')?.textContent?.includes('Enabled'));
- await dialog.getByRole('button',{name:'Disable policy',exact:true}).click();await page.waitForFunction(()=>document.querySelector('dialog[open]')?.textContent?.includes('Disabled'));
+ const policyPath=root+'/suppression-policies';
+ const dialog=page.getByRole('dialog',{name:'Suppression policies',exact:true});
+ await page.getByRole('button',{name:'Details: Suppression policies',exact:true}).click();
+ await expect(dialog.getByLabel('Match value',{exact:true})).toHaveValue(/\S/);
+ const [createdPolicy]=await Promise.all([
+  page.waitForResponse(r=>new URL(r.url()).pathname===policyPath&&r.request().method()==='POST'),
+  dialog.getByRole('button',{name:'Add suppression policy',exact:true}).click()
+ ]);
+ assert.equal(createdPolicy.status(),201,'The suppression policy is created');
+ const {id:policyId}=await createdPolicy.json();
+ await expect(dialog.getByText(/^Enabled · /)).toBeVisible();
+ const [disabledPolicy]=await Promise.all([
+  page.waitForResponse(r=>new URL(r.url()).pathname===policyPath+'/'+policyId&&r.request().method()==='PATCH'),
+  dialog.getByRole('button',{name:'Disable policy',exact:true}).click()
+ ]);
+ assert.equal(disabledPolicy.status(),200,'The same suppression policy is disabled');
+ await expect(dialog.getByText(/^Disabled · /)).toBeVisible();
  await page.keyboard.press('Escape');
  const beforeSplitList=await api(root+'/issue-search');
  const beforeSplitOwnership=(await api('/api/reports?projects='+project)).ownership.unowned;
@@ -201,7 +217,7 @@ export async function operatorUi({page,api,origin,project,issue,capture}){
  const propose=async(kind='split')=>{
   const packet=await api(`${root}/issues/${issue}/packet`),now=Date.now();
   const change=kind==='split'?{events:[packet.events[0].id]}:{policy:{version:1,stack:'',fingerprint:'message:* -> operator-proposal'},policyRevision:(await api(root+'/grouping-rules')).revision};
-  const response=await fetch(origin+endpoint,{method:'POST',headers:{Authorization:`Bearer ${grant.key}`,'Content-Type':'application/json','Idempotency-Key':crypto.randomUUID()},body:JSON.stringify({kind,source:issue,revision:packet.issue.revision,...change,variants:[{stack:'prepareDelivery at dispatch.js',release:'autumn-deliveries',route:'/checkout'}],rationale:'Compare rebuilt delivery failures and look-alike routes before changing grouping.',window:{start:now-86400000,end:now}})});
+  const response=await fetch(origin+endpoint,{method:'POST',headers:{Authorization:`Bearer ${grant.key}`,Connection:'close','Content-Type':'application/json','Idempotency-Key':crypto.randomUUID()},body:JSON.stringify({kind,source:issue,revision:packet.issue.revision,...change,variants:[{stack:'prepareDelivery at dispatch.js',release:'autumn-deliveries',route:'/checkout'}],rationale:'Compare rebuilt delivery failures and look-alike routes before changing grouping.',window:{start:now-86400000,end:now}})});
   assert.equal(response.status,201,'Agent can propose without moving retained events');return response.json();
  };
  // The section reads quietly and again on return to the tab; a window focus is that return.

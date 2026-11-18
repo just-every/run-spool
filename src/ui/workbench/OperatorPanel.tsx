@@ -62,8 +62,11 @@ export function CorrectionHistory({ entries, issueId, busy, onUndo, labels }: { 
   </>;
 }
 
+type SuppressionPolicy = { id: string; revision: number; enabled: number; field: string; mode: string; value: string };
+type OperatorState = { policies: SuppressionPolicy[]; assignments: Array<{ issue: string; label: string | null }>; audit: any[] };
+
 export function OperatorPanel({ project, packet, busy, request, run, refresh, initial }: { initial?: Promise<any[]>; project: string; packet: any; busy: boolean; request: Request; run: Run; refresh: () => void }) {
-  const [state, setState] = useState<any>(null);
+  const [state, setState] = useState<OperatorState | null>(null);
   const [assignmentRevision, setAssignmentRevision] = useState<number | null>(null);
   const [history, setHistory] = useState<any[]>([]);
   const [references, setReferences] = useState<any>(null);
@@ -84,18 +87,26 @@ export function OperatorPanel({ project, packet, busy, request, run, refresh, in
   const ready = !!state && !waitingForPacket;
   const labelEdited = useRef(false);
   const consumedInitial = useRef<Promise<any[]> | undefined>(undefined);
+  const showOperatorState = (incoming: OperatorState) => setState(current => {
+    // An issue refresh can finish after a policy write with its pre-write snapshot.
+    // Policies are added and revised in place, so that snapshot cannot include every shown revision.
+    const stale = current?.policies.some(shown =>
+      !incoming.policies.some(policy => policy.id === shown.id && policy.revision >= shown.revision));
+    return stale ? current : incoming;
+  });
   useEffect(() => { labelEdited.current = false; setState(null); setAssignmentRevision(null); setPreview(null); setSelected([]); setFailure(''); setAssignmentError(''); setAssignmentMessage(''); }, [root, issue.id]);
   useLiveRead(async (signal, background) => {
     if (waitingForPacket) return;
     try {
       const prefetched = !background && initial && initial !== consumedInitial.current;
       consumedInitial.current = initial;
-      const [operatorState, corrections] = await (prefetched ? initial : Promise.all([request(`${root}/operator-state`), request(`${root}/corrections`)]));
+      const [snapshot, corrections] = await (prefetched ? initial : Promise.all([request(`${root}/operator-state`), request(`${root}/corrections`)]));
       if (signal.aborted) return;
       const resolved = await loadCorrectionReferences(root, packet, corrections, request);
       if (signal.aborted) return;
-      setReferences(resolved); setState(operatorState); setHistory(corrections); setFailure('');
-      if (!labelEdited.current) setLabel(operatorState.assignments.find((assignment: any) => assignment.issue === issue.id)?.label ?? '');
+      const operatorState: OperatorState = snapshot;
+      showOperatorState(operatorState); setReferences(resolved); setHistory(corrections); setFailure('');
+      if (!labelEdited.current) setLabel(operatorState.assignments.find(assignment => assignment.issue === issue.id)?.label ?? '');
       if (!state) setValue(packet.events?.[0]?.originalGrouping?.fingerprint ?? issue.fingerprint);
     } catch (error) { if (!signal.aborted) setFailure((error as Error).message); }
   }, [root, issue.id, issue.revision, assignmentRevision, request, initial], { live: !initial });
@@ -188,7 +199,7 @@ export function OperatorPanel({ project, packet, busy, request, run, refresh, in
           event.preventDefault();
           void run(async () => {
             await request(`${root}/suppression-policies`, 'POST', { field, mode, value, enabled: true });
-            setState(await request(`${root}/operator-state`));
+            showOperatorState(await request(`${root}/operator-state`));
           });
         }}>
           <label className="form-field">Match field<select disabled={busy || !ready} value={field} onChange={event => {
@@ -202,11 +213,11 @@ export function OperatorPanel({ project, packet, busy, request, run, refresh, in
           <Field label="Match value" disabled={busy || !ready} value={value} required maxLength={160} onChange={event => setValue(event.target.value)} />
           <button className="primary-button" disabled={busy || !ready}>Add suppression policy</button>
         </form>
-        {state?.policies.map((policy: any) => <div className="callout" key={policy.id}>
+        {state?.policies.map(policy => <div className="callout" key={policy.id}>
           <p>{policy.enabled ? 'Enabled' : 'Disabled'} · {policy.field} · {policy.mode} · <code>{policy.value}</code> · revision {policy.revision}</p>
           <button className="text-button" disabled={busy} onClick={() => void run(async () => {
             await request(`${root}/suppression-policies/${policy.id}`, 'PATCH', { ...policy, enabled: !policy.enabled });
-            setState(await request(`${root}/operator-state`));
+            showOperatorState(await request(`${root}/operator-state`));
           })}>{policy.enabled ? 'Disable' : 'Enable'} policy</button>
         </div>)}
         <Details title="Suppression receipts for shown occurrences" triggerLabel="Suppression receipts">

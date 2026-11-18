@@ -72,7 +72,7 @@ export async function startTestWorker(port, bindings={}, {beforeMigration,deferM
    const queries=unstable_splitSqlQuery(sql).filter(sql=>!/^PRAGMA foreign_keys\s*=\s*ON;?$/i.test(sql.trim()));
    await db.batch(queries.map(sql=>db.prepare(sql)));
   }catch(error){error.migration=migrationFailure({status:null,stderr:error?.cause?.message??error?.message});throw error}
-  const health=await fetch(origin+'/health');
+  const health=await fetch(origin+'/health',{headers:{Connection:'close'}});
   try {
    if (health.status !== 200) {
     // Report the fixed readiness queries' native D1 errors, without bindings or row data.

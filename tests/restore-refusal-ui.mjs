@@ -23,7 +23,7 @@ export async function damagedRestoreUI(browser,origin,cookie,archive,output) {
  }finally{await context.close();}
 }
 export async function erasedRestoreUI(browser,origin,cookie,archive,output) {
- const headers={Cookie:cookie,Origin:origin,'Content-Type':'application/json'};
+ const headers={Cookie:cookie,Origin:origin,Connection:'close','Content-Type':'application/json'};
  const request=async(path,method='GET',body)=>{const response=await fetch(origin+path,{method,headers,...body?{body:JSON.stringify(body)}:{}});assert.ok(response.ok,await response.clone().text());return response.json();};
  for(const project of await request('/api/projects')){const root='/api/projects/'+project.id+'/erasure',plan=await request(root);let receipt=await request(root,'POST',{confirm:project.id,planHash:plan.planHash});for(let attempt=0;receipt.phase!=='complete'&&attempt<100;attempt++)receipt=await request('/api/erasures/'+receipt.id+'/resume','POST',{});assert.equal(receipt.phase,'complete');}
  assert.deepEqual(await request('/api/projects'),[]);
