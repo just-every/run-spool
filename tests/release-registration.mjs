@@ -19,5 +19,5 @@ export async function registerReleaseAndReturn({page,origin,project,name,build,a
  await form.getByRole('link',{name:'Return to capture test',exact:true}).click();
  await expect(page).toHaveURL(origin+`/projects/${project}/capture`);
  await expect(page.getByRole('combobox',{name:'Registered release',exact:true})).toHaveValue(name);
- await expect(page.getByRole('button',{name:'Capture test exception',exact:true})).toBeEnabled();
+ await expect(page.getByRole('button',{name:'Send the test error again',exact:true})).toBeEnabled();
 }

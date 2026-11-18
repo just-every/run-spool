@@ -1,3 +1,6 @@
+import { auditActor } from '../audit/identity';
+import { activity } from '../discussion/model';
+import { projectAssignees, projectAssigneesSql, resolveAssignments } from './assignment';
 import { Hono } from 'hono';
 import { scrub } from '../privacy';
 import { policyInput } from './validation';
@@ -8,14 +11,41 @@ export const matchArgs=(project:string,fingerprint:string,release:string,message
 const routes=new Hono<any>();
 routes.get('/:project/operator-state',async c=>{
  const auth=await authorize(c);if('response' in auth)return auth.response;const db=c.env.DB,p=c.req.param('project');
- const [policies,assignments,audits]=await Promise.all([s(db,'SELECT * FROM suppression_policies WHERE project=? ORDER BY created,id',p).all(),s(db,'SELECT * FROM issue_assignments WHERE project=?',p).all(),s(db,"SELECT * FROM audit WHERE project=? AND kind IN ('issue_assigned','suppression_changed','grouping_applied','grouping_undone','deployment_registered') ORDER BY created DESC,id LIMIT 100",p).all()]);
- return c.json({policies:policies.results,assignments:assignments.results,audit:await Promise.all(audits.results.map(async(row:any)=>{const operation=await s(db,'SELECT kind,actor,approvers FROM spool_native_audit_actors WHERE audit_id=?',row.id).first<any>();return {...row,preparedBy:operation?.kind==='agent'?JSON.parse(operation.actor):null,personActor:operation?.kind==='person'?JSON.parse(operation.actor):null,approvers:operation?JSON.parse(operation.approvers):[]};})),assignmentSemantics:'A bounded operator label, not an account, invitation, permission or notification.'});
+ const [policies,assignments,audits]=await Promise.all([s(db,'SELECT * FROM suppression_policies WHERE project=? ORDER BY created,id',p).all(),resolveAssignments(db,p),s(db,"SELECT * FROM audit WHERE project=? AND kind IN ('issue_assigned','suppression_changed','grouping_applied','grouping_undone','deployment_registered') ORDER BY created DESC,id LIMIT 100",p).all()]);
+ return c.json({policies:policies.results,assignments,audit:await Promise.all(audits.results.map(async(row:any)=>{const operation=await s(db,'SELECT kind,actor,approvers FROM spool_native_audit_actors WHERE audit_id=?',row.id).first<any>();return {...row,preparedBy:operation?.kind==='agent'?JSON.parse(operation.actor):null,personActor:operation?.kind==='person'?JSON.parse(operation.actor):null,approvers:operation?JSON.parse(operation.approvers):[]};})),assignmentSemantics:'Project member responsibility; assignment does not change access.'});
+});
+routes.get('/:project/assignment-members',async c=>{
+ const auth=await authorize(c);if('response' in auth)return auth.response;
+ if(!await s(c.env.DB,'SELECT 1 FROM projects WHERE id=?',c.req.param('project')).first())return c.json({error:'Project not found'},404);
+ return c.json({members:await projectAssignees(c.env.DB,c.req.param('project'))});
 });
 routes.patch('/:project/issues/:issue/assignment',async c=>{
  const auth=await authorize(c);if('response' in auth)return auth.response;const db=c.env.DB,p=c.req.param('project'),issue=c.req.param('issue'),b=await body(c);
- if(!Number.isSafeInteger(b.revision)||b.label!==null&&(typeof b.label!=='string'||!b.label.trim()||b.label.length>80))return c.json({error:'Use an operator name up to 80 characters, or clear the assignment.'},400);
- if(b.label!==null&&scrub(b.label)!==b.label)return c.json({error:'Email addresses and other private data are not stored as operator labels. Use a plain name.'},400);
- try{await write(c,auth.session,[guard(db,'EXISTS(SELECT 1 FROM issues WHERE project=? AND id=? AND revision=?)',p,issue,b.revision),s(db,'UPDATE issues SET revision=revision+1 WHERE project=? AND id=?',p,issue),s(db,'INSERT INTO issue_assignments VALUES(?,?,?,?) ON CONFLICT(issue) DO UPDATE SET label=excluded.label,updated=excluded.updated',p,issue,b.label,Date.now()),audit(db,p,'issue_assigned',{issue,label:b.label,revision:b.revision+1})]);return c.json({issue,label:b.label,revision:b.revision+1})}catch(e){return conflict(c,e,'This issue changed. Reload the issue, review its current assignment, then save again.')}
+ if(!Number.isSafeInteger(b.revision))return c.json({error:'Reload the issue before assigning it.'},400);
+ const memberInput=Object.hasOwn(b,'member');
+ let label:string|null,member:string|null=null;
+ if(memberInput){
+  if(b.member!==null&&typeof b.member!=='string')return c.json({error:'Choose a project member.'},400);
+  member=b.member;
+  if(member!==null){
+   const available=await projectAssignees(db,p),target=available.find(row=>row.id===member);
+   if(!target)return c.json({error:'That member no longer has access to this project.'},409);
+   const person=await s(db,'SELECT role FROM oa_operators WHERE id=?',member).first<any>();
+   label=(await auditActor(db,{kind:person.role==='owner'?'owner':'member',authority:member,project:p})).label;
+  }else label=null;
+ }else{
+  if(b.label!==null&&(typeof b.label!=='string'||!b.label.trim()||b.label.length>80||b.label.startsWith('audit:')))return c.json({error:'Use an operator name up to 80 characters, or clear the assignment.'},400);
+  if(b.label!==null&&scrub(b.label)!==b.label)return c.json({error:'Email addresses and other private data are not stored as operator labels. Use a plain name.'},400);
+  label=b.label;
+ }
+ const time=Date.now();
+ try{await write(c,auth.session,[guard(db,'EXISTS(SELECT 1 FROM issues WHERE project=? AND id=? AND revision=?)',p,issue,b.revision),
+  ...member?[guard(db,`EXISTS(SELECT 1 FROM (${projectAssigneesSql}) WHERE id=?)`,p,member)]:[],
+  s(db,'UPDATE issues SET revision=revision+1 WHERE project=? AND id=?',p,issue),
+  s(db,'INSERT INTO issue_assignments VALUES(?,?,?,?) ON CONFLICT(issue) DO UPDATE SET label=excluded.label,updated=excluded.updated',p,issue,label,time),
+  activity(db,p,issue,'assignment',{assignee:label},time),audit(db,p,'issue_assigned',{issue,label,revision:b.revision+1})]);
+  return c.json({issue,label,member,revision:b.revision+1});
+ }catch(e){return conflict(c,e,'This issue changed. Reload the issue, review its current assignment, then save again.')}
 });
 routes.post('/:project/suppression-policies',async c=>{
  const auth=await authorize(c);if('response' in auth)return auth.response;const db=c.env.DB,p=c.req.param('project'),b=policyInput(await body(c)),id=crypto.randomUUID(),time=Date.now();

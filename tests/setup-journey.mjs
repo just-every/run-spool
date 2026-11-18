@@ -83,7 +83,7 @@ export async function firstProjectJourney(browser, origin, width) {
   assert.ok((await (await request.get(origin+'/api/projects/journey/browser-origins')).json()).some(row=>row.origin===appOrigin),'first run allowed the app origin');
   await tabTo(page.getByRole('link',{name:'Manage allowed origins',exact:true}),'Manage allowed origins link');
   await tabTo(page.getByRole('button',{name:'Send test error',exact:true}),'Send test error button');await page.keyboard.press('Enter');
-  await page.getByRole('status').filter({hasText:'Test error received.'}).waitFor();
+  await page.getByRole('status').filter({hasText:'New alert raised'}).waitFor();
   const testIssue=page.getByRole('link',{name:'Open the test issue',exact:true});await tabTo(testIssue,'Open the test issue link');
   const issueId=decodeURIComponent((await testIssue.getAttribute('href')).split('/').at(-1));const testRow=(await (await request.get(origin+'/api/projects/journey/issues')).json()).find(row=>row.id===issueId);assert.ok(testRow,'the test error became an issue');assert.match(testRow.title,/test/i,'the first-run test has a recognizable issue title');
   const captured=await fromApp();assert.equal(captured.status,201,'the allowed app uses its scoped key without the owner gate');assert.equal((await captured.json()).outcome,'accepted');

@@ -3,9 +3,10 @@ import {scrub} from '../privacy';
 export const latestReviewAlert=(alias:string)=>`(SELECT id FROM alerts WHERE project=${alias}.project AND issue=${alias}.id AND kind IN ('new_issue','regression') ORDER BY created DESC,id DESC LIMIT 1)`;
 export const pendingReview=(alias:string)=>`(${latestReviewAlert(alias)} IS NOT NULL AND NOT EXISTS(SELECT 1 FROM review_stamps reviewed WHERE reviewed.project=${alias}.project AND reviewed.issue=${alias}.id AND reviewed.alert=${latestReviewAlert(alias)}))`;
 export function reviewQuery(value:any){
- if(!value||Array.isArray(value)||Object.keys(value).some(k=>!['q','status','release','sort'].includes(k)))throw new Error('Only validated query fields can be saved');
- const query={q:value.q??'',status:value.status??'all',release:value.release??'all',sort:value.sort??'priority'};
+ if(!value||Array.isArray(value)||Object.keys(value).some(k=>!['q','status','release','sort','assignee'].includes(k)))throw new Error('Only validated query fields can be saved');
+ const query={q:value.q??'',status:value.status??'all',release:value.release??'all',sort:value.sort??'priority',...Object.hasOwn(value,'assignee')?{assignee:value.assignee}:{}};
  if(Object.values(query).some(v=>typeof v!=='string'||scrub(v)!==v)||query.release.length>200||!['all','open','acknowledged','resolved','suppressed'].includes(query.status)||!['priority','latest','occurrences'].includes(query.sort))throw new Error('Invalid saved query');
+ if(query.assignee!==undefined&&!['all','me'].includes(query.assignee))throw new Error('Invalid saved assignee filter');
  eventQuery(query.q);return query;
 }
 export const reviewTables={review_stamps:['project','issue','generation','alert','reviewed'],review_views:['project','id','generation','query']};
