@@ -1,3 +1,4 @@
+import { previousKeyMetadataObjects } from './key-metadata-compat';
 import { restoreTranslatedProjection } from './alerts/archive-history';
 import { ledgerReader } from '../modules/portability/ledgers.mjs';
 import { nativeSymbolTables, nativeDebugFileTables } from './native-symbols/archive';
@@ -303,12 +304,12 @@ async function earlierManifest(db: D1Database, manifest: any) {
  const tableless = [...new Set(compatibleSets.filter(later => !later.tables.length).flatMap(later => later.migrations))];
  for (const later of compatibleSets) {
   // A set that adds no archived table matches today's schema, so it applies only to an archive missing its migrations.
-  if (!later.tables.length && !(Array.isArray(manifest.migrations) && later.migrations.some(name => !manifest.migrations.includes(name)) && tableless.every(name => manifest.migrations.includes(name) || later.migrations.includes(name))) && !(later.migrations.length===1 && later.migrations[0]==='0109_feedback_review.sql' && !manifest.migrations?.length)) continue;
+  if (!later.tables.length && !(Array.isArray(manifest.migrations) && later.migrations.some(name => !manifest.migrations.includes(name)) && tableless.every(name => manifest.migrations.includes(name) || later.migrations.includes(name))) && !(later.migrations.includes('0109_feedback_review.sql') && later.migrations.every(name=>['0109_feedback_review.sql','0111_key_names_and_use.sql'].includes(name)) && !manifest.migrations?.length)) continue;
   const missing=later.tables.filter(name=>!carriedReporting||!reportingNames.includes(name));
   if(later.tables.length&&!missing.length)continue;
   // An archive that records no migration list is either older than 0054 (issue_resolutions in its first form) or a current
   // format that carries none: try the recorded reading first, then today's form of that table.
-  const reviewOnly=later.tables.length===0 && later.migrations.length===1 && later.migrations[0]==='0109_feedback_review.sql';
+  const reviewOnly=later.tables.length===0 && later.migrations.includes('0109_feedback_review.sql') && later.migrations.every(name=>['0109_feedback_review.sql','0111_key_names_and_use.sql'].includes(name));
   const earlierWith = (before0054: boolean) => reviewOnly ? current.tables.map((table:any)=>beforeFeedbackReview(table,manifest)) : current.tables.filter((table: any) => !missing.includes(table.name)).map((table:any)=>beforeSentryRosterTable(beforeFeedbackReview(beforeProjectMetrics(beforeAgentAttribution(table,manifest),manifest),manifest),manifest)).map((table:any)=>table.name==='issue_resolutions'&&before0054?{...table,sql:table.sql.replace('CREATE TABLE \"issue_resolutions\"','CREATE TABLE issue_resolutions').replace("('plain','current','next','named')","('plain','current')")}:table);
   let earlier: any[] | undefined;
   for (const before0054 of new Set([!manifest.migrations?.includes('0054_release_resolution_dist.sql'), false])) {
@@ -320,7 +321,7 @@ async function earlierManifest(db: D1Database, manifest: any) {
   // A recognized native table upgrade must retain a complete, known object
   // inventory. An unrecorded index/trigger is never installed or acknowledged.
   // Archives without an object inventory still require Base's legacy replay.
-  if(product.schemaObjects!==undefined && canonicalJson(product.schemaObjects)!==canonicalJson(reviewOnly?current.schemaObjects:beforeSentryRosterObjects(beforeProjectMetricObjects(previousRelayPrivacyObjects(previousNativeSymbolObjects(current.schemaObjects,manifest),manifest),manifest),manifest)))throw new PortabilityError('legacy_schema_object_inventory');
+  if(product.schemaObjects!==undefined && canonicalJson(product.schemaObjects)!==canonicalJson(previousKeyMetadataObjects(reviewOnly?current.schemaObjects:beforeSentryRosterObjects(beforeProjectMetricObjects(previousRelayPrivacyObjects(previousNativeSymbolObjects(current.schemaObjects,manifest),manifest),manifest),manifest),manifest)))throw new PortabilityError('legacy_schema_object_inventory');
   // Normalize this positively matched native inventory to the destination. The
   // original binding and source history are checked before finalize; platform
   // bookkeeping is never installed as product data or presented as new history.
@@ -444,3 +445,6 @@ export async function restoreArchive(service: any, source: ReadableStream<Uint8A
 // Pending Sentry review records remain inert when an older archive is restored.
 for(const later of laterTables){if(!later.tables.includes('spool_import_proposals'))later.tables.push('spool_import_proposals');later.migrations.push('0110_sentry_roster_proposals.sql')}
 laterTables.unshift({tables:['spool_import_proposals'],migrations:['0110_sentry_roster_proposals.sql']});
+// Key metadata belongs only to excluded grants. Earlier archives add no rows.
+for(const later of laterTables)later.migrations.push('0111_key_names_and_use.sql');
+laterTables.unshift({tables:[],migrations:['0111_key_names_and_use.sql']});

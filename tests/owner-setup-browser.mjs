@@ -35,9 +35,10 @@ export async function ownerSetupBrowser(app, cookie, project, json) {
   await page.getByRole('button',{name:'Create ingest key',exact:true}).click();assert.equal((await firstIssued).status(),201);
   const firstKey=await page.locator('[data-secret="project-key"] pre').innerText(),firstDsn=await page.getByLabel('Sentry DSN',{exact:true}).innerText();await page.getByRole('button',{name:'Copy Project key',exact:true}).click();
   assert.equal(await page.evaluate(async key=>(await navigator.clipboard.readText())===key,firstKey),true);await page.evaluate(()=>navigator.clipboard.writeText(''));await screenshot('settings-issued');
-  await page.getByRole('link',{name:'open Capture to copy and test this key',exact:true}).click();
-  assert.equal((await page.getByLabel('Ingest key',{exact:true}).innerText())===firstKey,true,'navigation retains the same issued key in memory');
-  assert.equal(await page.getByLabel('Sentry DSN',{exact:true}).innerText(),firstDsn,'navigation carries the matching DSN with the key');
+  await page.getByRole('button',{name:"I've saved it",exact:true}).click();
+  await page.goto(app.origin+'/projects/'+project.id+'/capture');
+  await expect(page.getByRole('dialog',{name:'New project key',exact:true})).toHaveCount(0);
+  await expect(page.getByRole('button',{name:'Copy Ingest key',exact:true})).toHaveCount(0);
   const support=page.getByRole('list',{name:'Sentry capture support',exact:true});
   await expect(support).toBeVisible();
   const dsn=new URL(firstDsn),stamp=new Date().toISOString();
@@ -51,7 +52,6 @@ export async function ownerSetupBrowser(app, cookie, project, json) {
   assert.ok(fragment&&await page.evaluate(({html,fragment})=>!!new DOMParser().parseFromString(html,'text/html').getElementById(fragment),{html:await guide.text(),fragment}),'the prerequisite link reaches its actual guide section');
   const mapping=page.getByRole('heading',{name:'Set up original-source mapping',exact:true}).locator('..');
   for(const width of [1440,390]){await page.setViewportSize({width,height:1000});await mapping.screenshot({path:`${folder}/source-map-setup-${width}.png`});}await page.setViewportSize({width:1440,height:1000});
-  await page.getByRole('button',{name:'Dismiss ingest key',exact:true}).click();
   await page.getByRole('button',{name:'Create ingest key',exact:true}).waitFor();await screenshot('capture-reissue');
   const created=page.waitForResponse(r=>new URL(r.url()).pathname==='/api/projects/'+project.id+'/keys'&&r.request().method()==='POST');
   await page.getByRole('button',{name:'Create ingest key',exact:true}).click();const issued=await created;assert.equal(issued.status(),201);const grant=await issued.json();

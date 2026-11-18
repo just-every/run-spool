@@ -13,7 +13,7 @@ export function CaptureView({ project, projectName, releases, issues, outcomes, 
   onKeyDismiss?: () => void; initialKey?: string; initialDsn?: string; project: string; projectName: string; releases: any[]; issues: any[]; outcomes: CaptureOutcomes | null; busy: boolean; request: Request; run: Run; refresh: () => void; onReleases: () => void; onIssue: (id: string) => void; readOnly?: boolean; manageProject?: boolean; manageOrganization?: boolean;
 }) {
   const [endpoint, setEndpoint] = useState('');
-  const [key, setKey] = useDraft(`${project}.capture-key`, initialKey), [releaseName, setReleaseName] = useDraft(`${project}.capture-release`, '');
+  const [key, setKey] = useState(initialKey), [releaseName, setReleaseName] = useDraft(`${project}.capture-release`, '');
   const [preview, setPreview] = useDraft<any>(`${project}.capture-preview`, null), [outcome, setOutcome] = useDraft<any>(`${project}.capture-outcome`, null);
   const [lastCapture, setLastCapture] = useDraft<any>(`${project}.capture-retry`, null);
   const release = releases.find(row => row.name === releaseName) ?? releases[0];

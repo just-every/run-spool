@@ -73,6 +73,11 @@ export async function settingsPrerequisiteGuides(origin,cookie,project) {
   }
   await openGuide(cron.getByRole('link',{name:/integration egress/i}),cron,'cron');
   await sections.getByRole('link',{name:'Alerts & integrations',exact:true}).click();
+  // Integration setup deliberately lives behind Details; follow that owner action
+  // before checking the same visible guide, source pin and anonymous access.
+  const alertDetails=page.locator('#settings-alerts > details');
+  assert.equal(await alertDetails.getAttribute('open'),null,'advanced integration setup starts collapsed');
+  await alertDetails.locator(':scope > summary').click();
   await openGuide(slack.getByRole('link',{name:/integration egress/i}),slack,'slack');
   await sections.getByRole('link',{name:'Data & archive',exact:true}).click();
   const business=page.locator('section.evidence').filter({has:page.getByText('Business imports',{exact:true})});

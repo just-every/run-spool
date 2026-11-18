@@ -21,6 +21,7 @@ export async function authorizeDeploy(c:any,project:string):Promise<{actor:strin
   // These routes precede the normal agent guard; preserve its read-only denial.
   if(grant.kind==='agent')return {response:c.json({error:'Agent keys are read-only and limited to their project.'},403)};
   if(grant.project!==project)return {response:c.json({error:'Deploy project scope required'},403)};
+  await c.env.DB.prepare('UPDATE credentials SET last_used=? WHERE hash=? AND revoked IS NULL').bind(Date.now(),digest).run();
   return {actor:await deploymentActor(c.env.DB,project,'deploy:'+digest),guard:()=>c.env.DB.prepare(`INSERT INTO spool_authority_guards(ok) SELECT CASE WHEN EXISTS(SELECT 1 FROM credentials WHERE hash=? AND project=? AND kind='deploy' AND revoked IS NULL AND ${mintedByCurrentPerson}) THEN 1 ELSE 0 END`).bind(digest,project)};
 }
 export async function deployBatch(c:any,authorization:{guard:()=>D1PreparedStatement},statements:D1PreparedStatement[]){

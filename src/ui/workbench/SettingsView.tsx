@@ -1,9 +1,10 @@
+import { SlackDestinationForm } from '../alerts/SlackDestinationForm';
+import { KeyName } from './KeyName';
+import { Field } from './shared';
 import { ProjectKeyFacts, keyKind, keyStatus } from './ProjectKeyFacts';
-import {PersonalNotifications} from './PersonalNotifications';
 import { KeyRateLimit } from './KeyRateLimit';
 import {RecurrencePolicy} from './RecurrencePolicy';
 import {ScrubbingRules} from './ScrubbingRules';
-import {SlackDestinationForm} from '../alerts/SlackDestinationForm';
 import {IdentityPolicy} from './IdentityPolicy';
 import { LoaderSettings } from './LoaderSettings';
 import { CheckInRoutes } from './CheckInRoutes';
@@ -25,7 +26,7 @@ import { Details } from './Details';
 import { OriginStep, SdkSetup, SentryIntake } from './SdkSetup';
 import { SchedulerStatus } from './SchedulerStatus';
 import { BusinessImports } from './BusinessImports';
-import { date, type Request, type Run } from './shared';
+import type { Request, Run } from './shared';
 import { Members, type OrganizationAccess } from './Members';
 
 const settingsSections = [
@@ -50,7 +51,7 @@ function sectionFor(hash: string) {
 export function SettingsView({ project, projects, keys, releases, request, run, busy, refresh, onCreated, onErased, onKey, access, revision }: {
   access: OrganizationAccess; revision: number; project: string; projects: any[]; keys: any[]; releases: any[]; request: Request; run: Run; busy: boolean; refresh: () => void; onCreated: (project: any) => void; onErased: (receipt: any) => void; onKey: (grant: { key: string; dsn?: string; kind: string }) => void;
 }) {
-  const [endpoint, setEndpoint] = useState('');
+  const [endpoint, setEndpoint] = useState(''), [keyName,setKeyName] = useState(''), [revoking,setRevoking] = useState('');
   const [rulePreview, setRulePreview] = useState<any>(null);
   const [proposalVersion, setProposalVersion] = useState(0);
   useEffect(() => { setRulePreview(null); }, [project]);
@@ -95,7 +96,7 @@ export function SettingsView({ project, projects, keys, releases, request, run, 
     </div>
     <div id="settings-projects" className="settings-section" hidden={active !== 'projects'} tabIndex={-1}>
     {organizationManager && <section className="evidence"><h2>{projects.length ? 'Create another project' : 'Create your first project'}</h2><ProjectForm {...{ request, run, busy, onCreated }} /></section>}
-    {!!project && <section className="evidence"><h2>Project keys</h2><p>Capture keys send events. Agent keys read this project’s evidence and submit suggested grouping changes; decisions and apply require the owner. Deploy keys only register releases and upload source maps for this project.</p><p>Archives exclude project keys. After restoring, create new keys for this installation.</p>{!keys.length && <p>No project keys have been created here.</p>}<div className="button-row">{credentialKinds.map(kind => <button key={kind} className="text-button" disabled={busy} onClick={() => void run(async () => { const grant = await request(`/api/projects/${project}/keys`, 'POST', { kind }); onKey({ ...grant, kind }); refresh(); })}>Create {kind} key</button>)}</div>{keys.map((key, index) => <div className="data-row key-row" key={key.hash} data-key-hash={key.hash}><span><span className={index === agentRow ? 'mark' : undefined}>{keyKind(key.kind)}</span> · {keyStatus(key)}</span><span>Created {date(key.created)}</span><Details title="Project key"><ProjectKeyFacts value={key} />{configure && key.kind === 'ingest' && !key.revoked && !key.stopped && <><LoaderSettings project={project} keyHash={key.hash} {...{request,run,busy}} />{organizationManager&&<KeyRateLimit project={project} keyHash={key.hash} {...{request,run,busy}} />}</>}{!key.revoked && (configure || (projectRole === 'member' && key.kind === 'deploy')) && <button className="danger-button" disabled={busy} onClick={() => void run(async () => { await request(`/api/projects/${project}/keys/${key.hash}`, 'DELETE'); refresh(); })}>Revoke key</button>}</Details></div>)}</section>}
+    {!!project && <section className="evidence"><h2>Project keys</h2><p>Capture keys send events. Agent keys read this project’s evidence and submit suggested grouping changes; decisions and apply require the owner. Deploy keys only register releases and upload source maps for this project.</p><p>Archives exclude project keys. After restoring, create new keys for this installation.</p>{!keys.length && <p>No project keys have been created here.</p>}<Field label="New key name" value={keyName} maxLength={100} placeholder="Production site" disabled={busy} onChange={event=>setKeyName(event.target.value)}/><div className="button-row">{credentialKinds.map(kind => <button key={kind} className="text-button" disabled={busy} onClick={() => void run(async () => { const grant = await request(`/api/projects/${project}/keys`, 'POST', { kind, name: keyName }); setKeyName(''); onKey({ ...grant, kind }); refresh(); })}>Create {kind} key</button>)}</div>{keys.map((key, index) => <div className="data-row key-row" key={key.hash} data-key-hash={key.hash}><span>{key.name && <strong>{key.name} · </strong>}<span className={index === agentRow ? 'mark' : undefined}>{keyKind(key.kind)}</span> · {keyStatus(key)}</span><span>{key.last_used == null ? 'No recorded use' : `Last used ${new Date(key.last_used).toLocaleString()}`}</span><Details title="Project key"><ProjectKeyFacts value={key} />{(configure || projectRole === 'member' && key.kind === 'deploy') && <KeyName {...{project,request,run,busy,refresh}} value={key}/>}{configure && key.kind === 'ingest' && !key.revoked && !key.stopped && <><LoaderSettings project={project} keyHash={key.hash} {...{request,run,busy}} />{organizationManager&&<KeyRateLimit project={project} keyHash={key.hash} {...{request,run,busy}} />}</>}{!key.revoked && (configure || (projectRole === 'member' && key.kind === 'deploy')) && <div>{revoking===key.hash?<><p>{key.name?`Revoke ${key.name}?`:'Revoke this key?'} {key.kind==='ingest'?'Apps using it stop sending errors.':key.kind==='agent'?'Agents using it lose access to this project.':'Apps using it can no longer register releases or upload source maps.'}</p><button className="danger-button" disabled={busy} onClick={()=>void run(async()=>{await request(`/api/projects/${project}/keys/${key.hash}`,'DELETE');setRevoking('');refresh();})}>Confirm revoke</button> <button className="text-button" disabled={busy} onClick={()=>setRevoking('')}>Keep key</button></>:<button className="danger-button" disabled={busy} onClick={()=>setRevoking(key.hash)}>Revoke key</button>}</div>}</Details></div>)}</section>}
     {!!project && configure && <ReportsConfiguration key={`reports:${project}`} {...{ project, projects }} />}
     {!!project && configure && <section className="evidence"><h2>Send errors to this project</h2><p><a className="inline-link" href={hrefFor(project, 'capture')}>Create, copy and test an ingest key</a></p>{endpoint && <SdkSetup endpoint={endpoint} project={project} ingestKey="YOUR_INGEST_KEY" release={releases[0]?.name ?? 'REGISTERED_RELEASE'} build={releases[0]?.build ?? 'REGISTERED_BUILD'} />}<OriginStep key={project} project={project} request={request} /><SentryIntake /></section>}
     </div>
@@ -110,9 +111,8 @@ export function SettingsView({ project, projects, keys, releases, request, run, 
     </div>
     <div id="settings-alerts" className="settings-section" hidden={active !== 'alerts'} tabIndex={-1}>
       {!!project && configure && <p><a className="inline-link" href={hrefFor(project, 'alerts')}>Alert rules and delivery</a></p>}
-    {!!project && <PersonalNotifications key={`notifications:${project}`} {...{project,request,run,busy}} />}
-    {!!project&&configure&&<SlackDestinationForm key={`slack:${project}`} project={project}/>}
-    {access.role === 'owner' && <SchedulerStatus />}
+    <details><summary>Details</summary>{!!project&&configure&&<SlackDestinationForm key={`slack:${project}`} project={project}/>}
+    {access.role === 'owner' && <SchedulerStatus />}</details>
     </div>
     <div id="settings-privacy" className="settings-section" hidden={active !== 'privacy'} tabIndex={-1}>
     {!!project&&configure&&<ScrubbingRules key={`scrubbing:${project}`} {...{project,request,run,busy}} installation={access.role === 'owner'}/>}
@@ -123,7 +123,7 @@ export function SettingsView({ project, projects, keys, releases, request, run, 
     {access.role === 'owner' && <BusinessImports {...{ request, run, busy }} />}
     {access.role === 'owner' && <ArchiveSettings busy={busy} empty={!projects.length} run={run} refresh={refresh} />}
     {!!project && configure && <RetentionSettings {...{ project, request, run, busy, refresh }} />}
-    {!!project && access.role === 'owner' && <ProjectErasure key={project} {...{ project, request, run, busy, onErased }} />}
+    {!!project && access.role === 'owner' && <ProjectErasure key={project} projectName={projects.find(row=>row.id===project)?.name??project} {...{ project, request, run, busy, onErased }} />}
     </div>
     <div id="settings-audit" className="settings-section" hidden={active !== 'audit'} tabIndex={-1}>
     {organizationManager && <AuditHistory {...{request,run,busy}} />}
