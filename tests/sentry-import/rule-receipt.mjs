@@ -20,8 +20,10 @@ export async function approveOnReceipt({origin,cookie,project,definitions,output
   await button.waitFor({state:'hidden'});
   for(const name of definitions)await receipt.getByText(name,{exact:true}).waitFor();
   assert.ok(await receipt.evaluate(e=>e.scrollWidth<=e.clientWidth+1),'receipt fits the reviewed desktop width');
-  await page.screenshot({path:join(output,'receipt-1440.png')});
+  // The public receipt proof omits the synthetic account address in the approval caption.
+  const proof={mask:[receipt.locator('p').filter({hasText:/approved by \S+@/i})],maskColor:'#d0d5dd'};
+  await page.screenshot({...proof,path:join(output,'receipt-1440.png')});
   await page.setViewportSize({width:390,height:1000});
-  await page.screenshot({path:join(output,'receipt-390.png')});
+  await page.screenshot({...proof,path:join(output,'receipt-390.png')});
  } finally {await browser.close()}
 }

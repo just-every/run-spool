@@ -5,6 +5,7 @@ import {resolve} from 'node:path';
 import {pathToFileURL} from 'node:url';
 import {createRequire} from 'node:module';
 import {build} from 'esbuild';
+import {splitStatements} from '../src/modules/portability/sql-text.mjs';
 import {readArchive} from '../src/modules/portability/index.mjs';
 import {platformTable} from '../src/modules/portability/bookkeeping.mjs';
 import {policy} from '../src/modules/portability/catalogue.mjs';
@@ -40,12 +41,13 @@ for (const part of records.filter(r => r.kind === 'part')) for (const item of pa
 }
 const require = createRequire(import.meta.url);
 const {Miniflare, convertV4MiniflareOptions, Log, LogLevel} = require(require.resolve('miniflare', {paths: [require.resolve('wrangler/package.json')]}));
-const {unstable_splitSqlQuery} = require('wrangler');
 const migrations = JSON.parse(await readFile('management/integration/deployment-spec.json', 'utf8')).migrations;
 // Published tag bytes, fetched independently of this checkout's history.
 const released = JSON.parse(await readFile('tests/fixtures/deployment-spec-v0.6.0.json', 'utf8')).migrations;
 const temporary = await mkdtemp(resolve(tmpdir(), 'spool-old-archive-'));
 let runtime;
+const migrationStatements = migrations => migrations.flatMap(migration => splitStatements(migration.sql))
+ .filter(sql => !/^PRAGMA foreign_keys\s*=\s*ON;?$/i.test(sql.trim()));
 const rows = async (db, sql) => (await db.prepare(sql).all()).results;
 const canonicalRows = data => data.map(row => JSON.stringify(Object.fromEntries(Object.entries(row).sort()))).sort();
 try {
@@ -56,7 +58,7 @@ try {
  const ledgerTable = manifest.tables.find(t => t.name === 'rer_migrations');
  async function target(binding, schema = migrations) {
   const db = await runtime.getD1Database(binding);
-  const statements = unstable_splitSqlQuery(schema.map(m => m.sql).join('\n')).filter(sql => !/^PRAGMA foreign_keys\s*=\s*ON;?$/i.test(sql.trim()));
+  const statements = migrationStatements(schema);
   await db.batch(statements.map(sql => db.prepare(sql)));
   await db.prepare(ledgerTable.sql).run();
   await db.batch(schema.map(m => db.prepare('INSERT INTO rer_migrations(name,sha256) VALUES(?,?)').bind(m.name, m.sha256)));
@@ -82,7 +84,7 @@ try {
  const migrationNumber = ({name}) => Number(name.split('_', 1)[0]);
  assert.deepEqual(added.map(migrationNumber).filter(number => number >= 110 && number <= 114), [110, 111, 112, 113, 114],
   'the populated release applies roster, key metadata, both setup migrations and alert proposals in numeric order');
- const additions = unstable_splitSqlQuery(added.map(migration => migration.sql).join('\n')).filter(sql => !/^PRAGMA foreign_keys\s*=\s*ON;?$/i.test(sql.trim()));
+ const additions = migrationStatements(added);
  await upgrade.batch(additions.map(sql => upgrade.prepare(sql)));
  for (const {name,sql} of oldTables) {
   const upgradedRows=await rows(upgrade, `SELECT * FROM "${name}"`);
@@ -142,7 +144,7 @@ try {
  assert.ok(currentRows.get('projects').length && currentRows.get('events').length, '0068 installation has populated evidence');
  const from0068 = migrations.filter(m => m.name > '0068_artifact_build_sets.sql' && m.name <= '0073_identity_policy.sql');
  assert.equal(from0068.length, 5, 'all five c15 additive migrations follow 0068');
- await currentUpgrade.batch(unstable_splitSqlQuery(from0068.map(m => m.sql).join('\n')).filter(sql => !/^PRAGMA foreign_keys\s*=\s*ON;?$/i.test(sql.trim())).map(sql => currentUpgrade.prepare(sql)));
+ await currentUpgrade.batch(migrationStatements(from0068).map(sql => currentUpgrade.prepare(sql)));
  for (const {name,sql} of currentTables) {
   assert.deepEqual(canonicalRows(await rows(currentUpgrade, `SELECT * FROM "${name}"`)), currentRows.get(name), `0068 upgrade preserves every row: ${name}`);
   assert.equal((await currentUpgrade.prepare("SELECT sql FROM sqlite_master WHERE type='table' AND name=?").bind(name).first()).sql, sql, `0068 upgrade preserves schema: ${name}`);
@@ -168,7 +170,7 @@ try {
  const keyHash = 'd'.repeat(64);
  await setupUpgrade.prepare("INSERT INTO credentials(hash,project,kind,created,revoked) VALUES(?,?,'ingest',1,NULL)").bind(keyHash, existingProject).run();
  const rosterId='synthetic-archive-roster-team';
- await setupUpgrade.prepare("INSERT INTO spool_import_proposals(id,project,kind,payload,created) VALUES(?,?,'team',?,1)").bind(rosterId, existingProject, JSON.stringify({name:'Synthetic archive team'})).run();
+ await setupUpgrade.prepare("INSERT INTO spool_import_proposals(id,project,kind,payload,version,created) VALUES(?,?,'team',?,1,1)").bind(rosterId, existingProject, JSON.stringify({name:'Synthetic archive team'})).run();
  const rosterBefore=await rows(setupUpgrade,'SELECT * FROM spool_import_proposals');
  const beforeSetupUpgrade = await new Response(await transfer.archiveStream(await transfer.portability(setupUpgrade))).text();
  const setupLedger = await rows(setupUpgrade, 'SELECT name FROM rer_migrations ORDER BY rowid');
@@ -181,7 +183,7 @@ try {
   const {name,sql,sha256}=migration;
   if(migrationNumber(migration)===114)beforeAlertUpgrade=await new Response(await transfer.archiveStream(await transfer.portability(setupUpgrade))).text();
   await setupUpgrade.batch([
-   ...unstable_splitSqlQuery(sql).map(statement => setupUpgrade.prepare(statement)),
+   ...splitStatements(sql).map(statement => setupUpgrade.prepare(statement)),
    setupUpgrade.prepare('INSERT INTO rer_migrations(name,sha256) VALUES(?,?)').bind(name, sha256),
   ]);
  }

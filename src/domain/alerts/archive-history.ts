@@ -29,7 +29,8 @@ export async function verifyTranslatedHistory(service:any,manifest:any,ledgers:a
  const replay=await factory(),files=replay.names.map((name:string)=>({name,sha256:replay.sha256?.(name),aliases:replay.aliases?.(name)}));
  const recorded=matchMigrationLedger(history??manifest.migrations.map((name:string)=>({name})),files,replay);
  const recordedOrder=canonicalJson(orderKeyMetadata(recorded)),replayOrder=orderKeyMetadata(replay.names);
- const prefix=recordedOrder===canonicalJson(replayOrder.slice(0,recorded.length));
+ const prefix=canonicalJson(recorded)===canonicalJson(replay.names.slice(0,recorded.length))
+  || recordedOrder===canonicalJson(replayOrder.slice(0,recorded.length));
  // A complete, product-matched historical inventory can prove a single known
  // omission. Every other migration must still match destination replay in order.
  const fillsKnownGap=gap && replay.names.includes(gap.migration)

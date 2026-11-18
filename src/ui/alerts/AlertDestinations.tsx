@@ -3,14 +3,20 @@ import { useState } from 'react';
 import { Field } from '../workbench/shared';
 import { alertApi } from './client';
 
-export function AlertDestinations({project,rows,configuration,refresh}:{project:string;rows:any[];configuration:string;refresh:()=>void}) {
+export function AlertDestinations({project,rows,configuration,refresh,onReviewed}:{project:string;rows:any[];configuration:string;refresh:()=>void;onReviewed:(destination:string,testId:string,reviewedAt:number)=>void}) {
  rows=rows.filter(row=>row.kind!=='slack');
  const [editing,setEditing]=useState<string|null>(null),[label,setLabel]=useState(''),[recipient,setRecipient]=useState('');
  const [target,setTarget]=useState<NotifyDraft>(initialTarget);
  const [busy,setBusy]=useState(false),[error,setError]=useState(''),[message,setMessage]=useState('');
  function clear(){setEditing(null);setLabel('');setRecipient('');setTarget(initialTarget)}
  async function save(){setBusy(true);setError('');setMessage('');try{const saved=await alertApi(`/api/projects/${project}/alerting/destinations${editing?'/'+editing:''}`,editing?'PUT':'POST',target.type==='email'?{label,recipient}:{label,target:{type:target.type,...target.type==='issue_owners'?{}:{id:target.id},fallthrough:target.fallthrough}});setMessage(editing&&saved.id===editing?'Destination name updated. Existing rules and queued work continue.':editing?'Destination updated. Its rules are disabled until the new address passes a reviewed test; queued work for the previous address was stopped.':'Destination added. Test it below, then choose it in a rule.');clear();refresh()}catch(e){setError((e as Error).message)}finally{setBusy(false)}}
- async function review(row:any){setBusy(true);setError('');try{await alertApi(`/api/projects/${project}/alerting/destinations/${row.id}/review`,'POST',{testId:row.test.id});refresh()}catch(e){setError((e as Error).message)}finally{setBusy(false)}}
+ async function review(row:any){
+  setBusy(true);setError('');
+  try{
+   const {reviewedAt}=await alertApi(`/api/projects/${project}/alerting/destinations/${row.id}/review`,'POST',{testId:row.test.id});
+   onReviewed(row.id,row.test.id,reviewedAt);
+  }catch(e){setError((e as Error).message)}finally{setBusy(false)}
+ }
  async function test(id:string){setBusy(true);setError('');setMessage('');try{const result=await alertApi(`/api/projects/${project}/alerting/destinations/${id}/test`,'POST',{});setMessage(result.message);refresh()}catch(e){setError((e as Error).message)}finally{setBusy(false)}}
  return <section className="evidence"><h2>Alert destinations</h2><p>Choose an email address or authorized project recipients, test the destination, then select it in a rule below. Destinations belong only to this project. <a href="https://github.com/just-every/run-spool/blob/main/docs/ALERT-WEBHOOKS.md#manage-email-destinations">Destination setup guide</a></p>
  {configuration==='blocked'&&<p className="callout" role="alert">This installation’s server destination configuration is invalid. Its operator must correct ALERT_DESTINATIONS before rules can deliver.</p>}
