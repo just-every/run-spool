@@ -59,3 +59,5 @@ GitHub Verify 44246266057 completed successfully on attempt 1 for 479aabb16f2a9c
 [Verify run](https://github.com/just-every/run-spool/actions/runs/44246266057)
 
 The final local agent-handoff attempt also stopped at its 90-second dev listener deadline before running its assertions. The full GitHub workflow passed on the published SHA. The local build, Agent Door, owner runtime and selected browser results are recorded independently in CHECKS.json.
+
+The full local project-erasure retry finished successfully at 06:14:54 UTC. It passed seven check groups covering browser confirmation, native erasure receipts, D1 and archive scanning, and restore fences. Its browser and temporary checkout both stopped cleanly.

@@ -1,5 +1,5 @@
 {
-  "at": "2026-11-18T06:12:38+00:00",
+  "at": "2026-11-18T06:15:32+00:00",
   "base": "0343c3c54b7249e4c708a60ca5648794dbc474b7",
   "branch": "cloud/sd-spool-design-keys-5",
   "browser": "Chromium 154.0.8037.57 built on Debian GNU/Linux 13 (trixie)",
@@ -246,6 +246,12 @@
     },
     "erasure-preview-final": {
       "at": "2026-11-18T05:53:12Z",
+      "exit_code": 0,
+      "head": "479aabb16f2a9c8ca19eb93d1eec2ba130dff227",
+      "result": "PASS"
+    },
+    "erasure-retry": {
+      "at": "2026-11-18T06:14:54Z",
       "exit_code": 0,
       "head": "479aabb16f2a9c8ca19eb93d1eec2ba130dff227",
       "result": "PASS"
