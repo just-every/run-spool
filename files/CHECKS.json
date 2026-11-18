@@ -1,5 +1,5 @@
 {
-  "at": "2026-11-18T05:57:40+00:00",
+  "at": "2026-11-18T06:12:38+00:00",
   "base": "0343c3c54b7249e4c708a60ca5648794dbc474b7",
   "branch": "cloud/sd-spool-design-keys-5",
   "browser": "Chromium 154.0.8037.57 built on Debian GNU/Linux 13 (trixie)",
@@ -29,15 +29,27 @@
       "viewport": 390
     },
     {
-      "bytes": 37702,
-      "path": "browser/erasure-updated-preview-1440.png",
-      "sha256": "59031fdeabac5475cc3fda86aa1e4d05cb7020c0a74a04a0f6a3bcfd2fa123a5",
+      "bytes": 267146,
+      "path": "browser/erasure-receipt-1440.png",
+      "sha256": "f8890816ce162a09a1884e547ef2b7ed9a1fab1dbe2695c7c6aada8a2ed98fc2",
       "viewport": 1440
     },
     {
-      "bytes": 34077,
+      "bytes": 154981,
+      "path": "browser/erasure-receipt-390.png",
+      "sha256": "e6be0dd9e955f4b801a4c78f56afe1663bf0fbed795573aea99f93c328d7bb50",
+      "viewport": 390
+    },
+    {
+      "bytes": 44245,
+      "path": "browser/erasure-updated-preview-1440.png",
+      "sha256": "06e8b9c41c2920773b0545db494fe7a996db98dc55f80238f43d312189edf35d",
+      "viewport": 1440
+    },
+    {
+      "bytes": 40307,
       "path": "browser/erasure-updated-preview-390.png",
-      "sha256": "831f43c4427b180e0d10083f6132cac628efc25ab7189d29ef8d97c498f1c1bd",
+      "sha256": "8312a96bfdce7ca2cf6d360b8c2d44080bbe629b5d6bbf1428ba947a8c7822c0",
       "viewport": 390
     },
     {
@@ -151,6 +163,12 @@
       "head": "479aabb16f2a9c8ca19eb93d1eec2ba130dff227",
       "result": "PASS"
     },
+    "agent-door-browser-final": {
+      "at": "2026-11-18T06:07:15Z",
+      "exit_code": 0,
+      "head": "479aabb16f2a9c8ca19eb93d1eec2ba130dff227",
+      "result": "PASS"
+    },
     "agent-door-final": {
       "at": "2026-11-18T05:55:34Z",
       "exit_code": 1,
@@ -162,6 +180,12 @@
       "exit_code": 1,
       "result": "FAIL"
     },
+    "agent-handoff-final": {
+      "at": "2026-11-18T06:09:08Z",
+      "exit_code": 1,
+      "head": "479aabb16f2a9c8ca19eb93d1eec2ba130dff227",
+      "result": "FAIL"
+    },
     "agent-handoff-retry": {
       "at": "2026-11-18T05:40:36Z",
       "exit_code": 1,
@@ -171,6 +195,12 @@
     "agent-selectors-file-final": {
       "at": "2026-11-18T05:50:36Z",
       "exit_code": 1,
+      "head": "479aabb16f2a9c8ca19eb93d1eec2ba130dff227",
+      "result": "FAIL"
+    },
+    "agent-selectors-final": {
+      "at": "2026-11-18T05:59:14Z",
+      "exit_code": 247,
       "head": "479aabb16f2a9c8ca19eb93d1eec2ba130dff227",
       "result": "FAIL"
     },
@@ -202,6 +232,12 @@
       "exit_code": 1,
       "result": "FAIL"
     },
+    "erasure-browser-final": {
+      "at": "2026-11-18T05:59:14Z",
+      "exit_code": 247,
+      "head": "479aabb16f2a9c8ca19eb93d1eec2ba130dff227",
+      "result": "FAIL"
+    },
     "erasure-file-final": {
       "at": "2026-11-18T05:50:33Z",
       "exit_code": 1,
@@ -231,6 +267,12 @@
       "exit_code": 0,
       "head": "479aabb16f2a9c8ca19eb93d1eec2ba130dff227",
       "result": "PASS"
+    },
+    "invitation-final": {
+      "at": "2026-11-18T05:59:14Z",
+      "exit_code": 247,
+      "head": "479aabb16f2a9c8ca19eb93d1eec2ba130dff227",
+      "result": "FAIL"
     },
     "native-export-final": {
       "at": "2026-11-18T05:35:01Z",
@@ -300,11 +342,11 @@
   "repository": "just-every/run-spool",
   "schema": 1,
   "verify": {
-    "conclusion": null,
+    "conclusion": "success",
     "head_sha": "479aabb16f2a9c8ca19eb93d1eec2ba130dff227",
     "html_url": "https://github.com/just-every/run-spool/actions/runs/44246266057",
     "id": 44246266057,
     "run_attempt": 1,
-    "status": "in_progress"
+    "status": "completed"
   }
 }

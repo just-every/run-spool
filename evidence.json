@@ -1,16 +1,16 @@
 {
   "files": [
     {
-      "blob": "92e53daa351ad9de5cd561c68045a3e16f103317",
-      "bytes": 8517,
+      "blob": "4d7b27ba497e822ec3bd0489e38cfe5fe148027e",
+      "bytes": 9791,
       "path": "CHECKS.json",
-      "sha256": "bc6a2c098c4dc7b1fab8994024cd2bfd8d0be69fb5aaf499ce5331db1c3f0f12"
+      "sha256": "1160d86dd46282d0416e21d76eed82933f09b06bb65f46b998618a968cc84c3f"
     },
     {
-      "blob": "97d8e2cd48f42f1ac87f1ff547df32eac0d9928e",
-      "bytes": 6390,
+      "blob": "f355aed57af8936bc0c3fa26c733c1174534b4c6",
+      "bytes": 7523,
       "path": "REPORT.md",
-      "sha256": "dc5d184d85dbe40dc9de41a9980575951f6a27fad836b08c14a71f81d4af3957"
+      "sha256": "8de75394ad775a993a2bead69a3095b91d0e9b971ee8dce2025b84cdbe14f067"
     },
     {
       "blob": "9aed7fcc343b1bd4d4e4185bbca289a4d15eb8f4",
@@ -37,16 +37,28 @@
       "sha256": "41461b9f82be1195221708747757743b4a4c69e7c68fda01bd35d04590f0414d"
     },
     {
-      "blob": "dca614469dbcf2d94024be9e4c0dc9ea7ad72476",
-      "bytes": 37702,
-      "path": "browser/erasure-updated-preview-1440.png",
-      "sha256": "59031fdeabac5475cc3fda86aa1e4d05cb7020c0a74a04a0f6a3bcfd2fa123a5"
+      "blob": "78abdb91033c993838e88709c89c5db15cd0b674",
+      "bytes": 267146,
+      "path": "browser/erasure-receipt-1440.png",
+      "sha256": "f8890816ce162a09a1884e547ef2b7ed9a1fab1dbe2695c7c6aada8a2ed98fc2"
     },
     {
-      "blob": "7210efa9b9b7c6775377ad5822100f185111fc78",
-      "bytes": 34077,
+      "blob": "1c4a099073b2411ad958704475a81574b29e5bd0",
+      "bytes": 154981,
+      "path": "browser/erasure-receipt-390.png",
+      "sha256": "e6be0dd9e955f4b801a4c78f56afe1663bf0fbed795573aea99f93c328d7bb50"
+    },
+    {
+      "blob": "dd6c296229ac345357392adfd81b28ed6f6cb020",
+      "bytes": 44245,
+      "path": "browser/erasure-updated-preview-1440.png",
+      "sha256": "06e8b9c41c2920773b0545db494fe7a996db98dc55f80238f43d312189edf35d"
+    },
+    {
+      "blob": "2e35819ba1dc17cc8d74bda5569f7396b86e53fd",
+      "bytes": 40307,
       "path": "browser/erasure-updated-preview-390.png",
-      "sha256": "831f43c4427b180e0d10083f6132cac628efc25ab7189d29ef8d97c498f1c1bd"
+      "sha256": "8312a96bfdce7ca2cf6d360b8c2d44080bbe629b5d6bbf1428ba947a8c7822c0"
     },
     {
       "blob": "69719d049507589d72111beba1716cf478db5a31",

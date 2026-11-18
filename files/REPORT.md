@@ -49,3 +49,13 @@ Task sd-spool-design-keys-5 · just-every/run-spool
 - The emitted-worker owner runtime, product runtime, Sentry SDK/loader, and exact-candidate invitation suite passed. Owner runtime verified pinned Slack and cron guidance and the anonymous help paths. Invitation renders the inviter, team and scoped project before the invitee joins. Both joining and the masked invitation link are shown at each width.
 - The cloud full agent-handoff rerun again reached the 90-second dev-listener deadline during setup. A supplementary emitted-worker invocation read a valid packet over direct HTTP but failed the CLI positive control through its substitute proxy. GitHub Verify covers the unmodified end-to-end agent-handoff runner.
 - The emitted-worker erasure browser check passed on the exact candidate. A real stale-plan 409 refreshed the counts, cleared the typed identifier, disabled deletion, and kept the original project. Both updated preview widths are included. The first full dev-mode erasure attempt timed out before the listener came up. The supplemental browser check covers the changed screen and stale-confirmation behavior.
+- The full project-erasure retry cleared startup in 87 seconds and reached successful native erasure receipts in both browser widths. The packet uses that run's refreshed-preview captures and includes both receipts. The subsequent archive and storage-fence checks continued after the browser completed.
+- The exact-candidate Agent Door suite passed with system Chromium. The direct Playwright browser caller expected a Playwright cache entry. A task-local cache link selected the installed Chromium for that call. No tracked test changes were needed for browser provisioning.
+
+## Exact-SHA Verify
+
+GitHub Verify 44246266057 completed successfully on attempt 1 for 479aabb16f2a9c8ca19eb93d1eec2ba130dff227. The push was the only product publication for the task.
+
+[Verify run](https://github.com/just-every/run-spool/actions/runs/44246266057)
+
+The final local agent-handoff attempt also stopped at its 90-second dev listener deadline before running its assertions. The full GitHub workflow passed on the published SHA. The local build, Agent Door, owner runtime and selected browser results are recorded independently in CHECKS.json.
