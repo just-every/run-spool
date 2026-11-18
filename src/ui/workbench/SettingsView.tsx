@@ -80,7 +80,7 @@ export function SettingsView({ project, projects, keys, releases, request, run, 
     return () => { window.removeEventListener('hashchange', read); window.removeEventListener('popstate', read); };
   }, []);
   const requested = sectionFor(hash);
-  const active = available.find(section => section.id === requested)?.id ?? (!projects.length && organizationManager ? 'projects' : 'general');
+  const active = available.find(section => section.id === requested)?.id ?? (!projects.length && organizationManager ? 'projects' : 'organization');
   useEffect(() => {
     if (!hash) return;
     let fragment: string;
