@@ -308,3 +308,5 @@ full Sentry API/Terraform compatibility, real-account dual run and cutover remai
 unproved. The existing public door and product release status are unchanged.
 
 Signed: Run Edit Run fleet, 17 November 2026.
+
+Spool retains Sentry alert definitions in the private source journal for review. The import receipt and history report how many distinct source definitions did not become native alert rules: “Rules are not carried over yet: <n> rule(s) not imported”.

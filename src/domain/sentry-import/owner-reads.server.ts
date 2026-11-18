@@ -143,7 +143,9 @@ function sentryAccounting(snapshot:DoorSnapshot, live:PersistedImport) {
    targets:present.map(row=>({kind:row.targetKind,id:row.targetId})),
    reason:entry.rejection?'Rejected record has no native bytes.':!targets.length?'Unsupported record has no native bytes.':'Native projection includes converted fields, derived identities and source provenance; omitted fields and repeated source rows are counted separately.'};
  });
- return {collections,fields,arrays,loaders,byteLedger,capture:meta.capture??null,
+ const notImported=entries.filter(entry=>['rules','metric_alerts','detectors','workflows'].includes(entry.source.kind)).length;
+ const rules={notImported,message:`Rules are not carried over yet: ${notImported} rule(s) not imported`};
+ return {collections,fields,arrays,loaders,byteLedger,rules,capture:meta.capture??null,
   sourcePayloadBytes:collections.reduce((n,c)=>n+c.payloadBytes,0),
   nativeBytes:native.reduce((n,row)=>n+new TextEncoder().encode(canonicalJson(row.value)).length,0),
   byteReason:'Source payload bytes include duplicates and unsupported fields. Native bytes count present target values and provenance; scrubbing, projection, deduplication and derived identities change their encoding. These totals are not expected to match.'};

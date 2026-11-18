@@ -3718,7 +3718,7 @@
       "executable": false
     },
     "docs/SENTRY-SWITCHING.md": {
-      "sha256": "9e1a684fb268eaff049c1618aa7906565492164687b0a2558a934da22964e1d6",
+      "sha256": "ead820898adc4e152837765b48f492d11947ba61edd1016b7f24655023398612",
       "executable": false
     },
     "docs/SHORT-IDS.md": {
@@ -7014,7 +7014,7 @@
       "executable": false
     },
     "src/domain/sentry-import/owner-reads.server.ts": {
-      "sha256": "6c0b9621e7991d593b08c66198382b84cdcf6baa3fb9f573d066806646d6e3b1",
+      "sha256": "53c0b89844102ea0e79862de97144a244f4bf0087418e9715c3ed811e7148e38",
       "executable": false
     },
     "src/domain/sentry-import/read-labels.ts": {
@@ -10342,7 +10342,7 @@
       "executable": false
     },
     "src/ui/workbench/BusinessImports.tsx": {
-      "sha256": "394eea16add9488c7b4846706d9dc402b4ce55b04578a332f4a9a18b88fab6af",
+      "sha256": "01ea736da5fb059cbf1b2fa5725544786fd14e30db18c6bd10233336f18cd658",
       "executable": false
     },
     "src/ui/workbench/CaptureReceipts.tsx": {
@@ -11882,7 +11882,7 @@
       "executable": false
     },
     "tests/sentry-import/field-accounting.mjs": {
-      "sha256": "892517db4a69fa7962ef2799001ea27bb2fff7ffa789bc1f23edd0b12789b96b",
+      "sha256": "bafefbe51d032f232d520ade5d2685f2fe8222e03c924ed56e2d72f8d6c7e137",
       "executable": false
     },
     "tests/sentry-import/reads.mjs": {
@@ -11891,6 +11891,10 @@
     },
     "tests/sentry-import/roster-ownership.mjs": {
       "sha256": "0f4b2eac12c8e991030caab67395574ee30fa3c2fde6c5f5e99fc2969cba90b7",
+      "executable": false
+    },
+    "tests/sentry-import/rule-receipt.mjs": {
+      "sha256": "4c29082ff45bfc7b31022c46b2f76ced5c6e847dd4ba4a5f732b2da10b41a3e3",
       "executable": false
     },
     "tests/sentry-import/schema-pages.mjs": {
