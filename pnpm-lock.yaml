@@ -10,6 +10,7 @@ overrides:
   source-map-js: 1.2.2
   seroval: 1.6.11
   glob@13>minimatch: 11.0.1
+  picomatch: npm:@ryotsu/picomatch@4.0.7-a
 
 importers:
 
@@ -1164,6 +1165,10 @@ packages:
     engines: {node: '>=22'}
     hasBin: true
 
+  '@ryotsu/picomatch@4.0.7-a':
+    resolution: {integrity: sha512-JroBFEmaejC7szGSfqOhF1QZHLKvX2wTA1+fWyfkpy3BjzdQKNPLKa2FtgeKVUDy5/UPUNkXEeCHJ5ZRBMLTVA==}
+    engines: {node: '>=12'}
+
   '@sentry/browser-utils@11.6.0':
     resolution: {integrity: sha512-s4zuuE71NORfyNd6ciS27/o97qgfu70qDRdPCkLK8UOcs1REsaAQPgmvNBSADRYm4eeFwWejKBCQKjL5kOzLqw==}
     engines: {node: '>=20.19.0 <22.0.0 || >=22.12.0 <23.0.0 || >=23.2.0'}
@@ -2170,10 +2175,6 @@ packages:
 
   picocolors@1.1.1:
     resolution: {integrity: sha512-xceH2snhtb5M9liqDsmEw56le376mTZkEX/jEb/RxNFyegNul7eNslCXP9FDj/Lcu0X8KEyMceP2ntpaHrDEVA==}
-
-  picomatch@4.0.7:
-    resolution: {integrity: sha512-qcJu88Q2IWqJsDD529JKMdwGm/dvInW4HvQnRwiH9JtihJvzGOscDtHE3x1pBKeUOTysQ8kVmLnJ2kJu7yhcGA==}
-    engines: {node: '>=12'}
 
   pkce-challenge@5.0.1:
     resolution: {integrity: sha512-wQ0b/W4Fr01qtpHlqSqspcj3EhBvimsdh0KlHhH8HRZnMsEa0ea2fTULOXOS9ccQr3om+GcGRk4e+isrZWV8qQ==}
@@ -3336,6 +3337,8 @@ snapshots:
 
   '@runeditrun/rer@0.2.118': {}
 
+  '@ryotsu/picomatch@4.0.7-a': {}
+
   '@sentry/browser-utils@11.6.0':
     dependencies:
       '@sentry/conventions': 0.26.0
@@ -3685,7 +3688,7 @@ snapshots:
       exsolve: 1.1.1
       lightningcss: 1.33.0
       pathe: 2.0.3
-      picomatch: 4.0.7
+      picomatch: '@ryotsu/picomatch@4.0.7-a'
       seroval: 1.6.11
       source-map: 0.7.6
       srvx: 0.11.22
@@ -4114,9 +4117,9 @@ snapshots:
 
   fast-uri@3.1.9: {}
 
-  fdir@6.5.0(picomatch@4.0.7):
+  fdir@6.5.0(@ryotsu/picomatch@4.0.7-a):
     optionalDependencies:
-      picomatch: 4.0.7
+      picomatch: '@ryotsu/picomatch@4.0.7-a'
 
   fetchdts@0.1.7: {}
 
@@ -4401,8 +4404,6 @@ snapshots:
 
   picocolors@1.1.1: {}
 
-  picomatch@4.0.7: {}
-
   pkce-challenge@5.0.1: {}
 
   playwright-core@1.63.0: {}
@@ -4669,8 +4670,8 @@ snapshots:
 
   tinyglobby@0.2.17:
     dependencies:
-      fdir: 6.5.0(picomatch@4.0.7)
-      picomatch: 4.0.7
+      fdir: 6.5.0(@ryotsu/picomatch@4.0.7-a)
+      picomatch: '@ryotsu/picomatch@4.0.7-a'
 
   tldts-core@7.4.19: {}
 
@@ -4706,7 +4707,7 @@ snapshots:
   unplugin@3.3.0(esbuild@0.28.2)(rolldown@1.2.8)(rollup@4.64.12)(vite@8.2.4(@types/node@22.20.5)(esbuild@0.28.2)(jiti@2.7.0)(terser@5.51.2))(webpack@5.112.0(esbuild@0.28.2)):
     dependencies:
       '@jridgewell/remapping': 2.3.5
-      picomatch: 4.0.7
+      picomatch: '@ryotsu/picomatch@4.0.7-a'
       webpack-virtual-modules: 0.6.2
     optionalDependencies:
       esbuild: 0.28.2
@@ -4730,7 +4731,7 @@ snapshots:
   vite@8.2.4(@types/node@22.20.5)(esbuild@0.28.2)(jiti@2.7.0)(terser@5.51.2):
     dependencies:
       lightningcss: 1.33.0
-      picomatch: 4.0.7
+      picomatch: '@ryotsu/picomatch@4.0.7-a'
       postcss: 8.5.28
       rolldown: 1.2.8
       tinyglobby: 0.2.17
