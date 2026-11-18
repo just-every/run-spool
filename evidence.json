@@ -1,0 +1,28 @@
+{
+  "files": [
+    {
+      "blob": "af51d6919b3aed9b88efb83b41419088699fa090",
+      "bytes": 3395,
+      "path": "REPORT.md",
+      "sha256": "1d187d1fffa66eeb80f33e373a9297da215d465f48c01486c93892e10a66e6a1"
+    },
+    {
+      "blob": "b5d143ae39c6ca1541170be3c9083d4c22332414",
+      "bytes": 917,
+      "path": "result.json",
+      "sha256": "669b81a4742bae478059091b2c4ba99d1f07009f19092ed7b1b9e2ee5a6cd442"
+    },
+    {
+      "blob": "81f1c730fc4170ab52db49299e9d375e85c9b2ed",
+      "bytes": 4730,
+      "path": "verification.json",
+      "sha256": "8c86fb6b6173d6a1d07e4a0b13d5cc5e04ba1d2912889f38957f0666f8aeb3ae"
+    }
+  ],
+  "product_branch": "cloud/gr-mt-spool-dep-15",
+  "product_head": "ba5f3188ee9a09bff13fa3e1a8b6e1351b1a0c7d",
+  "ref": "refs/heads/evidence/gr-mt-spool-dep-15",
+  "repository": "just-every/run-spool",
+  "schema": 1,
+  "tag": "gr-mt-spool-dep-15"
+}

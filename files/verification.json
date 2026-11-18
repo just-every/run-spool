@@ -1,0 +1,207 @@
+{
+  "tag": "gr-mt-spool-dep-15",
+  "repository": "just-every/run-spool",
+  "branch": "cloud/gr-mt-spool-dep-15",
+  "head": "ba5f3188ee9a09bff13fa3e1a8b6e1351b1a0c7d",
+  "base": "b24f4426c3900816e10e066d0bf95d06e10901a6",
+  "productPublished": true,
+  "toolchain": {
+    "node": "22.20.0",
+    "pnpm": "10.12.4"
+  },
+  "versions": {
+    "hono": [
+      "4.13.7",
+      "4.13.16"
+    ],
+    "@hono/node-server": [
+      "2.1.4",
+      "2.1.6"
+    ]
+  },
+  "listedAdvisories": [
+    7,
+    0
+  ],
+  "listedManifestAlerts": [
+    12,
+    0
+  ],
+  "checks": [
+    {
+      "command": "pnpm install --frozen-lockfile",
+      "result": "passed"
+    },
+    {
+      "command": "cloud_run npx -y @runeditrun/rer setup --owner-email <fleet identity> --non-interactive",
+      "result": "passed"
+    },
+    {
+      "command": "cloud_run npx -y @runeditrun/rer build",
+      "result": "passed"
+    },
+    {
+      "command": "pnpm typecheck",
+      "result": "passed"
+    },
+    {
+      "command": "cloud_run pnpm test:runtime",
+      "result": "passed"
+    },
+    {
+      "command": "cloud_run node tests/sentry-http.mjs",
+      "result": "passed"
+    },
+    {
+      "command": "cloud_run node --input-type=module (SDK-resolved adapter HTTP smoke)",
+      "result": "passed"
+    },
+    {
+      "command": "node src/base/contract-docs.mjs check",
+      "result": "passed"
+    },
+    {
+      "command": "node scripts/edition-authoring/cli.mjs lock",
+      "result": "passed"
+    },
+    {
+      "command": "pnpm source:check",
+      "result": "passed"
+    },
+    {
+      "command": "git diff --check",
+      "result": "passed"
+    },
+    {
+      "command": "Base publish-check with an exact SHA and the public main ancestry",
+      "result": "PASS"
+    }
+  ],
+  "publicationScan": {
+    "status": "PASS",
+    "complete": true,
+    "source": {
+      "commit": "ba5f3188ee9a09bff13fa3e1a8b6e1351b1a0c7d",
+      "tree": "330cf4159d8abb2976bf40640238dc9cdcc858ec"
+    },
+    "findings": 0,
+    "preExisting": 17,
+    "publicBase": {
+      "ref": "https://github.com/just-every/run-spool.git#main",
+      "commit": "b24f4426c3900816e10e066d0bf95d06e10901a6"
+    },
+    "history": {
+      "scope": "selected-and-public-base",
+      "commits": 1014,
+      "trees": 1004,
+      "blobs": 8484,
+      "commitMessages": 1014,
+      "tagMessages": 23
+    },
+    "durationSeconds": 491.388891,
+    "scanner": {
+      "name": "gitleaks",
+      "version": "8.30.1"
+    },
+    "implementation": {
+      "sha256": "dace44a03ce03a9402975c82e7f6c62a84c21671674722cfa6841d2b25fd600a",
+      "python": "3.12.14"
+    },
+    "initialAttempt": "default 300-second deadline exceeded",
+    "retryDeadlineSeconds": 1200,
+    "candidateExact": true
+  },
+  "verify": {
+    "conclusion": "success",
+    "head_sha": "ba5f3188ee9a09bff13fa3e1a8b6e1351b1a0c7d",
+    "html_url": "https://github.com/just-every/run-spool/actions/runs/44406841835",
+    "status": "completed",
+    "id": 44406841835
+  },
+  "verifyObservations": [
+    {
+      "call": 1,
+      "id": 44406841835,
+      "status": "in_progress",
+      "conclusion": null,
+      "head_sha": "ba5f3188ee9a09bff13fa3e1a8b6e1351b1a0c7d"
+    },
+    {
+      "call": 2,
+      "id": 44406841835,
+      "status": "in_progress",
+      "conclusion": null,
+      "head_sha": "ba5f3188ee9a09bff13fa3e1a8b6e1351b1a0c7d"
+    },
+    {
+      "call": 3,
+      "id": 44406841835,
+      "status": "in_progress",
+      "conclusion": null,
+      "head_sha": "ba5f3188ee9a09bff13fa3e1a8b6e1351b1a0c7d"
+    },
+    {
+      "call": 4,
+      "id": 44406841835,
+      "status": "in_progress",
+      "conclusion": null,
+      "head_sha": "ba5f3188ee9a09bff13fa3e1a8b6e1351b1a0c7d"
+    },
+    {
+      "call": 5,
+      "id": 44406841835,
+      "status": "queued",
+      "conclusion": null,
+      "head_sha": "ba5f3188ee9a09bff13fa3e1a8b6e1351b1a0c7d"
+    },
+    {
+      "call": 6,
+      "id": 44406841835,
+      "status": "completed",
+      "conclusion": "success",
+      "head_sha": "ba5f3188ee9a09bff13fa3e1a8b6e1351b1a0c7d"
+    }
+  ],
+  "clauseCountsBefore": {
+    "core": {
+      "done": 23,
+      "partial": 45,
+      "missing": 19,
+      "total": 87
+    },
+    "agentSurface": {
+      "done": 0,
+      "partial": 9,
+      "missing": 9,
+      "total": 18
+    },
+    "full": {
+      "done": 23,
+      "partial": 54,
+      "missing": 28,
+      "total": 105
+    }
+  },
+  "clauseCountsAfter": {
+    "core": {
+      "done": 23,
+      "partial": 45,
+      "missing": 19,
+      "total": 87
+    },
+    "agentSurface": {
+      "done": 0,
+      "partial": 9,
+      "missing": 9,
+      "total": 18
+    },
+    "full": {
+      "done": 23,
+      "partial": 54,
+      "missing": 28,
+      "total": 105
+    }
+  },
+  "clauseStatusChanges": [],
+  "blocker": null
+}
