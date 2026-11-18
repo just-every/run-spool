@@ -3,7 +3,7 @@ import { createContext, useContext, useEffect, useId, useRef, useState, type Inp
 export type Request = (path: string, method?: string, value?: any, options?: { keepalive?: boolean; background?: boolean }) => Promise<any>;
 export type Run = (work: () => Promise<unknown>) => Promise<void>;
 export const states = ['open', 'acknowledged', 'resolved', 'suppressed'];
-export const stateLabel = (state: string) => state.charAt(0).toUpperCase() + state.slice(1);
+export const stateLabel = (state: string) => ({open:'New',acknowledged:'Open',resolved:'Resolved',suppressed:'Ignored'}[state] ?? state.charAt(0).toUpperCase() + state.slice(1));
 export { date } from './dates';
 export function displayFile(value: string) {
   try { const url = new URL(value); return url.origin === location.origin ? url.pathname : value; } catch { return value; }
