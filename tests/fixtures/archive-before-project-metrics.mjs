@@ -1,4 +1,3 @@
-import {previousKeyMetadataObjects} from '../../src/domain/key-metadata-compat.ts';
 import {beforeSentryRoster} from './archive-before-sentry-roster.mjs';
 // Earlier fixtures describe the actual native inventory before metric alerts.
 export function beforeProjectMetrics(manifest){
@@ -11,5 +10,5 @@ export function beforeProjectMetrics(manifest){
   ...table,sql:table.sql.replace('issue TEXT REFERENCES issues(id)','issue TEXT NOT NULL REFERENCES issues(id)').replace(", CHECK((kind='metric' AND issue IS NULL) OR (kind<>'metric' AND issue IS NOT NULL))",''),
   columns:table.columns.map(column=>column.name==='issue'?{...column,notnull:1}:column)
  }:table);
- if(manifest.schemaObjects)manifest.schemaObjects=previousKeyMetadataObjects(manifest.schemaObjects,manifest).filter(object=>!['sentry_transactions','alert_metric_states','alert_metric_events','alert_target_destinations','alert_intent_recipients'].includes(object.table)&&object.name!=='spool_member_identity');
+ if(manifest.schemaObjects)manifest.schemaObjects=manifest.schemaObjects.filter(object=>!['sentry_transactions','alert_metric_states','alert_metric_events','alert_target_destinations','alert_intent_recipients'].includes(object.table));
 }

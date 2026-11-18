@@ -52,7 +52,7 @@ try {
  const modulePath = resolve(temporary, 'portability.mjs');
  await build({entryPoints: ['src/domain/portability.ts'], outfile: modulePath, bundle: true, platform: 'node', format: 'esm'});
  const transfer = await import(pathToFileURL(modulePath));
- runtime = new Miniflare(convertV4MiniflareOptions({modules: true, script: 'export default {}', log: new Log(LogLevel.ERROR), d1Databases: {FRESH: 'fresh', OCCUPIED: 'occupied', MISMATCH: 'mismatch', ROUNDTRIP: 'roundtrip', UPGRADE: 'upgrade', CURRENT_UPGRADE: 'current-upgrade', PRE_METRIC: 'pre-metric', RECENT: 'recent', SETUP_UPGRADE: 'setup-upgrade', SETUP_RESTORE: 'setup-restore', SETUP_BACKUP: 'setup-backup'}}));
+ runtime = new Miniflare(convertV4MiniflareOptions({modules: true, script: 'export default {}', log: new Log(LogLevel.ERROR), d1Databases: {FRESH: 'fresh', OCCUPIED: 'occupied', MISMATCH: 'mismatch', ROUNDTRIP: 'roundtrip', UPGRADE: 'upgrade', CURRENT_UPGRADE: 'current-upgrade', PRE_METRIC: 'pre-metric', RECENT: 'recent', SETUP_UPGRADE: 'setup-upgrade', SETUP_RESTORE: 'setup-restore', SETUP_BACKUP: 'setup-backup', ALERT_BACKUP: 'alert-backup'}}));
  const ledgerTable = manifest.tables.find(t => t.name === 'rer_migrations');
  async function target(binding, schema = migrations) {
   const db = await runtime.getD1Database(binding);
@@ -80,8 +80,8 @@ try {
  const beforeUpgrade = new Map(await Promise.all(oldTables.map(async ({name}) => [name, canonicalRows(await rows(upgrade, `SELECT * FROM "${name}"`))])));
  const added = migrations.filter(migration => !released.some(old => old.name === migration.name));
  const migrationNumber = ({name}) => Number(name.split('_', 1)[0]);
- assert.deepEqual(added.map(migrationNumber).filter(number => number >= 110 && number <= 113), [110, 111, 112, 113],
-  'the populated release applies roster, key metadata and both setup migrations in numeric order');
+ assert.deepEqual(added.map(migrationNumber).filter(number => number >= 110 && number <= 114), [110, 111, 112, 113, 114],
+  'the populated release applies roster, key metadata, both setup migrations and alert proposals in numeric order');
  const additions = unstable_splitSqlQuery(added.map(migration => migration.sql).join('\n')).filter(sql => !/^PRAGMA foreign_keys\s*=\s*ON;?$/i.test(sql.trim()));
  await upgrade.batch(additions.map(sql => upgrade.prepare(sql)));
  for (const {name,sql} of oldTables) {
@@ -161,32 +161,46 @@ try {
  console.log('PASS pre-metric archive with complete native objects and hashed ledger restores into the metric schema');
 
  // An installation built by the setup round has already applied 0112 and
- // 0113. Fill the 0111 gap without rolling its ledger or evidence back.
+ // 0113. Fill the 0111 gap and apply the alert proposal migration without rolling its ledger or evidence back.
  const setupSchema = migrations.filter(migration => migrationNumber(migration) <= 113 && migrationNumber(migration) !== 111);
  const setupUpgrade = await target('SETUP_UPGRADE', setupSchema);
  await transfer.restoreStream(await transfer.portability(setupUpgrade), new Response(recentArchive).body);
  const keyHash = 'd'.repeat(64);
  await setupUpgrade.prepare("INSERT INTO credentials(hash,project,kind,created,revoked) VALUES(?,?,'ingest',1,NULL)").bind(keyHash, existingProject).run();
+ const rosterId='synthetic-archive-roster-team';
+ await setupUpgrade.prepare("INSERT INTO spool_import_proposals(id,project,kind,payload,created) VALUES(?,?,'team',?,1)").bind(rosterId, existingProject, JSON.stringify({name:'Synthetic archive team'})).run();
+ const rosterBefore=await rows(setupUpgrade,'SELECT * FROM spool_import_proposals');
  const beforeSetupUpgrade = await new Response(await transfer.archiveStream(await transfer.portability(setupUpgrade))).text();
  const setupLedger = await rows(setupUpgrade, 'SELECT name FROM rer_migrations ORDER BY rowid');
  assert.deepEqual(setupLedger.map(migrationNumber).filter(number => number >= 110), [110, 112, 113]);
  const appliedNames = new Set(setupLedger.map(({name}) => name));
- const pending = migrations.filter(migration => migrationNumber(migration) <= 113 && !appliedNames.has(migration.name));
- assert.deepEqual(pending.map(migrationNumber), [111]);
- for (const {name,sql,sha256} of pending) {
+ const pending = migrations.filter(migration => !appliedNames.has(migration.name));
+ assert.deepEqual(pending.map(migrationNumber).slice(0,2), [111,114]);
+ let beforeAlertUpgrade;
+ for (const migration of pending) {
+  const {name,sql,sha256}=migration;
+  if(migrationNumber(migration)===114)beforeAlertUpgrade=await new Response(await transfer.archiveStream(await transfer.portability(setupUpgrade))).text();
   await setupUpgrade.batch([
    ...unstable_splitSqlQuery(sql).map(statement => setupUpgrade.prepare(statement)),
    setupUpgrade.prepare('INSERT INTO rer_migrations(name,sha256) VALUES(?,?)').bind(name, sha256),
   ]);
  }
- assert.deepEqual((await rows(setupUpgrade, 'SELECT name FROM rer_migrations ORDER BY rowid')).map(migrationNumber).filter(number => number >= 110), [110,112,113,111]);
+ assert.deepEqual((await rows(setupUpgrade, 'SELECT name FROM rer_migrations ORDER BY rowid')).map(migrationNumber).filter(number => number >= 110 && number <= 114), [110,112,113,111,114]);
+ assert.deepEqual(await rows(setupUpgrade,'SELECT * FROM spool_import_proposals'),rosterBefore,'migration preserves populated roster proposals');
  assert.deepEqual(await setupUpgrade.prepare('SELECT project,kind,created,revoked,name,last_used FROM credentials WHERE hash=?').bind(keyHash).first(),
   {project:existingProject,kind:'ingest',created:1,revoked:null,name:'',last_used:null});
  const afterSetupUpgrade = await new Response(await transfer.archiveStream(await transfer.portability(setupUpgrade))).text();
  const setupBackup = await target('SETUP_BACKUP');
  await transfer.restoreStream(await transfer.portability(setupBackup), new Response(beforeSetupUpgrade).body);
  const setupRestore = await target('SETUP_RESTORE');
+ const alertBackup=await target('ALERT_BACKUP');
  await transfer.restoreStream(await transfer.portability(setupRestore), new Response(afterSetupUpgrade).body);
+ assert.ok(beforeAlertUpgrade);
+ await transfer.restoreStream(await transfer.portability(alertBackup),new Response(beforeAlertUpgrade).body);
+ for(const restored of [setupBackup,alertBackup,setupRestore]){
+  assert.deepEqual(await rows(restored,'SELECT * FROM spool_import_proposals'),rosterBefore,'restored roster proposals keep their review state');
+  assert.deepEqual((await rows(restored,'SELECT name FROM rer_migrations ORDER BY rowid')).map(migrationNumber).filter(number=>number>=110&&number<=114),[110,111,112,113,114],'restore keeps the destination migration ledger');
+ }
  for (const [table,data] of Object.entries(expected)) {
   assert.deepEqual(canonicalRows(await rows(setupUpgrade, `SELECT * FROM "${table}"`)), canonicalRows(data), `late 0111 preserves ${table}`);
   assert.deepEqual(canonicalRows(await rows(setupBackup, `SELECT * FROM "${table}"`)), canonicalRows(data), `setup-era archive restores across 0111: ${table}`);
@@ -197,7 +211,7 @@ try {
  }
  assert.deepEqual(await rows(setupBackup,'SELECT * FROM credentials'),[]);
  assert.deepEqual(await rows(setupRestore,'SELECT * FROM credentials'),[]);
- console.log('PASS populated setup migration order 0110, 0112, 0113, 0111: existing evidence and key authority survive the upgrade, and archives from both sides restore into fresh targets');
+ console.log('PASS populated migration order 0110, 0112, 0113, 0111, 0114: existing evidence, key authority and roster proposals survive upgrade and archives on both sides restore');
 
  const fresh = await target('FRESH');
  const ledger = await rows(fresh, 'SELECT * FROM rer_migrations ORDER BY name');
