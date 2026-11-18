@@ -5,3 +5,5 @@
 {"call": 5, "utc": "2026-11-17T23:04:13.136437+00:00", "command": ["gh", "api", "repos/just-every/run-spool/actions/runs/44191699045/jobs?per_page=100"]}
 {"call": 6, "utc": "2026-11-17T23:09:23.157274+00:00", "command": ["gh", "run", "view", "44191699045", "--repo", "just-every/run-spool", "--job", "134423302538", "--log-failed"]}
 {"call": 7, "utc": "2026-11-17T23:14:47.293572+00:00", "command": ["gh", "run", "view", "44191699045", "--repo", "just-every/run-spool", "--job", "134423302427", "--log-failed"]}
+{"call": 8, "utc": "2026-11-17T23:56:40.002424+00:00", "command": ["gh", "api", "repos/just-every/run-spool/actions/runs?head_sha=fdcbe49c5f65a04faf69ce08ceddb72568bc41af&per_page=100", "--jq", ".workflow_runs | map({id,name,status,conclusion,head_sha,html_url,event,path})"]}
+{"call": 9, "utc": "2026-11-18T00:01:41.004210+00:00", "command": ["gh", "api", "repos/just-every/run-spool/actions/runs/44201588936", "--jq", "{status,conclusion,head_sha,html_url}"]}

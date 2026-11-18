@@ -2,8 +2,8 @@
   "files": [
     {
       "path": "REPORT.md",
-      "bytes": 9686,
-      "sha256": "f1eb6a01262a67dec8679149135eec9f41e53cdf8656c9363249b82f2470b722"
+      "bytes": 9763,
+      "sha256": "e809a1cadaf312f241d6b5a0d508ef8615567112d12d7f0b137f196b4a1fc48a"
     },
     {
       "path": "browser-proof-attempt-1.json",
@@ -167,13 +167,13 @@
     },
     {
       "path": "checks.jsonl",
-      "bytes": 31576,
-      "sha256": "88cc296420eff7a609961585d732fd591fbd18b3a98da121d017889be7e2f3a7"
+      "bytes": 31973,
+      "sha256": "8ffd05b9b75bd50183e8bb7785198e99a07873655b52b58c2d0dfbb25ce80324"
     },
     {
       "path": "ci-calls.jsonl",
-      "bytes": 1254,
-      "sha256": "cbb604945f2bc63b1d40ccf0e0506c4c42e2d780c4754b99ed73b8681c2bfbf6"
+      "bytes": 1716,
+      "sha256": "7cd7dd1d166b9699e00d4959489edd18eaf67e6d9f8035777c1f84c2c8915282"
     },
     {
       "path": "ci-discovery.json",
@@ -221,6 +221,21 @@
       "sha256": "f706c2ade97eae7a8be9b0e82ce1eff8516d68258f47377fc7233ef457e87d9a"
     },
     {
+      "path": "ci-terminal-discovery.json",
+      "bytes": 461,
+      "sha256": "8ab9239c2f6332a84f34b77197471e08651724c1a348417c2044768dcaf8c2be"
+    },
+    {
+      "path": "ci-terminal-status-9.json",
+      "bytes": 259,
+      "sha256": "7b80491c52ce4b9b9b16dde33e2a3e19e1cb46e09b3e27f3ab15bbfc3361b151"
+    },
+    {
+      "path": "cleanup.json",
+      "bytes": 221,
+      "sha256": "7ec6c25c6ae194036bce6c05eedc10603aa84658d146fa226cd92c4f9f44340f"
+    },
+    {
       "path": "commit-audit.json",
       "bytes": 2591,
       "sha256": "c5e64df3c9bfe27f64bc3dbafcd5157eefd6d8c73972dd0569752c9c081e680e"
@@ -229,6 +244,16 @@
       "path": "comparison-receipts.jsonl",
       "bytes": 1799,
       "sha256": "f57bf313d98c68dd029a26caeb0d5662fb87f76a22bbb5d6a3a4a7a1ee717d3a"
+    },
+    {
+      "path": "evidence-checkpoint-verification.json",
+      "bytes": 33284,
+      "sha256": "64dd2ed5febbd75ab3659f3f0d7c6f6f37040ab7ee6fd4bd47c4e5a069c1a467"
+    },
+    {
+      "path": "evidence-recovery-checkpoint.txt",
+      "bytes": 27963,
+      "sha256": "b76428b1ddc6db3c01b34c145eb7fcd860803e7dcb7f36f69bf800187f803f79"
     },
     {
       "path": "exact-browser-proof.log",
@@ -492,8 +517,8 @@
     },
     {
       "path": "product-receipt.json",
-      "bytes": 1922,
-      "sha256": "c2efdb3e6120ad241e30d0096d5ec688ab4b54e53919eae0bc910aa15196d95d"
+      "bytes": 2134,
+      "sha256": "461d99abb54f891152f08d78050b742c729266d710d777a767df9c2bc87b6947"
     },
     {
       "path": "proof-final-source-check.log",
@@ -744,9 +769,15 @@
       "path": "terminal-remote-ref.txt",
       "bytes": 83,
       "sha256": "b11d1a64f475f0cd6308b1f2a40556507eb448268ba40f146ce797834482e2c2"
+    },
+    {
+      "path": "terminal-sentry.log",
+      "bytes": 6815,
+      "sha256": "eaa70271ba565099471dc4654d72310fb8780ddc216f07214fb76116d64a2664"
     }
   ],
   "secret_scan_passed": true,
   "symlinks": false,
-  "selection": "Explicit named report/receipt files, actual completed check logs and final framed captures."
+  "selection": "Explicit named report/receipt files, actual completed check logs and final framed captures.",
+  "utc": "2026-11-18T00:03:45.593198+00:00"
 }

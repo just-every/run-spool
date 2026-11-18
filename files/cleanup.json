@@ -1,0 +1,12 @@
+{
+  "ok": true,
+  "owned_fixture_ports_closed": {
+    "15469": true,
+    "15482": true,
+    "15494": true,
+    "15495": true,
+    "15611": true
+  },
+  "checkout_clean": true,
+  "utc": "2026-11-17T23:53:06.958136+00:00"
+}
