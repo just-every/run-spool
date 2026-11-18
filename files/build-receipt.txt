@@ -1,0 +1,20 @@
+2026-11-18T09:59:56Z contract-docs
+contract-docs exit=0
+2026-11-18T09:59:56Z native-export
+native-export exit=0
+2026-11-18T09:59:56Z first-party
+first-party exit=0
+2026-11-18T10:00:00Z source
+source exit=0
+2026-11-18T10:00:01Z base-offline
+base-offline exit=0
+2026-11-18T10:00:01Z app
+app exit=0
+2026-11-18T10:00:33Z integration
+integration exit=0
+2026-11-18T10:00:33Z agent-surface
+agent-surface exit=0
+2026-11-18T10:00:33Z typecheck
+typecheck exit=0
+validate:release source inspection exit=0; matching committed seed, package and release version 0.7.14
+2026-11-18T10:03:23Z rer build exit=0

@@ -1,0 +1,5 @@
+Before Wrangler apply, D1 ledger by application order: 0110_sentry_roster_proposals.sql, 0112_member_identity.sql, 0113_capture_sources.sql
+Before Wrangler apply: one synthetic project and one active capture grant
+After Wrangler apply, D1 ledger by application order: 0110_sentry_roster_proposals.sql, 0112_member_identity.sql, 0113_capture_sources.sql, 0111_key_names_and_use.sql
+After Wrangler apply: project and active capture grant preserved with blank name and unknown last use
+Applied local migrations: 0111_key_names_and_use.sql

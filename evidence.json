@@ -1,0 +1,142 @@
+{
+  "files": [
+    {
+      "blob": "1dd07af2e67bcc919e039c429b0d7b0add474e06",
+      "bytes": 5311,
+      "path": "REPORT.md",
+      "sha256": "705d37bbace7884ba18f6c57fd43574134516c0dfb8ee81d200ed68bc944ad26"
+    },
+    {
+      "blob": "5f4af706b04dc66c1c356052b7f1bb989bf4d47f",
+      "bytes": 1349,
+      "path": "browser-sha256.txt",
+      "sha256": "5ad66b221bdcb7fd28bb857ccd3dc45204c2d4f8eb6db29c5232cb9c6b25670d"
+    },
+    {
+      "blob": "59e0ed7c741e25adb059fcf14b0aa22a384c69f5",
+      "bytes": 44892,
+      "path": "browser/archive-preview-1440.png",
+      "sha256": "0fef86e09907ea5a6636fabda65c8d86d5fa1232d4f2eac1c6770ed38ed25333"
+    },
+    {
+      "blob": "5f6ab1879395763c881d83e24825c15ee697f01c",
+      "bytes": 43353,
+      "path": "browser/archive-preview-390.png",
+      "sha256": "bbf8ce94d689d71005d7d787a586b390f201499497800a1d7ac3173d7198beaf"
+    },
+    {
+      "blob": "c5997dcba0917c0c98144a1386d840e2b41d36ed",
+      "bytes": 32180,
+      "path": "browser/email-alert-tested-1440.png",
+      "sha256": "d10b0e5d8608b8f3bd4e17083cf91f3bca50982d63772b9999e60a279eb06d77"
+    },
+    {
+      "blob": "64d61b93fe35fc83755c2b7b91abdf424f33313f",
+      "bytes": 28579,
+      "path": "browser/email-alert-tested-390.png",
+      "sha256": "4f936c8a96a979ca805e252073a1e7f86af6e0548ae5c123c42c51c976e47388"
+    },
+    {
+      "blob": "39379fa794058ac3005475c2f918718a1604ad41",
+      "bytes": 30188,
+      "path": "browser/erasure-preview-1440.png",
+      "sha256": "2ab536fe2b5f7af90fef1d0e0bc608c9c3cedd3653c2a72a84ea2c1ad40eb4ca"
+    },
+    {
+      "blob": "72097da2cf681be3084ec774e679633c6166eaec",
+      "bytes": 26869,
+      "path": "browser/erasure-preview-390.png",
+      "sha256": "91a3206c7b34bf0f30ef8203951b40e6580fac8193799873cab4cba0fab10614"
+    },
+    {
+      "blob": "50e6f96aec435df26a17e11d55ed28a7563bde2b",
+      "bytes": 31728,
+      "path": "browser/invitation-1440.png",
+      "sha256": "7bf26c61fcabf9d68ef22c896965179a844acc7aacac13f3899a9ffb7dbb21fd"
+    },
+    {
+      "blob": "45bb2710ba3a75bd41de84fa60238a255d587e24",
+      "bytes": 25889,
+      "path": "browser/invitation-390.png",
+      "sha256": "09156a7e2a65a2f6eb29ff6dc9394d840cce8b688ebc86cf9a15112d578d44dd"
+    },
+    {
+      "blob": "6a10148ed20b666e39b7866c170885376a32b5ed",
+      "bytes": 14089,
+      "path": "browser/key-issued-1440.png",
+      "sha256": "cdfda9b74a01f4c4c5c7b45d1bfa1eac6349641aaf38cc42c0772819f650a9d3"
+    },
+    {
+      "blob": "ae77046ef674ece79d2011649388821007f6f46c",
+      "bytes": 12977,
+      "path": "browser/key-issued-390.png",
+      "sha256": "9ded30bbd60e1589c779b3e03f6b9f8a99624635431a49ddd1b2bdc8fec068af"
+    },
+    {
+      "blob": "85e27794873c621e194800acd964c21d27158340",
+      "bytes": 40254,
+      "path": "browser/key-revoke-1440.png",
+      "sha256": "072f2bd7a115996a5a8405f77b9908330d6e190d6f615735d6f527674bdce58e"
+    },
+    {
+      "blob": "ac8d29d242669b7adc0c733c85dd3461365c951a",
+      "bytes": 39326,
+      "path": "browser/key-revoke-390.png",
+      "sha256": "778e3a87e2dbf9de3b5f10a98c08ec92200bfbf34257080203054f34ad17fa27"
+    },
+    {
+      "blob": "2c39d4c52e104bd22fb40b68ed9cef855a3c34ef",
+      "bytes": 46601,
+      "path": "browser/project-keys-1440.png",
+      "sha256": "8e89a0e659399b2b5b55ab82746039dbdc021082fcfccc6ade7f9b4d574bfb37"
+    },
+    {
+      "blob": "fb5be7c43bf005b35790c693ed86c27865027725",
+      "bytes": 42367,
+      "path": "browser/project-keys-390.png",
+      "sha256": "2b01b9e0fb82a3d92cb4c618fc246ef5c1f01027cc7a794eec0e603841a0ef76"
+    },
+    {
+      "blob": "be0de746b6945206b84b9b53c80bf9402dc5d026",
+      "bytes": 593,
+      "path": "build-receipt.txt",
+      "sha256": "a94e8b75e2518db67c92c2c0c89d3752627254d13706e0055932019f0b5a798d"
+    },
+    {
+      "blob": "5e9ee98982baf1aba5e980987028f2804e857377",
+      "bytes": 461,
+      "path": "ci-receipt.md",
+      "sha256": "fc3afc1aa79b0b9ea797334e92813a364828bc908c6ffb1b88da05cf61c02c66"
+    },
+    {
+      "blob": "1f17d7c41c396f12127c02d3b21d3d367fd4a9f4",
+      "bytes": 536,
+      "path": "d1-upgrade-receipt.txt",
+      "sha256": "0136a28db1814afe87769af07f85f2a21ac26576a176ff6eb1ce509187fdaddf"
+    },
+    {
+      "blob": "f8789a265733bc893fdef0ea2eb1927d053f70ec",
+      "bytes": 1441,
+      "path": "published-build-receipt.txt",
+      "sha256": "c78183330845c21a1a9ee4df9f2466cd1355cb4eb14e4e22b73820e5d178965f"
+    },
+    {
+      "blob": "f3f03ed61f347ffb7283f68710b637f3bebe7d6d",
+      "bytes": 113,
+      "path": "push-receipt.txt",
+      "sha256": "30234275a4ff86c187d92b37fc3e33eda3ba034c7ac38dde943e336188e3ef08"
+    },
+    {
+      "blob": "78d570205ecdbd0b7abf6c5fe91fcf163ca18b42",
+      "bytes": 3170,
+      "path": "verification-receipt.md",
+      "sha256": "9e21eafc12d4846c0fb4eb9926bde95fe551702219e034e55dee5711df08598c"
+    }
+  ],
+  "product_branch": "cloud/sd-spool-design-keys-6",
+  "product_head": "b24f4426c3900816e10e066d0bf95d06e10901a6",
+  "ref": "refs/heads/evidence/sd-spool-design-keys-6",
+  "repository": "just-every/run-spool",
+  "schema": 1,
+  "tag": "sd-spool-design-keys-6"
+}
