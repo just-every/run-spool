@@ -1,0 +1,76 @@
+{
+  "files": [
+    {
+      "blob": "9cbf02277d42e9fdc41cdde0ad7e56784bc55a24",
+      "bytes": 4837,
+      "path": "REPORT.md",
+      "sha256": "c26362a9fee6f0898e382b812f970732001de167714e35d9324ba533e8e9c14e"
+    },
+    {
+      "blob": "d02dfb142e855a51b49073992005f3fa9f7225b3",
+      "bytes": 666326,
+      "path": "browser/capture-website-1440.png",
+      "sha256": "180c801f37d2c1f6a0a90e776cd4eb404b796170f256f1aad29780c4a1bb6e64"
+    },
+    {
+      "blob": "de3746624784ccfd424d81435f3db594478230a8",
+      "bytes": 588042,
+      "path": "browser/capture-website-390.png",
+      "sha256": "f31cd4b8aaf6e887d53f5daff42137dfffb9e75b17be7999af321c52a0839662"
+    },
+    {
+      "blob": "b2e58018b09d4b9a07e10d6f2e92d4d763030a21",
+      "bytes": 106706,
+      "path": "browser/members-invite-1440.png",
+      "sha256": "9399bc3bb20e28de32009a005eb7300932a482b6e1e9e002cb1065a4b2829bc8"
+    },
+    {
+      "blob": "17ecc4e47870e8681766b04647ca47a07799df10",
+      "bytes": 83180,
+      "path": "browser/members-invite-390.png",
+      "sha256": "beb91beaec51a6af3358a39a2ec9dcf4002998661bf3548a88899a4d2d429dd7"
+    },
+    {
+      "blob": "f4bacbda1fa7c559b4b9423ff07b2e905b2c3389",
+      "bytes": 63455,
+      "path": "browser/organization-name-1440.png",
+      "sha256": "d565c2ce9d5802dc42ca5de074ea1577f7728c1809688a64be0c972d202e9d0f"
+    },
+    {
+      "blob": "73f3d7ea182b99e4d5b22e2e9154c8b9adc69c3c",
+      "bytes": 43465,
+      "path": "browser/organization-name-390.png",
+      "sha256": "c40647e3491eb42fb3394b7bcdbbb5fbd05d0bff7ae6275e9f7f0c3d9253e747"
+    },
+    {
+      "blob": "8133f7021c182789b2ccb236b53f41813f750950",
+      "bytes": 152591,
+      "path": "browser/setup-1440.png",
+      "sha256": "6a4e0806c22147a3a149c98dba6d04d4c09b1e65d15118ae0f9bcec3d8a134b3"
+    },
+    {
+      "blob": "313ddf117114e4a6b22ac5693c7389ffd283abcf",
+      "bytes": 117127,
+      "path": "browser/setup-390.png",
+      "sha256": "090a1792ef93bc56da45882223d4f313c1784ed59484ca40725f44aa44ed14ec"
+    },
+    {
+      "blob": "51112a1f9efda3ddf5291647aaab66002bb76b8e",
+      "bytes": 5944,
+      "path": "local-checks.json",
+      "sha256": "779f33bf0f63971a48c9aa3df115ffa5d674ed677c55c3d775731d4af5c7e1e6"
+    },
+    {
+      "blob": "d8d79291e0ad0e017f25f8aedd2df8836501e0a1",
+      "bytes": 1856,
+      "path": "verify.json",
+      "sha256": "3119ab36d4c78dd7f2dfb72837340359b54b3e3fcfd8ebcb77eabc409be9431b"
+    }
+  ],
+  "product_branch": "cloud/sd-spool-design-setup-4",
+  "product_head": "6cfacc486d86a89e8188024951d3ba4c22383e4c",
+  "ref": "refs/heads/evidence/sd-spool-design-setup-4",
+  "repository": "just-every/run-spool",
+  "schema": 1,
+  "tag": "sd-spool-design-setup-4"
+}
