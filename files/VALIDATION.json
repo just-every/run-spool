@@ -1,0 +1,184 @@
+{
+  "browser_proof": {
+    "receipt-1440.png": {
+      "height": 1000,
+      "width": 1440
+    },
+    "receipt-390.png": {
+      "height": 1640,
+      "width": 390
+    }
+  },
+  "final_head_build_passed": [
+    "contract document write and check",
+    "native export",
+    "first-party source check",
+    "source lock generation and check",
+    "offline Base verification",
+    "application build",
+    "integration spec",
+    "agent surface",
+    "TypeScript"
+  ],
+  "first_published_head": {
+    "conclusion": "failure",
+    "head_sha": "be75971b3eef76c0c18e485903a4ceb56d2896d5",
+    "jobs": [
+      {
+        "conclusion": "success",
+        "id": 135207776123,
+        "name": "contract-docs"
+      },
+      {
+        "conclusion": "success",
+        "id": 135207776140,
+        "name": "build"
+      },
+      {
+        "conclusion": "success",
+        "id": 135208297815,
+        "name": "verify (owner-ui)"
+      },
+      {
+        "conclusion": "success",
+        "id": 135208297837,
+        "name": "verify (execution)"
+      },
+      {
+        "conclusion": "success",
+        "id": 135208297853,
+        "name": "verify (project-erasure)"
+      },
+      {
+        "conclusion": "success",
+        "id": 135208297875,
+        "name": "verify (repair-recovery)"
+      },
+      {
+        "conclusion": "failure",
+        "id": 135208297880,
+        "name": "verify (owner-erasure)"
+      },
+      {
+        "conclusion": "failure",
+        "id": 135208297908,
+        "name": "verify (runtime)"
+      },
+      {
+        "conclusion": "success",
+        "id": 135208297917,
+        "name": "verify (sdk)"
+      },
+      {
+        "conclusion": "success",
+        "id": 135208297931,
+        "name": "verify (alerts)"
+      },
+      {
+        "conclusion": "failure",
+        "id": 135218998741,
+        "name": "shards (spool)"
+      },
+      {
+        "conclusion": "failure",
+        "id": 135219054257,
+        "name": "verify"
+      }
+    ],
+    "local_journeys_passed": [
+      "Full alerts and browser suites",
+      "Full Sentry import suite",
+      "Signed Business import suite",
+      "Native old-archive suite"
+    ],
+    "native_archive_checks": [
+      "populated published release upgrades preserve existing rows and columns with declared attribution additions: 176 tables, 120 rows before and after",
+      "populated 0068 upgrade: 201 tables preserved; five additive migrations applied",
+      "pre-metric archive with complete native objects and hashed ledger restores into the metric schema",
+      "populated migration order 0110, 0112, 0113, 0111, 0114: existing evidence, key authority and roster proposals survive upgrade and archives on both sides restore",
+      "old native archive restores into a fresh migrated target with all product rows and destination ledger intact",
+      "old archive refuses an occupied target without changing its project",
+      "genuinely mismatched schema and corrupted original archive binding still refuse",
+      "current archive independently restores and mandatory bookkeeping exclusions retain person-owned tables"
+    ],
+    "url": "https://github.com/just-every/run-spool/actions/runs/44419292429",
+    "verify_id": 44419292429
+  },
+  "main_at_push": "ba5f3188ee9a09bff13fa3e1a8b6e1351b1a0c7d",
+  "product_branch": "cloud/sd-spool-import-alerts-3-c1",
+  "product_head": "7db1a39f91289cf56850176e25b55e69629eaa0d",
+  "repair_proof": {
+    "full_archive_journey_with_sqlite_d1_adapter": "passed",
+    "migration_statement_split": {
+      "sqlite_joined_max_characters": 4792,
+      "wrangler_joined_max_characters": 101390
+    },
+    "owner_erasure_archive_fences": {
+      "childrenWithExplicitJournal": {
+        "error": "erasure_epoch",
+        "exit": 4
+      },
+      "freshChild": {
+        "body": {
+          "error": "erasure_epoch"
+        },
+        "status": 400
+      },
+      "freshPost": {
+        "body": {
+          "credentials": "excluded; create new project grants",
+          "restored": true
+        },
+        "status": 200
+      },
+      "oldArchiveAlone": {
+        "exit": 0
+      },
+      "preWithExplicitJournal": {
+        "error": "erasure_epoch",
+        "exit": 4
+      },
+      "sameChild": {
+        "body": {
+          "error": "erasure_epoch"
+        },
+        "status": 400
+      }
+    },
+    "owner_erasure_explicit_journal_fences_observed": true,
+    "populated_archive_0114_with_sql_comment_variation": "passed",
+    "repair_head_journeys": [
+      {
+        "journey": "Product browser and runtime journey",
+        "status": "passed"
+      },
+      {
+        "journey": "Owner erasure and explicit later-journal refusal",
+        "status": "in_progress"
+      },
+      {
+        "journey": "Synthetic Sentry alert import and desktop/mobile receipt",
+        "status": "passed"
+      },
+      {
+        "journey": "Alert browser suite and blocked-save preview assertion",
+        "status": "passed"
+      }
+    ]
+  },
+  "repository": "just-every/run-spool",
+  "saved_parent": "cd2666344d56eadc1876c711fb114d9fb5bcc81b",
+  "toolchain": {
+    "browser": "system Chromium",
+    "node": "22.20.0",
+    "pnpm": "10.12.4"
+  },
+  "verify": {
+    "conclusion": null,
+    "head_sha": "7db1a39f91289cf56850176e25b55e69629eaa0d",
+    "html_url": "https://github.com/just-every/run-spool/actions/runs/44423718094",
+    "id": 44423718094,
+    "observed_at": "2026-11-18T23:55:38Z",
+    "status": "in_progress"
+  }
+}
