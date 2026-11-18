@@ -1,4 +1,6 @@
 import assert from 'node:assert/strict';
+import {ownerRequest} from './sentry-cli/owner-request.mjs';
+import {ownerRequestRecoveryFlow} from './sentry-cli/owner-request-flow.mjs';
 import {mkdtemp, realpath, rm} from 'node:fs/promises';
 import {tmpdir} from 'node:os';
 import {resolve} from 'node:path';
@@ -18,11 +20,12 @@ import {fieldRefusalFlow} from './sentry-cli/field-refusals.mjs';
 // organization and project slugs and the auth token are set, as a team's existing CI would set them.
 // The plugins run the newer `sentry` CLI in this process; its state and telemetry stay out of the checkout and the network.
 process.env.SENTRY_CLI_NO_TELEMETRY = '1'; process.env.SENTRY_CLI_NO_UPDATE_CHECK = '1'; process.env.NO_PROXY = '127.0.0.1'; process.env.no_proxy = '127.0.0.1';
+await ownerRequestRecoveryFlow();
 const app = await startTestWorker(15611), origin = app.origin, temporary = await realpath(await mkdtemp(resolve(tmpdir(), 'spool-sentry-cli-')));
 process.env.SENTRY_CONFIG_DIR = resolve(temporary, 'sentry-config');
 try {
  const cookie = await signIn(origin);
- const req = (path, method = 'GET', body, headers = {}) => fetch(origin + path, {method, headers: {Origin: origin, Cookie: cookie, ...body && !(body instanceof FormData) ? {'Content-Type': 'application/json'} : {}, ...headers}, ...body ? {body: body instanceof FormData ? body : JSON.stringify(body)} : {}});
+ const req = (path, method = 'GET', body, headers = {}) => ownerRequest(origin + path, {method, headers: {Origin: origin, Cookie: cookie, ...body && !(body instanceof FormData) ? {'Content-Type': 'application/json'} : {}, ...headers}, ...body ? {body: body instanceof FormData ? body : JSON.stringify(body)} : {}});
  const api = async (...args) => { const response = await req(...args); assert.ok(response.ok, `${args[0]} ${response.status}: ${await response.clone().text()}`); return response.json(); };
  const web = await api('/api/projects', 'POST', {id: 'web', name: 'Web storefront'}), other = await api('/api/projects', 'POST', {id: 'other', name: 'Other project'});
  await api('/api/projects', 'POST', {id: 'chunks', name: 'Chunked uploads'});
