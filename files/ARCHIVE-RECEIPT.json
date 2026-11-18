@@ -1,0 +1,8 @@
+{
+  "migration": "0114_sentry_alert_proposals.sql",
+  "sourceLedgerIncludesMigration": true,
+  "historicalLedgerOmitsMigration": true,
+  "historicalProposalTableOmitted": true,
+  "restoreHttpStatus": 200,
+  "syntheticProjectRestored": true
+}

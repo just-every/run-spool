@@ -1,0 +1,64 @@
+{
+  "files": [
+    {
+      "blob": "d138ca9648ba2267a8fb688f8a17cbe0f0e44e8e",
+      "bytes": 285,
+      "path": "ALERT-IMPORT-RECEIPT.json",
+      "sha256": "59939fbe987b1cac096373589b576d25a15738890e6d1299e9ba81a5aca8da14"
+    },
+    {
+      "blob": "b60d1c77dfa86d1a98b20b8f0ecd1a031da564a7",
+      "bytes": 242,
+      "path": "ARCHIVE-RECEIPT.json",
+      "sha256": "aaf2967189ca88f1fd6f86abc888b7f4dcc4014a29f9436cb08ef15c0de198be"
+    },
+    {
+      "blob": "aec909b98a185e40117b36709d6172786286b0b7",
+      "bytes": 6259,
+      "path": "REPORT.md",
+      "sha256": "40aa9781ac2f4be2ab8284b161a79022e35712baa655e51035644da9b053d7db"
+    },
+    {
+      "blob": "74202c2ef3dead6461f967ed5a3f358ebe29032c",
+      "bytes": 825,
+      "path": "REPRODUCTION.json",
+      "sha256": "749a876e4d002aea43d2a0196d1d409cb20aef306b7e816ba68e41a60034e3cd"
+    },
+    {
+      "blob": "fdf44b7c8b965857e0ccc5af8da568889401db2f",
+      "bytes": 2821,
+      "path": "VALIDATION.json",
+      "sha256": "68122e0c0e2ab8875d9fd625b956e4b7fb801fce36779631a2bb64b5e8e6003e"
+    },
+    {
+      "blob": "9754b8c24a9613be4cacf50b86e1fb2c43e86a9e",
+      "bytes": 34751,
+      "path": "native-rule-preview-needed-1440.png",
+      "sha256": "57816b5102059778afa3a538f2c8f855ac6d481028ba90b3f40ad950895eecf2"
+    },
+    {
+      "blob": "30888874f9a0c996ec7a6d73ada67a5e583e6fee",
+      "bytes": 35370,
+      "path": "native-rule-preview-needed-390.png",
+      "sha256": "0765b806e40692b076f2929630a95f415fbedc81d40257f693ad726c3b03286b"
+    },
+    {
+      "blob": "c31f0e4aa307b2899d2ead7afd1381d4e9d7f2f7",
+      "bytes": 200978,
+      "path": "receipt-1440.png",
+      "sha256": "3531d6bafddbffa3171462a4afe0518dfb57fa4f9cf9d1f25ada3316d80d5e36"
+    },
+    {
+      "blob": "3a183ceae7bcf020157bc5a81f227b6333e0297b",
+      "bytes": 103930,
+      "path": "receipt-390.png",
+      "sha256": "54103f1554b12ca31a7e7e49ae9537d6da06f0751daf712fa4343c813b543d63"
+    }
+  ],
+  "product_branch": "cloud/sd-spool-import-alerts-2",
+  "product_head": "9d389f449317e4c449e4b8624b992c59239186cc",
+  "ref": "refs/heads/evidence/sd-spool-import-alerts-2",
+  "repository": "just-every/run-spool",
+  "schema": 1,
+  "tag": "sd-spool-import-alerts-2"
+}

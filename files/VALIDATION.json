@@ -1,0 +1,92 @@
+{
+  "recordedAt": "2026-11-18T07:11:06Z",
+  "repository": "just-every/run-spool",
+  "branch": "cloud/sd-spool-import-alerts-2",
+  "productHead": "9d389f449317e4c449e4b8624b992c59239186cc",
+  "mainBase": "e3093f41a692a33dd46ba997e9409e606e973c5c",
+  "publication": "named product ref confirmed",
+  "candidateIdentity": "all four commits use fleet author and committer without trailers",
+  "verify": {
+    "conclusion": null,
+    "event": "push",
+    "head_sha": "9d389f449317e4c449e4b8624b992c59239186cc",
+    "html_url": "https://github.com/just-every/run-spool/actions/runs/44254228280",
+    "id": 44254228280,
+    "name": "Verify",
+    "status": "in_progress"
+  },
+  "historicalFailedVerify": 44246524029,
+  "targetCountsBefore": {
+    "done": 23,
+    "partial": 54,
+    "missing": 28
+  },
+  "targetCountsAfter": {
+    "done": 23,
+    "partial": 54,
+    "missing": 28
+  },
+  "migration": "0114_sentry_alert_proposals.sql",
+  "localChecks": {
+    "node": "22.20.0",
+    "pnpm": "10.12.4",
+    "rerSetup": "passed",
+    "contractDocsWriteAndCheck": "passed",
+    "repositoryCheck": "passed",
+    "sourceLock": "passed",
+    "baseOffline": "passed",
+    "build": "passed",
+    "integrationCheck": "passed",
+    "typecheck": "passed",
+    "alertsRuntimeAndEgress": "passed in split suite invocations",
+    "alertsBrowser": "passed at 1440 and 390 in the ordinary run",
+    "alertsBrowserDelayedDestinationRead": {
+      "status": "passed",
+      "exit": 0,
+      "endedAt": "2026-11-18T06:48:18Z"
+    },
+    "sentryImport": "passed through field accounting, Bugsnag, roster and the final alert-rule journey",
+    "sentryImportBrowserProof": {
+      "status": "passed",
+      "exit": 0,
+      "endedAt": "2026-11-18T06:51:02Z"
+    },
+    "signedBusinessImport": {
+      "status": "timed_out",
+      "exit": 124,
+      "endedAt": "2026-11-18T06:57:03Z"
+    },
+    "sentryHttpRetry": {
+      "status": "timed_out",
+      "exit": 124,
+      "endedAt": "2026-11-18T07:04:13Z"
+    },
+    "oldArchives": "passed",
+    "previousArchiveWithHashedLedger": {
+      "status": "passed",
+      "exit": 0,
+      "endedAt": "2026-11-18T06:44:09Z"
+    },
+    "repairRecoveryRetry": {
+      "status": "failed",
+      "exit": 1,
+      "endedAt": "2026-11-18T06:57:12Z",
+      "observedFailure": "90-second local dev readiness limit during setup"
+    },
+    "projectErasure": {
+      "status": "timed_out",
+      "exit": 124,
+      "endedAt": "2026-11-18T06:44:24Z"
+    },
+    "projectErasureImportedAlerts": "passed through the focused Sentry alert-rule journey",
+    "operatorTriage": {
+      "desktop": "passed the operator flow and reached the phone journey",
+      "wholeJourney": {
+        "status": "timed_out",
+        "exit": 124,
+        "endedAt": "2026-11-18T06:38:42Z"
+      }
+    }
+  },
+  "fullPublicationScan": "fleet lander"
+}

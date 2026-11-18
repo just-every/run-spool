@@ -1,0 +1,28 @@
+{
+  "repository": "just-every/run-spool",
+  "historicalVerify": {
+    "head": "746d6e15cc835fdcb3642c7f8168ac9794150d36",
+    "runId": 44246524029,
+    "result": "failure",
+    "job": "verify (alerts)"
+  },
+  "replayHead": "4ce0e819fc36bbfb056c83f31b57d003ff996e1c",
+  "journey": "tests/alerts-ui.mjs",
+  "normalBrowserExit": 0,
+  "delayedBrowserExit": 1,
+  "delay": {
+    "afterSuccessfulReview": 2,
+    "affectedRequest": "GET project alert destinations",
+    "milliseconds": 1200
+  },
+  "assertion": "A blocked save names the missing preview action after a reviewed test",
+  "actual": false,
+  "expected": true,
+  "repairedHead": "9d389f449317e4c449e4b8624b992c59239186cc",
+  "repairedDelayedBrowserExit": 0,
+  "repairedDelayedBrowserFinishedAt": "2026-11-18T06:48:18Z",
+  "screenshotViewports": [
+    1440,
+    390
+  ]
+}
