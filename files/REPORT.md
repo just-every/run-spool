@@ -43,8 +43,8 @@ The frozen install, first-party check, source lock check, offline Base copy veri
 
 ## Project erasure control
 
-The first local project-erasure attempt stopped in the isolated rer setup with cliErrorCode=command_failed, before making an erasure request. The clean local retry was in progress at the end of the evidence window. No HTTP 409-versus-202 discrepancy was recorded.
+The first local project-erasure attempt stopped in the isolated rer setup with cliErrorCode=command_failed, before making an erasure request. The clean local retry reached dev readiness and a later dev restart, then exceeded its 850-second cap. No HTTP 409-versus-202 discrepancy was recorded. The hosted project-erasure job completed successfully on the exact candidate. [Project erasure job](https://github.com/just-every/run-spool/actions/runs/44211950946/job/134492842565)
 
 ## Exact-SHA Verify
 
-GitHub Verify 44211950946 was observed completed successfully at 2026-11-18T01:23:06Z on 1e0772865a2bb961ce0dd10d3fa7d41c52f19666. [Verify run](https://github.com/just-every/run-spool/actions/runs/44211950946)
+GitHub Verify 44211950946 showed completed/success at 2026-11-18T01:23:06Z on 1e0772865a2bb961ce0dd10d3fa7d41c52f19666. The tunnel, Sentry CLI, owner UI, runtime and project-erasure jobs each completed successfully on that SHA. [Verify run](https://github.com/just-every/run-spool/actions/runs/44211950946)

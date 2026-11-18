@@ -1,10 +1,10 @@
 {
   "files": [
     {
-      "blob": "544c16cc6a26d79cecc5a37b19bf337188cbeb5e",
-      "bytes": 7164,
+      "blob": "468cc85bcf1fb8b9a78d388f130f44811d1c9dfb",
+      "bytes": 7474,
       "path": "REPORT.md",
-      "sha256": "a69d36e6685c3da4bb2697de9e17b7571c2c818c1df6320193b420e11798bd7a"
+      "sha256": "86c8ac865de7123f72486a48fb9cedd691ad00d6d70021505e9e88cb4371268e"
     },
     {
       "blob": "20fcadaa1e811dbfacca58b71f3f99b1e15130f4",
@@ -25,10 +25,10 @@
       "sha256": "2b02ca5ff69b509783458426f7513a92a3784ec82ce7bc92288e99d93d9a06e3"
     },
     {
-      "blob": "2c2a7fd3e273b1419acc7fd835aac9ea42f24453",
-      "bytes": 11715,
+      "blob": "e785eed67322af94f4061b06b502215ad3f4521a",
+      "bytes": 11835,
       "path": "local-receipts.json",
-      "sha256": "a8a3dcb4b128d5c69ee4a6791a2caa3fa1440f42a692599fff87013c69ff4828"
+      "sha256": "fbca06748d481b0f38e490e7d141d47728032321d4e1b19a0941c75bd91556e9"
     },
     {
       "blob": "db7ba1c74198744f05a3608d4b70c9cc76aa595f",
@@ -161,6 +161,12 @@
       "bytes": 2320,
       "path": "verify-receipts.json",
       "sha256": "77c6be87b7db7ecd2741aadde168a916ebaf4d19a50a86feceb55ea671dcc5e2"
+    },
+    {
+      "blob": "24252386a8ee3c77dcdef01ac0739163c65b1c59",
+      "bytes": 1208,
+      "path": "verify-touched-jobs.json",
+      "sha256": "2aa50813a9e3c9f9db9318f5249477cd33ae6cc360453aa006f1876a930f0b58"
     }
   ],
   "product_branch": "cloud/sd-spool-design-issues-4",

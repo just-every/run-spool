@@ -1,5 +1,5 @@
 {
-  "time": "2026-11-18T01:26:05Z",
+  "time": "2026-11-18T01:30:40Z",
   "head": "1e0772865a2bb961ce0dd10d3fa7d41c52f19666",
   "main": "d85f48247ecc0d9ec475fbc5e825ec46753e5b7d",
   "node": "22.20.0",
@@ -110,6 +110,11 @@
       "utc": "2026-11-18T01:19:12Z",
       "command": "pnpm test:sentry:sdk after push",
       "exit": 0
+    },
+    {
+      "utc": "2026-11-18T01:29:42Z",
+      "command": "pnpm test:project-erasure retry",
+      "exit": 124
     }
   ],
   "otherBuildAndGeneratorChecks": [
