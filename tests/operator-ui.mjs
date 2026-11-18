@@ -69,9 +69,11 @@ export async function operatorUi({page,api,origin,project,issue,capture}){
   await assignment.selectOption('');
   const refused=page.waitForResponse(r=>r.url().endsWith('/assignment')&&r.request().method()==='PATCH');
   await page.getByRole('button',{name:'Assign',exact:true}).click();assert.equal((await refused).status(),409,'A real concurrent write is still fenced');
-  const feedback=page.locator('.assignment-picker [role=alert]');
-  assert.match(await feedback.innerText(),/reload/i,'The conflict names a recovery action available on this screen');
-  assert.doesNotMatch(await feedback.innerText(),/preview/i,'Assignment has no preview action');
+  const feedback=page.locator('.assignment-picker').getByRole('alert');
+  await feedback.waitFor();
+  const feedbackText=await feedback.innerText();
+  assert.match(feedbackText,/reload/i,'The conflict names a recovery action available on this screen');
+  assert.doesNotMatch(feedbackText,/preview/i,'Assignment has no preview action');
   assert.equal(await assignment.inputValue(),'','A refused save preserves the unassignment draft');
   assert.equal((await api(root+'/operator-state')).assignments.find(row=>row.issue===issue).label,'Another operator','A stale assignment cannot overwrite another writer');
   await page.reload();await page.waitForFunction(()=>!document.querySelector('select[aria-label="Assign to"]')?.disabled);
