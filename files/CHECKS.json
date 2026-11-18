@@ -1,0 +1,310 @@
+{
+  "at": "2026-11-18T05:57:40+00:00",
+  "base": "0343c3c54b7249e4c708a60ca5648794dbc474b7",
+  "branch": "cloud/sd-spool-design-keys-5",
+  "browser": "Chromium 154.0.8037.57 built on Debian GNU/Linux 13 (trixie)",
+  "browser_captures": [
+    {
+      "bytes": 283399,
+      "path": "browser/alerts-email-1440.png",
+      "sha256": "dea75e964d8ea523415ae73867b1d10f64ce3e328c21831703534025e6730170",
+      "viewport": 1440
+    },
+    {
+      "bytes": 198897,
+      "path": "browser/alerts-email-390.png",
+      "sha256": "38ee50744d90e565f52d97de68790e6501e4af8a9c803cf4d1821f72d074bacf",
+      "viewport": 390
+    },
+    {
+      "bytes": 44946,
+      "path": "browser/archive-preview-1440.png",
+      "sha256": "d4af201faf8b4e1bf13d816e8813dafe29feef1be551be9b13dbdd8364df2c9e",
+      "viewport": 1440
+    },
+    {
+      "bytes": 43013,
+      "path": "browser/archive-preview-390.png",
+      "sha256": "41461b9f82be1195221708747757743b4a4c69e7c68fda01bd35d04590f0414d",
+      "viewport": 390
+    },
+    {
+      "bytes": 37702,
+      "path": "browser/erasure-updated-preview-1440.png",
+      "sha256": "59031fdeabac5475cc3fda86aa1e4d05cb7020c0a74a04a0f6a3bcfd2fa123a5",
+      "viewport": 1440
+    },
+    {
+      "bytes": 34077,
+      "path": "browser/erasure-updated-preview-390.png",
+      "sha256": "831f43c4427b180e0d10083f6132cac628efc25ab7189d29ef8d97c498f1c1bd",
+      "viewport": 390
+    },
+    {
+      "bytes": 32688,
+      "path": "browser/join-invitation-1440.png",
+      "sha256": "30f3182d3f44cc9cfffc96977a9e50f709ab6541cdc8d4c374524a922dbb1afb",
+      "viewport": 1440
+    },
+    {
+      "bytes": 25776,
+      "path": "browser/join-invitation-390.png",
+      "sha256": "025195cf456088c5633a65e14e64f80a87ea74879c96934b707e3e7bdc1594ab",
+      "viewport": 390
+    },
+    {
+      "bytes": 14089,
+      "path": "browser/key-issued-1440.png",
+      "sha256": "cdfda9b74a01f4c4c5c7b45d1bfa1eac6349641aaf38cc42c0772819f650a9d3",
+      "viewport": 1440
+    },
+    {
+      "bytes": 12626,
+      "path": "browser/key-issued-390.png",
+      "sha256": "6e99002da4f7ba497af8aee8a10da2f22e06240c5dd668bf0cc2680cc8b4616e",
+      "viewport": 390
+    },
+    {
+      "bytes": 40021,
+      "path": "browser/key-revoke-1440.png",
+      "sha256": "fb36b0424e2be3a83728ec500dff0c6ebe852291d1e4e5a3cc3c89edb60fb7de",
+      "viewport": 1440
+    },
+    {
+      "bytes": 38500,
+      "path": "browser/key-revoke-390.png",
+      "sha256": "642033a631844d1311c24ff9c22a566bae313696725c8f31d70d68060111a044",
+      "viewport": 390
+    },
+    {
+      "bytes": 101570,
+      "path": "browser/local-invitation-1440.png",
+      "sha256": "b8454eee72ff039549945d8cf22c2a9d9700d72ea2f281518d3050ce4ef4676f",
+      "viewport": 1440
+    },
+    {
+      "bytes": 93900,
+      "path": "browser/local-invitation-390.png",
+      "sha256": "c031266f4a63555c87285a706d42c737d6a148f8d3970a76d43616178a5d9a16",
+      "viewport": 390
+    },
+    {
+      "bytes": 53826,
+      "path": "browser/private-archive-1440.jpg",
+      "sha256": "d1374eff7412c744163a8403b1d3ae4df9b53726d0c71ce50ec1ce412468831b",
+      "viewport": 1440
+    },
+    {
+      "bytes": 31447,
+      "path": "browser/private-archive-390.jpg",
+      "sha256": "00ae47d42f3e296839dad3abb3dd6c32480cdff9678ad311ec16b2d37f7f375d",
+      "viewport": 390
+    },
+    {
+      "bytes": 46619,
+      "path": "browser/project-keys-1440.png",
+      "sha256": "c7c04294b2561608da0a981378af2c090424d2d23313584571e623673c8bd364",
+      "viewport": 1440
+    },
+    {
+      "bytes": 41889,
+      "path": "browser/project-keys-390.png",
+      "sha256": "28fefc91a5e83fdb443ee0060875aca17e2678e69ed8ec8838c08f92f515edf2",
+      "viewport": 390
+    }
+  ],
+  "clause_status_changes": [],
+  "commit_shape": {
+    "author": "Run Edit Run fleet <fleet@runeditrun.com>",
+    "commits": 1,
+    "committer": "Run Edit Run fleet <fleet@runeditrun.com>",
+    "merges": 0,
+    "trailers": []
+  },
+  "contract_counts": {
+    "agent_surface": [
+      0,
+      9,
+      9
+    ],
+    "core": [
+      23,
+      45,
+      19
+    ],
+    "full": [
+      23,
+      54,
+      28
+    ],
+    "later": [
+      0,
+      0,
+      0
+    ]
+  },
+  "head": "479aabb16f2a9c8ca19eb93d1eec2ba130dff227",
+  "local_runs": {
+    "agent-catalogue-final": {
+      "at": "2026-11-18T05:41:43Z",
+      "exit_code": 0,
+      "head": "479aabb16f2a9c8ca19eb93d1eec2ba130dff227",
+      "result": "PASS"
+    },
+    "agent-door-final": {
+      "at": "2026-11-18T05:55:34Z",
+      "exit_code": 1,
+      "head": "479aabb16f2a9c8ca19eb93d1eec2ba130dff227",
+      "result": "FAIL"
+    },
+    "agent-handoff": {
+      "at": "2026-11-18T05:31:35Z",
+      "exit_code": 1,
+      "result": "FAIL"
+    },
+    "agent-handoff-retry": {
+      "at": "2026-11-18T05:40:36Z",
+      "exit_code": 1,
+      "head": "479aabb16f2a9c8ca19eb93d1eec2ba130dff227",
+      "result": "FAIL"
+    },
+    "agent-selectors-file-final": {
+      "at": "2026-11-18T05:50:36Z",
+      "exit_code": 1,
+      "head": "479aabb16f2a9c8ca19eb93d1eec2ba130dff227",
+      "result": "FAIL"
+    },
+    "alerts-ui": {
+      "at": "2026-11-18T05:33:54Z",
+      "exit_code": 0,
+      "result": "PASS"
+    },
+    "base-offline-final": {
+      "at": "2026-11-18T05:40:40Z",
+      "exit_code": 0,
+      "head": "479aabb16f2a9c8ca19eb93d1eec2ba130dff227",
+      "result": "PASS"
+    },
+    "build-final": {
+      "at": "2026-11-18T05:41:42Z",
+      "exit_code": 0,
+      "head": "479aabb16f2a9c8ca19eb93d1eec2ba130dff227",
+      "result": "PASS"
+    },
+    "contract-docs-final": {
+      "at": "2026-11-18T05:42:25Z",
+      "exit_code": 0,
+      "head": "479aabb16f2a9c8ca19eb93d1eec2ba130dff227",
+      "result": "PASS"
+    },
+    "erasure": {
+      "at": "2026-11-18T05:39:39Z",
+      "exit_code": 1,
+      "result": "FAIL"
+    },
+    "erasure-file-final": {
+      "at": "2026-11-18T05:50:33Z",
+      "exit_code": 1,
+      "head": "479aabb16f2a9c8ca19eb93d1eec2ba130dff227",
+      "result": "FAIL"
+    },
+    "erasure-preview-final": {
+      "at": "2026-11-18T05:53:12Z",
+      "exit_code": 0,
+      "head": "479aabb16f2a9c8ca19eb93d1eec2ba130dff227",
+      "result": "PASS"
+    },
+    "first-party-final": {
+      "at": "2026-11-18T05:40:39Z",
+      "exit_code": 0,
+      "head": "479aabb16f2a9c8ca19eb93d1eec2ba130dff227",
+      "result": "PASS"
+    },
+    "integration-final": {
+      "at": "2026-11-18T05:41:43Z",
+      "exit_code": 0,
+      "head": "479aabb16f2a9c8ca19eb93d1eec2ba130dff227",
+      "result": "PASS"
+    },
+    "invitation-file-final": {
+      "at": "2026-11-18T05:50:58Z",
+      "exit_code": 0,
+      "head": "479aabb16f2a9c8ca19eb93d1eec2ba130dff227",
+      "result": "PASS"
+    },
+    "native-export-final": {
+      "at": "2026-11-18T05:35:01Z",
+      "exit_code": 0,
+      "head": "479aabb16f2a9c8ca19eb93d1eec2ba130dff227",
+      "result": "PASS"
+    },
+    "old-archive": {
+      "at": "2026-11-18T05:30:37Z",
+      "exit_code": 0,
+      "result": "PASS"
+    },
+    "owner-claim": {
+      "at": "2026-11-18T05:32:05Z",
+      "exit_code": 0,
+      "result": "PASS"
+    },
+    "product-runtime": {
+      "at": "2026-11-18T05:45:47Z",
+      "exit_code": 0,
+      "result": "PASS"
+    },
+    "runtime": {
+      "at": "2026-11-18T05:46:14Z",
+      "exit_code": 0,
+      "result": "PASS"
+    },
+    "sentry-sdk": {
+      "at": "2026-11-18T05:41:53Z",
+      "exit_code": 0,
+      "result": "PASS"
+    },
+    "source-lock-final": {
+      "at": "2026-11-18T05:40:40Z",
+      "exit_code": 0,
+      "head": "479aabb16f2a9c8ca19eb93d1eec2ba130dff227",
+      "result": "PASS"
+    },
+    "triage": {
+      "at": "2026-11-18T05:27:19Z",
+      "exit_code": 1,
+      "result": "FAIL"
+    },
+    "triage-final": {
+      "at": "2026-11-18T05:45:50Z",
+      "exit_code": 0,
+      "head": "479aabb16f2a9c8ca19eb93d1eec2ba130dff227",
+      "result": "PASS"
+    },
+    "triage-retry": {
+      "at": "2026-11-18T05:31:05Z",
+      "exit_code": 1,
+      "result": "FAIL"
+    },
+    "typecheck-final": {
+      "at": "2026-11-18T05:42:25Z",
+      "exit_code": 0,
+      "head": "479aabb16f2a9c8ca19eb93d1eec2ba130dff227",
+      "result": "PASS"
+    }
+  },
+  "migrations": [
+    "0110_sentry_roster_proposals.sql",
+    "0111_key_names_and_use.sql"
+  ],
+  "product_custody": "published",
+  "repository": "just-every/run-spool",
+  "schema": 1,
+  "verify": {
+    "conclusion": null,
+    "head_sha": "479aabb16f2a9c8ca19eb93d1eec2ba130dff227",
+    "html_url": "https://github.com/just-every/run-spool/actions/runs/44246266057",
+    "id": 44246266057,
+    "run_attempt": 1,
+    "status": "in_progress"
+  }
+}
