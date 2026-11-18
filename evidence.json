@@ -1,0 +1,52 @@
+{
+  "files": [
+    {
+      "blob": "026e55714bf5f465be826492f49c0ff0f0a1773c",
+      "bytes": 1367,
+      "path": "IMPORT-RECEIPT.json",
+      "sha256": "6607105951c69e1527a94278604332eb3e3eb80ada5296d2a39769e6a3d198b6"
+    },
+    {
+      "blob": "eecd312141661f72298f8929558328f01689ab88",
+      "bytes": 4404,
+      "path": "REPORT.md",
+      "sha256": "c6e70893726bc69eb631ee78360ad3827c1425b66453a715f1043c520193599a"
+    },
+    {
+      "blob": "c25a751ac1db1b40f863f45790c5655debc0b309",
+      "bytes": 298,
+      "path": "VERIFY.json",
+      "sha256": "af03cd893868b6dae4d77885432d12b395cc1c1d90ccd33d20bf0ec27297f23b"
+    },
+    {
+      "blob": "2b7bd197a0fc63430898f3b724dc73695829bdbb",
+      "bytes": 255968,
+      "path": "baseline-accounting.json",
+      "sha256": "92150f92863623112b75ce2d1fbc0a5d6d25d48361e6a2096dbae313a63f5a88"
+    },
+    {
+      "blob": "d6c7e67a165f575dc1e71635718cc97f2c6eee30",
+      "bytes": 170956,
+      "path": "rule-receipt-1440.png",
+      "sha256": "2ee7b2cc9e66bf138abb57d783a1bebe6150a8fbbfd4330eb88a5e24bf25cde8"
+    },
+    {
+      "blob": "1ad9fca31b3ba177681887ff9181d68d8fe6e220",
+      "bytes": 92820,
+      "path": "rule-receipt-390.png",
+      "sha256": "3fa14c0ede6491efe5003a8164f4e27a37b82a2ba812a1b9d490fab071124c4e"
+    },
+    {
+      "blob": "08d3620a4592a561c7425712b2e2daf3393590d9",
+      "bytes": 6580591,
+      "path": "scaled-accounting.json",
+      "sha256": "fa3b40303840b568bd6508d6ba284e95edd23639ef811f94174582e9abfd0f60"
+    }
+  ],
+  "product_branch": "cloud/sd-spool-import-rules-3",
+  "product_head": "62a723194eb55e13211db0b8fc589778f8cbce74",
+  "ref": "refs/heads/evidence/sd-spool-import-rules-3",
+  "repository": "just-every/run-spool",
+  "schema": 1,
+  "tag": "sd-spool-import-rules-3"
+}
