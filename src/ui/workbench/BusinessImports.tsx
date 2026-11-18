@@ -7,7 +7,7 @@ type BusinessImportState = {
   configured: boolean;
   enabled: boolean;
   keys: { kid: string; revoked: boolean }[];
-  history: { planId: string; jobId: string; namespace: string; fingerprint: string; state: string; caption: string }[];
+  history: { planId: string; jobId: string; namespace: string; fingerprint: string; state: string; caption: string; sentry?: { rules: { message: string } } }[];
 };
 
 export function BusinessImports({ request, run, busy }: { request: Request; run: Run; busy: boolean }) {
@@ -61,7 +61,7 @@ export function BusinessImports({ request, run, busy }: { request: Request; run:
         <h3>Import history</h3>
         {!state.history.length && <p>No business imports yet.</p>}
         {state.history.map(job => <div className="data-row" key={job.jobId}>
-          <div style={{ minWidth: 0, overflowWrap: 'anywhere' }}><p>{job.caption}</p><p><code>{job.namespace}</code></p></div>
+          <div style={{ minWidth: 0, overflowWrap: 'anywhere' }}><p>{job.caption}</p>{job.sentry?.rules && <p>{job.sentry.rules.message}</p>}<p><code>{job.namespace}</code></p></div>
           <span>{job.state}</span>
           {(job.state === 'completed' || job.state === 'undoing') && <button className="text-button" disabled={disabled} aria-label={`Undo import ${job.caption}`} onClick={() => void perform(async () => {
             await request(`${path}/${encodeURIComponent(job.planId)}/undo`, 'POST');

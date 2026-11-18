@@ -5,6 +5,7 @@ import { sentryOrganization } from '../../scripts/fixtures/sentry-organization.m
 import { exportCapture } from '../../scripts/sentry-export.mjs';
 import { sentryDoorClient } from '../../scripts/sentry-import.mjs';
 import { archiveProjection } from '../archive.mjs';
+import { ruleReceiptScreens } from './rule-receipt.mjs';
 
 // Independent traversal of the supplied API responses: never calls the product's enumerator or mapper.
 function leaves(value,path='') {
@@ -36,6 +37,7 @@ export async function fieldAccounting({origin,cookie,scratch,json,req}) {
   assert.deepEqual((await archiveProjection(await req('/api/archive'))).data,before.data,'documented-schema review has no native effect');
   const facts=planned.sentry;
   assert.ok(facts,'owner plan exposes source accounting');
+  assert.deepEqual(facts.rules,{notImported:2,message:'Rules are not carried over yet: 2 rule(s) not imported'},'review names both source rule definitions without implying native carry');
   assert.equal(new Set(acquisition.inventory.map(row=>row.family)).size,8);
   assert.deepEqual(facts.capture, bundle.capture);
   console.log(`Sentry accounting ${profile}: planned ${planned.counts.input} records, ${facts.fields.length} field dispositions.`);
@@ -70,6 +72,9 @@ export async function fieldAccounting({origin,cookie,scratch,json,req}) {
   assert.equal((await resumed.status(planned.planId)).job.id,first.job.id);
   const applied=await resumed.apply(planned.planId,planned.fingerprint);assert.equal(applied.job.state,'completed');
   const report=await resumed.reconcile(planned.planId);assert.equal(report.ok,true);
+  assert.deepEqual(report.sentry.rules,facts.rules,'the import receipt preserves the truthful rule-loss count');
+  const history=(await json('/api/imports/business')).history.find(row=>row.planId===planned.planId);
+  assert.deepEqual(history.sentry.rules,facts.rules,'the owner history receipt exposes the same rule-loss words');
   assert.equal(report.sentry.sourcePayloadBytes,facts.sourcePayloadBytes);
   assert.equal(report.sentry.byteLedger.reduce((n,r)=>n+r.sourceBytes,0),report.sentry.sourcePayloadBytes);
   assert.equal(report.sentry.byteLedger.reduce((n,r)=>n+r.nativeBytes,0),report.sentry.nativeBytes);
@@ -80,6 +85,11 @@ export async function fieldAccounting({origin,cookie,scratch,json,req}) {
   assert.deepEqual(report.counts.byKind,kinds);
   const full=await archiveProjection(await req('/api/archive'));
   const imported=full.data.projects.find(p=>p.name==='Checkout 猫 café');assert.ok(imported);
+  const nativeRulesBefore=before.data.alert_rules.filter(row=>row.project===imported.id).length;
+  assert.equal(nativeRulesBefore,0,'the destination project starts without native alert rules');
+  const nativeRules=await json(`/api/projects/${imported.id}/alerting/rules`);
+  assert.deepEqual(nativeRules,[],'retained source definitions create no executable native rules');
+  if(profile==='baseline')await ruleReceiptScreens(origin,cookie,imported.id);
   assert.deepEqual(await json(`/api/projects/${imported.id}/keys`),[],'source keys never become native authority');
   const issue=(await json(`/api/projects/${imported.id}/issues`))[0];
   const packet=await json(`/api/projects/${imported.id}/issues/${issue.id}/packet`);
@@ -93,7 +103,7 @@ export async function fieldAccounting({origin,cookie,scratch,json,req}) {
   await resumed.undo(same.planId);await resumed.undo(planned.planId);
   assert.deepEqual((await archiveProjection(await req('/api/archive'))).data,before.data,'newest-first undo exactly restores populated native state');
   if(process.env.SPOOL_IMPORT_RECEIPT)await writeFile(join(dirname(process.env.SPOOL_IMPORT_RECEIPT),`${profile}-accounting.json`),JSON.stringify(report.sentry,null,2)+'\n');
-  receipt.push({profile,sourceRecords:planned.counts.input,unique:planned.counts.unique,duplicates:planned.counts.duplicates,fields:facts.fields.length,arrays:facts.arrays.length,sourceBytes:acquisition.sourceBytes,bundleBytes:acquisition.bundleBytes,sourcePayloadBytes:facts.sourcePayloadBytes,nativeBytes:report.sentry.nativeBytes,byKind:kinds,interrupted:first.job.state==='applying',reconciled:report.ok});
+  receipt.push({profile,sourceRuleDefinitions:report.sentry.rules.notImported,nativeAlertRulesBefore:nativeRulesBefore,nativeAlertRules:nativeRules.length,ruleReceipt:report.sentry.rules.message,sourceRecords:planned.counts.input,unique:planned.counts.unique,duplicates:planned.counts.duplicates,fields:facts.fields.length,arrays:facts.arrays.length,sourceBytes:acquisition.sourceBytes,bundleBytes:acquisition.bundleBytes,sourcePayloadBytes:facts.sourcePayloadBytes,nativeBytes:report.sentry.nativeBytes,byKind:kinds,interrupted:first.job.state==='applying',reconciled:report.ok});
  }
  // Refusals report every actual field of a rejected record without reflecting its values.
  const {bundle}=exportCapture(sentryOrganization());
