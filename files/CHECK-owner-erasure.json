@@ -1,0 +1,10 @@
+{
+  "name": "owner-erasure",
+  "command": [
+    "pnpm",
+    "test:owner-erasure"
+  ],
+  "exit": 0,
+  "seconds": 684.76,
+  "started_utc": "2026-11-17T23:37:50.031589+00:00"
+}

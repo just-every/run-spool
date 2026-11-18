@@ -1,0 +1,69 @@
+{
+  "repository": "just-every/run-spool",
+  "branch": "cloud/sd-spool-design-keys-4",
+  "head": "b5b0d25111dcb56a07afc12605ee1e6a935c1b18",
+  "saveHead": "739be0258a90e46502e11f53221870745553cdd5",
+  "tree": "df2cf2c2b35bb58007571f645ba1cd52d4748b26",
+  "saveTree": "df2cf2c2b35bb58007571f645ba1cd52d4748b26",
+  "main": "53b460837d5a58266c39d03a9f923e09e9c29fb7",
+  "candidateCommits": 2,
+  "merges": [],
+  "diffSummary": "47 files changed, 472 insertions(+), 172 deletions(-)",
+  "migrationFilesBefore": 103,
+  "migrationFilesAfter": 104,
+  "combinedSentryAndKeysMigrationFiles": 105,
+  "contractChanges": [],
+  "countsBefore": {
+    "core": {
+      "done": 23,
+      "partial": 45,
+      "missing": 19,
+      "total": 87
+    },
+    "agent": {
+      "done": 0,
+      "partial": 9,
+      "missing": 9,
+      "total": 18
+    },
+    "full": {
+      "done": 23,
+      "partial": 54,
+      "missing": 28,
+      "total": 105
+    }
+  },
+  "countsAfter": {
+    "core": {
+      "done": 23,
+      "partial": 45,
+      "missing": 19,
+      "total": 87
+    },
+    "agent": {
+      "done": 0,
+      "partial": 9,
+      "missing": 9,
+      "total": 18
+    },
+    "full": {
+      "done": 23,
+      "partial": 54,
+      "missing": 28,
+      "total": 105
+    }
+  },
+  "pr": null,
+  "observed_utc": "2026-11-17T23:49:15.610472+00:00",
+  "builderStatus": "READY",
+  "blockers": [],
+  "verify": {
+    "runId": 44202529736,
+    "status": "completed",
+    "conclusion": "success",
+    "head": "b5b0d25111dcb56a07afc12605ee1e6a935c1b18",
+    "url": "https://github.com/just-every/run-spool/actions/runs/44202529736",
+    "onePermittedFlakyJobRerun": true
+  },
+  "completedUTC": "2026-11-18T00:44:05.472633+00:00"
+}

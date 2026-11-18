@@ -1,0 +1,10 @@
+{
+  "name": "final-agent-surface-check",
+  "command": [
+    "pnpm",
+    "agent-surface:check"
+  ],
+  "exit": 0,
+  "seconds": 0.33,
+  "started_utc": "2026-11-17T23:36:31.907143+00:00"
+}

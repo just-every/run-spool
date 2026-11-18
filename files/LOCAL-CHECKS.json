@@ -1,0 +1,189 @@
+[
+  {
+    "name": "native-export",
+    "command": [
+      "node",
+      "tests/native-export.mjs"
+    ],
+    "exit": 0,
+    "seconds": 0.23,
+    "started_utc": "2026-11-17T22:20:49.939126+00:00"
+  },
+  {
+    "name": "first-party-check",
+    "command": [
+      "pnpm",
+      "run",
+      "check",
+      "--",
+      "--profile",
+      "first-party"
+    ],
+    "exit": 0,
+    "seconds": 2.9,
+    "started_utc": "2026-11-17T22:20:50.171863+00:00"
+  },
+  {
+    "name": "source-check",
+    "command": [
+      "pnpm",
+      "source:check"
+    ],
+    "exit": 0,
+    "seconds": 1.09,
+    "started_utc": "2026-11-17T22:20:53.077172+00:00"
+  },
+  {
+    "name": "verify-base-offline",
+    "command": [
+      "node",
+      "scripts/edition-authoring/cli.mjs",
+      "verify-base",
+      "--offline"
+    ],
+    "exit": 0,
+    "seconds": 0.31,
+    "started_utc": "2026-11-17T22:20:54.166821+00:00"
+  },
+  {
+    "name": "build",
+    "command": [
+      "npx",
+      "-y",
+      "@runeditrun/rer",
+      "build"
+    ],
+    "exit": 0,
+    "seconds": 35.21,
+    "started_utc": "2026-11-17T22:20:54.478255+00:00"
+  },
+  {
+    "name": "integration-check",
+    "command": [
+      "pnpm",
+      "integration:check"
+    ],
+    "exit": 0,
+    "seconds": 0.59,
+    "started_utc": "2026-11-17T22:21:29.688624+00:00"
+  },
+  {
+    "name": "agent-surface-check",
+    "command": [
+      "pnpm",
+      "agent-surface:check"
+    ],
+    "exit": 0,
+    "seconds": 0.45,
+    "started_utc": "2026-11-17T22:21:30.282642+00:00"
+  },
+  {
+    "name": "typecheck",
+    "command": [
+      "pnpm",
+      "typecheck"
+    ],
+    "exit": 0,
+    "seconds": 21.4,
+    "started_utc": "2026-11-17T22:21:30.728472+00:00"
+  },
+  {
+    "name": "old-archive",
+    "command": [
+      "node",
+      "tests/old-archive.mjs"
+    ],
+    "exit": 1,
+    "seconds": 102.22,
+    "started_utc": "2026-11-17T22:21:52.132065+00:00"
+  },
+  {
+    "name": "old-archive",
+    "command": [
+      "node",
+      "tests/old-archive.mjs"
+    ],
+    "exit": 0,
+    "seconds": 307.1,
+    "node": "v22.20.0",
+    "started_utc": "2026-11-17T22:24:11.442009+00:00"
+  },
+  {
+    "name": "runtime",
+    "command": [
+      "pnpm",
+      "test:runtime"
+    ],
+    "exit": 0,
+    "seconds": 25.15,
+    "node": "v22.20.0",
+    "started_utc": "2026-11-17T22:29:18.553507+00:00"
+  },
+  {
+    "name": "triage-journey",
+    "command": [
+      "pnpm",
+      "test:accessibility"
+    ],
+    "exit": 1,
+    "seconds": 126.5,
+    "node": "v22.20.0",
+    "started_utc": "2026-11-17T22:29:43.712647+00:00"
+  },
+  {
+    "name": "triage-journey",
+    "command": [
+      "pnpm",
+      "test:accessibility"
+    ],
+    "exit": 0,
+    "seconds": 520.79,
+    "node": "v22.20.0",
+    "started_utc": "2026-11-17T22:32:04.555036+00:00"
+  },
+  {
+    "name": "agent-handoff",
+    "command": [
+      "pnpm",
+      "test:agent-handoff"
+    ],
+    "exit": 0,
+    "seconds": 1183.36,
+    "node": "v22.20.0",
+    "started_utc": "2026-11-17T22:40:45.357318+00:00"
+  },
+  {
+    "name": "alerts",
+    "command": [
+      "pnpm",
+      "test:alerts"
+    ],
+    "exit": 0,
+    "seconds": 391.83,
+    "node": "v22.20.0",
+    "started_utc": "2026-11-17T23:00:28.747793+00:00"
+  },
+  {
+    "name": "alerts-ui",
+    "command": [
+      "pnpm",
+      "test:alerts-ui"
+    ],
+    "exit": 0,
+    "seconds": 147.06,
+    "node": "v22.20.0",
+    "started_utc": "2026-11-17T23:07:00.596395+00:00"
+  },
+  {
+    "name": "project-erasure",
+    "command": [
+      "pnpm",
+      "test:project-erasure"
+    ],
+    "exit": -9,
+    "assertionGroupsReportedPassed": 7,
+    "capturesReported": 8,
+    "interruption": "Environment reconnected; runner/session registry lost, command processes were SIGKILL zombies after all assertion groups passed during cleanup. No live servers remain. Suite is rerun for a clean exit.",
+    "observed_utc": "2026-11-17T23:25:14.382185+00:00"
+  }
+]

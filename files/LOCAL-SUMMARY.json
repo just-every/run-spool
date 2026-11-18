@@ -1,0 +1,321 @@
+{
+  "status": "passed",
+  "candidate": "b5b0d25111dcb56a07afc12605ee1e6a935c1b18",
+  "sourceSave": "739be0258a90e46502e11f53221870745553cdd5",
+  "latestChecks": [
+    {
+      "name": "native-export",
+      "command": [
+        "node",
+        "tests/native-export.mjs"
+      ],
+      "exit": 0,
+      "seconds": 0.23,
+      "started_utc": "2026-11-17T22:20:49.939126+00:00"
+    },
+    {
+      "name": "first-party-check",
+      "command": [
+        "pnpm",
+        "run",
+        "check",
+        "--",
+        "--profile",
+        "first-party"
+      ],
+      "exit": 0,
+      "seconds": 2.9,
+      "started_utc": "2026-11-17T22:20:50.171863+00:00"
+    },
+    {
+      "name": "source-check",
+      "command": [
+        "pnpm",
+        "source:check"
+      ],
+      "exit": 0,
+      "seconds": 1.09,
+      "started_utc": "2026-11-17T22:20:53.077172+00:00"
+    },
+    {
+      "name": "verify-base-offline",
+      "command": [
+        "node",
+        "scripts/edition-authoring/cli.mjs",
+        "verify-base",
+        "--offline"
+      ],
+      "exit": 0,
+      "seconds": 0.31,
+      "started_utc": "2026-11-17T22:20:54.166821+00:00"
+    },
+    {
+      "name": "build",
+      "command": [
+        "npx",
+        "-y",
+        "@runeditrun/rer",
+        "build"
+      ],
+      "exit": 0,
+      "seconds": 35.21,
+      "started_utc": "2026-11-17T22:20:54.478255+00:00"
+    },
+    {
+      "name": "integration-check",
+      "command": [
+        "pnpm",
+        "integration:check"
+      ],
+      "exit": 0,
+      "seconds": 0.59,
+      "started_utc": "2026-11-17T22:21:29.688624+00:00"
+    },
+    {
+      "name": "agent-surface-check",
+      "command": [
+        "pnpm",
+        "agent-surface:check"
+      ],
+      "exit": 0,
+      "seconds": 0.45,
+      "started_utc": "2026-11-17T22:21:30.282642+00:00"
+    },
+    {
+      "name": "typecheck",
+      "command": [
+        "pnpm",
+        "typecheck"
+      ],
+      "exit": 0,
+      "seconds": 21.4,
+      "started_utc": "2026-11-17T22:21:30.728472+00:00"
+    },
+    {
+      "name": "old-archive",
+      "command": [
+        "node",
+        "tests/old-archive.mjs"
+      ],
+      "exit": 0,
+      "seconds": 307.1,
+      "node": "v22.20.0",
+      "started_utc": "2026-11-17T22:24:11.442009+00:00"
+    },
+    {
+      "name": "runtime",
+      "command": [
+        "pnpm",
+        "test:runtime"
+      ],
+      "exit": 0,
+      "seconds": 25.15,
+      "node": "v22.20.0",
+      "started_utc": "2026-11-17T22:29:18.553507+00:00"
+    },
+    {
+      "name": "triage-journey",
+      "command": [
+        "pnpm",
+        "test:accessibility"
+      ],
+      "exit": 0,
+      "seconds": 520.79,
+      "node": "v22.20.0",
+      "started_utc": "2026-11-17T22:32:04.555036+00:00"
+    },
+    {
+      "name": "agent-handoff",
+      "command": [
+        "pnpm",
+        "test:agent-handoff"
+      ],
+      "exit": 0,
+      "seconds": 1183.36,
+      "node": "v22.20.0",
+      "started_utc": "2026-11-17T22:40:45.357318+00:00"
+    },
+    {
+      "name": "alerts",
+      "command": [
+        "pnpm",
+        "test:alerts"
+      ],
+      "exit": 0,
+      "seconds": 391.83,
+      "node": "v22.20.0",
+      "started_utc": "2026-11-17T23:00:28.747793+00:00"
+    },
+    {
+      "name": "alerts-ui",
+      "command": [
+        "pnpm",
+        "test:alerts-ui"
+      ],
+      "exit": 0,
+      "seconds": 147.06,
+      "node": "v22.20.0",
+      "started_utc": "2026-11-17T23:07:00.596395+00:00"
+    },
+    {
+      "name": "project-erasure",
+      "command": [
+        "pnpm",
+        "test:project-erasure"
+      ],
+      "exit": 0,
+      "seconds": 1004.73,
+      "started_utc": "2026-11-17T23:37:49.960078+00:00"
+    },
+    {
+      "name": "admission",
+      "command": [
+        "pnpm",
+        "test:admission"
+      ],
+      "exit": 0,
+      "seconds": 421.92,
+      "started_utc": "2026-11-17T22:22:22.545940+00:00"
+    },
+    {
+      "name": "dev-credentials",
+      "command": [
+        "pnpm",
+        "test:dev-credentials"
+      ],
+      "exit": 0,
+      "seconds": 86.47,
+      "started_utc": "2026-11-17T22:26:57.684150+00:00"
+    },
+    {
+      "name": "agent-door",
+      "command": [
+        "pnpm",
+        "test:agent-door"
+      ],
+      "exit": 0,
+      "seconds": 377.96,
+      "started_utc": "2026-11-17T22:46:31.372516+00:00"
+    },
+    {
+      "name": "migration-order",
+      "command": [
+        "node",
+        "/tmp/spool-migration-order.mjs"
+      ],
+      "exit": 0,
+      "seconds": 6.92,
+      "started_utc": "2026-11-17T22:39:59.416639+00:00"
+    },
+    {
+      "name": "owner-erasure",
+      "command": [
+        "pnpm",
+        "test:owner-erasure"
+      ],
+      "exit": 0,
+      "seconds": 684.76,
+      "started_utc": "2026-11-17T23:37:50.031589+00:00"
+    },
+    {
+      "name": "final-frozen-install",
+      "command": [
+        "pnpm",
+        "install",
+        "--frozen-lockfile"
+      ],
+      "exit": 0,
+      "seconds": 7.94,
+      "started_utc": "2026-11-17T23:35:39.739242+00:00"
+    },
+    {
+      "name": "final-first-party-check",
+      "command": [
+        "pnpm",
+        "run",
+        "check",
+        "--",
+        "--profile",
+        "first-party"
+      ],
+      "exit": 0,
+      "seconds": 2.7,
+      "started_utc": "2026-11-17T23:35:49.178160+00:00"
+    },
+    {
+      "name": "final-source-check",
+      "command": [
+        "pnpm",
+        "source:check"
+      ],
+      "exit": 0,
+      "seconds": 1.04,
+      "started_utc": "2026-11-17T23:35:51.954161+00:00"
+    },
+    {
+      "name": "final-verify-base-offline",
+      "command": [
+        "node",
+        "scripts/edition-authoring/cli.mjs",
+        "verify-base",
+        "--offline"
+      ],
+      "exit": 0,
+      "seconds": 0.28,
+      "started_utc": "2026-11-17T23:35:53.070608+00:00"
+    },
+    {
+      "name": "final-build",
+      "command": [
+        "npx",
+        "-y",
+        "@runeditrun/rer",
+        "build"
+      ],
+      "exit": 0,
+      "seconds": 37.69,
+      "started_utc": "2026-11-17T23:35:53.527828+00:00"
+    },
+    {
+      "name": "final-integration-check",
+      "command": [
+        "pnpm",
+        "integration:check"
+      ],
+      "exit": 0,
+      "seconds": 0.54,
+      "started_utc": "2026-11-17T23:36:31.294137+00:00"
+    },
+    {
+      "name": "final-agent-surface-check",
+      "command": [
+        "pnpm",
+        "agent-surface:check"
+      ],
+      "exit": 0,
+      "seconds": 0.33,
+      "started_utc": "2026-11-17T23:36:31.907143+00:00"
+    },
+    {
+      "name": "final-typecheck",
+      "command": [
+        "pnpm",
+        "typecheck"
+      ],
+      "exit": 0,
+      "seconds": 25.37,
+      "started_utc": "2026-11-17T23:36:32.311530+00:00"
+    },
+    {
+      "name": "final-source-after-build",
+      "command": [
+        "pnpm",
+        "source:check"
+      ],
+      "exit": 0,
+      "seconds": 1.22,
+      "started_utc": "2026-11-17T23:36:58.549779+00:00"
+    }
+  ],
+  "note": "Earlier failed/interrupted attempts remain separately recorded. The final CI trigger is an empty commit with the identical source tree."
+}

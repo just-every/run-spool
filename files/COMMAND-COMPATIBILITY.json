@@ -1,0 +1,19 @@
+{
+  "requested": ["pnpm", "run", "validate:release"],
+  "observedExit": 1,
+  "observedDiagnostic": "ERR_PNPM_NO_SCRIPT Missing script: validate:release. Command validate:release not found.",
+  "currentRerPin": "0.2.118",
+  "currentBuildDeclaration": "operatorInstaller.build = pnpm run --silent build:app",
+  "currentBuildApp": "node scripts/build-capture.mjs && vite build",
+  "currentWorkflowBuildSequence": [
+    "pnpm run check -- --profile first-party",
+    "pnpm source:check",
+    "node scripts/edition-authoring/cli.mjs verify-base --offline",
+    "pnpm run build:app",
+    "pnpm integration:check",
+    "pnpm typecheck"
+  ],
+  "contractMeaningChanged": false,
+  "releaseMetadataChanged": false,
+  "reason": "Reapply owner-journey design fixes and renumber an unpublished additive migration; CONTRACT.md is unchanged. No replacement script, release entry or version change invented."
+}

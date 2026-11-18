@@ -1,0 +1,75 @@
+Command result excerpts: native-export
+
+Command result excerpts: runtime
+PROBE SDK-020 G5: anonymous docs navigation, seven configuration sections, source maps, Python guidance, tunnel replacement and generated static article passed.
+Settings prerequisite guides passed: Slack and cron reach pinned Base owner steps and a working receipt-to-binding recipe; Business trust links open locally and anonymously from the docs index.
+Spool runtime: DB health, server document gate, direct API gate, local owner admission, second-claim refusal and immediate revocation passed.
+
+Command result excerpts: old-archive
+PASS populated published release upgrades preserve existing rows and columns with declared attribution additions: 176 tables, 120 rows before and after
+PASS populated 0068 upgrade: 201 tables preserved; five additive migrations applied
+PASS pre-metric archive with complete native objects and hashed ledger restores into the metric schema
+PASS old native archive restores into a fresh migrated target with all product rows and destination ledger intact
+PASS old archive refuses an occupied target without changing its project
+PASS genuinely mismatched schema and corrupted original archive binding still refuse
+PASS current archive independently restores and mandatory bookkeeping exclusions retain person-owned tables
+
+Command result excerpts: triage-journey
+Triage public journey passed: 22 groups; 104 JPG captures at 1440 and 390.
+
+Command result excerpts: agent-handoff
+AI-001 packet-selector refusals passed: HTTP 403, CLI 3 and official MCP 3 for traversal, command and instruction; packet, product rows and authority preserved.
+[GOV-002] windows, preview, typed confirmation, legal hold, release, packet note, archive round trip and held erasure passed; 1440/390 captures
+[GOV-003] restored 60 aged and 2 recent events: same-project fresh intake survives 50-row expiry and 10-row resume; exact search, issue counts, gap quantities, held project, service audit and same-day no-op passed
+Agent handoff public journey passed: 9 groups; 10 masked captures; complete packet 231653/262144 UTF-8 bytes.
+
+Command result excerpts: agent-door
+Spool people: native invitation, signed teammate mapping, stale-email refusal, ID/email self-escalation, exact local project scope and permanent key retirement passed.
+Spool specialist: real captured failure, isolated reproduction, queued Pause, exact native repository consent and policy-held GitHub draft data PR passed.
+Spool review/erasure: independent native reviewer Undo with no agent identity, durable erasure custody, paused continuation and current person completion passed.
+Spool native door: signed owner/settings, one registry, inert proposal/replay, attributed repair claim, exact approval, Pause and identity checks passed.
+Native owner custody: paired Business identity, call/approval/audit map scan, ordinary verified successor, retained project and irreversible detach passed.
+
+Command result excerpts: admission
+OWNER CLAIM passed: invalid signature/audience/issuer/email/installation/expiry/origin, native first claim, durable second refusal, additive existing-owner migration, Business door opened by the first claim only with RER_IMPORT_DOOR=on and kept under the owner's switch.
+GOV-001 native owner-successor step-up journey passed; enterprise providers and broader privileged operations remain unqualified.
+[FIND-003] read-only omissions and exports, current roles, concealed ids and denied-write nonmutation passed
+[UX-001] 1440 native team independently registered, captured, mapped, searched, operator-label assigned without duplicate writes, commented, followed alert by touch and recorded repair approval; keyboard, Axe and reflow passed
+[UX-001] 390 native team independently registered, captured, mapped, searched, operator-label assigned without duplicate writes, commented, followed alert by touch and recorded repair approval; keyboard, Axe and reflow passed
+[TEAM-001] team timezone digests, scoped recipients, expiring snooze and durable resumption, loss/backlog, member deployment deadline, accountable broken alternate and nonrecursive deduplication passed
+[TEAM-003] member priority, scoped scrubbed discussion, mention subscriptions, explicit unsubscribe, author/admin moderation and stale-write refusal passed
+[TEAM-001] native invitations and magic sign-in, simultaneous scoped triage, stale revision refusal, maintainer policy, read-only identity projection, billing/admin limits, member deployments, member/service revocation, safe audit and owner transfer passed
+PROBE SDK-027 settings: keyboard preview, refusal, Axe, text size and reflow passed; matching screens recorded at 1440 and 390.
+OWNER EDITOR passed: unconfigured owner has no editor or console errors; partial config fails; anonymous and live project-grant refusal with preserved captured evidence, native owner config and CSP, 1440 and 390 revealed interactive iframe, live preview and undo after same-leaf and missing-route history navigation, focus preservation, logout revocation, management CSP refusal.
+Managed Open app sign-in passed: declared path, owner email prefill, no-JS email delivery and native confirmation at 1440/390.
+mailOffConfiguration passed: native setup, declaration binding, operations and production preflight; missing enabled inputs and contradictory mail-off credentials refuse.
+mail-off: deployment custody refusals passed
+mail-off: uniform auth and shortcut refusals passed
+mail-off: blocked delivery and non-mail work passed
+mailOffSignIn passed: guarded CLI admission and custody refusals; uniform unavailable links/invitations; held alert; capture, issues and settings; anonymous and shortcut refusals; 1440/390 sign-in proof.
+
+Command result excerpts: dev-credentials
+
+Command result excerpts: alerts
+PROBE AI-004 acceptance 4: native repair facts and strictly newer capture -> recurred observation, one matching regression delivery, one owner follow-up at the 24-hour boundary, one suppressed alternate notice and one creation audit fact; older capture and replay controls passed.
+ALERT-004 an interrupted send, an expired lease and a lost provider response each leave one durable follow-up and never a duplicate. Alert public doors passed: atomic capture with silent local mail and HMAC receiver; regression, isolation/revocation/origin, immutable 429 retry, uncertainty, overlapping complete-window spikes, safe restore without replay.
+{"passed":true,"ingestToDeliveredMs":868,"proof":"Idle tick recorded in /health; new-issue and regression mail accepted silently and webhook delivered after ingest with no scheduled run; racing and later scheduled runs sent nothing twice."}
+Alert edge policy passed: missing enforcing egress blocks without fetch; real Base mail 429 retries, 503 uncertainty never replays, rule revocation cancels pending work.
+ALERT-001 filters, retained-user windows, explicit session denominator, identity/session refusals, stale preview, durable deduplication, reactivation and plain Resolve passed
+Native metric failure/revocation, truthful capture-loss accounting and populated project alert custody erasure passed
+ok 1 - native scheduled event delivers a new issue with silent local mail once
+ok 2 - native scheduled event delivers a later-release regression with silent local mail once
+ok 3 - native scheduled event completes a real spike window and completes with silent local mail once
+Alert egress delivery passed: signed delivery through the egress service transport, private-address refusal without connection, redirect not followed (3 pinned connections).
+[ALERT-002] reviewed Slack test, exactly-once new/regression, safe identifiers, rotation/revoke, API/500/timeout/egress failures, secret exclusion, inert restore and erasure passed (recorded edge double only)
+
+Command result excerpts: alerts-ui
+ALERT-003 destination tests, delivery states, timezone digests and snoozing never hide loss. Alert browser journeys passed at 1440 and 390: persisted rule create/edit/reload, real feed/delivery/webhook state, project isolation and keyboard navigation.
+
+Command result excerpts: owner-erasure
+Owner erasure public flow passed: 3 groups.
+
+
+Command result excerpts: project-erasure
+Project erasure public journey passed: 7 groups; 10 captures.
+Project erasure cleanup: [{"name":"browser","outcome":"stopped"},{"name":"checkout","outcome":"stopped"}]

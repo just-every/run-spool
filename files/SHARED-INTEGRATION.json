@@ -1,0 +1,18 @@
+{
+  "rer-project.json": {
+    "unchanged_from_main": true,
+    "unchanged_on_sentry_branch": true,
+    "sha256": "c3d73432d5c6b94f5022d6ec02e3453cbd2dbaa84722e23b4ce0022f17a5d1d8"
+  },
+  ".github/workflows/rer-managed.yml": {
+    "unchanged_from_main": true,
+    "unchanged_on_sentry_branch": true,
+    "sha256": "505e641e1ef3e8f41cb35657b4d4101cc80279bda55f78537ead0b7f5fa794c1"
+  },
+  "deployment-spec": {
+    "candidate_migrations": 104,
+    "sentry_migration_number": "0110",
+    "keys_migration_number": "0111",
+    "generated_by": "node scripts/sync-integration.mjs --write"
+  }
+}

@@ -1,0 +1,137 @@
+{
+  "status": "passed",
+  "browser": "Chromium 154.0.8037.57 /usr/bin/chromium --no-sandbox",
+  "sourceHead": "739be0258a90e46502e11f53221870745553cdd5",
+  "candidateHead": "b5b0d25111dcb56a07afc12605ee1e6a935c1b18",
+  "sameSourceTreeForCandidateAndCommittedSave": true,
+  "screens": [
+    {
+      "path": "screens/project-keys-1440.png",
+      "viewportWidth": 1440,
+      "croppedToChangedSection": true,
+      "bytes": 46441,
+      "sha256": "e11a2c5c6e942d8a39c594b445379a9cd636f2a78001a6e07b2adcc33319d6f1"
+    },
+    {
+      "path": "screens/project-keys-390.png",
+      "viewportWidth": 390,
+      "croppedToChangedSection": true,
+      "bytes": 41733,
+      "sha256": "c3c102ad2bd4f60aa5e8b0e4e9fd281020992da61fb25deacce03b96828037d2"
+    },
+    {
+      "path": "screens/key-issued-1440.png",
+      "viewportWidth": 1440,
+      "croppedToChangedSection": true,
+      "bytes": 14089,
+      "sha256": "cdfda9b74a01f4c4c5c7b45d1bfa1eac6349641aaf38cc42c0772819f650a9d3"
+    },
+    {
+      "path": "screens/key-issued-390.png",
+      "viewportWidth": 390,
+      "croppedToChangedSection": true,
+      "bytes": 12626,
+      "sha256": "6e99002da4f7ba497af8aee8a10da2f22e06240c5dd668bf0cc2680cc8b4616e"
+    },
+    {
+      "path": "screens/key-revoke-1440.png",
+      "viewportWidth": 1440,
+      "croppedToChangedSection": true,
+      "bytes": 40055,
+      "sha256": "b5bfe938ee28aef2288abfbff2d99e4f769520b306c1b1c4d4d8476918883907"
+    },
+    {
+      "path": "screens/key-revoke-390.png",
+      "viewportWidth": 390,
+      "croppedToChangedSection": true,
+      "bytes": 38518,
+      "sha256": "086b3ee97a3400e272257a6af5996418e607c6a8277988bee157df5c1633fa86"
+    },
+    {
+      "path": "screens/invitation-page-1440.png",
+      "viewportWidth": 1440,
+      "croppedToChangedSection": false,
+      "bytes": 32688,
+      "sha256": "30f3182d3f44cc9cfffc96977a9e50f709ab6541cdc8d4c374524a922dbb1afb"
+    },
+    {
+      "path": "screens/invitation-page-390.png",
+      "viewportWidth": 390,
+      "croppedToChangedSection": false,
+      "bytes": 25776,
+      "sha256": "025195cf456088c5633a65e14e64f80a87ea74879c96934b707e3e7bdc1594ab"
+    },
+    {
+      "path": "screens/local-members-1440.png",
+      "viewportWidth": 1440,
+      "croppedToChangedSection": true,
+      "bytes": 90284,
+      "sha256": "67909aae238188480e94ab1b874491fba03d5ba93d5c64dad9617aada20c9391"
+    },
+    {
+      "path": "screens/local-members-390.png",
+      "viewportWidth": 390,
+      "croppedToChangedSection": true,
+      "bytes": 82521,
+      "sha256": "9d2e43f0d5c9bdb2d693027bc55c9171411d18db122647fa30341cc12a899d91"
+    },
+    {
+      "path": "screens/email-alert-1440.png",
+      "viewportWidth": 1440,
+      "croppedToChangedSection": false,
+      "bytes": 283416,
+      "sha256": "a5a01d237bbcdea10bb7fdb2a64e81eee0030b696f3e60ba978393fcf87f98fe"
+    },
+    {
+      "path": "screens/email-alert-390.png",
+      "viewportWidth": 390,
+      "croppedToChangedSection": false,
+      "bytes": 198897,
+      "sha256": "38ee50744d90e565f52d97de68790e6501e4af8a9c803cf4d1821f72d074bacf"
+    },
+    {
+      "path": "screens/private-archive-1440.jpg",
+      "viewportWidth": 1440,
+      "croppedToChangedSection": true,
+      "bytes": 53814,
+      "sha256": "09bcfa22a73c280d5b901cebd596eb0125039df0e350b43d661a572090ed9329"
+    },
+    {
+      "path": "screens/private-archive-390.jpg",
+      "viewportWidth": 390,
+      "croppedToChangedSection": true,
+      "bytes": 31436,
+      "sha256": "5a1f6df8fde6bab10f4f49edbd22b6b71d82ce558d1f01d024ca94e3c627e8b3"
+    },
+    {
+      "path": "screens/erasure-preview-1440.png",
+      "viewportWidth": 1440,
+      "croppedToChangedSection": true,
+      "bytes": 285358,
+      "sha256": "2a42d56b3a4a2a22613f298172fff2dd23bd0792907d566833016acb295175cf"
+    },
+    {
+      "path": "screens/erasure-preview-390.png",
+      "viewportWidth": 390,
+      "croppedToChangedSection": true,
+      "bytes": 170047,
+      "sha256": "75fcb2f48dc4e2dcc4003acf610efbf4e93399313402fbf05403c388b60c2519"
+    },
+    {
+      "path": "screens/erasure-updated-preview-1440.png",
+      "viewportWidth": 1440,
+      "croppedToChangedSection": true,
+      "bytes": 44585,
+      "sha256": "ef6acb5793eaca61c6dc4b8807642beecf30adf6137d3bc806ab28397a0136ff"
+    },
+    {
+      "path": "screens/erasure-updated-preview-390.png",
+      "viewportWidth": 390,
+      "croppedToChangedSection": true,
+      "bytes": 40648,
+      "sha256": "6f43971c8e4699bcd286aac00fd5dee0eb002ef889ef8839bb0c2bd8a92f2084"
+    }
+  ],
+  "secretHandling": "New project key contents and pending invitation inputs masked by Playwright. No setup links, environment files, archives or credential values selected.",
+  "note": "Key/invitation/alert/archive proof precedes only the isolated stale-erasure-review repair; the updated-review screenshots show that repair on the committed candidate. Initial source fingerprint and terminal source fingerprint are retained separately."
+}

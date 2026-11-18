@@ -1,0 +1,10 @@
+{
+  "name": "migration-order",
+  "command": [
+    "node",
+    "/tmp/spool-migration-order.mjs"
+  ],
+  "exit": 0,
+  "seconds": 6.92,
+  "started_utc": "2026-11-17T22:39:59.416639+00:00"
+}

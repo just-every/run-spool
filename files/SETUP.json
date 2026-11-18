@@ -1,0 +1,10 @@
+{
+  "repository": "just-every/run-spool",
+  "checkout": "/workspace/run-spool",
+  "command": ["npx", "-y", "@runeditrun/rer", "setup", "--owner-email", "fleet@runeditrun.com", "--non-interactive"],
+  "exit": 0,
+  "execution": "cloud_run subreaper",
+  "localSettingsAndOwner": "created; private setup output excluded from evidence",
+  "gitHooks": "clone-local forwarding and co-author cleanup installed after setup",
+  "browser": "/usr/bin/chromium --no-sandbox"
+}

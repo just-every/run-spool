@@ -1,0 +1,10 @@
+{
+  "name": "admission",
+  "command": [
+    "pnpm",
+    "test:admission"
+  ],
+  "exit": 0,
+  "seconds": 421.92,
+  "started_utc": "2026-11-17T22:22:22.545940+00:00"
+}

@@ -1,0 +1,10 @@
+{
+  "name": "project-erasure",
+  "command": [
+    "pnpm",
+    "test:project-erasure"
+  ],
+  "exit": 1,
+  "seconds": 353.41,
+  "started_utc": "2026-11-17T23:25:16.175270+00:00"
+}

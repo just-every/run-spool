@@ -1,0 +1,10 @@
+{
+  "name": "final-integration-check",
+  "command": [
+    "pnpm",
+    "integration:check"
+  ],
+  "exit": 0,
+  "seconds": 0.54,
+  "started_utc": "2026-11-17T23:36:31.294137+00:00"
+}

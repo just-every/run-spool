@@ -1,0 +1,8 @@
+{
+  "paths": 1753,
+  "sha256": "02d0537355dbb653caa12dd90ba7c27e5454870d898f9f6d692bd48ccb27a49b",
+  "sourceHead": "739be0258a90e46502e11f53221870745553cdd5",
+  "note": "Committed source for clean erasure and CLI reruns; prior journey results precede only the erasure stale-review UI repair and newer main dependency lock.",
+  "terminalHead": "b5b0d25111dcb56a07afc12605ee1e6a935c1b18",
+  "sourceUnchangedAfterChecks": true
+}

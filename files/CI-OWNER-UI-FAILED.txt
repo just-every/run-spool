@@ -1,0 +1,29 @@
+Actual failed-job log; CI environment listing omitted from evidence.
+verify (owner-ui)	Run suites	﻿2026-11-17T23:50:12.6043417Z ##[group]Run pnpm test:accessibility && pnpm test:admission
+verify (owner-ui)	Run suites	2026-11-17T23:50:12.6043873Z [36;1mpnpm test:accessibility && pnpm test:admission[0m
+verify (owner-ui)	Run suites	2026-11-17T23:50:12.6058131Z shell: /usr/bin/bash -e {0}
+verify (owner-ui)	Run suites	2026-11-17T23:50:12.6060316Z ##[endgroup]
+verify (owner-ui)	Run suites	2026-11-17T23:50:12.8552532Z 
+verify (owner-ui)	Run suites	2026-11-17T23:50:12.8553865Z > @errors/errors-workbench@0.7.14 test:accessibility /home/runner/work/run-spool/run-spool
+verify (owner-ui)	Run suites	2026-11-17T23:50:12.8554761Z > node tests/triage-journey.mjs
+verify (owner-ui)	Run suites	2026-11-17T23:50:12.8555048Z 
+verify (owner-ui)	Run suites	2026-11-17T23:50:13.3958041Z (node:2848) ExperimentalWarning: SQLite is an experimental feature and might change at any time
+verify (owner-ui)	Run suites	2026-11-17T23:50:13.3958837Z (Use `node --trace-warnings ...` to show where the warning was created)
+verify (owner-ui)	Run suites	2026-11-17T23:51:46.9000244Z node:internal/modules/run_main:123
+verify (owner-ui)	Run suites	2026-11-17T23:51:46.9000690Z     triggerUncaughtException(
+verify (owner-ui)	Run suites	2026-11-17T23:51:46.9001268Z     ^
+verify (owner-ui)	Run suites	2026-11-17T23:51:46.9001408Z 
+verify (owner-ui)	Run suites	2026-11-17T23:51:46.9003724Z locator.innerText: Timeout 15000ms exceeded.
+verify (owner-ui)	Run suites	2026-11-17T23:51:46.9004358Z Call log:
+verify (owner-ui)	Run suites	2026-11-17T23:51:46.9004722Z   - waiting for locator('#null')
+verify (owner-ui)	Run suites	2026-11-17T23:51:46.9004999Z 
+verify (owner-ui)	Run suites	2026-11-17T23:51:46.9005503Z     at operatorUi (/home/runner/work/run-spool/run-spool/tests/operator-ui.mjs:74:31)
+verify (owner-ui)	Run suites	2026-11-17T23:51:46.9006308Z     at async journey (/home/runner/work/run-spool/run-spool/tests/triage-journey.mjs:289:2)
+verify (owner-ui)	Run suites	2026-11-17T23:51:46.9007240Z     at async file:///home/runner/work/run-spool/run-spool/tests/triage-journey.mjs:293:31 {
+verify (owner-ui)	Run suites	2026-11-17T23:51:46.9007968Z   log: [ "  - waiting for locator('#null')" ],
+verify (owner-ui)	Run suites	2026-11-17T23:51:46.9008368Z   name: 'TimeoutError'
+verify (owner-ui)	Run suites	2026-11-17T23:51:46.9008696Z }
+verify (owner-ui)	Run suites	2026-11-17T23:51:46.9008916Z 
+verify (owner-ui)	Run suites	2026-11-17T23:51:46.9009051Z Node.js v22.20.0
+verify (owner-ui)	Run suites	2026-11-17T23:51:46.9373260Z  ELIFECYCLE  Command failed with exit code 1.
+verify (owner-ui)	Run suites	2026-11-17T23:51:46.9538912Z ##[error]Process completed with exit code 1.

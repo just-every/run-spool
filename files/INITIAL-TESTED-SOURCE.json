@@ -1,0 +1,5 @@
+{
+  "paths": 1753,
+  "sha256": "24ecd0bb3f8e8500bd5e8ab5185750a5cec5af5448e9b86bc962a556e0bb31eb",
+  "description": "SHA-256 over sorted Git-tracked src, migrations and tests path/content-hash pairs in the candidate working tree; rechecked before product commit."
+}

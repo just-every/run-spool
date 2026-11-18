@@ -1,0 +1,14 @@
+{
+  "name": "final-first-party-check",
+  "command": [
+    "pnpm",
+    "run",
+    "check",
+    "--",
+    "--profile",
+    "first-party"
+  ],
+  "exit": 0,
+  "seconds": 2.7,
+  "started_utc": "2026-11-17T23:35:49.178160+00:00"
+}

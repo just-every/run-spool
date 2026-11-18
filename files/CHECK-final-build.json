@@ -1,0 +1,12 @@
+{
+  "name": "final-build",
+  "command": [
+    "npx",
+    "-y",
+    "@runeditrun/rer",
+    "build"
+  ],
+  "exit": 0,
+  "seconds": 37.69,
+  "started_utc": "2026-11-17T23:35:53.527828+00:00"
+}

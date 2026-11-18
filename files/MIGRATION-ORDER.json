@@ -1,0 +1,22 @@
+{
+  "status": "passed",
+  "baseMigrations": 103,
+  "baseLast": "0109_feedback_review.sql",
+  "order": [
+    "0110_sentry_roster_proposals.sql",
+    "0111_key_names_and_use.sql"
+  ],
+  "sentryHead": "8d44b36e050201ea0923e4d767ba346f9466328e",
+  "sentrySha256": "d88d992bf20a0697cd58991c4a78148dd0730acdcf9ae3837a8e3184ab16c8eb",
+  "keysSha256": "b1cae0eee0f949294c39ff602c56d7dc8abbabef544dfa782376a016cb73865c",
+  "credentialRowsBefore": 3,
+  "credentialRowsAfter": 3,
+  "rosterRowsBefore": 1,
+  "rosterRowsAfter": 1,
+  "ledgerRowsBefore": 103,
+  "ledgerRowsAfter": 105,
+  "authorityPreserved": true,
+  "metadataDefaults": true,
+  "rosterPreserved": true,
+  "node": "v22.20.0"
+}

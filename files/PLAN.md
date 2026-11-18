@@ -1,0 +1,11 @@
+# sd-spool-design-keys-4 plan
+
+1. Initialize fleet identity, launcher credentials, Git authentication and clone-local forwarding/cleanup hooks. Clone only just-every/run-spool, with depth 1 and blob filtering, then deepen for the two named source branches.
+2. Confirm keys-3 is ba97984c5372e00bd6c28bb05eb37fb8c7f89928 and sentry-4 is 8d44b36e050201ea0923e4d767ba346f9466328e. Start cloud/sd-spool-design-keys-4 from fresh main. Reapply the keys round linearly without merging source history.
+3. Reserve migration 0110 for Sentry. Rename key metadata to 0111_key_names_and_use.sql and update every live reference, archive compatibility rule, migration inventory and generated deployment specification. Inspect Sentry's shared generator outputs without incorporating its product implementation.
+4. Preserve CONTRACT.md judgments and generated acceptance/claims views. Add only a required RELEASE.json contractChanges entry if the release validator identifies changed clause meaning. Regenerate integration outputs, contract documents as appropriate, and source lock last.
+5. Prove populated released-schema upgrade and a populated 0109 + exact Sentry 0110 + keys 0111 upgrade. Run runtime, agent-handoff and touched keys, invitations, alerts, archive and erasure journeys. Capture changed screens once at 1440 and 390 with secrets masked. Run the repository's full build step list in order, including its release validation where available, and required checks.
+6. Verify a linear, in-scope product diff with fleet-only commit authors/committers and permitted trailers. Push only cloud/sd-spool-design-keys-4 through cloud-push.py. Discover and poll exact-SHA Verify via bounded REST calls, fix actual failures within scope, and preserve published history.
+7. Save non-secret reports and actual validation receipts outside the product tree. Publish explicitly selected packet files to evidence/sd-spool-design-keys-4 only. Return product SHA, CI evidence, unchanged clause counts and lane POST line. No contract clause claimed; these are owner-journey design fixes (DIRECT 87).
+
+No deployment, tag, release, Base refresh, self-submit or default-branch push is authorized or planned. The Mac fleet retains publication scan and landing custody. Synthetic local proof does not qualify real-account delivery or hosted acceptance.

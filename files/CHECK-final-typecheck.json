@@ -1,0 +1,10 @@
+{
+  "name": "final-typecheck",
+  "command": [
+    "pnpm",
+    "typecheck"
+  ],
+  "exit": 0,
+  "seconds": 25.37,
+  "started_utc": "2026-11-17T23:36:32.311530+00:00"
+}

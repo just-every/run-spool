@@ -1,0 +1,10 @@
+{
+  "name": "final-source-check",
+  "command": [
+    "pnpm",
+    "source:check"
+  ],
+  "exit": 0,
+  "seconds": 1.04,
+  "started_utc": "2026-11-17T23:35:51.954161+00:00"
+}

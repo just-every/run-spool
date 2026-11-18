@@ -1,0 +1,129 @@
+{
+  "calls": 10,
+  "lastReadEpoch": 1794962586.9371655,
+  "head": "b5b0d25111dcb56a07afc12605ee1e6a935c1b18",
+  "discovery": {
+    "workflow_runs": [
+      {
+        "conclusion": null,
+        "created_at": "2026-11-17T23:48:16Z",
+        "event": "push",
+        "head_sha": "b5b0d25111dcb56a07afc12605ee1e6a935c1b18",
+        "html_url": "https://github.com/just-every/run-spool/actions/runs/44202529736",
+        "id": 44202529736,
+        "name": "Verify",
+        "run_attempt": 1,
+        "status": "in_progress",
+        "updated_at": "2026-11-17T23:48:19Z"
+      }
+    ]
+  },
+  "read_utc": "2026-11-17T23:48:27.716807+00:00",
+  "lastReadUTC": "2026-11-18T00:43:06.937165+00:00",
+  "polls": [
+    {
+      "conclusion": null,
+      "head_sha": "b5b0d25111dcb56a07afc12605ee1e6a935c1b18",
+      "html_url": "https://github.com/just-every/run-spool/actions/runs/44202529736",
+      "status": "in_progress"
+    },
+    {
+      "conclusion": null,
+      "head_sha": "b5b0d25111dcb56a07afc12605ee1e6a935c1b18",
+      "html_url": "https://github.com/just-every/run-spool/actions/runs/44202529736",
+      "status": "in_progress"
+    },
+    {
+      "conclusion": null,
+      "head_sha": "b5b0d25111dcb56a07afc12605ee1e6a935c1b18",
+      "html_url": "https://github.com/just-every/run-spool/actions/runs/44202529736",
+      "status": "in_progress"
+    },
+    {
+      "conclusion": "failure",
+      "head_sha": "b5b0d25111dcb56a07afc12605ee1e6a935c1b18",
+      "html_url": "https://github.com/just-every/run-spool/actions/runs/44202529736",
+      "status": "completed"
+    },
+    {
+      "conclusion": null,
+      "head_sha": "b5b0d25111dcb56a07afc12605ee1e6a935c1b18",
+      "html_url": "https://github.com/just-every/run-spool/actions/runs/44202529736",
+      "status": "in_progress"
+    },
+    {
+      "conclusion": "success",
+      "head_sha": "b5b0d25111dcb56a07afc12605ee1e6a935c1b18",
+      "html_url": "https://github.com/just-every/run-spool/actions/runs/44202529736",
+      "status": "completed"
+    }
+  ],
+  "conclusion": "success",
+  "head_sha": "b5b0d25111dcb56a07afc12605ee1e6a935c1b18",
+  "html_url": "https://github.com/just-every/run-spool/actions/runs/44202529736",
+  "status": "completed",
+  "failedJobs": [
+    {
+      "completed_at": "2026-11-17T23:51:50Z",
+      "conclusion": "failure",
+      "failedSteps": [
+        {
+          "name": "Run suites",
+          "number": 10
+        }
+      ],
+      "id": 134460693011,
+      "name": "verify (owner-ui)",
+      "started_at": "2026-11-17T23:49:43Z"
+    },
+    {
+      "completed_at": "2026-11-18T00:07:19Z",
+      "conclusion": "failure",
+      "failedSteps": [
+        {
+          "name": "Require every job in this coverage partition",
+          "number": 2
+        }
+      ],
+      "id": 134469079760,
+      "name": "shards (spool)",
+      "started_at": "2026-11-18T00:07:15Z"
+    },
+    {
+      "completed_at": "2026-11-18T00:07:24Z",
+      "conclusion": "failure",
+      "failedSteps": [
+        {
+          "name": "Require the selected coverage and its proof",
+          "number": 2
+        }
+      ],
+      "id": 134469132237,
+      "name": "verify",
+      "started_at": "2026-11-18T00:07:21Z"
+    }
+  ],
+  "failedLogCommand": [
+    "gh",
+    "run",
+    "view",
+    "44202529736",
+    "--repo",
+    "just-every/run-spool",
+    "--job",
+    "134460693011",
+    "--log-failed"
+  ],
+  "failedLogExit": 0,
+  "rerunRequested": true,
+  "rerunJob": 134460693011,
+  "rerunCommand": [
+    "gh",
+    "api",
+    "--method",
+    "POST",
+    "repos/just-every/run-spool/actions/jobs/134460693011/rerun"
+  ],
+  "rerunExit": 0,
+  "rerunUTC": "2026-11-18T00:13:00.323764+00:00"
+}

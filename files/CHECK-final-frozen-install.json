@@ -1,0 +1,11 @@
+{
+  "name": "final-frozen-install",
+  "command": [
+    "pnpm",
+    "install",
+    "--frozen-lockfile"
+  ],
+  "exit": 0,
+  "seconds": 7.94,
+  "started_utc": "2026-11-17T23:35:39.739242+00:00"
+}

@@ -1,0 +1,16 @@
+{
+  "repository": "just-every/run-spool",
+  "branch": "cloud/sd-spool-design-keys-4",
+  "saveHead": "739be0258a90e46502e11f53221870745553cdd5",
+  "status": "pushed",
+  "guard": "cloud-push.py",
+  "attempt": 1,
+  "identityAudit": "all candidate authors/committers fleet; no co-author trailers; no merge commits",
+  "skipCI": true,
+  "observed_utc": "2026-11-17T23:38:51.974246+00:00",
+  "terminalHead": "b5b0d25111dcb56a07afc12605ee1e6a935c1b18",
+  "terminalPushAttempt": 1,
+  "terminalPushStatus": "pushed",
+  "terminalCITrigger": "Verify committed Spool owner journeys",
+  "sameSourceTree": true
+}

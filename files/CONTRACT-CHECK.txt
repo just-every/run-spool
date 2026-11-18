@@ -1,0 +1,14 @@
+Commands:
+node src/base/contract-docs.mjs write
+node src/base/contract-docs.mjs check
+git checkout origin/main -- ACCEPTANCE.md docs/CLAIMS.md
+
+Actual generator output:
+Wrote 0 contract documents.
+Contract prose: 0 errors, 0 warnings.
+Contract documents are current.
+
+Final regeneration/check on the newer main base:
+Wrote 0 contract documents.
+Contract prose: 0 errors, 0 warnings.
+Contract documents are current.

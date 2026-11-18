@@ -1,0 +1,10 @@
+{
+  "name": "agent-door",
+  "command": [
+    "pnpm",
+    "test:agent-door"
+  ],
+  "exit": 0,
+  "seconds": 377.96,
+  "started_utc": "2026-11-17T22:46:31.372516+00:00"
+}

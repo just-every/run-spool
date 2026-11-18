@@ -1,0 +1,10 @@
+{
+  "name": "final-source-after-build",
+  "command": [
+    "pnpm",
+    "source:check"
+  ],
+  "exit": 0,
+  "seconds": 1.22,
+  "started_utc": "2026-11-17T23:36:58.549779+00:00"
+}

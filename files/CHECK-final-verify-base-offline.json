@@ -1,0 +1,12 @@
+{
+  "name": "final-verify-base-offline",
+  "command": [
+    "node",
+    "scripts/edition-authoring/cli.mjs",
+    "verify-base",
+    "--offline"
+  ],
+  "exit": 0,
+  "seconds": 0.28,
+  "started_utc": "2026-11-17T23:35:53.070608+00:00"
+}

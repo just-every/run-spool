@@ -1,0 +1,102 @@
+{
+  "fixtureSourceHeadBeforeCandidateCommit": "f44efc8c76f8f11753b89465cc3fcb7b64760570",
+  "assertionGroups": [
+    {
+      "width": 1440,
+      "name": "Visitor unclaimed Lobby fits, passes axe and Finish setup leads to owner sign-in preserving /setup"
+    },
+    {
+      "width": 1440,
+      "name": "Real minified application throws and capture crosses a second loopback origin"
+    },
+    {
+      "width": 1440,
+      "name": "Contextual map upload yields actual original path, line and column as first stack fact"
+    },
+    {
+      "width": 1440,
+      "name": "Copy destination, refresh, history, viewed count and Details focus/Escape"
+    },
+    {
+      "width": 1440,
+      "name": "Resolved issue recurs in next release; late older release does not replace regression identity"
+    },
+    {
+      "width": 1440,
+      "name": "Populated browser download verifies integrity, whole product equality, private source maps and credential exclusions"
+    },
+    {
+      "width": 1440,
+      "name": "Offline and unavailable initial reads recover; retained issue evidence is stale, keeps destination, drafts and focus, and clears after a successful refresh without writes"
+    },
+    {
+      "width": 1440,
+      "name": "Hostile return destinations rejected and expired API session keeps requested issue"
+    },
+    {
+      "width": 1440,
+      "name": "Styled direct-navigation 404, both widths, no owner-page errors or horizontal overflow"
+    },
+    {
+      "width": 1440,
+      "name": "Capture receipts name statsd and unknown item counts separately from the accepted companion error"
+    },
+    {
+      "width": 1440,
+      "name": "Built-in test capture has sample-labelled evidence without map or reproducer steps, separate grouping and counts, and preserves ordinary app-error guidance"
+    },
+    {
+      "width": 1440,
+      "name": "Operator assignment, policy toggle and reviewed correction plus undo use the rendered controls"
+    },
+    {
+      "width": 390,
+      "name": "Visitor unclaimed Lobby fits, passes axe and Finish setup leads to owner sign-in preserving /setup"
+    },
+    {
+      "width": 390,
+      "name": "Real minified application throws and capture crosses a second loopback origin"
+    },
+    {
+      "width": 390,
+      "name": "Contextual map upload yields actual original path, line and column as first stack fact"
+    },
+    {
+      "width": 390,
+      "name": "Copy destination, refresh, history, viewed count and Details focus/Escape"
+    },
+    {
+      "width": 390,
+      "name": "Resolved issue recurs in next release; late older release does not replace regression identity"
+    },
+    {
+      "width": 390,
+      "name": "Populated browser download verifies integrity, whole product equality, private source maps and credential exclusions"
+    },
+    {
+      "width": 390,
+      "name": "Hostile return destinations rejected and expired API session keeps requested issue"
+    },
+    {
+      "width": 390,
+      "name": "Styled direct-navigation 404, both widths, no owner-page errors or horizontal overflow"
+    },
+    {
+      "width": 390,
+      "name": "Capture receipts name statsd and unknown item counts separately from the accepted companion error"
+    },
+    {
+      "width": 390,
+      "name": "Operator assignment, policy toggle and reviewed correction plus undo use the rendered controls"
+    }
+  ],
+  "captureCount": 104,
+  "selectedStates": [
+    "project-keys",
+    "key-issued",
+    "key-revoke",
+    "private-archive"
+  ],
+  "sourceFingerprint": "TESTED-SOURCE.json",
+  "note": "Screens show the candidate working-tree sources; final product SHA is bound after verifying the source fingerprint. Final exact-SHA Verify is independent CI custody."
+}
