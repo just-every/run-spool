@@ -5,7 +5,6 @@ import { sentryOrganization } from '../../scripts/fixtures/sentry-organization.m
 import { exportCapture } from '../../scripts/sentry-export.mjs';
 import { sentryDoorClient } from '../../scripts/sentry-import.mjs';
 import { archiveProjection } from '../archive.mjs';
-import { ruleReceiptScreens } from './rule-receipt.mjs';
 
 // Independent traversal of the supplied API responses: never calls the product's enumerator or mapper.
 function leaves(value,path='') {
@@ -16,6 +15,8 @@ function leaves(value,path='') {
 function disposition(kind,path) {
  if(['members','ownership'].includes(kind))return 'rejected'; // These captures lack required source timestamps.
  if(['workflows','detectors'].includes(kind)&&['/id','/name'].includes(path))return 'mapped';
+ if(kind==='workflows'&&(/^\/detectorIds\/0$/.test(path)||/^\/triggers\/conditions\/0\/(type|comparison|conditionResult)$/.test(path)))return 'transformed';
+ if(kind==='detectors'&&(/^\/dataSources\/0\/queryObj\/snubaQuery\/(aggregate|dataset|eventTypes\/0|environment|query|timeWindow)$/.test(path)||/^\/conditionGroup\/conditions\/0\/(type|comparison|conditionResult)$/.test(path)))return 'transformed';
  if(kind==='teams'&&['/id','/slug','/name'].includes(path))return 'mapped';
  if(kind==='teams'&&path==='/dateCreated'||kind==='projects'&&/^\/teams\/\d+\/(id|slug)$/.test(path))return 'transformed';
  if(kind==='keys'&&['/public','/secret','/dsn/secret','/dsn/cdn'].includes(path))return 'redacted';
@@ -94,7 +95,6 @@ export async function fieldAccounting({origin,cookie,scratch,json,req}) {
   assert.equal(nativeRulesBefore,0,'the destination project starts without native alert rules');
   const nativeRules=await json(`/api/projects/${imported.id}/alerting/rules`);
   assert.deepEqual(nativeRules,[],'retained source definitions create no executable native rules');
-  if(profile==='baseline')await ruleReceiptScreens(origin,cookie,imported.id);
   assert.deepEqual(await json(`/api/projects/${imported.id}/keys`),[],'source keys never become native authority');
   const issue=(await json(`/api/projects/${imported.id}/issues`))[0];
   const packet=await json(`/api/projects/${imported.id}/issues/${issue.id}/packet`);

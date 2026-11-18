@@ -71,7 +71,7 @@ export async function readOwnerPlan(request:DoorRequest, planId:string, inventor
  const rejected = snapshot?.plan.entries.filter(e => e.rejection).map(entry => ({kind:entry.source.kind,sourceId:entry.source.sourceId,
   reason:entry.rejection!, reasonCode:rejectionReasonCode(entry.rejection!), ...recordLabel(entry.source,snapshot!)})) ?? null;
  const comparison=snapshot?rollbarComparison(snapshot,live):undefined;
- const sentry=snapshot?await sentryAccounting(db,snapshot,live,job?.state==='completed'):undefined;
+ const sentry=snapshot?await sentryAccounting(db,snapshot,live,job):undefined;
  const details = {...(sentry?{sentry}:{}),...(comparison?{comparison}:{}),...snapshot?{bugsnag:bugsnagReport(snapshot)}:{},organization, organizationReasonCode:organization === null ? (snapshot ? 'organization_unavailable' : 'snapshot_withdrawn') : null,
   projectIds, projectIdsReasonCode:snapshot ? null : 'snapshot_withdrawn',
   counts:snapshot?.plan.counts ?? null, countsReasonCode:snapshot ? null : 'snapshot_withdrawn',
@@ -101,7 +101,7 @@ export async function ownerReadResponse(request:DoorRequest, response:Response, 
 }
 
 /** Value-free loss ledger, derived from the immutable plan rather than a caller's claimed totals. */
-async function sentryAccounting(db:DoorRequest['options']['database'], snapshot:DoorSnapshot, live:PersistedImport, completed:boolean) {
+async function sentryAccounting(db:DoorRequest['options']['database'], snapshot:DoorSnapshot, live:PersistedImport, job:{id:string;state:string}|null) {
  const manifest=snapshot.plan.entries.find(entry=>entry.source.kind==='manifest');
  const meta=manifest?.source.payload as any;
  if(!meta?.organization?.slug||meta.vendor)return undefined;
@@ -119,6 +119,7 @@ async function sentryAccounting(db:DoorRequest['options']['database'], snapshot:
    ? [{sourceId:entry.source.sourceId,id:native.id as string,project:native.project as string,data:JSON.parse(native.payload) as AlertProposal}] : [];
  }));
  const namesSeen=new Set(proposals.map(proposal=>proposal.id));
+ const owned=new Set(live.provenance.filter(p=>p.jobId===job?.id&&!p.reversed&&p.targetKind==='import-proposal').map(p=>p.targetId));
  const applied=new Set(live.rows.filter(row=>row.targetKind==='import-proposal'&&namesSeen.has(row.targetId)).map(row=>row.targetId));
  const nativeRules=await importedRuleStates(db,[...applied]);
  const losses=proposals.flatMap(proposal=>proposal.data.omissions);
@@ -127,12 +128,21 @@ async function sentryAccounting(db:DoorRequest['options']['database'], snapshot:
   const fields=sentryFieldAccounting(entry.source.kind,(entry.source.payload as any).data,entry.rejection);
   if(!sentryRuleKinds.includes(entry.source.kind)||entry.rejection)return fields;
   const location=entry.source.location.pointer??'';
-  const treated=proposals.some(proposal=>proposal.sourceId===entry.source.sourceId) || linkedMonitors.has(location);
+  const projected=proposals.find(proposal=>proposal.data.location===location || proposal.data.monitorLocation===location)?.data;
+  const represented=projected?.settings;
+  const settingFields: Record<string,RegExp> = {
+   rules:/^\/(environment|frequency|actionMatch|filterMatch)$|^\/(conditions|filters)\/\d+\/(id|interval|value|key|match|level)$/,
+   metric_alerts:/^\/(aggregate|dataset|eventTypes|environment|query|timeWindow|thresholdType|resolveThreshold)(\/|$)|^\/triggers\/\d+\/(label|alertThreshold)$/,
+   workflows:/^\/detectorIds\/\d+$|^\/triggers\/conditions\/\d+\/(type|comparison|conditionResult)$/,
+   detectors:/^\/dataSources\/0\/queryObj\/snubaQuery\/(aggregate|dataset|eventTypes|environment|query|timeWindow)(\/|$)|^\/conditionGroup\/conditions\/0\/(type|comparison|conditionResult)(\/|$)/,
+  };
   return fields.map(field=>{
    if(field.disposition==='redacted')return field;
    const path=location+field.path, blocker=losses.find(item=>path===item.path||path.startsWith(item.path+'/'));
    if(blocker)return {...field,reason:blocker.reason};
-   if(treated&&/^\/(id|name|owner|ownerActor|dateCreated|dateModified|lastTriggered|lastTriggeredAt|lastIncident)(\/|$)/.test(field.path))return {...field,disposition:'mapped' as const,reason:'Retained in the private source definition and linked by the rule proposal.'};
+   if(projected&&/^\/(id|name|owner|ownerActor|dateCreated|dateModified|lastTriggered|lastTriggeredAt|lastIncident)(\/|$)/.test(field.path))return {...field,disposition:'mapped' as const,reason:'Retained in the private source definition and linked by the rule proposal.'};
+   if(represented&&settingFields[entry.source.kind].test(field.path))return {...field,disposition:'transformed' as const,reason:'Converted to the proposed native rule settings.'};
+   if(projected?.destinations.some(destination=>path.startsWith(destination.path+'/')&&/\/(type|id|targetType|targetIdentifier)$/.test(path)))return {...field,disposition:'transformed' as const,reason:'Linked to a destination for approval review.'};
    return field;
   });
  };
@@ -175,9 +185,11 @@ async function sentryAccounting(db:DoorRequest['options']['database'], snapshot:
   const needs=rule?.destination===missingImportDestination?'Needs a destination: '+destinationKinds.join(', '):null;
   const uniqueDestinations=new Set(data.destinations.map(d=>canonicalJson([d.kind,d.id])));
   const unrepresented=uniqueDestinations.size>1?[...data.omissions,{path:data.location,reason:'Multiple destinations require a native choice'}]:data.omissions;
-  const state=rule?rule.waiting?'waiting':rule.enabled?'active':'disabled':completed&&applied.has(proposal.id)?'pending':'proposed';
+  const reversed=job?.state==='undone'||job?.state==='rolled_back';
+  const state=reversed?'withdrawn':rule?rule.waiting?'waiting':rule.enabled?'active':'disabled'
+   :job?.state==='completed'&&applied.has(proposal.id)&&owned.has(proposal.id)?'pending':'proposed';
   return {id:proposal.id,name:data.name,project:proposal.project,location:data.location,state,
-   ruleId:rule?.id??null,status:rule?.waiting??needs??(state==='pending'?'Waiting for your approval':state==='proposed'?'Proposed':rule?.enabled?'Rule created and active':'Rule created disabled'),
+   ruleId:reversed?null:rule?.id??null,status:reversed?'Import undone':rule?.waiting??needs??(state==='pending'?'Waiting for your approval':state==='proposed'?'Proposed':rule?.enabled?'Rule created and active':'Rule created disabled'),
    settings:data.settings,destinations:data.destinations.map(d=>({kind:d.kind,path:d.path})),scope:data.monitorLocation??null,
    omissions:unrepresented,local:rule?.destination===localImportDestination};
  });

@@ -1,4 +1,6 @@
 -- Extend the proposal discriminator while carrying forward every roster row.
+INSERT INTO rer_portability_guard SELECT CASE WHEN NOT EXISTS(SELECT 1 FROM rer_portability_state WHERE id=1 AND import_job IS NOT NULL) THEN 1 ELSE 0 END;
+DELETE FROM rer_portability_guard WHERE rowid=last_insert_rowid();
 CREATE TABLE spool_import_proposals_with_alerts (
  id TEXT PRIMARY KEY,
  project TEXT NOT NULL REFERENCES projects(id),
