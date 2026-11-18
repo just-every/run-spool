@@ -11,9 +11,8 @@ export async function ownerSetupBrowser(app, cookie, project, json) {
   const page=await context.newPage();page.setDefaultTimeout(20000);const errors=[];page.on('pageerror',error=>errors.push(error.message));
   await mkdir(folder,{recursive:true});
   const screenshot=async name=>{for(const width of [1440,390]){await page.setViewportSize({width,height:1000});assert.ok(await page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth+1),'owner setup reflows');await page.screenshot({path:`${folder}/${name}-${width}.png`,fullPage:true,mask:[page.locator('[data-secret] pre'),page.getByLabel('Project ingest key',{exact:true}),page.getByLabel('SDK init',{exact:true}),page.getByLabel('Browser helper init',{exact:true}),page.getByLabel('Sentry DSN',{exact:true})]});}await page.setViewportSize({width:1440,height:1000});};
-  await page.goto(app.origin+'/projects/'+project.id+'/settings');
+  await page.goto(app.origin+'/projects/'+project.id+'/settings#settings-organization');
   const members=page.getByRole('region',{name:'Members',exact:true});
-  await members.locator('summary').filter({hasText:/^Invite a member$/}).click();
   const form=members.locator('form').filter({has:page.getByLabel('Email',{exact:true})});
   for(const [role,name,email] of [['owner','Imported owner','synthetic-spool-owner@example.test'],['manager','Imported manager','synthetic-spool-manager@example.test']]){
    await form.getByLabel('Email',{exact:true}).fill(email);await form.getByLabel('Name',{exact:true}).fill(name);

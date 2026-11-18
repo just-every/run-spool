@@ -25,6 +25,7 @@ const rules: Rule[] = [
  {pattern:/^\/api\/organization\/imports\/(?<subject>[^/]+)\/preview$/,action:'import.plan',kind:'import'},
  {pattern:/^\/api\/organization\/imports\/(?<subject>[^/]+)\/invite$/,action:'member.invite',kind:'identity'},
  {pattern:/^\/api\/organization$/,methods:['POST'],action:'organization.create',kind:'installation'},
+ {pattern:/^\/api\/organization$/,methods:['PUT'],action:'organization.change',kind:'installation'},
  {pattern:/^\/api\/organization\/invites$/,action:'member.invite',kind:'identity'},
  {pattern:/^\/api\/organization\/members\/(?<subject>[^/]+)$/,methods:['DELETE'],action:'member.remove',kind:'identity'},
  {pattern:/^\/api\/organization\/members\/(?<subject>[^/]+)$/,action:'member.change',kind:'identity'},

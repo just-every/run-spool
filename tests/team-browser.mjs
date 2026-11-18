@@ -8,6 +8,7 @@ import {startDispatchApp} from './triage-app.mjs';
 import {workbenchLink} from './navigation.mjs';
 import {admissionRuntime} from './admission-runtime.mjs';
 import {testSetupToken} from './auth.mjs';
+import {legacyMailRows} from './legacy-mail.mjs';
 import {teamViewportProof,teamKeyboardDetails} from './team-viewport.mjs';
 
 const organization='/api/organization';
@@ -20,10 +21,10 @@ export async function browserMembers(owner,projects) {
   const split=owner.cookie.indexOf('=');
   await context.addCookies([{name:owner.cookie.slice(0,split),value:owner.cookie.slice(split+1),url:owner.origin.replace('http:','https:'),secure:true}]);
   const page=await context.newPage();
-  await page.goto(owner.origin+'/projects/'+projects[0].id+'/settings');
+  await page.goto(owner.origin+'/projects/'+projects[0].id+'/settings#settings-organization');
+  await identitySettings(page,owner);
   const members=page.getByRole('region',{name:'Members',exact:true});
-  await members.getByRole('heading',{name:'Members',exact:true}).waitFor();
-  await members.locator('summary').filter({hasText:/^Invite a member$/}).click();
+  await members.getByRole('heading',{name:'Who can use Spool?',exact:true}).waitFor();
   const form=members.locator('form').filter({has:page.getByLabel('Email',{exact:true})});
   await form.getByLabel('Email',{exact:true}).fill(invitationIdentity);
   await form.getByLabel('Name',{exact:true}).fill('synthetic-spool-6');
@@ -79,6 +80,57 @@ export async function browserMembers(owner,projects) {
   await usageLabels(page,owner,projects[0]);
   await context.close();
  }finally{await browser.close()}
+}
+
+// Extend the existing Members journey through native profile and organization doors.
+async function identitySettings(page,owner) {
+ const before=await owner.json(organization+'/me');
+ await page.getByRole('link',{name:'General',exact:true}).click();
+ const name=page.getByLabel('Installation name',{exact:true});
+ async function rename(value) {
+  await name.fill(value);
+  const saved=page.waitForResponse(r=>new URL(r.url()).pathname===organization&&r.request().method()==='PUT');
+  await name.press('Tab');assert.equal((await saved).status(),200);
+  await expect(page).toHaveTitle(value+' · Spool');
+  await expect(page.locator('.sidebar .wordmark')).toContainText(value);
+  assert.equal((await owner.json(organization+'/me')).organization.name,value);
+ }
+ await rename('Brightwell Support');
+ await page.reload();await expect(page).toHaveTitle('Brightwell Support · Spool');
+ await page.setViewportSize({width:390,height:900});
+ assert.equal(await page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth),true,'installation name fits the phone header');
+ await page.setViewportSize({width:1440,height:1000});await rename(before.organization.name);
+ await page.getByRole('link',{name:'Members',exact:true}).click();
+ const members=page.getByRole('region',{name:'Members',exact:true});
+ async function profile(label,value,path) {
+  await members.getByRole('button',{name:'Change '+label.toLowerCase(),exact:true}).click();
+  const input=members.getByLabel(label,{exact:true});await input.fill(value);
+  const saved=page.waitForResponse(r=>new URL(r.url()).pathname===path&&r.request().method()==='POST');
+  await input.press('Enter');const response=await saved;
+  if(response.status()===403&&(await response.json()).error==='step_up_required') {
+   const previous=(await legacyMailRows(owner.origin)).map(row=>row.id);
+   const sent=page.waitForResponse(r=>new URL(r.url()).pathname==='/auth/step-up'&&r.request().method()==='POST');
+   await members.getByRole('button',{name:'Send verification email',exact:true}).click();assert.equal((await sent).status(),202);
+   const row=(await legacyMailRows(owner.origin)).find(row=>!previous.includes(row.id));assert.ok(row);
+   const message=typeof row.message==='string'?JSON.parse(row.message):row.message;
+   const token=message.text.match(/\/auth\/confirm\?token=([A-Za-z0-9_-]+)/)?.[1];assert.ok(token);
+   const confirmed=await owner.req('/auth/confirm','POST',{token});assert.equal(confirmed.status,303);await confirmed.body?.cancel();
+   const retry=page.waitForResponse(r=>new URL(r.url()).pathname===path&&r.request().method()==='POST');
+   await input.press('Enter');assert.equal((await retry).status(),200);
+  } else assert.equal(response.status(),200);
+  await expect(members.getByRole('button',{name:'Change '+label.toLowerCase(),exact:true})).toBeVisible();
+ }
+ await profile('Your name','Synthetic identity owner','/auth/display-name');
+ await profile('Your email','synthetic-spool-identity@example.test','/auth/email');
+ const changed=await owner.json(organization+'/me'),roster=await owner.json(organization);
+ assert.equal(changed.profile.name,'Synthetic identity owner');assert.equal(changed.profile.email,'synthetic-spool-identity@example.test');
+ const own=roster.members.find(row=>row.id===changed.memberId);assert.equal(own.name,changed.profile.name);assert.equal(own.email,changed.profile.email);
+ await page.reload();await expect(page.getByRole('region',{name:'Members',exact:true})).toContainText(changed.profile.email);
+ await profile('Your email',before.profile.email,'/auth/email');await profile('Your name',before.profile.name,'/auth/display-name');
+ for(const path of ['/auth/display-name','/auth/email']) {
+  const denied=await owner.req(path,'POST',path.endsWith('/email')?{email:'synthetic-spool-denied@example.test'}:{displayName:'Synthetic refused'},{Cookie:''});
+  assert.equal(denied.status,401,'own identity cannot be changed without a person session');await denied.body?.cancel();
+ }
 }
 
 export async function memberBrowser(actor,project,issue) {
@@ -288,13 +340,12 @@ export async function localMailFlow() {
   browser=await launchBrowser();const context=await browser.newContext({viewport:{width:1440,height:1000},permissions:['clipboard-read','clipboard-write']});
   const split=cookie.indexOf('=');await context.addCookies([{name:cookie.slice(0,split),value:cookie.slice(split+1),url:app.origin}]);
   const page=await context.newPage();page.setDefaultTimeout(20000);
-  const settings=app.origin+'/projects/'+project.id+'/settings';await page.goto(settings);
+  const settings=app.origin+'/projects/'+project.id+'/settings#settings-organization';await page.goto(settings);
   const members=page.getByRole('region',{name:'Members',exact:true});
   await members.locator('summary').filter({hasText:/^Invitations$/}).click();
   const legacyRow=members.locator('div').filter({has:page.getByText(invitation.email+' · invited',{exact:true})}).last();
   await expect(legacyRow).toContainText(/remove[\s\S]*invite[\s\S]*again/i);
   await expect(legacyRow.locator('input')).toHaveCount(0);
-  await members.locator('summary').filter({hasText:/^Invite a member$/}).click();
   await members.getByLabel('Email',{exact:true}).fill('synthetic-spool-local@example.test');
   await members.getByLabel('Name',{exact:true}).fill('Synthetic local invitee');
   const form=members.locator('form').filter({has:page.getByLabel('Email',{exact:true})});
