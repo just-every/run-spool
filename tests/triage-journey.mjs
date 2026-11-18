@@ -29,7 +29,7 @@ try {
   await page.setViewportSize({width,height:900});if(assertLayout)assert.equal(await page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth+1),true,`${scenario} overflow`);
   const grouping=scenario.startsWith('grouping-'),rule=scenario.startsWith('grouping-rule-');
   if(grouping){const target=rule?page.getByRole('heading',{name:'Project grouping rules',exact:true}):page.locator('article[aria-label="Grouping proposal review"] h3').first();if(await target.isVisible())await target.evaluate(element=>element.scrollIntoView({block:'start'}));else{const empty=page.getByRole('heading',{name:'Agent grouping proposals',exact:true});if(await empty.isVisible())await empty.evaluate(element=>element.scrollIntoView({block:'start'}));}}
-  const shot=async name=>{const path=`${name}-${width}.jpg`;const archive=scenario==='private-archive',target=archive?page.getByRole('heading',{name:'Archive and restore',exact:true}).locator('..'):page;await target.screenshot({path:output+'/'+path,type:'jpeg',quality:85,...archive?{}:{fullPage:!grouping&&!scenario.startsWith('operator-')&&!['offline-workspace','unavailable-workspace','unavailable-issue','stale-offline-issue','reconnected-issue'].includes(scenario)},mask:[page.locator('.secret-key, input[type="password"], [data-secret]')]});evidence.captures.push({scenario:name,width,path});};
+  const shot=async name=>{const path=`${name}-${width}.jpg`;const archive=scenario==='private-archive',target=archive?page.getByRole('heading',{name:'Archive and restore',exact:true}).locator('..'):page;await target.screenshot({path:output+'/'+path,type:'jpeg',quality:85,...archive?{}:{fullPage:!grouping&&!scenario.startsWith('operator-')&&!['offline-workspace','unavailable-workspace','unavailable-issue','stale-offline-issue','reconnected-issue'].includes(scenario)},mask:[page.locator('.secret-key, input[type="password"], [data-secret], pre[aria-label="SDK init"], pre[aria-label="Browser helper init"], pre[aria-label="Sentry DSN"]')]});evidence.captures.push({scenario:name,width,path});};
   await shot(scenario);
   if(scenario==='grouping-proposal-proposed'||scenario==='grouping-proposal-approved'){const headings=page.locator('article[aria-label="Grouping proposal review"] .grouping-explanation h4');for(let index=0;index<await headings.count();index++){await headings.nth(index).evaluate(element=>element.scrollIntoView({block:'start'}));await shot(`${scenario}-effect-${index+1}`);}
    const action=scenario==='grouping-proposal-approved'?page.getByRole('heading',{name:'Review exact moves',exact:true}):page.getByRole('button',{name:'Approve proposal and open preview',exact:true});await action.evaluate(element=>element.scrollIntoView({block:'start'}));await shot(`${scenario}-decision`);}
@@ -252,13 +252,18 @@ try {
   const ingest=async value=>{const response=await fetch(origin+'/api/ingest/cedar',{method:'POST',headers:{Origin:origin,Authorization:'Bearer '+project.ingestKey,'Content-Type':'application/json'},body:JSON.stringify(value)});assert.equal(response.status,201);return response.json();};
   const real=await ingest({...event,eventId:crypto.randomUUID(),type:'TypeError',environment:'production'});assert.notEqual(test.issue,real.issue,'a test never joins the real issue with the same message and frames');
   const repeated=page.waitForResponse(response=>response.url()===origin+'/api/ingest/cedar'&&response.request().method()==='POST');await page.getByRole('button',{name:'Send the test error again',exact:true}).click();assert.equal((await (await repeated).json()).issue,test.issue);
+  await expect(page.locator('#test-capture [role="status"]')).toContainText('Test error received.');
+  for(const screen of [1440,390])await capture('capture-test-result',screen,screen===1440);await page.setViewportSize({width,height:900});
   // Setup's send control and Capture share the same sample location.
   await page.getByRole('button',{name:'Create ingest key',exact:true}).click();
   const setupSample=page.waitForResponse(response=>response.url()===origin+'/api/ingest/cedar'&&response.request().method()==='POST');
   await page.getByRole('button',{name:'Send test error',exact:true}).click();assert.equal((await(await setupSample).json()).issue,test.issue,'the setup send path groups with Capture');
   await page.goto(origin+'/projects/cedar/issues/'+test.issue);
   await expect(page.getByRole('combobox',{name:'Resolution',exact:true})).toHaveCount(0);
-  await page.getByRole('button',{name:'Resolve',exact:true}).click();await page.getByRole('button',{name:'Confirm resolve',exact:true}).click();
+  await page.getByRole('button',{name:'Resolve',exact:true}).click();
+  await expect(page.getByRole('combobox',{name:'Resolution',exact:true})).toHaveValue('plain');
+  for(const screen of [1440,390])await capture('issue-resolution-preset',screen,screen===1440);await page.setViewportSize({width,height:900});
+  await page.getByRole('button',{name:'Confirm resolve',exact:true}).click();
   await expect(page.locator('.issue-status .state-chip')).toHaveText('Resolved');
   await page.getByLabel('Project ingest key',{exact:true}).fill(project.ingestKey);
   const returned=page.waitForResponse(response=>response.url()===origin+'/api/ingest/cedar'&&response.request().method()==='POST');
@@ -271,6 +276,8 @@ try {
   const refused=page.waitForResponse(response=>response.url()===origin+'/api/ingest/'+fresh.id&&response.request().method()==='POST');
   await page.getByRole('button',{name:'Send the test error again',exact:true}).click();assert.equal((await(await refused).json()).reason,'invalid_ingest_key');
   await expect(page.getByRole('button',{name:'Retry exact event',exact:true})).toHaveCount(0);
+  await expect(page.getByRole('link',{name:'Create a new key',exact:true})).toBeVisible();
+  for(const screen of [1440,390])await capture('invalid-test-key',screen,screen===1440);await page.setViewportSize({width,height:900});
   await page.getByRole('link',{name:'Create a new key',exact:true}).click();await expect(page.getByRole('heading',{name:'Project keys',exact:true})).toBeVisible();
   await page.goto(origin+'/projects/'+fresh.id+'/capture');await page.getByLabel('Project ingest key',{exact:true}).fill(fresh.ingestKey);
   const accepted=page.waitForResponse(response=>response.url()===origin+'/api/ingest/'+fresh.id&&response.request().method()==='POST');await page.getByRole('button',{name:'Send the test error again',exact:true}).click();assert.equal((await(await accepted).json()).outcome,'accepted');
