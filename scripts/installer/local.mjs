@@ -11,9 +11,15 @@ import * as model from './ui/seed.mjs';
 const base = operatorInstaller({ database: 'errors-local', features: model.features, prepare: inspectExistingState });
 const lifecycle = localInstaller({ ...base.hooks,
  secrets: { ...base.hooks.secrets, keepExisting: false },
- guard: async context => { await base.hooks.guard(context); await inspectExistingState(context); },
+ guard: async context => {
+  await base.hooks.guard(context);
+  await inspectExistingState({ ...context, rememberOwner: !context.demo });
+ },
  signIn: async context => {
   await signIn(context, { emailKey: 'OWNER_EMAIL', returnTo: '/setup' });
+  // A fresh claim occurs after the last pre-start guard. Record it before
+  // the browser can make its first native email change.
+  if (context.ownerClaimed === 'claimed' && !context.demo) await inspectExistingState({ ...context, rememberOwner: true });
   if (context.ownerClaimed) await retirePassword(context);
   return context.appUrl;
  },

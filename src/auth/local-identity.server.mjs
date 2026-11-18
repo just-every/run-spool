@@ -48,7 +48,7 @@ export function withDevIdentity(worker, { bindings = env => env, config: authCon
       if (managedInstallation(env)) {
         // Never admit a dev credential here; with dev identity on, serve nothing.
         registerDevAdmission(null);
-        if (env.RER_DEV_IDENTITY !== 'off') return rejectedResponse(request, text(503, 'Dev identity refuses to run beside RER_INSTALLATION_ID with a non-loopback RER_MANAGEMENT_ORIGIN. Remove those bindings from local settings or use rer dev --login.'));
+        if (env.RER_DEV_IDENTITY !== 'off') return rejectedResponse(request, text(503, 'This installation needs its online sign-in. Restart with ~/.local/bin/rer dev --login.'));
         return new URL(request.url).pathname === '/auth/dev/enter' || new URL(request.url).pathname === '/__dev/personas' || new URL(request.url).pathname === '/auth/local/cli-session' ? rejectedResponse(request, devNotFound()) : worker.fetch(request, original, execution);
       }
       const gate = devGate({ key: env.RER_DEV_KEY, origin: env.AUTH_ORIGIN, local: env.AUTH_LOCAL === 'true' });
@@ -66,7 +66,8 @@ export function withDevIdentity(worker, { bindings = env => env, config: authCon
           href: `/auth/dev/enter?as=${encodeURIComponent(person.as)}&returnTo=${encodeURIComponent(returnTo)}`,
         })));
         const providers = context.auth.providers ? (await context.auth.providers.list()).filter(provider => provider.visible) : [];
-        return decorateLabel(await oneClickPage({ branding: context.config.branding, people, providers, returnTo, method: request.method }), env.RER_DEMO === '1' ? 'Demo' : 'Dev');
+        const response = await oneClickPage({ branding: context.config.branding, people, providers, returnTo, method: request.method });
+        return env.RER_DEMO === '1' ? decorateLabel(response, 'Demo') : response;
       }
       if (path === '/auth/dev/enter' || path === '/__dev/personas' || path === '/auth/local/cli-session') {
         if (!gate || env.RER_DEV_IDENTITY === 'off' || (path !== '/auth/local/cli-session' && !await gate.admits(request))) return rejectedResponse(request, devNotFound());
@@ -87,7 +88,7 @@ export function withDevIdentity(worker, { bindings = env => env, config: authCon
       }
       const response = await worker.fetch(request, original, execution);
       if (!gate || request.method !== 'GET' || path.startsWith('/__dev/')) return response;
-      return decorateLabel(response, env.RER_DEMO === '1' ? 'Demo' : 'Dev');
+      return env.RER_DEMO === '1' ? decorateLabel(response, 'Demo') : response;
     },
   };
 }
@@ -159,7 +160,7 @@ async function enter(request, gate, { config, store, hash, current, everyone, ow
   };
   const persona = (await everyone()).find(p => p.as === as);
   if (!persona) return oneClick(as);
-  if (!persona.email) return text(409, 'No active owner remains in this app. Sign in another way, or run rer reset --yes and rer setup for a new owner.');
+  if (!persona.email) return text(409, 'No active owner remains in this app. Sign in another way, or run ~/.local/bin/rer reset --yes and ~/.local/bin/rer setup for a new owner.');
   let operator = await store.byEmail(persona.email);
   // Someone invited at a persona's address is that person, with the role they were invited to; accepting the invite signs them in.
   if (operator?.status === 'invited') return oneClick(operator.email);
@@ -178,7 +179,7 @@ async function enter(request, gate, { config, store, hash, current, everyone, ow
     }
     operator = await store.byEmail(persona.email);
   }
-  if (!operator) return text(409, 'The owner that rer setup claimed is not in this database. Run rer setup.');
+  if (!operator) return text(409, 'Your owner account is missing. Run ~/.local/bin/rer setup.');
   if (!isActiveOperator(operator, config.allowList)) return signInRefusal(request, config.branding, {
     status: 403,
     message: 'This account is inactive or no longer allowed to sign in to this app. Choose another account, or ask an owner or administrator to restore its access.',

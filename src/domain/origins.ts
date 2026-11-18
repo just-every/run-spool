@@ -7,6 +7,18 @@ export function browserOrigin(value:unknown):string {
   if(!['http:','https:'].includes(url.protocol)||url.username||url.password||url.origin!==value||url.hostname.includes('*'))throw new Error('Use only the canonical HTTP(S) origin, with no path, query, credentials or wildcard');
   return value;
 }
+// Pasted website addresses are normalized only at the owner's configuration door.
+// Transport and archive validation continue requiring an exact origin.
+export function websiteOrigin(value: unknown): string {
+ const message = 'Enter your website address, for example https://desk.brightwell.example.';
+ if (typeof value !== 'string' || value.length > 1024 || /[\\\s]/.test(value.trim())) throw new Error(message);
+ const address = value.trim();
+ try {
+  const url = new URL(address.includes('://') ? address : `https://${address}`);
+  if (!['http:', 'https:'].includes(url.protocol) || url.username || url.password || !/^(?:[a-z0-9.-]+|\[[a-f0-9:]+\])$/i.test(url.hostname) || !url.hostname.includes('.') && url.hostname !== 'localhost' && !url.hostname.startsWith('[')) throw new Error(message);
+  return browserOrigin(url.origin);
+ } catch { throw new Error(message); }
+}
 export async function ingestOrigin(db:D1Database,project:string,origin:string|undefined,serviceOrigin:string,referer?:string){
  const snapshot=await readInboundPolicy(db,project),domain=await checkInboundDomains(db,project,snapshot.policy,{origin,referer},serviceOrigin);
  return {...snapshot,domain,allowed:domain.allowed,cors:domain.cors,foreign:origin&&domain.legacyOrigins.includes(origin)?origin:null};

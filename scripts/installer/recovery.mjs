@@ -9,6 +9,7 @@ import { readPrivateFile, writePrivateFile, privateDirectory } from '@runeditrun
 import { validateWalSnapshot } from './wal-inspection.mjs';
 
 const missing = error => { if (error.code === 'ENOENT') return null; throw error; };
+const ownerConflict = () => new LocalStateSafetyError('Setup identity conflicts with the existing owner. Existing settings and data were kept. Sign in as that owner.');
 const refusal = () => new LocalStateSafetyError('Existing local data needs explicit recovery. Preserve all state and grants; follow OPERATIONS.md before changing the database identity. No data was moved.');
 
 // Workerd idFromName for the explicitly local binding. A database with the
@@ -43,7 +44,24 @@ function namespaceMetadata(db) {
  if (db.prepare('SELECT 1 FROM _cf_ALARM LIMIT 1').get()) throw refusal();
 }
 
-export async function inspectExistingState({ root, input = {}, vars = {}, allowPlatformLedger = false }) {
+const ownerRecord = ['.rer', 'local', 'spool-owner.json'];
+
+async function readOwnerRecord(root) {
+ let path = root;
+ for (const part of ownerRecord.slice(0, -1)) {
+  path = join(path, part);
+  const status = await lstat(path).catch(missing);
+  if (!status) return null;
+  if (!status.isDirectory() || status.uid !== process.getuid()) throw refusal();
+ }
+ const text = await readPrivateFile(join(root, ...ownerRecord)).catch(missing);
+ if (text === null) return null;
+ const record = JSON.parse(text);
+ if (!record?.id || typeof record.id !== 'string' || !record.email || typeof record.email !== 'string') throw refusal();
+ return record;
+}
+
+export async function inspectExistingState({ root, input = {}, vars = {}, allowPlatformLedger = false, rememberOwner = false }) {
  const directory = join(root, '.wrangler/state/v3/d1/miniflare-D1DatabaseObject');
  let parent = root;
  for (const part of ['.wrangler','state','v3','d1','miniflare-D1DatabaseObject']) {
@@ -60,6 +78,7 @@ export async function inspectExistingState({ root, input = {}, vars = {}, allowP
   if (!file.isFile() || info.isSymbolicLink() || info.nlink !== 1 || info.uid !== process.getuid()) throw refusal();
   if (!file.name.endsWith('.sqlite') && !candidates.some(candidate => file.name.startsWith(candidate.name + '-'))) throw refusal();
  }
+ let ownerToRemember;
  for (const file of candidates) {
   const path = join(directory, file.name), info = await lstat(path);
   if (!file.isFile() || info.isSymbolicLink() || info.nlink !== 1 || info.uid !== process.getuid()) throw refusal();
@@ -103,13 +122,27 @@ export async function inspectExistingState({ root, input = {}, vars = {}, allowP
    // opts into Platform history, with its name/hash preflight before any apply.
    if (!tables.has('projects') || !ledger || !tables.has('oa_operators') || (ledger === 'rer_migrations' && !allowPlatformLedger)) throw refusal();
    if (!db.prepare(`SELECT 1 FROM ${ledger} WHERE name=?`).get('0004_operator_auth.sql')) throw refusal();
-   const owners = db.prepare("SELECT email FROM oa_operators WHERE role='owner'").all();
-   const email = input.OWNER_EMAIL ?? vars.OWNER_EMAIL;
-   if (owners.length > 1 || (owners.length && email && owners[0].email !== email.trim().toLowerCase())) {
-    throw new LocalStateSafetyError('Setup identity conflicts with the existing owner. Existing settings and data were kept. Sign in as that owner.');
+   const owners = db.prepare("SELECT id, email, status FROM oa_operators WHERE role='owner'").all();
+   if (owners.length > 1) throw ownerConflict();
+   const owner = owners[0], email = (input.OWNER_EMAIL ?? vars.OWNER_EMAIL)?.trim().toLowerCase();
+   if (!owner || !email) continue;
+   const record = await readOwnerRecord(root);
+   if (record && owner.id !== record.id) throw ownerConflict();
+   // Native email edits keep the operator id. An unrelated configured email
+   // or a different owner cannot borrow the original setup's authorization.
+   if (owner.email !== email) {
+    if (owner.status !== 'active' || record?.email !== email) throw ownerConflict();
+   } else if (rememberOwner && owner.status === 'active' && record?.email !== email) {
+    ownerToRemember = { id: owner.id, email };
    }
   } catch (error) { if (error instanceof LocalStateSafetyError) throw error; throw refusal(); }
   finally { try { db?.close(); } finally { if (snapshot) await rm(snapshot, { recursive: true, force: true }); } }
+ }
+ if (ownerToRemember) {
+  // This belongs to the local reset inventory, beside the dev key. Never
+  // establish continuity from a mismatch or write before all files pass.
+  await privateDirectory(root, ownerRecord.slice(0, -1));
+  await writePrivateFile(join(root, ...ownerRecord), JSON.stringify(ownerToRemember) + '\n');
  }
 }
 export async function retirePassword({ root }) {
