@@ -2,7 +2,7 @@ import assert from 'node:assert/strict';
 import {spawn} from 'node:child_process';
 // Runs the public runner command exactly as the UI prints it.
 export function runner(command){
- const [, token, url]=/^SPOOL_RUN_TOKEN=([a-f0-9]{64}) pnpm reproduce (\S+)$/.exec(command)??[];
+ const [, token, url]=/^SPOOL_RUN_TOKEN=([a-f0-9]{64}) rer run reproduce (\S+)$/.exec(command)??[];
  assert.ok(token&&url,'the queued run prints one runner command');
  return new Promise((accept,reject)=>{const child=spawn(process.execPath,['scripts/reproduce/runner.mjs',url],{env:{PATH:process.env.PATH,SPOOL_RUN_TOKEN:token},stdio:['ignore','pipe','pipe']});let output='';child.stdout.on('data',d=>output+=d);child.stderr.on('data',d=>output+=d);child.once('error',reject);child.once('close',code=>accept({code,output,token,url}));});
 }

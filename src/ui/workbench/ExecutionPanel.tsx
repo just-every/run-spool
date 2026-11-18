@@ -43,7 +43,7 @@ export function ExecutionPanel({ project, issue, event, busy, request, run, init
       <button className="primary-button" disabled={busy}>Record reproducer</button>
       <p className="execution-meta">Replays the occurrence received {date(event.received)}{event.event?.release ? ` in ${event.event.release}` : ''}.</p>
     </form>}
-    {ticket && <div className="callout run-ticket" role="status"><strong>Run queued. Run this once in your Spool checkout within 15 minutes; the token is shown only now.</strong><code>{ticket.command}</code><button className="text-button" onClick={() => void navigator.clipboard.writeText(ticket.command)}>Copy command</button></div>}
+    {ticket && <div className="callout run-ticket" role="status"><strong>Run queued. Run this once in your Spool checkout within 15 minutes; the token is shown only now. It uses rer, so use ~/.local/bin/rer if a bare rer is not found.</strong><code>{ticket.command}</code><button className="text-button" onClick={() => void navigator.clipboard.writeText(ticket.command)}>Copy command</button></div>}
     {reproducers?.map(reproducer => <ReproducerCard key={reproducer.id} {...{ project, reproducer, releases, busy, write, request }} onTicket={setTicket} />)}
     {fixes && <><h3 className="execution-subtitle">Fix branches</h3>
       <GitHubConnectionSetup connection={fixes.connection} />

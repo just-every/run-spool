@@ -57,7 +57,7 @@ routes.post('/:reproducer/runs', async c => {
   ]);
  } catch (error) { const refused = budget(error, c); if (refused) return refused; throw error; }
  const url = `${new URL(c.req.url).origin}/api/sandbox/runs/${id}`;
- return c.json({ run: id, token: secret, url, expires: time + RUN_TOKEN_MS, command: `SPOOL_RUN_TOKEN=${secret} pnpm reproduce ${url}` }, 201);
+ return c.json({ run: id, token: secret, url, expires: time + RUN_TOKEN_MS, command: `SPOOL_RUN_TOKEN=${secret} rer run reproduce ${url}` }, 201);
 });
 
 // The runner invokes this typed action with its saved principal before handing
