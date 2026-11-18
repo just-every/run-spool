@@ -1,0 +1,34 @@
+{
+  "mode": "baseline",
+  "date": "2026-11-18T03:38:29.123Z",
+  "http": {
+    "setupWrites": [
+      200,
+      200,
+      201,
+      201
+    ]
+  },
+  "dev": [
+    {
+      "label": "Fresh README rer dev",
+      "exit": 0,
+      "refusal": false
+    },
+    {
+      "label": "Stop after Setup",
+      "exit": 0
+    },
+    {
+      "label": "Restart after Setup",
+      "exit": 1,
+      "refusal": true
+    }
+  ],
+  "screenshots": [],
+  "status": "passed",
+  "cleanup": {
+    "children": "stopped",
+    "directory": "removed"
+  }
+}

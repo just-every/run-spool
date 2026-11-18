@@ -1,0 +1,14 @@
+gh run view 44236961693 --repo just-every/run-spool --job 134575898610 --log-failed
+exit=0
+verify (sdk)	Run suites	2026-11-18T04:25:53.5794659Z PROBE SDK-011 invalid-only: framed JSON and conversion failures -> typed event invalid_item; no identity, scrubbing, release, issue or alert writes; exact refusal usage
+verify (sdk)	Run suites	2026-11-18T04:25:54.2696451Z PROBE SDK-011 order and accounting: each invalid kind before and after two valid companions -> accepted=25, invalid_item=21; one retained occurrence and accepted unit per valid error
+verify (sdk)	Run suites	2026-11-18T04:26:12.3839682Z OTLP HTTP flow passed: located log/JS exception, resource association, privacy/deduplication, full/partial rejection accounting, framing/limits, project CORS/grant revocation and shared native budget.
+verify (sdk)	Run suites	2026-11-18T04:34:46.3130742Z Sentry HTTP public flows passed: shared admission, privacy and dedupe; distinct statsd and unknown counts with independent restore and erasure; SDK-011 deflate, counted 415s and item isolation; strict framing, binary, zero and gzip; CORS, credential agreement, revocation and project isolation; deploy scope and idempotent artifacts.
+verify (sdk)	Run suites	2026-11-18T04:35:03.9600089Z PROBE BILL-001 5 SDK: installed unmodified Node clients with two DSNs -> first key honors backoff; second key stores its error
+verify (sdk)	Run suites	2026-11-18T04:35:32.2971759Z Import reads: admin, maintainer, member and signed-out all refused with 401 and error only.
+verify (sdk)	Run suites	2026-11-18T04:38:17.3555813Z PROBE MIG-004 shapes: release_time, bundleVersion/errorClass, string columns and stability OBJECT -> reconciled; app.releaseStage -> two Android native events for one release; no fabricated sessions/rate.
+verify (sdk)	Run suites	2026-11-18T04:38:59.4784398Z Roster flow failure: locator.click: Timeout 30000ms exceeded.
+verify (sdk)	Run suites	2026-11-18T04:38:59.5382521Z   name: 'TimeoutError'
+verify (sdk)	Run suites	2026-11-18T04:38:59.5763710Z ##[error]Process completed with exit code 1.
+verify (sdk)	Run suites	2026-11-18T04:38:59.4785416Z   - waiting for getByRole('region', { name: 'Members', exact: true }).locator('summary').filter({ hasText: /^Imported roster and ownership$/ })
+verify (sdk)	Run suites	2026-11-18T04:38:59.4786152Z     at rosterOwnershipFlow (/home/runner/work/run-spool/run-spool/tests/sentry-import/roster-ownership.mjs:111:153)

@@ -1,0 +1,16 @@
+{
+  "utc": "2026-11-18T03:49:03.147Z",
+  "checks": [
+    {
+      "fixture": "former",
+      "status": 409,
+      "error": "schema_mismatch:migration_history"
+    },
+    {
+      "fixture": "number-based",
+      "status": 200,
+      "projectPreserved": true
+    }
+  ],
+  "status": "passed"
+}

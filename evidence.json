@@ -1,0 +1,178 @@
+{
+  "files": [
+    {
+      "blob": "0f104647c996d70370cbca5ebe76e628a8bfa5bf",
+      "bytes": 7221,
+      "path": "REPORT.md",
+      "sha256": "d768a32fbc2d093e31449b6a7e79dd1a7aa7557babe2c88c6cc40f7d8d5b3f98"
+    },
+    {
+      "blob": "f4589e9d484c9ab5a937492fdb8d63d6916f2ff2",
+      "bytes": 290,
+      "path": "archive-fixture.json",
+      "sha256": "d39c1d35a0bae9a8a0b1a0dc7303461b27f2eee15bb2ceb9f81124111f937655"
+    },
+    {
+      "blob": "e1fb0ece26e23c9543c2962f56aea1373f48d11e",
+      "bytes": 661045,
+      "path": "capture-1440.png",
+      "sha256": "02e4f44037436908d356dc341f3b77a606661ea5a181bf97745c5e683b428da3"
+    },
+    {
+      "blob": "bba7270abb04d918d6d229c5cf8dd8fa5360c15a",
+      "bytes": 580972,
+      "path": "capture-390.png",
+      "sha256": "8f993a0b99fee4de1f5324add30700370959dc3bb56924a445985dfdfd40ff93"
+    },
+    {
+      "blob": "d9bb5af8cbcef96ca472c0adb2225a306862f9d5",
+      "bytes": 2705,
+      "path": "followup-checks.json",
+      "sha256": "a889815efea1cedc8116d9c7148304e0f111fc0bb226f78e96bf9012dd2de5e3"
+    },
+    {
+      "blob": "8b397759c3490f5d34b737e6b013a75c1929a9a8",
+      "bytes": 170,
+      "path": "git-identity.txt",
+      "sha256": "c9f719ac04ee5a87f887bd38a32e08c08cd63abd5a2deb8c3e01856328b8b56d"
+    },
+    {
+      "blob": "adf6c4525518b9d442a84bdb84f83a909ff9f360",
+      "bytes": 4481,
+      "path": "local-checks.json",
+      "sha256": "c7408633ec61c0aca5f4ea2bda1385f8e1241394ec7efe674c733ddd658a36ac"
+    },
+    {
+      "blob": "fa7d6879005bf7ff55eae438b4edc9aa10cb1f07",
+      "bytes": 225,
+      "path": "migration-reservations.json",
+      "sha256": "b5e0030f1e37dedd556984a4642e77814ac8f21208a726116bf520fdab227b86"
+    },
+    {
+      "blob": "c44058aa050bece9192de4ec78d0941439de42ac",
+      "bytes": 352,
+      "path": "release-source.json",
+      "sha256": "86803f4918916653b9d9c22778e6670108434d6f5cfd5e25c4bf2c84745fc738"
+    },
+    {
+      "blob": "b9cb83a27e0777c3cf3042208b7be6f434df6aab",
+      "bytes": 4424,
+      "path": "repair-recovery.json",
+      "sha256": "941b3d826c5acc4fb60424de5dd23e93e1312d784b87bac3dddae42442aa6f47"
+    },
+    {
+      "blob": "5ffd66a3a15d5c134b0e4394877f36512534412a",
+      "bytes": 528,
+      "path": "restart-baseline.json",
+      "sha256": "9c8cb2ed2f2cfdfaf059845b7e484be89510ec4760eabcbfb4a526b67d748b84"
+    },
+    {
+      "blob": "595428dd35da218d6b9067df4bf3d6359aabb88b",
+      "bytes": 1391,
+      "path": "restart-fixed.json",
+      "sha256": "0ba67d5c3ada5d4988f4ddf832485227166acec0dcdbd75524e16f5ed7a7ea09"
+    },
+    {
+      "blob": "0996ddd4a90f1c8f4cac9f46f7e627683da30230",
+      "bytes": 97984,
+      "path": "settings-entry-1440.png",
+      "sha256": "de386827afe3d5f04886e87a1128bccdb9e6c34fdc993f26684abaf4322c992e"
+    },
+    {
+      "blob": "c5e16778a54c98df892f2339a40bf7e0d94c8127",
+      "bytes": 87646,
+      "path": "settings-entry-390.png",
+      "sha256": "9b93dccc599d6fbec50d114c2289d9637b32d0923dff2c3b748b863929ee567c"
+    },
+    {
+      "blob": "d42d967c5d420b4c36720f988a140cbd54541cb6",
+      "bytes": 226,
+      "path": "settings-entry-general.json",
+      "sha256": "3a26c6d741fcc56198f1bd1db0b33d58572aa7aee7ec7f863730a1d16a6e6ff5"
+    },
+    {
+      "blob": "367328bdb72919b291b868b27524bbf13e5359da",
+      "bytes": 143,
+      "path": "settings-entry-members.json",
+      "sha256": "6878970c5c89a27459b021f0e0d898cab7beb19a289c793edf0264b54771cea5"
+    },
+    {
+      "blob": "f44c33aad84535711622c82481b6eecb34c654a5",
+      "bytes": 65264,
+      "path": "settings-general-1440.png",
+      "sha256": "d83f53f685ccda2c6730f899a1c5c45d8f40d284c69d06f2504880e9cf194fa5"
+    },
+    {
+      "blob": "6d6514104382242489e60b14733065813c84d566",
+      "bytes": 44238,
+      "path": "settings-general-390.png",
+      "sha256": "3f25ff2262ec625b314a875badc7de8857d5c40aefddcb9162739bfac5bc2dce"
+    },
+    {
+      "blob": "5df3009da5048256cb1764f4eafb599c78c5e0ff",
+      "bytes": 114492,
+      "path": "settings-members-1440.png",
+      "sha256": "58f5e3bc31534baa89eb01be172d32320a27955b8ad929a20780051d126f3fa2"
+    },
+    {
+      "blob": "4989d9b4538e3c84e542b7025ee228406735d84f",
+      "bytes": 90325,
+      "path": "settings-members-390.png",
+      "sha256": "f92791b30aa9bd97fab44c809d3d8f0defeacef07ab215a835a0ddcebb77cbf5"
+    },
+    {
+      "blob": "427a154233f2062887641aa2440135a260ef761c",
+      "bytes": 146412,
+      "path": "setup-1440.png",
+      "sha256": "850a86caed24b563d798280f8f906c714297d76a107e4057487a9285cd65f6ac"
+    },
+    {
+      "blob": "f7883b375d13f290054ddf2bd7fb9a6df55863ef",
+      "bytes": 110844,
+      "path": "setup-390.png",
+      "sha256": "c4e9135ff360dd076d1f73c611326db0a227890eda4ecf66dad929a76e7dc078"
+    },
+    {
+      "blob": "0db0ac7e52b274516db5346a32de12578bb58c45",
+      "bytes": 246244,
+      "path": "setup-project-ready-1440.png",
+      "sha256": "d0391a20a78b2ea47b3bbe2ecb69087b07e816ecef1cce47508ce098160c7e5e"
+    },
+    {
+      "blob": "4fd186f055fda929629de8e53145df1e6281d6b3",
+      "bytes": 207351,
+      "path": "setup-project-ready-390.png",
+      "sha256": "8a9800c7db56ab2b451aea9a258f09d322aec7d909ef8780d203a2c6d707238e"
+    },
+    {
+      "blob": "df9e2a1e4b8ebda50994216a5fd79e78ca3731b4",
+      "bytes": 2695,
+      "path": "verify-initial.json",
+      "sha256": "95cb13d123c4b35afcbb1e90a81ee17e4c418facdf92cda5097b1b0a04227ff6"
+    },
+    {
+      "blob": "9ba56e6b35b0a1cd6627ba4dfa37dbc2bd235ba0",
+      "bytes": 53417,
+      "path": "verify-jobs.json",
+      "sha256": "4125073c683d387a15e6d06ba654b264bc36109f535de61efada9723dbf3a5cb"
+    },
+    {
+      "blob": "4298757823b8d47a77756c134ededd0e9b362600",
+      "bytes": 2428,
+      "path": "verify-sdk-diagnostic.txt",
+      "sha256": "458457ecbf6c82a98cf27954493ed25a9d6f959e2cb474e6d84137abcbd2da83"
+    },
+    {
+      "blob": "60c4c9be74e56d1e727b0ad34cdb25b97b7bec47",
+      "bytes": 1561,
+      "path": "verify.json",
+      "sha256": "ee95a390c84817e6a3d64985e5087111739fe093a0c7185105681985069b6dfd"
+    }
+  ],
+  "product_branch": "cloud/sd-spool-design-setup-5",
+  "product_head": "05fbedf52e4b11d329031cf689efd35ada66a9ef",
+  "ref": "refs/heads/evidence/sd-spool-design-setup-5",
+  "repository": "just-every/run-spool",
+  "schema": 1,
+  "tag": "sd-spool-design-setup-5"
+}

@@ -1,0 +1,68 @@
+{
+  "mode": "fixed",
+  "date": "2026-11-18T05:03:13.926Z",
+  "http": {
+    "setupWrites": [
+      200,
+      200,
+      201,
+      201
+    ],
+    "settingsEmail": 200
+  },
+  "dev": [
+    {
+      "label": "Fresh README rer dev",
+      "exit": 0,
+      "refusal": false
+    },
+    {
+      "label": "Stop after Setup",
+      "exit": 0
+    },
+    {
+      "label": "Restart after Setup",
+      "exit": 0,
+      "refusal": false
+    },
+    {
+      "label": "Stop after Members email change",
+      "exit": 0
+    },
+    {
+      "label": "Restart after Members email change",
+      "exit": 0,
+      "refusal": false
+    },
+    {
+      "label": "Stop after genuine owner handoff",
+      "exit": 0
+    },
+    {
+      "label": "Restart with genuinely different owner",
+      "exit": 1,
+      "refusal": true
+    }
+  ],
+  "screenshots": [
+    "setup-1440.png",
+    "setup-390.png",
+    "setup-project-ready-1440.png",
+    "setup-project-ready-390.png",
+    "settings-members-1440.png",
+    "settings-members-390.png",
+    "settings-general-1440.png",
+    "settings-general-390.png",
+    "capture-1440.png",
+    "capture-390.png"
+  ],
+  "sameOwnerAndDataAfterSetup": true,
+  "sameOwnerAndDataAfterMembers": true,
+  "differentOwnerRefused": true,
+  "status": "passed",
+  "cleanup": {
+    "children": "stopped",
+    "directory": "removed"
+  },
+  "productHead": "05fbedf52e4b11d329031cf689efd35ada66a9ef"
+}

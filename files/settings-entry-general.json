@@ -1,0 +1,7 @@
+{
+  "utc": "2026-11-18T04:52:28.954Z",
+  "path": "/projects/:project/settings",
+  "initialTab": "General",
+  "canEditInstallationName": null,
+  "notes": "The first-commit probe measured the automatically selected tab only."
+}

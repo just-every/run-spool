@@ -1,0 +1,122 @@
+{
+  "utc": "2026-11-18T04:21:54.576342+00:00",
+  "toolchain": {
+    "node": "v22.20.0",
+    "pnpm": "10.12.4",
+    "rer": "0.2.118"
+  },
+  "tested_tree": "322bb485658f43c6fa638ee5830a2810041a00d1",
+  "checks": [
+    {
+      "command": "node scripts/verify-ci.mjs --check-workflows",
+      "status": "passed",
+      "result": "Workflow permissions and artifact names passed."
+    },
+    {
+      "command": "node src/base/contract-docs.mjs write",
+      "status": "passed",
+      "result": "Generated views were current."
+    },
+    {
+      "command": "node src/base/contract-docs.mjs check",
+      "status": "passed",
+      "result": "Generated views and contract prose passed."
+    },
+    {
+      "command": "pnpm run check -- --profile first-party",
+      "status": "passed",
+      "result": "First-party source and portable application checks passed."
+    },
+    {
+      "command": "pnpm source:check",
+      "status": "passed",
+      "result": "Regenerated source lock checks passed."
+    },
+    {
+      "command": "node scripts/edition-authoring/cli.mjs verify-base --offline",
+      "status": "passed",
+      "result": "Pinned Base copies verified offline."
+    },
+    {
+      "command": "pnpm run build:app",
+      "status": "passed",
+      "result": "The Verify build passed."
+    },
+    {
+      "command": "pnpm integration:check",
+      "status": "passed",
+      "result": "Deployment spec, setup digest and producer workflow verified."
+    },
+    {
+      "command": "pnpm typecheck",
+      "status": "passed",
+      "result": "TypeScript passed."
+    },
+    {
+      "command": "node tests/native-export.mjs",
+      "status": "passed",
+      "result": "Native export path handling passed."
+    },
+    {
+      "command": "node scripts/agent-door/surface.mjs --check",
+      "status": "passed",
+      "result": "Agent surface catalogue matched."
+    },
+    {
+      "command": "npx -y @runeditrun/rer build",
+      "status": "passed",
+      "result": "Public CLI build finished with exit 0."
+    },
+    {
+      "command": "pnpm test:product",
+      "status": "passed",
+      "result": "Emitted Worker and real Chromium acceptance passed, including independent archive restore."
+    },
+    {
+      "command": "node tests/old-archive.mjs",
+      "status": "passed",
+      "result": "Populated 176-table published schema and 201-table 0068 schema upgrades, historical archive and current archive checks passed."
+    },
+    {
+      "command": "pnpm test:origins",
+      "status": "passed",
+      "result": "11 groups passed, including populated browser-origin upgrade and native v1/v2 restore."
+    },
+    {
+      "command": "pnpm test:accessibility",
+      "status": "passed",
+      "result": "22 groups passed, including two-origin Chromium capture and reflow."
+    },
+    {
+      "command": "focused emitted-app fixture probe",
+      "status": "passed",
+      "result": "Former fixture returned HTTP 409 schema_mismatch:migration_history. Corrected fixture returned 200 and preserved the project."
+    },
+    {
+      "command": "built-app setup and Members restart probe",
+      "status": "passed",
+      "result": "Both same-owner restarts passed, and native ownership handoff reproduced the expected refusal."
+    },
+    {
+      "command": "pnpm test:repair-recovery",
+      "status": "passed",
+      "result": "6 groups and 16 browser captures. Historical, current, and CLI archive restore assertions passed; child processes stopped and temporary checkout was removed."
+    },
+    {
+      "command": "node tests/old-archive.mjs",
+      "status": "passed",
+      "result": "Repeated on Node 22.20.0 at published product SHA ee79c6ace1917b05ceb82176aa0d21f6b9198ecd. All seven checks passed."
+    },
+    {
+      "command": "pnpm test:runtime",
+      "status": "passed",
+      "result": "On the pushed commit, emitted runtime, direct admission, revocation, documentation navigation, and Settings prerequisite articles passed."
+    },
+    {
+      "command": "pnpm test:commands",
+      "status": "passed",
+      "result": "Spool README commands passed: fresh-clone package bootstrap and contract omission, frozen install, setup failure/resume and owner preservation, foreground dev/preview, independent fresh setup/form completion and no-JS sign-in at 1440/390, ordinary owner session in production preview after restart, active reset refusal, validated CLI portability, reset/fresh owner, deploy dry-run.",
+      "head": "ee79c6ace1917b05ceb82176aa0d21f6b9198ecd"
+    }
+  ]
+}

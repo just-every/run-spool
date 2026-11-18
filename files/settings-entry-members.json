@@ -1,0 +1,6 @@
+{
+  "utc": "2026-11-18T04:59:03.748Z",
+  "path": "/projects/:project/settings",
+  "initialTab": "Members",
+  "canEditInstallationName": true
+}

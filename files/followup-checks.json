@@ -1,0 +1,69 @@
+{
+  "utc": "2026-11-18T05:03:43.331192+00:00",
+  "productHead": "05fbedf52e4b11d329031cf689efd35ada66a9ef",
+  "productTree": "393bebe714886426e7f669a3e2ad84cc7d5a7630",
+  "commands": [
+    {
+      "name": "pnpm run check -- --profile first-party",
+      "result": "passed"
+    },
+    {
+      "name": "pnpm typecheck",
+      "result": "passed"
+    },
+    {
+      "name": "pnpm run build:app",
+      "result": "passed"
+    },
+    {
+      "name": "pnpm integration:check",
+      "result": "passed"
+    },
+    {
+      "name": "pnpm source:check",
+      "result": "passed"
+    },
+    {
+      "name": "node tests/sentry-import/roster-ownership.mjs",
+      "result": "passed",
+      "observations": [
+        "Roster stage: start",
+        "Roster stage: sign in",
+        "Roster stage: plan",
+        "Roster stage: apply",
+        "Roster stage: exact undo",
+        "Roster stage: browser",
+        "Roster stage: native invitation",
+        "Roster stage: archive",
+        "Roster stage: restore start",
+        "Roster stage: restore apply",
+        "Roster stage: restored owner hold",
+        "Roster stage: erasure",
+        "Roster/ownership public flow passed: inert role/scopes, named unsupported role, exact retry and undo, ownership overlap/unmatched, native invite/removal, safe portable audit, erasure and 1440/390 UI. Synthetic only."
+      ]
+    },
+    {
+      "name": "emitted Settings entry Chromium probe",
+      "result": "passed",
+      "viewportWidths": [
+        1440,
+        390
+      ]
+    },
+    {
+      "name": "node tests/sentry-import.mjs",
+      "result": "passed",
+      "observations": [
+        "Sentry fieldAccounting: complete independent path/array oracle, eight-family inventory, loader refusal, >500-record pause/resume, reconcile, exact re-import and undo passed.",
+        "Owner import reads: project-free state, imported project IDs, history counts, rejected labels/codes, native-edit blockers and explicit unknown transition times passed through public HTTP.",
+        "Sentry org import fixture public flows passed through the import door: CLI no-write plan, reviewed apply, retained exact bytes, duplicates, inert native graph, scope and origin denial, reopen/resume, relation-safe undo, native-edit/revoked-session protection and inert archive restore. Synthetic export only.",
+        "Roster/ownership public flow passed: inert role/scopes, named unsupported role, exact retry and undo, ownership overlap/unmatched, native invite/removal, safe portable audit, erasure and 1440/390 UI. Synthetic only."
+      ]
+    },
+    {
+      "name": "final SHA native restarts and browser proof",
+      "result": "passed",
+      "receipt": "restart-fixed.json"
+    }
+  ]
+}

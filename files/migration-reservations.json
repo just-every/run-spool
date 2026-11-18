@@ -1,0 +1,13 @@
+{
+  "main": "0343c3c54b7249e4c708a60ca5648794dbc474b7",
+  "mainCount": 104,
+  "candidateCount": 106,
+  "new": [
+    "0112_member_identity.sql",
+    "0113_capture_sources.sql"
+  ],
+  "reserved": [
+    "0110",
+    "0111"
+  ]
+}
