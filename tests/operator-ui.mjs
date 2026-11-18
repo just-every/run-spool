@@ -82,13 +82,34 @@ export async function operatorUi({page,api,origin,project,issue,capture}){
 
  await page.waitForFunction(id=>{const input=document.querySelector('select[aria-label="Assign to"]');return input&&!input.disabled&&input.value===id;},assignee.id);
  if(page.viewportSize().width===1440){await page.reload();await page.waitForFunction(id=>{const input=document.querySelector('select[aria-label="Assign to"]');return input&&!input.disabled&&input.value===id;},assignee.id);}
+ // Keep the existing panel usable while an assignment refresh reads its old
+ // policy snapshot. Releasing that read after Add must preserve the saved policy.
+ let releasePolicyRead, policyReadSeen = false;
+ if(page.viewportSize().width===1440){
+  await page.getByRole('button',{name:'Details: Suppression policies',exact:true}).click();
+  await page.waitForFunction(()=>{const button=document.querySelector('dialog[open] button.primary-button');return button&&!button.disabled;});
+  await page.keyboard.press('Escape');
+  const gate=new Promise(resolve=>releasePolicyRead=resolve);
+  await page.route('**/alerting/controls',async route=>{const response=await route.fetch();policyReadSeen=true;await gate;await route.fulfill({response});});
+ }
  await assignment.selectOption('');
  const [unassigned]=await Promise.all([page.waitForResponse(r=>r.url().endsWith('/assignment')&&r.request().method()==='PATCH'),page.getByRole('button',{name:'Assign',exact:true}).click()]);
  assert.equal(unassigned.status(),200);assert.equal((await unassigned.json()).label,null);
  await page.waitForFunction(()=>{const input=document.querySelector('select[aria-label="Assign to"]');return input&&!input.disabled&&input.value==='';});
+ if(releasePolicyRead){
+  for(let i=0;i<100&&!policyReadSeen;i++)await new Promise(resolve=>setTimeout(resolve,50));
+  assert.ok(policyReadSeen,'The older panel read is held before adding a policy');
+ }
  await page.getByRole('button',{name:'Details: Suppression policies',exact:true}).click();const dialog=page.getByRole('dialog');await dialog.waitFor();
  await dialog.getByRole('button',{name:'Add suppression policy',exact:true}).click();
  await page.waitForFunction(()=>document.querySelector('dialog[open]')?.textContent?.includes('Enabled'));
+ if(releasePolicyRead){
+  assert.equal((await api(root+'/operator-state')).policies.length,1,'The public API retains the saved policy');
+  releasePolicyRead();await page.waitForLoadState('networkidle');
+  await page.evaluate(()=>new Promise(resolve=>requestAnimationFrame(()=>requestAnimationFrame(resolve))));
+  await page.unroute('**/alerting/controls');
+  assert.equal(await dialog.getByRole('button',{name:'Disable policy',exact:true}).isVisible(),true,'A pre-save panel read cannot hide the saved policy');
+ }
  await dialog.getByRole('button',{name:'Disable policy',exact:true}).click();await page.waitForFunction(()=>document.querySelector('dialog[open]')?.textContent?.includes('Disabled'));
  await page.keyboard.press('Escape');
  const beforeSplitList=await api(root+'/issue-search');

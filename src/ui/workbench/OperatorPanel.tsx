@@ -78,18 +78,21 @@ export function OperatorPanel({ project, packet, busy, request, run, refresh, in
 
   const ready = !!state;
   const consumedInitial = useRef<Promise<any[]> | undefined>(undefined);
+  // A read begun before a local policy write cannot replace its saved receipt.
+  const policyRevision = useRef(0);
   useEffect(() => { setState(null); setPreview(null); setSelected([]); setFailure(''); }, [root, issue.id]);
   useLiveRead(async (signal, background) => {
+    const revision = policyRevision.current;
     try {
       const prefetched = !background && initial && initial !== consumedInitial.current;
       consumedInitial.current = initial;
       const [operatorState, corrections] = await (prefetched ? initial : Promise.all([request(`${root}/operator-state`), request(`${root}/corrections`)]));
-      if (signal.aborted) return;
+      if (signal.aborted || revision !== policyRevision.current) return;
       const resolved = await loadCorrectionReferences(root, packet, corrections, request);
-      if (signal.aborted) return;
+      if (signal.aborted || revision !== policyRevision.current) return;
       setReferences(resolved); setState(operatorState); setHistory(corrections); setFailure('');
       if (!state) setValue(packet.events?.[0]?.originalGrouping?.fingerprint ?? issue.fingerprint);
-    } catch (error) { if (!signal.aborted) setFailure((error as Error).message); }
+    } catch (error) { if (!signal.aborted && revision === policyRevision.current) setFailure((error as Error).message); }
   }, [root, issue.id, issue.revision, request, initial], { live: !initial });
 
   const createPreview = (kind: string) => run(async () => {
@@ -150,7 +153,9 @@ export function OperatorPanel({ project, packet, busy, request, run, refresh, in
         <form className="form-grid" onSubmit={event => {
           event.preventDefault();
           void run(async () => {
+            policyRevision.current++;
             await request(`${root}/suppression-policies`, 'POST', { field, mode, value, enabled: true });
+            policyRevision.current++;
             setState(await request(`${root}/operator-state`));
           });
         }}>
@@ -168,7 +173,9 @@ export function OperatorPanel({ project, packet, busy, request, run, refresh, in
         {state?.policies.map((policy: any) => <div className="callout" key={policy.id}>
           <p>{policy.enabled ? 'Enabled' : 'Disabled'} · {policy.field} · {policy.mode} · <code>{policy.value}</code> · revision {policy.revision}</p>
           <button className="text-button" disabled={busy} onClick={() => void run(async () => {
+            policyRevision.current++;
             await request(`${root}/suppression-policies/${policy.id}`, 'PATCH', { ...policy, enabled: !policy.enabled });
+            policyRevision.current++;
             setState(await request(`${root}/operator-state`));
           })}>{policy.enabled ? 'Disable' : 'Enable'} policy</button>
         </div>)}
