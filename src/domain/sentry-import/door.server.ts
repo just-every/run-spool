@@ -138,12 +138,13 @@ async function operatorResponse(request: Request, env: ManagedBindings) {
  const read = await ownerReadRequest(env,session!,key,name,source);
  // A Rollbar reversal is reviewed against the complete native set before its
  // first bounded reverse step, so a known edit cannot leave a half-undone graph.
- if (name.startsWith('rollbar-project:') && action==='undo') {
+ if (action==='undo' && (name.startsWith('rollbar-project:')||name==='sentry'||name.startsWith(namespacePrefix))) {
   const input=await request.clone().json().catch(()=>null) as any;
   if(typeof input?.planId==='string'){
    try {
     const facts=await readOwnerPlan(read,input.planId);
-    const blocker=facts.undo.blockers[0];
+    const blocker=facts.undo.blockers.find(blocker => name.startsWith('rollbar-project:') ||
+      ['rules','metric_alerts','workflows','detectors'].includes(blocker.kind));
     if(blocker)return Response.json({error:blocker.reasonCode},{status:409,headers:{'Cache-Control':'no-store'}});
    } catch(error) {
     if(error instanceof DoorError)return Response.json({error:error.code},{status:error.status,headers:{'Cache-Control':'no-store'}});

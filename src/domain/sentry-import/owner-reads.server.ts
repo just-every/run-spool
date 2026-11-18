@@ -8,6 +8,9 @@ import { readD1PersistedImport } from '../../modules/import-kit/src/d1/index.ts'
 import { attachmentHash, canonicalJson, sha256 } from '../../modules/import-kit/src/provenance/identity.ts';
 import { bugsnagReport } from '../bugsnag-import/report';
 import { recordLabel, snapshotOrganization } from './read-labels';
+import { importedRuleId, importedRuleStates } from './alert-approval';
+import { localImportDestination, missingImportDestination } from '../alerts/import-state';
+import { sentryRuleKinds, type AlertProposal } from './alert-rules';
 import { importReadReasons, rejectionReasonCode, unknownJobTimes } from './read-reasons';
 
 /** Publication fence for these additive reads: the same current owner and
@@ -68,7 +71,7 @@ export async function readOwnerPlan(request:DoorRequest, planId:string, inventor
  const rejected = snapshot?.plan.entries.filter(e => e.rejection).map(entry => ({kind:entry.source.kind,sourceId:entry.source.sourceId,
   reason:entry.rejection!, reasonCode:rejectionReasonCode(entry.rejection!), ...recordLabel(entry.source,snapshot!)})) ?? null;
  const comparison=snapshot?rollbarComparison(snapshot,live):undefined;
- const sentry=snapshot?sentryAccounting(snapshot,live):undefined;
+ const sentry=snapshot?await sentryAccounting(db,snapshot,live,job?.state==='completed'):undefined;
  const details = {...(sentry?{sentry}:{}),...(comparison?{comparison}:{}),...snapshot?{bugsnag:bugsnagReport(snapshot)}:{},organization, organizationReasonCode:organization === null ? (snapshot ? 'organization_unavailable' : 'snapshot_withdrawn') : null,
   projectIds, projectIdsReasonCode:snapshot ? null : 'snapshot_withdrawn',
   counts:snapshot?.plan.counts ?? null, countsReasonCode:snapshot ? null : 'snapshot_withdrawn',
@@ -98,7 +101,7 @@ export async function ownerReadResponse(request:DoorRequest, response:Response, 
 }
 
 /** Value-free loss ledger, derived from the immutable plan rather than a caller's claimed totals. */
-function sentryAccounting(snapshot:DoorSnapshot, live:PersistedImport) {
+async function sentryAccounting(db:DoorRequest['options']['database'], snapshot:DoorSnapshot, live:PersistedImport, completed:boolean) {
  const manifest=snapshot.plan.entries.find(entry=>entry.source.kind==='manifest');
  const meta=manifest?.source.payload as any;
  if(!meta?.organization?.slug||meta.vendor)return undefined;
@@ -109,13 +112,36 @@ function sentryAccounting(snapshot:DoorSnapshot, live:PersistedImport) {
    payloadBytes:source.reduce((n,r)=>n+new TextEncoder().encode(JSON.stringify((r.payload as any).data)).length,0),
    mapped:unique.filter(e=>e.effects.length).length,rejected:unique.filter(e=>e.rejection).length};
  });
+ const alertEntries=entries.filter(entry=>sentryRuleKinds.includes(entry.source.kind));
+ const proposals=alertEntries.flatMap(entry=>entry.effects.flatMap(effect=>{
+  const native=(effect.value as any).native;
+  return effect.targetKind==='import-proposal'&&native.kind==='alert'
+   ? [{sourceId:entry.source.sourceId,id:native.id as string,project:native.project as string,data:JSON.parse(native.payload) as AlertProposal}] : [];
+ }));
+ const namesSeen=new Set(proposals.map(proposal=>proposal.id));
+ const applied=new Set(live.rows.filter(row=>row.targetKind==='import-proposal'&&namesSeen.has(row.targetId)).map(row=>row.targetId));
+ const nativeRules=await importedRuleStates(db,[...applied]);
+ const losses=proposals.flatMap(proposal=>proposal.data.omissions);
+ const linkedMonitors=new Set(proposals.flatMap(proposal=>proposal.data.monitorLocation?[proposal.data.monitorLocation]:[]));
+ const accounting=(entry:typeof entries[number])=>{
+  const fields=sentryFieldAccounting(entry.source.kind,(entry.source.payload as any).data,entry.rejection);
+  if(!sentryRuleKinds.includes(entry.source.kind)||entry.rejection)return fields;
+  const location=entry.source.location.pointer??'';
+  const treated=proposals.some(proposal=>proposal.sourceId===entry.source.sourceId) || linkedMonitors.has(location);
+  return fields.map(field=>{
+   if(field.disposition==='redacted')return field;
+   const path=location+field.path, blocker=losses.find(item=>path===item.path||path.startsWith(item.path+'/'));
+   if(blocker)return {...field,reason:blocker.reason};
+   if(treated&&/^\/(id|name|owner|ownerActor|dateCreated|dateModified|lastTriggered|lastTriggeredAt|lastIncident)(\/|$)/.test(field.path))return {...field,disposition:'mapped' as const,reason:'Retained in the private source definition and linked by the rule proposal.'};
+   return field;
+  });
+ };
  const fields=entries.filter(e=>e.source.kind!=='manifest').flatMap(entry=>{
-  const data=(entry.source.payload as any).data;
-  return sentryFieldAccounting(entry.source.kind,data,entry.rejection).map(field=>({kind:entry.source.kind,sourceId:entry.source.sourceId,location:entry.source.location.pointer??null,...field}));
+  return accounting(entry).map(field=>({kind:entry.source.kind,sourceId:entry.source.sourceId,location:entry.source.location.pointer??null,...field}));
  });
  const arrays=entries.filter(e=>e.source.kind!=='manifest').flatMap(entry=>{
   const result:{kind:string;sourceId:string;path:string;elements:number;omitted:number[]}[]=[];
-  const local=new Map(sentryFieldAccounting(entry.source.kind,(entry.source.payload as any).data,entry.rejection).map(f=>[f.path,f.disposition]));
+  const local=new Map(accounting(entry).map(f=>[f.path,f.disposition]));
   const walk=(value:any,path='')=>{
    if(Array.isArray(value))result.push({kind:entry.source.kind,sourceId:entry.source.sourceId,path,elements:value.length,
     omitted:value.flatMap((child:any,i:number)=>sourceLeaves(child,`${path}/${i}`).every(leaf=>['unmapped','rejected'].includes(local.get(leaf.path)??''))?[i]:[])});
@@ -143,8 +169,28 @@ function sentryAccounting(snapshot:DoorSnapshot, live:PersistedImport) {
    targets:present.map(row=>({kind:row.targetKind,id:row.targetId})),
    reason:entry.rejection?'Rejected record has no native bytes.':!targets.length?'Unsupported record has no native bytes.':'Native projection includes converted fields, derived identities and source provenance; omitted fields and repeated source rows are counted separately.'};
  });
- const notImported=entries.filter(entry=>['rules','metric_alerts','detectors','workflows'].includes(entry.source.kind)).length;
- const rules={notImported,message:`Rules are not carried over yet: ${notImported} rule(s) not imported`};
+ const items=proposals.map(proposal=>{
+  const {data}=proposal,rule=nativeRules.get(importedRuleId(proposal.id));
+  const destinationKinds=[...new Set(data.destinations.map(destination=>destination.kind))];
+  const needs=rule?.destination===missingImportDestination?'Needs a destination: '+destinationKinds.join(', '):null;
+  const uniqueDestinations=new Set(data.destinations.map(d=>canonicalJson([d.kind,d.id])));
+  const unrepresented=uniqueDestinations.size>1?[...data.omissions,{path:data.location,reason:'Multiple destinations require a native choice'}]:data.omissions;
+  const state=rule?rule.waiting?'waiting':rule.enabled?'active':'disabled':completed&&applied.has(proposal.id)?'pending':'proposed';
+  return {id:proposal.id,name:data.name,project:proposal.project,location:data.location,state,
+   ruleId:rule?.id??null,status:rule?.waiting??needs??(state==='pending'?'Waiting for your approval':state==='proposed'?'Proposed':rule?.enabled?'Rule created and active':'Rule created disabled'),
+   settings:data.settings,destinations:data.destinations.map(d=>({kind:d.kind,path:d.path})),scope:data.monitorLocation??null,
+   omissions:unrepresented,local:rule?.destination===localImportDestination};
+ });
+ const missing=alertEntries.filter(entry=>!proposals.some(proposal=>proposal.sourceId===entry.source.sourceId)
+   && !(entry.source.kind==='detectors'&&linkedMonitors.has(entry.source.location.pointer??'')));
+ for(const entry of missing){
+  const location=entry.source.location.pointer??'';
+  items.push({id:entry.identity,name:recordLabel(entry.source,snapshot).label??'Alert rule',project:'',location,state:entry.rejection?'rejected':'unsupported',ruleId:null,
+   status:entry.rejection?'Rule refused':'Rule definition not carried over',settings:null,destinations:[],scope:null,local:false,
+   omissions:[{path:location,reason:entry.rejection?'Invalid rule definition':'This import contains the original rule definition'}]});
+ }
+ const pending=items.filter(item=>item.state==='pending').length, created=items.filter(item=>item.ruleId).length;
+ const rules={sourceDefinitions:alertEntries.length,notImported:missing.length,pending,created,items};
  return {collections,fields,arrays,loaders,byteLedger,rules,capture:meta.capture??null,
   sourcePayloadBytes:collections.reduce((n,c)=>n+c.payloadBytes,0),
   nativeBytes:native.reduce((n,row)=>n+new TextEncoder().encode(canonicalJson(row.value)).length,0),

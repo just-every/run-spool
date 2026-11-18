@@ -1,6 +1,7 @@
 import type { DoorSnapshot } from '../../modules/import-kit/src/door/types.ts';
 import type { SourceRecord } from '../../modules/import-kit/src/types.ts';
 import { assertNoCredentials } from '../../modules/import-kit/src/provenance/identity.ts';
+import { sentryRuleKinds } from './alert-rules';
 import { scrub } from '../scrub';
 
 /** These are labels only, never source IDs, event bodies or stack text. The
@@ -14,6 +15,7 @@ export function safeImportLabel(value: unknown): string | null {
 export function recordLabel(record: SourceRecord, snapshot: DoorSnapshot) {
  const payload = record.payload as any, data = payload?.data;
  let value: unknown;
+ if (sentryRuleKinds.includes(record.kind)) value = data?.name;
  if (record.kind === 'projects') value = data?.name;
  if (record.kind === 'issues') value = data?.title;
  if (record.kind === 'errors') value = data?.message;

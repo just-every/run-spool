@@ -1,3 +1,4 @@
+import { activateImportedAlerts } from './import-waiting';
 import { evaluateMetrics } from './metrics';
 import { findDestination } from './destinations.server';
 import { holdAlerts, expireSnoozes } from './snoozes';
@@ -58,6 +59,7 @@ export async function runAlerts(env:AlertEnvironment,scheduledTime:number) {
  await expireSnoozes(env,scheduledTime);
  await holdAlerts(env,scheduledTime);
  await projectProviderEvents(env);
+ await activateImportedAlerts(env.DB,scheduledTime);
  await evaluateSpikes(env,scheduledTime);
  await evaluateMetrics(env,scheduledTime);
  await holdAlerts(env,scheduledTime);
