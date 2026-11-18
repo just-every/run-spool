@@ -1,0 +1,133 @@
+{
+  "head": "1e0772865a2bb961ce0dd10d3fa7d41c52f19666",
+  "browser": "154.0.8037.57",
+  "assertionWidth": 1440,
+  "shots": [
+    {
+      "state": "capture-result",
+      "width": 1440,
+      "height": 900,
+      "file": "screens/capture-result-1440.png",
+      "sha256": "a1a2c78038eb8681ce49f37d0b19fc74b5608f798643e5db4106c0280354462f"
+    },
+    {
+      "state": "capture-result",
+      "width": 390,
+      "height": 900,
+      "file": "screens/capture-result-390.png",
+      "sha256": "b6deb7f80911840945dbcbcd6740ee3453b039645530671e5270848d067e4a91"
+    },
+    {
+      "state": "issues-list",
+      "width": 1440,
+      "height": 900,
+      "file": "screens/issues-list-1440.png",
+      "sha256": "1eba7bfd84747b740ffe677fa29b598bc76666467c61253499d0e98beb4f5013"
+    },
+    {
+      "state": "issues-list",
+      "width": 390,
+      "height": 900,
+      "file": "screens/issues-list-390.png",
+      "sha256": "e0a4a32a12b067b4d543a8d1edde809ba84eca2c6a699a53d5ba9fefeb421042"
+    },
+    {
+      "state": "issues-filters",
+      "width": 1440,
+      "height": 900,
+      "file": "screens/issues-filters-1440.png",
+      "sha256": "1afcf02c248729382c82a14a78eefcda8ad8b797b86fa957d0b4764991663e35"
+    },
+    {
+      "state": "issues-filters",
+      "width": 390,
+      "height": 900,
+      "file": "screens/issues-filters-390.png",
+      "sha256": "ba916657d939a2d2557176e667302e80358a8312d9cf043a1640933cf9cc4798"
+    },
+    {
+      "state": "issue-header",
+      "width": 1440,
+      "height": 900,
+      "file": "screens/issue-header-1440.png",
+      "sha256": "385032f42b3d5692ec0392c5e81ad9ef46b5dcf71092706a1e83887f5fe1787e"
+    },
+    {
+      "state": "issue-header",
+      "width": 390,
+      "height": 900,
+      "file": "screens/issue-header-390.png",
+      "sha256": "1e7f8eb5f15fb4ad2aa61f0657927f203bbc27ac76ee3ab0101dd7b398373cc7"
+    },
+    {
+      "state": "resolution-preset",
+      "width": 1440,
+      "height": 900,
+      "file": "screens/resolution-preset-1440.png",
+      "sha256": "e1b6f39ca1770d69d71116f2c283459be48279cd146ae87220013fdf068ebbf5"
+    },
+    {
+      "state": "resolution-preset",
+      "width": 390,
+      "height": 900,
+      "file": "screens/resolution-preset-390.png",
+      "sha256": "c87486ae4ec2534dd790b2104c6ea69a6ee988790a6181da36d2a853200ddbb5"
+    },
+    {
+      "state": "resolved-sample",
+      "width": 1440,
+      "height": 900,
+      "file": "screens/resolved-sample-1440.png",
+      "sha256": "0fdadc0cea106d5880f08f965b26c72ab2d4a28bf60552408b7ae3dd66febe75"
+    },
+    {
+      "state": "resolved-sample",
+      "width": 390,
+      "height": 900,
+      "file": "screens/resolved-sample-390.png",
+      "sha256": "acd8b38c379c1962dd95d8634e690e0f9b7c91d620dca2d8344edc50fb1af1cd"
+    },
+    {
+      "state": "regressed-sample",
+      "width": 1440,
+      "height": 900,
+      "file": "screens/regressed-sample-1440.png",
+      "sha256": "ae50ef61dc99e22d74f25ec10bbd94da98a24bcdf4fbca99733220c1d3d2fc82"
+    },
+    {
+      "state": "regressed-sample",
+      "width": 390,
+      "height": 900,
+      "file": "screens/regressed-sample-390.png",
+      "sha256": "4e2ade8d1072b0ced8b0000bb1fef8eacb8132f1750a0acc184a86b2b7f98b0b"
+    },
+    {
+      "state": "suppression-policy",
+      "width": 1440,
+      "height": 900,
+      "file": "screens/suppression-policy-1440.png",
+      "sha256": "cd5681ce53724e049f1a0f951d86441e0b097688ca276605a94fe6bd5e2ce297"
+    },
+    {
+      "state": "suppression-policy",
+      "width": 390,
+      "height": 900,
+      "file": "screens/suppression-policy-390.png",
+      "sha256": "1fed3e62881b3bffa1a867e7f1baef3c7478d071450b8bfe616b5badd77836a4"
+    },
+    {
+      "state": "invalid-key",
+      "width": 1440,
+      "height": 900,
+      "file": "screens/invalid-key-1440.png",
+      "sha256": "20f99afff7390c6ad33f0efab285f67b5e889cf7be05a6dae916ce4c9cb3a141"
+    },
+    {
+      "state": "invalid-key",
+      "width": 390,
+      "height": 900,
+      "file": "screens/invalid-key-390.png",
+      "sha256": "55f17053b4117966ac8f1bb7127c70cf89d006498484aaa80381249be65687a6"
+    }
+  ]
+}

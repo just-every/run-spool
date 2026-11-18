@@ -1,0 +1,23 @@
+[
+  {
+    "pid": 24639,
+    "startTimeTicks": 226464,
+    "command": "pnpm test:project-erasure",
+    "exit": 1,
+    "observedUtc": "2026-11-18T01:14:22Z"
+  },
+  {
+    "pid": 23939,
+    "startTimeTicks": 221151,
+    "command": "candidate sentry-cli trial 4",
+    "exit": 0,
+    "observedUtc": "2026-11-18T01:16:12Z"
+  },
+  {
+    "pid": 25697,
+    "startTimeTicks": 253795,
+    "command": "pnpm test:sentry:sdk after push",
+    "exit": 0,
+    "observedUtc": "2026-11-18T01:19:12Z"
+  }
+]

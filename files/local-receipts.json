@@ -1,0 +1,388 @@
+{
+  "time": "2026-11-18T01:26:05Z",
+  "head": "1e0772865a2bb961ce0dd10d3fa7d41c52f19666",
+  "main": "d85f48247ecc0d9ec475fbc5e825ec46753e5b7d",
+  "node": "22.20.0",
+  "pnpm": "10.12.4",
+  "linearProductCommits": 5,
+  "checkedCommands": [
+    {
+      "utc": "2026-11-18T00:40:13Z",
+      "command": "pnpm test:tunnel",
+      "exit": 0
+    },
+    {
+      "utc": "2026-11-18T00:41:29Z",
+      "command": "pnpm run build:app",
+      "exit": 0
+    },
+    {
+      "utc": "2026-11-18T00:41:30Z",
+      "command": "pnpm integration:check",
+      "exit": 0
+    },
+    {
+      "utc": "2026-11-18T00:42:17Z",
+      "command": "pnpm typecheck",
+      "exit": 0
+    },
+    {
+      "utc": "2026-11-18T00:43:37Z",
+      "command": "timeout --kill-after=15s 220s npx -y @runeditrun/rer build",
+      "exit": 0
+    },
+    {
+      "utc": "2026-11-18T00:45:42Z",
+      "command": "focused owner browser proof",
+      "exit": 0
+    },
+    {
+      "utc": "2026-11-18T00:47:24Z",
+      "command": "candidate sentry-cli trial 2",
+      "exit": 124
+    },
+    {
+      "utc": "2026-11-18T00:47:24Z",
+      "command": "candidate sentry-cli trial 1",
+      "exit": 124
+    },
+    {
+      "utc": "2026-11-18T00:47:24Z",
+      "command": "fresh main sentry-cli trial 3",
+      "exit": 124
+    },
+    {
+      "utc": "2026-11-18T00:56:04Z",
+      "command": "pnpm test:ui",
+      "exit": 124
+    },
+    {
+      "utc": "2026-11-18T00:56:05Z",
+      "command": "pnpm test:product",
+      "exit": 124
+    },
+    {
+      "utc": "2026-11-18T00:56:06Z",
+      "command": "pnpm test:sentry:sdk",
+      "exit": 124
+    },
+    {
+      "utc": "2026-11-18T01:02:35Z",
+      "command": "pnpm test:sdk after push",
+      "exit": 0
+    },
+    {
+      "utc": "2026-11-18T01:02:57Z",
+      "command": "fresh main sentry-cli trial 4",
+      "exit": 0
+    },
+    {
+      "utc": "2026-11-18T01:02:58Z",
+      "command": "candidate sentry-cli trial 3",
+      "exit": 124
+    },
+    {
+      "utc": "2026-11-18T01:05:27Z",
+      "command": "pnpm test:product retry",
+      "exit": 0
+    },
+    {
+      "utc": "2026-11-18T01:07:59Z",
+      "command": "pnpm test:ui retry",
+      "exit": 0
+    },
+    {
+      "utc": "2026-11-18T01:09:28Z",
+      "command": "pnpm test:languages after push",
+      "exit": 0
+    },
+    {
+      "utc": "2026-11-18T01:14:22Z",
+      "command": "pnpm test:project-erasure",
+      "exit": 1
+    },
+    {
+      "utc": "2026-11-18T01:16:12Z",
+      "command": "candidate sentry-cli trial 4",
+      "exit": 0
+    },
+    {
+      "utc": "2026-11-18T01:19:12Z",
+      "command": "pnpm test:sentry:sdk after push",
+      "exit": 0
+    }
+  ],
+  "otherBuildAndGeneratorChecks": [
+    {
+      "check": "frozen install",
+      "exit": 0,
+      "rawLogSha256": "d69b2ac17704e5c6ff198e7c9b562f7c6d843009ed5a72b3ef8ebd03ef5b143c"
+    },
+    {
+      "check": "first-party check",
+      "exit": 0,
+      "rawLogSha256": "ce6aeace1db03e25dc74a2614f0a0269c48e6d0d7f95884d09b809239917ef3d"
+    },
+    {
+      "check": "source check",
+      "exit": 0,
+      "rawLogSha256": "a5f0a47d411025166b62bb3f69c4c9852493ec03f015cab014395cb70ff99523"
+    },
+    {
+      "check": "offline Base-copy verification",
+      "exit": 0,
+      "rawLogSha256": "13f0c3e5c84440d372327ba03dbcda0326ea6e6f73893e2dce48d31470e182ef"
+    },
+    {
+      "check": "contract document generation and consistency",
+      "exit": 0,
+      "rawLogSha256": "b04031901cfff3e9bc42a429b52cbc14c2442ffb68817fd62a245ac52847b422"
+    },
+    {
+      "check": "integration generation",
+      "exit": 0,
+      "rawLogSha256": "538380ac19bbf7d6dd69ffff642bfb5157d4f718116cfcda1e83eb01dca047ca"
+    },
+    {
+      "check": "agent-surface generation",
+      "exit": 0,
+      "rawLogSha256": "0f6bc7a8a367314ddc187c4858a3c33ab4c51c63d7554e295e3e2caf2b184ea0"
+    },
+    {
+      "check": "agent-surface consistency",
+      "exit": 0,
+      "rawLogSha256": "daa6d0577d3580f9c7943c49a4605b9d94327b2058e15dd5dc6d0c8dbf46ad22"
+    }
+  ],
+  "historicalSentryCliControl": {
+    "base": "f44efc8c76f8f11753b89465cc3fcb7b64760570",
+    "replay": "388c978d44e4e13cc952553618b93cef0efe7456",
+    "mainExit": [
+      1,
+      0,
+      0
+    ],
+    "replayExit": [
+      1,
+      0,
+      0
+    ],
+    "mainSocketFailures": 1,
+    "replaySocketFailures": 1,
+    "evidenceHead": "ebf3feba978c26978014c7e3e3cb820d1afda662"
+  },
+  "currentSentryCliTrials": [
+    {
+      "scope": "main",
+      "trial": 1,
+      "hardTimeoutSeconds": 240,
+      "exit": 124,
+      "timeout": true,
+      "socketFailure": false,
+      "recoveredOwnerReads": [],
+      "fixtureProof": [],
+      "fullPass": false,
+      "rawLogSha256": "050f706f6294766b64e18a73aae96ae08cd8012f31b6eb5671177cf984075601"
+    },
+    {
+      "scope": "main",
+      "trial": 2,
+      "hardTimeoutSeconds": 240,
+      "exit": 124,
+      "timeout": true,
+      "socketFailure": false,
+      "recoveredOwnerReads": [],
+      "fixtureProof": [],
+      "fullPass": false,
+      "rawLogSha256": "dab7ac905ffda9ed88973ef0362506269eab517695a5cb33bd28dc9de4d8784d"
+    },
+    {
+      "scope": "main",
+      "trial": 3,
+      "hardTimeoutSeconds": 480,
+      "exit": 124,
+      "timeout": true,
+      "socketFailure": false,
+      "recoveredOwnerReads": [],
+      "fixtureProof": [],
+      "fullPass": false,
+      "rawLogSha256": "280572d1e877aabbce1ba22d2c91d7508f31a561ca2cabbac2d1998e7a91e904"
+    },
+    {
+      "scope": "main",
+      "trial": 4,
+      "hardTimeoutSeconds": 900,
+      "exit": 0,
+      "timeout": false,
+      "socketFailure": false,
+      "recoveredOwnerReads": [],
+      "fixtureProof": [],
+      "fullPass": true,
+      "rawLogSha256": "2162628b93f920502c2cb43e15e470bc7de1efcfca7a005d88bca429ee029d58"
+    },
+    {
+      "scope": "candidate",
+      "trial": 1,
+      "hardTimeoutSeconds": 480,
+      "exit": 124,
+      "timeout": true,
+      "socketFailure": false,
+      "recoveredOwnerReads": [],
+      "fixtureProof": [
+        "Sentry owner read recovery: closed/reset GETs recovered; POST not replayed; 403 not retried; persistent socket and unhealthy Worker bounded."
+      ],
+      "fullPass": false,
+      "rawLogSha256": "9611a162f236d9fa1a3b576588c00d0ec686636bfe6770303a5c2181ccd2b617"
+    },
+    {
+      "scope": "candidate",
+      "trial": 2,
+      "hardTimeoutSeconds": 480,
+      "exit": 124,
+      "timeout": true,
+      "socketFailure": false,
+      "recoveredOwnerReads": [],
+      "fixtureProof": [
+        "Sentry owner read recovery: closed/reset GETs recovered; POST not replayed; 403 not retried; persistent socket and unhealthy Worker bounded."
+      ],
+      "fullPass": false,
+      "rawLogSha256": "25d77327048b8436a683a0a715ab40af641da90ee55d12a63d4fdd89ba37bf64"
+    },
+    {
+      "scope": "candidate",
+      "trial": 3,
+      "hardTimeoutSeconds": 900,
+      "exit": 124,
+      "timeout": true,
+      "socketFailure": false,
+      "recoveredOwnerReads": [],
+      "fixtureProof": [
+        "Sentry owner read recovery: closed/reset GETs recovered; POST not replayed; 403 not retried; persistent socket and unhealthy Worker bounded."
+      ],
+      "fullPass": false,
+      "rawLogSha256": "3b5ff808e730b6fd0f14ef6d0aa3227a635c9df0f383e1f29d7eeb1dbe8754ca"
+    },
+    {
+      "scope": "candidate",
+      "trial": 4,
+      "hardTimeoutSeconds": 1200,
+      "exit": 0,
+      "timeout": false,
+      "socketFailure": false,
+      "recoveredOwnerReads": [],
+      "fixtureProof": [
+        "Sentry owner read recovery: closed/reset GETs recovered; POST not replayed; 403 not retried; persistent socket and unhealthy Worker bounded."
+      ],
+      "fullPass": true,
+      "rawLogSha256": "220ae9033721938e52250a5397af3547ac9c74d29a765ed2245b9cf1cf66309c"
+    }
+  ],
+  "beforeSdk": {
+    "head": "4e24f68bb91956a5a4f79beffeefb8ba60e5d703",
+    "fullExit": 124,
+    "inboundFilterCompleted": true,
+    "rawLogSha256": "7a84d8d3bb6917c9878c7cc70d1de02f30649a05d7011db81333d6d849f9cd03"
+  },
+  "candidateSdk": {
+    "head": "1e0772865a2bb961ce0dd10d3fa7d41c52f19666",
+    "firstFullExit": 124,
+    "rerunFullExit": 0,
+    "inboundFilterCompleted": true,
+    "rawLogSha256": "3f317d33c8254e8af56fc8047c006cba5b426aff760b08d8ddf402449ab6166d"
+  },
+  "ownerTriage": {
+    "head": "1e0772865a2bb961ce0dd10d3fa7d41c52f19666",
+    "passedGroups": 22,
+    "allJourneyCaptureCount": 110,
+    "checks": [
+      {
+        "width": 1440,
+        "name": "Visitor unclaimed Lobby fits, passes axe and Finish setup leads to owner sign-in preserving /setup"
+      },
+      {
+        "width": 1440,
+        "name": "Real minified application throws and capture crosses a second loopback origin"
+      },
+      {
+        "width": 1440,
+        "name": "Contextual map upload yields actual original path, line and column as first stack fact"
+      },
+      {
+        "width": 1440,
+        "name": "Copy destination, refresh, history, viewed count and Details focus/Escape"
+      },
+      {
+        "width": 1440,
+        "name": "Resolved issue recurs in next release; late older release does not replace regression identity"
+      },
+      {
+        "width": 1440,
+        "name": "Populated browser download verifies integrity, whole product equality, private source maps and credential exclusions"
+      },
+      {
+        "width": 1440,
+        "name": "Offline and unavailable initial reads recover; retained issue evidence is stale, keeps destination, drafts and focus, and clears after a successful refresh without writes"
+      },
+      {
+        "width": 1440,
+        "name": "Hostile return destinations rejected and expired API session keeps requested issue"
+      },
+      {
+        "width": 1440,
+        "name": "Styled direct-navigation 404, both widths, no owner-page errors or horizontal overflow"
+      },
+      {
+        "width": 1440,
+        "name": "Capture receipts name statsd and unknown item counts separately from the accepted companion error"
+      },
+      {
+        "width": 1440,
+        "name": "Built-in test capture has sample-labelled evidence without map or reproducer steps, separate grouping and counts, and preserves ordinary app-error guidance"
+      },
+      {
+        "width": 1440,
+        "name": "Operator assignment, policy toggle and reviewed correction plus undo use the rendered controls"
+      },
+      {
+        "width": 390,
+        "name": "Visitor unclaimed Lobby fits, passes axe and Finish setup leads to owner sign-in preserving /setup"
+      },
+      {
+        "width": 390,
+        "name": "Real minified application throws and capture crosses a second loopback origin"
+      },
+      {
+        "width": 390,
+        "name": "Contextual map upload yields actual original path, line and column as first stack fact"
+      },
+      {
+        "width": 390,
+        "name": "Copy destination, refresh, history, viewed count and Details focus/Escape"
+      },
+      {
+        "width": 390,
+        "name": "Resolved issue recurs in next release; late older release does not replace regression identity"
+      },
+      {
+        "width": 390,
+        "name": "Populated browser download verifies integrity, whole product equality, private source maps and credential exclusions"
+      },
+      {
+        "width": 390,
+        "name": "Hostile return destinations rejected and expired API session keeps requested issue"
+      },
+      {
+        "width": 390,
+        "name": "Styled direct-navigation 404, both widths, no owner-page errors or horizontal overflow"
+      },
+      {
+        "width": 390,
+        "name": "Capture receipts name statsd and unknown item counts separately from the accepted companion error"
+      },
+      {
+        "width": 390,
+        "name": "Operator assignment, policy toggle and reviewed correction plus undo use the rendered controls"
+      }
+    ]
+  }
+}

@@ -1,0 +1,11 @@
+Verify 44201588936 job 134457416878 head fdcbe49c5f65a04faf69ce08ceddb72568bc41af
+verify (tunnel)	Run suites	2026-11-17T23:44:07.2567653Z ⨯ TypeError: 'TRACE' HTTP method is unsupported.
+verify (tunnel)	Run suites	2026-11-17T23:44:07.4607675Z ⨯ Error: aborted
+verify (tunnel)	Run suites	2026-11-17T23:45:58.4589922Z AssertionError [ERR_ASSERTION]: the autosaved filters did not land
+verify (tunnel)	Run suites	2026-11-17T23:45:58.4590926Z     at landed (file:///home/runner/work/run-spool/run-spool/tests/inbound-filter-flow.mjs:115:146)
+verify (tunnel)	Run suites	2026-11-17T23:45:58.4591579Z     at async sdkInboundFilterFlow (file:///home/runner/work/run-spool/run-spool/tests/inbound-filter-flow.mjs:127:4)
+verify (tunnel)	Run suites	2026-11-17T23:45:58.4592136Z     at async file:///home/runner/work/run-spool/run-spool/tests/sentry-sdk.mjs:97:3 {
+
+Local browser control
+Old SDK fixture order reproduced: browser PUT returned 400 because the enabled allowlist was empty; persisted state remained disabled.
+Corrected fixture order: browser persisted the exact disabled list and then enabled it with separate HTTP 200 receipts.

@@ -1,0 +1,74 @@
+[
+  {
+    "call": 1,
+    "time": "2026-11-18T00:58:05Z",
+    "command": "repos/just-every/run-spool/actions/runs?head_sha=1e0772865a2bb961ce0dd10d3fa7d41c52f19666&per_page=100",
+    "run": {
+      "conclusion": null,
+      "head_sha": "1e0772865a2bb961ce0dd10d3fa7d41c52f19666",
+      "html_url": "https://github.com/just-every/run-spool/actions/runs/44211950946",
+      "id": 44211950946,
+      "status": "in_progress"
+    }
+  },
+  {
+    "call": 2,
+    "time": "2026-11-18T01:03:05Z",
+    "command": "repos/just-every/run-spool/actions/runs/44211950946",
+    "run": {
+      "conclusion": null,
+      "head_sha": "1e0772865a2bb961ce0dd10d3fa7d41c52f19666",
+      "html_url": "https://github.com/just-every/run-spool/actions/runs/44211950946",
+      "status": "in_progress",
+      "id": 44211950946
+    }
+  },
+  {
+    "call": 3,
+    "time": "2026-11-18T01:08:05Z",
+    "command": "repos/just-every/run-spool/actions/runs/44211950946",
+    "run": {
+      "conclusion": null,
+      "head_sha": "1e0772865a2bb961ce0dd10d3fa7d41c52f19666",
+      "html_url": "https://github.com/just-every/run-spool/actions/runs/44211950946",
+      "status": "in_progress",
+      "id": 44211950946
+    }
+  },
+  {
+    "call": 4,
+    "time": "2026-11-18T01:13:06Z",
+    "command": "repos/just-every/run-spool/actions/runs/44211950946",
+    "run": {
+      "conclusion": null,
+      "head_sha": "1e0772865a2bb961ce0dd10d3fa7d41c52f19666",
+      "html_url": "https://github.com/just-every/run-spool/actions/runs/44211950946",
+      "status": "in_progress",
+      "id": 44211950946
+    }
+  },
+  {
+    "call": 5,
+    "time": "2026-11-18T01:18:06Z",
+    "command": "repos/just-every/run-spool/actions/runs/44211950946",
+    "run": {
+      "conclusion": null,
+      "head_sha": "1e0772865a2bb961ce0dd10d3fa7d41c52f19666",
+      "html_url": "https://github.com/just-every/run-spool/actions/runs/44211950946",
+      "status": "queued",
+      "id": 44211950946
+    }
+  },
+  {
+    "call": 6,
+    "time": "2026-11-18T01:23:06Z",
+    "command": "repos/just-every/run-spool/actions/runs/44211950946",
+    "run": {
+      "conclusion": "success",
+      "head_sha": "1e0772865a2bb961ce0dd10d3fa7d41c52f19666",
+      "html_url": "https://github.com/just-every/run-spool/actions/runs/44211950946",
+      "status": "completed",
+      "id": 44211950946
+    }
+  }
+]
