@@ -31,6 +31,7 @@ export async function authorizeIngest(c:any,project:string,key:string|undefined)
   const scope={project,keyHash,foreign:policy.foreign,revision:policy.revision,policy:policy.policy,domain:policy.domain};
   if(!policy.allowed){await ingestBatch(c,scope,[outcomeStatement(c.env.DB,project,'filtered'),outcomeStatement(c.env.DB,project,'filtered:allowed_domains')]);return {response:c.json({outcome:'filtered',reason:policy.domain.reason,filters:['allowed_domains']},403)}}
   if(policy.cors)c.header('Access-Control-Allow-Origin',policy.cors);
+  await stmt(c.env.DB,'UPDATE credentials SET last_used=? WHERE hash=? AND revoked IS NULL',Date.now(),keyHash).run();
   return {scope};
 }
 function authority(c:any,scope:IngestScope){

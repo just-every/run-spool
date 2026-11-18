@@ -21,7 +21,7 @@ async function journey(width) {
  const checked=name=>evidence.checks.push({width,name});
 try {
  const cookie=await signIn(origin);await chooseLocalAgentPolicy(origin,cookie);
- async function api(path,method='GET',value){const response=await fetch(origin+path,{method,headers:{Cookie:cookie,Origin:origin,...value?{'Content-Type':'application/json'}:{}},...value?{body:JSON.stringify(value)}:{}});assert.ok(response.ok,`${method} ${path}: ${response.status}`);return path==='/api/archive'?archiveProjection(response):response.json();}
+ async function api(path,method='GET',value){const response=await fetch(origin+path,{method,headers:{Cookie:cookie,Origin:origin,Connection:'close',...value?{'Content-Type':'application/json'}:{}},...value?{body:JSON.stringify(value)}:{}});assert.ok(response.ok,`${method} ${path}: ${response.status}`);return path==='/api/archive'?archiveProjection(response):response.json();}
  browser=await launchBrowser();const context=await browser.newContext({viewport:{width,height:900},permissions:['clipboard-read','clipboard-write']});
  await context.addCookies([{name:cookie.split('=')[0],value:cookie.slice(cookie.indexOf('=')+1),url:origin}]);
  const page=await context.newPage(),pageErrors=[];page.on('pageerror',error=>pageErrors.push(error.message));page.setDefaultTimeout(15000);
@@ -102,14 +102,26 @@ try {
  const settingsNavigation=page.getByRole('navigation',{name:'Settings sections'});
  await settingsNavigation.getByRole('link',{name:'Projects & keys',exact:true}).click();
  if(width===1440){
+  const keyProof=async(name,target)=>{for(const screen of [1440,390]){await page.setViewportSize({width:screen,height:900});await target.scrollIntoViewIfNeeded();await target.screenshot({path:output+`/${name}-${screen}.png`,mask:[target.locator('[data-secret]')]});}await page.setViewportSize({width,height:900});};
   await expect(page.getByRole('heading',{name:'Project keys',exact:true})).toBeVisible();
+  await keyProof('project-keys',page.getByRole('heading',{name:'Project keys',exact:true}).locator('..'));
   await expect(page.getByRole('heading',{name:'Who can use Spool?',exact:true})).toBeHidden();
   const created=page.waitForResponse(response=>new URL(response.url()).pathname==='/api/projects/cedar/keys'&&response.request().method()==='POST');
-  await page.getByRole('button',{name:'Create deploy key',exact:true}).click();const createdResponse=await created;assert.equal(createdResponse.status(),201);
+  await page.getByLabel('New key name',{exact:true}).fill('synthetic-spool-1 deploy');await page.getByRole('button',{name:'Create deploy key',exact:true}).click();const createdResponse=await created;assert.equal(createdResponse.status(),201);
   const {hash:createdHash}=await createdResponse.json();
-  await page.getByRole('button',{name:'Dismiss key',exact:true}).click();
+  await keyProof('key-issued',page.getByRole('dialog',{name:'New project key',exact:true}));
+  const listedKeys=await api('/api/projects/cedar/keys');assert.equal(listedKeys.find(row=>row.hash===createdHash).last_used,null);assert.equal(typeof listedKeys.find(row=>row.kind==='ingest').last_used,'number','the key used by the live application has an actual last-use time');
+  await page.getByRole('button',{name:"I've saved it",exact:true}).click();
   const key=page.locator(`.key-row[data-key-hash="${createdHash}"]`);await key.getByRole('button',{name:'Details: Project key',exact:true}).click();
-  await page.getByRole('dialog',{name:'Project key',exact:true}).getByRole('button',{name:'Revoke key',exact:true}).click();
+  const keyDialog=page.getByRole('dialog',{name:'Project key',exact:true});
+  await keyDialog.getByLabel('Key name',{exact:true}).fill('synthetic-spool-2 deploy');await keyDialog.getByRole('button',{name:'Save key name',exact:true}).click();
+  await expect(key).toContainText('synthetic-spool-2 deploy');
+  await keyDialog.getByRole('button',{name:'Revoke key',exact:true}).click();
+  assert.equal((await api('/api/projects/cedar/keys')).find(row=>row.hash===createdHash).revoked,null,'opening the consequence confirmation does not revoke');
+  await keyDialog.getByRole('button',{name:'Keep key',exact:true}).click();
+  await keyDialog.getByRole('button',{name:'Revoke key',exact:true}).click();
+  await keyProof('key-revoke',keyDialog);
+  await keyDialog.getByRole('button',{name:'Confirm revoke',exact:true}).click();
   await expect(page.getByRole('dialog',{name:'Project key',exact:true})).toContainText('Revoked');
   assert.equal((await api('/api/projects/cedar/keys')).find(row=>row.kind==='ingest').revoked,null,'Revoking the created deploy key preserves the ingest key for later capture');
   await page.getByRole('button',{name:'Close details',exact:true}).click();
@@ -124,7 +136,7 @@ try {
   await page.goForward();await expect(page.getByRole('heading',{name:'Archive and restore',exact:true})).toBeVisible();
   // Links published before the split select the section holding the original target.
   await page.goto(origin+'/projects/cedar/settings#slack-destinations');
-  await expect(page.getByRole('region',{name:'Slack destinations',exact:true})).toBeVisible();
+  if(!await page.locator('#settings-alerts > details').evaluate(element=>element.open))await page.locator('#settings-alerts > details > summary').click();await expect(page.getByRole('region',{name:'Slack destinations',exact:true})).toBeVisible();
   await expect(settingsNavigation.getByRole('link',{name:'Alerts & integrations',exact:true})).toHaveAttribute('aria-current','page');
   await page.goto(origin+'/projects/cedar/settings#reports-configuration-title');
   await expect(page.getByRole('heading',{name:'Reports, dashboards and query tables',exact:true})).toBeVisible();
@@ -132,8 +144,13 @@ try {
  }
  await capture('settings-data',width);
  const beforeDownload=await archiveProjection(await fetch(origin+'/api/archive',{headers:{Cookie:cookie}}));
- const [download]=await Promise.all([page.waitForEvent('download'),page.getByRole('button',{name:'Download private archive',exact:true}).click()]);
- assert.equal(await download.failure(),null);assert.equal(download.suggestedFilename(),'spool-private-archive.jsonl');
+ let releaseBackup;
+ const backupHold=new Promise(resolve=>{releaseBackup=resolve});
+ if(width===1440)await page.route(origin+'/api/archive',async route=>{await backupHold;await route.continue();});
+ const downloading=page.waitForEvent('download');await page.getByRole('button',{name:'Download private archive',exact:true}).click();
+ if(width===1440){await expect(page.getByRole('button',{name:'Preparing your backup…',exact:true})).toBeDisabled();releaseBackup();}
+ const download=await downloading;if(width===1440)await page.unroute(origin+'/api/archive');
+ assert.equal(await download.failure(),null);assert.match(download.suggestedFilename(),/^spool-private-archive-\d{4}-\d{2}-\d{2}\.jsonl$/);await expect(page.getByRole('status').filter({hasText:'Downloaded spool-private-archive-'})).toBeVisible();
  const downloaded=await archiveProjection(new Response(await readFile(await download.path())));
  assert.deepEqual(downloaded.data,beforeDownload.data,'browser file carries every retained product row');
  assert.ok(downloaded.data.events.some(event=>event.id===admitted.eventId),'actual captured event travels');
@@ -156,10 +173,11 @@ try {
  }
  const destination=await startTestWorker(15483);
  try{
-  const destinationCookie=await signIn(destination.origin),headers={Cookie:destinationCookie,Origin:destination.origin};
+  const destinationCookie=await signIn(destination.origin);
+  const headers={Cookie:destinationCookie,Origin:destination.origin,Connection:'close'};
   if(width===1440)await damagedRestoreUI(browser,destination.origin,destinationCookie,downloaded.text,output);
   const restored=await fetch(destination.origin+'/api/restore',{method:'POST',headers:{...headers,'Content-Type':'application/x-ndjson','X-Confirm-Restore':'yes'},body:downloaded.text});
-  assert.equal(restored.status,200,'the actual browser file restores into an independent empty installation');await restored.body?.cancel();
+  const restoreResult=await restored.json();assert.equal(restored.status,200,'the actual browser file restores into an independent empty installation: '+(restoreResult.error??'confirmed'));
   assert.deepEqual((await archiveProjection(await fetch(destination.origin+'/api/archive',{headers}))).data,downloaded.data,'every downloaded product row and private map restores unchanged');
   if(width===1440)await erasedRestoreUI(browser,destination.origin,destinationCookie,downloaded.text,output);
  }finally{await destination.stop();}

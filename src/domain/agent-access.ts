@@ -6,10 +6,11 @@ import { mintedByCurrentPerson } from './credential-fence';
 /** Only a current, admitted bearer whose minting person is unfenced counts; query parameters are never credentials. */
 export async function agentProject(request: Request, db: D1Database): Promise<string | null> {
  const native=agentAuthority(request),clientId=localCredentialId(native?.context.clientId);
- if(native&&clientId){const grant=await db.prepare(`SELECT project FROM credentials WHERE hash=? AND kind='agent' AND revoked IS NULL AND ${mintedByCurrentPerson}`).bind(clientId).first<{project:string}>();return grant&&agentReadPath(request,grant.project)?grant.project:null;}
+ if(native&&clientId){const grant=await db.prepare(`SELECT project FROM credentials WHERE hash=? AND kind='agent' AND revoked IS NULL AND ${mintedByCurrentPerson}`).bind(clientId).first<{project:string}>();if(grant&&agentReadPath(request,grant.project)){await db.prepare('UPDATE credentials SET last_used=? WHERE hash=? AND revoked IS NULL').bind(Date.now(),clientId).run();return grant.project;}return null;}
  const bearer = /^Bearer ([^\s]+)$/i.exec(request.headers.get('authorization') ?? '')?.[1];
  if (!bearer) return null;
  const grant = await db.prepare(`SELECT project FROM credentials WHERE hash=? AND kind='agent' AND revoked IS NULL AND ${mintedByCurrentPerson} AND ${await mintAdmission(request)}`).bind(await hash(bearer)).first<{ project: string }>();
+ if(grant&&agentReadPath(request,grant.project))await db.prepare('UPDATE credentials SET last_used=? WHERE hash=? AND revoked IS NULL').bind(Date.now(),await hash(bearer)).run();
  return grant?.project ?? null;
 }
 

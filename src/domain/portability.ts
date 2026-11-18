@@ -1,3 +1,4 @@
+import { keyMetadataMigration, previousKeyMetadataObjects } from './key-metadata-compat';
 import { restoreTranslatedProjection } from './alerts/archive-history';
 import { ledgerReader } from '../modules/portability/ledgers.mjs';
 import { nativeSymbolTables, nativeDebugFileTables } from './native-symbols/archive';
@@ -275,6 +276,11 @@ laterTables.unshift({tables:['spool_import_proposals'],migrations:['0110_sentry_
 // Identity synchronization and temporary connection status add no archive rows.
 for(const later of laterTables)later.migrations.push('0112_member_identity.sql','0113_capture_sources.sql');
 laterTables.unshift({tables:[],migrations:['0112_member_identity.sql','0113_capture_sources.sql']});
+// Key metadata belongs only to excluded grants. Its migration can arrive after
+// setup on an existing installation, including when the preceding archive has
+// both setup migrations but no key-metadata migration.
+for(const later of laterTables)later.migrations.push(keyMetadataMigration);
+laterTables.unshift({tables:[],migrations:[keyMetadataMigration]});
 // The identity trigger is installation behavior, not an archived owner row.
 // Older releases lack it; a no-ledger archive may carry either known inventory.
 // Compare the entire selected inventory below so foreign or modified objects
@@ -318,7 +324,8 @@ async function earlierManifest(db: D1Database, manifest: any) {
  const tableless = [...new Set(compatibleSets.filter(later => !later.tables.length).flatMap(later => later.migrations))];
  for (const later of compatibleSets) {
   // A set that adds no archived table matches today's schema, so it applies only to an archive missing its migrations.
-  const reviewOnly=later.tables.length===0 && later.migrations.includes('0109_feedback_review.sql');
+  const reviewOnly=later.tables.length===0 && later.migrations.includes('0109_feedback_review.sql')
+    && later.migrations.every(name => ['0109_feedback_review.sql', keyMetadataMigration, '0112_member_identity.sql', '0113_capture_sources.sql'].includes(name));
   if (!later.tables.length && !(Array.isArray(manifest.migrations) && later.migrations.some(name => !manifest.migrations.includes(name)) && tableless.every(name => manifest.migrations.includes(name) || later.migrations.includes(name))) && !(reviewOnly && !manifest.migrations?.length)) continue;
   const missing=later.tables.filter(name=>!carriedReporting||!reportingNames.includes(name));
   if(later.tables.length&&!missing.length)continue;
@@ -336,28 +343,32 @@ async function earlierManifest(db: D1Database, manifest: any) {
   // inventory. An unrecorded index/trigger is never installed or acknowledged.
   // Archives without an object inventory still require Base's legacy replay.
   const previousObjects = reviewOnly ? current.schemaObjects : beforeSentryRosterObjects(beforeProjectMetricObjects(previousRelayPrivacyObjects(previousNativeSymbolObjects(current.schemaObjects,manifest),manifest),manifest),manifest);
-  if(product.schemaObjects!==undefined && canonicalJson(product.schemaObjects)!==canonicalJson(previousMemberIdentityObjects(previousObjects,manifest)))throw new PortabilityError('legacy_schema_object_inventory');
+  const earlierObjects=previousKeyMetadataObjects(previousMemberIdentityObjects(previousObjects,manifest),manifest);
+  if(product.schemaObjects!==undefined && canonicalJson(product.schemaObjects)!==canonicalJson(earlierObjects))throw new PortabilityError('legacy_schema_object_inventory');
+  const gap=product.schemaObjects!==undefined && later.migrations.length===1 && later.migrations[0]===keyMetadataMigration
+   && manifest.migrations?.includes('0112_member_identity.sql') && manifest.migrations.includes('0113_capture_sources.sql')
+   ? {migration:keyMetadataMigration,schema:await schemaIdentityOf(earlier,earlierObjects)} : undefined;
   // Normalize this positively matched native inventory to the destination. The
   // original binding and source history are checked before finalize; platform
   // bookkeeping is never installed as product data or presented as new history.
   const {migrations:sourceMigrations,migrationLedger:sourceLedger,...original}=manifest;
   const tables=current.tables.map((table:any)=>({...table,count:product.tables.find((old:any)=>old.name===table.name)?.count??0}));
   const excludedColumns=Object.fromEntries(Object.entries(manifest.excludedColumns).filter(([table])=>!platformTable(table)));
-  return {...original,schemaObjects:current.schemaObjects,schema:await schemaIdentityOf(tables,current.schemaObjects),tables,excludedColumns};
+  return {manifest:{...original,schemaObjects:current.schemaObjects,schema:await schemaIdentityOf(tables,current.schemaObjects),tables,excludedColumns},gap};
  }
  return null;
 }
 async function importRecords(service: any, source: ReadableStream<Uint8Array>, db?: D1Database, laterJournal?: LaterJournal) {
  let id, closing, binding: any, complete = false, rewritten = false;
- let translated:any=null,projection:any=null;const sourceLedger=ledgerReader(),translatedParts:any[]=[];
+ let translated:any=null,projection:any=null,gap;const sourceLedger=ledgerReader(),translatedParts:any[]=[];
  const attributionDefaults=new Map<string,Record<string,unknown>>();
  const archivedAttributionColumns=new Map<string,string[]>();
  try {
   for await (const record of readArchive(source)) {
    if (record.kind === 'manifest') {
     const earlier=db ? await earlierManifest(db,record) : null;
-    const manifest = retireArchiveSetupToken(earlier ?? record, portabilityPolicy.requiredConfiguration);
-    if(earlier){translated=record;sourceLedger.add(record);}
+    const manifest = retireArchiveSetupToken(earlier?.manifest ?? record, portabilityPolicy.requiredConfiguration);
+    if(earlier){translated=record;gap=earlier.gap;sourceLedger.add(record);}
     if(earlier)for(const [table,field,value] of [['repairs','recorded_by','owner'],['grouping_proposals','prepared_by',null],['feedback','private_data',null]] as const){
      const archived=record.tables.find((entry:any)=>entry.name===table);
      if(archived&&!archived.columns.some((column:any)=>column.name===field)){attributionDefaults.set(table,{[field]:value});archivedAttributionColumns.set(table,archived.columns.map((column:any)=>column.name).sort());}
@@ -383,7 +394,7 @@ async function importRecords(service: any, source: ReadableStream<Uint8Array>, d
   // A migrated schema or retired setup token changes the content and archive hashes;
   // readArchive has already verified the original archive's closing hashes
   // above, and finalize binds the staged parts to the manifest actually created.
-  if(translated)return await restoreTranslatedProjection(service,translated,projection,translatedParts,sourceLedger.ledgers(),laterJournal);
+  if(translated)return await restoreTranslatedProjection(service,translated,projection,translatedParts,sourceLedger.ledgers(),laterJournal,gap);
   await service.imports.finalize(id, { archiveHash: binding.digest(), ...(rewritten ? {} : { contentHash: closing.contentHash }), ...(laterJournal ? { laterJournal } : {}) }); complete = true;
  } finally { if (id && !complete) await service.imports.abort(id); }
 }
