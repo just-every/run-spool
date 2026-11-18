@@ -1,0 +1,16 @@
+{
+  "synthetic": true,
+  "at": "2026-11-18T22:02:37.730Z",
+  "sourceDefinitions": 12,
+  "proposals": 10,
+  "created": 10,
+  "refused": 1,
+  "waiting": 4,
+  "alertsAfterObservation": 5,
+  "deliveries": 0,
+  "erasure": "complete",
+  "bindings": {
+    "bound": 2,
+    "unmapped": 1
+  }
+}
