@@ -1,0 +1,41 @@
+{
+  "recordedAt": "2026-11-18T05:33:08Z",
+  "repository": "just-every/run-spool",
+  "branch": "cloud/sd-spool-import-alerts-1",
+  "productHead": "7fc2357055b49a913f610a409aef252760a7d63c",
+  "mainBase": "0343c3c54b7249e4c708a60ca5648794dbc474b7",
+  "verify": {
+    "conclusion": null,
+    "head_sha": "7fc2357055b49a913f610a409aef252760a7d63c",
+    "html_url": "https://github.com/just-every/run-spool/actions/runs/44243712834",
+    "status": "in_progress",
+    "id": 44243712834,
+    "name": "Verify"
+  },
+  "migration": "0114_sentry_alert_proposals.sql",
+  "localChecks": {
+    "build": "passed",
+    "typecheck": "passed",
+    "repositoryCheck": "passed",
+    "contractDocuments": "passed",
+    "sourceLock": "passed",
+    "baseOffline": "passed",
+    "integrationCheck": "passed",
+    "sentryAlertJourney": "passed",
+    "alertsNative": "passed",
+    "alertsBrowser": "passed on retry",
+    "oldArchive": "passed",
+    "sentryImport": "retry running",
+    "projectErasure": "retry running"
+  },
+  "firstAttempts": {
+    "sentryImport": "hit the local 480-second cap after the field-accounting, generic import, Bugsnag and roster assertions",
+    "alertsBrowser": "hit the local cap after spending time in the job queue",
+    "projectErasure": "cold development server startup exceeded the harness 90-second cap"
+  },
+  "browserProof": [
+    "receipt-1440.png",
+    "receipt-390.png"
+  ],
+  "fullPublicationScan": "fleet lander"
+}

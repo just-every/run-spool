@@ -1,0 +1,40 @@
+{
+  "files": [
+    {
+      "blob": "4f97e7acc50bb8032652a0f0a2617f8bdab66612",
+      "bytes": 285,
+      "path": "ALERT-IMPORT-RECEIPT.json",
+      "sha256": "bef9b4a908391ce559d01cea0af9b796f35bb5c18911ebdca69482d644769507"
+    },
+    {
+      "blob": "de6778c3d9b100c54f54727272ea673894a690a0",
+      "bytes": 4661,
+      "path": "REPORT.md",
+      "sha256": "3d904eda1afe99a001a5245f651ba813376e8dc67d4d4a0469f36f3ef967736f"
+    },
+    {
+      "blob": "c09130912b61f5d2ccea7359b20f3efe92060845",
+      "bytes": 1434,
+      "path": "VALIDATION.json",
+      "sha256": "d146eb7966f840640fbb0919f90ed36009194725e269f88e70813e795ed95ba9"
+    },
+    {
+      "blob": "7a5bc57cd743715fcf8384b7c6bf635240b2901a",
+      "bytes": 200867,
+      "path": "receipt-1440.png",
+      "sha256": "b94bfbb7850ce047bb7b6ea90e7a4b233415fc7649426c2b401987772337b376"
+    },
+    {
+      "blob": "f07ca34e6152ab5c865626da31d3b308a911079d",
+      "bytes": 104366,
+      "path": "receipt-390.png",
+      "sha256": "96df54a74d9ae58f228cadff8eddd62b56242524797ffcbdcbd3c9693e6cf453"
+    }
+  ],
+  "product_branch": "cloud/sd-spool-import-alerts-1",
+  "product_head": "7fc2357055b49a913f610a409aef252760a7d63c",
+  "ref": "refs/heads/evidence/sd-spool-import-alerts-1",
+  "repository": "just-every/run-spool",
+  "schema": 1,
+  "tag": "sd-spool-import-alerts-1"
+}
