@@ -115,9 +115,16 @@ export async function sdkInboundFilterFlow({request,origin,browser,temporary,req
    const landed=async(test)=>{for(let i=0;i<150;i++){if(test((await request(root)).policy))return;await new Promise(r=>setTimeout(r,100))}assert.fail('the autosaved filters did not land')};
    const snap=async(state)=>{if(process.env.SPOOL_SCREEN_DIR){await mkdir(process.env.SPOOL_SCREEN_DIR,{recursive:true});await panel.screenshot({path:resolve(process.env.SPOOL_SCREEN_DIR,`SDK-006-${width}-${state}.png`)});}};
    await snap('empty');
-   const policy=(await request(root)).policy;
-   const values={ip_addresses:'192.0.2.0/24',messages:'*ignore me*',releases:'drop-*',environments:'noise',allowed_domains:'cedar.example\n*.cedar.example'};
+   const allowedDomains=['cedar.example','*.cedar.example'];
+   const values={ip_addresses:'192.0.2.0/24',messages:'*ignore me*',releases:'drop-*',environments:'noise'};
    for(const filter of (await request(root)).filters){
+    if(filter.id==='allowed_domains'){
+     // The public door rejects an enabled, empty allowlist. Save it while disabled first.
+     const input=panel.getByLabel(filter.label+' · one per line',{exact:true});
+     await input.fill(allowedDomains.join('\n'));
+     await page.keyboard.press('Tab');
+     await landed(p=>!p.filters.allowed_domains.enabled&&allowedDomains.every(domain=>p.filters.allowed_domains.values.includes(domain)));
+    }
     await panel.getByRole('checkbox',{name:filter.toggleLabel,exact:true}).check();
     if(values[filter.id])await panel.getByLabel(filter.label+' · one per line',{exact:true}).fill(values[filter.id]);
    }
