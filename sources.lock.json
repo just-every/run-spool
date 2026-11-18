@@ -5726,7 +5726,7 @@
       "executable": false
     },
     "src/domain/alerts/destination-tests.server.ts": {
-      "sha256": "683830f0e8bc4136020b871cc0948bb21f5a73f3a17d3e2a66e75c738cd95e9a",
+      "sha256": "9dfffa686c34f62cf715519fa104da8f32ddb838e6777dc7a8c6fa2caa22c992",
       "executable": false
     },
     "src/domain/alerts/destinations.server.ts": {
@@ -10162,7 +10162,7 @@
       "executable": false
     },
     "src/ui/alerts/AlertDestinations.tsx": {
-      "sha256": "94d626aa978f7195df2c1525a0ed4bf13b73f677a310e6f9886fbd7499354b91",
+      "sha256": "88e382cbb03006265566f195ed9a36cf1a80094818f092aac46b6623c278fe02",
       "executable": false
     },
     "src/ui/alerts/AlertRules.tsx": {
@@ -10174,7 +10174,7 @@
       "executable": false
     },
     "src/ui/alerts/Alerts.tsx": {
-      "sha256": "922c9fdf87990b74112d187be982a3c0eb2d1b8d2dc9d8027bb023b8a715ded7",
+      "sha256": "309d3906d3e6bfea465a84a8af95b585dad61a461b79083da1b164ca69a0d29b",
       "executable": false
     },
     "src/ui/alerts/client.ts": {
