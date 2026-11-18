@@ -1,3 +1,4 @@
+import { alertRulesImport } from './sentry-import/alert-rules.mjs';
 import { schemaPages } from './sentry-import/schema-pages.mjs';
 import { fieldAccounting } from './sentry-import/field-accounting.mjs';
 import { rosterOwnershipFlow } from './sentry-import/roster-ownership.mjs';
@@ -147,3 +148,5 @@ try{
 await bugsnagMigrationFlow();
 
 await rosterOwnershipFlow();
+
+await alertRulesImport();

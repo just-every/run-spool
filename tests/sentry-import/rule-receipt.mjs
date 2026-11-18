@@ -14,7 +14,7 @@ export async function ruleReceiptScreens(origin,cookie,project) {
   await page.goto(`${origin}/projects/${project}/settings#settings-data`);
   await page.getByRole('button',{name:'Details: Business imports',exact:true}).click();
   const receipt=page.getByRole('dialog',{name:'Business imports',exact:true});
-  await receipt.getByText('Rules are not carried over yet: 2 rule(s) not imported',{exact:true}).waitFor();
+  await receipt.getByRole('button',{name:'Create these rules',exact:true}).waitFor();
   assert.ok(await page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth+1),'the import receipt fits the viewport');
   await page.screenshot({path:join(output,'rule-receipt-1440.png')});
   await page.setViewportSize({width:390,height:1000});

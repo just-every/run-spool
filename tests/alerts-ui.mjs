@@ -34,6 +34,7 @@ try {
   if(width===1440){
    await page.getByLabel('Rule name',{exact:true}).fill(`Browser mail ${width}`);await page.getByRole('combobox',{name:'Destination',exact:true}).selectOption({label:`On call ${width} · Email`});
    const create=page.getByRole('button',{name:'Create rule',exact:true});assert.ok(await create.isDisabled(),'A passing but unreviewed destination cannot enable a rule');
+   await page.locator('button[aria-describedby]').and(create).waitFor();
    const hint=page.locator('#'+await create.getAttribute('aria-describedby'));assert.equal(await hint.count(),1);assert.match(await hint.innerText(),/review/i);
   }
   await page.getByRole('button',{name:`Review passing test for On call ${width}`,exact:true}).click();
@@ -43,6 +44,7 @@ try {
   if(width===1440){
    const create=page.getByRole('button',{name:'Create rule',exact:true}),previewButton=page.getByRole('button',{name:'Preview rule',exact:true});
    assert.ok(await create.isDisabled());
+   await page.locator('button[aria-describedby]').and(create).waitFor();
    const hint=page.locator('#'+await create.getAttribute('aria-describedby'));assert.equal(await hint.count(),1);
    assert.ok((await hint.innerText()).toLowerCase().includes((await previewButton.innerText()).toLowerCase()),'A blocked save names the missing preview action after a reviewed test');
    const nameBox=await page.getByLabel('Rule name',{exact:true}).locator('..').boundingBox(),eventsBox=await page.getByRole('group',{name:'Alert events',exact:true}).boundingBox();

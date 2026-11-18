@@ -39,10 +39,11 @@ function indexed(rows:any[],key:string) {
 }
 export function validateMemberArchive(data:any,alertRules:any[] = []) {
  for(const row of indexed(data.spool_import_proposals,'id').values()){
-  require(data.projects.some((p:any)=>p.id===row.project)&&['member','team','ownership'].includes(row.kind)&&row.state==='pending'&&integer(row.version)&&row.version>0&&integer(row.created));
+  require(data.projects.some((p:any)=>p.id===row.project)&&['member','team','ownership','alert'].includes(row.kind)&&row.state==='pending'&&integer(row.version)&&row.version>0&&integer(row.created));
   let payload:any;try{payload=JSON.parse(row.payload)}catch{require(false)}
   require(payload&&typeof payload==='object'&&!Array.isArray(payload));
   if(row.kind==='member'){require(normalizeEmail(payload.email)===payload.email&&typeof payload.name==='string'&&['admin','billing','member'].includes(payload.role)&&Array.isArray(payload.grants));for(const grant of payload.grants)require(data.projects.some((p:any)=>p.id===grant.project)&&['maintainer','member','read-only'].includes(grant.role));require(payload.role!=='billing'||!payload.grants.length);}
+  if(row.kind==='alert')require(payload.enabled===false&&typeof payload.name==='string'&&Array.isArray(payload.omissions)&&Array.isArray(payload.destinations));
   if(row.kind==='ownership')require(payload.enabled===false&&typeof payload.raw==='string'&&Array.isArray(payload.schema?.rules));
  }
  const organizations=indexed(data.spool_organizations,'id'),members=indexed(data.spool_members,'id'),services=indexed(data.spool_service_accounts,'id');

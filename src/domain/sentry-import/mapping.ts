@@ -4,6 +4,7 @@ import type { ImportMapping, MappingResult, SourceBundle, SourceRecord } from '.
 import { identity, scrub } from '../privacy.ts';
 import { absentDist } from '../releases/build.ts';
 import { apiEvent } from './event.ts';
+import { mapAlert, sentryRuleKinds } from './alert-rules';
 import { mappingVersion, sourceText } from './source.ts';
 export const nativeProject=(organization:string,slug:string,vendor='sentry')=>`${vendor}-${sha256(JSON.stringify([organization,slug])).slice(0,32)}`;
 const time=(value:any)=>{const n=Date.parse(value);if(!Number.isSafeInteger(n)||n<0)throw new Error('Source timestamp required');return n};
@@ -58,6 +59,49 @@ export function organizationMapping(bundle:SourceBundle,operationKey:string,vend
     const names=[...releases.entries()].filter(([key])=>JSON.parse(key)[0]===slug).sort((a,b)=>time(a[1].dateCreated)-time(b[1].dateCreated)||a[0].localeCompare(b[0]));
     names.forEach(([key],index)=>seqs.set(key,index+1));
   }
+  const detectorRecords = bundle.records.filter(record => record.kind === 'detectors');
+  const detectorById = new Map(detectorRecords.map(record => [String((record.payload as any).data.id), record]));
+  const linkedDetectors = new Set(bundle.records.filter(record => record.kind === 'workflows').flatMap(record => {
+    const ids = (record.payload as any).data.detectorIds;
+    return Array.isArray(ids) ? ids.map(String) : [];
+  }));
+  const allowedProjects = [...projects.keys()].filter(slug => !projectErrors.has(slug)).sort();
+  function alertProjects(data: any, scoped: string | null): (string|undefined)[] {
+    const ids: any[] = scoped ? [scoped] : Array.isArray(data.projects) ? data.projects : [data.projectId ?? data.project];
+    return [...new Set(ids.map(value => {
+      const ref = value?.slug ?? value?.id ?? value;
+      return allowedProjects.find(slug => slug === ref || String(projects.get(slug).id) === String(ref));
+    }))];
+  }
+  function mapAlertRecord(record: SourceRecord): MappingResult {
+    const { organization, project, data } = record.payload as any;
+    const location = record.location?.pointer ?? '';
+    if (!allowedProjects.length) throw new Error('Alert proposal requires an accepted project');
+    if (record.kind === 'detectors' && linkedDetectors.has(String(data.id))) {
+      return { effects: [], unmapped: [{ reason: 'Monitor definition is linked from its workflow proposal.' }] };
+    }
+    const detectors = record.kind === 'workflows' && Array.isArray(data.detectorIds) && data.detectorIds.length
+      ? [...new Set(data.detectorIds.map(String))].map(ref => detectorById.get(ref as string))
+      : [undefined];
+    const result: MappingResult = { effects: [], unmapped: [] };
+    for (const detector of detectors) {
+      const linked = detector ? { data: (detector.payload as any).data, location: detector.location?.pointer ?? (detector as any).pointer ?? '' } : undefined;
+      const proposal = mapAlert(record.kind, data, location, linked);
+      const slugs = alertProjects(linked?.data ?? data, project);
+      for (const slug of slugs.length ? slugs : [undefined]) {
+        const custody = slug ?? allowedProjects[0], native = projectId(organization,custody);
+        const sourceId = record.kind + ':' + sha256(canonicalJson([String(data.id), slug ?? null, linked?.data.id ?? null]));
+        const id = proposalId(organization, 'alert', sourceId);
+        const unavailable = slug ? [] : [{ path: location, reason: 'Source project has no matching imported project' }];
+        const payload = canonicalJson({ ...proposal, omissions: [...proposal.omissions, ...unavailable] });
+        const created = Date.parse(data.dateCreated ?? data.created ?? '');
+        result.effects.push(...effects('import-proposal',id,{id,project:native,kind:'alert',payload,state:'pending',version:1,created:Number.isSafeInteger(created)&&created>=0?created:0},
+          {organization, project:custody, id:sourceId}).effects);
+        result.unmapped!.push(...[...proposal.omissions, ...unavailable].map(({path,reason}) => ({field:path,reason})));
+      }
+    }
+    return result;
+  }
   return {version:vendor==='sentry'?mappingVersion:'spool-bugsnag-org-v1',map(record:SourceRecord):MappingResult{
     const result=mapRecord(record);
     for(const effect of result.effects){const value=effect.value as any;value.source=provenance(value.source)}
@@ -83,6 +127,7 @@ export function organizationMapping(bundle:SourceBundle,operationKey:string,vend
           result.effects.push(...effects('release',JSON.stringify([project,name]),{project,name,seq:seqs.get(key)!,build,created:time(data.dateCreated)},{organization:org,project:slug,id:name}).effects)}
         return result;
       }
+      if(vendor==='sentry'&&sentryRuleKinds.includes(record.kind))return mapAlertRecord(record);
       if(vendor==='sentry'&&['members','teams','team-members','ownership'].includes(record.kind)){
         const available=[...projects.keys()].filter(slug=>!projectErrors.has(slug));
         if(!available.length)throw new Error('Roster requires an accepted project for erasure custody');
