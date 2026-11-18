@@ -24,6 +24,7 @@ const descriptions = { settings: 'Manage projects, access and stored evidence.',
 export function WorkspaceView({ workspace, data, renderAlerts }: { workspace: ReturnType<typeof useWorkspace>; data: ReturnType<typeof useProjectData>; renderAlerts: (project: string, onIssue: (id: string) => void) => ReactNode }) {
   const { projects, ownerName, access, revision, notice, readFailure, busy, run, refresh } = workspace;
   const route = useDestination(), project = route.project || projects[0]?.id || '', currentProject = projects.find(row => row.id === project);
+  const installationName = access?.organization?.name;
   const attention = useAttention(project, data.issues);
   const [freshKey, setFreshKey] = useDraft<{ project: string; value: string; dsn?: string; kind?: string } | null>('fresh-key', null);
   const [target, setTarget] = useDraft<(UploadTarget & { project: string }) | undefined>('upload-target', undefined);
@@ -39,7 +40,7 @@ export function WorkspaceView({ workspace, data, renderAlerts }: { workspace: Re
   useEffect(() => { if (leaving && route.project !== leaving) { workspace.removeProject(leaving); setLeaving(''); refresh(); } }, [leaving, route.project]);
   useEffect(() => { if ((route.pathname === '/' || route.redirect) && projects.length && !leaving) route.go(project, 'issues', undefined, true); }, [route.pathname, route.redirect, projects.length, project, leaving]);
   useEffect(() => { document.getElementById('content')?.focus({ preventScroll: true }); }, [route.pathname]);
-  useEffect(() => { document.title = `${access?.role === 'billing' ? 'Settings' : data.packet?.issue?.title ?? titles[route.view]} · Spool`; }, [route.view, data.packet?.issue?.title, access?.role]);
+  useEffect(() => { document.title = installationName ? `${installationName} · Spool` : 'Spool'; }, [installationName]);
   useEffect(() => { setFreshKey(value => value?.project === project ? value : null); }, [project]);
   function created(row: any) { workspace.addProject({ id: row.id, name: row.name, role: 'owner' }); setFreshKey({ project: row.id, value: row.ingestKey, dsn: row.dsn, kind: 'ingest' }); route.go(row.id, 'capture'); refresh(); }
   const billing = access?.role === 'billing';
@@ -66,7 +67,7 @@ export function WorkspaceView({ workspace, data, renderAlerts }: { workspace: Re
     content = manageProject ? renderAlerts(project, onIssue) : <section className="evidence"><h2>Alerts</h2><p>Ask a project maintainer or administrator to manage alert rules and delivery.</p></section>;
   }
   return <div className={`app workbench-shell${issueView ? ' has-issue' : ''}`}><a className="skip-link" href="#content">Skip to work</a>
-    <Navigation {...{ project, projects, ownerName, billing, manageProject }} busy={busy || route.pathname === '/' && projects.length > 0} view={route.view} unseenCount={attention.count} onProject={id => route.go(id, route.view)} onSignOut={() => void run(async () => { window.dispatchEvent(new Event('spool:auth-lost')); const response = await fetch('/auth/signout', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: '{}' }); if (!response.ok) throw new Error('Sign out failed.'); window.dispatchEvent(new Event('spool:auth-changed')); location.assign('/sign-in'); })} />
+    <Navigation {...{ project, projects, ownerName, installationName, billing, manageProject }} busy={busy || route.pathname === '/' && projects.length > 0} view={route.view} unseenCount={attention.count} onProject={id => route.go(id, route.view)} onSignOut={() => void run(async () => { window.dispatchEvent(new Event('spool:auth-lost')); const response = await fetch('/auth/signout', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: '{}' }); if (!response.ok) throw new Error('Sign out failed.'); window.dispatchEvent(new Event('spool:auth-changed')); location.assign('/sign-in'); })} />
     <main id="content" className="main" tabIndex={-1}>
       {!known ? <MissingContent project={!!route.project} /> : <>
         <header className="hero"><div className="crumb">{currentProject?.name ?? 'Your installation'} / {billing ? 'Settings' : titles[route.view]}</div><h1>{billing || (!projects.length && access?.role !== 'owner' && access?.role !== 'admin') ? 'Settings' : !projects.length ? 'Create your first project' : issueView ? data.packet?.issue?.title ?? 'Issue' : titles[route.view]}</h1>{!issueView && (billing || route.view === 'settings' || route.view === 'alerts') && <p className="description">{billing || route.view === 'settings' ? descriptions.settings : descriptions.alerts}</p>}</header>

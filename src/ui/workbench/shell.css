@@ -81,3 +81,7 @@ html:has([data-rer-label="Demo"]) .brand .wordmark{font-size:30px}
 /* The native pages reached from agent decisions retain the same touch target at
    desktop and phone widths. Marketing and sign-in styles are unchanged. */
 .workbench-shell .text-button,.workbench-shell .navigation a,.workbench-shell .project-picker select{min-height:44px}
+
+.brand{min-width:0}
+.brand .wordmark.installation-wordmark{white-space:normal;font-size:24px;line-height:1.2;overflow-wrap:anywhere}
+.brand .installation-wordmark img{width:40px;height:40px}

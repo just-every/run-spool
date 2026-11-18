@@ -26,10 +26,12 @@ import { OriginStep, SdkSetup, SentryIntake } from './SdkSetup';
 import { SchedulerStatus } from './SchedulerStatus';
 import { BusinessImports } from './BusinessImports';
 import { date, type Request, type Run } from './shared';
+import { GeneralSettings } from './GeneralSettings';
 import { Members, type OrganizationAccess } from './Members';
 
 const settingsSections = [
-  { id: 'organization', label: 'Organization' },
+  { id: 'general', label: 'General' },
+  { id: 'organization', label: 'Members' },
   { id: 'projects', label: 'Projects & keys' },
   { id: 'processing', label: 'Issue processing' },
   { id: 'alerts', label: 'Alerts & integrations' },
@@ -61,7 +63,7 @@ export function SettingsView({ project, projects, keys, releases, request, run, 
   const credentialKinds = configure ? ['ingest', 'agent', 'deploy'] : projectRole === 'member' ? ['deploy'] : [];
   const agentRow = keys.findIndex(key => key.kind === 'agent' && !key.revoked);
   const available = settingsSections.filter(section => {
-    if (section.id === 'organization') return true;
+    if (section.id === 'organization' || section.id === 'general') return true;
     if (section.id === 'projects') return organizationManager || !!project;
     if (section.id === 'alerts') return !!project || access.role === 'owner';
     if (section.id === 'processing') return !!project && (configure || projectRole === 'member');
@@ -78,7 +80,7 @@ export function SettingsView({ project, projects, keys, releases, request, run, 
     return () => { window.removeEventListener('hashchange', read); window.removeEventListener('popstate', read); };
   }, []);
   const requested = sectionFor(hash);
-  const active = available.find(section => section.id === requested)?.id ?? (!projects.length && organizationManager ? 'projects' : 'organization');
+  const active = available.find(section => section.id === requested)?.id ?? (!projects.length && organizationManager ? 'projects' : 'general');
   useEffect(() => {
     if (!hash) return;
     let fragment: string;
@@ -90,6 +92,9 @@ export function SettingsView({ project, projects, keys, releases, request, run, 
     <nav className="settings-navigation" aria-label="Settings sections">
       {available.map(section => <a key={section.id} href={`#settings-${section.id}`} aria-current={active === section.id ? 'page' : undefined}>{section.label}</a>)}
     </nav>
+    <div id="settings-general" className="settings-section" hidden={active !== 'general'} tabIndex={-1}>
+      <GeneralSettings {...{ access, request, run, busy, refresh }} />
+    </div>
     <div id="settings-organization" className="settings-section" hidden={active !== 'organization'} tabIndex={-1}>
     <Members {...{ access, revision, refresh, request, run, busy }} />
     </div>

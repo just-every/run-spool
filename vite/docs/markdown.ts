@@ -1,6 +1,7 @@
 // A small Markdown renderer for the docs pages, run at build time. It covers what the repository's Markdown uses:
 // ATX headings, paragraphs, nested lists, fenced code (also inside list items), block quotes, pipe tables, inline code,
-// emphasis, links and autolinks. Raw HTML is always escaped. Links go through `link`, which may rewrite or reject them.
+// emphasis, links, autolinks and fixed Details disclosures. Other raw HTML is escaped.
+// Links go through `link`, which may rewrite or reject them.
 
 export type Heading = { depth: number; text: string; id: string };
 export type Rendered = { html: string; title: string; description: string; headings: Heading[] };
@@ -40,14 +41,25 @@ const item = /^(\s*)([-*+]|\d+[.)])\s+(.*)$/;
 const indentOf = (line: string) => line.match(/^\s*/)![0].length;
 const isTableSeparator = (line: string) => /^\s*\|?\s*:?-{3,}:?\s*(\|\s*:?-{3,}:?\s*)*\|?\s*$/.test(line);
 const cells = (line: string) => line.trim().replace(/^\||\|$/g, '').split(/(?<!\\)\|/).map(cell => cell.trim().replaceAll('\\|', '|'));
+const detailsStart = (line: string, next: string) => line === '<details>' && next === '<summary>Details</summary>';
 
 function blockList(lines: string[], context: Context): string[] {
   const out: string[] = [];
   let i = 0;
-  const startsBlock = (line: string, next = '') => fence.test(line) || heading.test(line) || item.test(line) || /^\s*>/.test(line) || (line.includes('|') && isTableSeparator(next));
+  const startsBlock = (line: string, next = '') => detailsStart(line, next) || fence.test(line) || heading.test(line) || item.test(line) || /^\s*>/.test(line) || (line.includes('|') && isTableSeparator(next));
   while (i < lines.length) {
     const line = lines[i];
     if (!line.trim()) { i++; continue; }
+    if (detailsStart(line, lines[i + 1] ?? '')) {
+      // Only this exact, attribute-free disclosure syntax is trusted. Its body
+      // still uses the Markdown renderer, including normal HTML escaping.
+      const end = lines.indexOf('</details>', i + 2);
+      if (end !== -1) {
+        out.push(`<details><summary>Details</summary>\n${blocks(lines.slice(i + 2, end), context)}\n</details>`);
+        i = end + 1;
+        continue;
+      }
+    }
     const open = line.match(fence);
     if (open) {
       const [, indent, marker, language] = open;
