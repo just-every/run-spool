@@ -29,12 +29,13 @@ import { date, type Request, type Run } from './shared';
 import { Members, type OrganizationAccess } from './Members';
 
 const settingsSections = [
-  { id: 'organization', label: 'Organization' },
   { id: 'projects', label: 'Projects & keys' },
+  { id: 'data', label: 'Data & archive' },
+  { id: 'organization', label: 'Organization' },
   { id: 'processing', label: 'Issue processing' },
   { id: 'alerts', label: 'Alerts & integrations' },
   { id: 'privacy', label: 'Privacy & filtering' },
-  { id: 'data', label: 'Data & archive' },
+  { id: 'reports', label: 'Reports' },
   { id: 'audit', label: 'Audit' },
 ] as const;
 
@@ -78,7 +79,8 @@ export function SettingsView({ project, projects, keys, releases, request, run, 
     return () => { window.removeEventListener('hashchange', read); window.removeEventListener('popstate', read); };
   }, []);
   const requested = sectionFor(hash);
-  const active = available.find(section => section.id === requested)?.id ?? (!projects.length && organizationManager ? 'projects' : 'organization');
+  const active = available.find(section => section.id === requested)?.id
+    ?? (available.some(section => section.id === 'projects') ? 'projects' : 'organization');
   useEffect(() => {
     if (!hash) return;
     let fragment: string;
@@ -94,10 +96,9 @@ export function SettingsView({ project, projects, keys, releases, request, run, 
     <Members {...{ access, revision, refresh, request, run, busy }} />
     </div>
     <div id="settings-projects" className="settings-section" hidden={active !== 'projects'} tabIndex={-1}>
-    {organizationManager && <section className="evidence"><h2>{projects.length ? 'Create another project' : 'Create your first project'}</h2><ProjectForm {...{ request, run, busy, onCreated }} /></section>}
     {!!project && <section className="evidence"><h2>Project keys</h2><p>Capture keys send events. Agent keys read this project’s evidence and submit suggested grouping changes; decisions and apply require the owner. Deploy keys only register releases and upload source maps for this project.</p><p>Archives exclude project keys. After restoring, create new keys for this installation.</p>{!keys.length && <p>No project keys have been created here.</p>}<div className="button-row">{credentialKinds.map(kind => <button key={kind} className="text-button" disabled={busy} onClick={() => void run(async () => { const grant = await request(`/api/projects/${project}/keys`, 'POST', { kind }); onKey({ ...grant, kind }); refresh(); })}>Create {kind} key</button>)}</div>{keys.map((key, index) => <div className="data-row key-row" key={key.hash} data-key-hash={key.hash}><span><span className={index === agentRow ? 'mark' : undefined}>{keyKind(key.kind)}</span> · {keyStatus(key)}</span><span>Created {date(key.created)}</span><Details title="Project key"><ProjectKeyFacts value={key} />{configure && key.kind === 'ingest' && !key.revoked && !key.stopped && <><LoaderSettings project={project} keyHash={key.hash} {...{request,run,busy}} />{organizationManager&&<KeyRateLimit project={project} keyHash={key.hash} {...{request,run,busy}} />}</>}{!key.revoked && (configure || (projectRole === 'member' && key.kind === 'deploy')) && <button className="danger-button" disabled={busy} onClick={() => void run(async () => { await request(`/api/projects/${project}/keys/${key.hash}`, 'DELETE'); refresh(); })}>Revoke key</button>}</Details></div>)}</section>}
-    {!!project && configure && <ReportsConfiguration key={`reports:${project}`} {...{ project, projects }} />}
-    {!!project && configure && <section className="evidence"><h2>Send errors to this project</h2><p><a className="inline-link" href={hrefFor(project, 'capture')}>Create, copy and test an ingest key</a></p>{endpoint && <SdkSetup endpoint={endpoint} project={project} ingestKey="YOUR_INGEST_KEY" release={releases[0]?.name ?? 'REGISTERED_RELEASE'} build={releases[0]?.build ?? 'REGISTERED_BUILD'} />}<OriginStep key={project} project={project} request={request} /><SentryIntake /></section>}
+    {!!project && configure && <section className="evidence"><h2>Send errors to this project</h2><p><a className="inline-link" href={hrefFor(project, 'capture')}>Create, copy and test an ingest key</a></p><OriginStep key={project} project={project} request={request} />{endpoint && <SdkSetup endpoint={endpoint} project={project} ingestKey="YOUR_INGEST_KEY" release={releases[0]?.name ?? 'REGISTERED_RELEASE'} build={releases[0]?.build ?? 'REGISTERED_BUILD'} />}<SentryIntake /></section>}
+    {organizationManager && <section className="evidence"><h2>{projects.length ? 'Create another project' : 'Create your first project'}</h2><ProjectForm {...{ request, run, busy, onCreated }} /></section>}
     </div>
     <div id="settings-processing" className="settings-section" hidden={active !== 'processing'} tabIndex={-1}>
     {!!project&&configure&&<section className="evidence"><CheckInRoutes key={`check-ins:${project}`} {...{project,request,run,busy}}/></section>}
@@ -119,9 +120,12 @@ export function SettingsView({ project, projects, keys, releases, request, run, 
     {!!project&&configure&&<IdentityPolicy key={`identity:${project}`} {...{project,request,run,busy}}/>}
     {!!project&&configure&&<InboundFilters key={project} {...{project,request,run,busy}}/>}
     </div>
+    <div id="settings-reports" className="settings-section" hidden={active !== 'reports'} tabIndex={-1}>
+    {!!project && configure && <ReportsConfiguration key={`reports:${project}`} {...{ project, projects }} />}
+    </div>
     <div id="settings-data" className="settings-section" hidden={active !== 'data'} tabIndex={-1}>
-    {access.role === 'owner' && <BusinessImports {...{ request, run, busy }} />}
     {access.role === 'owner' && <ArchiveSettings busy={busy} empty={!projects.length} run={run} refresh={refresh} />}
+    {access.role === 'owner' && <BusinessImports {...{ request, run, busy }} />}
     {!!project && configure && <RetentionSettings {...{ project, request, run, busy, refresh }} />}
     {!!project && access.role === 'owner' && <ProjectErasure key={project} {...{ project, request, run, busy, onErased }} />}
     </div>

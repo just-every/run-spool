@@ -13,7 +13,7 @@ import {assertSignInForm,signIn,testOwner,openGate} from './auth.mjs';
 import {launchBrowser} from './browser-launch.mjs';
 import {startDispatchApp} from './triage-app.mjs';
 import {verifyReturnDestinations} from './triage-auth.mjs';
-import {workbenchLink} from './navigation.mjs';
+import {openIssueInvestigation,workbenchLink} from './navigation.mjs';
 const output='.artifacts/triage-review';await mkdir(output,{recursive:true});
 const evidence={candidate:execFileSync('git',['rev-parse','HEAD'],{encoding:'utf8'}).trim(),business:'Cedar Dispatch',caption:'Synthetic business; real local capture and owner actions.',captures:[],checks:[]};
 async function journey(width) {
@@ -100,12 +100,15 @@ try {
  // Open the actual browser download, including its verified closing hashes.
  await (await workbenchLink(page,'Settings')).click();
  const settingsNavigation=page.getByRole('navigation',{name:'Settings sections'});
- await settingsNavigation.getByRole('link',{name:'Projects & keys',exact:true}).click();
+ await expect(settingsNavigation.getByRole('link',{name:'Projects & keys',exact:true})).toHaveAttribute('aria-current','page');
  if(width===1440){
   await expect(page.getByRole('heading',{name:'Project keys',exact:true})).toBeVisible();
   await expect(page.getByRole('heading',{name:'Members',exact:true})).toBeHidden();
-  const created=page.waitForResponse(response=>new URL(response.url()).pathname==='/api/projects/cedar/keys'&&response.request().method()==='POST');
-  await page.getByRole('button',{name:'Create deploy key',exact:true}).click();const createdResponse=await created;assert.equal(createdResponse.status(),201);
+  const [createdResponse]=await Promise.all([
+   page.waitForResponse(response=>new URL(response.url()).pathname==='/api/projects/cedar/keys'&&response.request().method()==='POST'),
+   page.getByRole('button',{name:'Create deploy key',exact:true}).click(),
+  ]);
+  assert.equal(createdResponse.status(),201);
   const {hash:createdHash}=await createdResponse.json();
   await page.getByRole('button',{name:'Dismiss key',exact:true}).click();
   const key=page.locator(`.key-row[data-key-hash="${createdHash}"]`);await key.getByRole('button',{name:'Details: Project key',exact:true}).click();
@@ -271,6 +274,11 @@ try {
   await expect(page.locator('.issue-status')).toContainText('Regressed');
   const fresh=await api('/api/projects','POST',{id:'synthetic-spool-capture',name:'Synthetic capture project'});
   await page.goto(origin+'/projects/'+fresh.id+'/capture');
+  const mapping=page.getByRole('region',{name:'Set up original-source mapping',exact:true});
+  const defaultRelease=await mapping.getByLabel('Application release',{exact:true}).inputValue();
+  const defaultBuild=await mapping.getByLabel('Application build',{exact:true}).inputValue();
+  assert.ok(defaultRelease&&defaultBuild,'A new project offers actual source-map inputs');
+  await expect(mapping.getByLabel('Vite configuration',{exact:true})).toContainText(`release: ${JSON.stringify(defaultRelease)}, build: ${JSON.stringify(defaultBuild)}`);
   await page.getByLabel('Project ingest key',{exact:true}).fill('synthetic-spool-invalid');
   await expect(page.getByRole('button',{name:'Send the test error again',exact:true})).toBeEnabled();
   const refused=page.waitForResponse(response=>response.url()===origin+'/api/ingest/'+fresh.id&&response.request().method()==='POST');
@@ -291,11 +299,14 @@ try {
   assert.ok((await page.locator('.frame-source').allTextContents()).every(label=>/sample/i.test(label)),'built-in frames identify their sample source');
   assert.equal(await page.locator('.missing-map').count(),0,'sample evidence never requests a debug ID or map upload');
   assert.equal(await page.getByRole('button',{name:'Upload map',exact:true}).count(),0,'sample evidence offers no map upload');
+  await expect(page.locator('.execution')).toBeHidden();
+  await openIssueInvestigation(page);
   await expect(page.locator('.execution')).toBeVisible();
   assert.equal(await page.getByRole('button',{name:'Record reproducer',exact:true}).count(),0,'sample evidence offers no reproducer');
   for(const screen of [1440,390])await capture('test-issue-detail',screen,screen===1440);await page.setViewportSize({width,height:900});
   const packet=await api('/api/projects/cedar/issues/'+real.issue+'/packet');assert.equal(packet.events.length,1);assert.ok(packet.events.every(row=>row.event.type==='TypeError'),'the real issue contains only ordinary errors');
   await page.goto(origin+'/projects/cedar/issues/'+real.issue);await page.locator('.missing-map').waitFor();
+  await openIssueInvestigation(page);
   await expect(page.getByRole('button',{name:'Record reproducer',exact:true})).toBeVisible();
   assert.equal(await page.locator('.issue .callout').filter({hasText:/Spool.*sample/i}).count(),0,'ordinary app errors retain their own source guidance');
   checked('Built-in test capture has sample-labelled evidence without map or reproducer steps, separate grouping and counts, and preserves ordinary app-error guidance');

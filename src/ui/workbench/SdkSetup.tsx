@@ -57,7 +57,7 @@ export function OriginStep({ project, request }: { project: string; request: Req
   }
   return <div className="origin-step">
     <h3>Allow your app’s origin</h3>
-    <p className="muted">In a browser, Spool accepts events only from origins this project allows, so the init above sends nothing until your app’s exact origin is allowed. Node and Workers send no origin and need only the key.</p>
+    <p className="muted">Allow your app’s exact origin before sending browser events. Node and Workers send no origin and need only the key.</p>
     <form className="origin-form" onSubmit={event => void allow(event)}>
       <label className="form-field">Your app’s origin<input type="url" required maxLength={1024} placeholder="https://app.example" value={origin} disabled={busy} aria-describedby="origin-step-help" onChange={event => { setOrigin(event.target.value); setStatus(''); }} /></label>
       <button className="primary-button" disabled={busy || !origin}>Allow origin</button>

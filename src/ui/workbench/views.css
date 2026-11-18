@@ -56,6 +56,8 @@ span.frame-function{font-family:var(--font-text)}
 .issue-facts dt{font-weight:500}
 .issue-facts dd{margin:4px 0 0;font-size:15px;overflow-wrap:anywhere}
 .recent-occurrence h2{font-size:24px}
+.issue-investigation{border-block:var(--hairline-border)}
+.issue-investigation>summary{padding-block:16px;cursor:pointer;font:700 20px/1.35 var(--font-display)}
 .issue-caveat{font-size:14px}
 .capture-accounting dl,.erasure-counts{margin:12px 0;border:var(--inner-border);border-radius:var(--radius-input)}
 .capture-accounting dl>div,.erasure-counts>div{display:flex;justify-content:space-between;gap:12px;padding:10px 14px}

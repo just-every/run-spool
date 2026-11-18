@@ -32,6 +32,7 @@ export async function operatorUi({page,api,origin,project,issue,capture}){
  await page.getByRole('heading',{name:'Operator decisions',exact:true}).waitFor();
  const assignment=page.getByRole('combobox',{name:'Assign to',exact:true});
  const directory=await api(root+'/assignment-members'),assignee=directory.members[0];
+ const packetRefresh=Promise.withResolvers();
  await assignment.waitFor();
  if(page.viewportSize().width===1440){
  const beforeAssignment=await api(root+'/operator-state');
@@ -43,7 +44,7 @@ export async function operatorUi({page,api,origin,project,issue,capture}){
  if(page.viewportSize().width===1440){
   // Hold the ordinary packet refresh so the comment receipt must advance
   // the same loaded view; no reload or automatic conflict retry can hide it.
-  await page.route('**/issues/'+issue+'/packet',route=>new Promise(resolve=>{page.once('spool:assignment-saved',()=>{void route.continue().then(resolve)})}));
+  await page.route('**/issues/'+issue+'/packet',async route=>{await packetRefresh.promise;await route.continue()});
   await page.getByLabel('Comment',{exact:true}).fill('Synthetic assignment follow-up');
   const commented=page.waitForResponse(r=>r.url().endsWith('/comments')&&r.request().method()==='POST');
   await page.getByRole('button',{name:'Post comment',exact:true}).click();assert.equal((await commented).status(),201);
@@ -56,7 +57,7 @@ export async function operatorUi({page,api,origin,project,issue,capture}){
  }
  await assignment.selectOption(assignee.id);
  const [assigned]=await Promise.all([page.waitForResponse(r=>r.url().endsWith('/assignment')&&r.request().method()==='PATCH'),page.getByRole('button',{name:'Assign',exact:true}).click()]);
- if(page.viewportSize().width===1440){page.emit('spool:assignment-saved');await page.unroute('**/issues/'+issue+'/packet');}
+ if(page.viewportSize().width===1440){packetRefresh.resolve();await page.unrouteAll({behavior:'wait'});}
  assert.equal(assigned.status(),200);assert.equal((await assigned.json()).member,assignee.id);
 
  if(page.viewportSize().width===1440){

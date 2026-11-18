@@ -1,4 +1,5 @@
 import { erasureLabel, erasureRank, erasureTotal } from './erasureLabels';
+import { date } from './dates';
 
 export function ErasureCounts({ title, counts }: { title: string; counts: Record<string, number> }) {
   const rows = Object.entries(counts).filter(([, n]) => n > 0).sort(([a], [b]) => erasureRank(a) - erasureRank(b));
@@ -31,7 +32,7 @@ export function KeptOnPurpose({ preview }: { preview: any }) {
 }
 // A stable ref callback runs once, when the receipt heading mounts.
 const focusOnMount = (element: HTMLElement | null) => element?.focus();
-const when = (value: string | null) => value ? new Date(value).toLocaleString('en-GB', { timeZone: 'UTC', hour12: false }) + ' UTC' : 'Not yet';
+const when = (value: string | null) => value ? date(Date.parse(value), 'UTC', 'second') : 'Not yet';
 
 export function ErasureReceipt({ receipt, progressError, onContinue }: { receipt: any; progressError?: string; onContinue: () => void }) {
   return <section className="evidence" aria-labelledby="erasure-receipt">

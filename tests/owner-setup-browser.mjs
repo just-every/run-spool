@@ -12,6 +12,7 @@ export async function ownerSetupBrowser(app, cookie, project, json) {
   await mkdir(folder,{recursive:true});
   const screenshot=async name=>{for(const width of [1440,390]){await page.setViewportSize({width,height:1000});assert.ok(await page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth+1),'owner setup reflows');await page.screenshot({path:`${folder}/${name}-${width}.png`,fullPage:true,mask:[page.locator('[data-secret] pre'),page.getByLabel('Project ingest key',{exact:true}),page.getByLabel('SDK init',{exact:true}),page.getByLabel('Browser helper init',{exact:true}),page.getByLabel('Sentry DSN',{exact:true})]});}await page.setViewportSize({width:1440,height:1000});};
   await page.goto(app.origin+'/projects/'+project.id+'/settings');
+  await page.getByRole('navigation',{name:'Settings sections'}).getByRole('link',{name:'Organization',exact:true}).click();
   const members=page.getByRole('region',{name:'Members',exact:true});
   await members.locator('summary').filter({hasText:/^Invite a member$/}).click();
   const form=members.locator('form').filter({has:page.getByLabel('Email',{exact:true})});

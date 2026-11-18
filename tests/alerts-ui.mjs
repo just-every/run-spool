@@ -11,7 +11,7 @@ import {resolve} from 'node:path';
 import {receiver} from './alerts/receiver.mjs';
 import {alertRuntime,event,rule,setup} from './alerts/runtime.mjs';
 import {launchBrowser} from './browser-launch.mjs';
-import {workbenchLink} from './navigation.mjs';
+import {openIssueInvestigation,workbenchLink} from './navigation.mjs';
 const temp=await mkdtemp(resolve(tmpdir(),'spool-alert-ui-')),inbox=await receiver(resolve(temp,'receiver.sqlite'));let app,browser;
 try {
  mock.timers.enable({apis:['Date'],now:deliveryClock});
@@ -70,7 +70,7 @@ try {
   const dismissal=await page.getByRole('dialog').evaluateHandle(dialog=>{const state={closed:false};dialog.addEventListener('close',()=>{state.closed=true;},{once:true});return state;});
   await page.keyboard.press('Escape');await page.getByRole('dialog').waitFor({state:'hidden'});await page.waitForFunction(({closed})=>closed,dismissal,{timeout:5000});await dismissal.dispose();
   assert.ok(await deliveryDetails.evaluate(button=>document.activeElement===button));await deliveryDetails.dispose();
-  await page.locator('.alert-records a').first().click();await page.getByRole('heading',{name:'Reproduce and fix',exact:true}).waitFor();await (await workbenchLink(page,'Alerts')).click();await page.getByRole('button',{name:'Delivery log',exact:true}).click();
+  await page.locator('.alert-records a').first().click();await openIssueInvestigation(page);await page.getByRole('heading',{name:'Reproduce and fix',exact:true}).waitFor();await (await workbenchLink(page,'Alerts')).click();await page.getByRole('button',{name:'Delivery log',exact:true}).click();
   inbox.statuses.push(429);await app.json('/api/ingest/web','POST',event(`retry-${width}`,{message:'Checkout confirmation timed out',frames:[{file:`https://app.example.com/retry-${width}.js`,line:1,column:0,function:'retry'}]}),auth);await app.schedule(Date.now());await page.getByRole('button',{name:'Refresh alerts',exact:true}).click();await page.getByText('retrying',{exact:true}).first().waitFor();
   inbox.statuses.push(503);await app.json('/api/ingest/web','POST',event(`uncertain-${width}`,{message:'Invoice receipt could not be queued',frames:[{file:`https://app.example.com/uncertain-${width}.js`,line:1,column:0,function:'uncertain'}]}),auth);await app.schedule(Date.now()+2000);await page.getByRole('button',{name:'Refresh alerts',exact:true}).click();await page.getByText('uncertain',{exact:true}).first().waitFor();
   await app.json('/api/ingest/web','POST',event(`blocked-${width}`,{message:'Inventory reservation failed',frames:[{file:`https://app.example.com/blocked-${width}.js`,line:1,column:0,function:'blocked'}]}),{...auth,'x-fixture-unconfigured':'egress'});await app.json('/__fixture/schedule','POST',{time:Date.now(),disableEgress:true});await page.getByRole('button',{name:'Refresh alerts',exact:true}).click();await page.getByText('blocked',{exact:true}).first().waitFor();

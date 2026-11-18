@@ -1,4 +1,5 @@
 import {refusalMessage,type RefusalTarget} from '../../domain/scrubbing/refusal';
+import {date} from './dates';
 export type ScrubbingPreviewResult = {
  token:string|null; refusal:string|null; refusalTarget?:RefusalTarget;
  revision:number; installationRevision:number;
@@ -20,7 +21,7 @@ export function ScrubbingPreview({preview}: {preview:ScrubbingPreviewResult;scop
  <h4>Matched fields</h4>
  {preview.matches.length?<ul>{preview.matches.map(match=><li key={match.selector}>{match.selector}: {match.fields} matching fields</li>)}</ul>:<p>No selector matches.</p>}
  <h4>Sample fields</h4>
- {preview.sample.map((sample,index)=><div key={index}><time>{new Date(sample.received).toLocaleString('en-GB',{timeZone:'UTC'})} UTC</time>
+ {preview.sample.map((sample,index)=><div key={index}><time>{date(sample.received, 'UTC', 'second')}</time>
  <ul aria-label="Sample matched fields">{sample.fields.slice(0,10).map((field,i)=><li key={i} data-field-path={field.path}>{fieldLabel(field.path)} · {({remove:'removed',mask:'masked',hash:'hashed',replace:'replaced'} as Record<string,string>)[field.method]}</li>)}</ul>
  {sample.fields.length>10&&<p>and {sample.fields.length-10} more fields</p>}</div>)}
  </>:<p>No retained events to preview yet.</p>}

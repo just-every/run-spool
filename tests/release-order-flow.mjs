@@ -5,6 +5,7 @@ import {archiveProjection} from './archive.mjs';
 import {startTestWorker} from './worker.mjs';
 import {signIn} from './auth.mjs';
 import {runCli} from './sentry-cli/cli.mjs';
+import {openIssueInvestigation} from './navigation.mjs';
 export async function releaseOrderFlow({req,json,db,origin,cookie,browser}) {
  const project=await json('/api/projects','POST',{id:'release-total-order',name:'Checkout mixed release history'}),base='/api/projects/'+project.id,dsn=new URL(project.dsn),path=`/api/${dsn.pathname.slice(1)}/envelope/?sentry_key=${dsn.username}&sentry_version=7`;
  let serial=0;const send=async release=>{const r=await req(path,'POST','{}\n{"type":"event"}\n'+JSON.stringify({event_id:(++serial).toString(16).padStart(32,'0'),release,exception:{values:[{type:'CheckoutError',value:'Checkout failed',stacktrace:{frames:[{filename:'/checkout.py',function:'checkout',lineno:12}]}}]}}));assert.equal(r.status,200)};
@@ -55,7 +56,7 @@ export async function releaseOrderFlow({req,json,db,origin,cookie,browser}) {
     await page.goto(origin+'/projects/'+project.id+'/releases');await page.getByRole('heading',{name:'Release history',exact:true}).waitFor();await page.locator('.data-row').last().waitFor();
     if(width===1440)assert.deepEqual(await page.locator('.data-row th strong').allTextContents(),expected,'rendered release history uses the chosen order');
     await page.screenshot({path:`.artifacts/release-order/${label}-history-${width}.png`,fullPage:true});
-    await page.goto(origin+'/projects/'+project.id+'/issues/'+(await issue()).id);const panel=page.getByRole('region',{name:'Suspect changes',exact:true});await panel.getByRole('heading',{name:'Release comparison',exact:true}).waitFor();await panel.screenshot({path:`.artifacts/release-order/${label}-comparison-${width}.png`});
+    await page.goto(origin+'/projects/'+project.id+'/issues/'+(await issue()).id);await openIssueInvestigation(page);const panel=page.getByRole('region',{name:'Suspect changes',exact:true});await panel.getByRole('heading',{name:'Release comparison',exact:true}).waitFor();await panel.screenshot({path:`.artifacts/release-order/${label}-comparison-${width}.png`});
    }finally{await context.close()}
   }
  };

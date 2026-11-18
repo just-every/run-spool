@@ -21,6 +21,7 @@ export async function browserMembers(owner,projects) {
   await context.addCookies([{name:owner.cookie.slice(0,split),value:owner.cookie.slice(split+1),url:owner.origin.replace('http:','https:'),secure:true}]);
   const page=await context.newPage();
   await page.goto(owner.origin+'/projects/'+projects[0].id+'/settings');
+  await page.getByRole('navigation',{name:'Settings sections'}).getByRole('link',{name:'Organization',exact:true}).click();
   const members=page.getByRole('region',{name:'Members',exact:true});
   await members.getByRole('heading',{name:'Members',exact:true}).waitFor();
   await members.locator('summary').filter({hasText:/^Invite a member$/}).click();
@@ -288,7 +289,7 @@ export async function localMailFlow() {
   browser=await launchBrowser();const context=await browser.newContext({viewport:{width:1440,height:1000},permissions:['clipboard-read','clipboard-write']});
   const split=cookie.indexOf('=');await context.addCookies([{name:cookie.slice(0,split),value:cookie.slice(split+1),url:app.origin}]);
   const page=await context.newPage();page.setDefaultTimeout(20000);
-  const settings=app.origin+'/projects/'+project.id+'/settings';await page.goto(settings);
+  const settings=app.origin+'/projects/'+project.id+'/settings#settings-organization';await page.goto(settings);
   const members=page.getByRole('region',{name:'Members',exact:true});
   await members.locator('summary').filter({hasText:/^Invitations$/}).click();
   const legacyRow=members.locator('div').filter({has:page.getByText(invitation.email+' · invited',{exact:true})}).last();
@@ -316,6 +317,7 @@ export async function localMailFlow() {
   const pending=page.waitForResponse(r=>new URL(r.url()).pathname==='/api/organization/invites'&&r.request().method()==='POST');
   await members.getByRole('button',{name:'Create invitation',exact:true}).click();assert.equal((await pending).status(),202);
   await expect(members.getByRole('status')).toBeVisible();
+  await expect(members.locator(':scope > .data-row').filter({hasText:invitation.name})).toContainText(/invitation pending/i);
   // A reload proves the pending link survives navigation without minting a new token.
   await page.reload();await members.locator('summary').filter({hasText:/^Invitations$/}).click();
   const input=members.getByLabel('Invitation link for synthetic-spool-local@example.test',{exact:true});await input.waitFor();

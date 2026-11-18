@@ -28,7 +28,7 @@ export function EventExplorer({project,issue,refresh,onSelect}:{project:string;i
  return <section className="evidence event-explorer" aria-labelledby="all-events-title">
   <h2 id="all-events-title">All Events</h2>
   <Details title="Browse events"><p>Filters match one event. Tag percentages cover all events in this issue.</p></Details>
-  <div className="event-filters"><label className="form-field">Search events<input type="search" placeholder="tenant:acme environment:production" value={q} onChange={e=>filter(e.target.value)}/></label><label className="form-field">Event order<select value={order} onChange={e=>{setOrder(e.target.value);setCursors([''])}}><option value="newest">Newest first</option><option value="oldest">Oldest first</option></select></label></div>
+  <div className="event-filters"><label className="form-field">Search events<input type="search" placeholder="environment:production" value={q} onChange={e=>filter(e.target.value)}/></label><label className="form-field">Event order<select value={order} onChange={e=>{setOrder(e.target.value);setCursors([''])}}><option value="newest">Newest first</option><option value="oldest">Oldest first</option></select></label></div>
   {error&&<p role="alert">Events could not be loaded: {error}. <button className="text-button" onClick={()=>{setTarget(null);setCursors([...cursors])}}>Retry events</button></p>}
   {loading?<p role="status">Loading events…</p>:<>
    <p role="status">{list?.total??0} matching {plural(list?.total??0, 'event')}{reading?' · Loading selected event…':''}</p>

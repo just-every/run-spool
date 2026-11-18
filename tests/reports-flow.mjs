@@ -13,7 +13,7 @@ async function reportWorkbench(origin,project,from,to,expected){
   const context=await browser.newContext({viewport:{width:1440,height:1000}}),cookie=await signIn(origin,{bootstrap:false});
   await context.addCookies(cookie.split('; ').map(pair=>({name:pair.slice(0,pair.indexOf('=')),value:pair.slice(pair.indexOf('=')+1),url:origin})));
   const page=await context.newPage(),errors=[];page.on('pageerror',error=>errors.push(error.message));
-  await page.goto(origin+'/projects/'+project+'/settings#settings-projects');const configuration=page.getByRole('region',{name:'Reports, dashboards and query tables',exact:true});
+  await page.goto(origin+'/projects/'+project+'/settings');await page.getByRole('navigation',{name:'Settings sections'}).getByRole('link',{name:'Reports',exact:true}).click();const configuration=page.getByRole('region',{name:'Reports, dashboards and query tables',exact:true});
   await configuration.getByLabel('View name',{exact:true}).fill('Retained impact comparison');
   const widgets=configuration.locator('.reports-widget'),date=value=>new Date(value).toISOString().slice(0,16);
   for(let n=0;n<2;n++){await widgets.nth(n).getByLabel('Window start (UTC)',{exact:true}).fill(date(from));await widgets.nth(n).getByLabel('Window end (UTC)',{exact:true}).fill(date(to))}
@@ -51,9 +51,10 @@ async function reportWorkbench(origin,project,from,to,expected){
   const eventRow=table.locator(`tbody tr[data-event-id="${expected.noRelease}"]`),eventLink=eventRow.locator('th a');
   assert.doesNotMatch(await table.locator('tbody').innerText(),/\b[0-9a-f]{32}\b|\b[0-9a-f]{8}(?:-[0-9a-f]{4}){3}-[0-9a-f]{12}\b|\{\s*"/i);
   const target=await(await fetch(origin+'/api/projects/'+project+'/issues/'+runData.rows.find(row=>row.id===expected.noRelease).issue+'/packet',{headers:{Cookie:cookie}})).json();
-  assert.ok((await eventRow.innerText()).includes(target.issue.short_id));assert.ok((await eventRow.innerText()).includes(target.issue.title),'The event reference names its actual issue');
+  assert.equal(await eventLink.innerText(),target.issue.short_id,'The actual issue short ID links to the specific event');
+  assert.ok((await eventRow.innerText()).includes(target.issue.title),'The event reference names its actual issue');
   assert.ok((await eventRow.innerText()).includes(target.events.find(row=>row.id===expected.noRelease).event.message),'The event reference describes the retained occurrence');
-  const reportDate=await eventLink.innerText(),eventHref=await eventLink.getAttribute('href');
+  const reportDate=await eventRow.locator('time').innerText(),eventHref=await eventLink.getAttribute('href');
   assert.match(reportDate,/^[A-Za-z]{3} \d{1,2}, \d{4}, \d{2}:\d{2} UTC$/,'Reports names the month and time zone without a numeric date order');
   assert.equal(Date.parse(reportDate),Math.floor(expected.noReleaseReceived/60000)*60000,'The displayed date names the captured event’s actual UTC day and minute');
   const reportHref=page.url();await eventLink.click();
@@ -71,7 +72,7 @@ async function reportWorkbench(origin,project,from,to,expected){
   await table.getByRole('searchbox',{name:'Event query',exact:true}).fill('environment:synthetic-empty');
   const empty=page.waitForResponse(response=>new URL(response.url()).pathname==='/api/reporting/table-preview'&&response.request().postDataJSON()?.query.q==='environment:synthetic-empty'&&response.status()===200);await table.getByRole('button',{name:'Run query',exact:true}).click();assert.equal((await(await empty).json()).total,0);
   const reopened=page.waitForResponse(response=>new URL(response.url()).pathname==='/api/reporting/table-preview'&&response.request().postDataJSON()?.query.q===''&&response.status()===200);await table.getByRole('combobox',{name:'Saved query',exact:true}).selectOption(view.id);const restored=await(await reopened).json();assert.deepEqual(restored.query,view.query);assertEvents(restored);await table.locator('tbody tr').nth(3).waitFor();assert.deepEqual((await table.locator('tbody tr').evaluateAll(rows=>rows.map(row=>row.dataset.eventId))).sort(),expected.ids);
-  await page.goto(origin+'/projects/'+project+'/settings#settings-projects');await configuration.getByRole('combobox',{name:'View type',exact:true}).selectOption('table');await configuration.getByLabel('View name',{exact:true}).fill('Retained event reconciliation');
+  await page.getByRole('link',{name:'Configure reports',exact:true}).click();await configuration.getByRole('combobox',{name:'View type',exact:true}).selectOption('table');await configuration.getByLabel('View name',{exact:true}).fill('Retained event reconciliation');
   const tableWidget=configuration.locator('.reports-widget');await tableWidget.getByRole('combobox',{name:'Saved query',exact:true}).selectOption(view.id);await tableWidget.getByLabel('Window start (UTC)',{exact:true}).fill(date(from));await tableWidget.getByLabel('Window end (UTC)',{exact:true}).fill(date(to));
   const savedTable=page.waitForResponse(response=>new URL(response.url()).pathname==='/api/reporting/items'&&response.request().method()==='POST'&&response.status()===201);await configuration.getByRole('button',{name:'Save query table',exact:true}).click();const tableItem=await(await savedTable).json();
   const openedTable=page.waitForResponse(response=>new URL(response.url()).pathname==='/api/reporting/items/'+tableItem.id&&response.request().method()==='GET'&&response.status()===200);await configuration.getByRole('link',{name:'Open this saved view',exact:true}).click();const persisted=(await(await openedTable).json()).widgets[0];assert.equal(persisted.project,project);assert.equal(persisted.viewId,view.id);assert.deepEqual(persisted.config,{from,to});assert.deepEqual(persisted.data.query,view.query);assertEvents(persisted.data);assert.equal(persisted.data.total,count.data.value,'The reopened saved query table, count widget and report have identical totals');await dashboard.locator('tbody tr').nth(3).waitFor();assert.deepEqual((await dashboard.locator('tbody tr').evaluateAll(rows=>rows.map(row=>row.dataset.eventId))).sort(),expected.ids);

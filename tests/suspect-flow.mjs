@@ -6,6 +6,7 @@ import {archiveProjection} from './archive.mjs';
 import {browserSignIn,signIn} from './auth.mjs';
 import {startTestWorker} from './worker.mjs';
 import {followErasure} from './project-erasure/follow.mjs';
+import {openIssueInvestigation} from './navigation.mjs';
 export async function suspectFlow({req,json,origin,browser}) {
  const p=await json('/api/projects','POST',{id:'synthetic-spool-suspects',name:'Checkout suspect changes'}),base=`/api/projects/${p.id}`;
  const old='synthetic-spool-checkout@1',current='synthetic-spool-checkout@2',falseSha='a'.repeat(40),trueSha='b'.repeat(40),priorSha='c'.repeat(40),time=Date.now();
@@ -26,6 +27,7 @@ export async function suspectFlow({req,json,origin,browser}) {
   const context=await browser.newContext({viewport:{width,height:1000}}),page=await context.newPage();
   try{
    await browserSignIn(page,origin);await page.goto(`${origin}/projects/${p.id}/issues/${issue.id}`);
+   await openIssueInvestigation(page);
    const panel=page.getByRole('region',{name:'Suspect changes',exact:true});await panel.getByRole('heading',{name:'Release comparison',exact:true}).waitFor();
    const reject=panel.locator('article').filter({has:page.getByRole('heading',{name:new RegExp(falseSha.slice(0,12))})}),confirm=panel.locator('article').filter({has:page.getByRole('heading',{name:new RegExp(trueSha.slice(0,12))})});
    if(width===1440){
@@ -37,6 +39,7 @@ export async function suspectFlow({req,json,origin,browser}) {
    assert.deepEqual(await page.locator('button').evaluateAll(nodes=>nodes.filter(n=>n.getClientRects().length&&!n.textContent.trim()).map(n=>n.getAttribute('aria-label'))),[],'no icon-only control on the touched screen');
    await panel.screenshot({path:`.artifacts/rel002/suspect-judgments-${width}.png`});
    await page.goto(`${origin}/projects/${reactivation.project}/issues/${reactivation.issue}`);
+   await openIssueInvestigation(page);
    const regressed=page.getByRole('region',{name:'Suspect changes',exact:true});
    await regressed.getByRole('heading',{name:'Release comparison',exact:true}).waitFor();
    await regressed.locator(`[data-evidence-id="${reactivation.alert.id}"]`).getByText(`Reactivation · ${displayTime(reactivation.alert.created)}`,{exact:true}).first().waitFor();

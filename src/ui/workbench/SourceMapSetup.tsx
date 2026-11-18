@@ -8,8 +8,8 @@ import { useSettingDoc } from './useSettingDoc';
 import { SaveAnnouncer, SaveFailure, SavedMark } from './SaveMarks';
 import { bundlers, shellQuote, sourceMapInstructions, type Bundler } from './sourceMapSnippets';
 
-export function SourceMapSetup({ project, releases, request, run, busy, refresh }: {
-  project: string; releases: any[]; request: Request; run: Run; busy: boolean; refresh: () => void;
+export function SourceMapSetup({ project, releases, applicationRelease = releases[0], request, run, busy, refresh }: {
+  project: string; releases: any[]; applicationRelease?: { name: string; build: string }; request: Request; run: Run; busy: boolean; refresh: () => void;
 }) {
   const [uploads,setUploads]=useState<any>(null);
   // The cap saves as you go: on blur or after a pause. A value that is not a whole number of bytes waits, unsent.
@@ -21,12 +21,13 @@ export function SourceMapSetup({ project, releases, request, run, busy, refresh 
   useEffect(()=>{let live=true;request(`/api/projects/${encodeURIComponent(project)}/sentry-uploads`).then(rows=>{if(live)setUploads(rows)}).catch(()=>{if(live)setUploads(null)});return()=>{live=false}},[project,request,releases]);
   const [endpoint, setEndpoint] = useState(''), [deployKey, setDeployKey] = useState('');
   const [bundler, setBundler] = useDraft<Bundler>(`${project}.map-bundler`, 'vite');
-  const [release, setRelease] = useDraft(`${project}.map-setup-release`, releases[0]?.name ?? '');
-  const [build, setBuild] = useDraft(`${project}.map-setup-build`, releases[0]?.build ?? '');
+  const [applicationDraft, setApplication] = useDraft<{ release: string; build: string } | null>(`${project}.map-application`, null);
+  const suggestedBuild = applicationRelease?.build;
+  const { release, build } = applicationDraft ?? {
+    release: applicationRelease?.name ?? '',
+    build: suggestedBuild && buildLabel(suggestedBuild) === suggestedBuild ? suggestedBuild : '',
+  };
   useEffect(() => { setEndpoint(location.origin); }, []);
-  useEffect(() => {
-    if (!release && !build && releases[0]) { setRelease(releases[0].name); setBuild(releases[0].build); }
-  }, [releases, release, build]);
   const ready = !!endpoint && /^[a-zA-Z0-9._:@+\-]+$/.test(release) && /^[a-zA-Z0-9._:\-]+$/.test(build);
   const instructions = sourceMapInstructions(bundler, { endpoint, project, release, build });
   return <section className="evidence source-map-setup" id="source-map-setup" aria-labelledby="source-map-setup-heading">
@@ -40,8 +41,8 @@ export function SourceMapSetup({ project, releases, request, run, busy, refresh 
     <h3>1. Match your application’s release</h3>
     <p>Use exactly the <code>release</code> and <code>build</code> from your SDK’s <code>init</code>. A new release is registered automatically when the upload runs.</p>
     <div className="form-grid">
-      <Field label="Application release" required pattern={String.raw`[a-zA-Z0-9._:@+\-]+`} value={release} placeholder="web@1.0.0" onChange={e => setRelease(e.target.value)} />
-      <Field label="Application build" required pattern={String.raw`[a-zA-Z0-9._:\-]+`} value={buildLabel(build) === build ? build : ''} placeholder={buildLabel(build) === build ? 'build-1' : buildLabel(build)} onChange={e => setBuild(e.target.value)} />
+      <Field label="Application release" required pattern={String.raw`[a-zA-Z0-9._:@+\-]+`} value={release} onChange={e => setApplication({ release: e.target.value, build })} />
+      <Field label="Application build" required pattern={String.raw`[a-zA-Z0-9._:\-]+`} value={build} onChange={e => setApplication({ release, build: e.target.value })} />
       <label className="form-field">Your bundler<select value={bundler} onChange={e => setBundler(e.target.value as Bundler)}>{bundlers.map(row => <option key={row.value} value={row.value}>{row.label}</option>)}</select></label>
     </div>
     <h3>2. Create a build-only key</h3>
@@ -61,9 +62,7 @@ export function SourceMapSetup({ project, releases, request, run, busy, refresh 
       <CodeBlock label={instructions.label} code={instructions.config} />
       <CodeBlock label="Source-map build and upload" code={instructions.command} />
       {bundler === 'vite' || bundler === 'rollup' ? <p>The published SDK 0.1.0 plugin is silent on success; an upload failure fails the build. Confirm the upload with an original-source frame in step 4.</p> : <>
-        <p>With the published SDK 0.1.0, a successful CLI upload exits 0 and prints JSON for the number of maps uploaded, for example:</p>
-        <CodeBlock label="Source-map upload result" code={'{"uploaded":1}'} />
-        <p>This version does not accept <code>--json</code>; no extra flag is needed.</p>
+        <p>With the published SDK 0.1.0, a successful CLI command reports how many maps it uploaded and exits with code 0.</p>
       </>}
     </> : <p role="status">Enter a valid application release and build above to fill in the commands for this project and endpoint. Use letters, numbers, dots or hyphens; release names also allow @ and +.</p>}
     <p>Merge the configuration into your existing config. For CLI builds, replace <code>src/index.js</code> and <code>dist/*.js</code> with your entry point and every emitted bundle, including nested chunks. Each bundle needs its adjacent <code>.map</code>. Deploy the <strong>stamped output</strong> after upload; rebuilding afterwards removes its matching ID. Keep maps private when publishing assets.</p>

@@ -1,6 +1,7 @@
 import assert from 'node:assert/strict';
 import AxeBuilder from '@axe-core/playwright';
 import {openGate} from '../auth.mjs';
+import {openIssueInvestigation} from '../navigation.mjs';
 import {runner} from './reproduce.mjs';
 
 // An owner reaches the disconnected integration through the real issue page.
@@ -13,6 +14,7 @@ export async function disconnectedGitHubSetup(app,browser,directory,issue){
    await openGate(context,app.origin);
    await context.addCookies([{name:app.cookie.slice(0,app.cookie.indexOf('=')),value:app.cookie.slice(app.cookie.indexOf('=')+1),url:app.origin}]);
    const page=await context.newPage();await page.goto(`${app.origin}/projects/shop/issues/${issue}`);
+   await openIssueInvestigation(page);
    const connection=page.getByRole('group',{name:'GitHub connection',exact:true});
    await connection.getByRole('status').filter({hasText:/not configured/i}).waitFor();
    await connection.locator('.callout').filter({hasText:/setup.*unavailable/i}).waitFor();
@@ -23,7 +25,7 @@ export async function disconnectedGitHubSetup(app,browser,directory,issue){
     await guideLink.click();await page.locator('article').waitFor();
     assert.equal((await fetch(page.url())).status,200,'GitHub guide opens anonymously');
     const index=await (await fetch(app.origin+'/docs')).text();assert.ok(index.includes(`href="${new URL(page.url()).pathname}"`),'GitHub guide is reachable from docs index');
-    await page.goBack();await connection.getByRole('status').filter({hasText:/not configured/i}).waitFor();
+    await page.goBack();await openIssueInvestigation(page);await connection.getByRole('status').filter({hasText:/not configured/i}).waitFor();
    }
    const path=`${directory}/github-disconnected-${width}.png`;await connection.screenshot({path});captures.push(path);
    await connection.getByRole('button',{name:/connection limits/i}).click();
@@ -46,6 +48,7 @@ export async function executionPanel(app,browser,directory,issue,reproducer){
    await openGate(context,app.origin);
    await context.addCookies([{name:app.cookie.slice(0,app.cookie.indexOf('=')),value:app.cookie.slice(app.cookie.indexOf('=')+1),url:app.origin}]);
    const page=await context.newPage();await page.goto(`${app.origin}/projects/shop/issues/${issue}`);
+   await openIssueInvestigation(page);
    const section=page.locator('section.execution');await section.getByRole('heading',{name:'Reproduce and fix'}).waitFor();
    await section.getByText('After the deploy: Reached the affected users').waitFor();
    const card=section.locator('article.reproducer').filter({hasText:'Exact input'}).filter({hasText:'lineCount(…)'}).first();
@@ -76,6 +79,7 @@ export async function restoredExecutionPanel(app,browser,directory,issue){
   try{
    await openGate(context,app.origin);await context.addCookies([{name:app.cookie.slice(0,app.cookie.indexOf('=')),value:app.cookie.slice(app.cookie.indexOf('=')+1),url:app.origin}]);
    const page=await context.newPage();await page.goto(`${app.origin}/projects/shop/issues/${issue}`);const section=page.locator('section.execution');
+   await openIssueInvestigation(page);
    await section.getByText('Restored history; no active grant',{exact:true}).first().waitFor();await section.getByText(/Historical result:/).first().waitFor();
    assert.equal(await section.locator('.fix-actions button').count(),0,'restored grants offer no dispatch controls');
    assert.equal(await section.getByRole('button',{name:'Propose fix branch',exact:true}).count(),0,'historical passing results offer no fix authority');
