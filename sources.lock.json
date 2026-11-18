@@ -3778,7 +3778,7 @@
       "executable": false
     },
     "management/integration/deployment-spec.json": {
-      "sha256": "f0967ac8ef63695df17041559324a337589185f18b3b5346ffa74dafdbf2a171",
+      "sha256": "b50143632f5ec03e38c352038f2e01732cfb7a70eba097e0d347f247716424d2",
       "executable": false
     },
     "migrations/core/0001_errors.sql": {
@@ -4198,7 +4198,7 @@
       "executable": false
     },
     "migrations/core/0114_sentry_alert_proposals.sql": {
-      "sha256": "f53b41b2282002c7f29cc109aaa4df5fad69d5b0650fc03f552613e869cf48e3",
+      "sha256": "ac376bab41482b5e9fab36498f1fd1569adae3d01f27e3e4fd45613eff8e2a44",
       "executable": false
     },
     "ONBOARDING.md": {
@@ -5830,7 +5830,7 @@
       "executable": false
     },
     "src/domain/alerts/targets.ts": {
-      "sha256": "d77ed5202a9ce98d8e8b8c4f0d0c4e50acd2e39d9be9af211e860f5a8a26e58f",
+      "sha256": "f2bbfb8920fb3616a4b00d89f40f9bb95554f46369dd8e125f27dbe2087d1539",
       "executable": false
     },
     "src/domain/alerts/team-controls.ts": {
@@ -7038,7 +7038,7 @@
       "executable": false
     },
     "src/domain/sentry-import/owner-reads.server.ts": {
-      "sha256": "810c6c8d16dd38cfc8ee5114623b32db72d67179f34cced65857607da6b4efb1",
+      "sha256": "935da096dec28474c661774ab9dabd86a3533f91bcb021bbc0a34deed937d9ba",
       "executable": false
     },
     "src/domain/sentry-import/read-labels.ts": {
@@ -7058,7 +7058,7 @@
       "executable": false
     },
     "src/domain/sentry-import/targets.ts": {
-      "sha256": "1bda1600ce827bf2480d2b8a9ae31b1232e5223202f0903c5d9360f0a475911c",
+      "sha256": "e949aca5f1e1069518dca86912d62e5d9a78a2e4519e35ae70c98534626afd9e",
       "executable": false
     },
     "src/domain/sentry/agent-evidence.ts": {
@@ -11306,7 +11306,7 @@
       "executable": false
     },
     "tests/fixtures/sentry/alert-rules.json": {
-      "sha256": "d14b0891015e5c57a4f52eb705f32636c6f452af9872ee9c19bac8e2e14bf8a7",
+      "sha256": "cdbe667a0fb4ded458d949c4c9a2dbc8db7639fdca92b90a1be38fc25acb021b",
       "executable": false
     },
     "tests/fixtures/sentry/documentation.json": {
@@ -11430,7 +11430,7 @@
       "executable": false
     },
     "tests/operator-ui.mjs": {
-      "sha256": "d47545f8420ccbc100583c2dacfedcb6d34780090ad054e1f846de07413562f4",
+      "sha256": "236672e848f8e0834c8a3243b03cd2e040c256e3872b09c661603678d317488c",
       "executable": false
     },
     "tests/otlp-flow.mjs": {
@@ -11934,11 +11934,11 @@
       "executable": false
     },
     "tests/sentry-import/alert-rules.mjs": {
-      "sha256": "2b745f5aa77939b69493af7e7ca5e0444e39919703e34811021abf16560fdde8",
+      "sha256": "55be3c2beee52209715a29c6a661cbe1fab8215d2d8bf62dc1508ff3ade2d6dd",
       "executable": false
     },
     "tests/sentry-import/field-accounting.mjs": {
-      "sha256": "21c76eecbd997b62360f62192a06b951bafb061056ca262be39cb67c67e0466b",
+      "sha256": "b0217250c0811470ac4ab6a19e71565840c411d807acec34d4b8f2b012331ae3",
       "executable": false
     },
     "tests/sentry-import/reads.mjs": {
@@ -11950,7 +11950,7 @@
       "executable": false
     },
     "tests/sentry-import/rule-receipt.mjs": {
-      "sha256": "7d2748528564a9f4e181bfa7d140383071eaf0c7203b9567c520c925003eb882",
+      "sha256": "8479bbe62c976cc51ba6d18a72ad32c67d635b48f43bcceb0f640a6a51dfd309",
       "executable": false
     },
     "tests/sentry-import/schema-pages.mjs": {
