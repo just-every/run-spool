@@ -353,10 +353,15 @@ async function earlierManifest(db: D1Database, manifest: any) {
   // Archives without an object inventory still require Base's legacy replay.
   const previousObjects = reviewOnly ? current.schemaObjects : beforeSentryRosterObjects(beforeProjectMetricObjects(previousRelayPrivacyObjects(previousNativeSymbolObjects(current.schemaObjects,manifest),manifest),manifest),manifest);
   const earlierObjects=previousKeyMetadataObjects(previousMemberIdentityObjects(previousObjects,manifest),manifest);
-  if(product.schemaObjects!==undefined && canonicalJson(product.schemaObjects)!==canonicalJson(earlierObjects))throw new PortabilityError('legacy_schema_object_inventory');
+  const earlierSchema = await schemaIdentityOf(earlier, earlierObjects);
+  // The CLI and native test runtime can preserve different SQL comments.
+  // Compare complete object identities with Base's SQLite token normalization.
+  if (product.schemaObjects !== undefined && await schemaIdentityOf(earlier, product.schemaObjects) !== earlierSchema) {
+   throw new PortabilityError('legacy_schema_object_inventory');
+  }
   const gap=product.schemaObjects!==undefined && later.migrations.includes(keyMetadataMigration) && !manifest.migrations?.includes(keyMetadataMigration)
    && manifest.migrations?.includes(memberIdentityMigration) && manifest.migrations.includes(captureSourcesMigration)
-   ? {migration:keyMetadataMigration,schema:await schemaIdentityOf(earlier,earlierObjects)} : undefined;
+   ? {migration:keyMetadataMigration,schema:earlierSchema} : undefined;
   // Normalize this positively matched native inventory to the destination. The
   // original binding and source history are checked before finalize; platform
   // bookkeeping is never installed as product data or presented as new history.

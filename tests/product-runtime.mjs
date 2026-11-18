@@ -19,6 +19,7 @@ import {resolve} from 'node:path';
 import {createRequire} from 'node:module';
 import {createHash} from 'node:crypto';
 import {canonical} from '../src/domain/privacy.ts';
+import {splitStatements} from '../src/modules/portability/sql-text.mjs';
 import {finishProductRun,migrationFailure,observeChild,stopChild,stopCommand,workerOutput} from './product-diagnostics.mjs';
 import {miniflareAssets} from './product-assets.mjs';
 const require=createRequire(import.meta.url);
@@ -54,9 +55,8 @@ async function start(state,migrate=true){
   if(migrate){
    const db=await miniflare.getD1Database('DB');
    assert.equal((await db.prepare('PRAGMA foreign_keys').first()).foreign_keys,1);
-   const {unstable_splitSqlQuery}=require('wrangler');
    // D1 already enforces foreign keys; asserting it replaces the ON no-op rejected by D1 exec.
-   const queries=unstable_splitSqlQuery(await readFile(migrationFile,'utf8'))
+   const queries=splitStatements(await readFile(migrationFile,'utf8'))
     .filter(sql=>!/^PRAGMA foreign_keys\s*=\s*ON;?$/i.test(sql.trim()));
    try{await db.batch(queries.map(sql=>db.prepare(sql)))}catch(error){error.migration=migrationFailure({status:null,stderr:error?.cause?.message??error?.message});throw error}
   }
