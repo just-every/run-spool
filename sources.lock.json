@@ -11250,7 +11250,7 @@
       "executable": false
     },
     "tests/fixtures/archive-before-sentry-roster.mjs": {
-      "sha256": "6fb2a7de9149e4425b1e4a678ac2c59dee312570072ad643dcd3184634ac8445",
+      "sha256": "53cfdc60d8ce39a332b03e1e57fc59b22b997ffa7a2e1525c734ba61563562d9",
       "executable": false
     },
     "tests/fixtures/archive-fc75a7ac.md": {
