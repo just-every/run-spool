@@ -648,6 +648,12 @@
       "name": "0113_capture_sources.sql",
       "sha256": "b511cf238eb303a542e57b096a545329b4743de4a1195d138351adc52a27432b",
       "sql": "-- Short-lived, payload-free receipt counters for the Capture connection status.\nCREATE TABLE capture_sources (\n project TEXT NOT NULL REFERENCES projects(id),\n window INTEGER NOT NULL,\n origin TEXT NOT NULL,\n count INTEGER NOT NULL,\n PRIMARY KEY(project,window,origin)\n);\n"
+    },
+    {
+      "binding": "DB",
+      "name": "0114_sentry_alert_proposals.sql",
+      "sha256": "ac376bab41482b5e9fab36498f1fd1569adae3d01f27e3e4fd45613eff8e2a44",
+      "sql": "-- Extend the proposal discriminator while carrying forward every roster row.\nINSERT INTO rer_portability_guard SELECT CASE WHEN NOT EXISTS(SELECT 1 FROM rer_portability_state WHERE id=1 AND import_job IS NOT NULL) THEN 1 ELSE 0 END;\nDELETE FROM rer_portability_guard WHERE rowid=last_insert_rowid();\nCREATE TABLE spool_import_proposals_with_alerts (\n id TEXT PRIMARY KEY,\n project TEXT NOT NULL REFERENCES projects(id),\n kind TEXT NOT NULL CHECK(kind IN ('member','team','ownership','alert')),\n payload TEXT NOT NULL CHECK(json_valid(payload)),\n state TEXT NOT NULL CHECK(state IN ('pending','inviting','invited')) DEFAULT 'pending',\n version INTEGER NOT NULL CHECK(version>0),\n created INTEGER NOT NULL\n);\nINSERT INTO spool_import_proposals_with_alerts SELECT * FROM spool_import_proposals;\nDROP TABLE spool_import_proposals;\nALTER TABLE spool_import_proposals_with_alerts RENAME TO spool_import_proposals;\nCREATE INDEX spool_import_proposals_project ON spool_import_proposals(project,kind);\nCREATE TRIGGER portability_spool_import_proposals_insert BEFORE INSERT ON spool_import_proposals WHEN EXISTS(SELECT 1 FROM rer_portability_state WHERE id=1 AND import_job IS NOT NULL) BEGIN SELECT RAISE(ABORT,'restore_in_progress'); END;\nCREATE TRIGGER portability_spool_import_proposals_update BEFORE UPDATE ON spool_import_proposals WHEN EXISTS(SELECT 1 FROM rer_portability_state WHERE id=1 AND import_job IS NOT NULL) BEGIN SELECT RAISE(ABORT,'restore_in_progress'); END;\nCREATE TRIGGER portability_spool_import_proposals_delete BEFORE DELETE ON spool_import_proposals WHEN EXISTS(SELECT 1 FROM rer_portability_state WHERE id=1 AND import_job IS NOT NULL) BEGIN SELECT RAISE(ABORT,'restore_in_progress'); END;\n"
     }
   ],
   "compatibilityDate": "2026-09-08",

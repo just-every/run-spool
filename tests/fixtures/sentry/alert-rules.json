@@ -210,6 +210,46 @@
                 }
               ],
               "dateCreated": "2026-02-02T00:00:00Z"
+            },
+            {
+              "id": "synthetic-session-count",
+              "name": "Synthetic session count",
+              "projects": [
+                "synthetic-alerts"
+              ],
+              "dataset": "sessions",
+              "aggregate": "count()",
+              "timeWindow": 5,
+              "environment": "production",
+              "query": "",
+              "thresholdType": 0,
+              "triggers": [
+                {
+                  "label": "critical",
+                  "alertThreshold": 0,
+                  "actions": []
+                }
+              ]
+            },
+            {
+              "id": "synthetic-failure-rate",
+              "name": "Synthetic session failure rate",
+              "projects": [
+                "synthetic-alerts"
+              ],
+              "dataset": "sessions",
+              "aggregate": "failure_rate()",
+              "timeWindow": 5,
+              "environment": "production",
+              "query": "",
+              "thresholdType": 0,
+              "triggers": [
+                {
+                  "label": "critical",
+                  "alertThreshold": 50,
+                  "actions": []
+                }
+              ]
             }
           ]
         }

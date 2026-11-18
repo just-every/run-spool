@@ -72,7 +72,6 @@ export async function importedAlertTarget(db: D1Database, project: string, organ
  const source=row.results[0],payload=JSON.parse(source.payload);
  const scope=kind==='member'
   ? {sql:`SELECT eligible.member target FROM (${authorizedMembers}) eligible
-          JOIN spool_members member ON member.id=eligible.member
           JOIN spool_import_proposals proposal ON proposal.id=? AND proposal.state='invited'
           WHERE eligible.email=json_extract(proposal.payload,'$.email')`, args:[project,source.id]}
   : {sql:`SELECT team target FROM spool_project_teams WHERE project=? AND team=?

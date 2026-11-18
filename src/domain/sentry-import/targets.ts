@@ -59,7 +59,7 @@ export const sentryTargets:D1TargetAdapter={
     const value=row.value as any,native=value.native;
     if(!native||Object.keys(native).some(key=>!a.columns.includes(key))||a.columns.some(key=>!(key in native)))throw new Error('Native row schema changed');
     const authority=kind==='project'&&value.source!==null?' AND NOT EXISTS(SELECT 1 FROM spool_project_grants WHERE project=? UNION ALL SELECT 1 FROM spool_service_scopes WHERE project=?)':'';
-    const alertGuard=kind==='import-proposal'&&!row.revision.startsWith('native-edited:')?` AND NOT ${editedAlert('n.id')}`:'';
+    const alertGuard=kind==='import-proposal'?` AND (${editedAlert('n.id')})=${Number(row.revision.startsWith('native-edited:'))}`:'';
     const terms=a.columns.map(key=>`${key} IS ?`).join(' AND ');
     const metadata=value.source===null?sql('NOT EXISTS(SELECT 1 FROM sentry_import_targets WHERE kind=? AND id=?)',kind,id):sql('EXISTS(SELECT 1 FROM sentry_import_targets WHERE kind=? AND id=? AND revision=? AND source=?)',kind,id,row.revision.replace(/^native-edited:/,''),canonicalJson(value.source));
     return sql(`EXISTS(SELECT 1 FROM ${a.table} n WHERE ${terms}${alertGuard}) AND (${metadata.sql})${authority}`,...a.columns.map(key=>native[key]),...metadata.params!,...authority?[id,id]:[]);
@@ -68,7 +68,13 @@ export const sentryTargets:D1TargetAdapter={
     const a=address(row.destination,row.targetKind,row.targetId),value=row.value as any,native=value.native;
     if(!native||a.columns.some(key=>!(key in native))||Object.keys(native).some(key=>!a.columns.includes(key)))throw new Error('Invalid native row');
     if(a.keys.some((key,index)=>native[key]!==a.values[index]))throw new Error('Native identity mismatch');
-    return [sql(`INSERT INTO ${a.table}(${a.columns.join(',')}) VALUES(${a.columns.map(()=>'?').join(',')}) ON CONFLICT(${a.keys.join(',')}) DO UPDATE SET ${a.columns.filter(key=>!a.keys.includes(key)).map(key=>`${key}=excluded.${key}`).join(',')}`,...a.columns.map(key=>native[key])),
+    const alertFence = row.targetKind==='import-proposal'&&native.kind==='alert' ? [
+      sql(`INSERT INTO spool_authority_guards(ok) SELECT CASE WHEN NOT EXISTS(
+        SELECT 1 FROM spool_import_proposals p JOIN alert_rules r ON r.id=?||p.id WHERE p.id=? AND p.payload<>?
+      ) THEN 1 ELSE 0 END`,importedAlertPrefix,row.targetId,native.payload),
+      sql('DELETE FROM spool_authority_guards WHERE rowid=last_insert_rowid()'),
+    ] : [];
+    return [...alertFence,sql(`INSERT INTO ${a.table}(${a.columns.join(',')}) VALUES(${a.columns.map(()=>'?').join(',')}) ON CONFLICT(${a.keys.join(',')}) DO UPDATE SET ${a.columns.filter(key=>!a.keys.includes(key)).map(key=>`${key}=excluded.${key}`).join(',')}`,...a.columns.map(key=>native[key])),
       value.source===null?sql('DELETE FROM sentry_import_targets WHERE kind=? AND id=?',row.targetKind,row.targetId):sql('INSERT INTO sentry_import_targets(kind,id,revision,source) VALUES(?,?,?,?) ON CONFLICT(kind,id) DO UPDATE SET revision=excluded.revision,source=excluded.source',row.targetKind,row.targetId,row.revision,canonicalJson(value.source))];
   },
   remove(destination,kind,id){
