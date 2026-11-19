@@ -1,0 +1,1 @@
+{"status":"no-change","sha":"bb2efcd34837cd6067d02ce176609d3fc636dad2","summary":"Current main Verify 44486041326 and the local project-erasure journey passed at the exact published head.","tests":"pnpm test:project-erasure (7 groups, 10 captures), pnpm typecheck, node src/base/contract-docs.mjs check, and pnpm source:check all passed.","security":false}

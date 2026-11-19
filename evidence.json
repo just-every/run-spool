@@ -1,0 +1,34 @@
+{
+  "files": [
+    {
+      "blob": "ae7fcb9b2211113520a0b9570aaa9cf5e871d93c",
+      "bytes": 3939,
+      "path": "PROJECT-ERASURE-RECEIPT.json",
+      "sha256": "c670f2343a8517c29050b4a872f12d9bac8fcecae07083afbd83617081528e98"
+    },
+    {
+      "blob": "cf70342840669c9a7973ecf4b064f0b8903f2e3f",
+      "bytes": 3035,
+      "path": "REPORT.md",
+      "sha256": "7f7d9509b7e6ef766f31f6404ed0b02a38051864dca1ce7440ab8fe5b6deeac8"
+    },
+    {
+      "blob": "edfb5dd0da46be50070d9dde263b8f5025ad3231",
+      "bytes": 2414,
+      "path": "VERIFY-RECEIPT.json",
+      "sha256": "cae7f42df7665608da66bff674b1f957b1e6a52c06cc8cce72fbc23b52bd757f"
+    },
+    {
+      "blob": "beb321fa6bfc20678e8d32b51c90ae8dec01d77c",
+      "bytes": 357,
+      "path": "result.json",
+      "sha256": "9512d7d5e5055f96088203ad34ab229396738f020f6ea516158041119b090230"
+    }
+  ],
+  "product_branch": "cloud/gr-mt-spool-ci-21",
+  "product_head": "bb2efcd34837cd6067d02ce176609d3fc636dad2",
+  "ref": "refs/heads/evidence/gr-mt-spool-ci-21",
+  "repository": "just-every/run-spool",
+  "schema": 1,
+  "tag": "gr-mt-spool-ci-21"
+}
