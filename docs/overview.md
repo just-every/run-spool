@@ -28,6 +28,6 @@ See [supported languages](SUPPORTED-LANGUAGES.md) for the exact native/Sentry Py
 ## Installation settings
 
 - [User identity policy](USER-IDENTITY.md): understand the default before capture and change it in Settings.
-- [GitHub connection](GITHUB-CONNECTION.md): connect local fix branches and understand the hosted limit.
+- [GitHub connection](GITHUB-CONNECTION.md): connect and test GitHub for fix branches.
 - [Integration egress service](INTEGRATION-EGRESS.md): install the shared prerequisite for Slack destinations and cron check-ins.
 - [Business import trust](BUSINESS-IMPORT-TRUST.md): configure the existing owner-claim trust or import as the owner.

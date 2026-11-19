@@ -3,7 +3,8 @@ import { agentAuthority } from '../agent-door/native-authority';
 import { runtimeBindings } from '../../auth/bindings';
 import { jsonBody, ownerProjectRouter, ownerWrites } from '../owner-router';
 import { reproducerView } from '../reproducers/view';
-import { connection, publicConnection } from './connection';
+import { publicConnection } from './connection';
+import { connection } from './connection-store.server';
 import { grantSpec, proposalInput } from './grant';
 import { GrantRefused, RECEIPT_LIMIT, STEP_RECEIPTS } from './provider';
 import { advance, workflowView } from './workflow';
@@ -16,7 +17,7 @@ const s = (db: D1Database, sql: string, ...args: any[]) => db.prepare(sql).bind(
 const audit = (db: D1Database, project: string, kind: string, detail: object, time: number) =>
  s(db, 'INSERT INTO audit SELECT ?,?,?,?,? WHERE changes()=1', crypto.randomUUID(), project, kind, JSON.stringify(detail), time);
 const current = (c: any) => s(c.env.DB, 'SELECT * FROM fix_workflows WHERE project=? AND id=?', c.req.param('project'), c.req.param('fix')).first<any>();
-const view = async (c: any, row: any) => workflowView(c.env.DB, runtimeBindings(c.env), row);
+const view = async (c: any, row: any) => workflowView(c.env.DB, row, publicConnection(await connection(runtimeBindings(c.env))));
 // A provider step needs the workflow's lease: taken atomically, only while no
 // other step holds it and only when the receipt budget can hold the whole step.
 const LEASE_MS = 5 * 60_000;
@@ -45,7 +46,8 @@ routes.get('/', async c => {
  const project = c.req.param('project')!, issue = c.req.query('issue');
  if (!issue || !await s(c.env.DB, 'SELECT 1 FROM issues WHERE project=? AND id=?', project, issue).first()) return c.json({ error: 'Issue not found' }, 404);
  const rows = (await s(c.env.DB, 'SELECT * FROM fix_workflows WHERE project=? AND issue=? ORDER BY proposed DESC,id DESC', project, issue).all<any>()).results;
- return c.json({ connection: publicConnection(connection(runtimeBindings(c.env))), workflows: await Promise.all(rows.map(row => view(c, row))) });
+ const status = publicConnection(await connection(runtimeBindings(c.env)));
+ return c.json({ connection: status, workflows: await Promise.all(rows.map(row => workflowView(c.env.DB, row, status))) });
 });
 
 routes.post('/', async c => {
@@ -86,7 +88,7 @@ routes.post('/:fix/approve', async c => {
  if (!updated.meta.changes) return c.json({ error: 'Revision conflict' }, 409);
  const approved = await current(c);
  const agentPrepared=await s(c.env.DB,"SELECT 1 FROM spool_agent_custody WHERE kind='fix' AND id=?",row.id).first();
- if (!agentPrepared && connection(runtimeBindings(c.env)).state === 'configured' && !approved.pull_number) {
+ if (!agentPrepared && (await connection(runtimeBindings(c.env))).state === 'configured' && !approved.pull_number) {
   const time = Date.now(), [, leased] = await ownerWrites(c, [expiredLease(c, approved, time), takeLease(c, approved, time, false)]);
   if (!leased.meta.changes) return refusedLease(c, approved);
   const failed = await leasedStep(c, approved); if (failed) return failed;

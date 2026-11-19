@@ -91,7 +91,10 @@ export async function nativeCall(env: Bindings, route:string,method:string,args:
  const response=ctx.agent?await withAgentAuthority(request,env,ctx as ToolContext,operation,work):await withReviewerAuthority(request,env,ctx.person.id,work);
  if(response.ok&&route==='issue-export'&&a.format==='csv')return {format:'csv',content:await response.text()};
  let value:any;try{value=await response.json();}catch{throw new ToolRefusal('native_unavailable');}
- if(!response.ok)throw new ToolRefusal([401,403,404].includes(response.status)?'not_found':response.status===409?'revision_conflict':'native_refused','Native action refused',{status:response.status,reason:typeof value?.error==='string'?value.error:undefined});
+ if(!response.ok){
+  const field=route==='proposals'&&method==='POST'&&typeof value?.field==='string'?value.field:undefined;
+  throw new ToolRefusal([401,403,404].includes(response.status)?'not_found':response.status===409?'revision_conflict':field?'invalid_arguments':'native_refused','Native action refused',{status:response.status,reason:typeof value?.error==='string'?value.error:undefined,...field?{field}:{}});
+ }
  if(route==='issue'&&method==='GET'){
   value=value.find((row:any)=>row.id===a.issue);if(!value)throw new ToolRefusal('not_found');
  }

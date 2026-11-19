@@ -70,9 +70,7 @@ Each preference read, save and refusal records a privacy-safe audit fact. Privat
 
 ## From GITHUB-CONNECTION.md
 
-Making it a required secret would also force every installation to provide GitHub credentials.
-
-The current hosted deployment does **not support the optional GitHub connection secret**. Its `deploy.json` does not declare `GITHUB_CONNECTION`; `rer deploy --set-secret GITHUB_CONNECTION` refuses it as undeclared. There is no supported hosted credential-entry route today. Use local Spool for this workflow or ask your installation operator for a release with optional integration deployment support.
+Spool stores the owner’s GitHub App connection in encrypted, installation-only custody that private archives exclude. Settings can replace the connection or test the key, installation and permissions without opening a branch or pull request. An existing local runtime binding remains supported.
 
 ## From INTEGRATION-EGRESS.md
 

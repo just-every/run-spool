@@ -30,8 +30,13 @@ export async function spoolTarget(env: Bindings, route: string, args: Record<str
  if(!args.project)return null;
  await nativeCall(env,'issues','GET',{project:args.project},ctx,'target');
  if(args.issue||(['proposals','grouping-preview'].includes(route)&&args.source)){
-  const packet=await nativeCall(env,'packet','GET',{project:args.project,issue:args.issue??args.source},ctx,'target');
-  return {kind:'issue',id:packet.issue.id};
+  try{
+   const packet=await nativeCall(env,'packet','GET',{project:args.project,issue:args.issue??args.source},ctx,'target');
+   return {kind:'issue',id:packet.issue.id};
+  }catch(error){
+   if(route==='proposals'&&error instanceof ToolRefusal&&error.code==='not_found')throw new ToolRefusal('not_found','Proposal source unavailable',{field:'source',reason:'Use the full issue ID from a current packet in this project.'});
+   throw error;
+  }
  }
  const records:Record<string,[string,string]>={proposal:['grouping_proposals','grouping_proposal'],'grouping-apply':['grouping_corrections','grouping_correction'],'grouping-undo':['grouping_corrections','grouping_correction'],'reproducer-run':['reproducers','reproducer'],'reproducer-claim':['reproducer_runs','reproducer_run'],'repair-check':['repairs','repair'],'repair-fact':['repairs','repair'],'fix-advance':['fix_workflows','fix'],alert:['alert_rules','alert_rule']};
  if(args.id&&records[route]){

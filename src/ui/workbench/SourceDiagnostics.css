@@ -1,0 +1,45 @@
+.source-diagnostics {
+  margin: 16px 0 0;
+  padding-inline-start: 24px;
+}
+
+.source-diagnostics li {
+  padding-block: 12px;
+  overflow-wrap: anywhere;
+}
+
+.source-diagnostics li + li {
+  border-top: var(--rule);
+}
+
+.source-diagnostics h3 {
+  margin: 0 0 8px;
+  font-size: 16px;
+}
+
+.source-diagnostics dl {
+  display: grid;
+  gap: 6px;
+  margin: 0;
+}
+
+.source-diagnostics dl > div {
+  display: grid;
+  grid-template-columns: 7rem minmax(0, 1fr);
+  gap: 8px;
+}
+
+.source-diagnostics dt {
+  font-weight: 600;
+}
+
+.source-diagnostics dd {
+  margin: 0;
+}
+
+@media (max-width: 480px) {
+  .source-diagnostics dl > div {
+    grid-template-columns: 1fr;
+    gap: 2px;
+  }
+}

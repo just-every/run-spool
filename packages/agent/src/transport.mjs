@@ -51,38 +51,51 @@ export function endpoint(config, operation, args = {}) {
 // A policy refusal names where an owner answers it. An existing project key
 // stops at an unanswered company agent policy until the owner chooses one.
 function refusal(error, config) {
-  const code = typeof error?.code === 'string' ? error.code : 'native_refused';
+  const code = typeof error?.code === 'string' ? redact(error.code, [config.key, config.devKey]) : 'native_refused';
   const setup = typeof error?.setup_url === 'string' ? redact(error.setup_url, [config.key, config.devKey]) : null;
-  return `Spool refused the request: ${code}.${setup ? ` An owner chooses the company agent policy at ${setup}; this key works once it is chosen.` : ''}`;
+  const correction = typeof error?.field === 'string' && typeof error?.reason === 'string'
+    ? redact(` ${error.field}: ${error.reason}`, [config.key, config.devKey]) : '';
+  return `Spool refused the request: ${code}.${correction}${setup ? ` An owner chooses the company agent policy at ${setup}; this key works once it is chosen.` : ''}`;
 }
-export async function rpc(config, method, params = {}) {
-  const url = new URL('/mcp', config.root);
+async function post(config, url, body, headers, proposal = false) {
   const controller = new AbortController();
   const timer = setTimeout(() => controller.abort(), config.timeout);
   try {
     const response = await fetch(url, {method:'POST',redirect:'manual',signal:controller.signal,
-      headers:{authorization:`Bearer ${config.key}`,accept:'application/json, text/event-stream','content-type':'application/json','MCP-Protocol-Version':'2025-11-25',...(config.devKey?{'x-rer-dev-key':config.devKey}:{})},
-      body:JSON.stringify({jsonrpc:'2.0',id:crypto.randomUUID(),method,params})});
+      headers:{authorization:`Bearer ${config.key}`,'content-type':'application/json',...(config.devKey?{'x-rer-dev-key':config.devKey}:{}),...headers},
+      body:JSON.stringify(body)});
     if(response.status===401)throw new AgentError('Not authorized.',2);
     if(response.status>=300&&response.status<400)throw new AgentError('Redirect refused.');
-    if(!response.ok)throw new AgentError('Spool is unavailable.');
+    if(!response.ok&&!proposal)throw new AgentError('Spool is unavailable.');
     let bytes=0;const chunks=[];
     for await(const chunk of response.body){bytes+=chunk.byteLength;if(bytes>2*1024*1024)throw new AgentError('Spool response exceeds the read limit.');chunks.push(chunk);}
-    const message=JSON.parse(Buffer.concat(chunks).toString('utf8'));
-    if(message.error)throw new AgentError(message.error.data?.code?refusal(message.error.data,config):'Spool refused the request.');
-    return redact(message.result,[config.key,config.devKey]);
+    return {ok:response.ok,status:response.status,message:JSON.parse(Buffer.concat(chunks).toString('utf8'))};
   }catch(error){if(error instanceof AgentError)throw error;throw new AgentError('Spool is unavailable or the request timed out.');}
   finally{controller.abort();clearTimeout(timer);}
 }
+export async function rpc(config, method, params = {}) {
+  const {message}=await post(config,new URL('/mcp',config.root),{jsonrpc:'2.0',id:crypto.randomUUID(),method,params},
+    {accept:'application/json, text/event-stream','MCP-Protocol-Version':'2025-11-25'});
+  if(message.error)throw new AgentError(message.error.data?.code?refusal(message.error.data,config):'Spool refused the request.');
+  return redact(message.result,[config.key,config.devKey]);
+}
 export async function request(config, operation, args={}) {
   operation=resolveOperation(operation,args);
-  const names={list_issues:'spool.issues.list',get_packet:'spool.packets.read',get_outcomes:'spool.outcomes.read',list_grouping_proposals:'spool.proposals.list',propose_grouping:'spool.proposals.create'};
-  const name=names[operation];if(!name)throw new AgentError('Unknown operation.');
-  // Validate the legacy CLI inputs before forwarding to the shared registry.
-  endpoint(config,operation,args);
+  const url=endpoint(config,operation,args);
   const project=decodeURIComponent(config.root.pathname.split('/').at(-1));
   if(args.project!==undefined&&args.project!==project)throw new AgentError('Not found or out of scope.',3);
-  const answer=await rpc(config,'tools/call',{name,arguments:{...args,project,...operation==='propose_grouping'?{idempotency_key:args.idempotency_key??crypto.randomUUID()}:{} }});
+  if(operation==='propose_grouping'){
+    const {project:_project,idempotency_key:key=crypto.randomUUID(),...proposal}=args;
+    if(typeof key!=='string'||!key||key.length>200||/[\u0000-\u001f\u007f]/.test(key))throw new AgentError('Use a nonempty idempotency key of at most 200 characters.');
+    const {ok,status,message}=await post(config,url,proposal,{accept:'application/json','idempotency-key':key},true);
+    if(!ok){
+      if(message?.code==='not_found'||status===404||status===403&&!message?.code)throw new AgentError(message?.field?refusal(message,config):'Not found or out of scope.',3);
+      throw new AgentError(refusal(message,config),1);
+    }
+    return redact(message,[config.key,config.devKey]);
+  }
+  const names={list_issues:'spool.issues.list',get_packet:'spool.packets.read',get_outcomes:'spool.outcomes.read',list_grouping_proposals:'spool.proposals.list'};
+  const answer=await rpc(config,'tools/call',{name:names[operation],arguments:{...args,project}});
   if(answer?.isError){const error=answer._meta?.['com.runeditrun/error'];throw new AgentError(refusal(error,config),error?.code==='not_found'?3:1);}
   const value=answer.structuredContent;return Array.isArray(value?.items)?value.items:value;
 }

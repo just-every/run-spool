@@ -211,13 +211,9 @@ Set `SPOOL_DSN` in the host environment, then trigger an exception from a develo
 
 ## JavaScript source maps
 
-Install the upload tool in your application’s repository with that application’s Node.js and npm, not Spool’s private installer runtime:
+Run your Spool installation’s upload tool in your application’s repository.
 
 Requires [Node.js and npm](https://nodejs.org/en/download) installed and available on PATH in your application’s repository. Spool’s installer keeps its runtime private and does not provide npm on PATH. For browser capture without Node.js or npm, use the [browser helper](capture.md#browser-capture-without-nodejs-or-npm).
-
-```sh
-npm install @just-every/spool
-```
 
 For Next.js, merge `productionBrowserSourceMaps: true` into your existing `next.config.mjs`:
 
@@ -229,19 +225,18 @@ Set `SPOOL_ENDPOINT` to the Spool installation address, `SPOOL_PROJECT` to the p
 
 ```sh
 npx next build --webpack
-find .next/static -name '*.js.map' -exec sh -c '
-  for map do
-    npx spool-sourcemaps --endpoint "$SPOOL_ENDPOINT" --project "$SPOOL_PROJECT" \
-      --release "$SPOOL_RELEASE" --build "$SPOOL_BUILD" \
-      --key-env SPOOL_DEPLOY_KEY "${map%.map}" || exit
-  done
-' sh {} +
+curl -fsS "${SPOOL_ENDPOINT%/}/spool-sourcemaps.mjs" -o spool-sourcemaps.mjs &&
+find .next/static -name '*.js' -exec node ./spool-sourcemaps.mjs \
+  --endpoint "$SPOOL_ENDPOINT" --project "$SPOOL_PROJECT" \
+  --release "$SPOOL_RELEASE" --build "$SPOOL_BUILD" \
+  --key-env SPOOL_DEPLOY_KEY {} +
 ```
 
 For React or compiled Express with another bundler, emit adjacent `.js` and `.js.map` files, then run the tool before serving those bundles:
 
 ```sh
-npx -p @just-every/spool spool-sourcemaps --endpoint "$SPOOL_ENDPOINT" \
+curl -fsS "${SPOOL_ENDPOINT%/}/spool-sourcemaps.mjs" -o spool-sourcemaps.mjs &&
+node ./spool-sourcemaps.mjs --endpoint "$SPOOL_ENDPOINT" \
   --project "$SPOOL_PROJECT" --release "$SPOOL_RELEASE" --build "$SPOOL_BUILD" \
   --key-env SPOOL_DEPLOY_KEY ./dist/app.js
 ```

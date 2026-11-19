@@ -58,6 +58,7 @@ export const projectErasure = defineErasure({
   { table: 'alert_scheduler', from: 'alert_rules', where: 'last_spike_rule=?', params: ['id'], set: { last_spike_rule: '' }, reason: 'The spike scheduler cursor keeps no rule identifier.' },
  ],
  retain: [
+  {table:'spool_github_connection',reason:'The GitHub App connection applies to the installation. Owner erasure removes the saved credential.'},
   {table:'spool_local_invite_links',reason:'Encrypted local invitation custody belongs to the organization, not a project. Native expiry and revocation remain authoritative; owner erasure deletes this custody and private archives exclude it.'},
   ...retainedAgentArtifacts,
   {table:'spool_audit_events',reason:'Safe chronology retains random actor and subject labels, action, time and outcome only; private attribution links are erased.'},

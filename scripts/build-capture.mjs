@@ -22,3 +22,6 @@ if (!existing?.equals(output)) {
 
 // Ship the pinned official browser SDK locally; loader pages never fetch a CDN.
 await build({stdin:{contents:"export * from '@sentry/browser';",resolveDir:process.cwd()},outfile:'public/spool-sentry-sdk.js',bundle:true,minify:true,format:'iife',globalName:'__SpoolSentrySDK',platform:'browser',target:'es2022'});
+
+// The Capture commands use the stamper shipped by this Spool installation.
+await build({entryPoints:['packages/sdk/src/sourcemaps/bin.mjs'],outfile:'public/spool-sourcemaps.mjs',bundle:true,format:'esm',platform:'node',target:'node22'});

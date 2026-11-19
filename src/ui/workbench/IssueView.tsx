@@ -14,6 +14,7 @@ import { useEffect, useState, type ReactNode } from 'react';
 import { Link } from '@tanstack/react-router';
 import type { IssuePanels } from './issuePanels';
 import { GroupingFacts } from './GroupingExplanation';
+import { SourceDiagnostics } from './SourceDiagnostics';
 import { Details } from './Details';
 import { AgentPacketCommand } from './AgentPacketCommand';
 import { EventExplorer } from './EventExplorer';
@@ -48,8 +49,8 @@ function hiddenSourceRows(event: any) {
   return hidden;
 }
 // The evidence rail follows the stack trace: beside it on wide screens, directly under it on narrow ones.
-export function IssueView({ project, packet, panels, status, alert, busy, request, run, refresh, onUpload, onViewed, rail, readOnly = false, manageProject = true, manageOrganization = true }: {
-  project: string; packet: any; panels: IssuePanels | null; status: string; alert?: Alert; busy: boolean; request: Request; run: Run; refresh: () => void; onUpload: (release: string, debugId: string) => void; onViewed: (id: string) => void; rail: ReactNode; readOnly?: boolean; manageProject?: boolean; manageOrganization?: boolean;
+export function IssueView({ project, packet, panels, status, alert, busy, request, run, refresh, onUpload, onViewed, rail, readOnly = false, manageProject = true, manageOrganization = true, canConfigureGitHub = false }: {
+  project: string; packet: any; panels: IssuePanels | null; status: string; alert?: Alert; busy: boolean; request: Request; run: Run; refresh: () => void; onUpload: (release: string, debugId: string) => void; onViewed: (id: string) => void; rail: ReactNode; readOnly?: boolean; manageProject?: boolean; manageOrganization?: boolean; canConfigureGitHub?: boolean;
 }) {
   const [allFrames, setAllFrames] = useState(false), [copied, setCopied] = useState(false);
   const [agentCommandOpen, setAgentCommandOpen] = useState(false);
@@ -85,7 +86,7 @@ export function IssueView({ project, packet, panels, status, alert, busy, reques
         <AssignmentPicker {...{project,request,run,busy,refresh}} issue={group} onSaved={revision=>setLocalRevision({issue:group.id,revision})}/></div>
         <div className="button-row">{group.state!=='resolved'&&<button className="primary-button" disabled={busy} onClick={()=>setResolving(true)}>Resolve</button>}<button className="text-button" onClick={()=>{document.getElementById('issue-discussion')?.scrollIntoView({block:'start'});setCommentRequest(value=>value+1)}}>Comment</button>
         <details className="issue-secondary-actions"><summary aria-label="Issue actions" title="Issue actions">⋯</summary>
-          <Details title="Fix with an AI coding assistant" triggerLabel="Fix with an AI coding assistant" onOpen={()=>setAgentCommandOpen(true)}>{agentCommandOpen&&<AgentPacketCommand project={project} issue={group.short_id??group.id}/>}</Details>
+          {group.short_id && <Details title="Hand to agent" triggerLabel="Hand to agent" onOpen={()=>setAgentCommandOpen(true)}>{agentCommandOpen&&<AgentPacketCommand project={project} issue={group.short_id}/>}</Details>}
           <button className="text-button" onClick={()=>download(packet,`spool-${group.short_id??'issue'}-packet.json`)}>Download details for a developer</button>
         </details></div>
         {resolving ? <form className="resolve-issue" onSubmit={e=>{e.preventDefault();void run(async()=>{const saved=await request(`/api/projects/${project}/issues/${group.id}`,'PATCH',{state:'resolved',revision:group.revision,resolution,...resolution==='named'?{release:resolutionRelease}:{}});setLocalRevision({issue:group.id,revision:saved.revision});setResolving(false);refresh()})}}>
@@ -119,7 +120,7 @@ export function IssueView({ project, packet, panels, status, alert, busy, reques
       })}</ol>
       {!frames.length && <p>No retained stack frames.</p>}
       {frames.length > 6 && <button className="text-button" onClick={() => setAllFrames(!allFrames)}>{allFrames ? 'Show fewer frames' : `Show all ${frames.length} frames`}</button>}
-      <Details title="Issue and source evidence"><p>Source maps and recorded repository path mappings enrich the current lookup. Original receipt records remain unchanged.</p><pre>{JSON.stringify({ issue: group, grouping: packet.grouping, events: packet.events }, null, 2)}</pre></Details>
+      <SourceDiagnostics occurrence={event} hidden={hidden} packet={packet} />
     </section>
     <EventExplorer key={`${project}:${group.id}`} project={project} issue={group.id} refresh={packet} onSelect={setSelectedEvent}/>
     <div className="issue-collaboration"><Suppression {...{project,request,run,busy,readOnly}} issue={group} onChange={refresh}/>
@@ -134,6 +135,6 @@ export function IssueView({ project, packet, panels, status, alert, busy, reques
     <section className="evidence"><h2>Observed deployments</h2><Details title="Observed deployments"><p>First and last events by receipt time. Deployment details are supplied by you or your deploy key.</p></Details>{(['first','last'] as const).map(key=>{const d=packet.deployments?.[key];return <div key={key}><h3>{key==='first'?'First seen':'Last seen'}</h3><p>{d?`${releaseLabel(d.release)} · ${d.environment}`:'No retained occurrence'}</p>{d?.manifest?<p><a href={d.manifest.repository} rel="noreferrer" target="_blank">Repository</a> · <code>{d.manifest.commit_sha}</code> · {date(d.manifest.deployed_at)}</p>:<p>Deployment and commit unknown for this environment.</p>}</div>})}</section>
     {manageProject && <OperatorPanel initial={panels?.operator} project={project} packet={{...packet,issue:group}} busy={busy} request={request} run={run} refresh={refresh}/>}
     {manageOrganization && <RepairPanel initial={panels?.repairs} project={project} issue={group} busy={busy} request={request} run={run} refresh={refresh} />}
-    {manageOrganization && <ExecutionPanel initial={panels?.execution} project={project} issue={group} event={event} busy={busy} request={request} run={run} />}
+    {manageOrganization && <ExecutionPanel canConfigureGitHub={canConfigureGitHub} initial={panels?.execution} project={project} issue={group} event={event} busy={busy} request={request} run={run} />}
   </>;
 }

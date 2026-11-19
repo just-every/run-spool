@@ -24,7 +24,7 @@ const p='/api/projects/shop',r1={name:'2026.10.1',build:'b1'},r2={name:'2026.10.
 let app,restored,github,browser,stage='setup';const results={};
 try{
  const fixture=await shopFixture();github=await githubDouble();
- app=await executionRuntime(state,15476);
+ app=await executionRuntime(state,15476,{},github.origin);
  const {ingestKey}=await app.json('/api/projects','POST',{id:'shop',name:'Harbor Shop'});
  await app.json(`${p}/releases`,'POST',r1);await app.json(`${p}/artifacts`,'POST',{release:r1.name,build:r1.build,debugId:'cart-map',map:fixture.broken});
  stage='reproduce';const reproduced=await reproduceProof(app,fixture,ingestKey);results.reproduce=reproduced.outcomes;results.loadFailures=reproduced.loadFailures;results.analysisLoadFailures=reproduced.analysisLoadFailures;results.dataInput=reproduced.dataInput;results.reduction=reproduced.reduction;results.limited=reproduced.limited;results.malicious=reproduced.malicious;results.missingArtifacts=reproduced.missingArtifacts;results.probe=reproduced.probe;results.checks=reproduced.checks;results.tools=reproduced.tools;
@@ -33,9 +33,7 @@ try{
  stage='baseline';await baseline(app,ingestKey,r1);
  stage='awaiting-connection';const awaiting=await awaitingConnection(app,github,reproduced);results.awaitingConnection={status:awaiting.status,error:awaiting.error};
  stage='disconnected-setup';browser=await launchBrowser();
- const requestsBeforeSetup=github.requests.length;
- results.setupCaptures=await disconnectedGitHubSetup(app,browser,directory,reproduced.issue);
- assert.equal(github.requests.length,requestsBeforeSetup,'viewing disconnected setup never contacts GitHub');
+ results.setupCaptures=await disconnectedGitHubSetup(app,browser,directory,reproduced.issue,github);
  await browser.close();browser=null;
  // The owner configures the GitHub App connection and restarts.
  await app.stop();app=await executionRuntime(state,15476,{GITHUB_CONNECTION:github.connection});

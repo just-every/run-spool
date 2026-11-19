@@ -58,7 +58,7 @@ The first time you open Spool, `/setup` offers project creation or archive resto
 
 Spool then shows the project's **ingest key** once. Copy it now: if you lose it, create a new ingest key in **Settings**. Below it are the install line and a three-line `init` for Spool's SDK, already filled in with this installation's address and that key, and **Send test error**, which sends one real error to the new project. Already using Sentry? The project's **Sentry DSN** is shown there too.
 
-Use **Send test error** to check that the key and release receive an error from Spool itself, then choose **Continue to workbench** to open the project's **Issues**. If you sent the test, its issue is already there; otherwise the list waits for your first event. The test does not check your app's browser origin or source maps. [Connect your app](capture.md) next; **Check for events** is on the later **Capture** page.
+Use **Send test error** to check that the key and release receive an error from Spool itself, then choose **Continue to workbench** to open the project's **Issues**. If you sent the test, its issue is already there; otherwise the list waits for your first event. The test does not check your app's browser origin or source maps. [Connect your app](capture.md) and watch for its events on **Capture**.
 
 ## Stopping and starting
 

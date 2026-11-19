@@ -1,38 +1,11 @@
 # GitHub connection for fix branches
 
-Fix branches need a GitHub App installed on the target repository and a connection supplied by the person who operates this Spool installation. Creating a GitHub App alone does not connect Spool. The issue page has no credential form or standalone connection test.
+In an issue, open **Reproduce and fix → Fix branches → Manage GitHub connection in Settings**. The installation owner can connect a GitHub App on local or hosted Spool.
 
-<details>
-<summary>Details</summary>
+1. [Register a private GitHub App](https://docs.github.com/en/apps/creating-github-apps/registering-a-github-app/registering-a-github-app). Turn off webhooks. Give it repository permissions **Contents: Read and write**, **Pull requests: Read and write**, and **Checks: Read-only**. Protect the base branch with GitHub repository rules.
+2. Copy the numeric **App ID** from the App settings. Under **Private keys**, choose **Generate a private key** and keep the downloaded PEM file private.
+3. Under **Install App**, install it on the target repository. Open its configuration in **Installed GitHub Apps**. Copy the number after `/installations/` in the address as the **Installation ID**.
+4. Pick **Set up connection** in Spool. Enter both IDs, select the PEM file and choose **Connect GitHub**. Then choose **Test connection** to verify the key, installation and permissions. Testing reads the installation in GitHub and creates no branch or pull request.
+5. If the test fails, correct the permissions or installation in GitHub, or use **Replace connection** to provide different IDs and a fresh PEM file. Retest before approving a grant. The saved private key is encrypted on this installation and excluded from archives.
 
-## Local Spool
-
-Use the checkout that runs Spool, not the checkout of the application reporting errors.
-
-1. Create or use a GitHub App with repository permissions **Contents: Read and write**, **Pull requests: Read and write**, and **Checks: Read-only**. Install it on the target repository. Protect the base branch with repository rules: GitHub cannot restrict Contents permission to only the fix branch.
-2. Record the numeric **App ID** from the App settings and the separate numeric **installation ID** from its configuration URL (the number after `/installations/`). Generate and download its PEM private key. Keep it private.
-3. Stop the Spool dev process with Ctrl+C in its foreground terminal. If you started it detached, stop that specific process before editing its settings.
-4. Add `GITHUB_CONNECTION` to the Spool checkout's private `.dev.vars` file. Preserve the other settings and keep the file mode `0600`. Its value is one JSON object, wrapped in single quotes on one line:
-
-   ```text
-   GITHUB_CONNECTION='{"appId":"<numeric App ID>","installationId":"<numeric installation ID>","privateKey":"<PEM private key with line breaks encoded as \\n>"}'
-   ```
-
-   Replace the placeholders with your own values; encode each actual PEM line break as `\n` in the JSON string. Do not commit the file or paste it into an issue, report or screenshot. The optional `apiOrigin` field is for an alternate HTTPS API origin; normal GitHub needs no override.
-5. From that same checkout, restart with `~/.local/bin/rer dev`. Reload the issue's **Reproduce and fix → Fix branches** section.
-
-**Configured** means only that Spool accepted the settings' format. It does not prove access to GitHub. An invalid connection reports its reason on the issue page; correct the setting, stop, restart and reload again.
-
-</details>
-
-## Check access through an approved step
-
-There is no harmless standalone connection test. Review the exact repository, base, branch, paths, purpose and expiry in the grant before approving. With a connection, approval can immediately open a branch and draft pull request. For an already approved, unexpired grant, choose **Open branch and draft pull request**; renew an expired grant first. A successful step establishes access and records its receipt. Failures appear on the issue page and in the workflow receipts.
-
-Without a connection, approval waits for the connection and makes no provider request, but the expiry clock still starts. The first branch contains the reproducer record as data; you supply the code fix. Spool never merges, releases or deploys.
-
-## Hosted Spool
-
-Hosted Spool has no supported credential-entry route for this connection. Use local Spool for this workflow or ask your installation operator for a release with optional integration deployment support.
-
-Do not add the secret through the Cloudflare dashboard: changing the Worker outside rer's deployment receipt can block subsequent updates.
+Return to the issue to review the exact grant. Approval starts its expiry clock and can open a branch and draft pull request immediately. For an approved and unexpired grant, choose **Open branch and draft pull request**. Renew an expired grant before trying again. Each step checks its repository scope and records the provider result. The initial branch contains the reproducer record as data. You supply the code fix, then merge and deploy it through your own workflow.

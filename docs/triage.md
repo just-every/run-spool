@@ -53,9 +53,9 @@ sharing it.
 In **Capture**, the installation snippet includes the absolute address of this
 Spool service. Download the helper into your application's bundle, allow that
 application's exact browser origin, and use its project key and registered release.
-Trigger an error in that application and choose **Check for events**. A new project
-shows a waiting state until an event is accepted. Recorded attempts with no
-accepted event show that state explicitly; inspect Capture receipts for the
+Trigger an error in that application. **Capture** checks for events automatically
+and a new project shows a waiting state until an event is accepted. Recorded
+attempts with no accepted event show that state explicitly; inspect Capture receipts for the
 actual reason and available repair action. A retained old issue is not evidence
 of recent accepted capture.
 

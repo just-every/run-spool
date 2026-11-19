@@ -33,10 +33,10 @@ type Setup = ReturnType<typeof useAgentSetup>;
 
 export function AgentPolicyNotice({ policy }: { policy: Setup['policy'] }) {
   return <p className="agent-policy-notice">{policy === false
-    ? <>Before running a command, the owner must <a className="inline-link" href="/agents" target="_blank" rel="noreferrer">answer all six agent policy questions and save the policy</a>. No policy is saved yet. Opens in a new tab so your setup stays here.</>
+    ? <>Before running a command, the owner must <a className="inline-link" href="/agents" target="_blank" rel="noreferrer">set the agent policy</a>. Answer all six risk questions, choose Yes or No for paid AI, and save. Agents opens in a new tab.</>
     : policy === true
       ? <>Agent policy is saved. Review your choices in <a className="inline-link" href="/agents">Agents</a>.</>
-      : <>Check that the owner has <a className="inline-link" href="/agents" target="_blank" rel="noreferrer">answered all six agent policy questions and saved the policy</a> before running a command. Opens in a new tab.</>}</p>;
+      : <>Before running a command, open <a className="inline-link" href="/agents" target="_blank" rel="noreferrer">Agents</a> in a new tab to confirm the owner saved all six risk answers and the Yes or No choice for paid AI.</>}</p>;
 }
 
 export function AgentCommandFields({ project, issue, setup }: { project: string; issue?: string; setup: Setup }) {

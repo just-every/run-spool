@@ -21,6 +21,10 @@ export async function githubDouble({appId='42',installationId='7',repository='ju
   if(state.delay)await new Promise(resolve=>setTimeout(resolve,state.delay));
   const url=new URL(request.url,'http://double'),path=url.pathname,token=(request.headers.authorization??'').replace(/^Bearer /,'');
   requests.push({method:request.method,path,body:body?JSON.parse(body):null,token:token.startsWith('ghs_')?'installation':token?'app-jwt':'none'});
+  if(request.method==='GET'&&path===`/app/installations/${installationId}`){
+   if(!appAuthorized(request.headers.authorization))return send(response,401,{message:'Bad credentials'});
+   return send(response,200,{id:Number(installationId),app_id:Number(appId),suspended_at:null,permissions:{contents:'write',pull_requests:'write',checks:'read'},...state.installation});
+  }
   if(request.method==='POST'&&path===`/app/installations/${installationId}/access_tokens`){
    if(!appAuthorized(request.headers.authorization))return send(response,401,{message:'Bad credentials'});
    const asked=JSON.parse(body),value='ghs_'+randomBytes(18).toString('hex');

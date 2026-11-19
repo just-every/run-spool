@@ -21,9 +21,9 @@ export async function verifyTranslatedHistory(service:any,manifest:any,ledgers:a
  const recorded=matchMigrationLedger(history??manifest.migrations.map((name:string)=>({name})),files,replay);
  const prefix=canonicalJson(recorded)===canonicalJson(replay.names.slice(0,recorded.length));
  // A complete, product-matched historical inventory can prove a single known
- // omission. Every other migration must still match destination replay in order.
+ // omission within a historical prefix, even after new migrations ship.
  const fillsKnownGap=gap && replay.names.includes(gap.migration)
-  && canonicalJson(recorded)===canonicalJson(replay.names.filter((name:string)=>name!==gap.migration));
+  && canonicalJson(recorded)===canonicalJson(replay.names.slice(0,recorded.length+1).filter((name:string)=>name!==gap.migration));
  if(!prefix&&!fillsKnownGap)throw new PortabilityError('schema_mismatch:migration_history',409);
  const historical=fillsKnownGap?gap.schema:await replay.schemaAfter(recorded,manifest.schemaObjects===undefined?{tablesOnly:true}:undefined);
  const current=await catalogue(service.db,config);

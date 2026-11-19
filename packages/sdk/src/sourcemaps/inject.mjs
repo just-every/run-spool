@@ -17,7 +17,8 @@ export function injectDebugId(code, inputMap) {
     return { code, map, debugId: declared };
   }
   if (declared) throw new Error('Map already has a debug ID but bundle has no matching registration');
-  const hex = createHash('sha256').update(code).update('\0').update(JSON.stringify(map)).digest('hex');
+  // Previous stamps inserted a line. Their maps must keep a distinct identity.
+  const hex = createHash('sha256').update('spool-inline-registration\0').update(code).update('\0').update(JSON.stringify(map)).digest('hex');
   const debugId = `${hex.slice(0,8)}-${hex.slice(8,12)}-4${hex.slice(13,16)}-8${hex.slice(17,20)}-${hex.slice(20,32)}`;
   // A block-local initializer has an empty completion, preserving directive-only eval results.
   // debugId is built from hex digits and hyphens only, so it is quoted as is.

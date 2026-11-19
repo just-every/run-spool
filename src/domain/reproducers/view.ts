@@ -1,4 +1,5 @@
 import { restoredWork } from '../restored-work';
+import { moduleLoadDetail } from './load-detail.mjs';
 import { UNSUPPORTED } from './classify';
 
 const query = (db: D1Database, sql: string, ...args: any[]) => db.prepare(sql).bind(...args);
@@ -10,14 +11,15 @@ export const OUTCOME_LABELS: Record<string, string> = { reproduced: 'reproduced 
 export const VERDICT_BASIS = 'Judged from what your uploaded source did in the sandbox. Code in that upload can shape its own throw, so this is not proof against hostile uploaded code.';
 
 export function runView(row: any, now = Date.now()) {
- const expired = row.state !== 'finished' && now > row.expires, result = json(row.checks);
+ const expired = row.state !== 'finished' && now > row.expires, result = json(row.checks), observation = json(row.observation);
+ if (observation?.phase === 'load_failed') observation.detail = moduleLoadDetail(observation.detail);
  return {
   id: row.id, preparedBy: row.actor?JSON.parse(row.actor):null, release: row.release, build: row.build, modules: json(row.modules),
   state: expired ? 'expired' : row.state,
   outcome: expired ? 'failed' : row.outcome,
   label: OUTCOME_LABELS[expired ? 'failed' : row.outcome] ?? null, basis: VERDICT_BASIS,
-  reason: expired ? 'The run token expired before the runner reported an observation.' : result?.reason ?? null,
-  checks: result?.checks ?? [], observation: json(row.observation), tools: json(row.tools),
+  reason: expired ? 'The run token expired before the runner reported an observation.' : observation?.phase === 'load_failed' ? observation.detail : result?.reason ?? null,
+  checks: result?.checks ?? [], observation, tools: json(row.tools),
   ...(result?.analysis ? { analysis: result.analysis } : {}),
   created: row.created, expires: row.expires, claimed: row.claimed, finished: row.finished,
  };

@@ -4,6 +4,7 @@ import { mkdir, mkdtemp, readFile, rm, writeFile } from 'node:fs/promises';
 import { createRequire } from 'node:module';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
+import { moduleLoadDetail } from '../../src/domain/reproducers/load-detail.mjs';
 
 // The isolated sandbox: one workerd process per run, started with an empty
 // process environment, holding two services. The job service runs the map's
@@ -168,7 +169,9 @@ export async function runSandbox(input, remainingMs = SANDBOX.wallClockMs) {
   if (result.killed) return { phase: 'timed_out', afterMs: Date.now() - started };
   const written = await readFile(join(output, 'observation.json'), 'utf8').catch(() => null);
   if (written !== null) return JSON.parse(written);
-  const detail = result.output.split('\n').filter(line => line.trim() && !/^stack: [0-9a-f ]+$/.test(line.trim())).join('\n').split(directory).join('<sandbox>').slice(-2000);
-  return { phase: /Uncaught|SyntaxError|No such module|ReferenceError|TypeError|Error/.test(detail) ? 'load_failed' : 'sandbox_failed', detail: detail || `workerd exited with code ${result.code}` };
+  if (/service job: Uncaught|No such module|Invalid module specifier/.test(result.output)) {
+   return { phase: 'load_failed', detail: moduleLoadDetail(result.output) };
+  }
+  return { phase: 'sandbox_failed', detail: `workerd exited with code ${result.code} before reporting the observation.` };
  } finally { await rm(directory, { recursive: true, force: true }); }
 }

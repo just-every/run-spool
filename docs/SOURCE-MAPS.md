@@ -51,7 +51,7 @@ await build({ entryPoints: ['src/index.js'], outfile: 'dist/app.js',
 
 For Vite, add `spoolSourceMaps` from `@just-every/spool/vite` last in `plugins` and set `build.sourcemap: true`. For Rollup, import the same factory from `@just-every/spool/rollup`, set `output.sourcemap: true` and add it to `plugins`. Both take the same connection and `requiredMaps` options above. Keep the deploy key in a CI secret, never the application bundle.
 
-The CLI takes repeatable `--required-map NAME` flags, for example `spool-sourcemaps --endpoint "$SPOOL_URL" --project "$SPOOL_PROJECT" --release "$SPOOL_RELEASE" --build "$SPOOL_BUILD" --key-env SPOOL_DEPLOY_KEY --required-map app.js.map dist/app.js`. CLI map names use bundle basenames plus `.map`; use plugins for emitted chunks in nested paths. A declaration contains at most 2,000 map names and 256 KiB of serialized JSON, so every admitted set fits private archive rows. Map names must be unique within a build; a collision fails rather than overwriting an identity.
+Download `spool-sourcemaps.mjs` from your Spool installation before running the CLI. The tool takes repeatable `--required-map NAME` flags, for example `node ./spool-sourcemaps.mjs --endpoint "$SPOOL_URL" --project "$SPOOL_PROJECT" --release "$SPOOL_RELEASE" --build "$SPOOL_BUILD" --key-env SPOOL_DEPLOY_KEY --required-map app.js.map dist/app.js`. CLI map names use bundle basenames plus `.map`; use plugins for emitted chunks in nested paths. A declaration contains at most 2,000 map names and 256 KiB of serialized JSON, so every admitted set fits private archive rows. Map names must be unique within a build; a collision fails rather than overwriting an identity.
 
 Registration records an immutable map-name set in `source_map_builds`. Native release registration accepts `requiredArtifacts: ['app.js.map']`; uploads carry `file` and optional `checksum`; the deploy-authorized `POST /api/projects/{project}/artifact-builds/verify` takes `release` and `build`. It returns 409 with every missing name until complete. The release source-map section shows complete/incomplete and missing names. Up to 100 recent declared builds are displayed. The prepared-map picker supplies a debug ID without a declared file name; use the CLI or plugin for required-set completion. A late upload through the CLI or plugin must declare the same original set, including already stored names. It completes that set without changing earlier debug IDs/checksums. Build declarations and map names travel in private archives and are removed by project/owner erasure.
 
@@ -82,7 +82,9 @@ jobs:
       - run: npm ci
       - run: npm run build:${{ matrix.bundler }}
       - if: matrix.bundler == 'cli'
-        run: npx spool-sourcemaps --endpoint "$SPOOL_URL" --project "$SPOOL_PROJECT" --release "$SPOOL_RELEASE" --build "$SPOOL_BUILD" --key-env SPOOL_DEPLOY_KEY --required-map app.js.map dist/app.js
+        run: |
+          curl -fsS "${SPOOL_URL%/}/spool-sourcemaps.mjs" -o spool-sourcemaps.mjs
+          node ./spool-sourcemaps.mjs --endpoint "$SPOOL_URL" --project "$SPOOL_PROJECT" --release "$SPOOL_RELEASE" --build "$SPOOL_BUILD" --key-env SPOOL_DEPLOY_KEY --required-map app.js.map dist/app.js
       - run: npm run deploy:reviewed
 ```
 
@@ -104,7 +106,7 @@ map-build:
   script:
     - npm ci
     - npm run build:$BUNDLER
-    - if [ "$BUNDLER" = cli ]; then npx spool-sourcemaps --endpoint "$SPOOL_URL" --project "$SPOOL_PROJECT" --release "$SPOOL_RELEASE" --build "$SPOOL_BUILD" --key-env SPOOL_DEPLOY_KEY --required-map app.js.map dist/app.js; fi
+    - if [ "$BUNDLER" = cli ]; then curl -fsS "${SPOOL_URL%/}/spool-sourcemaps.mjs" -o spool-sourcemaps.mjs && node ./spool-sourcemaps.mjs --endpoint "$SPOOL_URL" --project "$SPOOL_PROJECT" --release "$SPOOL_RELEASE" --build "$SPOOL_BUILD" --key-env SPOOL_DEPLOY_KEY --required-map app.js.map dist/app.js; fi
     - npm run deploy:reviewed
 ```
 

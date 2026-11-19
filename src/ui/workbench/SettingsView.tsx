@@ -27,6 +27,7 @@ import { OriginStep, SdkSetup, SentryIntake } from './SdkSetup';
 import { SchedulerStatus } from './SchedulerStatus';
 import { BusinessImports } from './BusinessImports';
 import type { Request, Run } from './shared';
+import { GitHubConnectionSetup } from './GitHubConnectionSetup';
 import { GeneralSettings } from './GeneralSettings';
 import { Members, type OrganizationAccess } from './Members';
 
@@ -116,6 +117,7 @@ export function SettingsView({ project, projects, keys, releases, request, run, 
     </div>
     <div id="settings-alerts" className="settings-section" hidden={active !== 'alerts'} tabIndex={-1}>
       {!!project && configure && <p><a className="inline-link" href={hrefFor(project, 'alerts')}>Alert rules and delivery</a></p>}
+      {access.role === 'owner' && <GitHubConnectionSetup request={request} active={active === 'alerts'} />}
     <details><summary>Details</summary>{!!project&&configure&&<SlackDestinationForm key={`slack:${project}`} project={project}/>}
     {access.role === 'owner' && <SchedulerStatus />}</details>
     </div>

@@ -48,7 +48,7 @@ export async function shopFixture(){
   if(dependency<0)throw new Error('The captured fixture must carry its format module');
   const loadFailures=Object.fromEntries([
    ['syntax','export const label = ;\n'],
-   ['unresolved',"export { label } from './missing-format.js';\n"],
+   ['unresolved',"export { label } from './synthetic-spool-81/missing-format.js?token=synthetic-spool-82';\n"],
   ].map(([name,source])=>{
    const map=structuredClone(before.map);map.sourcesContent[dependency]=source;
    return [name,map];

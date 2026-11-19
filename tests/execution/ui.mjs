@@ -3,37 +3,46 @@ import AxeBuilder from '@axe-core/playwright';
 import {openGate} from '../auth.mjs';
 import {runner} from './reproduce.mjs';
 
-// An owner reaches the disconnected integration through the real issue page.
-// Its limits must be visible before opening details or approving a grant.
-export async function disconnectedGitHubSetup(app,browser,directory,issue){
- const captures=[];
- for(const width of [1440,390]){
-  const context=await browser.newContext({viewport:{width,height:900}});
-  try{
-   await openGate(context,app.origin);
-   await context.addCookies([{name:app.cookie.slice(0,app.cookie.indexOf('=')),value:app.cookie.slice(app.cookie.indexOf('=')+1),url:app.origin}]);
-   const page=await context.newPage();await page.goto(`${app.origin}/projects/shop/issues/${issue}`);
-   const connection=page.getByRole('group',{name:'GitHub connection',exact:true});
-   await connection.getByRole('status').filter({hasText:/not configured/i}).waitFor();
-   await connection.locator('.callout').filter({hasText:/setup.*unavailable/i}).waitFor();
-   await connection.getByText(/hosted.*cannot connect.*deployment.*optional.*secret/i).waitFor();
-   const guideLink=connection.getByRole('link',{name:'Set up the GitHub connection',exact:true});await guideLink.waitFor();
-   if(width===1440){
-    const href=await guideLink.getAttribute('href');assert.equal(new URL(href,app.origin).origin,app.origin,'GitHub setup stays on this install');
-    await guideLink.click();await page.locator('article').waitFor();
-    assert.equal((await fetch(page.url())).status,200,'GitHub guide opens anonymously');
-    const index=await (await fetch(app.origin+'/docs')).text();assert.ok(index.includes(`href="${new URL(page.url()).pathname}"`),'GitHub guide is reachable from docs index');
-    await page.goBack();await connection.getByRole('status').filter({hasText:/not configured/i}).waitFor();
-   }
-   const path=`${directory}/github-disconnected-${width}.png`;await connection.screenshot({path});captures.push(path);
-   await connection.getByRole('button',{name:/connection limits/i}).click();
-   const dialog=page.getByRole('dialog',{name:/GitHub connection limits/i});
-   await dialog.getByRole('link',{name:/operator procedure/i}).waitFor();
-   await page.keyboard.press('Escape');await dialog.waitFor({state:'hidden'});
-   assert.equal(await page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth+1),true,`disconnected GitHub setup fits at ${width}`);
-  }finally{await context.close();}
- }
- return captures;
+// The issue leads to owner-only setup. The provider double witnesses a read-only test.
+export async function disconnectedGitHubSetup(app,browser,directory,issue,github){
+ const width=1440, context=await browser.newContext({viewport:{width,height:900}});
+ try{
+  await openGate(context,app.origin);
+  await context.addCookies([{name:app.cookie.slice(0,app.cookie.indexOf('=')),value:app.cookie.slice(app.cookie.indexOf('=')+1),url:app.origin}]);
+  const page=await context.newPage();await page.goto(`${app.origin}/projects/shop/issues/${issue}`);
+  const connection=page.getByRole('group',{name:'GitHub connection',exact:true});
+  await connection.getByText(/not configured/i).waitFor();
+  await connection.getByRole('link',{name:/manage github connection/i}).click();
+  const setup=page.getByRole('region',{name:'GitHub connection',exact:true});
+  const guideLink=setup.getByRole('link',{name:/github connection guide/i});
+  const href=await guideLink.getAttribute('href');assert.equal((await fetch(app.origin+href)).status,200,'GitHub guide opens anonymously');
+  const index=await (await fetch(app.origin+'/docs')).text();assert.ok(index.includes(`href="${href}"`),'GitHub guide is reachable from docs index');
+  await setup.getByRole('button',{name:'Set up connection'}).click();
+  const {appId,installationId,privateKey}=JSON.parse(github.connection);
+  await setup.getByLabel('App ID',{exact:true}).fill(appId);
+  await setup.getByLabel('Installation ID',{exact:true}).fill(installationId);
+  await setup.getByLabel(/private key/i).setInputFiles({name:'synthetic-spool-connection.pem',mimeType:'application/x-pem-file',buffer:Buffer.from(privateKey)});
+  const prior=github.requests.length;
+  const endpoint='/api/operator/github-connection', saved=page.waitForResponse(r=>r.url().endsWith(endpoint)&&r.request().method()==='PUT');
+  await setup.getByRole('button',{name:'Connect GitHub',exact:true}).click();
+  const savedResponse=await saved;assert.equal(savedResponse.status(),200);
+  assert.ok(!(await savedResponse.text()).includes(privateKey.trim()),'response does not echo private key');
+  await page.reload();await setup.getByRole('button',{name:'Test connection',exact:true}).waitFor();
+  assert.equal(github.requests.length,prior,'saving and reloading does not contact GitHub');
+  const tested=page.waitForResponse(r=>r.url().endsWith(endpoint+'/test'));
+  await setup.getByRole('button',{name:'Test connection',exact:true}).click();
+  assert.equal((await tested).status(),200);
+  assert.deepEqual(github.requests.slice(prior),[{method:'GET',path:`/app/installations/${installationId}`,body:null,token:'app-jwt'}]);
+  const archive=await (await app.request('/api/archive')).text();
+  const manifest=JSON.parse(archive.split('\n',1)[0]);
+  assert.ok(!manifest.tables.some(table=>table.name==='spool_github_connection'));
+  assert.ok(!archive.includes(privateKey.split('\n')[1]),'the private key bytes are absent from the archive');
+  assert.equal(await page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth+1),true);
+  const path=`${directory}/github-setup-${width}.png`;await setup.screenshot({path});
+  await setup.getByRole('button',{name:'Remove saved connection',exact:true}).click();
+  await setup.getByRole('button',{name:'Set up connection',exact:true}).waitFor();
+  return [path];
+ }finally{await context.close();}
 }
 
 // The issue page's reproduce-and-fix section at 1440 and 390: axe, no

@@ -1,4 +1,5 @@
 import { file, scrub } from '../privacy';
+import { moduleLoadDetail } from './load-detail.mjs';
 import { reductionPlan, REDUCTION } from './reduction.mjs';
 
 // The runner reports only what the sandbox observed. Spool decides the outcome
@@ -10,11 +11,10 @@ const PHASES: Record<string, string[]> = {
 };
 const FAILED: Record<string, string> = {
  entry_missing: 'The chosen export is not a function of the mapped module.',
- load_failed: 'The sandbox could not load the modules (a syntax error, or an import the map does not carry).',
  timed_out: 'The call did not finish before the sandbox was killed.',
  sandbox_failed: 'The sandbox process failed before it reported an observation.',
 };
-const bounded = (value: unknown, max: number) => { if (typeof value !== 'string' || value.length > max) throw new Error('Invalid observation'); return scrub(value); };
+const bounded = (value: unknown, max: number, sanitize = scrub) => { if (typeof value !== 'string' || value.length > max) throw new Error('Invalid observation'); return sanitize(value); };
 function shape(value: any, keys: string[]) { if (!value || typeof value !== 'object' || Array.isArray(value) || Object.keys(value).sort().join() !== [...keys].sort().join()) throw new Error('Invalid observation'); }
 
 export function reportInput(body: any) {
@@ -29,7 +29,8 @@ export function reportInput(body: any) {
  if (o.phase === 'threw') Object.assign(observation, { name: bounded(o.name, 200), message: bounded(o.message, 2000), stack: bounded(o.stack, 8000) });
  if (o.phase === 'returned') Object.assign(observation, { type: bounded(o.type, 40), preview: bounded(o.preview, 500) });
  if (o.phase === 'entry_missing') observation.type = bounded(o.type, 40);
- if (o.phase === 'load_failed' || o.phase === 'sandbox_failed') observation.detail = bounded(o.detail, 2000);
+ if (o.phase === 'load_failed') observation.detail = bounded(o.detail, 2000, moduleLoadDetail);
+ if (o.phase === 'sandbox_failed') observation.detail = bounded(o.detail, 2000);
  if (o.phase === 'timed_out') { if (!Number.isSafeInteger(o.afterMs) || o.afterMs < 0) throw new Error('Invalid observation'); observation.afterMs = o.afterMs; }
  let trials;
  if (body.trials !== undefined) {
@@ -71,6 +72,7 @@ function firstFrame(stack: string) {
 }
 type Check = { check: string; expected: unknown; observed: unknown; passed: boolean; required: boolean };
 export function behaviourCheck(spec: any, modules: { name: string; original: string }[], observation: any) {
+ if (observation.phase === 'load_failed') return { outcome: 'failed' as const, reason: observation.detail as string, checks: [] as Check[] };
  if (FAILED[observation.phase]) return { outcome: 'failed' as const, reason: FAILED[observation.phase], checks: [] as Check[] };
  const expected = spec.event, original = expected.frame.original;
  if (observation.phase === 'returned') return { outcome: 'not_reproduced' as const, reason: `The call returned ${observation.type} instead of throwing ${expected.type}.`, checks: [{ check: 'threw', expected: true, observed: false, passed: false, required: true }] };

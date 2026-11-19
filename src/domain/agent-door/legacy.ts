@@ -1,6 +1,10 @@
 import { spoolAgentDoor, localAgent } from './index.server';
 import type { Bindings } from '../../auth/bindings';
 import { agentProject, agentReadPath } from '../agent-access';
+import { jsonBody } from '../owner-router';
+import { normalizeProposal, ProposalInputError, PROPOSAL_BYTES } from '../proposals/input';
+
+const invalidProposal=(field:string,reason:string,status=400)=>Response.json({code:'invalid_arguments',field,reason},{status});
 
 /** Retained exact-project API aliases enter the canonical MCP decision path. */
 export async function legacyAgentResponse(request:Request,env:Bindings):Promise<Response|null> {
@@ -16,20 +20,36 @@ export async function legacyAgentResponse(request:Request,env:Bindings):Promise<
  if(!agentReadPath(request,project))return Response.json({error:'Agent keys are read-only and limited to their project.'},{status:403});
  const reads:Record<string,string>={issues:'issues.list',outcomes:'outcomes.read','grouping-proposals':'proposals.list',alerts:'notifications.read','issue-search':'issues.search','issue-export':'issues.export',occurrences:'occurrences.list','feedback-reports':'feedback.read','release-health':'health.read'};
  let name=request.method==='GET'&&tail.length===1?reads[tail[0]]:undefined;
- const args:Record<string,unknown>={project};
+ let args:Record<string,unknown>={project};
  if(request.method==='GET'&&tail.length===3&&tail[0]==='issues'){
   name={packet:'packets.read',occurrences:'occurrences.list','affected-users':'affected.read'}[tail[2]];args.issue=decodeURIComponent(tail[1]);
  }
+ let proposal:Record<string,unknown>|undefined;
  if(request.method==='POST'&&tail.join('/')==='grouping-proposals'){
-  name='proposals.create';Object.assign(args,await request.json(),{project,idempotency_key:request.headers.get('idempotency-key')});
+  name='proposals.create';
+  try{proposal=await jsonBody(request,PROPOSAL_BYTES);}catch(error){
+   return error instanceof Error&&error.message==='Request body too large'
+    ?invalidProposal('body','Use fewer variant citations to fit within 32768 UTF-8 bytes.',413)
+    :invalidProposal('body','Send a UTF-8 JSON object.');
+  }
+  args={...proposal,project,idempotency_key:request.headers.get('idempotency-key')};
  }
  if(!name)return Response.json({code:'agent_door_required'},{status:403});
- for(const [key,value]of new URL(request.url).searchParams)args[key]=['limit','from','to'].includes(key)?Number(value):value;
+ if(!proposal)for(const [key,value]of new URL(request.url).searchParams)args[key]=['limit','from','to'].includes(key)?Number(value):value;
  const headers=new Headers(request.headers);headers.set('content-type','application/json');headers.set('accept','application/json, text/event-stream');headers.set('MCP-Protocol-Version','2025-11-25');
  const response=await spoolAgentDoor(env).handle(new Request(new URL('/mcp',env.AUTH_ORIGIN),{method:'POST',headers,body:JSON.stringify({jsonrpc:'2.0',id:crypto.randomUUID(),method:'tools/call',params:{name:`spool.${name}`,arguments:args}})}));
  if(!response)return Response.json({code:'agent_door_unavailable'},{status:503});
  const message=await response.json() as any;
- if(message.result?.isError){const failure=message.result._meta?.['com.runeditrun/error']??{code:'agent_refused'};return Response.json(failure,{status:failure.code==='not_found'?404:failure.code==='unauthenticated'?401:[400,409,413,428,429,503].includes(failure.status)?failure.status:['invalid_arguments','idempotency_key_required'].includes(failure.code)?400:403});}
+ if(message.result?.isError){
+  const failure=message.result._meta?.['com.runeditrun/error']??{code:'agent_refused'};
+  if(proposal&&failure.code==='invalid_arguments'&&!failure.field){
+   try{normalizeProposal(proposal);}catch(error){
+    if(error instanceof ProposalInputError)return invalidProposal(error.field,error.message);
+    throw error;
+   }
+  }
+  return Response.json(failure,{status:failure.code==='not_found'?404:failure.code==='unauthenticated'?401:[400,409,413,428,429,503].includes(failure.status)?failure.status:['invalid_arguments','idempotency_key_required'].includes(failure.code)?400:403});
+ }
  if(message.error)return Response.json({code:message.error.data?.code??'agent_refused'},{status:response.ok?403:response.status});
  const value=message.result?.structuredContent;
  if(name==='issues.export'&&value?.format==='csv'&&typeof value.content==='string')return new Response(value.content,{headers:{'Content-Type':'text/csv; charset=utf-8','Content-Disposition':'attachment; filename="spool-issues.csv"','Cache-Control':'no-store'}});

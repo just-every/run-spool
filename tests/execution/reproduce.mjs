@@ -62,17 +62,20 @@ export async function reproduceProof(app,fixture,ingest){
  // Reuse the real capture's recorded call against alternate-release maps.
  // Loading failures must finish as failed, never as evidence of a fixed call.
  const loadFailures={};
- for(const [name,detail] of [['syntax',/SyntaxError/],['unresolved',/No such module[^\n]*src\/missing-format\.js/]]){
+ const brokenModules=[['syntax',/SyntaxError.*format\.js:\d+:\d+/],['unresolved',/No such module.*missing-format\.js.*from.*format\.js/i]];
+ for(const [name,detail] of brokenModules){
   const release={name:`2026.10.load-${name}`,build:`load-${name}`};
   await app.json(`${p}/releases`,'POST',release);
   await app.json(`${p}/artifacts`,'POST',{release:release.name,build:release.build,debugId:'cart-map',map:fixture.loadFailures[name]});
   const queued=await app.json(`${p}/reproducers/${reproducer.id}/runs`,'POST',{release:release.name});
   const result=await runner(queued.command);assert.equal(result.code,0,result.output);
-  assert.match(result.output,/^failed: The sandbox could not load the modules /m);
+  assert.match(result.output.split('\n').find(line=>line.startsWith('failed: ')) ?? '',detail,'the printed failure identifies the broken module');
+  assert.doesNotMatch(result.output,/synthetic-spool-8[12]/,'local directory names and query credentials stay out of the verdict');
   const record=(await app.json(`${p}/reproducers?issue=${issue}`)).reproducers.find(row=>row.id===reproducer.id);
   const run=record.runs.find(row=>row.id===queued.run);
   assert.deepEqual([run.release,run.build,run.state,run.outcome,run.observation.phase],[release.name,release.build,'finished','failed','load_failed'],`${name} module loading is a setup failure`);
-  assert.match(run.reason,/^The sandbox could not load the modules /);
+  assert.match(run.reason,detail,'the recorded verdict identifies the broken module');
+  assert.doesNotMatch(run.reason + run.observation.detail,/synthetic-spool-8[12]/);
   assert.match(run.observation.detail,detail,`${name} loading failure preserves its diagnostic`);
   assert.deepEqual(run.checks,[],'a failed setup supplies no successful behaviour checks');
   const spent=await fetch(queued.url,{headers:{Authorization:'Bearer '+queued.token}});assert.equal(spent.status,401,'a failed setup also spends its run token');await spent.body?.cancel();
@@ -118,10 +121,11 @@ export async function reproduceProof(app,fixture,ingest){
  // Failed alternate-release baselines cannot enter the reduction search or
  // become evidence that a fix succeeded, even with experiments authorized.
  const analysisLoadFailures={};
- for(const [name,detail] of [['syntax',/SyntaxError/],['unresolved',/No such module[^\n]*src\/missing-format\.js/]]){
+ for(const [name,detail] of brokenModules){
   const ticket=await app.json(`${p}/reproducers/${minimized.id}/runs`,'POST',{release:`2026.10.load-${name}`});
   const result=await runner(ticket.command);assert.equal(result.code,0,result.output);
-  assert.match(result.output,/^failed: The sandbox could not load the modules /m);
+  assert.match(result.output.split('\n').find(line=>line.startsWith('failed: ')) ?? '',detail,'the printed failure identifies the broken module');
+  assert.doesNotMatch(result.output,/synthetic-spool-8[12]/,'local directory names and query credentials stay out of the verdict');
   const run=(await app.json(`${p}/reproducers?issue=${issue}`)).reproducers.find(row=>row.id===minimized.id).runs.find(row=>row.id===ticket.run);
   assert.deepEqual([run.state,run.outcome,run.observation.phase,run.checks],['finished','failed','load_failed',[]]);
   assert.match(run.observation.detail,detail);

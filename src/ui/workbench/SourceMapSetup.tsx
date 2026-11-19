@@ -60,11 +60,7 @@ export function SourceMapSetup({ project, releases, request, run, busy, refresh 
     {ready ? <>
       <CodeBlock label={instructions.label} code={instructions.config} />
       <CodeBlock label="Source-map build and upload" code={instructions.command} />
-      {bundler === 'vite' || bundler === 'rollup' ? <p>The published SDK 0.1.0 plugin is silent on success; an upload failure fails the build. Confirm the upload with an original-source frame in step 4.</p> : <>
-        <p>With the published SDK 0.1.0, a successful CLI upload exits 0 and prints JSON for the number of maps uploaded, for example:</p>
-        <CodeBlock label="Source-map upload result" code={'{"uploaded":1}'} />
-        <p>This version does not accept <code>--json</code>; no extra flag is needed.</p>
-      </>}
+      {bundler === 'vite' || bundler === 'rollup' ? <p>The published SDK plugin is silent on success. Confirm the upload with an original-source frame in step 4.</p> : <p>The command downloads the source-map tool from this Spool installation. It prints how many maps were uploaded and preserves the bundle’s executable locations when stamping it.</p>}
     </> : <p role="status">Enter a valid application release and build above to fill in the commands for this project and endpoint. Use letters, numbers, dots or hyphens; release names also allow @ and +.</p>}
     <p>Merge the configuration into your existing config. For CLI builds, replace <code>src/index.js</code> and <code>dist/*.js</code> with your entry point and every emitted bundle, including nested chunks. Each bundle needs its adjacent <code>.map</code>. Deploy the <strong>stamped output</strong> after upload; rebuilding afterwards removes its matching ID. Keep maps private when publishing assets.</p>
     <h3>4. Confirm a mapped frame</h3>
@@ -72,7 +68,7 @@ export function SourceMapSetup({ project, releases, request, run, busy, refresh 
     <h3>If the frame is still unmapped</h3>
     <ul>
       <li>No event: allow the app’s exact scheme, host and port on Capture, and check its ingest key and registered release.</li>
-      <li>Upload refused: check the deploy key belongs to this project and installation, and is exported as <code>SPOOL_DEPLOY_KEY</code>. The upload service and current checkout CLI accept flat or indexed V3 maps up to 1 MiB each. The npm SDK 0.1.0 CLI and prepared-map picker on Releases accept only flat V3 maps up to 256 KiB. Larger/indexed CLI support remains in unpublished 0.2.0 source. There is no lifetime map count; check the project byte cap above.</li>
+      <li>Upload refused: check that <code>SPOOL_DEPLOY_KEY</code> belongs to this project and installation. The CLI accepts flat or indexed V3 maps up to 1 MiB each. Check the project byte cap above.</li>
       <li>Missing map or debug ID: confirm the served bundle ends in <code>//# debugId=…</code> and its adjacent map’s <code>debug_id</code> matches. Deploy those exact stamped files, clear old cached bundles and trigger a new error.</li>
       <li>Map uploaded but no original location: match the event’s project, release and build exactly; include every chunk’s map and check the map contains mappings for the failing line.</li>
     </ul>

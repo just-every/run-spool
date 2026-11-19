@@ -21,3 +21,4 @@ packages/sdk/LICENSE
 tests/runtimes/rust/target/
 
 public/spool-sentry-sdk.js
+public/spool-sourcemaps.mjs

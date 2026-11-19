@@ -2,12 +2,14 @@
 import {sourceMapPlugins} from './source-map-plugins.mjs';
 import {sourceMapCapacity} from './source-map-capacity.mjs';
 import assert from 'node:assert/strict';
-import { execFileSync, spawn } from 'node:child_process';
+import { execFile, execFileSync, spawn } from 'node:child_process';
 import { createServer } from 'node:http';
 import { mkdir, mkdtemp, readFile, rm, writeFile } from 'node:fs/promises';
 import { tmpdir } from 'node:os';
 import { resolve } from 'node:path';
 import { pathToFileURL } from 'node:url';
+import { promisify } from 'node:util';
+import { transform } from 'esbuild';
 import { build as viteBuild } from 'vite';
 import { startTestWorker } from './worker.mjs';
 import { signIn } from './auth.mjs';
@@ -166,12 +168,34 @@ try {
   await closingPage.close();
 
   // Node: an uncaught exception is reported, then the process exits with code 1 as Node would.
-  await request('/api/projects/fresh/releases', 'POST', { name: 'api@1.0.0', build: 'n1' });
-  await writeFile(resolve(app, 'server.mjs'), `import { init } from '@just-every/spool/node';\ninit(${JSON.stringify({ ...config, release: 'api@1.0.0', build: 'n1' })});\nsetTimeout(function handleOrder() { null.total; }, 0);\n`);
-  const exitCode = await new Promise((done, fail) => { const child = spawn(process.execPath, ['server.mjs'], { cwd: app, stdio: 'ignore' }); child.once('error', fail); child.once('exit', done); });
-  assert.equal(exitCode, 1);
-  const fromNode = await issueFor('api@1.0.0');
+  const nodeConfig = { ...config, release: 'api@1.0.0', build: 'n1' };
+  await request('/api/projects/fresh/releases', 'POST', { name: nodeConfig.release, build: nodeConfig.build });
+  const serverSource = `import { init } from '@just-every/spool/node';\ninit(JSON.parse(process.env.SPOOL_CONFIG));\nsetTimeout(function handleOrder() { null.total; }, 0);\n`;
+  const serverBundle = await transform(serverSource, { sourcefile: 'orders.ts', sourcemap: 'external', minifyWhitespace: true });
+  await writeFile(resolve(app, 'server.mjs'), serverBundle.code);
+  await writeFile(resolve(app, 'server.mjs.map'), serverBundle.map);
+  const crash = () => new Promise((done, fail) => {
+    const child = spawn(process.execPath, ['server.mjs'], {
+      cwd: app, stdio: 'ignore', env: { ...process.env, SPOOL_CONFIG: JSON.stringify(nodeConfig) },
+    });
+    child.once('error', fail);
+    child.once('exit', done);
+  });
+  assert.equal(await crash(), 1);
+  const fromNode = await issueFor(nodeConfig.release);
   assert.match(fromNode.event.frames[0].function, /handleOrder/);
+  assert.equal(fromNode.atAdmission[0].status, 'missing_debug_id');
+  await promisify(execFile)(process.execPath, [
+    'node_modules/@just-every/spool/dist/sourcemaps.js', '--endpoint', origin, '--project', nodeConfig.project,
+    '--release', nodeConfig.release, '--build', nodeConfig.build, '--key-env', 'FRESH_APP_DEPLOY_KEY', 'server.mjs',
+  ], { cwd: app, env: { ...process.env, FRESH_APP_DEPLOY_KEY: deploy.key } });
+  assert.equal(await crash(), 1);
+  const stampedPacket = await request(`/api/projects/fresh/issues/${fromNode.issueId}/packet`);
+  const stamped = stampedPacket.events.find(row => row.id !== fromNode.id);
+  assert.ok(stamped, 'the stamped crash rejoins the original issue');
+  assert.equal(stamped.atAdmission[0].status, 'mapped');
+  assert.equal(stamped.atAdmission[0].original.file, 'orders.ts');
+  assert.equal(stamped.atAdmission[0].original.line, 3);
 
   // An unusual but valid error shape: Node still prints the app's own error, exits 1 and reports it.
   await request('/api/projects/fresh/releases', 'POST', { name: 'api@1.0.1', build: 'n2' });

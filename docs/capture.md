@@ -63,10 +63,11 @@ export default {
 };
 ```
 
-With any other bundler, run the command-line tool after the build:
+With any other bundler, download your Spool installation’s command-line tool and run it after the build:
 
 ```sh
-npx spool-sourcemaps --endpoint https://spool.example --project web \
+curl -fsS https://spool.example/spool-sourcemaps.mjs -o spool-sourcemaps.mjs
+node ./spool-sourcemaps.mjs --endpoint https://spool.example --project web \
   --release web@1.2.0 --build build-42 --key-env SPOOL_DEPLOY_KEY dist/app.js
 ```
 
@@ -74,9 +75,9 @@ Each bundle needs its `.map` next to it. Run the tool before publishing the buil
 
 ## 4. Check it works
 
-Trigger an error in your application, then open **Capture** and choose **Check for events**. Open the received issue in **Issues** and check that its stack maps to your original source using the matching release, build and uploaded map.
+Trigger an error in your application and open **Capture**. Spool checks for events automatically while the page is visible. When you see **Capture is receiving events**, choose **Open latest issue** and check that its stack maps to your original source using the matching release, build and uploaded map.
 
-For a check from inside Spool, first-project setup has **Send test error**, which registers the release shown and sends one sample error with the new key. Choose **Continue to workbench** to see it in **Issues**. Later, **Capture test exception** on **Capture** sends a test using your ingest key and a release you already registered. Both are labelled as Spool sample evidence in the issue, without a map-upload or reproducer step. These tests check ingestion from Spool's own origin; they do not check your app's origin, SDK installation or source maps.
+For a check from inside Spool, first-project setup has **Send test error**, which registers the release shown and sends one sample error with the new key. Choose **Continue to workbench** to see it in **Issues**. Later, **Send the test error again** on **Capture** sends a sample using your ingest key and the selected release. Both are labelled as Spool sample evidence in the issue. These tests check ingestion from Spool's own origin. Verify your app's origin, SDK installation and source maps by triggering an error in your application.
 
 ## Keys for anything outside this checkout
 

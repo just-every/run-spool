@@ -2,6 +2,7 @@ import { Hono } from 'hono';
 import type { Bindings } from '../../auth/bindings';
 import { canonical, hash } from '../privacy';
 import { jsonBody } from '../owner-router';
+import { unavailableMap } from './load-detail.mjs';
 import { analysisCheck, behaviourCheck, reportInput } from './check';
 import { mapModules, recorded, RUNNER_PROTOCOL } from './sandbox';
 import { attributeAuditScope, auditCommit, auditedBatch } from '../audit/context';
@@ -51,7 +52,7 @@ routes.get('/runs/:run', async c => {
  }
  // Retention can remove an unreferenced alternate-release map between queue
  // and claim. This is a durable setup failure, not an indefinitely claimed run.
- const observation = { phase: 'load_failed', detail: 'The stored map for this run changed or became unavailable after it was queued.' };
+ const observation = { phase: 'load_failed', detail: unavailableMap };
  const result = behaviourCheck(spec, JSON.parse(run.modules), observation);
  await finish(c, run, observation, null, result, analysisCheck(spec, JSON.parse(run.modules), result.outcome, spec.analysis ? [] : undefined));
  return c.json({ error: observation.detail, outcome: result.outcome, reason: result.reason }, 409);

@@ -86,7 +86,19 @@ try {
  await page.getByRole('button',{name:'Copy link',exact:true}).click();assert.equal(await page.evaluate(()=>navigator.clipboard.readText()),origin+issuePath);
  await page.reload();await page.locator('.mapped-frame').first().waitFor();assert.equal(new URL(page.url()).pathname,issuePath);
  await page.getByRole('link',{name:'All issues',exact:true}).click();await page.goBack();await page.locator('.mapped-frame').first().waitFor();await page.goForward();await page.getByRole('heading',{name:'Issues',exact:true}).last().waitFor();await page.waitForLoadState('networkidle');assert.equal(await page.locator('.unseen-issue').count(),0);
- await page.goto(origin+issuePath);const details=page.getByRole('button',{name:'Details: Issue and source evidence',exact:true});await details.click();await page.getByRole('dialog').waitFor();assert.ok(await page.getByRole('dialog').evaluate(dialog=>dialog.contains(document.activeElement)));await page.keyboard.press('Shift+Tab');assert.ok(await page.getByRole('dialog').evaluate(dialog=>dialog.contains(document.activeElement)));await page.keyboard.press('Escape');assert.equal(await details.evaluate(button=>document.activeElement===button),true);checked('Copy destination, refresh, history, viewed count and Details focus/Escape');
+ await page.goto(origin+issuePath);const details=page.getByRole('button',{name:'Details: Issue and source evidence',exact:true});await details.click();await page.getByRole('dialog').waitFor();assert.ok(await page.getByRole('dialog').evaluate(dialog=>dialog.contains(document.activeElement)));
+ if(width===1440){
+  const source=page.getByRole('dialog',{name:'Issue and source evidence',exact:true});
+  const frame=packet.events[0].currentLookup[0];
+  await expect(source).toContainText(`${frame.generated.file}:${frame.generated.line}:${frame.generated.column}`);
+  await expect(source).toContainText(`${coordinate.file}:${coordinate.line}:${coordinate.column}`);
+  assert.doesNotMatch(await source.innerText(),/\b[0-9a-f]{40,}\b|js-frame-v1|\{\s*"/i);
+  const downloaded=page.waitForEvent('download');await source.getByRole('button',{name:'Download raw evidence'}).click();
+  const exported=JSON.parse(await readFile(await (await downloaded).path(),'utf8'));
+  assert.deepEqual(exported.event.atAdmission,packet.events[0].atAdmission);
+  assert.deepEqual(exported.event.currentLookup,packet.events[0].currentLookup);
+ }
+await page.keyboard.press('Shift+Tab');assert.ok(await page.getByRole('dialog').evaluate(dialog=>dialog.contains(document.activeElement)));await page.keyboard.press('Escape');assert.equal(await details.evaluate(button=>document.activeElement===button),true);checked('Copy destination, refresh, history, viewed count and Details focus/Escape');
  await page.getByRole('combobox',{name:'Status',exact:true}).selectOption('resolved');await page.getByRole('button',{name:'Confirm resolve',exact:true}).click();await page.waitForFunction(()=>document.querySelector('.state-chip')?.textContent==='Resolved');
  await api('/api/projects/cedar/releases','POST',{name:'winter-deliveries',build:'dispatch-b'});await api('/api/projects/cedar/artifacts','POST',{release:'winter-deliveries',build:'dispatch-b',debugId:'dispatch-map',map:application.map});application.setRelease('winter-deliveries','dispatch-b');const regressed=await throwInApp();assert.equal(regressed.issue,admitted.issue);
  application.setRelease('autumn-deliveries','dispatch-a');assert.equal((await throwInApp()).issue,admitted.issue);

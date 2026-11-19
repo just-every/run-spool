@@ -3,12 +3,13 @@ import {queuedEntrypoint} from '@runeditrun/rer/queued-entry';
 const queuedExit=await queuedEntrypoint(import.meta.url);if(queuedExit!==null)process.exit(queuedExit);
 import assert from 'node:assert/strict';
 import {createRequire} from 'node:module';
-import {mkdtemp,readFile,readdir,rm} from 'node:fs/promises';
+import {mkdtemp,readFile,readdir,rm,writeFile} from 'node:fs/promises';
 import {createServer} from 'node:http';
 import {tmpdir} from 'node:os';
 import {resolve} from 'node:path';
 import {authBindings,signIn,testDevKey,testOwner} from './auth.mjs';
 import {migrationEvidence} from './migration-evidence.mjs';
+import {cli} from './agent-handoff/clients.mjs';
 
 // Local ingest/deploy grants work with their scoped key alone; dev agent reads need the owner gate. This runs the real
 // local entry (src/server.dev.ts) and the real deployed entry (src/server.ts) over one real migrated D1; only the
@@ -47,7 +48,7 @@ try{
  }
  const deployed=await mf.getWorker('deployed');
  // key: the header the rer harness sends; without it a request looks as one through a forwarding proxy does.
- const call=(target,path,{method='GET',cookie,body,key=false,bearer}={})=>target(origin+path,{method,redirect:'manual',headers:{Origin:origin,'CF-Connecting-IP':'127.0.0.1',...body?{'Content-Type':'application/json'}:{},...cookie?{Cookie:cookie}:{},...bearer?{Authorization:'Bearer '+bearer}:{},...key?{'x-rer-dev-key':testDevKey}:{}},...body?{body:JSON.stringify(body)}:{}});
+ const call=(target,path,{method='GET',cookie,body,key=false,bearer,idempotencyKey}={})=>target(origin+path,{method,redirect:'manual',headers:{Origin:origin,'CF-Connecting-IP':'127.0.0.1',...body?{'Content-Type':'application/json'}:{},...cookie?{Cookie:cookie}:{},...bearer?{Authorization:'Bearer '+bearer}:{},...key?{'x-rer-dev-key':testDevKey}:{},...idempotencyKey?{'Idempotency-Key':idempotencyKey}:{}},...body?{body:JSON.stringify(body)}:{}});
  const local=(path,options)=>call(fetch,path,options),remote=(path,options)=>call((url,init)=>deployed.fetch(url,init),path,options);
  const status=async response=>{await response.body?.cancel();return response.status};
  const event=id=>({version:1,eventId:id,release:'r1',build:'b1',environment:'production',type:'TypeError',message:'failed',frames:[{file:'https://app.test/bundle.js',line:1,column:0,function:'run',debugId:'d1'}],breadcrumbs:[]});
@@ -129,6 +130,44 @@ try{
   assert.equal(await status(await probe(remote,true)),401,`a dev-minted ${name} is refused by the deployed entry`);
  }
  assert.equal(await status(await local('/api/ingest/minted',{method:'POST',bearer:ingest,body:event('second')})),201,'Settings ingest keys work without the owner gate');
+
+ // Read and use release-less wire evidence through the gated exact-project grant.
+ const sentryId=crypto.randomUUID().replaceAll('-',''),dsn=new URL(project.dsn);
+ const capture=await fetch(origin+'/api'+dsn.pathname+'/store/',{method:'POST',headers:{'Content-Type':'application/json','X-Sentry-Auth':'Sentry sentry_version=7,sentry_key='+project.ingestKey},body:JSON.stringify({
+  event_id:sentryId,exception:{values:[{type:'TypeError',value:'Synthetic missing release',stacktrace:{frames:[{filename:'https://app.test/cart.js',lineno:4,colno:2,function:'checkout'}]}}]},
+ })});
+ assert.equal(await status(capture),200);
+ const projectRoot='/api/projects/minted',proposalPath=projectRoot+'/grouping-proposals',credentials={key:true,bearer:agent};
+ const issue=(await (await local(projectRoot+'/issues',credentials)).json()).find(row=>row.title.includes('Synthetic missing release'));
+ assert.ok(issue,'The capture created a visible issue');
+ const packetPath=projectRoot+'/issues/'+issue.id+'/packet';
+ const packet=await (await local(packetPath,credentials)).json(),row=packet.events.find(event=>event.id===sentryId);
+ assert.ok(row);assert.equal(row.event.release,'');
+ const proposal={kind:'split',source:packet.issue.id,revision:packet.issue.revision,events:[row.id],variants:[{stack:JSON.stringify(row.event.frames),release:row.event.release,route:''}],rationale:'Review the grouping of the release-less occurrence.',window:{start:row.received,end:row.received+1}};
+ const submit=(body,idempotencyKey=crypto.randomUUID(),auth=credentials)=>local(proposalPath,{...auth,method:'POST',body,idempotencyKey});
+ assert.equal(await status(await submit(proposal,crypto.randomUUID(),{bearer:agent})),401);
+ const env={PATH:process.env.PATH,SPOOL_URL:origin+projectRoot,SPOOL_AGENT_KEY:agent,SPOOL_DEV_KEY:testDevKey};
+ const file=resolve(directory,'proposal.json'),command=['propose','--file',file,'--format','json'];
+ const refusalCases=[
+  [{...proposal,variants:[{...proposal.variants[0],stack:row.event.frames}]},400,'variants[0].stack',/serialize|JSON\.stringify/i],
+  [{...proposal,window:{...proposal.window,end:row.received}},400,'window.end',/after window\.start/i],
+  [{...proposal,events:['synthetic-spool-missing']},400,'events',/fresh packet/i],
+  [{...proposal,revision:proposal.revision+1},409,'revision',/current revision/i],
+ ];
+ for(const [bad,expected,field,hint] of refusalCases){
+  const result=await submit(bad);assert.equal(result.status,expected);
+  const failure=await result.json();assert.equal(failure.field,field);assert.match(failure.reason,hint);
+  await writeFile(file,JSON.stringify(bad),{mode:0o600});
+  const refused=await cli(command,env);assert.equal(refused.code,1);assert.ok(refused.stderr.includes(field));assert.match(refused.stderr,hint);
+ }
+ assert.deepEqual(await (await local(proposalPath,credentials)).json(),[],'Refusals leave no proposal');
+ const replayKey=crypto.randomUUID(),raw=await submit(proposal,replayKey);assert.equal(raw.status,201);
+ const saved=await raw.json();assert.equal(saved.state,'proposed');assert.deepEqual(await (await submit(proposal,replayKey)).json(),saved);
+ await writeFile(file,JSON.stringify(proposal),{mode:0o600});
+ const proposed=await cli(command,env);assert.equal(proposed.code,0,proposed.stderr);assert.equal(JSON.parse(proposed.stdout).state,'proposed');
+ const proposals=await (await local(proposalPath,credentials)).json();assert.equal(proposals.length,2);
+ assert.deepEqual(await (await local(packetPath,credentials)).json(),packet,'Inert proposals preserve the source packet and occurrence');
+
  // A fence from the linked Auth install ends the owner's session and fences every agent and deploy key a session of
  // theirs minted; signing in again brings none back, and keys minted after the fence work. (Link and binding rows are
  // what a completed link and an Auth sign-in leave.)

@@ -38,7 +38,7 @@ export function GroupingExplanation({ explanation, evidence, labels, future = fa
 
 /** The recorded grouping facts, shared by native and Sentry event dialogs. */
 export function GroupingFacts({ grouping, event }: { grouping: any; event: any }) {
-  const [copied, setCopied] = useState(false);
+  const [copyStatus, setCopyStatus] = useState('');
   if (!grouping) return <p>No grouping information was recorded for this event.</p>;
   const contributions = grouping.frames ?? grouping.stack ?? [];
   const chosen = contributions.find((frame: any) => frame.contributes);
@@ -65,6 +65,6 @@ export function GroupingFacts({ grouping, event }: { grouping: any; event: any }
     {(grouping.revision ?? grouping.ruleRevision) != null && <p>Grouping policy revision {grouping.revision ?? grouping.ruleRevision}.</p>}
     {!!contributions.length && frames(contributions, event.frames ?? event.stacktrace?.frames ?? [])}
     {grouping.exceptions?.map((exception: any) => <div key={exception.index}><h3>{exception.type ?? 'Exception'}{exception.value ? `: ${exception.value}` : ''}</h3><p>{exception.valueContributes ? 'Its type and message determine the group; no frame contributes.' : custom ? 'The custom fingerprint determines the group.' : 'Its type and contributing frames determine the group; the message is excluded.'}</p>{frames(exception.frames ?? [], event.exceptions?.[exception.index]?.stacktrace?.frames ?? [])}</div>)}
-    {typeof grouping.fingerprint === 'string' && <p className="grouping-fingerprint"><strong>Fingerprint</strong> <code>{grouping.fingerprint}</code> <button className="text-button" onClick={() => void navigator.clipboard.writeText(grouping.fingerprint).then(() => setCopied(true))}>{copied ? 'Fingerprint copied' : 'Copy fingerprint'}</button></p>}
+    {typeof grouping.fingerprint === 'string' && <p><button className="text-button" onClick={() => void navigator.clipboard.writeText(grouping.fingerprint).then(() => setCopyStatus('Fingerprint copied.'), () => setCopyStatus('Could not copy. Download raw evidence from the stack trace.'))}>Copy fingerprint</button> <span role="status">{copyStatus}</span></p>}
   </>;
 }

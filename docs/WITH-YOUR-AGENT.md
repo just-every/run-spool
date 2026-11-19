@@ -6,7 +6,7 @@ Mint an **agent** key in a project's workbench and save the once-shown key priva
 
 After upgrading, an existing agent key works only once an owner chooses a company agent policy at `/agents` on that installation (for example `https://spool.example/agents`). Until then each call is refused with `policy_unset`, and the CLI prints the setup URL from that refusal. An unanswered policy authorizes no agent action.
 
-First, the owner answers all six agent policy questions at `/agents` and saves the policy. In Settings, **Create agent key** shows copyable setup lines with the local installation’s actual Node executable and Spool CLI path. That Node may be rer’s private runtime; Node does not need to be on PATH. Use the issue’s short ID shown at the top of its issue page. **Hand to agent** on the issue page fills that ID into the same setup lines.
+First, the owner opens `/agents`, answers all six risk questions and chooses **Yes** or **No** for **Can agents use paid AI?**. Choose **No** to save from the form, or set spend caps in **Edit policy document** to save a policy that allows paid AI. In Settings, **Create agent key** shows copyable setup lines with the local installation’s actual Node executable and Spool CLI path. That Node may be rer’s private runtime; Node does not need to be on PATH. Use the issue’s short ID shown at the top of its issue page. On the issue page, open **Issue actions → Hand to agent** to fill that ID into the same setup lines.
 
 For manual setup, use the checkout's declared Node 22.20.0 and `rer install`. The unpublished `@errors/agent` package runs directly from the Spool checkout; no npm publication or model account is needed for evidence retrieval. Replace `/absolute/path/to/spool` below with the actual Spool checkout path, `node` with your Node executable, and `ISSUE_ID` with the issue’s short ID. These commands also work from your application's repository because the CLI path is absolute. Enter the key privately without putting it in process arguments (the private-input examples use Bash):
 
@@ -55,15 +55,31 @@ node /absolute/path/to/spool/packages/agent/bin/spool-agent.mjs propose --stdin 
 node /absolute/path/to/spool/packages/agent/bin/spool-agent.mjs proposals --format json
 ```
 
-Use an environment or file key when proposal JSON uses stdin. `--key-stdin` and `propose --stdin` cannot share that input. Proposal JSON is bounded to 32,768 UTF-8 bytes; the server validates and scrubs it. A split body has this shape; replace every example identity, revision, variant and time with evidence from the current packet:
+Use an environment or file key when proposal JSON uses stdin. `--key-stdin` and `propose --stdin` cannot share that input. Build the split body from the result of `packet ISSUE --format json`. Choose the live retained row you intend to move, then save the object as JSON. This example selects the first live retained row:
 
-```json
-{"kind":"split","source":"ISSUE_ID","revision":4,"events":["EVENT_ID"],"variants":[{"stack":"[{\"file\":\"https://app.example/bundle.js\",\"line\":1,\"column\":0,\"function\":\"checkout\"}]","release":"web@1.4.0","route":""}],"rationale":"This retained variant differs from the other failures in this group.","window":{"start":1792454400000,"end":1792458000000}}
+```js
+const row = packet.events.find(event => !event.historical);
+if (!row) throw new Error('The current packet has no live retained event to split.');
+const sentry = row.event.sentry;
+const proposal = {
+  kind: 'split',
+  source: packet.issue.id,
+  revision: packet.issue.revision,
+  events: [row.id],
+  variants: [{
+    stack: JSON.stringify(row.event.frames),
+    release: row.event.release,
+    route: sentry?.transaction ?? sentry?.request?.url ?? '',
+  }],
+  rationale: 'This retained variant differs from the other failures in this group.',
+  window: { start: row.received, end: row.received + 1 },
+};
+const proposalJson = JSON.stringify(proposal);
 ```
 
-`variants` compares stack, release and route evidence: use `JSON.stringify(event.frames)` for each stack; use the sanitized Sentry transaction or request URL as route when available, otherwise an empty string. `window` uses received-time Unix milliseconds and must span a positive duration of at most 31 days. Cite 1–20 variants; each stack, release and route is bounded to 4,000, 200 and 500 characters respectively, and rationale to 2,000 characters. Split selects retained event IDs; merge replaces `events` with `target` and its `targetRevision`. A rule proposal instead supplies `policyRevision` and `policy: {version:1,stack,fingerprint}` using Spool's stack/fingerprint rule language, with empty strings for an unused rule kind. The source `revision` is always required. See [operator corrections](OPERATOR-CORRECTIONS.md) for the review boundary.
+`source` is the full packet issue ID, even if you read the packet by its short ID. `window` uses received-time Unix milliseconds, includes the start and excludes the end, and can span up to 31 days. Use an empty string for an unknown route or release. Cite 1–20 variants with up to 4,000 characters per stack, 200 per release and 500 per route. If a stack is too long, select fewer whole frames before serializing. Keep the rationale within 2,000 characters and the full proposal within 32,768 UTF-8 bytes. Merge takes `target` and `targetRevision` in place of `events`. A rule proposal takes `policyRevision` and `policy: {version:1,stack,fingerprint}` using Spool's stack/fingerprint rule language, with empty strings for an unused rule kind. Every proposal includes the source revision. See [operator corrections](OPERATOR-CORRECTIONS.md).
 
-The CLI sends only `POST /api/projects/:project/grouping-proposals` to create one inert proposal and `GET` on that exact route for safe summaries. The service assigns its alias and the label `proposed by agent <alias>`; the agent cannot supply or replace that attribution. Summaries include proposal input and revisions, actor, state and timestamps, without the owner's full explanation or additional evidence reads. Submitting does not move events, activate rules, suppress alerts or change repair results. The owner inspects the explanation and projected effects, then explicitly approves/applies or rejects. Agents cannot read proposal detail, approve, reject, apply or undo. Team roles remain future work under TEAM-001.
+The CLI submits to `POST /api/projects/:project/grouping-proposals` and creates the `Idempotency-Key` header. Supply that header if you call the endpoint directly. Validation errors identify the field to correct and give a reason. The service assigns its alias and the label `proposed by agent <alias>`; the agent cannot supply or replace that attribution. Summaries include proposal input and revisions, actor, state and timestamps, without the owner's full explanation or additional evidence reads. Submitting does not move events, activate rules, suppress alerts or change repair results. The owner inspects the explanation and projected effects, then explicitly approves/applies or rejects. Agents cannot read proposal detail, approve, reject, apply or undo. Team roles remain future work under TEAM-001.
 
 ## MCP configuration
 

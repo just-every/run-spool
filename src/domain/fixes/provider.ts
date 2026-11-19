@@ -4,7 +4,7 @@ import { scrub } from '../privacy';
 import { appJwt, type Connection } from './connection';
 import { FIX_PERMISSIONS, type FixOperation } from './grant';
 
-// Every provider call goes through here: it is refused unless the approved,
+// Every workflow provider call goes through here. It is refused unless the approved,
 // unexpired grant lists the operation, and each call (or refusal) leaves a
 // receipt with only the facts it established, never a token.
 type Configured = Extract<Connection, { state: 'configured' }>;

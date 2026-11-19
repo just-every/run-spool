@@ -9,14 +9,19 @@ import {emittedWorkerOptions} from '../worker-options.mjs';
 const require=createRequire(import.meta.url);
 // The emitted Worker on one loopback port with persisted D1, restartable with
 // or without the owner's GitHub connection secret.
-export async function executionRuntime(state,port,extra={}){
+export async function executionRuntime(state,port,extra={},githubOrigin){
  const miniflare=require(require.resolve('miniflare',{paths:[require.resolve('wrangler/package.json')]}));
  const {Miniflare,convertV4MiniflareOptions}=miniflare,origin=`http://127.0.0.1:${port}`;
  const {worker,database}=await emittedWorkerOptions(resolve('dist/server/wrangler.json'),miniflare);
  await mkdir(state,{recursive:true});
  const entry=resolve(state,'execution-entry.mjs');
  await writeFile(entry,`import application from ${JSON.stringify(worker.modules[0].path)};export default {fetch(request,env,ctx){if(new URL(request.url).pathname==='/__fixture/schedule')return request.json().then(async body=>{await application.scheduled({scheduledTime:body.time,cron:'* * * * *'},env,ctx);return Response.json({})});return application.fetch(request,env,ctx)}};`);
- const runtime=new Miniflare(convertV4MiniflareOptions({...worker,modules:[{type:'ESModule',path:entry},...worker.modules],modulesRoot:'/',bindings:{...worker.bindings,...authBindings(origin),...extra},resourcePersistencePath:state,host:'127.0.0.1',port}));
+ const outboundService=githubOrigin ? request=>{
+  const target=new URL(request.url);
+  if(target.origin==='https://api.github.com')return fetch(new Request(githubOrigin+target.pathname+target.search,request));
+  return fetch(request);
+ }:undefined;
+ const runtime=new Miniflare(convertV4MiniflareOptions({...worker,modules:[{type:'ESModule',path:entry},...worker.modules],modulesRoot:'/',bindings:{...worker.bindings,...authBindings(origin),...extra},outboundService,resourcePersistencePath:state,host:'127.0.0.1',port}));
  try{
   await runtime.ready;const db=await runtime.getD1Database(database.binding);registerLegacyMail(origin,db);
   if(!(await db.prepare("SELECT name FROM sqlite_master WHERE type='table' AND name='projects'").first())){

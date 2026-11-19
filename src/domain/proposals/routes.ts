@@ -11,7 +11,7 @@ import { ownerBatch } from '../owner-authority';
 import { auditedBatch, auditCommit, attributeAuditScope } from '../audit/context';
 import { guard, s } from '../operators/common';
 import { auditActor } from '../audit/identity';
-import { normalizeProposal } from './input';
+import { normalizeProposal, ProposalInputError, PROPOSAL_BYTES } from './input';
 import { explainProposal, issueRevisions, proposalPreview } from './explanation';
 import { proposalStale, revisionGuards } from './lifecycle';
 const routes=new Hono<any>();
@@ -38,11 +38,28 @@ routes.post('/',async c=>{
  const bearer=c.req.header('authorization')?.replace(/^Bearer /i,''),digest=native?native.context.agent.id:await hash(bearer!);
  const source=await s(db,"SELECT minted_by FROM credentials WHERE hash=? AND kind='agent'",digest).first<any>();
  const actor=await auditActor(db,{kind:native?'agent':'service',authority:digest,owner:native?.operator.id??source?.minted_by,project});attributeAuditScope(actor);
- const input=normalizeProposal(await jsonBody(c.req.raw,32768)),id=crypto.randomUUID(),time=Date.now();
- let preview,revisions;
- try{preview=await proposalPreview(db,project,input,id);revisions=null}catch(e){if(/revision conflict/i.test(String(e)))return c.json({error:'Stale issue or rule revision'},409);throw e}
- const review=await explainProposal(db,{project,input},preview),explanation=canonical(review);
- revisions=await issueRevisions(db,project,input,preview,review);
+ let input;
+ try{input=normalizeProposal(await jsonBody(c.req.raw,PROPOSAL_BYTES));}catch(error){
+  if(error instanceof ProposalInputError)return c.json({error:error.message,field:error.field},400);
+  if(error instanceof Error&&error.message==='Request body too large')return c.json({error:'Use fewer variant citations to fit within 32768 UTF-8 bytes.',field:'body'},413);
+  throw error;
+ }
+ const id=crypto.randomUUID(),time=Date.now();
+ let explanation,revisions;
+ try{
+  const preview=await proposalPreview(db,project,input,id),review=await explainProposal(db,{project,input},preview);
+  explanation=canonical(review);
+  revisions=await issueRevisions(db,project,input,preview,review);
+ }catch(error){
+  if(!(error instanceof Error))throw error;
+  if(error.message==='Correction requires 1 to 200 retained live occurrences'&&input.kind==='split')return c.json({error:'Read a fresh packet and use live retained IDs from its events array.',field:'events'},400);
+  if(error.message==='Imported history cannot be regrouped with live capture'||error.message==='Issue not found')return c.json({error:'Use the full issue ID from a current live capture packet.',field:'source'},400);
+  if(/revision conflict/i.test(error.message)){
+   const field=/^Target/.test(error.message)?'targetRevision':input.kind==='rule'&&/^Grouping rule/.test(error.message)?'policyRevision':'revision';
+   return c.json({error:'Read the latest evidence and use its current revision.',field},409);
+  }
+  throw error;
+ }
  if(new TextEncoder().encode(explanation).length>2097152)return c.json({error:'Exact proposal explanation exceeds 2 MiB; narrow the proposal'},400);
 
  const row={id,project,kind:input.kind,state:'proposed',actor:actor.label,prepared_by:native?.context.actor.label??null,input:canonical(input),explanation,revisions:canonical(revisions),correction:null,rule_revision:null,created:time,updated:time};

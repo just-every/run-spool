@@ -7,31 +7,31 @@ export function bundlePosition(code) {
   let source;
   try { source = parse(code, { sourceType: 'unambiguous', allowReturnOutsideFunction: true, allowNewTargetOutsideFunction: true }); }
   catch { throw new Error('Invalid JavaScript bundle'); }
-  const shebangEnd = source.program.interpreter?.end;
-  const shebangBreak = shebangEnd === undefined ? '' : /^(?:\r\n|[\n\r\u2028\u2029])/.exec(code.slice(shebangEnd))?.[0] ?? '';
-  const offset = source.program.directives.at(-1)?.end ?? (shebangEnd === undefined ? 0 : shebangEnd + shebangBreak.length);
-  const prefixLines = code.slice(0, offset).split(/\r\n|[\n\r\u2028\u2029]/);
   // The parser distinguishes real retry comments from lookalikes in strings and templates.
   const registrations = source.comments.flatMap(comment => {
     const match = /^\/\/# debugId=([0-9a-f-]+)$/i.exec(code.slice(comment.start, comment.end));
     return match ? [match[1]] : [];
   });
-  return { offset, line: prefixLines.length - 1, character: prefixLines.at(-1).length, registrations,
-    unterminatedShebang: shebangEnd !== undefined && !shebangBreak };
+  return { firstStatement: source.program.body[0]?.loc.start, registrations };
 }
 
-/** Split the affected generated line, preserving sparse mappings on both sides. */
-export function insertRegistration(code, map, position, registration) {
-  const { offset, line, character, unterminatedShebang } = position;
-  const inserted = `${unterminatedShebang ? '\n' : ''}${registration}\n`;
-  const lines = decodedMappings(new TraceMap(map)).map(segments => segments.map(segment => [...segment]));
-  while (lines.length <= line) lines.push([]);
-  const before = lines[line].filter(segment => segment[0] < character);
-  const after = lines[line].filter(segment => segment[0] >= character).map(segment => [segment[0] - character, ...segment.slice(1)]);
-  // A sparse segment remains active across the original position at the split.
-  if (before.length && after[0]?.[0] !== 0) after.unshift([0, ...before.at(-1).slice(1)]);
-  before.push([character]); // Injected code must not inherit the preceding source location.
-  lines.splice(line, 1, before, ...(unterminatedShebang ? [[]] : []), after);
-  map.mappings = encodedMappings(presortedDecodedMap({ ...map, mappings: lines }));
-  return code.slice(0, offset) + inserted + code.slice(offset);
+/** Grouping uses generated lines. Insert on the first statement's line and shift only its columns. */
+export function insertRegistration(code, map, { firstStatement }, registration) {
+  // A directive-only or empty script can end with a shebang or a line comment.
+  if (!firstStatement) return code + '\n' + registration;
+  const { index: offset, line, column } = firstStatement;
+  const lines = decodedMappings(new TraceMap(map)).slice();
+  if (lines[line - 1]?.length) {
+    const segments = lines[line - 1];
+    const before = segments.filter(segment => segment[0] < column);
+    const after = segments.filter(segment => segment[0] >= column);
+    const previous = before.at(-1);
+    if (previous?.length > 1) {
+      before.push([column]); // Registration has no original source.
+      if (after[0]?.[0] !== column) before.push([column + registration.length, ...previous.slice(1)]);
+    }
+    lines[line - 1] = before.concat(after.map(([start, ...rest]) => [start + registration.length, ...rest]));
+    map.mappings = encodedMappings(presortedDecodedMap({ ...map, mappings: lines }));
+  }
+  return code.slice(0, offset) + registration + code.slice(offset);
 }
