@@ -1,5 +1,45 @@
 # Changelog
 
+## 0.7.15 — 2026-11-19
+
+Spool 0.7.15 expands Sentry export imports with readable accounting and owner review for roster, ownership and alert rules. It also improves local owner sign-in and patches bundled dependencies.
+
+### What changed
+
+- **See what a Sentry export brought over.** Import a supported Sentry API capture bundle and review the collection, record, field and byte accounting. The import shows what was mapped, transformed, omitted, duplicated or rejected, with readable reasons and safe labels where available. Captured history stays inert.
+- **Review the Sentry roster and ownership before granting access.** Imported members, teams and project ownership arrive as pending review records. The installation owner can inspect the proposed project roles and separately create a native invitation. The review records and native invitation actions appear separately. Ownership rules can be previewed and remain inactive. Supported earlier native archive inventories can still be restored.
+- **Approve imported Sentry alert rules.** In Settings → Data → Business imports, review the proposals and choose **Create these rules** when ready. Import receipts and history show how many rules were not imported. If an imported rule needs a destination review, saving it immediately shows the next action. Rules with unresolved destinations or unsupported conditions stay disabled, and rules that need users or sessions wait for matching data.
+- **Return to a local installation after an owner email change.** Local setup keeps the existing owner. The sign-in page shows how to get a fresh owner link with `~/.local/bin/rer dev`.
+- **Get clearer feedback when working with issues and releases.** A refused issue search explains why and offers to clear the query. Successful release registration shows **Release registered** beside the action.
+- **Use stricter session-cookie validation and patched dependencies.** The portability CLI accepts only valid cookie octets in session files. This release updates rustls, qs, minimatch, picomatch, Hono and its Node server adapter.
+
+### Updating
+
+From 0.7.14: Back up first. Download a private archive in Settings, or stop local dev and run `rer export --output exports/spool.jsonl`. From 0.7.14 on main, update with `git pull --ff-only` and `rer dev`. From a tag, run `git fetch --tags && git checkout v0.7.15` and `rer dev` once that tag is published. For a hosted installation, use `rer deploy` from the original deploying checkout. The five migrations listed below apply on the next deploy. The core inventory is 108 SQL files, up from 103 in 0.7.14. Every migration in v0.7.14 is byte-identical, so keep the existing database and do not reset. Keep private settings, project keys and the deployment receipt. Import private archives only into an empty destination. There are no breaking changes. The application still pins rer exactly to 0.2.118. To turn hosted mail off deliberately, select `MAIL_PROVIDER=none`, leave sending credentials empty and remove any previously bound sending secrets as described in docs/HOSTED.md. Keep the original deployment credentials and ownership receipt for guarded `rer signin` access. This application release does not publish the Spool SDK.
+
+- `migrations/core/0110_sentry_roster_proposals.sql` — Adds storage and provenance for pending Sentry roster and ownership proposals. After deploy, review the imported roster in Members before creating any native invitations.
+- `migrations/core/0111_key_names_and_use.sql` — Adds names and last successful use timestamps to keys while preserving their authority and revocation state. Keep existing keys. After deploy, name them in Settings as needed. Older keys start with a blank name and unknown last use.
+- `migrations/core/0112_member_identity.sql` — Synchronizes member names and email addresses with their native operator accounts. Keep the existing owner and members, then use the normal identity settings for future changes.
+- `migrations/core/0113_capture_sources.sql` — Adds short-lived, payload-free capture counters. After deploy, send a test event if you want to check the Capture connection status.
+- `migrations/core/0114_sentry_alert_proposals.sql` — Adds support for alert proposals and preserves existing roster proposals. After deploy, review the imported rules and their destinations in Business imports before creating rules.
+
+### Known limits
+
+- Transaction measurements are bounded retained observations, not full distributed tracing: spans, transaction tags and request data are not stored.
+- Issue-owner notification selection uses its explicit fallback until verified issue ownership is available. Live provider delivery needs separate qualification; deliberately mail-off hosted installations send no sign-in links, invitations or email alerts.
+- Local development sends no email. Email verification for ownership transfer remains unavailable there; only an owner session opened through the local access link uses local confirmation.
+- Browser restore is limited to 16 MiB. Larger current JSONL archives need the CLI; legacy JSON archives over 16 MiB remain refused. A refused legacy JSON upload over 16 MiB can still end in a connection reset: the fix drains only what the restore engine has not already begun reading. Refused requests on the agent-door `/mcp` route are not covered by this fix.
+- Agent setup still requires an owner to save all six policy answers and create a project agent key. The agent CLI runs from a Spool checkout; it is not an npm-published package. Local agent calls also require the private dev gate described in the panel.
+- Erasing the owner is held while other stored agent text contains a different address that ends with the owner's address. The erasure match is case-sensitive.
+- Before the first project is created, opening a missing project URL as the owner redirects to setup instead of showing a not-found page.
+- Retained hosted archives still require separate Managed-to-native release qualification. If an archive is refused with `schema_mismatch`, restore into the release you exported from. Retrying a cut-off hosted restore can be refused until its five-minute lease expires; wait before retrying.
+- Bugsnag and Rollbar imports remain bounded to 2 MiB and 500 records. The Sentry organization import accepts up to 1,000 parsed records including its manifest, within 2 MiB, and the import door has separate request limits. Larger migrations, real-account migration and live provider delivery remain unqualified.
+- End-user erasure matches supported retained identities and attributable captured copies. Unknown aliases, partial identifiers, grouping-sensitive text, exception/stack/context copies, anonymous aggregates and external copies remain outside its matcher. Consented feedback contact, screenshots and replies are not matched by that contact; the owner must withdraw the report in the feedback inbox. Deleting matching events also deletes feedback attached to those exact occurrences.
+
+Product screenshot: .github/assets/release/spool-issue-page-1600.png
+
+Release notes by Run Edit Run fleet, 2026-11-19 (UTC).
+
 ## 0.7.14 — 2026-11-17
 
 Spool 0.7.14 adds owner-confirmed end-user erasure, private feedback review and replies, and support for larger private archives.
