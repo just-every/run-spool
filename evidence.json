@@ -1,0 +1,76 @@
+{
+  "files": [
+    {
+      "blob": "efdb221a8033a44ccdf042c1cd8cdc143613f639",
+      "bytes": 5073,
+      "path": "REPORT.md",
+      "sha256": "5b7d7377eff25e7a6f9884855c0cbfae4059e59e2163b2f949e2ff8228d0f837"
+    },
+    {
+      "blob": "041a98deeef4bfa8f5224138233f22fe2baa4fdb",
+      "bytes": 344,
+      "path": "baseline-browser.log",
+      "sha256": "1f5a82981f7dcf9188d137c667d82a32feacdc803d04cb6228ee8864f85bc0a6"
+    },
+    {
+      "blob": "b61cd490cd4a5d0d9fa572ce195c8b211f859b9c",
+      "bytes": 249,
+      "path": "baseline.log",
+      "sha256": "43313e6580e11af9a35979102ae5bc5af37fddb9e5903f27434f74e43fccb215"
+    },
+    {
+      "blob": "ea26730d8075fb5c1d1017bc0698bf733b472f1e",
+      "bytes": 232,
+      "path": "candidate.log",
+      "sha256": "4f5b1f5efe46c4eb6eef2e7244823b9fca89c0123d9ad17fdcf3ca0c1df7e4ca"
+    },
+    {
+      "blob": "e5d8c64d6c570d76ec0de76023f621d42a72e0d1",
+      "bytes": 1903,
+      "path": "checks.log",
+      "sha256": "cedffe380a64bbda29fa9e3d29a846891233d693c5ae4a120ce34678fd01d9a9"
+    },
+    {
+      "blob": "39bf139175aa1b7a0a73dcd394d56e2bf69f2840",
+      "bytes": 225,
+      "path": "ci-discovery.json",
+      "sha256": "22614db121d8de6e462902b136aac8271458661f9d5125ea44510d0d5f9ed90c"
+    },
+    {
+      "blob": "bd567d40eab97673c4706b6b97701c8bf10fcf03",
+      "bytes": 878,
+      "path": "ci-polls.jsonl",
+      "sha256": "ad8a8d71efe14e62fcb7e8688294b3d8721e55d69040a199efb00587b66b06ae"
+    },
+    {
+      "blob": "965e3a8a64c0949d0da337787395ef9c9c5c3ab0",
+      "bytes": 41,
+      "path": "product-head.txt",
+      "sha256": "215faa55d2a15fa752f9175708b4009095cc7f995ed73584ea7bacad9fb5e9df"
+    },
+    {
+      "blob": "39ca9ea39c8ff6ef8ba44d850930daa1cca51cf5",
+      "bytes": 30244,
+      "path": "s7-issue-1440.png",
+      "sha256": "2f93f00f869c5bcefdf0c8f9425002efe8b089ef2c3afb7c40ba1638f8215e49"
+    },
+    {
+      "blob": "813e5a277c4b89aac58111c85adcb259436873f9",
+      "bytes": 33453,
+      "path": "s7-issue-390.png",
+      "sha256": "86ba62039f3b33548a875479660bcd70e8b833ebc25180c01355c8ed6cf2a08c"
+    },
+    {
+      "blob": "683a21c4df838683b1189003e519f9b120e6532f",
+      "bytes": 888,
+      "path": "source-receipt.txt",
+      "sha256": "caab40ed8a7b01394ac5c5167cc987e8311536642a4c7c885a6a7b568b147e96"
+    }
+  ],
+  "product_branch": "cloud/sd-spool-s7-empty-frame-1",
+  "product_head": "533ad0256f36b06811106a35756354239baccbf3",
+  "ref": "refs/heads/evidence/sd-spool-s7-empty-frame-1",
+  "repository": "just-every/run-spool",
+  "schema": 1,
+  "tag": "sd-spool-s7-empty-frame-1"
+}

@@ -1,0 +1,15 @@
+2026-11-19 UTC
+Initial main bb2efcd34837cd6067d02ce176609d3fc636dad2
+Product branch cloud/sd-spool-s7-empty-frame-1
+Product SHA 533ad0256f36b06811106a35756354239baccbf3
+Rebased against the just-fetched main before the single successful product push.
+Node 22.20.0 and pnpm 10.12.4 for local candidate checks.
+node src/base/contract-docs.mjs write: 0 documents changed
+node src/base/contract-docs.mjs check: current, prose 0 errors and 0 warnings
+Restored ACCEPTANCE.md and docs/CLAIMS.md from origin/main.
+node scripts/edition-authoring/cli.mjs lock: success
+pnpm source:check: success before the build and again on the clean candidate tree
+git diff --check: success
+Candidate publish range: 1 commit, 1 parent, fleet author and committer, no trailers.
+Changed generated lock entries: 5, corresponding to 3 source files and 2 intake test files.
+Additional top-level test registrations: 0.

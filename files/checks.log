@@ -1,0 +1,29 @@
+2026-11-19T15:32:51Z START node tests/native-export.mjs
+2026-11-19T15:32:51Z EXIT 0 node tests/native-export.mjs
+2026-11-19T15:32:51Z START pnpm run check -- --profile first-party
+2026-11-19T15:32:56Z EXIT 0 pnpm run check -- --profile first-party
+2026-11-19T15:32:56Z START pnpm source:check
+2026-11-19T15:32:57Z EXIT 0 pnpm source:check
+2026-11-19T15:32:57Z START node scripts/edition-authoring/cli.mjs verify-base --offline
+2026-11-19T15:32:57Z EXIT 0 node scripts/edition-authoring/cli.mjs verify-base --offline
+2026-11-19T15:32:57Z START cloud_run npx -y @runeditrun/rer build
+2026-11-19T15:33:41Z EXIT 0 cloud_run npx -y @runeditrun/rer build
+2026-11-19T15:33:41Z START cloud_run pnpm run build:app
+2026-11-19T15:34:06Z EXIT 0 cloud_run pnpm run build:app
+2026-11-19T15:34:06Z START pnpm integration:check
+2026-11-19T15:34:07Z EXIT 0 pnpm integration:check
+2026-11-19T15:34:07Z START node scripts/agent-door/surface.mjs --check
+2026-11-19T15:34:07Z EXIT 0 node scripts/agent-door/surface.mjs --check
+2026-11-19T15:34:07Z START pnpm typecheck
+2026-11-19T15:34:31Z EXIT 0 pnpm typecheck
+2026-11-19T15:34:31Z START cloud_run node tests/sentry-invalid-event-flow.mjs
+2026-11-19T15:34:43Z EXIT 0 cloud_run node tests/sentry-invalid-event-flow.mjs
+2026-11-19T15:34:43Z START cloud_run pnpm run test:sentry
+2026-11-19T15:56:46Z EXIT 1 cloud_run pnpm run test:sentry
+2026-11-19T15:57:39Z START node tests/sentry-import/roster-ownership.mjs (candidate retry)
+2026-11-19T15:59:01Z EXIT 0 node tests/sentry-import/roster-ownership.mjs (candidate retry)
+2026-11-19T15:59:01Z START node tests/business-import.mjs
+2026-11-19T16:06:27Z EXIT 0 final pnpm source:check on product HEAD
+2026-11-19T16:06:43Z EXIT 1 node tests/business-import.mjs
+2026-11-19T16:09:10Z EXIT 1 local pnpm run test:sentry:sdk (check-in upgrade could not bind shared local port)
+2026-11-19T16:09:28Z EXIT 0 local pnpm run test:sentry:cli
