@@ -4,9 +4,10 @@ import { isObject, evidenceText, evidenceValue, evidenceRecord, frameVariables }
 import { requestQuery } from './query.ts';
 import type { SentryEvidence, SentryFrame, SentryStack, SentryException, Truncation } from './evidence-types.ts';
 export type { SentryEvidence, SentryFrame, SentryException, Truncation } from './evidence-types.ts';
-const textKeys=['filename','abs_path','module','package','function','raw_function','symbol','platform','instruction_addr','symbol_addr','image_addr','addr_mode','trust'] as const;
+const textKeys=['module','package','function','raw_function','symbol','platform','instruction_addr','symbol_addr','image_addr','addr_mode','trust'] as const;
 const finite=(v:any)=>typeof v==='number'&&Number.isFinite(v);
-function stack(value:any,path:string,notes:Truncation[]):SentryStack|undefined {
+const platformName=(value:unknown)=>typeof value==='string'&&value.length?value:undefined;
+function stack(value:any,path:string,notes:Truncation[],eventPlatform:string|undefined):SentryStack|undefined {
  if(!isObject(value)||!Array.isArray(value.frames))return undefined;
  const all=value.frames.filter(isObject);
  if(all.length!==value.frames.length)notes.push({path:`${path}.frames`,reason:'invalid_frames',omitted:value.frames.length-all.length});
@@ -15,7 +16,13 @@ function stack(value:any,path:string,notes:Truncation[]):SentryStack|undefined {
  if(omitted)notes.push({path:`${path}.frames`,reason:'middle_frames',omitted});
  const frames=selected.map((raw,index)=>{
   const f:SentryFrame={},p=`${path}.frames.${index}`;
-  for(const key of textKeys)if(typeof raw[key]==='string')f[key]=key==='filename'||key==='abs_path'?framePath(raw[key],'python'):evidenceText(raw[key],`${p}.${key}`,notes);
+  for(const key of textKeys)if(typeof raw[key]==='string')f[key]=evidenceText(raw[key],`${p}.${key}`,notes);
+  const platform=platformName(raw.platform)??eventPlatform;
+  const language=platform==='python'||platform==='go'?platform:'javascript';
+  for(const key of ['filename','abs_path'] as const){
+   const location=raw[key];
+   if(typeof location==='string'&&location!=='')f[key]=framePath(location,language);
+  }
   for(const key of ['lineno','colno'] as const)if(Number.isSafeInteger(raw[key])&&raw[key]>=0)f[key]=raw[key];
   if(typeof raw.in_app==='boolean')f.in_app=raw.in_app;
   for(const key of ['pre_context','post_context'] as const)if(Array.isArray(raw[key]))f[key]=raw[key].filter((line:any)=>typeof line==='string').map((line:string,i:number)=>evidenceText(line,`${p}.${key}.${i}`,notes));
@@ -26,7 +33,7 @@ function stack(value:any,path:string,notes:Truncation[]):SentryStack|undefined {
  const sdkOmitted=Array.isArray(value.frames_omitted)&&value.frames_omitted.every(finite)?value.frames_omitted:undefined;
  return {frames,...(omitted?{frames_omitted:[500,500+omitted]}:sdkOmitted?{frames_omitted:sdkOmitted}:{})};
 }
-function exception(value:any,index:number,notes:Truncation[]):SentryException {
+function exception(value:any,index:number,notes:Truncation[],platform:string|undefined):SentryException {
  const e:SentryException={},path=`exceptions.${index}`;
  for(const key of ['type','value','module'] as const)if(typeof value[key]==='string')e[key]=evidenceText(value[key],`${path}.${key}`,notes);
  if(isObject(value.mechanism)){
@@ -35,7 +42,7 @@ function exception(value:any,index:number,notes:Truncation[]):SentryException {
   for(const key of ['handled','synthetic','is_exception_group'] as const)if(typeof value.mechanism[key]==='boolean')e.mechanism[key]=value.mechanism[key];
   for(const key of ['exception_id','parent_id'] as const)if(Number.isSafeInteger(value.mechanism[key]))e.mechanism[key]=value.mechanism[key];
  }
- const s=stack(value.stacktrace,`${path}.stacktrace`,notes);if(s)e.stacktrace=s;
+ const s=stack(value.stacktrace,`${path}.stacktrace`,notes,platform);if(s)e.stacktrace=s;
  return e;
 }
 function tags(value:any,notes:Truncation[]):Record<string,string>{
@@ -50,7 +57,8 @@ export function sanitizeSentry(value:any):SentryEvidence {
  if(!isObject(value)||value.version!==1||!Array.isArray(value.exceptions))throw new Error('Invalid Sentry evidence');
  const notes:Truncation[]=Array.isArray(value.truncation)?value.truncation.filter(isObject).filter(n=>typeof n.path==='string'&&typeof n.reason==='string').map(n=>({path:evidenceText(n.path,'truncation.path',[]),reason:evidenceText(n.reason,'truncation.reason',[]),...(Number.isSafeInteger(n.omitted)&&n.omitted>=0?{omitted:n.omitted}:{})})):[];
  if(value.user!==undefined)notes.push({path:'user',reason:'identity_policy_unavailable'});
- const out:SentryEvidence={version:1,exceptions:value.exceptions.filter(isObject).map((e,i)=>exception(e,i,notes)),truncation:notes};
+ const platform=platformName(value.platform)??platformName(value.sdk?.name)?.match(/^sentry\.([^.]+)/)?.[1];
+ const out:SentryEvidence={version:1,exceptions:value.exceptions.filter(isObject).map((e,i)=>exception(e,i,notes,platform)),truncation:notes};
  for(const key of ['platform','level','logger','transaction','server_name','environment','release','dist','message'] as const)if(typeof value[key]==='string')out[key]=evidenceText(value[key],key,notes);
  for(const key of ['modules','sdk','debug_meta','contexts','extra','_meta'] as const){const r=evidenceRecord(value[key],key,notes);if(r)out[key]=r;}
  if(Array.isArray(value.fingerprint))out.fingerprint=value.fingerprint.filter((v:any)=>typeof v==='string').map((v:string,i:number)=>evidenceText(v,`fingerprint.${i}`,notes));
@@ -59,13 +67,13 @@ export function sanitizeSentry(value:any):SentryEvidence {
   for(const key of ['message','formatted'] as const)if(typeof value.logentry[key]==='string')out.logentry[key]=evidenceText(value.logentry[key],`logentry.${key}`,notes);
   if(value.logentry.params!==undefined)out.logentry.params=evidenceValue(value.logentry.params,'logentry.params',notes);
  }
- const standalone=stack(value.stacktrace,'stacktrace',notes);if(standalone)out.stacktrace=standalone;
+ const standalone=stack(value.stacktrace,'stacktrace',notes,platform);if(standalone)out.stacktrace=standalone;
  if(Array.isArray(value.threads))out.threads=value.threads.filter(isObject).map((thread,index)=>{
   const result:NonNullable<SentryEvidence['threads']>[number]={},path=`threads.${index}`;
   if(typeof thread.name==='string')result.name=evidenceText(thread.name,`${path}.name`,notes);
   for(const key of ['id','state'] as const)if(thread[key]!==undefined)result[key]=evidenceValue(thread[key],`${path}.${key}`,notes);
   for(const key of ['crashed','current'] as const)if(typeof thread[key]==='boolean')result[key]=thread[key];
-  const s=stack(thread.stacktrace,`${path}.stacktrace`,notes);if(s)result.stacktrace=s;
+  const s=stack(thread.stacktrace,`${path}.stacktrace`,notes,platform);if(s)result.stacktrace=s;
   return result;
  });
  if(Array.isArray(value.breadcrumbs))out.breadcrumbs=value.breadcrumbs.filter(isObject).map((crumb,index)=>{

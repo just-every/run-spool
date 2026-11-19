@@ -35,7 +35,8 @@ function convertEvent(value: WireObject, envelopeId?: unknown,identityReason?:st
  const frames:Frame[]=[];
  for(const frame of [...stack?.frames??[]].reverse()){
   const path=frame.abs_path??frame.filename;
-  if(typeof path!=='string'||!Number.isSafeInteger(frame.lineno)||frame.lineno!<1||frame.lineno!>1e7||(!language&&!nativeJava&&(!Number.isSafeInteger(frame.colno)||frame.colno!<1||frame.colno!>1e7)))continue;
+  // Unlocated frames stay in the Sentry stack for issue detail and grouping.
+  if(!path||!Number.isSafeInteger(frame.lineno)||frame.lineno!<1||frame.lineno!>1e7||(!language&&!nativeJava&&(!Number.isSafeInteger(frame.colno)||frame.colno!<1||frame.colno!>1e7)))continue;
   const matches=images.filter((image:any)=>image?.type==='sourcemap'&&image.code_file===path) as any[];
   if(new Set(matches.map(image=>image.debug_id)).size>1)throw new SentryWireError('conflicting_debug_ids');
   const debugId=matches[0]?.debug_id;
