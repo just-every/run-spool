@@ -1,0 +1,40 @@
+{
+  "files": [
+    {
+      "blob": "ef252f55312a63e3fa1f4fbcdc136b64cb16d0ab",
+      "bytes": 6410,
+      "path": "REPORT.md",
+      "sha256": "e2e00518873a912af1a0b762776216987de5d39880b516311c59f027a3bcd9d5"
+    },
+    {
+      "blob": "7f7e256632da6cd72352138c74312c6122e57d92",
+      "bytes": 1429,
+      "path": "ci-verification.txt",
+      "sha256": "fdbcdf9b2241f67137a9cfbbdab3be6d9b7f40d4a1b011ecbb7e56ceea5525c5"
+    },
+    {
+      "blob": "ca99471dbd2a9c0b58b0cd779e450e3398e5c722",
+      "bytes": 1059,
+      "path": "local-checks.txt",
+      "sha256": "5b7c014d646a3ac2e2646b6573207a59e447469261abe012e5e8272696cee2e4"
+    },
+    {
+      "blob": "561cec720dfeedeb799f7d29b2a18c5dd894e033",
+      "bytes": 944,
+      "path": "metadata-checks.txt",
+      "sha256": "0dd5ca4637afd4b0e47b6d323bb49b9f86f4d942764d4f1d58739fdc46d7899f"
+    },
+    {
+      "blob": "f0282e659e3c2d09393eb57a57fe991fb7b27ec2",
+      "bytes": 452,
+      "path": "pushed-head-checks.txt",
+      "sha256": "3680f9e95bf03fd2232480de93165068cb27c3c343441add36c521687f5962e6"
+    }
+  ],
+  "product_branch": "cloud/sd-spool-release-0-7-15",
+  "product_head": "bb2efcd34837cd6067d02ce176609d3fc636dad2",
+  "ref": "refs/heads/evidence/sd-spool-release-0-7-15",
+  "repository": "just-every/run-spool",
+  "schema": 1,
+  "tag": "sd-spool-release-0-7-15"
+}

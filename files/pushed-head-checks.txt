@@ -1,0 +1,5 @@
+2026-11-19T06:56:57Z
+Advertised product ref refs/heads/cloud/sd-spool-release-0-7-15 bb2efcd34837cd6067d02ce176609d3fc636dad2
+f6edca8868764a1a476d8635c06d7b40e4fcbe293c6dc5d1c9ae40de969ea256  rer-setup.json
+Verifying committed tree bb2efcd34837cd6067d02ce176609d3fc636dad2
+setup.sha256 path=rer-setup.json declared=f6edca8868764a1a476d8635c06d7b40e4fcbe293c6dc5d1c9ae40de969ea256 actual=f6edca8868764a1a476d8635c06d7b40e4fcbe293c6dc5d1c9ae40de969ea256

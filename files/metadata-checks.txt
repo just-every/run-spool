@@ -1,0 +1,14 @@
+Verifying committed tree bb2efcd34837cd6067d02ce176609d3fc636dad2
+setup.sha256 path=rer-setup.json declared=f6edca8868764a1a476d8635c06d7b40e4fcbe293c6dc5d1c9ae40de969ea256 actual=f6edca8868764a1a476d8635c06d7b40e4fcbe293c6dc5d1c9ae40de969ea256
+Migration added: migrations/core/0110_sentry_roster_proposals.sql
+Migration added: migrations/core/0111_key_names_and_use.sql
+Migration added: migrations/core/0112_member_identity.sql
+Migration added: migrations/core/0113_capture_sources.sql
+Migration added: migrations/core/0114_sentry_alert_proposals.sql
+Migration inventory 103 -> 108. All 103 original blobs and modes match.
+Release file agreement, unchanged dependencies, retained screenshot, additive source lock delta and metadata lease passed.
+Contract summary before and after (done / partial / missing / total):
+| Core | 23 | 45 | 19 | 87 |
+| Agent surface | 0 | 9 | 9 | 18 |
+| Later | 0 | 0 | 0 | 0 |
+| Full target | 23 | 54 | 28 | 105 |

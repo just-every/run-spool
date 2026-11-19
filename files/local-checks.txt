@@ -1,0 +1,22 @@
+Repository just-every/run-spool
+Product branch cloud/sd-spool-release-0-7-15
+Product head bb2efcd34837cd6067d02ce176609d3fc636dad2
+Parent 7db1a39f91289cf56850176e25b55e69629eaa0d
+Toolchain Node 22.20.0 / pnpm 10.12.4
+
+PASS pnpm install --frozen-lockfile
+PASS pnpm typecheck
+PASS node src/base/contract-docs.mjs check
+PASS node scripts/verify-ci.mjs --check-workflows
+PASS pnpm source:check
+PASS node scripts/edition-authoring/cli.mjs verify-base --offline
+PASS pnpm run check -- --profile first-party
+PASS cloud_run pnpm run build:app
+PASS pnpm integration:check after the application build
+PASS git diff --check origin/main HEAD
+PASS committed metadata, exact migration tree, source lock scope, screenshot and release notes agreement
+PASS all candidate commit identities and trailers checked before the guarded push
+PASS remote product ref matches the candidate
+PASS project-declared SHA-256 from the exact pushed product tree
+
+One integration check was attempted before the build and reported missing dist. The command passed with its build input in place.
