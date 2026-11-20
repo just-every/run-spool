@@ -1,0 +1,302 @@
+{
+  "checked_at": "2026-11-20T16:36:16Z",
+  "conclusion": "failure",
+  "head_sha": "d34f6bf12502f871731fa99e56517a2e3df2a32c",
+  "html_url": "https://github.com/just-every/run-spool/actions/runs/44770601628",
+  "run_id": 44770601628,
+  "selected_jobs": [
+    {
+      "completed_at": "2026-11-20T16:10:21Z",
+      "conclusion": "success",
+      "head_sha": "d34f6bf12502f871731fa99e56517a2e3df2a32c",
+      "html_url": "https://github.com/just-every/run-spool/actions/runs/44770601628/job/136406914594",
+      "id": 136406914594,
+      "name": "plan",
+      "started_at": "2026-11-20T16:10:07Z",
+      "status": "completed",
+      "steps": [
+        {
+          "conclusion": "success",
+          "name": "Set up job"
+        },
+        {
+          "conclusion": "success",
+          "name": "Run actions/checkout@v4"
+        },
+        {
+          "conclusion": "success",
+          "name": "Check reusable workflow permissions"
+        },
+        {
+          "conclusion": "skipped",
+          "name": "Look up complete nightly marker"
+        },
+        {
+          "conclusion": "success",
+          "name": "Run node scripts/verify-ci.mjs --plan"
+        },
+        {
+          "conclusion": "success",
+          "name": "Post Run actions/checkout@v4"
+        },
+        {
+          "conclusion": "success",
+          "name": "Complete job"
+        }
+      ]
+    },
+    {
+      "completed_at": "2026-11-20T16:11:27Z",
+      "conclusion": "success",
+      "head_sha": "d34f6bf12502f871731fa99e56517a2e3df2a32c",
+      "html_url": "https://github.com/just-every/run-spool/actions/runs/44770601628/job/136407079060",
+      "id": 136407079060,
+      "name": "build",
+      "started_at": "2026-11-20T16:10:24Z",
+      "status": "completed",
+      "steps": [
+        {
+          "conclusion": "success",
+          "name": "Set up job"
+        },
+        {
+          "conclusion": "success",
+          "name": "Run actions/checkout@v4"
+        },
+        {
+          "conclusion": "success",
+          "name": "Run pnpm/action-setup@v4"
+        },
+        {
+          "conclusion": "success",
+          "name": "Run actions/setup-node@v4"
+        },
+        {
+          "conclusion": "success",
+          "name": "Set runner-owned pnpm store"
+        },
+        {
+          "conclusion": "success",
+          "name": "Run actions/cache@v4"
+        },
+        {
+          "conclusion": "success",
+          "name": "Run pnpm install --frozen-lockfile"
+        },
+        {
+          "conclusion": "success",
+          "name": "Check source and portable contract"
+        },
+        {
+          "conclusion": "success",
+          "name": "Build application"
+        },
+        {
+          "conclusion": "success",
+          "name": "Check integration and types"
+        },
+        {
+          "conclusion": "success",
+          "name": "Check for tracked build changes"
+        },
+        {
+          "conclusion": "success",
+          "name": "Run actions/upload-artifact@v4"
+        },
+        {
+          "conclusion": "success",
+          "name": "Post Run actions/cache@v4"
+        },
+        {
+          "conclusion": "success",
+          "name": "Post Run actions/setup-node@v4"
+        },
+        {
+          "conclusion": "success",
+          "name": "Post Run pnpm/action-setup@v4"
+        },
+        {
+          "conclusion": "success",
+          "name": "Post Run actions/checkout@v4"
+        },
+        {
+          "conclusion": "success",
+          "name": "Complete job"
+        }
+      ]
+    },
+    {
+      "completed_at": "2026-11-20T16:10:41Z",
+      "conclusion": "success",
+      "head_sha": "d34f6bf12502f871731fa99e56517a2e3df2a32c",
+      "html_url": "https://github.com/just-every/run-spool/actions/runs/44770601628/job/136407079115",
+      "id": 136407079115,
+      "name": "contract-docs",
+      "started_at": "2026-11-20T16:10:23Z",
+      "status": "completed",
+      "steps": [
+        {
+          "conclusion": "success",
+          "name": "Set up job"
+        },
+        {
+          "conclusion": "success",
+          "name": "Run actions/checkout@v4"
+        },
+        {
+          "conclusion": "success",
+          "name": "Run actions/setup-node@v4"
+        },
+        {
+          "conclusion": "success",
+          "name": "Run node src/base/contract-docs.mjs check"
+        },
+        {
+          "conclusion": "success",
+          "name": "Post Run actions/setup-node@v4"
+        },
+        {
+          "conclusion": "success",
+          "name": "Post Run actions/checkout@v4"
+        },
+        {
+          "conclusion": "success",
+          "name": "Complete job"
+        }
+      ]
+    },
+    {
+      "completed_at": "2026-11-20T16:18:20Z",
+      "conclusion": "failure",
+      "head_sha": "d34f6bf12502f871731fa99e56517a2e3df2a32c",
+      "html_url": "https://github.com/just-every/run-spool/actions/runs/44770601628/job/136407743747",
+      "id": 136407743747,
+      "name": "verify (runtime)",
+      "started_at": "2026-11-20T16:11:30Z",
+      "status": "completed",
+      "steps": [
+        {
+          "conclusion": "success",
+          "name": "Set up job"
+        },
+        {
+          "conclusion": "success",
+          "name": "Run actions/checkout@v4"
+        },
+        {
+          "conclusion": "success",
+          "name": "Run pnpm/action-setup@v4"
+        },
+        {
+          "conclusion": "success",
+          "name": "Run actions/setup-node@v4"
+        },
+        {
+          "conclusion": "success",
+          "name": "Prepare runner-owned dependency and browser caches"
+        },
+        {
+          "conclusion": "success",
+          "name": "Run actions/cache@v4"
+        },
+        {
+          "conclusion": "success",
+          "name": "Run pnpm install --frozen-lockfile"
+        },
+        {
+          "conclusion": "success",
+          "name": "Run actions/download-artifact@v4"
+        },
+        {
+          "conclusion": "success",
+          "name": "Install and probe Chromium before system dependencies"
+        },
+        {
+          "conclusion": "failure",
+          "name": "Run suites"
+        },
+        {
+          "conclusion": "skipped",
+          "name": "Run suites (wizard, 8-minute deadline)"
+        },
+        {
+          "conclusion": "success",
+          "name": "Run actions/upload-artifact@v4"
+        },
+        {
+          "conclusion": "skipped",
+          "name": "Check hosted output and hydration"
+        },
+        {
+          "conclusion": "skipped",
+          "name": "Post Run actions/cache@v4"
+        },
+        {
+          "conclusion": "skipped",
+          "name": "Post Run actions/setup-node@v4"
+        },
+        {
+          "conclusion": "success",
+          "name": "Post Run pnpm/action-setup@v4"
+        },
+        {
+          "conclusion": "success",
+          "name": "Post Run actions/checkout@v4"
+        },
+        {
+          "conclusion": "success",
+          "name": "Complete job"
+        }
+      ]
+    },
+    {
+      "completed_at": "2026-11-20T16:32:14Z",
+      "conclusion": "failure",
+      "head_sha": "d34f6bf12502f871731fa99e56517a2e3df2a32c",
+      "html_url": "https://github.com/just-every/run-spool/actions/runs/44770601628/job/136420031779",
+      "id": 136420031779,
+      "name": "shards (spool)",
+      "started_at": "2026-11-20T16:32:12Z",
+      "status": "completed",
+      "steps": [
+        {
+          "conclusion": "success",
+          "name": "Set up job"
+        },
+        {
+          "conclusion": "failure",
+          "name": "Require every job in this coverage partition"
+        },
+        {
+          "conclusion": "success",
+          "name": "Complete job"
+        }
+      ]
+    },
+    {
+      "completed_at": "2026-11-20T16:32:19Z",
+      "conclusion": "failure",
+      "head_sha": "d34f6bf12502f871731fa99e56517a2e3df2a32c",
+      "html_url": "https://github.com/just-every/run-spool/actions/runs/44770601628/job/136420073991",
+      "id": 136420073991,
+      "name": "verify",
+      "started_at": "2026-11-20T16:32:16Z",
+      "status": "completed",
+      "steps": [
+        {
+          "conclusion": "success",
+          "name": "Set up job"
+        },
+        {
+          "conclusion": "failure",
+          "name": "Require the selected coverage and its proof"
+        },
+        {
+          "conclusion": "success",
+          "name": "Complete job"
+        }
+      ]
+    }
+  ],
+  "status": "completed"
+}
