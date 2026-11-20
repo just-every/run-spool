@@ -7,6 +7,7 @@ import { fields, version, check } from './input';
 import { invite } from './mutations';
 import { s } from './model';
 import { ownershipPreview } from './import-model';
+import { importedTeamName } from '../sentry-import/roster-team';
 
 // Mounted behind memberRoutes' session, same-origin and administrator checks.
 // Private originals and source role review remain installation-owner only.
@@ -38,11 +39,30 @@ importedMembers.post('/:id/invite',async c=>{
  const row=await s(db,"SELECT * FROM spool_import_proposals WHERE id=? AND kind='member' AND state='pending' AND version=?",c.req.param('id'),expected).first<any>();
  if(!row)return c.json({error:'Roster proposal changed'},409);
  const payload=JSON.parse(row.payload);
+ const sourceTeams=await s(db,`SELECT team.payload,scope.value project FROM sentry_import_targets member
+  JOIN sentry_import_targets source ON source.kind='import-proposal'
+   AND json_extract(source.source,'$.organization')=json_extract(member.source,'$.organization')
+  JOIN spool_import_proposals team ON team.id=source.id AND team.kind='team'
+  JOIN json_each(team.payload,'$.projects') scope
+  WHERE member.kind='import-proposal' AND member.id=?
+   AND scope.value IN (SELECT json_extract(value,'$.project') FROM json_each(?))`,row.id,JSON.stringify(payload.grants))
+  .all<{payload:string;project:string}>();
+ const projectTeams=new Map<string,string|null>();
+ for(const team of sourceTeams.results){
+  projectTeams.set(team.project,projectTeams.has(team.project)?null:importedTeamName(JSON.parse(team.payload).name));
+ }
  // This is a separate explicit human authorization, never called by import.
  // Reservation changes the target before mail can be attempted, fencing undo
  // and catch-up even if the native sender or the final receipt fails.
  await ownerBatch(db,session,[check(db,"EXISTS(SELECT 1 FROM spool_import_proposals WHERE id=? AND state='pending' AND version=?)",row.id,expected),
-  ...payload.grants.map((grant:any)=>s(db,"INSERT INTO spool_project_teams(project,organization,team) SELECT id,?,'Imported project' FROM projects WHERE id=? ON CONFLICT(project) DO NOTHING",organization.id,grant.project)),
+  ...payload.grants.map((grant:any)=>{
+   // The native directory has one team slot per project. Keep explicit assignments
+   // and leave unassigned projects with several source teams for the owner to choose.
+   const team=projectTeams.get(grant.project);
+   return s(db,`INSERT INTO spool_project_teams(project,organization,team) SELECT id,?,? FROM projects WHERE id=?
+    ON CONFLICT(project) DO UPDATE SET team=excluded.team WHERE organization=excluded.organization
+    AND ? IS NOT NULL AND team IN ('Imported project','Default team')`,organization.id,team??'Imported project',grant.project,team??null);
+  }),
   s(db,"UPDATE spool_import_proposals SET state='inviting',version=version+1 WHERE id=?",row.id),auditCommit(db)]);
  const result=await invite(c.req.raw,c.env,session,organization.id,{email:payload.email,name:payload.name,role:payload.role,grants:payload.grants});
  await ownerBatch(db,session,[s(db,"UPDATE spool_import_proposals SET state='invited',version=version+1 WHERE id=? AND state='inviting'",row.id),auditCommit(db)]);

@@ -44,7 +44,7 @@ async function destinationBindings(fixture, apply, json, request, owner) {
   ['Synthetic team target','Team',team.id],
   ['Synthetic missing member','Member','synthetic-unmapped'],
  ].map(([name,targetType,targetIdentifier],i)=>({...sourceRule,id:'synthetic-target-rule-'+i,name,actions:[{
-  id:'sentry.mail.actions.NotifyEmailAction',targetType,targetIdentifier,
+  id:'sentry.mail.actions.NotifyEmailAction',targetType,targetIdentifier,fallthroughType:'NoOne',
  }]}));
  const metrics=bundle.collections.find(c=>c.kind==='metric_alerts').pages[0];
  const metric=metrics.response.find(row=>row.name==='Synthetic error thresholds');
@@ -55,13 +55,7 @@ async function destinationBindings(fixture, apply, json, request, owner) {
  const roster=(await json('/api/organization/imports')).proposals;
  const proposal=roster.find(row=>row.kind==='member'&&row.project===run.project);
  assert.ok(proposal);
- const invitation=await json('/api/organization/imports/'+proposal.id+'/invite','POST',{version:proposal.version});
- const directory=await json('/api/organization');
- const pending=directory.invites.find(row=>row.member===invitation.id);
- assert.ok(pending?.localLink,'the owner can open their authorized local invitation');
- const response=await request('/auth/confirm','POST',{token:new URL(pending.localLink).searchParams.get('token')},{Cookie:''},'manual');
- assert.equal(response.status,303,'the native invitee activates their own identity');
- await response.body?.cancel();
+ const invitation=await activateImportedMember(proposal,json,request);
  await json('/api/organization/projects/'+run.project,'PUT',{team:team.slug});
  await json(run.approve,'POST',{fingerprint:run.planned.fingerprint});
  const rules=await json(run.root+'/alerting/rules'),destinations=(await json(run.root+'/alerting/destinations')).rows;
@@ -77,6 +71,94 @@ async function destinationBindings(fixture, apply, json, request, owner) {
  await importedAlertEditNames({...owner,project:run.project,name:metric.name});
  assert.equal((await json(run.root+'/alerting/deliveries')).length,0);
  return {bound:2,unmapped:1};
+}
+
+async function activateImportedMember(proposal,json,request) {
+ const invitation=await json('/api/organization/imports/'+proposal.id+'/invite','POST',{version:proposal.version});
+ const directory=await json('/api/organization');
+ const pending=directory.invites.find(row=>row.member===invitation.id);
+ assert.ok(pending?.localLink,'the owner can open their authorized local invitation');
+ const response=await request('/auth/confirm','POST',{token:new URL(pending.localLink).searchParams.get('token')},{Cookie:''},'manual');
+ assert.equal(response.status,303,'the native invitee activates their own identity');
+ await response.body?.cancel();
+ return invitation;
+}
+
+async function nativeSentryAlertMapping(apply,client,json,request) {
+ const fixture=JSON.parse(await readFile(new URL('../fixtures/sentry/alert-rule-mapping.json',import.meta.url)));
+ const run=await apply(fixture);
+ const team=fixture.collections.find(collection=>collection.kind==='teams').pages[0].response[0];
+ const roster=(await json('/api/organization/imports')).proposals;
+ const member=roster.find(row=>row.kind==='member'&&row.project===run.project);
+ await activateImportedMember(member,json,request);
+ const directory=await json('/api/organization');
+ assert.equal(directory.teams.find(row=>row.project===run.project).team,team.name);
+ await json(run.approve,'POST',{fingerprint:run.planned.fingerprint});
+
+ const items=(await run.door.status(run.planned.planId)).sentry.rules.items;
+ const expectedOmissions=[
+  ['Synthetic issue owners','Issue-owner recipients require native ownership rules'],
+  ['Synthetic unsupported condition','Unsupported issue condition: EventAttributeCondition'],
+ ];
+ const omissions=items.flatMap(row=>row.omissions.map(({reason})=>[row.name,reason]));
+ assert.deepEqual(omissions,expectedOmissions);
+ assert.deepEqual(items.filter(row=>row.state==='disabled').map(row=>row.name),expectedOmissions.map(([name])=>name));
+ assert.deepEqual(items.filter(row=>row.state==='waiting').map(row=>row.name),['Synthetic aliased crash-free rate']);
+ assert.equal(items.length,10);
+ assert.equal(items.find(row=>row.name==='Synthetic issue owners').destinations[0].kind,'issue_owners');
+
+ const rules=await json(run.root+'/alerting/rules');
+ const destinations=(await json(run.root+'/alerting/destinations')).rows;
+ const ruleByName=name=>rules.find(row=>row.name===name);
+ const config=name=>JSON.parse(ruleByName(name).config);
+ assert.deepEqual(config('Synthetic numerical severity').filters,{level:'error',levelMatch:'gte'});
+ assert.deepEqual(JSON.parse(ruleByName('Synthetic reappeared issue').kinds),['reactivation']);
+ const shared=config('Synthetic shared threshold destination');
+ assert.deepEqual(shared.triggers.map(row=>row.alertThreshold),[4,2]);
+ for(const [name,fallthrough] of [['Synthetic imported team','active_members'],['Synthetic shared threshold destination','no_one']]){
+  const row=ruleByName(name),target=destinations.find(destination=>destination.id===row.destination);
+  assert.equal(row.enabled,1);
+  assert.deepEqual([target.targetType,target.target,target.fallthrough],['team',team.name,fallthrough]);
+ }
+ const crashFree=config('Synthetic aliased crash-free rate');
+ assert.equal(crashFree.aggregate,'crash_free_rate');
+ assert.equal(crashFree.thresholdType,'below');
+ assert.deepEqual(crashFree.triggers.map(row=>row.alertThreshold),[95,99]);
+ assert.equal(crashFree.resolveThreshold,99.5);
+ assert.deepEqual(config('Synthetic transaction wildcard').query.transaction,{op:'glob',value:'/v1/*'});
+ assert.deepEqual(config('Synthetic HTTP status wildcard').query.tags,{'http.status_code':{op:'glob',value:'5*'}});
+
+ // The native preview calls the same ruleInput as the create and edit doors.
+ const accepted=items.filter(row=>!row.omissions.length);
+ for(const item of accepted){
+  const rule=ruleByName(item.name);
+  await json(run.root+'/alerting/rules/preview','POST',{
+   ruleId:rule.id,revision:rule.revision,name:rule.name,enabled:!!rule.enabled,channel:rule.channel,destination:rule.destination,
+   kinds:JSON.parse(rule.kinds),windowMs:rule.window_ms,threshold:rule.threshold,config:JSON.parse(rule.config),
+  });
+ }
+ assert.equal(accepted.length,8);
+ assert.deepEqual(await json(run.root+'/alerting/deliveries'),[]);
+
+ fixture.organization.slug='synthetic-negative-alert-mapping';
+ const issueRules=fixture.collections.find(row=>row.kind==='rules').pages[0].response;
+ const metricRules=fixture.collections.find(row=>row.kind==='metric_alerts').pages[0].response;
+ issueRules.find(row=>row.id==='synthetic-numeric-level').filters[0].level='55';
+ const teamAction=issueRules.find(row=>row.id==='synthetic-team').actions[0];
+ teamAction.fallthroughType='AllMembers';
+ const sharedTarget=metricRules.find(row=>row.id==='synthetic-shared').triggers[1].actions[0];
+ sharedTarget.targetIdentifier='synthetic-other-team';
+ const transactionRule=metricRules.find(row=>row.id==='synthetic-transaction');
+ transactionRule.query='transaction:/v1/* http.status_code:5*';
+ const preview=await client(fixture.organization.slug).plan(Buffer.from(JSON.stringify(fixture)));
+ const reason=name=>preview.sentry.rules.items.find(row=>row.name===name).omissions[0].reason;
+ assert.match(reason('Synthetic numerical severity'),/LevelFilter.*unknown severity/);
+ assert.match(reason('Synthetic imported team'),/Unsupported email fallthrough: AllMembers/);
+ assert.equal(reason('Synthetic shared threshold destination'),'Destinations differ by threshold');
+ assert.equal(reason('Synthetic transaction wildcard'),'Unsupported metric search filter');
+ const door=client(fixture.organization.slug);
+ await door.call('undo',{planId:preview.planId});
+ return {definitions:items.length,native:accepted.length,omissions,team:team.name,ruleInput:accepted.map(row=>row.name)};
 }
 
 export async function alertRulesImport() {
@@ -228,9 +310,10 @@ export async function alertRulesImport() {
   assert.ok(!(await snapshot()).data.spool_import_proposals.some(row=>row.project===project));
   assert.ok(!(await snapshot()).data.alert_rules.some(row=>row.project===project));
   const bindings=await destinationBindings(fixture,apply,json,request,{origin,cookie});
+  const nativeMapping=await nativeSentryAlertMapping(apply,client,json,request);
   if(packet)await writeFile(join(packet,'ALERT-IMPORT-RECEIPT.json'),JSON.stringify({
    synthetic:true,at:new Date().toISOString(),sourceDefinitions:states.sourceDefinitions,proposals:expectedProposals,created:states.created,
-   refused:states.notImported,waiting:activated.length,alertsAfterObservation:feed.length,deliveries:0,erasure:erased.phase,bindings,
+   refused:states.notImported,waiting:activated.length,alertsAfterObservation:feed.length,deliveries:0,erasure:erased.phase,bindings,nativeMapping,
   },null,2)+'\n');
   console.log('Sentry alert import: public proposal, approval, wait, restart, native-edit undo refusal and erasure journey passed.');
  } finally {

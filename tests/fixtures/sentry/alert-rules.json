@@ -180,11 +180,11 @@
               "aggregate": "percentage(sessions_crashed, sessions)",
               "timeWindow": 5,
               "query": "",
-              "thresholdType": 0,
+              "thresholdType": 1,
               "triggers": [
                 {
                   "label": "critical",
-                  "alertThreshold": 20,
+                  "alertThreshold": 80,
                   "actions": []
                 }
               ],

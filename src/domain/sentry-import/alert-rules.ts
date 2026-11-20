@@ -1,14 +1,23 @@
-import { ruleConfig, type RuleConfig } from '../alerts/filters';
+import { ruleConfig, sentryEventLevels, type RuleConfig } from '../alerts/filters';
 import { metricConfig, type MetricConfig } from '../alerts/metric-rules';
 import { waitingForSession, waitingForUser } from '../alerts/import-state';
+import type { TargetDestination } from '../alerts/targets';
 import { scrub } from '../privacy';
 
 export const sentryRuleKinds = ['rules', 'metric_alerts', 'workflows', 'detectors'];
 
 type Condition = { path: string; reason: string };
-export type SourceDestination = { kind: string; id: string | null; path: string };
+type Fallthrough = TargetDestination['fallthrough'];
+export type SourceDestination = { kind: string; id: string | null; path: string; fallthrough?: Fallthrough };
+export const destinationKey = (target: SourceDestination) => JSON.stringify([target.kind, target.id, target.fallthrough ?? 'no_one']);
+type OmitCondition = (path: string, reason: string) => void;
+const issueKinds = {
+  FirstSeenEventCondition: 'new_issue',
+  RegressionEventCondition: 'regression',
+  ReappearedEventCondition: 'reactivation',
+} as const;
 type Settings = {
-  kinds: ('new_issue' | 'regression' | 'spike' | 'metric')[];
+  kinds: ((typeof issueKinds)[keyof typeof issueKinds] | 'spike' | 'metric')[];
   config: RuleConfig | MetricConfig;
   windowMs: number;
   threshold: number;
@@ -41,20 +50,28 @@ const minutes = (value: unknown) => {
 const number = (value: unknown) => typeof value === 'number' && Number.isFinite(value) ? value
   : typeof value === 'string' && /^\d+(?:\.\d+)?$/.test(value) ? Number(value) : NaN;
 
-function destination(action: any, path: string): SourceDestination {
+function destination(action: any, path: string, omit: OmitCondition): SourceDestination {
   const key = typeof action?.id === 'string' ? action.id.split('.').at(-1) : '';
   const type = label(action?.type || key, 'unknown');
   const service = type.toLowerCase();
-  const target = String(action?.targetType ?? action?.config?.targetType ?? '').toLowerCase();
-  const kind = ['teams', 'team'].includes(target) ? 'team' : ['user', 'member', 'users'].includes(target) ? 'member' : 'email';
-  if (['email', 'notifyemailaction', 'notifyeventaction', 'notifyeventserviceaction'].includes(service) && (service === 'email' || service === 'notifyemailaction')) {
-    return { kind, id: id(action.targetIdentifier ?? action.config?.targetIdentifier), path };
+  if (service === 'email' || service === 'notifyemailaction') {
+    const target = String(action.targetType ?? action.target_type ?? action.config?.targetType ?? '').toLowerCase();
+    const kind = ['teams', 'team'].includes(target) ? 'team'
+      : ['user', 'member', 'users'].includes(target) ? 'member' : target === 'issueowners' ? 'issue_owners' : 'email';
+    const fallthrough = action.fallthroughType ?? action.fallthrough_type ?? action.data?.fallthroughType;
+    if (fallthrough != null && fallthrough !== 'ActiveMembers' && fallthrough !== 'NoOne') {
+      omit(path, 'Unsupported email fallthrough: ' + label(fallthrough, 'unknown'));
+    }
+    if (kind === 'issue_owners') omit(path, 'Issue-owner recipients require native ownership rules');
+    const sourceId = kind === 'issue_owners' ? null : id(action.targetIdentifier ?? action.target_identifier ?? action.config?.targetIdentifier);
+    return { kind, id: sourceId, path,
+      fallthrough: fallthrough === 'ActiveMembers' || fallthrough == null && service === 'notifyemailaction' ? 'active_members' : 'no_one' };
   }
   const names: [string, string][] = [['slack', 'Slack'], ['pagerduty', 'PagerDuty'], ['opsgenie', 'Opsgenie'], ['webhook', 'webhook']];
   return { kind: names.find(([prefix]) => service.includes(prefix))?.[1] ?? type, id: null, path };
 }
 
-function issueRule(data: any, omit: (path: string, reason: string) => void): Settings | null {
+function issueRule(data: any, omit: OmitCondition): Settings | null {
   if (!Array.isArray(data.conditions) || !Array.isArray(data.filters) || !Array.isArray(data.actions)) throw new Error('Issue rule conditions, filters and actions must be arrays');
   const filters: RuleConfig['filters'] = {};
   if (data.environment !== undefined && data.environment !== null) filters.environment = data.environment;
@@ -65,8 +82,7 @@ function issueRule(data: any, omit: (path: string, reason: string) => void): Set
   for (const [index, condition] of data.conditions.entries()) {
     const name = condition?.id?.split?.('.').at(-1);
     const path = '/conditions/' + index;
-    if (name === 'FirstSeenEventCondition') kinds.push('new_issue');
-    else if (name === 'RegressionEventCondition') kinds.push('regression');
+    if (Object.hasOwn(issueKinds, name)) kinds.push(issueKinds[name as keyof typeof issueKinds]);
     else if (['EventFrequencyCondition', 'EventUniqueUserFrequencyCondition'].includes(name) && data.conditions.length === 1) {
       const interval = minutes(condition.interval);
       const limit = number(condition.value);
@@ -91,7 +107,13 @@ function issueRule(data: any, omit: (path: string, reason: string) => void): Set
       const match = op === 'is_set' || op === 'not_set' ? { op } : { op, value: filter.value };
       filters.tags = { ...filters.tags, [filter.key]: match };
     } else if (name === 'LevelFilter' && !filters.level) {
-      filters.level = filter.level;
+      const raw = filter.level;
+      const numeric = typeof raw === 'number' || typeof raw === 'string' && /^\d+$/.test(raw);
+      if (numeric && !Object.hasOwn(sentryEventLevels, raw)) {
+        omit(path, 'Unsupported issue filter: LevelFilter (unknown severity)');
+        continue;
+      }
+      filters.level = numeric ? sentryEventLevels[raw as keyof typeof sentryEventLevels] : raw;
       filters.levelMatch = filter.match;
     } else omit(path, 'Unsupported issue filter: ' + label(name, 'unknown'));
   }
@@ -101,17 +123,20 @@ function issueRule(data: any, omit: (path: string, reason: string) => void): Set
   return kinds.length ? { kinds, config, windowMs, threshold } : null;
 }
 
-function metricRule(data: any, path: string, omit: (path: string, reason: string) => void, triggers: any[] = data.triggers): Settings | null {
+function metricRule(data: any, path: string, omit: OmitCondition, triggers: any[] = data.triggers): Settings | null {
   const sourceAggregate = typeof data.aggregate === 'string' ? data.aggregate.trim() : '';
+  const crashRateAlias = /\s+AS\s+_crash_rate_alert_aggregate$/i;
+  const normalizedAggregate = sourceAggregate.replace(crashRateAlias, '').replace(/,\s*/g, ', ');
   const aggregate = ({ 'count()': 'count', 'count_unique(user)': 'users', 'count_unique(user.id)': 'users',
     'percentage(sessions_crashed, sessions)': 'crash_free_rate', 'crash_free_rate()': 'crash_free_rate', 'equation|100 - percentage(sessions_crashed, sessions)': 'crash_free_rate',
     'failure_rate()': 'failure_rate', 'count(session)': 'session_count', 'sum(session)': 'session_count',
-    'p95(transaction.duration)': 'p95_duration' } as Record<string, string>)[sourceAggregate.replace(/,\s*/g, ', ')];
+    'p95(transaction.duration)': 'p95_duration' } as Record<string, string>)[normalizedAggregate];
   if(data.comparisonDelta != null)omit(path+'/comparisonDelta','Unsupported change from a comparison period');
   if(data.thresholdPeriod != null && data.thresholdPeriod!==1)omit(path+'/thresholdPeriod','Unsupported consecutive threshold periods');
   const session = ['crash_free_rate', 'failure_rate', 'session_count'].includes(aggregate);
   const dataset = session ? 'sessions' : aggregate === 'p95_duration' ? 'transactions' : 'errors';
-  if (!aggregate || data.dataset === 'sessions' && !session && aggregate !== 'count' || data.dataset === 'transactions' && dataset !== 'transactions') {
+  if (!aggregate || crashRateAlias.test(sourceAggregate) && aggregate !== 'crash_free_rate'
+    || data.dataset === 'sessions' && !session && aggregate !== 'count' || data.dataset === 'transactions' && dataset !== 'transactions') {
     omit(path + '/aggregate', 'Unsupported aggregate: ' + label(data.aggregate, 'unspecified'));
     return null;
   }
@@ -127,10 +152,14 @@ function metricRule(data: any, path: string, omit: (path: string, reason: string
   const tags: NonNullable<MetricConfig['query']['tags']> = {};
   for (const term of terms) {
     if (term === 'event.type:error' && nativeDataset === 'errors') continue;
-    const part = /^([a-zA-Z0-9_.-]+):([a-zA-Z0-9_.-]+)$/.exec(term);
-    if (part?.[1] === 'environment' && (!filters.environment || filters.environment === part[2])) filters.environment = part[2];
-    else if (part?.[1] === 'transaction' && nativeDataset === 'transactions' && !query.transaction) query.transaction = { op: 'eq', value: part[2] };
-    else if (part?.[1].startsWith('tags.') && nativeDataset === 'errors' && !Object.hasOwn(tags, part[1].slice(5))) tags[part[1].slice(5)] = { op: 'eq', value: part[2] };
+    const part = /^([a-zA-Z0-9_.-]+):([a-zA-Z0-9_./*-]+)$/.exec(term);
+    if (!part) { omit(path + '/query', 'Unsupported metric search filter'); continue; }
+    const [, key, value] = part;
+    const match = { op: value.includes('*') ? 'glob' as const : 'eq' as const, value };
+    const tag = key === 'http.status_code' ? key : key.startsWith('tags.') ? key.slice(5) : '';
+    if (key === 'environment' && /^[a-zA-Z0-9_.-]+$/.test(value) && (!filters.environment || filters.environment === value)) filters.environment = value;
+    else if (key === 'transaction' && nativeDataset === 'transactions' && !query.transaction) query.transaction = match;
+    else if (tag && nativeDataset === 'errors' && !Object.hasOwn(tags, tag)) tags[tag] = match;
     else omit(path + '/query', 'Unsupported metric search filter');
   }
   if (data.query != null && typeof data.query !== 'string') omit(path + '/query', 'Unsupported metric search filter');
@@ -141,13 +170,11 @@ function metricRule(data: any, path: string, omit: (path: string, reason: string
   const direction = data.thresholdType === 0 || data.thresholdType === 'above' ? 'above'
     : data.thresholdType === 1 || data.thresholdType === 'below' ? 'below' : null;
   if (!direction) { omit(path + '/thresholdType', 'Unsupported threshold direction'); return null; }
-  // Sentry's percentage of crashed sessions is the complement of crash-free rate.
-  const complement = sourceAggregate.replace(/,\s*/g, ', ') === 'percentage(sessions_crashed, sessions)';
-  const convert = (value: unknown) => complement ? 100 - number(value) : number(value);
+  // Sentry compares this sessions aggregate as crash-free percentage.
   const config = metricConfig({ metric: 'aggregate', dataset: nativeDataset, aggregate: nativeAggregate, query, filters,
-    thresholdType: complement ? direction === 'above' ? 'below' : 'above' : direction,
-    triggers: triggers.map(trigger => ({ label: trigger?.label, alertThreshold: convert(trigger?.alertThreshold) })),
-    resolveThreshold: data.resolveThreshold == null ? null : convert(data.resolveThreshold), tagKeys: Object.keys(tags) });
+    thresholdType: direction,
+    triggers: triggers.map(trigger => ({ label: trigger?.label, alertThreshold: number(trigger?.alertThreshold) })),
+    resolveThreshold: data.resolveThreshold == null ? null : number(data.resolveThreshold), tagKeys: Object.keys(tags) });
   return { kinds: ['metric'], config, windowMs: window * 60000, threshold: 2 };
 }
 
@@ -158,14 +185,18 @@ export function mapAlert(kind: string, data: any, location: string, detector?: {
   const omissions: Condition[] = [];
   const omit = (path: string, reason: string) => omissions.push({ path: path.startsWith('/collections/') ? path : location + path, reason });
   const destinations: SourceDestination[] = [];
-  function actions(items: any, path: string) {
-    if (items == null) return;
-    if (!Array.isArray(items)) { omit(path, 'Invalid rule actions'); return; }
+  function actions(items: any, path: string): string {
+    if (items == null) return '[]';
+    if (!Array.isArray(items)) { omit(path, 'Invalid rule actions'); return '[]'; }
+    const targets = new Set<string>();
     for (const [i, action] of items.entries()) {
       const at = location + path + '/' + i;
       if (action?.status === 'disabled') { omit(at, 'Destination is disabled in the source'); continue; }
-      destinations.push(destination(action, at));
+      const target = destination(action, at, omit);
+      destinations.push(target);
+      targets.add(destinationKey(target));
     }
+    return JSON.stringify([...targets].sort());
   }
   let settings: Settings | null = null;
   let sourceDisabled = data.enabled === false || data.status === 'disabled';
@@ -175,10 +206,8 @@ export function mapAlert(kind: string, data: any, location: string, detector?: {
       actions(data.actions, '/actions');
     } else if (kind === 'metric_alerts') {
       settings = metricRule(data, '', omit);
-      const lists = data.triggers.map((trigger: any) => trigger.actions ?? []);
-      const different = lists.some((list: any) => JSON.stringify(list) !== JSON.stringify(lists[0]));
-      if (different && lists.some((list: any) => list.length)) omit('/triggers', 'Destinations differ by threshold');
-      data.triggers.forEach((trigger: any, i: number) => actions(trigger.actions, '/triggers/' + i + '/actions'));
+      const targets = data.triggers.map((trigger: any, i: number) => actions(trigger.actions, '/triggers/' + i + '/actions'));
+      if (new Set(targets).size > 1) omit('/triggers', 'Destinations differ by threshold');
     } else {
       const d = detector?.data ?? data;
       sourceDisabled ||= d.enabled === false;

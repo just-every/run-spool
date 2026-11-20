@@ -10,7 +10,7 @@ import { bugsnagReport } from '../bugsnag-import/report';
 import { recordLabel, snapshotOrganization } from './read-labels';
 import { importedRuleId, importedRuleStates } from './alert-approval';
 import { localImportDestination, missingImportDestination } from '../alerts/import-state';
-import { sentryRuleKinds, type AlertProposal } from './alert-rules';
+import { destinationKey, sentryRuleKinds, type AlertProposal } from './alert-rules';
 import { importReadReasons, rejectionReasonCode, unknownJobTimes } from './read-reasons';
 
 /** Publication fence for these additive reads: the same current owner and
@@ -142,7 +142,7 @@ async function sentryAccounting(db:DoorRequest['options']['database'], snapshot:
    if(blocker)return {...field,reason:blocker.reason};
    if(projected&&/^\/(id|name|owner|ownerActor|dateCreated|dateModified|lastTriggered|lastTriggeredAt|lastIncident)(\/|$)/.test(field.path))return {...field,disposition:'mapped' as const,reason:'Retained in the private source definition and linked by the rule proposal.'};
    if(represented&&settingFields[entry.source.kind].test(field.path))return {...field,disposition:'transformed' as const,reason:'Converted to the proposed native rule settings.'};
-   if(projected?.destinations.some(destination=>path.startsWith(destination.path+'/')&&/\/(type|id|targetType|targetIdentifier)$/.test(path)))return {...field,disposition:'transformed' as const,reason:'Linked to a destination for approval review.'};
+   if(projected?.destinations.some(destination=>path.startsWith(destination.path+'/')&&/\/(type|id|targetType|targetIdentifier|target_type|target_identifier|fallthroughType|fallthrough_type)$/.test(path)))return {...field,disposition:'transformed' as const,reason:'Linked to a destination for approval review.'};
    return field;
   });
  };
@@ -183,7 +183,7 @@ async function sentryAccounting(db:DoorRequest['options']['database'], snapshot:
   const {data}=proposal,rule=nativeRules.get(importedRuleId(proposal.id));
   const destinationKinds=[...new Set(data.destinations.map(destination=>destination.kind))];
   const needs=rule?.destination===missingImportDestination?'Needs a destination: '+destinationKinds.join(', '):null;
-  const uniqueDestinations=new Set(data.destinations.map(d=>canonicalJson([d.kind,d.id])));
+  const uniqueDestinations=new Set(data.destinations.map(destinationKey));
   const unrepresented=uniqueDestinations.size>1?[...data.omissions,{path:data.location,reason:'Multiple destinations require a native choice'}]:data.omissions;
   const reversed=job?.state==='undone'||job?.state==='rolled_back';
   const state=reversed?'withdrawn':rule?rule.waiting?'waiting':rule.enabled?'active':'disabled'

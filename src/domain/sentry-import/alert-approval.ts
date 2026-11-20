@@ -1,4 +1,3 @@
-import { canonicalJson } from '../../modules/import-kit/src/provenance/identity';
 import { DoorError } from '../../modules/import-kit/src/door/protocol';
 import { authorized, loadSnapshot, planRow } from '../../modules/import-kit/src/door/store';
 import type { D1Database as ImportDatabase } from '../../modules/import-kit/src/d1/types';
@@ -8,7 +7,7 @@ import { importedAlertTarget } from '../alerts/targets';
 import { defaultConfig } from '../alerts/filters';
 import { statement as s } from '../alerts/types';
 import { importedAlertPrefix, localImportDestination, missingImportDestination } from '../alerts/import-state';
-import type { AlertProposal } from './alert-rules';
+import { destinationKey, type AlertProposal } from './alert-rules';
 
 export const importedRuleId = (proposal: string) => importedAlertPrefix + proposal;
 export const importedDestinationId = (rule: string) => rule + '-target';
@@ -52,7 +51,7 @@ export async function approveImportedRules(db: D1Database, request: DoorRequest,
     if (existing.has(rule)) continue;
     const data:AlertProposal = JSON.parse(proposal.payload);
     const source = JSON.parse(proposal.source);
-    const destinations = [...new Map(data.destinations.map(d=>[canonicalJson([d.kind,d.id]),d])).values()];
+    const destinations = [...new Map(data.destinations.map(d=>[destinationKey(d),d])).values()];
     const target = destinations.length === 1
       ? await importedAlertTarget(db,proposal.project,source.organization,destinations[0].kind,destinations[0].id)
       : null;
@@ -63,8 +62,8 @@ export async function approveImportedRules(db: D1Database, request: DoorRequest,
     if (target) {
       assertions.push(target.guard);
       statements.push(s(db,`INSERT INTO alert_target_destinations(id,project,label,target_type,target,fallthrough,created)
-        SELECT ?,?,?,?,?,'no_one',? WHERE NOT EXISTS(SELECT 1 FROM alert_rules WHERE id=?)`,
-        destination,proposal.project,data.name,target.type,target.target,created,rule));
+        SELECT ?,?,?,?,?,?,? WHERE NOT EXISTS(SELECT 1 FROM alert_rules WHERE id=?)`,
+        destination,proposal.project,data.name,target.type,target.target,destinations[0].fallthrough??'no_one',created,rule));
     }
     // Keep an inert native row for unsupported settings; an owner can supply
     // expressible settings through the regular rule editor and preview.
