@@ -54,8 +54,8 @@ importers:
         specifier: 1.63.0
         version: 1.63.0
       '@runeditrun/rer':
-        specifier: 0.2.125
-        version: 0.2.125
+        specifier: 0.2.126
+        version: 0.2.126
       '@sentry/browser':
         specifier: 11.6.0
         version: 11.6.0
@@ -1160,8 +1160,8 @@ packages:
     cpu: [x64]
     os: [win32]
 
-  '@runeditrun/rer@0.2.125':
-    resolution: {integrity: sha512-tmcl5nKcGsvO61tBo9/4bD5O++tJJpqYneDN8EdDkeHip9xTyByxP7dMEToXj3gTCSGWgz3lh7tbyjke4C0SQQ==}
+  '@runeditrun/rer@0.2.126':
+    resolution: {integrity: sha512-REfgLZC9M496LfecVLysOLq3W6p/9/XTT2axxlnPu/GqTj95dTbS6sWNYIt1AZndHQcbxjP/qY498iJGToNPog==}
     engines: {node: '>=22'}
     hasBin: true
 
@@ -3335,7 +3335,7 @@ snapshots:
   '@rollup/rollup-win32-x64-msvc@4.64.12':
     optional: true
 
-  '@runeditrun/rer@0.2.125': {}
+  '@runeditrun/rer@0.2.126': {}
 
   '@ryotsu/picomatch@4.0.7-a': {}
 

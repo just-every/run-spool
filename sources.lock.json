@@ -2654,7 +2654,7 @@
       "executable": false
     },
     "base-copies.json": {
-      "sha256": "e0a918a15c79cb9ab5cd0f5da95f055c0b1a3a3cf38d0732559a7ea464c2ec09",
+      "sha256": "31e20a471e99e1041b47dd0ec4f5bdfdc1dc9fe30da629151c49d7557579c2d9",
       "executable": false
     },
     "BROWSER-ORIGINS.md": {
@@ -4238,7 +4238,7 @@
       "executable": false
     },
     "package.json": {
-      "sha256": "058be87a86fe845020c5066c68768bf0169c1468af9c94d8597b3130926c2392",
+      "sha256": "a4d9e56365a2eed63da98567db89066ba0aa1ee52d217bc56272048723d98fb8",
       "executable": false
     },
     "packages/agent/bin/spool-agent.mjs": {
@@ -4410,7 +4410,7 @@
       "executable": false
     },
     "pnpm-lock.yaml": {
-      "sha256": "a9c20eaebea6bac4ca057320d4e67939a1a9620fee245e3ff6dadaaf9702f0b5",
+      "sha256": "c481708c246c4df2a85bc99444f4e85b9792e0c0e178b9ba6182a62fcf304e33",
       "executable": false
     },
     "pnpm-workspace.yaml": {
@@ -9974,7 +9974,7 @@
       "executable": false
     },
     "src/modules/portability/bridge.mjs": {
-      "sha256": "216446c90e5d8b1a4cc988395e282fe5fc7a71379f8f23d199e3508ffe6d23d3",
+      "sha256": "8ef40d47f9714a824f437f3a268c2fe13b91a8f3d83e2151c0b897dc7375d7a9",
       "executable": false
     },
     "src/modules/portability/catalogue.mjs": {
@@ -9982,7 +9982,7 @@
       "executable": false
     },
     "src/modules/portability/checkout-history.mjs": {
-      "sha256": "0b325ef724fd9d00835b876f049e29aff04ad6f6a3f8d66e1e66c11448544e53",
+      "sha256": "d7634528dccc5553bbff4c35b49663c683a7d9d6a599a307ee219b35b8cea06a",
       "executable": false
     },
     "src/modules/portability/cli-options.mjs": {
@@ -10110,7 +10110,7 @@
       "executable": false
     },
     "src/modules/portability/owner-history.mjs": {
-      "sha256": "ee16cbcf6908c31daedb2d0a3a9cfdb13591922c2da097077d6f97fa859d52d4",
+      "sha256": "a007d00619a8a60a6f067145f0ee0e0187026bd8ffd39b41403af7837c80e37d",
       "executable": false
     },
     "src/modules/portability/payloads.mjs": {
@@ -10130,7 +10130,7 @@
       "executable": false
     },
     "src/modules/portability/README.md": {
-      "sha256": "3a6e505bb8e878560cbfb2261f26d7214ed32320297ff8e21589882b218b59da",
+      "sha256": "fbcfa569f20c8bc5a32f2a2fe4ac7ea8617c5f1e0565a010c18ebc44a475c71b",
       "executable": false
     },
     "src/modules/portability/rebuilds.mjs": {
@@ -10190,11 +10190,11 @@
       "executable": false
     },
     "src/modules/portability/worker-history.mjs": {
-      "sha256": "3960eca546bfe86178217462a959af97a0c22507730cb85a2df93c26a01de844",
+      "sha256": "d0880cc0a3c1cdefd6f51dc151f8b0ef36fed39955f25875e4d5b18baf31db1d",
       "executable": false
     },
     "src/modules/portability/worker-owner-history.mjs": {
-      "sha256": "c48d2c07f09aa090e29d1e10affc072c98538ffbd0e1920f0e098107262eb57a",
+      "sha256": "d9ce8783d674a3dbfcea1451493991e4dd62444f8d286884d252c5eccdac786d",
       "executable": false
     },
     "src/router.tsx": {

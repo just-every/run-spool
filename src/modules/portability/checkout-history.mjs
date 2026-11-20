@@ -1,6 +1,6 @@
 import { catalogue, policy } from './catalogue.mjs';
 import { readLedger, matchMigrationLedger } from './ledgers.mjs';
-import { nativeMigrationHistory, ownerMigrationPolicy } from './owner-history.mjs';
+import { nativeMigrationHistory, ownerMigrationPolicy, requireAppliedOwnerFiles } from './owner-history.mjs';
 import { insist } from './storage.mjs';
 
 function bundledPrefix(history,files) {
@@ -13,6 +13,7 @@ function bundledPrefix(history,files) {
 export async function checkoutHistory(db,input,files,replayFor,{nativeWrangler=false,ownerSources=[],nativePrefix=bundledPrefix}={}) {
  const history=await (ownerSources.length?nativeMigrationHistory(db,ownerSources):readLedger(db)),ledger=history?.entries??[];
  insist(ledger.length,'schema_mismatch:legacy_evidence',409);
+ requireAppliedOwnerFiles(history,files);
  if(!ledger.every(row=>row.sha256)) {
   insist(nativeWrangler && history.table==='d1_migrations' && nativePrefix(history,files),
    'schema_mismatch:legacy_evidence',409);

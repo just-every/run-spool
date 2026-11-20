@@ -685,12 +685,18 @@ them into a scratch database to find the archive's place in that history:
   recorded. Where the exporter has no checkout files (a hosted export), the
   ledger's own names are kept beside their hashes. Import resolves each entry
   by hash exactly as it does an archived ledger table (next item), so a
-  Platform prefix needs no declaration and a changed file refuses. Platform's
-  ledger is never imported as product tables. Native sources with applied
+  Platform prefix needs no declaration and a changed file refuses. For archives
+  with a schema object inventory, the matched files replay in the destination's
+  order, which may differ from Platform's. That replay must still reproduce the
+  archive schema before any later migrations can be bridged. Platform's ledger
+  is never imported as product tables. Native sources with applied
   owner migrations carry `{origin:'d1_migrations',entries:[{name,sha256}]}`
   in the same field. The entries combine core names and prefixed owner names
   in recorded application order. Restore checks those names and hashes against
-  the destination's applied history and keeps both ledgers in place. Core-only
+  the destination's applied history and keeps both ledgers in place. A changed,
+  reordered or incomplete native owner history that cannot reproduce the archive
+  schema, or an applied owner migration missing from the destination checkout,
+  refuses with `schema_mismatch:owner_migration_history`. Core-only
   native archives use `manifest.migrations` as before, and v1 and earlier v2
   archives remain importable.
 - Older archives that still carry their source's migration ledger as a table

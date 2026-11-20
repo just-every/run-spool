@@ -37,6 +37,13 @@ export async function nativeMigrationHistory(db, sources) {
  return { table: ledger.table, entries, owners: true };
 }
 
+export function requireAppliedOwnerFiles(history, files) {
+ if (!history?.owners) return;
+ const names = new Set(files.map(file => file.name));
+ insist(history.entries.every(row => row.table === history.table || names.has(row.name)),
+  'schema_mismatch:owner_migration_history', 409);
+}
+
 // The existing service callback is also used for core-only replay. Consult it
 // early only when native owner bookkeeping may exist. The replay supplies the
 // declared table identities; a similar product table never becomes bookkeeping.
