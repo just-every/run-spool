@@ -1,0 +1,34 @@
+{
+  "files": [
+    {
+      "blob": "301ecc0dba275ca382d10f6a8365ce17c9336e93",
+      "bytes": 195,
+      "path": "CI.json",
+      "sha256": "2a388edfba7c9369a6eb7e0e6ba3bb561af2c7fd7b88f1aa0fc177491105016e"
+    },
+    {
+      "blob": "919bac8284947d52c4dc7ba7cd9e2521b3e5340b",
+      "bytes": 16878,
+      "path": "MIGRATIONS.tsv",
+      "sha256": "847ddf88e7cf82395e32bf189ce2031405e012abaa3f3bbc080f77ca9a442a39"
+    },
+    {
+      "blob": "3bc0d140d2acfd6232b8f152f2c54f97db06745f",
+      "bytes": 2625,
+      "path": "RECEIPT.md",
+      "sha256": "2aa29b1f808a716f93c1874f2c1337992c37a1c741556d99ed3e612823a91e7b"
+    },
+    {
+      "blob": "49525cbcdcd8d9244bd18eb303b82ee0a16464f3",
+      "bytes": 3377,
+      "path": "REPORT.md",
+      "sha256": "8867af1fbd296243c44e1149ad3f6e189c895e5935e3f728fd94e835520e3208"
+    }
+  ],
+  "product_branch": "cloud/sd-spool-release-0-7-16",
+  "product_head": "7a75de63c8615e4162759c6c7a0db8f728f9a007",
+  "ref": "refs/heads/evidence/sd-spool-release-0-7-16",
+  "repository": "just-every/run-spool",
+  "schema": 1,
+  "tag": "sd-spool-release-0-7-16"
+}
