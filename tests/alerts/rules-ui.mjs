@@ -77,14 +77,14 @@ export async function rulesUI(page, app, width) {
  const saved = await savedResponse;
  assert.ok(saved.ok(), `Filtered rule save failed (${saved.status()})`);
  assert.equal(saved.request().postDataJSON().previewToken, accepted.preview.token);
- await page.getByRole('button', { name: `Edit ${name}`, exact: true }).waitFor();
+ await page.getByRole('button', { name: `Edit rule ${name}`, exact: true }).waitFor();
  let rule = (await app.json(base + '/rules')).find(row => row.name === name);
  assert.ok(rule);
  assert.equal(rule.enabled, 1);
  const config = typeof rule.config === 'string' ? JSON.parse(rule.config) : rule.config;
  assert.deepEqual(config, { metric: 'count', filters: { environment: 'fixture', level: 'error', release: '', tags: { tenant: 'acme' } }, tagKeys: ['tenant'] });
  // Editing must restore every filter, and disabled drafts remain saveable without a token.
- await page.getByRole('button', { name: `Edit ${name}`, exact: true }).click();
+ await page.getByRole('button', { name: `Edit rule ${name}`, exact: true }).click();
  assert.equal(await page.getByLabel('Environment', { exact: true }).inputValue(), 'fixture');
  assert.equal(await page.getByLabel('Severity', { exact: true }).inputValue(), 'error');
  assert.equal(await page.getByLabel('Release filter', { exact: true }).inputValue(), 'none');

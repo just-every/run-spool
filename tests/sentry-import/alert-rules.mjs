@@ -8,6 +8,7 @@ import { signIn } from '../auth.mjs';
 import { archiveProjection } from '../archive.mjs';
 import { followErasure } from '../project-erasure/follow.mjs';
 import { approveOnReceipt } from './rule-receipt.mjs';
+import { importedAlertEditNames } from '../alerts/imported-edit-ui.mjs';
 
 function addHistoricalWindows(fixture) {
  const project=fixture.collections[0].pages[0].response[0].slug;
@@ -27,10 +28,10 @@ function addHistoricalWindows(fixture) {
  );
 }
 
-async function destinationBindings(fixture, apply, json, request) {
+async function destinationBindings(fixture, apply, json, request, owner) {
  const bundle=structuredClone(fixture);
  bundle.organization.slug='synthetic-alerts-targets';
- bundle.collections=bundle.collections.filter(collection=>['projects','releases','rules'].includes(collection.kind));
+ bundle.collections=bundle.collections.filter(collection=>['projects','releases','rules','metric_alerts'].includes(collection.kind));
  const project=bundle.collections[0].pages[0].response[0],dateCreated=project.dateCreated;
  const team={id:'synthetic-team-1',slug:'synthetic-oncall',name:'Synthetic on call',dateCreated,projects:[{slug:project.slug}]};
  const member={id:'synthetic-member-1',email:'synthetic-alert-recipient@example.test',name:'Synthetic recipient',
@@ -45,6 +46,10 @@ async function destinationBindings(fixture, apply, json, request) {
  ].map(([name,targetType,targetIdentifier],i)=>({...sourceRule,id:'synthetic-target-rule-'+i,name,actions:[{
   id:'sentry.mail.actions.NotifyEmailAction',targetType,targetIdentifier,
  }]}));
+ const metrics=bundle.collections.find(c=>c.kind==='metric_alerts').pages[0];
+ const metric=metrics.response.find(row=>row.name==='Synthetic error thresholds');
+ for(const trigger of metric.triggers)trigger.actions=[{type:'email',targetType:'Team',targetIdentifier:team.id}];
+ metrics.response=[metric];
  const run=await apply(bundle);
  await json('/api/organization','POST',{id:'synthetic-alert-organization',name:'Synthetic alerts organization'});
  const roster=(await json('/api/organization/imports')).proposals;
@@ -66,6 +71,10 @@ async function destinationBindings(fixture, apply, json, request) {
   assert.deepEqual([destination.targetType,destination.target,destination.fallthrough],[targetType,target,'no_one']);
  }
  assert.equal(rules.find(row=>row.name==='Synthetic missing member').enabled,0);
+ const metricRule=rules.find(row=>row.name===metric.name);
+ assert.ok(JSON.parse(metricRule.kinds).includes('metric'));
+ assert.equal(destinations.find(row=>row.id===metricRule.destination)?.label,metric.name);
+ await importedAlertEditNames({...owner,project:run.project,name:metric.name});
  assert.equal((await json(run.root+'/alerting/deliveries')).length,0);
  return {bound:2,unmapped:1};
 }
@@ -218,7 +227,7 @@ export async function alertRulesImport() {
   assert.equal(erased.phase,'complete');
   assert.ok(!(await snapshot()).data.spool_import_proposals.some(row=>row.project===project));
   assert.ok(!(await snapshot()).data.alert_rules.some(row=>row.project===project));
-  const bindings=await destinationBindings(fixture,apply,json,request);
+  const bindings=await destinationBindings(fixture,apply,json,request,{origin,cookie});
   if(packet)await writeFile(join(packet,'ALERT-IMPORT-RECEIPT.json'),JSON.stringify({
    synthetic:true,at:new Date().toISOString(),sourceDefinitions:states.sourceDefinitions,proposals:expectedProposals,created:states.created,
    refused:states.notImported,waiting:activated.length,alertsAfterObservation:feed.length,deliveries:0,erasure:erased.phase,bindings,

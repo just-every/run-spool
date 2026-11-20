@@ -10198,11 +10198,11 @@
       "executable": false
     },
     "src/ui/alerts/AlertDestinations.tsx": {
-      "sha256": "93172f4742a6a2dfaa50f67214848edb3b060e9e1a409afba41d4734fbb1bcc9",
+      "sha256": "fbc1515884940d21fb9f7f3d50c797dd3971dbfca09ac7b533ec5b89ba86cb21",
       "executable": false
     },
     "src/ui/alerts/AlertRules.tsx": {
-      "sha256": "137d8a5d4239a8b48877b1beecdf3debd3b6e9a8bc8e0b846427fa7daf837ac7",
+      "sha256": "f4cac0230a03b54e30175c896f61b436bcde13494a4c6e571f81633feaf92e45",
       "executable": false
     },
     "src/ui/alerts/alerts.css": {
@@ -11086,7 +11086,7 @@
       "executable": false
     },
     "tests/alerts-ui.mjs": {
-      "sha256": "fa4bbc1eaafb5ffb29cc96338a9731dd3260f7655613b653f8f08a31c67d7258",
+      "sha256": "b16ee74bc3cda8a9c8b1e694fc058b24469b4d9f4b7c335740aa4b88ad794c79",
       "executable": false
     },
     "tests/alerts/baseline-journey.mjs": {
@@ -11107,6 +11107,10 @@
     },
     "tests/alerts/follow-up.mjs": {
       "sha256": "1e8ba049c70f16e8395409d2e5401c12d034601ee41db64b7dd35a1f6ea73d1c",
+      "executable": false
+    },
+    "tests/alerts/imported-edit-ui.mjs": {
+      "sha256": "0b92f168ef7d1218e73e542e8ef5579275f5ccb59583072ef5835ea2ef120cea",
       "executable": false
     },
     "tests/alerts/lifecycle-journey.mjs": {
@@ -11142,7 +11146,7 @@
       "executable": false
     },
     "tests/alerts/rules-ui.mjs": {
-      "sha256": "0939610e770892a78b5ffde66cc8e9072efa0398bd486527e5067d3135b5a664",
+      "sha256": "8cbd7552f6205d0f462dfb3f3936872c5ba91a6b493c078a9b56cb9c0f809da6",
       "executable": false
     },
     "tests/alerts/runtime.mjs": {
@@ -12006,7 +12010,7 @@
       "executable": false
     },
     "tests/sentry-import/alert-rules.mjs": {
-      "sha256": "55be3c2beee52209715a29c6a661cbe1fab8215d2d8bf62dc1508ff3ade2d6dd",
+      "sha256": "2ba005cfd22bdbba681bfc757224e53aaea16bf4623a946b7f0721a563f5b76a",
       "executable": false
     },
     "tests/sentry-import/field-accounting.mjs": {
@@ -12062,7 +12066,7 @@
       "executable": false
     },
     "tests/slack-ui.mjs": {
-      "sha256": "9205b9e0db5b70b28aedf9e7035b452f4885d435e0a1412610198e8d3476616d",
+      "sha256": "5f9c5f16396f4e030031eedbff0a7219eef73546790787676c3942311de3dacc",
       "executable": false
     },
     "tests/source-import.mjs": {
