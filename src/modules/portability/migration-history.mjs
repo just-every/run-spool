@@ -1,18 +1,19 @@
 import { policy, schemaIdentity } from './catalogue.mjs';
 
-// Replays a chosen set of the destination's migrations, in its applied order,
+// Replays a chosen sequence of the destination's migrations, in recorded order,
 // into a scratch database and returns the resulting archive schema identity.
 // Node runners only: restore uses it to place an older archive within the
 // destination's history (see bridge.mjs). plan: [{name,statements,sha256?}],
 // sha256 being the migration file's hash where the runner read the file.
 export function migrationReplay(plan,input,{dataOnly=[]}={}) {
   const config=policy(input),sqlite='node:sqlite';
-  return {names:plan.map(migration=>migration.name),dataOnly,aliases:name=>plan.find(m=>m.name===name).aliases,statements:name=>plan.find(m=>m.name===name).statements,sha256:name=>plan.find(m=>m.name===name).sha256,async schemaAfter(names,options) {
+  const files=new Map(plan.map(migration=>[migration.name,migration]));
+  return {names:plan.map(migration=>migration.name),dataOnly,aliases:name=>files.get(name).aliases,statements:name=>files.get(name).statements,sha256:name=>files.get(name).sha256,async schemaAfter(names,options) {
     const {DatabaseSync}=await import(sqlite);
     const scratch=new DatabaseSync(':memory:');
     const db={prepare:sql=>{const query=scratch.prepare(sql);let values=[];return {bind(...args){values=args;return this;},async all(){return {results:query.all(...values)};}};}};
     try {
-      for(const migration of plan.filter(m=>names.includes(m.name)))for(const sql of migration.statements)scratch.exec(sql);
+      for(const name of names)for(const sql of files.get(name).statements)scratch.exec(sql);
       return await schemaIdentity(db,config,options);
     }finally{scratch.close();}
   },

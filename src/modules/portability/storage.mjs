@@ -1,3 +1,4 @@
+import { metadataJson, loadInventory, clearInventory } from './object-inventory.mjs';
 import { canonicalJson } from './hash.mjs';
 // Installed helpers and copied runtimes can coexist in one Worker. Share only
 // constructor-issued identities, so arbitrary objects with code/status fields
@@ -26,10 +27,10 @@ export async function state(db) {
 export async function job(db,id,kind) {
   const row=await statement(db,'SELECT * FROM rer_portability_jobs WHERE id=?',id).first();
   insist(row && (!kind || row.kind===kind),'job_not_found',404);
-  return {...row, metadata:JSON.parse(row.metadata)};
+  return loadInventory(db,{...row, metadata:JSON.parse(row.metadata)});
 }
 export function save(db,row) {
-  return statement(db,'UPDATE rer_portability_jobs SET phase=?,completed=?,metadata=? WHERE id=?',row.phase,row.completed,canonicalJson(row.metadata),row.id);
+  return statement(db,'UPDATE rer_portability_jobs SET phase=?,completed=?,metadata=? WHERE id=?',row.phase,row.completed,metadataJson(row.metadata),row.id);
 }
 export function partStatements(db,id,part) {
   return partQueries(id,part).map(({sql,params})=>statement(db,sql,...params));
@@ -64,7 +65,7 @@ export function dropCopyStatements(db,row) {
   return transferTables(row).map(name=>db.prepare(`DROP TABLE IF EXISTS ${quote(name)}`));
 }
 export function cleanCopyStatements(db,row) {
-  return [...dropCopyStatements(db,row),statement(db,'DELETE FROM rer_portability_parts WHERE job=?',row.id),
+  return [...dropCopyStatements(db,row),...clearInventory(db,row),statement(db,'DELETE FROM rer_portability_parts WHERE job=?',row.id),
     statement(db,'DELETE FROM rer_portability_segments WHERE job=?',row.id)];
 }
 export async function cleanCopies(db,row) {

@@ -13,8 +13,8 @@ export interface Manifest {
   excludedTables: string[]; excludedColumns: Record<string,string[]>; requiredConfiguration: string[]; partCount: number; epoch: number; journal: string[];
   /** Applied product migrations; absent from archives made before additive restore. */
   migrations?: string[];
-  /** Present when RER Platform's runner migrated the source: each applied migration by native file name and SHA-256, in application order. */
-  migrationLedger?: {origin:'rer_migrations';entries:{name:string;sha256:string}[]};
+  /** Hash-bound application order from RER Platform or the local core and owner ledgers. */
+  migrationLedger?: {origin:'rer_migrations'|'d1_migrations';entries:{name:string;sha256:string}[]};
 }
 export type Item = {kind:'row';table:string;index:number;row:Row;rowid?:number} | {kind:'object';bucket:string;key:string;offset:number;data:string} | {kind:'payload';name:string;offset:number;data:string};
 export interface Part {kind:'part';index:number;items:Item[];sha256:string}
@@ -51,6 +51,8 @@ export interface PortabilityOptions {
   /** Node checkout root for automatic legacy evidence; defaults to cwd. */
   migrationRoot?:string;
   db:D1Database;buckets?:Record<string,R2Bucket>;policy:ArchivePolicy;migrations?:()=>Promise<MigrationReplay>;
+  /** Runtime-owned history for databases with separate owner migration ledgers. */
+  migrationHistory?:()=>Promise<{table:string;entries:{name:string;sha256?:string}[];owners?:boolean}|undefined>;
   /** Seed-owned audit SQL, appended to the snapshot/job batch. Throwing or SQL failure refuses creation. */
   onExport?:(event:ExportEvent)=>[sql:string,args:unknown[]][];
 }

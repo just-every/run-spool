@@ -1,3 +1,4 @@
+import { metadataJson } from './object-inventory.mjs';
 import { encodedRow, validateRow, bindCell } from './catalogue.mjs';
 import { readCopy, copyRowid } from './copies.mjs';
 import { canonicalJson } from './hash.mjs';
@@ -44,7 +45,7 @@ const guardSql=`INSERT INTO rer_portability_guard(value) SELECT CASE WHEN (
 ) THEN 1 ELSE 0 END`;
 const checkpoint=(row,before,metadata,queries)=>[
   {sql:guardSql,params:[row.id,before,row.id]},...queries,
-  {sql:'UPDATE rer_portability_jobs SET phase=?,completed=?,metadata=? WHERE id=?',params:[row.phase,row.completed,canonicalJson(metadata),row.id]},
+  {sql:'UPDATE rer_portability_jobs SET phase=?,completed=?,metadata=? WHERE id=?',params:[row.phase,row.completed,metadataJson(metadata),row.id]},
   {sql:'DELETE FROM rer_portability_guard'},
 ];
 // Each page's staged updates, cursor and value-free change counts commit together.
@@ -55,10 +56,10 @@ export async function normalizeStaged(context,row) {
     const copy=row.metadata.copies[table.name],count=row.metadata.stagedCounts?.[table.name]??0;
     let offset=row.metadata.safetyProgress?.[table.name]??0;
     while(offset<count) {
-      let before=canonicalJson(row.metadata),queries=[];
+      let before=metadataJson(row.metadata),queries=[];
       const commit=async()=>{
         await db.batch(checkpoint(row,before,row.metadata,queries).map(q=>statement(db,q.sql,...(q.params??[]))));
-        before=canonicalJson(row.metadata);queries=[];
+        before=metadataJson(row.metadata);queries=[];
       };
       for(const {row:raw,meta} of await readCopy(db,table,copy,offset,100,true)) {
         const original=encodedRow(table,raw),after=mapImportRow(config,table,original);

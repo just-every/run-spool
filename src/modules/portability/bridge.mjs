@@ -2,16 +2,18 @@ import { all, quote, insist } from './storage.mjs';
 import { canonicalJson } from './hash.mjs';
 import { tokens, identifier, folded } from './generated.mjs';
 import { laterData } from './backfills.mjs';
-import { destinationLedger, matchMigrationLedger } from './ledgers.mjs';
+import { matchMigrationLedger } from './ledgers.mjs';
 import { checkRebuild } from './rebuilds.mjs';
 import { schemaSQL } from './schema-identity.mjs';
 
-// Applied product migrations in the ledger's own order (ledgers.mjs). A
-// state-bearing ledger may hold an unacknowledged migration whose effects are
-// unknown; neither an archive nor a restore can attest its history until that
-// is resolved.
-export async function appliedMigrations(db) {
-  return (await destinationLedger(db))?.map(m=>m.name);
+function recordedMigrations(manifest, archived, files, replay) {
+  const entries=manifest.migrations?.map(name=>archived?.find(entry=>entry.name===name)??{name})??archived;
+  if(manifest.migrationLedger?.origin!=='d1_migrations')return entries && matchMigrationLedger(entries,files,replay);
+  // Native owner identities come from the checkout's declared directories.
+  // A matching digest under another name cannot stand in for a changed file.
+  insist(entries?.every(entry=>files.some(file=>file.name===entry.name && file.sha256===entry.sha256)),
+    'schema_mismatch:owner_migration_history',409);
+  return entries.map(entry=>entry.name);
 }
 // Where an archive sits in the destination's applied migrations: those its
 // rows passed through (earlier) and those applied after it (unapplied).
@@ -30,8 +32,7 @@ async function placement(db,manifest,cat,replay,ledger,history,legacyRecovery,un
   if(canonicalJson(replay.names)!==canonicalJson(applied))applied=matchMigrationLedger(ledger,files,replay);
   insist(canonicalJson(replay.names)===canonicalJson(applied) && await replay.schemaAfter(applied)===cat.identity,'schema_mismatch');
   const archived=history?.();
-  const historyEntries=manifest.migrations?.map(name=>archived?.find(entry=>entry.name===name) ?? {name}) ?? archived;
-  const recorded=historyEntries && matchMigrationLedger(historyEntries,files,replay);
+  const recorded=recordedMigrations(manifest,archived,files,replay);
   // Only explicitly acknowledged v1 recovery may use the old projection for
   // archive placement. The live destination check above remains complete, and
   // current v2 imports use their authenticated object inventory. Verified legacy
@@ -40,8 +41,9 @@ async function placement(db,manifest,cat,replay,ledger,history,legacyRecovery,un
   if(unverified && archived && manifest.migrations)insist(canonicalJson(matchMigrationLedger(archived,files,replay))===canonicalJson(recorded),'schema_mismatch:migration_history',409);
   let earlier,unapplied;
   if(recorded) {
-    if(unverified)insist(recorded.every((name,i)=>applied.indexOf(name)>(i?applied.indexOf(recorded[i-1]):-1)),'schema_mismatch:migration_history',409);
-    earlier=applied.filter(name=>recorded.includes(name));
+    const mismatch=manifest.migrationLedger?.origin==='d1_migrations'?'schema_mismatch:owner_migration_history':'schema_mismatch:migration_history';
+    insist(recorded.every((name,i)=>applied.indexOf(name)>(i?applied.indexOf(recorded[i-1]):-1)),mismatch,409);
+    earlier=recorded;
     insist(await schemaAfter(earlier)===manifest.schema,'schema_mismatch');
     unapplied=applied.filter(name=>!earlier.includes(name));
   }else{
@@ -76,15 +78,14 @@ async function placement(db,manifest,cat,replay,ledger,history,legacyRecovery,un
 // Verify the archive's historical projection and the complete live replay, then
 // return the recorded schema's complete identity for ordinary bridge placement.
 // Never guess an unrecorded prefix or install source SQL to fill missing evidence.
-export async function verifiedLegacySchema(db,manifest,cat,migrations,history) {
+export async function verifiedLegacySchema(ledger,manifest,cat,migrations,history) {
   if(!migrations)return false;
-  const replay=await migrations(),ledger=await destinationLedger(db)??[];
+  const replay=await migrations();
   try {
     const files=replay.names.map(name=>({name,sha256:replay.sha256?.(name),aliases:replay.aliases?.(name)}));
-    const archived=history(),entries=manifest.migrations?.map(name=>archived?.find(entry=>entry.name===name)??{name})??archived;
-    if(!entries?.length)return false;
-    const applied=matchMigrationLedger(ledger,files,replay),recorded=matchMigrationLedger(entries,files,replay);
-    if(!recorded.length || canonicalJson(applied)!==canonicalJson(replay.names)
+    const archived=history(),recorded=recordedMigrations(manifest,archived,files,replay);
+    const applied=matchMigrationLedger(ledger,files,replay);
+    if(!recorded?.length || canonicalJson(applied)!==canonicalJson(replay.names)
       || !recorded.every((name,i)=>applied.indexOf(name)>(i?applied.indexOf(recorded[i-1]):-1)))return false;
     if(archived && manifest.migrations && canonicalJson(matchMigrationLedger(archived,files,replay))!==canonicalJson(recorded))return false;
     if(await replay.schemaAfter(applied)!==cat.identity
@@ -99,8 +100,9 @@ export async function verifiedLegacySchema(db,manifest,cat,migrations,history) {
 // migrations the destination's ledger has outgrown is refused. An archive that
 // records a migration the destination never applied is newer than it, even
 // when that migration left the schema as it was (an index, a data change).
-export async function sameSchemaMigrations(db,manifest,cat,migrations,history) {
-  const ledger=await destinationLedger(db),applied=ledger?.map(m=>m.name);
+export async function sameSchemaMigrations(db,ledger,manifest,cat,migrations,history) {
+  const applied=ledger?.map(m=>m.name);
+  if(manifest.migrationLedger?.origin==='d1_migrations')insist(migrations && applied,'schema_mismatch:owner_migration_history',409);
   if(!applied)return;
   if(!migrations){
     if(manifest.migrations)matchMigrationLedger(manifest.migrations.map(name=>({name})),ledger);
@@ -108,17 +110,17 @@ export async function sameSchemaMigrations(db,manifest,cat,migrations,history) {
   }
   // A data-only migration leaves the schema unchanged but still needs its
   // carried-table replay plan retained for finalize.
-  const bridge=await additiveBridge(db,manifest,cat,migrations,history);
+  const bridge=await additiveBridge(db,ledger,manifest,cat,migrations,history);
   return bridge.replays?.length?bridge:undefined;
 }
 // An archive made before later migrations restores only when those migrations
 // are additive, or a proven row-preserving CHECK rebuild: new tables, new
 // columns that take a default, or later schema objects established by replay.
 // Anything else stays a schema_mismatch refusal.
-export async function additiveBridge(db,manifest,cat,migrations,history,legacyRecovery,unverified=false) {
+export async function additiveBridge(db,ledger,manifest,cat,migrations,history,legacyRecovery,unverified=false) {
   insist(migrations,'schema_mismatch');
-  const replay=await migrations(),ledger=await destinationLedger(db)??[];
-  const {applied,earlier,replays,rebuilt}=await placement(db,manifest,cat,replay,ledger,history,legacyRecovery,unverified);
+  const replay=await migrations();
+  const {applied,earlier,replays,rebuilt}=await placement(db,manifest,cat,replay,ledger??[],history,legacyRecovery,unverified);
   const columns={};
   for(const table of manifest.tables) {
     const target=cat.tables.find(t=>t.name===table.name),label=':'+table.name;

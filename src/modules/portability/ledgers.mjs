@@ -76,8 +76,7 @@ export function matchMigrationLedger(entries,files,{dataOnly=[]}={}) {
  * {origin:'rer_migrations',entries:[{name,sha256}]} in application order, each
  * entry named by the checkout file with that hash (the native identity) where
  * the exporter can read the checkout's files. Declared data-only entries and
- * hosted exporters, which have no files, keep the ledger's own names. Native
- * sources record nothing here, so their archives are unchanged.
+ * hosted exporters, which have no files, keep the ledger's own names.
  */
 export async function platformOrigin(ledger,migrations) {
   if(ledger?.table!=='rer_migrations')return;
@@ -86,6 +85,20 @@ export async function platformOrigin(ledger,migrations) {
   const entries=ledger.entries.map(({name,sha256})=>({name:files?(matchMigrationLedger([{name,sha256}],files,replay)[0]??name):name,sha256}));
   insist(new Set(entries.map(entry=>entry.name)).size===entries.length,'migration_ledger:ambiguous',409);
   return {origin:'rer_migrations',entries};
+}
+
+// Separate native owner ledgers are also bookkeeping. Bind the merged applied
+// history to the checkout's files without moving any of those tables' rows.
+export async function nativeOrigin(ledger,migrations,schema) {
+  const replay=await migrations?.();
+  insist(replay && canonicalJson(replay.names)===canonicalJson(ledger.entries.map(row=>row.name)),'schema_mismatch:migration_history',409);
+  const entries=replay.names.map(name=>{
+    const sha256=replay.sha256?.(name);
+    insist(typeof sha256==='string' && /^[a-f0-9]{64}$/.test(sha256),'schema_mismatch:migration_history',409);
+    return {name,sha256};
+  });
+  insist(await replay.schemaAfter(replay.names)===schema,'schema_mismatch',409);
+  return {origin:'d1_migrations',entries};
 }
 
 /** The ledger tables an archive carries (old archives carried rer_migrations before it became bookkeeping). */
@@ -117,7 +130,7 @@ export function checkArchivedLedgers(manifest,ledgers) {
 /** The applied migrations an archive's own ledger records, [{name,sha256?}]; undefined when it carries no ledger. */
 export function archivedHistory(manifest,ledgers,{allowOlderShape=false}={}) {
   const tables=archivedLedgerTables(manifest);
-  // A Platform-origin export records its ledger in the manifest, never as a table.
+  // Hash-bearing exports record their ledger in the manifest.
   if(manifest.migrationLedger)insist(!tables.length,'schema_mismatch:migration_history');
   if(!tables.length)return manifest.migrationLedger?.entries.map(entry);
   insist(tables.length===1 && ledgers?.[tables[0].name],'schema_mismatch:migration_history');
