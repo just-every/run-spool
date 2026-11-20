@@ -1,0 +1,70 @@
+{
+  "files": [
+    {
+      "blob": "c33cd13457333aa9dcfd51da5a7e33c7a1cf8871",
+      "bytes": 285,
+      "path": "ALERT-IMPORT-RECEIPT.json",
+      "sha256": "118b7b727aa307ec23d556e96fcdfd923db9f6b1d83a82614d700bc5d68dd0eb"
+    },
+    {
+      "blob": "1bc77f5475beea7605c08f4d4d91aabe6e2a6ce3",
+      "bytes": 2579,
+      "path": "ALERTS-AFTER.json",
+      "sha256": "18e92e68b09168531fba074c50fefe7bd90a34f30849cc355e47e99980e0ff35"
+    },
+    {
+      "blob": "79b060566b847e852fe0a743945ce1644786dc05",
+      "bytes": 2406,
+      "path": "ALERTS-BEFORE.json",
+      "sha256": "d342a9207bd971a72027799e0ab78d193bcadd819cdc56e50cdb141d1648b575"
+    },
+    {
+      "blob": "458b6f2e2eb3ad04e03ace2abf7c5b746363bad1",
+      "bytes": 3478,
+      "path": "CHECKS.json",
+      "sha256": "ffcb9fdf607b3746c42c9c79380f7d29f8716d57a90ab8ecce07d762cb10b132"
+    },
+    {
+      "blob": "a278f9ac1c694073f6cdbed38160b8b1d4a210c5",
+      "bytes": 4106,
+      "path": "CI-RECEIPT.json",
+      "sha256": "950f95cdde83c4f44e3f6a8121cba98073849cd048d0927220ba7aad4ce5bd26"
+    },
+    {
+      "blob": "f0e5e0e32a10a6648b45869088512a2b7ffcfe2e",
+      "bytes": 5180,
+      "path": "REPORT.md",
+      "sha256": "72518a23a84fc1c29f6e2f06b02d3c1eca46f193396022393d9b947f1ac4cf0e"
+    },
+    {
+      "blob": "2b233c3be8664a7532aef1cfa1b5dbd052eae799",
+      "bytes": 368737,
+      "path": "destination-edit-1440.png",
+      "sha256": "d9953848817ad706b9977a7b979f2a9b91026e02ad340147a00f755ffc003d0f"
+    },
+    {
+      "blob": "d5450e00fe74371596d29cb676e78e6495c6ac13",
+      "bytes": 319526,
+      "path": "destination-edit-390.png",
+      "sha256": "e191500d9dd4f167daab7be2d274f928b311a38d15dad29406763088a3b9d707"
+    },
+    {
+      "blob": "ef7c3857f33008484f9761ad696cd65a3ee102a1",
+      "bytes": 364208,
+      "path": "rule-edit-1440.png",
+      "sha256": "1ff0c9cd816a6363f6ed6b6b06814fbfe27852a38191f12e30005f59e6efeb6d"
+    },
+    {
+      "blob": "20f2d59ce7b0062c91a1163946f2e7c26fcaf5ce",
+      "bytes": 324554,
+      "path": "rule-edit-390.png",
+      "sha256": "033b60ce670a05971f1aa00293f5b4569e5e7d61ef725e6da80a3cb15c957870"
+    }
+  ],
+  "product_branch": "cloud/sd-spool-s8-edit-names-2",
+  "product_head": "8157a49c55c94207abf64b23c4521617043ebe3f",
+  "ref": "refs/heads/evidence/sd-spool-s8-edit-names-2",
+  "repository": "just-every/run-spool",
+  "schema": 1,
+  "tag": "sd-spool-s8-edit-names-2"
+}

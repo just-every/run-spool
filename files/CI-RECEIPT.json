@@ -1,0 +1,112 @@
+{
+  "repository": "just-every/run-spool",
+  "productHead": "8157a49c55c94207abf64b23c4521617043ebe3f",
+  "runId": 44649900881,
+  "polls": [
+    {
+      "at": "2026-11-20T00:57:31Z",
+      "kind": "discovery",
+      "call": 1,
+      "endpoint": "repos/just-every/run-spool/actions/runs?head_sha=8157a49c55c94207abf64b23c4521617043ebe3f&per_page=100",
+      "status": "in_progress",
+      "conclusion": null,
+      "head_sha": "8157a49c55c94207abf64b23c4521617043ebe3f",
+      "html_url": "https://github.com/just-every/run-spool/actions/runs/44649900881"
+    },
+    {
+      "at": "2026-11-20T01:02:31Z",
+      "kind": "status",
+      "call": 2,
+      "endpoint": "repos/just-every/run-spool/actions/runs/44649900881",
+      "status": "in_progress",
+      "conclusion": null,
+      "head_sha": "8157a49c55c94207abf64b23c4521617043ebe3f",
+      "html_url": "https://github.com/just-every/run-spool/actions/runs/44649900881"
+    },
+    {
+      "at": "2026-11-20T01:07:31Z",
+      "kind": "status",
+      "call": 3,
+      "endpoint": "repos/just-every/run-spool/actions/runs/44649900881",
+      "status": "in_progress",
+      "conclusion": null,
+      "head_sha": "8157a49c55c94207abf64b23c4521617043ebe3f",
+      "html_url": "https://github.com/just-every/run-spool/actions/runs/44649900881"
+    },
+    {
+      "at": "2026-11-20T01:12:31Z",
+      "kind": "status",
+      "call": 4,
+      "endpoint": "repos/just-every/run-spool/actions/runs/44649900881",
+      "status": "in_progress",
+      "conclusion": null,
+      "head_sha": "8157a49c55c94207abf64b23c4521617043ebe3f",
+      "html_url": "https://github.com/just-every/run-spool/actions/runs/44649900881"
+    },
+    {
+      "at": "2026-11-20T01:17:31Z",
+      "kind": "status",
+      "call": 5,
+      "endpoint": "repos/just-every/run-spool/actions/runs/44649900881",
+      "status": "in_progress",
+      "conclusion": null,
+      "head_sha": "8157a49c55c94207abf64b23c4521617043ebe3f",
+      "html_url": "https://github.com/just-every/run-spool/actions/runs/44649900881"
+    },
+    {
+      "at": "2026-11-20T01:22:31Z",
+      "kind": "status",
+      "call": 6,
+      "endpoint": "repos/just-every/run-spool/actions/runs/44649900881",
+      "status": "completed",
+      "conclusion": "failure",
+      "head_sha": "8157a49c55c94207abf64b23c4521617043ebe3f",
+      "html_url": "https://github.com/just-every/run-spool/actions/runs/44649900881"
+    }
+  ],
+  "failedJobs": [
+    {
+      "id": 136002576552,
+      "name": "verify (agent-handoff)",
+      "conclusion": "failure",
+      "html_url": "https://github.com/just-every/run-spool/actions/runs/44649900881/job/136002576552",
+      "steps": [
+        "Run suites"
+      ],
+      "logCommand": "gh run view 44649900881 --repo just-every/run-spool --job 136002576552 --log-failed",
+      "logExit": 0,
+      "assertion": "AssertionError [ERR_ASSERTION]: false == true",
+      "location": "tests/agent-door/policy-integrity-contract.mjs:46:24",
+      "dependency": "Miniflare SynchronousFetcher.fetch response message ID assertion",
+      "scope": "The agent-handoff test, native agent door, and dependency inputs match the candidate base."
+    },
+    {
+      "id": 136010825107,
+      "name": "shards (spool)",
+      "conclusion": "failure",
+      "html_url": "https://github.com/just-every/run-spool/actions/runs/44649900881/job/136010825107",
+      "steps": [
+        "Require every job in this coverage partition"
+      ],
+      "logCommand": "gh run view 44649900881 --repo just-every/run-spool --job 136010825107 --log-failed",
+      "logExit": 0
+    },
+    {
+      "id": 136010856208,
+      "name": "verify",
+      "conclusion": "failure",
+      "html_url": "https://github.com/just-every/run-spool/actions/runs/44649900881/job/136010856208",
+      "steps": [
+        "Require the selected coverage and its proof"
+      ],
+      "logCommand": "gh run view 44649900881 --repo just-every/run-spool --job 136010856208 --log-failed",
+      "logExit": 0
+    }
+  ],
+  "completedVerification": {
+    "build": "success",
+    "runtimes": "success",
+    "contractDocs": "success",
+    "suites": "failure"
+  }
+}
