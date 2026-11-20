@@ -39,9 +39,9 @@ async function checkManifestFields(m) {
   insist(m.schemaObjects===undefined || m.excludedTables===undefined || (Array.isArray(m.excludedTables) && m.excludedTables.every(name=>typeof name==='string') && new Set(m.excludedTables).size===m.excludedTables.length),'manifest_inventory');
   // Applied product migrations, recorded by archives since additive restore.
   insist(m.migrations===undefined || (Array.isArray(m.migrations) && m.migrations.every(x=>typeof x==='string')),'manifest_inventory');
-  // The ledger an export from a RER Platform installation records, by migration identity.
+  // A hash-bearing ledger from Platform or from a native core and owner history.
   const ledger=m.migrationLedger;
-  insist(ledger===undefined || (ledger && typeof ledger==='object' && Object.keys(ledger).sort().join()==='entries,origin' && ledger.origin==='rer_migrations' && Array.isArray(ledger.entries)
+  insist(ledger===undefined || (ledger && typeof ledger==='object' && Object.keys(ledger).sort().join()==='entries,origin' && ['rer_migrations','d1_migrations'].includes(ledger.origin) && Array.isArray(ledger.entries)
     && ledger.entries.every(e=>e && typeof e==='object' && Object.keys(e).sort().join()==='name,sha256' && typeof e.name==='string' && /^[a-f0-9]{64}$/.test(e.sha256))
     && canonicalJson(m.migrations)===canonicalJson(ledger.entries.map(e=>e.name)) && new Set(m.migrations).size===m.migrations.length),'manifest_inventory');
   insist(m.tables.every((t,i)=>typeof t.name==='string' && typeof t.sql==='string' && Array.isArray(t.columns) && Array.isArray(t.dependencies) && Number.isSafeInteger(t.count) && t.count>=0 && (!i || m.tables[i-1].name<t.name)),'table_inventory');

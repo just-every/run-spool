@@ -611,18 +611,22 @@ declare module 'virtual:rer-legacy-migration-evidence' {
 }
 ```
 
-The generated JavaScript contains ordered checkout file hashes and statements,
-deduplicated complete schema inventories for every prefix, and hashed identities
-of bounded deterministic seeded rows. Volatile seeded rows cannot be vouched for;
-their values are never bundled. Runtime policy projects each inventory through
-the same schema identity code as live SQLite. The Worker adapter binds evidence
-to the live hashed ledger and complete schema, then supplies the existing legacy
-collector, archived-ledger validation, bridge and restore guards.
+The generated JavaScript contains checkout file hashes and statements. A checkout
+with only core migrations bundles its prefix inventories and bounded deterministic
+seed-row hashes at build time, including when declared owner migration directories
+are absent or empty. At least one owner SQL migration file enables the SQLite
+engine and replay module. The Worker makes those inventories in a
+fresh in-memory database using the combined order recorded by the live core and
+owner ledgers. Volatile seeded rows cannot be vouched for. Runtime policy
+projects each inventory through the same schema identity code as live SQLite.
+The Worker adapter binds evidence to the live ledger and complete schema, then
+supplies the legacy collector, archived-ledger validation, bridge and restore
+guards.
 
 The same explicit build-evidence adoption supports native Wrangler's plain
 `d1_migrations` ledger. Keep the reviewed, unchanged applied migration files in
-the binding's declared directory when building. Every live name must select the
-exact ordered prefix of those files, and replay of that prefix must reproduce
+the binding's declared directories when building. Each ledger's live names must
+select the exact ordered prefix of its files, and combined replay must reproduce
 the complete live schema, including indexes and triggers on excluded tables.
 Unknown names, gaps, reordered names, tracked but missing hashes, and schema
 drift refuse before restore writes. Existing hashes must still match; the
@@ -682,8 +686,12 @@ them into a scratch database to find the archive's place in that history:
   ledger's own names are kept beside their hashes. Import resolves each entry
   by hash exactly as it does an archived ledger table (next item), so a
   Platform prefix needs no declaration and a changed file refuses. Platform's
-  ledger is never imported as product tables. Native sources record no
-  `migrationLedger`; their archives are unchanged, and v1 and earlier v2
+  ledger is never imported as product tables. Native sources with applied
+  owner migrations carry `{origin:'d1_migrations',entries:[{name,sha256}]}`
+  in the same field. The entries combine core names and prefixed owner names
+  in recorded application order. Restore checks those names and hashes against
+  the destination's applied history and keeps both ledgers in place. Core-only
+  native archives use `manifest.migrations` as before, and v1 and earlier v2
   archives remain importable.
 - Older archives that still carry their source's migration ledger as a table
   (`rer_migrations` and the other ledgers above, from before they became
@@ -1133,6 +1141,8 @@ modules/portability/sqlite-tokens.mjs
 modules/portability/bookkeeping.mjs
 modules/portability/snapshot-objects.mjs
 modules/portability/storage.mjs
+modules/portability/object-inventory.mjs
+modules/portability/archive-step.mjs
 modules/portability/copies.mjs
 modules/portability/derived.mjs
 modules/portability/dev-data.mjs
@@ -1143,9 +1153,12 @@ modules/portability/restore-safety.mjs
 modules/portability/bridge.mjs
 modules/portability/library-history.mjs
 modules/portability/checkout-history.mjs
+modules/portability/owner-history.mjs
+modules/portability/worker-owner-history.mjs
 modules/portability/migration-history.mjs
 modules/portability/ledgers.mjs
 modules/portability/migration-statements.mjs
+modules/portability/migration-evidence.mjs
 modules/portability/sql-text.mjs
 modules/portability/backfills.mjs
 modules/portability/transient-tables.mjs
@@ -1268,3 +1281,9 @@ parameters of at most 2 MiB each. It refuses compressed or encrypted entries,
 unsafe paths, duplicate or unexpected members, missing ledgers, other versions,
 container transport, later-journal and legacy-recovery options. Refusals use
 constant `managed_data_*` reasons and do not print source values.
+
+Large object inventories are stored in bounded internal rows so D1 cell and row
+limits do not prevent backups. Native CLI failures name the transfer stage (for
+example `export_snapshot`) without printing SQL, values or absolute paths. Keep
+the stopped source and retry after resolving the named stage; changing source
+objects or deleting data is not a remedy for an inventory storage failure.
