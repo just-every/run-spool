@@ -1,25 +1,15 @@
-# Spool 0.7.15
+# Spool 0.7.16
 
-Spool 0.7.15 expands Sentry export imports with readable accounting and owner review for roster, ownership and alert rules. It also improves local owner sign-in and patches bundled dependencies.
+Spool 0.7.16 keeps more Sentry browser errors available for investigation and makes Alerts edit controls easier to identify.
 
 ### What changed
 
-- **See what a Sentry export brought over.** Import a supported Sentry API capture bundle and review the collection, record, field and byte accounting. The import shows what was mapped, transformed, omitted, duplicated or rejected, with readable reasons and safe labels where available. Captured history stays inert.
-- **Review the Sentry roster and ownership before granting access.** Imported members, teams and project ownership arrive as pending review records. The installation owner can inspect the proposed project roles and separately create a native invitation. The review records and native invitation actions appear separately. Ownership rules can be previewed and remain inactive. Supported earlier native archive inventories can still be restored.
-- **Approve imported Sentry alert rules.** In Settings → Data → Business imports, review the proposals and choose **Create these rules** when ready. Import receipts and history show how many rules were not imported. If an imported rule needs a destination review, saving it immediately shows the next action. Rules with unresolved destinations or unsupported conditions stay disabled, and rules that need users or sessions wait for matching data.
-- **Return to a local installation after an owner email change.** Local setup keeps the existing owner. The sign-in page shows how to get a fresh owner link with `~/.local/bin/rer dev`.
-- **Get clearer feedback when working with issues and releases.** A refused issue search explains why and offers to clear the query. Successful release registration shows **Release registered** beside the action.
-- **Use stricter session-cookie validation and patched dependencies.** The portability CLI accepts only valid cookie octets in session files. This release updates rustls, qs, minimatch, picomatch, Hono and its Node server adapter.
+- **Keep Sentry browser errors with an empty frame filename.** Spool now saves the event and keeps the frame in the issue stack with an unknown path. It previously acknowledged the intake with HTTP 200 but dropped the event.
+- **Find the right edit control in Alerts.** Each edit button identifies the item it opens, with accessible names such as “Edit destination On-call team” and “Edit rule New issue.” Assistive technology and automated agents can distinguish a destination from a rule even when they share a label.
 
 ### Updating
 
-From 0.7.14: Back up first. Download a private archive in Settings, or stop local dev and run `rer export --output exports/spool.jsonl`. From 0.7.14 on main, update with `git pull --ff-only` and `rer dev`. From a tag, run `git fetch --tags && git checkout v0.7.15` and `rer dev` once that tag is published. For a hosted installation, use `rer deploy` from the original deploying checkout. The five migrations listed below apply on the next deploy. The core inventory is 108 SQL files, up from 103 in 0.7.14. Every migration in v0.7.14 is byte-identical, so keep the existing database and do not reset. Keep private settings, project keys and the deployment receipt. Import private archives only into an empty destination. There are no breaking changes. The application still pins rer exactly to 0.2.118. To turn hosted mail off deliberately, select `MAIL_PROVIDER=none`, leave sending credentials empty and remove any previously bound sending secrets as described in docs/HOSTED.md. Keep the original deployment credentials and ownership receipt for guarded `rer signin` access. This application release does not publish the Spool SDK.
-
-- `migrations/core/0110_sentry_roster_proposals.sql` — Adds storage and provenance for pending Sentry roster and ownership proposals. After deploy, review the imported roster in Members before creating any native invitations.
-- `migrations/core/0111_key_names_and_use.sql` — Adds names and last successful use timestamps to keys while preserving their authority and revocation state. Keep existing keys. After deploy, name them in Settings as needed. Older keys start with a blank name and unknown last use.
-- `migrations/core/0112_member_identity.sql` — Synchronizes member names and email addresses with their native operator accounts. Keep the existing owner and members, then use the normal identity settings for future changes.
-- `migrations/core/0113_capture_sources.sql` — Adds short-lived, payload-free capture counters. After deploy, send a test event if you want to check the Capture connection status.
-- `migrations/core/0114_sentry_alert_proposals.sql` — Adds support for alert proposals and preserves existing roster proposals. After deploy, review the imported rules and their destinations in Business imports before creating rules.
+From 0.7.15: Back up first. Download a private archive in Settings, or stop local dev and run `rer export --output exports/spool.jsonl`. From 0.7.15 on main, update with `git pull --ff-only` and `rer dev`. From a tag, run `git fetch --tags && git checkout v0.7.16` and `rer dev` once that tag is published. For a hosted installation, use `rer deploy` from the original deploying checkout. There are no new migrations or breaking changes. The migration inventory is 108 core SQL files, all byte-identical to v0.7.15. Keep the existing database and avoid resetting it. Keep private settings, project keys and the deployment receipt. Import private archives only into an empty destination. The application pins rer exactly to 0.2.118. To turn hosted mail off deliberately, select `MAIL_PROVIDER=none`, leave sending credentials empty and remove any previously bound sending secrets as described in docs/HOSTED.md. Keep the original deployment credentials and ownership receipt for guarded `rer signin` access. This application release does not publish the Spool SDK.
 
 ### Known limits
 
@@ -36,4 +26,4 @@ From 0.7.14: Back up first. Download a private archive in Settings, or stop loca
 
 Product screenshot: .github/assets/release/spool-issue-page-1600.png
 
-Release notes by Run Edit Run fleet, 2026-11-19 (UTC).
+Release notes by Run Edit Run fleet, 2026-11-20 (UTC).
