@@ -2622,7 +2622,7 @@
       "executable": false
     },
     ".github/workflows/verify.yml": {
-      "sha256": "7df479e3ca4af69fc4f5b1256c0c36c30e7555ff35e7ec8279ee62fd578ba29f",
+      "sha256": "483e00a882b987ddea882a19f51c588ce9589f8a39c73d9af819ace630dfc8fa",
       "executable": false
     },
     ".gitignore": {
@@ -2654,7 +2654,7 @@
       "executable": false
     },
     "base-copies.json": {
-      "sha256": "9ad2028319713ac803a1d4fc93fe05e13654168bdeca0c43b0554f841fa5fca4",
+      "sha256": "6defd5a6bc1c3fd5fc4b4a3ce29222484f9159c722618d70b95592feb1137919",
       "executable": false
     },
     "BROWSER-ORIGINS.md": {
@@ -4422,7 +4422,7 @@
       "executable": false
     },
     "public/errors-capture.js": {
-      "sha256": "7f7bd14819e75a74115b54c51dfe5a24493132ee53322173f74862c537a10994",
+      "sha256": "df1a441e911af23c26ca58a23d6c78a77fdea300c7b7a691c73d7a27650744a6",
       "executable": false
     },
     "public/fonts/fonts.css": {
