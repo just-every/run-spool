@@ -1,0 +1,28 @@
+{
+  "files": [
+    {
+      "blob": "e51c7ca729492b6963c14cc505e8e9279f8c74e9",
+      "bytes": 2736,
+      "path": "REPORT.md",
+      "sha256": "ad99a54a77ea39cf30ffd24f527d23e514def97a14ec71ea9c7a767db118f143"
+    },
+    {
+      "blob": "702a01abbf195af9201a15cd2af0a5f346278953",
+      "bytes": 3292,
+      "path": "handoff-receipt.json",
+      "sha256": "0362bbe1376a8c02ba015394322bc8bc54abb83e486809742ce75754e6744028"
+    },
+    {
+      "blob": "e43e35bbce528bc7e7ed725c2325a1c705c98507",
+      "bytes": 440,
+      "path": "local-checks.txt",
+      "sha256": "5fc671f52757139146309499aafc2bea1dccabbcb9a5b371051fb53723341033"
+    }
+  ],
+  "product_branch": "cloud/sd-spool-s8-edit-names-c3",
+  "product_head": "8157a49c55c94207abf64b23c4521617043ebe3f",
+  "ref": "refs/heads/evidence/sd-spool-s8-edit-names-c3",
+  "repository": "just-every/run-spool",
+  "schema": 1,
+  "tag": "sd-spool-s8-edit-names-c3"
+}

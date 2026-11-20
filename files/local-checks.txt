@@ -1,0 +1,12 @@
+HEAD=8157a49c55c94207abf64b23c4521617043ebe3f
+$ node src/base/contract-docs.mjs check
+Contract prose: 0 errors, 0 warnings.
+Contract documents are current.
+$ pnpm source:check
+ WARN  Unsupported engine: wanted: {"node":"22.20.0"} (current: {"node":"v24.19.0","pnpm":"10.12.4"})
+  "ok": true,
+$ git diff --check HEAD^ HEAD
+Passed
+$ git diff --exit-code HEAD^ HEAD -- CONTRACT.md ACCEPTANCE.md docs/CLAIMS.md
+Identical
+Clean working tree
