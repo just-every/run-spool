@@ -7085,6 +7085,10 @@
       "sha256": "a7ed1f03e1d3372d079f3d1840e609f9dbb2102737ad1a9f95751e85d783906f",
       "executable": false
     },
+    "src/domain/sentry-import/roster-team.ts": {
+      "sha256": "622152c35d0be31c7026351920cb72a4b43f9b7ba473749fa478692f6f2d97bf",
+      "executable": false
+    },
     "src/domain/sentry-import/routes.ts": {
       "sha256": "0ccf0ba99861f65df7006e9a751329056060592e5066979b06f7e86c96b1fc7c",
       "executable": false
@@ -11379,6 +11383,10 @@
     },
     "tests/fixtures/grouping-labelled.json": {
       "sha256": "d02431f374627909debade3766543c06b5c547bd8290d9d859210506225ce84a",
+      "executable": false
+    },
+    "tests/fixtures/sentry/alert-rule-mapping.json": {
+      "sha256": "e5ee8ca9ddf792b313bd7e5efbf4f5e7fcefc7392c4b9aa4a2799b94fdad0b80",
       "executable": false
     },
     "tests/fixtures/sentry/alert-rules.json": {
