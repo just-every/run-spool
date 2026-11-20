@@ -1,0 +1,337 @@
+{
+  "head": "17a07a88355a0cae30f98fd9eafe846305493067",
+  "at": "2026-11-20T17:38:08.181Z",
+  "rules": [
+    {
+      "name": "Synthetic numerical severity",
+      "settings": {
+        "config": {
+          "actionIntervalMinutes": 5,
+          "filters": {
+            "level": "error",
+            "levelMatch": "gte"
+          },
+          "metric": "count",
+          "tagKeys": []
+        },
+        "kinds": [
+          "new_issue"
+        ],
+        "threshold": 2,
+        "windowMs": 60000
+      },
+      "omissions": [],
+      "destinations": []
+    },
+    {
+      "name": "Synthetic reappeared issue",
+      "settings": {
+        "config": {
+          "actionIntervalMinutes": 5,
+          "filters": {},
+          "metric": "count",
+          "tagKeys": []
+        },
+        "kinds": [
+          "reactivation"
+        ],
+        "threshold": 2,
+        "windowMs": 60000
+      },
+      "omissions": [],
+      "destinations": []
+    },
+    {
+      "name": "Synthetic issue owners",
+      "settings": {
+        "config": {
+          "actionIntervalMinutes": 5,
+          "filters": {},
+          "metric": "count",
+          "tagKeys": []
+        },
+        "kinds": [
+          "new_issue"
+        ],
+        "threshold": 2,
+        "windowMs": 60000
+      },
+      "omissions": [
+        "Issue-owner recipients require native ownership rules"
+      ],
+      "destinations": [
+        {
+          "fallthrough": "active_members",
+          "id": null,
+          "kind": "issue_owners",
+          "path": "/actions/0"
+        }
+      ]
+    },
+    {
+      "name": "Synthetic imported team",
+      "settings": {
+        "config": {
+          "actionIntervalMinutes": 5,
+          "filters": {},
+          "metric": "count",
+          "tagKeys": []
+        },
+        "kinds": [
+          "new_issue"
+        ],
+        "threshold": 2,
+        "windowMs": 60000
+      },
+      "omissions": [],
+      "destinations": [
+        {
+          "fallthrough": "active_members",
+          "id": "synthetic-team-1",
+          "kind": "team",
+          "path": "/actions/0"
+        }
+      ]
+    },
+    {
+      "name": "Synthetic first seen",
+      "settings": {
+        "config": {
+          "actionIntervalMinutes": 5,
+          "filters": {},
+          "metric": "count",
+          "tagKeys": []
+        },
+        "kinds": [
+          "new_issue"
+        ],
+        "threshold": 2,
+        "windowMs": 60000
+      },
+      "omissions": [],
+      "destinations": []
+    },
+    {
+      "name": "Synthetic unsupported condition",
+      "settings": null,
+      "omissions": [
+        "Unsupported issue condition: EventAttributeCondition"
+      ],
+      "destinations": []
+    },
+    {
+      "name": "Synthetic shared threshold destination",
+      "settings": {
+        "config": {
+          "aggregate": "count",
+          "dataset": "errors",
+          "filters": {},
+          "metric": "aggregate",
+          "query": {},
+          "resolveThreshold": null,
+          "tagKeys": [],
+          "thresholdType": "above",
+          "triggers": [
+            {
+              "alertThreshold": 4,
+              "label": "critical"
+            },
+            {
+              "alertThreshold": 2,
+              "label": "warning"
+            }
+          ]
+        },
+        "kinds": [
+          "metric"
+        ],
+        "threshold": 2,
+        "windowMs": 300000
+      },
+      "omissions": [],
+      "destinations": [
+        {
+          "fallthrough": "no_one",
+          "id": "synthetic-team-1",
+          "kind": "team",
+          "path": "/triggers/0/actions/0"
+        },
+        {
+          "fallthrough": "no_one",
+          "id": "synthetic-team-1",
+          "kind": "team",
+          "path": "/triggers/1/actions/0"
+        }
+      ]
+    },
+    {
+      "name": "Synthetic aliased crash-free rate",
+      "settings": {
+        "config": {
+          "aggregate": "crash_free_rate",
+          "dataset": "sessions",
+          "filters": {},
+          "metric": "aggregate",
+          "query": {},
+          "resolveThreshold": 99.5,
+          "tagKeys": [],
+          "thresholdType": "below",
+          "triggers": [
+            {
+              "alertThreshold": 95,
+              "label": "critical"
+            },
+            {
+              "alertThreshold": 99,
+              "label": "warning"
+            }
+          ]
+        },
+        "kinds": [
+          "metric"
+        ],
+        "threshold": 2,
+        "windowMs": 300000
+      },
+      "omissions": [],
+      "destinations": []
+    },
+    {
+      "name": "Synthetic transaction wildcard",
+      "settings": {
+        "config": {
+          "aggregate": "p95_duration",
+          "dataset": "transactions",
+          "filters": {},
+          "metric": "aggregate",
+          "query": {
+            "transaction": {
+              "op": "glob",
+              "value": "/v1/*"
+            }
+          },
+          "resolveThreshold": null,
+          "tagKeys": [],
+          "thresholdType": "above",
+          "triggers": [
+            {
+              "alertThreshold": 4,
+              "label": "critical"
+            }
+          ]
+        },
+        "kinds": [
+          "metric"
+        ],
+        "threshold": 2,
+        "windowMs": 300000
+      },
+      "omissions": [],
+      "destinations": []
+    },
+    {
+      "name": "Synthetic HTTP status wildcard",
+      "settings": {
+        "config": {
+          "aggregate": "count",
+          "dataset": "errors",
+          "filters": {},
+          "metric": "aggregate",
+          "query": {
+            "tags": {
+              "http.status_code": {
+                "op": "glob",
+                "value": "5*"
+              }
+            }
+          },
+          "resolveThreshold": null,
+          "tagKeys": [
+            "http.status_code"
+          ],
+          "thresholdType": "above",
+          "triggers": [
+            {
+              "alertThreshold": 4,
+              "label": "critical"
+            }
+          ]
+        },
+        "kinds": [
+          "metric"
+        ],
+        "threshold": 2,
+        "windowMs": 300000
+      },
+      "omissions": [],
+      "destinations": []
+    }
+  ],
+  "team": "Synthetic On Call",
+  "approval": [
+    {
+      "name": "Synthetic numerical severity",
+      "status": "Rule created and active",
+      "state": "active",
+      "omissions": []
+    },
+    {
+      "name": "Synthetic reappeared issue",
+      "status": "Rule created and active",
+      "state": "active",
+      "omissions": []
+    },
+    {
+      "name": "Synthetic issue owners",
+      "status": "Needs a destination: issue_owners",
+      "state": "disabled",
+      "omissions": [
+        "Issue-owner recipients require native ownership rules"
+      ]
+    },
+    {
+      "name": "Synthetic imported team",
+      "status": "Rule created and active",
+      "state": "active",
+      "omissions": []
+    },
+    {
+      "name": "Synthetic first seen",
+      "status": "Rule created and active",
+      "state": "active",
+      "omissions": []
+    },
+    {
+      "name": "Synthetic unsupported condition",
+      "status": "Rule created disabled",
+      "state": "disabled",
+      "omissions": [
+        "Unsupported issue condition: EventAttributeCondition"
+      ]
+    },
+    {
+      "name": "Synthetic shared threshold destination",
+      "status": "Rule created and active",
+      "state": "active",
+      "omissions": []
+    },
+    {
+      "name": "Synthetic aliased crash-free rate",
+      "status": "Waiting for the first session",
+      "state": "waiting",
+      "omissions": []
+    },
+    {
+      "name": "Synthetic transaction wildcard",
+      "status": "Rule created and active",
+      "state": "active",
+      "omissions": []
+    },
+    {
+      "name": "Synthetic HTTP status wildcard",
+      "status": "Rule created and active",
+      "state": "active",
+      "omissions": []
+    }
+  ]
+}

@@ -1,0 +1,91 @@
+{
+  "schema": 1,
+  "repository": "just-every/run-spool",
+  "branch": "cloud/sd-spool-s9-import-alert-rules-1",
+  "head": "17a07a88355a0cae30f98fd9eafe846305493067",
+  "tree": "405322f6da070ac32c45f17b01e49ca5b5f4164e",
+  "base": "804a4ad15e6c8e1c52f0069dcf610ba1f5d2342c",
+  "fixture_sha256": "e5ee8ca9ddf792b313bd7e5efbf4f5e7fcefc7392c4b9aa4a2799b94fdad0b80",
+  "source_lock_sha256": "7911803dae2edc27eb3436f38ae1d90b172c1e47f4167b2184c06f3e8a2690a9",
+  "synthetic_only": true,
+  "local_checks_on_head": [
+    {
+      "step": "native-export",
+      "status": "pass",
+      "utc": "2026-11-20T17:50:18Z"
+    },
+    {
+      "step": "first-party",
+      "status": "pass",
+      "utc": "2026-11-20T17:50:21Z"
+    },
+    {
+      "step": "source",
+      "status": "pass",
+      "utc": "2026-11-20T17:50:21Z"
+    },
+    {
+      "step": "offline-base",
+      "status": "pass",
+      "utc": "2026-11-20T17:50:22Z"
+    },
+    {
+      "step": "app-build",
+      "status": "pass",
+      "utc": "2026-11-20T17:50:48Z"
+    },
+    {
+      "step": "integration",
+      "status": "pass",
+      "utc": "2026-11-20T17:50:49Z"
+    },
+    {
+      "step": "agent-surface",
+      "status": "pass",
+      "utc": "2026-11-20T17:50:49Z"
+    },
+    {
+      "step": "typecheck",
+      "status": "pass",
+      "utc": "2026-11-20T17:51:09Z"
+    },
+    {
+      "step": "contract",
+      "status": "pass",
+      "utc": "2026-11-20T17:51:09Z"
+    },
+    {
+      "step": "alert-import",
+      "status": "pass",
+      "utc": "2026-11-20T17:51:39Z"
+    }
+  ],
+  "additional_local_checks": {
+    "SPOOL_VERIFY_SUITES=sentry node scripts/installer/verify.mjs": "pass",
+    "node tests/alerts-native.mjs": "pass (3 tests)",
+    "direct mapper and public approval proof": "pass"
+  },
+  "verify": [
+    {
+      "conclusion": "failure",
+      "head_sha": "db65530c260493cfe64a3954ac5642c1e98e6c75",
+      "html_url": "https://github.com/just-every/run-spool/actions/runs/44783955288",
+      "status": "completed",
+      "id": 44783955288,
+      "failed_job": 136453901373,
+      "failed_step": "Check source and portable contract",
+      "failure": "The source lock lacked the new roster helper and fixture."
+    },
+    {
+      "conclusion": null,
+      "head_branch": "cloud/sd-spool-s9-import-alert-rules-1",
+      "head_sha": "17a07a88355a0cae30f98fd9eafe846305493067",
+      "html_url": "https://github.com/just-every/run-spool/actions/runs/44785125719",
+      "id": 44785125719,
+      "name": "Verify",
+      "status": "in_progress",
+      "observed_utc": "2026-11-20T17:48:04+00:00"
+    }
+  ],
+  "github_calls_used": 10
+}

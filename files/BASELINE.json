@@ -1,0 +1,286 @@
+{
+  "base": "804a4ad15e6c8e1c52f0069dcf610ba1f5d2342c",
+  "at": "2026-11-20T17:18:19.184Z",
+  "rules": [
+    {
+      "name": "Synthetic numerical severity",
+      "settings": null,
+      "omissions": [
+        "Invalid severity"
+      ],
+      "destinations": []
+    },
+    {
+      "name": "Synthetic reappeared issue",
+      "settings": null,
+      "omissions": [
+        "Unsupported issue condition: ReappearedEventCondition"
+      ],
+      "destinations": []
+    },
+    {
+      "name": "Synthetic issue owners",
+      "settings": {
+        "config": {
+          "actionIntervalMinutes": 5,
+          "filters": {},
+          "metric": "count",
+          "tagKeys": []
+        },
+        "kinds": [
+          "new_issue"
+        ],
+        "threshold": 2,
+        "windowMs": 60000
+      },
+      "omissions": [],
+      "destinations": [
+        {
+          "id": null,
+          "kind": "email",
+          "path": "/actions/0"
+        }
+      ]
+    },
+    {
+      "name": "Synthetic imported team",
+      "settings": {
+        "config": {
+          "actionIntervalMinutes": 5,
+          "filters": {},
+          "metric": "count",
+          "tagKeys": []
+        },
+        "kinds": [
+          "new_issue"
+        ],
+        "threshold": 2,
+        "windowMs": 60000
+      },
+      "omissions": [],
+      "destinations": [
+        {
+          "id": "synthetic-team-1",
+          "kind": "team",
+          "path": "/actions/0"
+        }
+      ]
+    },
+    {
+      "name": "Synthetic first seen",
+      "settings": {
+        "config": {
+          "actionIntervalMinutes": 5,
+          "filters": {},
+          "metric": "count",
+          "tagKeys": []
+        },
+        "kinds": [
+          "new_issue"
+        ],
+        "threshold": 2,
+        "windowMs": 60000
+      },
+      "omissions": [],
+      "destinations": []
+    },
+    {
+      "name": "Synthetic unsupported condition",
+      "settings": null,
+      "omissions": [
+        "Unsupported issue condition: EventAttributeCondition"
+      ],
+      "destinations": []
+    },
+    {
+      "name": "Synthetic shared threshold destination",
+      "settings": {
+        "config": {
+          "aggregate": "count",
+          "dataset": "errors",
+          "filters": {},
+          "metric": "aggregate",
+          "query": {},
+          "resolveThreshold": null,
+          "tagKeys": [],
+          "thresholdType": "above",
+          "triggers": [
+            {
+              "alertThreshold": 4,
+              "label": "critical"
+            },
+            {
+              "alertThreshold": 2,
+              "label": "warning"
+            }
+          ]
+        },
+        "kinds": [
+          "metric"
+        ],
+        "threshold": 2,
+        "windowMs": 300000
+      },
+      "omissions": [
+        "Destinations differ by threshold"
+      ],
+      "destinations": [
+        {
+          "id": "synthetic-team-1",
+          "kind": "team",
+          "path": "/triggers/0/actions/0"
+        },
+        {
+          "id": "synthetic-team-1",
+          "kind": "team",
+          "path": "/triggers/1/actions/0"
+        }
+      ]
+    },
+    {
+      "name": "Synthetic aliased crash-free rate",
+      "settings": null,
+      "omissions": [
+        "Unsupported aggregate: percentage(sessions_crashed, sessions) AS _crash_rate_alert_aggregate"
+      ],
+      "destinations": []
+    },
+    {
+      "name": "Synthetic transaction wildcard",
+      "settings": {
+        "config": {
+          "aggregate": "p95_duration",
+          "dataset": "transactions",
+          "filters": {},
+          "metric": "aggregate",
+          "query": {},
+          "resolveThreshold": null,
+          "tagKeys": [],
+          "thresholdType": "above",
+          "triggers": [
+            {
+              "alertThreshold": 4,
+              "label": "critical"
+            }
+          ]
+        },
+        "kinds": [
+          "metric"
+        ],
+        "threshold": 2,
+        "windowMs": 300000
+      },
+      "omissions": [
+        "Unsupported metric search filter"
+      ],
+      "destinations": []
+    },
+    {
+      "name": "Synthetic HTTP status wildcard",
+      "settings": {
+        "config": {
+          "aggregate": "count",
+          "dataset": "errors",
+          "filters": {},
+          "metric": "aggregate",
+          "query": {},
+          "resolveThreshold": null,
+          "tagKeys": [],
+          "thresholdType": "above",
+          "triggers": [
+            {
+              "alertThreshold": 4,
+              "label": "critical"
+            }
+          ]
+        },
+        "kinds": [
+          "metric"
+        ],
+        "threshold": 2,
+        "windowMs": 300000
+      },
+      "omissions": [
+        "Unsupported metric search filter"
+      ],
+      "destinations": []
+    }
+  ],
+  "team": "Imported project",
+  "approval": [
+    {
+      "name": "Synthetic numerical severity",
+      "status": "Rule created disabled",
+      "state": "disabled",
+      "omissions": [
+        "Invalid severity"
+      ]
+    },
+    {
+      "name": "Synthetic reappeared issue",
+      "status": "Rule created disabled",
+      "state": "disabled",
+      "omissions": [
+        "Unsupported issue condition: ReappearedEventCondition"
+      ]
+    },
+    {
+      "name": "Synthetic issue owners",
+      "status": "Needs a destination: email",
+      "state": "disabled",
+      "omissions": []
+    },
+    {
+      "name": "Synthetic imported team",
+      "status": "Needs a destination: team",
+      "state": "disabled",
+      "omissions": []
+    },
+    {
+      "name": "Synthetic first seen",
+      "status": "Rule created and active",
+      "state": "active",
+      "omissions": []
+    },
+    {
+      "name": "Synthetic unsupported condition",
+      "status": "Rule created disabled",
+      "state": "disabled",
+      "omissions": [
+        "Unsupported issue condition: EventAttributeCondition"
+      ]
+    },
+    {
+      "name": "Synthetic shared threshold destination",
+      "status": "Needs a destination: team",
+      "state": "disabled",
+      "omissions": [
+        "Destinations differ by threshold"
+      ]
+    },
+    {
+      "name": "Synthetic aliased crash-free rate",
+      "status": "Rule created disabled",
+      "state": "disabled",
+      "omissions": [
+        "Unsupported aggregate: percentage(sessions_crashed, sessions) AS _crash_rate_alert_aggregate"
+      ]
+    },
+    {
+      "name": "Synthetic transaction wildcard",
+      "status": "Rule created disabled",
+      "state": "disabled",
+      "omissions": [
+        "Unsupported metric search filter"
+      ]
+    },
+    {
+      "name": "Synthetic HTTP status wildcard",
+      "status": "Rule created disabled",
+      "state": "disabled",
+      "omissions": [
+        "Unsupported metric search filter"
+      ]
+    }
+  ]
+}

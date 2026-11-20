@@ -1,0 +1,40 @@
+{
+  "files": [
+    {
+      "blob": "49f7f4e80b1e25f36282d4572e75acf862427771",
+      "bytes": 979,
+      "path": "ALERT-IMPORT-RECEIPT.json",
+      "sha256": "fb71ce1ac6ae0b0a6a8fb3714a91b2d78d0be3115fd4622d525af2cac8166b1e"
+    },
+    {
+      "blob": "b3a89585be5dfd9545993921bc3ea3b694932f5b",
+      "bytes": 6730,
+      "path": "BASELINE.json",
+      "sha256": "2f5764d037b90f7ca3cc63341d5c403899ec4cc748fa7a467f3d89c3d408ce33"
+    },
+    {
+      "blob": "7e97e97e23854a772c4fb72444c4ab65635ec2fb",
+      "bytes": 7831,
+      "path": "CANDIDATE.json",
+      "sha256": "aa072c42081add90ba1f56631d78603696cff5d9108eddeb965c6691a54cea94"
+    },
+    {
+      "blob": "36d1bdceb6ad3f4d82994b4043d378178a183d83",
+      "bytes": 2587,
+      "path": "CHECKS.json",
+      "sha256": "b47a8d61365db8059b15f6fd8e0b94375977a44d36c8fefd01b27d331c1ab774"
+    },
+    {
+      "blob": "c80c440051daf58f3e51125e5c1ef23e21fd0484",
+      "bytes": 5226,
+      "path": "REPORT.md",
+      "sha256": "75e5f5e1cbfb70757524dfb6c58aca5452c28d2ced7b82e16be95c672327e038"
+    }
+  ],
+  "product_branch": "cloud/sd-spool-s9-import-alert-rules-1",
+  "product_head": "17a07a88355a0cae30f98fd9eafe846305493067",
+  "ref": "refs/heads/evidence/sd-spool-s9-import-alert-rules-1",
+  "repository": "just-every/run-spool",
+  "schema": 1,
+  "tag": "sd-spool-s9-import-alert-rules-1"
+}
