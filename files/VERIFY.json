@@ -1,0 +1,276 @@
+{
+  "branch": "cloud/sd-spool-release-0-7-17",
+  "discovered_at": "2026-11-21T02:32:19Z",
+  "discovery": {
+    "conclusion": null,
+    "event": "push",
+    "head_sha": "f826abfa9a9cb4a30eaedd3ab9b219aac31aaa21",
+    "html_url": "https://github.com/just-every/run-spool/actions/runs/44856405213",
+    "id": 44856405213,
+    "name": "Verify",
+    "status": "in_progress"
+  },
+  "failed_assertion_job": {
+    "archive_command": "gh run view 44856405213 --repo just-every/run-spool --job 136699932315 --log-failed",
+    "archive_exit_code": 0,
+    "assertion_error": false,
+    "command": "pnpm test:runtime",
+    "error": "Owner runtime journey failed; private runtime details withheld",
+    "id": 136699932315,
+    "location": "tests/runtime.mjs:125",
+    "step": "Run suites",
+    "underlying_error_code": "unknown"
+  },
+  "jobs": [
+    {
+      "conclusion": "success",
+      "failed_steps": [],
+      "id": 136699539507,
+      "name": "plan"
+    },
+    {
+      "conclusion": "success",
+      "failed_steps": [],
+      "id": 136699621561,
+      "name": "contract-docs"
+    },
+    {
+      "conclusion": "success",
+      "failed_steps": [],
+      "id": 136699621612,
+      "name": "build"
+    },
+    {
+      "conclusion": "skipped",
+      "failed_steps": [],
+      "id": 136699622719,
+      "name": "commands"
+    },
+    {
+      "conclusion": "skipped",
+      "failed_steps": [],
+      "id": 136699623438,
+      "name": "light"
+    },
+    {
+      "conclusion": "success",
+      "failed_steps": [],
+      "id": 136699932142,
+      "name": "runtime (python)"
+    },
+    {
+      "conclusion": "success",
+      "failed_steps": [],
+      "id": 136699932156,
+      "name": "runtime (java)"
+    },
+    {
+      "conclusion": "success",
+      "failed_steps": [],
+      "id": 136699932170,
+      "name": "runtime (electron)"
+    },
+    {
+      "conclusion": "success",
+      "failed_steps": [],
+      "id": 136699932174,
+      "name": "runtime (node)"
+    },
+    {
+      "conclusion": "success",
+      "failed_steps": [],
+      "id": 136699932185,
+      "name": "verify (sdk)"
+    },
+    {
+      "conclusion": "success",
+      "failed_steps": [],
+      "id": 136699932201,
+      "name": "runtime (ruby)"
+    },
+    {
+      "conclusion": "success",
+      "failed_steps": [],
+      "id": 136699932205,
+      "name": "runtime (elixir)"
+    },
+    {
+      "conclusion": "success",
+      "failed_steps": [],
+      "id": 136699932221,
+      "name": "runtime (php)"
+    },
+    {
+      "conclusion": "success",
+      "failed_steps": [],
+      "id": 136699932231,
+      "name": "runtime (dotnet)"
+    },
+    {
+      "conclusion": "success",
+      "failed_steps": [],
+      "id": 136699932248,
+      "name": "runtime (rust)"
+    },
+    {
+      "conclusion": "success",
+      "failed_steps": [],
+      "id": 136699932265,
+      "name": "runtime (go)"
+    },
+    {
+      "conclusion": "success",
+      "failed_steps": [],
+      "id": 136699932271,
+      "name": "verify (sentry-cli)"
+    },
+    {
+      "conclusion": "success",
+      "failed_steps": [],
+      "id": 136699932277,
+      "name": "verify (wizard)"
+    },
+    {
+      "conclusion": "success",
+      "failed_steps": [],
+      "id": 136699932278,
+      "name": "verify (alerts)"
+    },
+    {
+      "conclusion": "success",
+      "failed_steps": [],
+      "id": 136699932288,
+      "name": "verify (repair-recovery)"
+    },
+    {
+      "conclusion": "success",
+      "failed_steps": [],
+      "id": 136699932308,
+      "name": "verify (project-erasure-cap)"
+    },
+    {
+      "conclusion": "success",
+      "failed_steps": [],
+      "id": 136699932311,
+      "name": "verify (tunnel)"
+    },
+    {
+      "conclusion": "failure",
+      "failed_steps": [
+        {
+          "conclusion": "failure",
+          "name": "Run suites"
+        }
+      ],
+      "id": 136699932315,
+      "name": "verify (runtime)"
+    },
+    {
+      "conclusion": "success",
+      "failed_steps": [],
+      "id": 136699932319,
+      "name": "verify (owner-erasure)"
+    },
+    {
+      "conclusion": "success",
+      "failed_steps": [],
+      "id": 136699932343,
+      "name": "verify (agent-handoff)"
+    },
+    {
+      "conclusion": "success",
+      "failed_steps": [],
+      "id": 136699932345,
+      "name": "verify (project-erasure)"
+    },
+    {
+      "conclusion": "success",
+      "failed_steps": [],
+      "id": 136699932385,
+      "name": "verify (owner-ui)"
+    },
+    {
+      "conclusion": "success",
+      "failed_steps": [],
+      "id": 136699932405,
+      "name": "verify (execution)"
+    },
+    {
+      "conclusion": "failure",
+      "failed_steps": [
+        {
+          "conclusion": "failure",
+          "name": "Require every job in this coverage partition"
+        }
+      ],
+      "id": 136704806988,
+      "name": "shards (spool)"
+    },
+    {
+      "conclusion": "failure",
+      "failed_steps": [
+        {
+          "conclusion": "failure",
+          "name": "Require the selected coverage and its proof"
+        }
+      ],
+      "id": 136704830434,
+      "name": "verify"
+    },
+    {
+      "conclusion": "skipped",
+      "failed_steps": [],
+      "id": 136704831362,
+      "name": "nightly-proof"
+    },
+    {
+      "conclusion": "skipped",
+      "failed_steps": [],
+      "id": 136704831774,
+      "name": "full-push-proof"
+    }
+  ],
+  "observations": [
+    {
+      "conclusion": null,
+      "event": "push",
+      "head_sha": "f826abfa9a9cb4a30eaedd3ab9b219aac31aaa21",
+      "html_url": "https://github.com/just-every/run-spool/actions/runs/44856405213",
+      "observed_at": "2026-11-21T02:37:20Z",
+      "run_id": 44856405213,
+      "status": "in_progress",
+      "workflow": "Verify"
+    },
+    {
+      "conclusion": null,
+      "event": "push",
+      "head_sha": "f826abfa9a9cb4a30eaedd3ab9b219aac31aaa21",
+      "html_url": "https://github.com/just-every/run-spool/actions/runs/44856405213",
+      "observed_at": "2026-11-21T02:42:20Z",
+      "run_id": 44856405213,
+      "status": "in_progress",
+      "workflow": "Verify"
+    },
+    {
+      "conclusion": null,
+      "event": "push",
+      "head_sha": "f826abfa9a9cb4a30eaedd3ab9b219aac31aaa21",
+      "html_url": "https://github.com/just-every/run-spool/actions/runs/44856405213",
+      "observed_at": "2026-11-21T02:47:20Z",
+      "run_id": 44856405213,
+      "status": "in_progress",
+      "workflow": "Verify"
+    },
+    {
+      "conclusion": "failure",
+      "event": "push",
+      "head_sha": "f826abfa9a9cb4a30eaedd3ab9b219aac31aaa21",
+      "html_url": "https://github.com/just-every/run-spool/actions/runs/44856405213",
+      "observed_at": "2026-11-21T02:52:20Z",
+      "run_id": 44856405213,
+      "status": "completed",
+      "workflow": "Verify"
+    }
+  ],
+  "repository": "just-every/run-spool"
+}

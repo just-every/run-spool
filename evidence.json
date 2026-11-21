@@ -1,0 +1,28 @@
+{
+  "files": [
+    {
+      "blob": "6104cd8e5c9f43877fdafd3c5e150006a13f4953",
+      "bytes": 2746,
+      "path": "LOCAL-CHECKS.md",
+      "sha256": "e888fde42b72b7972dba0fa635393e807c1cb8c33588b2a35173c3bd02fe43cd"
+    },
+    {
+      "blob": "801151052811e5cca16a32640bde828a16953283",
+      "bytes": 5096,
+      "path": "REPORT.md",
+      "sha256": "fbe849b15efc00b0299fc19c56e754d866b3241796f88bb91d529755c430323f"
+    },
+    {
+      "blob": "63362209faf5bed70bde59d15f59865773604623",
+      "bytes": 6711,
+      "path": "VERIFY.json",
+      "sha256": "f9967db22c983f1feee0d977241753a24e41b5b68e12115faaeca1e482d5cea6"
+    }
+  ],
+  "product_branch": "cloud/sd-spool-release-0-7-17",
+  "product_head": "f826abfa9a9cb4a30eaedd3ab9b219aac31aaa21",
+  "ref": "refs/heads/evidence/sd-spool-release-0-7-17",
+  "repository": "just-every/run-spool",
+  "schema": 1,
+  "tag": "sd-spool-release-0-7-17"
+}
