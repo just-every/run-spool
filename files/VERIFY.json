@@ -1,0 +1,11 @@
+{
+  "branch": "cloud/sd-spool-dev-persona-1",
+  "conclusion": "success",
+  "head_sha": "965ab13c7f4e519de6c15db56a9230c4f26c45c6",
+  "html_url": "https://github.com/just-every/run-spool/actions/runs/44953299622",
+  "id": 44953299622,
+  "observed_utc": "2026-11-21T22:12:27+00:00",
+  "repository": "just-every/run-spool",
+  "status": "completed",
+  "workflow": "Verify"
+}

@@ -1,0 +1,28 @@
+{
+  "files": [
+    {
+      "blob": "821650a324db341a9f82feb8021e255c4e5b12b3",
+      "bytes": 2112,
+      "path": "LOCAL-CHECKS.md",
+      "sha256": "dfb771729f69f75d23504d7444affd868fba9ceea16e01f3e3211f637b53f7fa"
+    },
+    {
+      "blob": "381c2417bc766dd8c2aeed38c3a49ddcd5f01e12",
+      "bytes": 2386,
+      "path": "REPORT.md",
+      "sha256": "4433ad7b0c66b0e57f89890e904db06537669f6d6e4a4dc378df6235616f691e"
+    },
+    {
+      "blob": "59a8f53b2acd5eb63c1c438b06c2e189d805305d",
+      "bytes": 371,
+      "path": "VERIFY.json",
+      "sha256": "8ae2394ca927daf928131919d1a37ae0b9f9022b2c4ec637137ac5434c6b1341"
+    }
+  ],
+  "product_branch": "cloud/sd-spool-dev-persona-1",
+  "product_head": "965ab13c7f4e519de6c15db56a9230c4f26c45c6",
+  "ref": "refs/heads/evidence/sd-spool-dev-persona-1",
+  "repository": "just-every/run-spool",
+  "schema": 1,
+  "tag": "sd-spool-dev-persona-1"
+}
