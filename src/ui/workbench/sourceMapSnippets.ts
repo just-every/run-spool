@@ -5,6 +5,11 @@ export const bundlers: { value: Bundler; label: string }[] = [
   { value: 'next', label: 'Next.js' },
 ];
 
+/** The same stamp-and-upload as `spool-sourcemaps`, run by the installer's private Node from the tool the page serves. */
+export function privateNodeUpload(config: { endpoint: string; project: string; release: string; build: string }) {
+  return `~/.local/bin/rer run --script ./spool-sourcemaps.mjs --endpoint ${shellQuote(config.endpoint)} \\\n  --project ${shellQuote(config.project)} --release ${shellQuote(config.release)} \\\n  --build ${shellQuote(config.build)} --key-env SPOOL_DEPLOY_KEY dist/*.js`;
+}
+
 export function shellQuote(value: string) { return `'${value.replaceAll("'", `'"'"'`)}'`; }
 
 export function sourceMapInstructions(bundler: Bundler, config: { endpoint: string; project: string; release: string; build: string }) {

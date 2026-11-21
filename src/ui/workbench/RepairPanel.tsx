@@ -1,11 +1,16 @@
 import { useEffect, useState, type FormEvent } from 'react';
 import { Details } from './Details';
 import { date, Field, type Request, type Run } from './shared';
+import { hrefFor } from './location';
 import './RepairPanel.css';
 
 const verdicts: Record<string, string> = { recurred: 'Recurred', inconclusive: 'Inconclusive', no_recurrence_after_exercise: 'No recurrence after the flow was exercised' };
 const outcomes: Record<string, string> = { passed: 'Passed', failed: 'Failed', not_run: 'Not run' };
 const base = (project: string) => `/api/projects/${encodeURIComponent(project)}/repairs`;
+/** An occurrence by receipt time and release, linking to it on its issue. */
+function EventLinks({ project, issue, events }: { project: string; issue: string; events: any[] }) {
+  return <>{events.map((event, index) => <span key={`${event.id}:${event.occurrence}`}>{index ? ', ' : ''}<a className="inline-link" href={`${hrefFor(project, 'issues', issue)}?${new URLSearchParams({ event: event.id, occurrence: event.occurrence })}`}>{date(event.received, 'UTC', 'second')}</a> (release {event.release})</span>)}</>;
+}
 type Props = { initial?: Promise<any[]>; project: string; issue: any; busy: boolean; request: Request; run: Run; refresh: () => void };
 
 /** Owner-recorded repairs and their computed recovery verdict. Spool never opens a recorded link. */
@@ -36,11 +41,11 @@ export function RepairPanel({ project, issue, busy, request, run, refresh, initi
       <Field label="Note" maxLength={1000} value={note} onChange={event => setNote(event.target.value)} />
       <button className="primary-button" disabled={busy}>Record repair</button>
     </form>
-    {repairs?.map(repair => <RepairRecord key={repair.id} {...{ project, repair, releases, busy, write, request }} />)}
+    {repairs?.map(repair => <RepairRecord key={repair.id} {...{ project, issue: issue.short_id ?? issue.id, repair, releases, busy, write, request }} />)}
   </section>;
 }
 
-function RepairRecord({ project, repair, releases, busy, write, request }: { project: string; repair: any; releases: any[]; busy: boolean; write: (work: () => Promise<unknown>) => Promise<void>; request: Request }) {
+function RepairRecord({ project, issue, repair, releases, busy, write, request }: { project: string; issue: string; repair: any; releases: any[]; busy: boolean; write: (work: () => Promise<unknown>) => Promise<void>; request: Request }) {
   const [release, setRelease] = useState(''), [exercise, setExercise] = useState('');
   const [check, setCheck] = useState({ name: '', outcome: 'passed', note: '' });
   const path = `${base(project)}/${encodeURIComponent(repair.id)}`, facts = repair.facts, o = repair.observation;
@@ -53,8 +58,8 @@ function RepairRecord({ project, repair, releases, busy, write, request }: { pro
     {repair.historical && <p className="callout">Restored history is preserved here. It does not establish current repair proof in this installation; record a new repair for current verification.</p>}
     <div className={`callout verdict ${o.verdict}`}><strong>{repair.historical ? 'Historical verdict' : 'Verdict'}: {verdicts[o.verdict] ?? o.verdict}</strong>
       <ul>{o.reasons.map((reason: any) => <li key={reason.code}>{reason.reason}</li>)}</ul>
-      {!!o.evidence.recurrence.count && <p>Recurring events: {o.evidence.recurrence.events.map((event: any) => `${event.id} (release ${event.release})`).join(', ')}{o.evidence.recurrence.count > o.evidence.recurrence.events.length ? ` and ${o.evidence.recurrence.count - o.evidence.recurrence.events.length} more` : ''}.</p>}
-      {!!o.evidence.olderReleaseEvents.count && <p>Not counted: {o.evidence.olderReleaseEvents.count} event{o.evidence.olderReleaseEvents.count === 1 ? '' : 's'} from releases older than {o.evidence.release?.name} ({o.evidence.olderReleaseEvents.events.map((event: any) => event.id).join(', ')}).</p>}
+      {!!o.evidence.recurrence.count && <p>Recurring events: <EventLinks {...{ project, issue }} events={o.evidence.recurrence.events} />{o.evidence.recurrence.count > o.evidence.recurrence.events.length ? ` and ${o.evidence.recurrence.count - o.evidence.recurrence.events.length} more` : ''}.</p>}
+      {!!o.evidence.olderReleaseEvents.count && <p>Not counted: {o.evidence.olderReleaseEvents.count} event{o.evidence.olderReleaseEvents.count === 1 ? '' : 's'} from releases older than {o.evidence.release?.name} (<EventLinks {...{ project, issue }} events={o.evidence.olderReleaseEvents.events} />).</p>}
       <p>{o.limits}</p>
     </div>
     <dl className="repair-facts">

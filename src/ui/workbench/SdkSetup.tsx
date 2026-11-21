@@ -11,7 +11,7 @@ export const sdkPackage = '@just-every/spool';
 export const installCommand = `npm install ${sdkPackage}`;
 export function initSnippet({ endpoint, project, ingestKey, release, build }: { endpoint: string; project: string; ingestKey: string; release: string; build: string }) {
   const q = JSON.stringify;
-  return `import { init } from '${sdkPackage}';\ninit({ endpoint: ${q(endpoint)}, project: ${q(project)}, ingestKey: ${q(ingestKey)},\n  release: ${q(release)}, build: ${q(build)} });`;
+  return `import { init } from '${sdkPackage}';\ninit({ endpoint: ${q(endpoint)}, project: ${q(project)}, ingestKey: ${q(ingestKey)},\n  release: ${q(release)}, build: ${q(build)}, environment: 'production' });`;
 }
 
 export function CodeBlock({ label, code }: { label: string; code: string }) {
@@ -22,7 +22,7 @@ export function CodeBlock({ label, code }: { label: string; code: string }) {
 export function SdkSetup({ endpoint, project, ingestKey, release, build }: { endpoint: string; project: string; ingestKey: string; release: string; build: string }) {
   return <div className="sdk-setup">
     <h3>Browser capture without npm</h3>
-    <p>No Node.js needed: download <a className="inline-link" href="/errors-capture.js" download="errors-capture.js">the browser capture file</a>, serve it with your app and initialise it in a module script:</p>
+    <p>No Node.js needed: download <a className="inline-link" href="/errors-capture.js" download="errors-capture.js">the browser capture file</a>, serve it with your app and initialise it in a module script. Set <code>environment</code> to the name of where the app runs, such as <code>production</code> or <code>staging</code>: the helper sends nothing without it, and Spool files and filters issues by it. It is the same value as the <code>environment</code> in <a className="inline-link" href="/docs/framework-setup">the framework setup guide</a>.</p>
     <CodeBlock label="Browser helper init" code={initSnippet({ endpoint, project, ingestKey, release, build }).replace("import { init } from '@just-every/spool';", "import { installBrowserCapture } from './errors-capture.js';").replace('init({', 'installBrowserCapture({')} />
     <h3>Or install the Spool SDK</h3>
     <p>Requires <a className="inline-link" href="https://nodejs.org/en/download">Node.js and npm</a> on your PATH. Run this in your application’s repository. The Spool installer’s private runtime runs Spool; it does not add Node or npm to your application’s shell.</p>

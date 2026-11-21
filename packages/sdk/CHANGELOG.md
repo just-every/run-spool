@@ -2,6 +2,7 @@
 
 ## Unreleased
 
+- Stamping a bundle with a debug ID no longer adds a line: the registration goes on the same line, so recorded line numbers are unchanged and a repeat error from the stamped bundle stays in the issue its unstamped occurrences opened. Columns after the registration move right, and the map moves with them.
 - `@just-every/spool/tunnel` (`spoolTunnel`, `nodeTunnel`) and `@just-every/spool/next` (`spoolTunnelRoute`): server-side tunnels for the Sentry browser SDK's `tunnel` option, so browser capture survives ad-blockers. An envelope is forwarded only when its DSN is one the tunnel was configured with. Redirects are never followed (502), only `POST` is accepted, an abandoned upload or odd request never ends the host process, and the 1 MiB limit is enforced while the body is read and inflated.
 - `spool-setup` bin: detects Next.js or Django, prints the change as a `git apply` patch, writes it with `--apply`, installs the SDK with `--install` and sends a test event first; a DSN Spool does not accept, a secret-key or malformed DSN, a link or hard-linked file on a path it writes (also one swapped in during the test event) or a settings module that is not a dotted name writes nothing, and it never writes through a link or into an existing file in place. Other frameworks get guidance.
 

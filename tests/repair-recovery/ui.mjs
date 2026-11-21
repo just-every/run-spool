@@ -32,6 +32,13 @@ const focusVisible=page=>page.evaluate(()=>{
   return focused.some((border,index)=>visible(border.width,border.style,border.color)&&(border.width!==unfocused[index].width||border.color!==unfocused[index].color));
  }finally{field.focus({preventScroll:true});}
 });
+// A person sees the occurrence by time and release, never its raw id; the link still opens that exact occurrence.
+async function eventLink(page,eventId){
+  const verdict=page.locator('.repairs .verdict');
+  assert.ok(!(await verdict.innerText()).includes(eventId),'raw event id shown');
+  const hrefs=await verdict.locator('a').evaluateAll(links=>links.map(link=>link.getAttribute('href')));
+  assert.ok(hrefs.some(href=>href.includes('event='+encodeURIComponent(eventId))&&href.includes('occurrence=')),'recurring event linked');
+}
 async function verdict(page,text){await page.locator('.repairs .verdict').filter({hasText:text}).first().waitFor();}
 async function refresh(page){await page.waitForResponse(response=>response.url().includes('/repairs?issue=')&&response.ok(),{timeout:30000});}
 export async function repairPanel(app,browser,directory){
@@ -63,11 +70,11 @@ export async function repairPanel(app,browser,directory){
    await page.getByRole('button',{name:'Record flow exercised in this release',exact:true}).click();
    await verdict(page,'Verdict: No recurrence after the flow was exercised');await check(page,directory,width,'c-no-recurrence',captures);
    const older=await capture.throw(old.name,old.build);await refresh(page);await verdict(page,'Not counted: 1 event');await verdict(page,'Verdict: No recurrence after the flow was exercised');
-   assert.ok((await page.locator('.repairs .verdict').innerText()).includes(older.eventId));await check(page,directory,width,'e-older-release',captures);
+   await eventLink(page,older.eventId);await check(page,directory,width,'e-older-release',captures);
    for(let n=0;n<3;n++){const response=await app.request(`/api/ingest/${project}`,'POST',{version:1,eventId:'invalid-'+n},{agent:capture.ingestKey});assert.equal(response.status,400);await response.body?.cancel();}
    await refresh(page);await verdict(page,'Verdict: Inconclusive');await verdict(page,'invalid 3');await check(page,directory,width,'f-rejected-spike',captures);
    const recurred=await capture.throw(release.name,release.build);await refresh(page);await verdict(page,'Verdict: Recurred');
-   assert.ok((await page.locator('.repairs .verdict').innerText()).includes(recurred.eventId),'recurring event named');await page.locator('.state-chip.open').waitFor();
+   await eventLink(page,recurred.eventId);await page.locator('.state-chip.open').waitFor();
    await check(page,directory,width,'d-recurred',captures);
   }finally{await context.close();await capture.stop();}
  }

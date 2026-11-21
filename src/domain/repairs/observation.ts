@@ -34,7 +34,7 @@ export async function observe(db: D1Database, repair: any, now = Date.now()): Pr
  // affected issues also carry an explicit gap even if the change was undone.
  const membership = `(e.issue=? OR ${originalMembership('e', '?')} OR ${correctionMembership('e', '?', '?')})`;
  const parameters = [repair.project, repair.issue, repair.issue, repair.issue, repair.created, start, seq];
- const events = (order: string) => query(db, `SELECT e.id,e.release,e.release_seq,e.received FROM events e WHERE e.project=? AND ${membership} AND e.historical=0 AND e.received>=? AND ${order} ORDER BY e.received,e.id LIMIT ?`, ...parameters, EVIDENCE_LIMIT).all<any>();
+ const events = (order: string) => query(db, `SELECT e.id,e.occurrence,e.release,e.release_seq,e.received FROM events e WHERE e.project=? AND ${membership} AND e.historical=0 AND e.received>=? AND ${order} ORDER BY e.received,e.id LIMIT ?`, ...parameters, EVIDENCE_LIMIT).all<any>();
  const count = (order: string) => query(db, `SELECT COUNT(*) total FROM events e WHERE e.project=? AND ${membership} AND e.historical=0 AND e.received>=? AND ${order}`, ...parameters).first<any>();
  const [recurred, recurredTotal, older, olderTotal, captured, map, losses, retention, grouping] = await Promise.all([
   events('release_seq>=?'), count('release_seq>=?'), events('release_seq<?'), count('release_seq<?'),
@@ -46,7 +46,7 @@ export async function observe(db: D1Database, repair: any, now = Date.now()): Pr
    AND (json_extract(m.value,'$.from')=? OR json_extract(m.value,'$.to')=?)
    UNION ALL SELECT 1 FROM audit WHERE project=? AND kind='grouping_rules_changed' AND created>=? LIMIT 1`, repair.project, repair.issue, repair.issue, repair.project, repair.created).first(),
  ]);
- const row = (event: any) => ({ id: event.id, release: event.release, sequence: event.release_seq, received: event.received });
+ const row = (event: any) => ({ id: event.id, occurrence: event.occurrence, release: event.release, sequence: event.release_seq, received: event.received });
  const evidence = {
   release: { name: release.name, sequence: seq, build: release.build, registered: start }, window: { start, end: now },
   recurrence: { count: recurredTotal.total, events: recurred.results.map(row) },

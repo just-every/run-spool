@@ -6,7 +6,7 @@ import { issueRepairs, REPAIR_TRUST } from './view';
 // Leaves are selected and scrubbed again; links and notes stay untrusted data.
 export const PACKET_REPAIR_LIMIT = 3;
 const NO_REPAIR = { state: 'inconclusive', reason: 'No independently measured workflow exposure or postdeploy proof' };
-const event = (row: any) => ({ id: text(row.id), release: text(row.release), sequence: number(row.sequence), received: number(row.received) });
+const event = (row: any) => ({ id: text(row.id), occurrence: text(row.occurrence), release: text(row.release), sequence: number(row.sequence), received: number(row.received) });
 function repair(row: any) {
  const o = row.observation, e = o.evidence;
  return {

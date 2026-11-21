@@ -6,7 +6,7 @@ import { CodeBlock, installCommand } from './SdkSetup';
 import { Field, useDraft, type Request, type Run } from './shared';
 import { useSettingDoc } from './useSettingDoc';
 import { SaveAnnouncer, SaveFailure, SavedMark } from './SaveMarks';
-import { bundlers, shellQuote, sourceMapInstructions, type Bundler } from './sourceMapSnippets';
+import { bundlers, privateNodeUpload, shellQuote, sourceMapInstructions, type Bundler } from './sourceMapSnippets';
 
 export function SourceMapSetup({ project, releases, request, run, busy, refresh }: {
   project: string; releases: any[]; request: Request; run: Run; busy: boolean; refresh: () => void;
@@ -55,7 +55,9 @@ export function SourceMapSetup({ project, releases, request, run, busy, refresh 
     })}>Create source-map deploy key</button>}
     <p className="muted">Copy the environment line into your build terminal before running the commands below. In CI, save the key as <code>SPOOL_DEPLOY_KEY</code>. Local dev keys work only with this local installation; create a fresh key on hosted Spool.</p>
     <h3>3. Build, stamp and upload</h3>
-    <p>Requires <a className="inline-link" href="https://nodejs.org/en/download">Node.js and npm</a> on your PATH in your application’s repository. Spool’s installer keeps its runtime private; it does not provide npm on your shell’s PATH. For browser capture without npm, use <a className="inline-link" href={hrefFor(project, 'capture')}>the browser helper on Capture</a>. Follow the <a className="inline-link" href="/docs/framework-setup#prepare-nodejs-and-npm">Node.js prerequisite setup steps</a>, then return here. For maps built on another computer or CI, use the picker on Releases with the matching release, build and debug ID; the deployed bundle must be the same stamped build.</p>
+    <p>Build your application with any tool that writes a <code>.map</code> file beside each bundle. Then stamp and upload with one of these two ways. For maps built on another computer or CI, use the picker on Releases with the matching release, build and debug ID; the deployed bundle must be the same stamped build.</p>
+    <h4>With Node.js and npm</h4>
+    <p>Requires <a className="inline-link" href="https://nodejs.org/en/download">Node.js and npm</a> on your PATH in your application’s repository. Spool’s installer keeps its own runtime private and does not put npm on your shell’s PATH; see the <a className="inline-link" href="/docs/framework-setup#prepare-nodejs-and-npm">Node.js prerequisite steps</a>.</p>
     <CodeBlock label="Source-map SDK install" code={installCommand} />
     {ready ? <>
       <CodeBlock label={instructions.label} code={instructions.config} />
@@ -66,7 +68,10 @@ export function SourceMapSetup({ project, releases, request, run, busy, refresh 
         <p>This version does not accept <code>--json</code>; no extra flag is needed.</p>
       </>}
     </> : <p role="status">Enter a valid application release and build above to fill in the commands for this project and endpoint. Use letters, numbers, dots or hyphens; release names also allow @ and +.</p>}
-    <p>Merge the configuration into your existing config. For CLI builds, replace <code>src/index.js</code> and <code>dist/*.js</code> with your entry point and every emitted bundle, including nested chunks. Each bundle needs its adjacent <code>.map</code>. Deploy the <strong>stamped output</strong> after upload; rebuilding afterwards removes its matching ID. Keep maps private when publishing assets.</p>
+    <p>Merge the configuration into your existing config. For CLI builds, replace <code>src/index.js</code> and <code>dist/*.js</code> with your entry point and every emitted bundle (in either command), including nested chunks. Each bundle needs its adjacent <code>.map</code>. Deploy the <strong>stamped output</strong> after upload; rebuilding afterwards removes its matching ID. Keep maps private when publishing assets.</p>
+    <h4>Without npm: use Spool’s installer</h4>
+    <p>The installer already gave you a Node that runs Spool, and <code>rer run --script</code> can run a file with it. Download <a className="inline-link" href="/spool-sourcemaps.mjs" download="spool-sourcemaps.mjs">the source-map tool</a> into your application’s folder, build as above, and run this from that folder in the terminal where you set <code>SPOOL_DEPLOY_KEY</code>. It does the same as <code>spool-sourcemaps</code> and prints <code>Uploaded 1 source map.</code> on success. If <code>rer</code> is not on your PATH, <code>~/.local/bin/rer</code> is where the installer put it.</p>
+    {ready ? <CodeBlock label="Source-map upload without npm" code={privateNodeUpload({ endpoint, project, release, build })} /> : <p role="status">Enter a valid application release and build above to fill in this command.</p>}
     <h3>4. Confirm a mapped frame</h3>
     <p>After a successful upload, trigger a new error in your deployed application, open its issue in Spool, then look for <strong>Original source</strong> and a frame such as <code>src/checkout.js:7:12</code>. Spool’s own test exception checks capture only, not your app’s maps.</p>
     <h3>If the frame is still unmapped</h3>
