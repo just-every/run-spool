@@ -45,11 +45,12 @@ export async function ownerSetupBrowser(app, cookie, project, json) {
   assert.equal(session.status(),200,'The advertised session category accepts real intake');
   const health=await json('/api/projects/'+project.id+'/release-health');assert.equal(health.denominators.sessionsSeen,1,'Session intake becomes observed release health');
   const releasePage=await context.newPage();try{await releasePage.goto(app.origin+'/projects/'+project.id+'/releases');await expect(releasePage.getByRole('region',{name:'Release health',exact:true})).toContainText('synthetic-spool-session');}finally{await releasePage.close();}
-  const prerequisites=page.getByRole('link',{name:'Node.js prerequisite setup steps',exact:true});
-  const guide=await context.request.get(app.origin+await prerequisites.getAttribute('href'));assert.equal(guide.status(),200);
-  const fragment=new URL(await prerequisites.getAttribute('href'),app.origin).hash.slice(1);
-  assert.ok(fragment&&await page.evaluate(({html,fragment})=>!!new DOMParser().parseFromString(html,'text/html').getElementById(fragment),{html:await guide.text(),fragment}),'the prerequisite link reaches its actual guide section');
   const mapping=page.getByRole('heading',{name:'Set up original-source mapping',exact:true}).locator('..');
+  const prerequisites=mapping.getByRole('link',{name:/Node\.js prerequisite/i});
+  const guideUrl=new URL(await prerequisites.getAttribute('href'),app.origin);
+  const guide=await context.request.get(guideUrl.href);assert.equal(guide.status(),200);
+  const fragment=guideUrl.hash.slice(1);
+  assert.ok(fragment&&await page.evaluate(({html,fragment})=>!!new DOMParser().parseFromString(html,'text/html').getElementById(fragment),{html:await guide.text(),fragment}),'the prerequisite link reaches its actual guide section');
   for(const width of [1440,390]){await page.setViewportSize({width,height:1000});await mapping.screenshot({path:`${folder}/source-map-setup-${width}.png`});}await page.setViewportSize({width:1440,height:1000});
   await page.getByRole('button',{name:'Create ingest key',exact:true}).waitFor();await screenshot('capture-reissue');
   const created=page.waitForResponse(r=>new URL(r.url()).pathname==='/api/projects/'+project.id+'/keys'&&r.request().method()==='POST');

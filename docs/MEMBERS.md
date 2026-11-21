@@ -7,7 +7,7 @@ mail stays silent; hosted invitations need a configured mail sender.
 
 Locally, the owner copies the pending invitation from **Settings → Members →
 Invitations**. There is no local outbox viewer. Open that invitee’s own link
-**directly in a separate browser on this computer**, then press **Confirm**.
+**directly in a separate browser on this computer**, then press **Join**.
 The single-use link expires and signs in only with that membership’s project
 access. Do not share or open the owner’s `RER_OPEN` link in the member’s browser:
 it grants owner authority. A removed member loses access on the next request

@@ -9,7 +9,7 @@ const testNotice = (test: {state:string;message:string}) => test.state !== 'pass
  : 'Your email service accepted the test. Check your inbox before turning on alerts.';
 
 /** The short path uses the same destination test, explicit review and preview gates. */
-export function EmailAlert({project,refresh}:{project:string;refresh:()=>void}) {
+export function EmailAlert({project,refresh,mailSuppressed}:{project:string;refresh:()=>void;mailSuppressed:boolean}) {
  const [address,setAddress]=useState(''),[destination,setDestination]=useState(''),[test,setTest]=useState<any>(null);
  const [busy,setBusy]=useState(false),[error,setError]=useState(''),[saved,setSaved]=useState('');
  const remaining=!address.trim()?'Enter your email address.':!test?'Send a test email first.':test.state!=='passing'?'The test failed. Check the address and try again.':'Check the test result below, then turn on your alert.';
@@ -35,6 +35,7 @@ export function EmailAlert({project,refresh}:{project:string;refresh:()=>void}) 
  }
  return <section className="evidence" aria-labelledby="email-alert-title"><h2 id="email-alert-title">Add an email alert</h2>
   <p>Email me about new errors.</p>
+  {mailSuppressed&&<p className="callout">This copy runs on your computer and sends no email: the test below passes without delivering a message, and an alert you turn on will not reach an inbox. New errors still appear in the Alert feed. To email people, <a className="inline-link" href="https://github.com/just-every/run-spool/blob/main/docs/HOSTED.md">put Spool online and set up an email sender</a>.</p>}
   <form onSubmit={event=>{event.preventDefault();void sendTest();}}>
    <Field label="Email me at" type="email" required maxLength={254} value={address} disabled={busy} autoComplete="email" onChange={event=>{setAddress(event.target.value);setDestination('');setTest(null);setSaved('');}}/>
    <ol><li>Enter your email address.</li><li>Send a test email and check the result.</li><li>Turn on alerts for new errors.</li></ol>

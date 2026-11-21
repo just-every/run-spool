@@ -20,18 +20,22 @@ export function bundlePosition(code) {
     unterminatedShebang: shebangEnd !== undefined && !shebangBreak };
 }
 
-/** Split the affected generated line, preserving sparse mappings on both sides. */
+/** Insert the registration without adding a line, so recorded line numbers and the issue they group under stay the same.
+ * Columns after the insertion move right by its length; sparse mappings on both sides are preserved. */
 export function insertRegistration(code, map, position, registration) {
   const { offset, line, character, unterminatedShebang } = position;
-  const inserted = `${unterminatedShebang ? '\n' : ''}${registration}\n`;
   const lines = decodedMappings(new TraceMap(map)).map(segments => segments.map(segment => [...segment]));
   while (lines.length <= line) lines.push([]);
+  // Where the original code resumes: after the registration on the same line, or at column 0 of the line a bare shebang needs.
+  const resume = unterminatedShebang ? 0 : character + registration.length;
   const before = lines[line].filter(segment => segment[0] < character);
-  const after = lines[line].filter(segment => segment[0] >= character).map(segment => [segment[0] - character, ...segment.slice(1)]);
+  const after = lines[line].filter(segment => segment[0] >= character).map(segment => [segment[0] - character + resume, ...segment.slice(1)]);
   // A sparse segment remains active across the original position at the split.
-  if (before.length && after[0]?.[0] !== 0) after.unshift([0, ...before.at(-1).slice(1)]);
+  if (before.length && after[0]?.[0] !== resume) after.unshift([resume, ...before.at(-1).slice(1)]);
   before.push([character]); // Injected code must not inherit the preceding source location.
-  lines.splice(line, 1, before, ...(unterminatedShebang ? [[]] : []), after);
+  // A shebang with no line break ends its line: the registration needs its own line there.
+  if (unterminatedShebang) lines.splice(line, 1, before, [], after);
+  else lines.splice(line, 1, [...before, ...after]);
   map.mappings = encodedMappings(presortedDecodedMap({ ...map, mappings: lines }));
-  return code.slice(0, offset) + inserted + code.slice(offset);
+  return code.slice(0, offset) + (unterminatedShebang ? `\n${registration}\n` : registration) + code.slice(offset);
 }

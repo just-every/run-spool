@@ -1,4 +1,5 @@
 import {deploymentLabel} from './deployment-label';
+import { mailSuppressed } from '../../auth/mail.server.mjs';
 import { recipientChoices,keptRecipients } from './targets';
 import type { NativeAuthority } from '../agent-door/native-authority';
 import { resolveMembership } from '../members/resolver';
@@ -51,7 +52,7 @@ routes.get('/deployment-options',async c=>{
  const rows=(await destinationChoices(c.env,c.req.param('project')!)).filter(row=>row.channel==='mail');
  return c.json({rows:rows.map(row=>({id:row.id,label:contacts?row.label:deploymentLabel(row.id)}))});
 });
-routes.get('/destinations',async c=>{try{return c.json({rows:await destinationChoices(c.env,c.req.param('project')!),configuration:'available'})}catch{return c.json({rows:[],configuration:'blocked'})}});
+routes.get('/destinations',async c=>{try{return c.json({rows:await destinationChoices(c.env,c.req.param('project')!),configuration:'available',mailSuppressed:mailSuppressed(c.env)})}catch{return c.json({rows:[],configuration:'blocked',mailSuppressed:mailSuppressed(c.env)})}});
 routes.post('/destinations',async c=>c.json(await saveDestination(c.env,c.get('alertSession'),c.req.param('project')!,undefined,await input(c)),201));
 routes.put('/destinations/:destination',async c=>{const result=await saveDestination(c.env,c.get('alertSession'),c.req.param('project')!,c.req.param('destination'),await input(c));await synchronizeHistory(c.env,Date.now());return c.json(result)});
 routes.delete('/destinations/:destination',async c=>c.json(await revokeSlack(c.env,c.get('alertSession'),c.req.param('project')!,c.req.param('destination')!)));

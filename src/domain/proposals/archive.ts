@@ -127,7 +127,7 @@ function validateProposalExplanation(encoded:any,data:any,project:string,input:a
   insist(integer(evidence.releaseEvents) && evidence.releaseEvents<=10000 && typeof evidence.mapStored==='boolean','explanation evidence');
   for(const key of ['recurrence','olderReleaseEvents']){
    const value=evidence[key];fields(value,['count','events',...(key==='olderReleaseEvents'?['counted']:[])]);insist(integer(value.count) && value.count<=10000 && (key!=='olderReleaseEvents'||value.counted===false),'explanation recurrence');list(value.events,10);
-   for(const saved of value.events){fields(saved,['id','release','sequence','received']);event(saved.id);text(saved.release,200);insist(integer(saved.sequence) && integer(saved.received),'explanation recurrence event');}
+   for(const saved of value.events){fields(saved,['id',...('occurrence' in saved?['occurrence']:[]),'release','sequence','received']);event(saved.id);if('occurrence' in saved)text(saved.occurrence,100);text(saved.release,200);insist(integer(saved.sequence) && integer(saved.received),'explanation recurrence event');}
   }
   list(evidence.loss);for(const loss of evidence.loss){fields(loss,['reason','count']);text(loss.reason,200);insist(integer(loss.count),'explanation loss');}
  }
