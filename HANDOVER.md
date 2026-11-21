@@ -16,7 +16,7 @@ Owners can correct grouping on exact retained occurrences: split and merge previ
 
 Every issue has a stable short ID (`CHECKOUT-1A3`) that survives merge and split as an alias and is accepted wherever an issue is named. Deploy-key release and deployment registrations may carry each commit's message and author; `Fixes`, `Resolves` or `Closes` before a short ID links the commit to that issue at once and resolves it in the first release that includes the commit, while unknown, other-project and imported-history citations go to the owner's repository link log. Commit author and message stay owner-only unless the owner shares them per project ([SHORT-IDS.md](docs/SHORT-IDS.md)).
 
-Reproduce, fix and measure: a source-mapped failure becomes a reproducer that `pnpm reproduce` runs in a workerd sandbox; with an owner-installed GitHub connection a grant-bound fix workflow opens a branch and draft pull request, and exposure reports from the SDK give a fix verdict. Spool never merges, releases or deploys ([REPRODUCE-AND-FIX.md](docs/REPRODUCE-AND-FIX.md)).
+Reproduce, fix and measure: a source-mapped failure becomes a reproducer that `rer run reproduce` runs in a workerd sandbox; with an owner-installed GitHub connection a grant-bound fix workflow opens a branch and draft pull request, and exposure reports from the SDK give a fix verdict. Spool never merges, releases or deploys ([REPRODUCE-AND-FIX.md](docs/REPRODUCE-AND-FIX.md)).
 
 Managed producer/package/setup metadata, additive durable one-owner claim and optional native-owner-gated editor are implemented source. Editor configuration cannot be authorized by a project grant. The operations check covers source and generated local inputs; hosted installation and edit-to-source acceptance remain separate.
 

@@ -64,6 +64,7 @@ export function Setup() {
     </> : <>
      <h2>One project per application</h2><p>Choose a stable identifier such as <code className="mark">web-app</code> and a name you will recognize. You can create more projects later.</p>
      <ProjectForm request={api} run={run} busy={busy || !ready || !identity.ready} beforeCreate={identity.initialize} onCreated={setCreated}><SetupIdentity value={identity.value} onChange={identity.setValue} disabled={busy || !identity.ready} /></ProjectForm>
+     <p className="setup-note">Identity policy: a new project keeps the four Sentry user fields (ID, email, username and IP address) as sent. To hash or drop any of them before real traffic, open Settings → User identity policy right after creating the project. Existing projects keep their saved policy.</p>
      <p className="setup-note">The next step shows your ingest key once, with the SDK setup for your application.</p>
      <div className="setup-alternative"><p>Moving from another Spool? Restore before creating a project.</p><button className="text-button" disabled={busy || !ready} onClick={() => { setRestoring(true); setError(''); }}>Restore a private archive</button></div>
      <noscript><p>Project creation needs JavaScript. Enable it and reload this page to continue.</p></noscript>

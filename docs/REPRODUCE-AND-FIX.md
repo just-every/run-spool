@@ -8,10 +8,10 @@ Declared defect class: `js-exception-mapped-frame`, a JavaScript exception whose
 
 A supported reproducer records exactly what will run: the event's type, message and mapped frame; the module and export to call (by default the function enclosing the mapped line); the JSON argument list you give (text the scrubber would change is refused, not altered); every module the map carries, by SHA-256; the sandbox it needs; and the runner protocol.
 
-**Queue sandbox run** returns a single-use token, valid for 15 minutes and for that run only, and prints the command to run in your Spool checkout:
+**Queue sandbox run** returns a single-use token, valid for 15 minutes and for that run only, and prints the command to run in your Spool checkout. `rer run` uses the Node and pnpm the checkout pins, so nothing needs installing on your PATH; use `~/.local/bin/rer` if a bare `rer` is not found:
 
 ```sh
-SPOOL_RUN_TOKEN=… pnpm reproduce https://your-spool/api/sandbox/runs/<run>
+SPOOL_RUN_TOKEN=… rer run reproduce https://your-spool/api/sandbox/runs/<run>
 ```
 
 The runner fetches the job once and starts one `workerd` process with an empty process environment and two services. The job service runs the map's modules with no bindings, no disk service and an outbound network service with an empty allow list. A separate harness service, which loads no job code, calls the export once through a service binding with the input parsed from JSON (never spliced into code), builds the observation in its own isolate from what comes back (the value, or the thrown error with the stack the engine attached), and alone writes it through a disk service the job cannot reach. Nothing the job prints or imports can author or suppress the observation, and the job-side entry calls the export with primordials captured before any job module loads, so patching iteration, `then` or `Reflect` does not turn a normal return into a throw. A job that hangs or crashes never answers, which is a failure, never a reproduction. The process is killed after 10 seconds. The runner reports only what the harness observed, plus the `workerd`, Node and runner versions, and refuses a job that asks for any other sandbox.
