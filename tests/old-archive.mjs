@@ -183,9 +183,11 @@ try {
  assert.deepEqual(await setupUpgrade.prepare('SELECT project,kind,created,revoked,name,last_used FROM credentials WHERE hash=?').bind(keyHash).first(),
   {project:existingProject,kind:'ingest',created:1,revoked:null,name:'',last_used:null});
  const afterSetupUpgrade = await new Response(await transfer.archiveStream(await transfer.portability(setupUpgrade))).text();
- const setupBackup = await target('SETUP_BACKUP');
+ // Archives from this era carry no later ledger entry, so their fresh targets stop at the same migration.
+ const setupEra = migrations.filter(migration => migrationNumber(migration) <= 113);
+ const setupBackup = await target('SETUP_BACKUP', setupEra);
  await transfer.restoreStream(await transfer.portability(setupBackup), new Response(beforeSetupUpgrade).body);
- const setupRestore = await target('SETUP_RESTORE');
+ const setupRestore = await target('SETUP_RESTORE', setupEra);
  await transfer.restoreStream(await transfer.portability(setupRestore), new Response(afterSetupUpgrade).body);
  for (const [table,data] of Object.entries(expected)) {
   assert.deepEqual(canonicalRows(await rows(setupUpgrade, `SELECT * FROM "${table}"`)), canonicalRows(data), `late 0111 preserves ${table}`);
