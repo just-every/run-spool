@@ -1,0 +1,49 @@
+{
+  "adoption_commit": "8f6f09a0a134ddea003074d11330c8c2b695a2f9",
+  "base_commit": "3637852064bf6ddadd15418518964d99d615cc46",
+  "candidate_commits": 2,
+  "changed_paths": [
+    "base-copies.json",
+    "docs/ALERT-WEBHOOKS.md",
+    "docs/INTEGRATION-EGRESS.md",
+    "docs/INTERNAL-PRODUCT-NOTES.md",
+    "package.json",
+    "pnpm-lock.yaml",
+    "sources.lock.json",
+    "src/modules/portability/README.md",
+    "src/modules/portability/bridge.mjs",
+    "src/modules/portability/checkout-history.mjs",
+    "src/modules/portability/owner-history.mjs",
+    "src/modules/portability/worker-history.mjs",
+    "src/modules/portability/worker-owner-history.mjs"
+  ],
+  "contract_clause_changes": [],
+  "head": "2681b8aa457a70c154e8012b6080c055c756a2cc",
+  "identity_check": "fleet author and committer on both commits; no trailers",
+  "merge_commits": 0,
+  "package_pin_after": "0.2.126",
+  "package_pin_before": "0.2.125",
+  "parent": "e0e941da9d90e809f803647fc96d301e40cd9b9e",
+  "publication_history": [
+    {
+      "head": "8f6f09a0a134ddea003074d11330c8c2b695a2f9",
+      "push_attempts": 1,
+      "push_confirmed_utc": "2026-11-21T00:15:06Z",
+      "push_started_utc": "2026-11-21T00:14:59Z",
+      "ref": "refs/heads/cloud/sd-spool-rer-pin-126-1"
+    },
+    {
+      "head": "2681b8aa457a70c154e8012b6080c055c756a2cc",
+      "push_attempts": 1,
+      "push_confirmed_utc": "2026-11-21T00:51:25Z",
+      "push_started_utc": "2026-11-21T00:51:20Z",
+      "ref": "refs/heads/cloud/sd-spool-rer-pin-126-1"
+    }
+  ],
+  "push_attempts": 1,
+  "push_confirmed_utc": "2026-11-21T00:51:25Z",
+  "push_started_utc": "2026-11-21T00:51:20Z",
+  "ref": "refs/heads/cloud/sd-spool-rer-pin-126-1",
+  "repository": "just-every/run-spool",
+  "task": "sd-spool-rer-pin-126-1"
+}

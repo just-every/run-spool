@@ -1,0 +1,34 @@
+{
+  "files": [
+    {
+      "blob": "4e418c0f5a671388f28a8c0ff77eed6aa26c3052",
+      "bytes": 6734,
+      "path": "CHECKS.md",
+      "sha256": "3aa149919d5f8c0b2d7f31b2203cf92dba2554f97ab1af0361cee843185b54e8"
+    },
+    {
+      "blob": "1274868cc24141304649997cf035f16b9fac71a3",
+      "bytes": 1759,
+      "path": "PRODUCT.json",
+      "sha256": "32876c7103e67261e426bc3cc1357fdb4ee532f18f5ebc6cda0da5ab4b0f1d2f"
+    },
+    {
+      "blob": "03f0bd626482ee22dcf8dc4286a1ff54ee5e81a4",
+      "bytes": 5217,
+      "path": "REPORT.md",
+      "sha256": "422c76817aa6936c3515b5fe599ef9cd891bb291b557a3b3c591e366c3b87aeb"
+    },
+    {
+      "blob": "bc44c74f279d9bf8526689c3d2b2c0735a555f5e",
+      "bytes": 4917,
+      "path": "VERIFY.json",
+      "sha256": "f51e268759580eac7cfaccabe187a6935a02b7fcde03875b11a9a7bebf0d84b6"
+    }
+  ],
+  "product_branch": "cloud/sd-spool-rer-pin-126-1",
+  "product_head": "2681b8aa457a70c154e8012b6080c055c756a2cc",
+  "ref": "refs/heads/evidence/sd-spool-rer-pin-126-1",
+  "repository": "just-every/run-spool",
+  "schema": 1,
+  "tag": "sd-spool-rer-pin-126-1"
+}

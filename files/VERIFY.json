@@ -1,0 +1,136 @@
+{
+  "candidate_verify": {
+    "conclusion": "success",
+    "head_sha": "2681b8aa457a70c154e8012b6080c055c756a2cc",
+    "html_url": "https://github.com/just-every/run-spool/actions/runs/44846563479",
+    "observations": [
+      {
+        "conclusion": "success",
+        "event": "push",
+        "head_branch": "cloud/sd-spool-rer-pin-126-1",
+        "head_sha": "2681b8aa457a70c154e8012b6080c055c756a2cc",
+        "html_url": "https://github.com/just-every/run-spool/actions/runs/44846563479",
+        "id": 44846563479,
+        "name": "Verify",
+        "observed_utc": "2026-11-21T01:14:49Z",
+        "status": "completed"
+      }
+    ],
+    "run_id": 44846563479,
+    "status": "completed"
+  },
+  "initial_verify": {
+    "archive_read_exit": 0,
+    "conclusion": "failure",
+    "failed_jobs": [
+      {
+        "completed_at": "2026-11-21T00:23:37Z",
+        "conclusion": "failure",
+        "failed_steps": [
+          {
+            "conclusion": "failure",
+            "name": "Run suites",
+            "number": 10
+          }
+        ],
+        "head_sha": "8f6f09a0a134ddea003074d11330c8c2b695a2f9",
+        "html_url": "https://github.com/just-every/run-spool/actions/runs/44842554668/job/136654869975",
+        "id": 136654869975,
+        "name": "verify (runtime)",
+        "started_at": "2026-11-21T00:16:41Z",
+        "status": "completed"
+      },
+      {
+        "completed_at": "2026-11-21T00:36:58Z",
+        "conclusion": "failure",
+        "failed_steps": [
+          {
+            "conclusion": "failure",
+            "name": "Require every job in this coverage partition",
+            "number": 2
+          }
+        ],
+        "head_sha": "8f6f09a0a134ddea003074d11330c8c2b695a2f9",
+        "html_url": "https://github.com/just-every/run-spool/actions/runs/44842554668/job/136662369583",
+        "id": 136662369583,
+        "name": "shards (spool)",
+        "started_at": "2026-11-21T00:36:54Z",
+        "status": "completed"
+      },
+      {
+        "completed_at": "2026-11-21T00:37:04Z",
+        "conclusion": "failure",
+        "failed_steps": [
+          {
+            "conclusion": "failure",
+            "name": "Require the selected coverage and its proof",
+            "number": 2
+          }
+        ],
+        "head_sha": "8f6f09a0a134ddea003074d11330c8c2b695a2f9",
+        "html_url": "https://github.com/just-every/run-spool/actions/runs/44842554668/job/136662402042",
+        "id": 136662402042,
+        "name": "verify",
+        "started_at": "2026-11-21T00:37:01Z",
+        "status": "completed"
+      }
+    ],
+    "head_sha": "8f6f09a0a134ddea003074d11330c8c2b695a2f9",
+    "html_url": "https://github.com/just-every/run-spool/actions/runs/44842554668",
+    "observations": [
+      {
+        "conclusion": null,
+        "event": "push",
+        "head_branch": "cloud/sd-spool-rer-pin-126-1",
+        "head_sha": "8f6f09a0a134ddea003074d11330c8c2b695a2f9",
+        "html_url": "https://github.com/just-every/run-spool/actions/runs/44842554668",
+        "id": 44842554668,
+        "name": "Verify",
+        "observed_utc": "2026-11-21T00:15:42Z",
+        "status": "in_progress"
+      },
+      {
+        "conclusion": null,
+        "head_sha": "8f6f09a0a134ddea003074d11330c8c2b695a2f9",
+        "html_url": "https://github.com/just-every/run-spool/actions/runs/44842554668",
+        "observed_utc": "2026-11-21T00:20:51Z",
+        "status": "in_progress"
+      },
+      {
+        "conclusion": null,
+        "head_sha": "8f6f09a0a134ddea003074d11330c8c2b695a2f9",
+        "html_url": "https://github.com/just-every/run-spool/actions/runs/44842554668",
+        "observed_utc": "2026-11-21T00:25:57Z",
+        "status": "in_progress"
+      },
+      {
+        "conclusion": null,
+        "head_sha": "8f6f09a0a134ddea003074d11330c8c2b695a2f9",
+        "html_url": "https://github.com/just-every/run-spool/actions/runs/44842554668",
+        "observed_utc": "2026-11-21T00:30:57Z",
+        "status": "in_progress"
+      },
+      {
+        "conclusion": null,
+        "head_sha": "8f6f09a0a134ddea003074d11330c8c2b695a2f9",
+        "html_url": "https://github.com/just-every/run-spool/actions/runs/44842554668",
+        "observed_utc": "2026-11-21T00:35:57Z",
+        "status": "in_progress"
+      },
+      {
+        "conclusion": "failure",
+        "head_sha": "8f6f09a0a134ddea003074d11330c8c2b695a2f9",
+        "html_url": "https://github.com/just-every/run-spool/actions/runs/44842554668",
+        "observed_utc": "2026-11-21T00:40:57Z",
+        "status": "completed"
+      }
+    ],
+    "reproduced_at": "tests/setup-prerequisites.mjs:53",
+    "reproduced_cause": "operator guide revision differs from refreshed Base copy record",
+    "run_id": 44842554668,
+    "runtime_failure": "Owner runtime journey failed; private runtime details withheld",
+    "status": "completed"
+  },
+  "product_head": "2681b8aa457a70c154e8012b6080c055c756a2cc",
+  "repository": "just-every/run-spool"
+}
