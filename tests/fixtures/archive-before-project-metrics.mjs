@@ -2,9 +2,10 @@ import {beforeSentryRoster} from './archive-before-sentry-roster.mjs';
 // Earlier fixtures describe the actual native inventory before metric alerts.
 export function beforeProjectMetrics(manifest){
  beforeSentryRoster(manifest);
- const added=['0106_project_metric_alerts.sql','0107_sentry_transactions.sql','0108_alert_notify_targets.sql'];
- if(manifest.migrations)manifest.migrations=manifest.migrations.filter(name=>!added.includes(name));
- if(manifest.migrationLedger)manifest.migrationLedger={...manifest.migrationLedger,entries:manifest.migrationLedger.entries.filter(entry=>!added.includes(entry.name))};
+ // The fixture predates all migrations from 0106 through the setup and key changes.
+ const added=name=>Number(name.split('_',1)[0])>=106;
+ if(manifest.migrations)manifest.migrations=manifest.migrations.filter(name=>!added(name));
+ if(manifest.migrationLedger)manifest.migrationLedger={...manifest.migrationLedger,entries:manifest.migrationLedger.entries.filter(entry=>!added(entry.name))};
  manifest.tables=manifest.tables.filter(table=>table.name!=='sentry_transactions').map(table=>table.name==='alerts'?{
   ...table,sql:table.sql.replace('issue TEXT REFERENCES issues(id)','issue TEXT NOT NULL REFERENCES issues(id)').replace(", CHECK((kind='metric' AND issue IS NULL) OR (kind<>'metric' AND issue IS NOT NULL))",''),
   columns:table.columns.map(column=>column.name==='issue'?{...column,notnull:1}:column)

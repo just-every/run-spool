@@ -27,7 +27,11 @@ export function ruleConfig(value:any):RuleConfig {
  if(value.metric==='session_percent'&&(f.level!==undefined||Object.keys(f.tags??{}).length))throw new Error('Sessions have no event severity or tag attribution; choose environment and release filters');
  return {metric:value.metric,filters:tags?{...f,tags}:f,tagKeys:[...value.tagKeys].sort(),...interval!==undefined?{actionIntervalMinutes:interval}:{}};
 }
-const levelRank=(level:string)=>`CASE ${level} WHEN 'debug' THEN 10 WHEN 'info' THEN 20 WHEN 'log' THEN 20 WHEN 'warning' THEN 30 WHEN 'error' THEN 40 WHEN 'fatal' THEN 50 END`;
+// Sentry's exported numeric levels also drive the native severity comparison.
+const infoLevel = 20;
+export const sentryEventLevels = { 10: 'debug', [infoLevel]: 'info', 30: 'warning', 40: 'error', 50: 'fatal' } as const;
+const rankCases = Object.entries(sentryEventLevels).map(([rank,name])=>`WHEN '${name}' THEN ${rank}`).join(' ');
+const levelRank=(level:string)=>`CASE ${level} ${rankCases} WHEN 'log' THEN ${infoLevel} END`;
 // Severity and tag conditions read from a stored configuration expression, so
 // spike, preview and intake admission evaluate one definition. Tag keys reach
 // SQL only through json_quote of the configuration's own key; no LIKE pattern

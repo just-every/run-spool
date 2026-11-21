@@ -11,10 +11,10 @@ export async function boundedJson(request,limit) {
   try{return JSON.parse(new TextDecoder('utf-8',{fatal:true}).decode(bytes));}catch{throw new PortabilityError('invalid_json');}
 }
 const json=(value,status=200)=>new Response(JSON.stringify(value),{status,headers:{'Content-Type':'application/json','Cache-Control':'no-store'}});
-export async function createPortabilityHandler({db,buckets,policy,migrations,appOrigin,basePath='/api/portability',authorize,maxBodyBytes=MAX_LINE_BYTES}) {
+export async function createPortabilityHandler({db,buckets,policy,migrations,migrationHistory,appOrigin,basePath='/api/portability',authorize,maxBodyBytes=MAX_LINE_BYTES}) {
   insist(typeof authorize==='function' && new URL(appOrigin).origin===appOrigin,'invalid_handler_configuration');
   insist(/^\/[A-Za-z0-9/_-]+$/.test(basePath) && !basePath.endsWith('/') && Number.isSafeInteger(maxBodyBytes) && maxBodyBytes>0,'invalid_handler_configuration');
-  const service=await createPortability({db,buckets,policy,migrations});
+  const service=await createPortability({db,buckets,policy,migrations,migrationHistory});
   return async request=>{
     const url=new URL(request.url);
     if(url.pathname!==basePath && !url.pathname.startsWith(basePath+'/'))return null;

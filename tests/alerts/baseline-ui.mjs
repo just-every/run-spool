@@ -1,3 +1,4 @@
+import {openAlertDetails} from '../navigation.mjs';
 import assert from 'node:assert/strict';
 import {mkdir} from 'node:fs/promises';
 import {nativeAlertRuntime} from './native-runtime.mjs';
@@ -20,8 +21,8 @@ export async function baselineUI(browser){
      assert.ok(target,'the target issue has its completed-window decision');const reason=JSON.parse(target.reason);
      assert.equal(reason.fired,name==='burst','normal target is withheld and burst target fires');
      await page.goto(`${app.origin}/projects/${project}/alerts`);
-     await page.getByRole('button',{name:'Rules',exact:true}).click();
-     const recorded=page.locator('details').filter({has:page.locator('summary').filter({hasText:/^Recorded window decisions/})});
+     await page.getByRole('button',{name:'Rules',exact:true}).click();await openAlertDetails(page);
+     const recorded=page.locator('.alert-rules details').filter({has:page.locator('summary').filter({hasText:/^Recorded window decisions/})});
      await recorded.locator(':scope > summary').click();
      const sample=recorded.locator(':scope > ul > li').filter({hasText:issue.short_id});
      await sample.locator('details > summary').filter({hasText:/^Decision details/}).click();

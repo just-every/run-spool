@@ -1,3 +1,4 @@
+import { ensureObjectInventory } from './object-inventory.mjs';
 import { ensureImportLeases } from './import-lease.mjs';
 import { policy, catalogue } from './catalogue.mjs';
 import { wireDatabase } from '../d1-transport/index.mjs';
@@ -11,13 +12,13 @@ export { readArchive, makePart, MAX_LINE_BYTES, MAX_PART_BYTES } from './format.
 export { canonicalJson, sha256 } from './hash.mjs';
 export { PortabilityError } from './storage.mjs';
 export { createPortabilityHandler } from './http.mjs';
-export async function createPortability({db,buckets={},policy:input,migrations,onExport,migrationRoot}) {
+export async function createPortability({db,buckets={},policy:input,migrations,migrationHistory,onExport,migrationRoot}) {
   insist(onExport===undefined || typeof onExport==='function','invalid_on_export');
   db=wireDatabase(db);
-  const config=policy(input);await catalogue(db,config);
+  const config=policy(input);await ensureObjectInventory(db);await catalogue(db,config);
   for(const name of Object.keys(config.buckets))insist(buckets[name] && typeof buckets[name].get==='function','missing_bucket:'+name);
   await ensureImportLeases(db);
-  const context={db,buckets,config,migrations,onExport};
+  const context={db,buckets,config,migrations,migrationHistory,onExport};
   const importContext={...context,inputPolicy:input};
   const {lookup,actor,...imports}=libraryImports(importContext,{
     active:actor=>activeImport(importContext,actor),

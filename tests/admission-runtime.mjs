@@ -1,3 +1,4 @@
+import { splitStatements } from '../src/modules/portability/sql-text.mjs';
 import {registerLegacyMail} from './legacy-mail.mjs';
 import { createRequire } from 'node:module';
 import { mkdtemp, readFile, readdir, rm, writeFile } from 'node:fs/promises';
@@ -10,7 +11,6 @@ import { emittedWorkerOptions } from './worker-options.mjs';
 const require = createRequire(import.meta.url);
 const miniflare = require(require.resolve('miniflare', {paths: [require.resolve('wrangler/package.json')]}));
 const {Miniflare, convertV4MiniflareOptions, Log, LogLevel} = miniflare;
-const {unstable_splitSqlQuery} = require('wrangler');
 export async function freePort() {
  const server = createServer();
  await new Promise(resolve => server.listen(0, '127.0.0.1', resolve));
@@ -63,7 +63,7 @@ export default {...application,async scheduled(event,env,ctx){try{return await a
   const db = await worker.getD1Database(database.binding);registerLegacyMail(origin,db);
   for (const file of files) {
    const sql = await readFile(resolve('migrations/core', file), 'utf8');
-   const queries = unstable_splitSqlQuery(sql).filter(sql => !/^PRAGMA foreign_keys\s*=\s*ON;?$/i.test(sql.trim()));
+   const queries = splitStatements(sql).filter(sql => !/^PRAGMA foreign_keys\s*=\s*ON;?$/i.test(sql.trim()));
    await db.batch(queries.map(sql => db.prepare(sql)));
   }
  };

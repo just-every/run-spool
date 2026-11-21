@@ -4,7 +4,8 @@ import { pathToFileURL } from 'node:url';
 import { resolve } from 'node:path';
 import { startTestWorker } from './worker.mjs';
 import { freePort } from './admission-runtime.mjs';
-import { signIn } from './auth.mjs';
+import { openGate, signIn } from './auth.mjs';
+import { launchBrowser } from './browser-launch.mjs';
 
 const eventId = () => randomUUID().replaceAll('-', '');
 const envelope = (items, header = {}) => JSON.stringify(header) + '\n' + items.map(value => {
@@ -15,7 +16,7 @@ const count = (rows, reason) => rows.filter(row => row.reason === reason).reduce
 
 // Constructed envelopes qualify conversion isolation at current transport bounds;
 // the unmodified SDK journey remains the separate SDK reconciliation proof.
-export async function sentryInvalidEventFlow({ req, json, worker }) {
+export async function sentryInvalidEventFlow({ req, json, worker, cookie }) {
  const project = await json('/api/projects', 'POST', { id: 'invalid-events', name: 'Event conversion isolation' });
  const root = '/api/projects/' + project.id, dsn = new URL(project.dsn);
  const path = `/api${dsn.pathname}/envelope/?sentry_key=${dsn.username}&sentry_version=7`;
@@ -155,6 +156,91 @@ export async function sentryInvalidEventFlow({ req, json, worker }) {
  assert.equal((await send([cases[1][1](), makeEvent()])).status, 401);
  assert.deepEqual(await outcomes(), beforeRevoked); assert.deepEqual(await state(), populated);
  console.log('PROBE SDK-011 authority: invalid, foreign and revoked grants and denied origin -> no companions admitted or conversion refusals attributed');
+ await sentryUnknownFrameFlow({ req, json, origin: worker.origin, cookie });
+}
+
+async function sentryUnknownFrameFlow({ req, json, origin, cookie }) {
+ const project = await json('/api/projects', 'POST', { id: 'synthetic-spool-s7', name: 'Synthetic S7 capture' });
+ const dsn = new URL(project.dsn), root = '/api/projects/' + project.id;
+ const intake = `/api${dsn.pathname}/envelope/?sentry_key=${dsn.username}&sentry_version=7`;
+ const browserEvent = {
+  platform: 'javascript', sdk: { name: 'sentry.javascript.browser', version: '11.14.0' },
+ };
+ const location = { function: 'checkout', lineno: 12, colno: 4, in_app: true };
+ const send = async (frame, metadata = browserEvent) => {
+  const id = eventId();
+  const event = { ...metadata, event_id: id, exception: { values: [
+   { type: 'TypeError', value: 'Synthetic checkout failure', stacktrace: { frames: [frame] } },
+  ] } };
+  const response = await req(intake, 'POST', envelope([event], { event_id: id }), { Cookie: '' });
+  assert.equal(response.status, 200);
+  return { id, receipt: await response.json() };
+ };
+ const capture = async (frame, metadata) => {
+  const { id, receipt } = await send(frame, metadata);
+  assert.equal(receipt.id, id, 'the intake receipt identifies the stored occurrence');
+  return id;
+ };
+ const first = await capture({ ...location, filename: '' });
+ const other = await capture({ ...location, filename: '', function: 'refund' });
+ const equivalent = await capture({ ...location, abs_path: '' });
+ const { receipt } = await send({ ...location, filename: '\u0000' });
+ assert.deepEqual(receipt.dropped, { invalid_item: 1 }, 'a malformed JavaScript path still counts as a refusal');
+ assert.equal(receipt.id, undefined);
+
+ const issues = await json(root + '/issues');
+ assert.deepEqual(issues.map(issue => issue.count).sort(), [1, 2], 'only equivalent failures group together');
+ const [checkout, refund] = [2, 1].map(count => issues.find(issue => issue.count === count).id);
+ const events = issue => root + '/issues/' + issue + '/events';
+ const checkoutRows = (await json(events(checkout))).rows;
+ assert.deepEqual(checkoutRows.map(row => row.id).sort(), [first, equivalent].sort());
+ assert.deepEqual((await json(events(refund))).rows.map(row => row.id), [other]);
+ const detail = async (issue, row, suffix = '') =>
+  json(events(issue) + '/' + row.id + suffix + '?' + new URLSearchParams({ occurrence: row.occurrence, exception: '0' }));
+ for (const row of checkoutRows) {
+  const stored = await detail(checkout, row);
+  assert.deepEqual(stored.event.sentry.exceptions[0].stacktrace.frames, [location]);
+  assert.deepEqual(stored.event.frames, [], 'an unknown location never enters the admission map lookup');
+  const mapped = await detail(checkout, row, '/mapped-frames');
+  assert.deepEqual(mapped.rows, [{ exceptionIndex: 0, frameIndex: 0, status: 'missing_position',
+   generated: { file: '<unlocated>', line: 12, column: 3, function: 'checkout' } }]);
+ }
+
+ const filename = '/HOME/synthetic-spool-user/checkout.py';
+ const pythonPath = '/HOME/[user]/checkout.py';
+ const javaScriptFrame = { ...location, platform: 'javascript', filename: '/HOME/cache/checkout.js' };
+ const pythonFrame = { filename, function: 'checkout', lineno: 12 };
+ for (const [frame, metadata, expected] of [
+  [pythonFrame, { platform: 'python' }, pythonPath],
+  [pythonFrame, { sdk: { name: 'sentry.python.django' } }, pythonPath],
+  [{ ...location, filename, platform: 'python' }, browserEvent, pythonPath],
+  [javaScriptFrame, { platform: 'python' }, javaScriptFrame.filename],
+ ]) {
+  const id = await capture(frame, metadata);
+  const retained = await json(root + '/issues');
+  const lists = await Promise.all(retained.map(async issue => ({ issue: issue.id, rows: (await json(events(issue.id))).rows })));
+  const matching = lists.find(list => list.rows.some(row => row.id === id));
+  assert.ok(matching, 'the path control is listed under its issue');
+  const stored = await detail(matching.issue, matching.rows.find(row => row.id === id));
+  assert.deepEqual(stored.event.sentry.exceptions[0].stacktrace.frames, [{ ...frame, filename: expected }]);
+ }
+ const outcomes = (await json(root + '/outcomes')).rows;
+ assert.equal(count(outcomes, 'accepted'), 7);
+ assert.equal(count(outcomes, 'invalid_item'), 1);
+
+ const browser = await launchBrowser();
+ try {
+  const context = await browser.newContext({ viewport: { width: 1440, height: 900 } });
+  await openGate(context, origin);
+  await context.addCookies(cookie.split('; ').map(pair => ({
+   name: pair.slice(0, pair.indexOf('=')), value: pair.slice(pair.indexOf('=') + 1), url: origin,
+  })));
+  const page = await context.newPage();
+  const query = new URLSearchParams({ occurrence: checkoutRows.find(row => row.id === first).occurrence });
+  await page.goto(origin + '/projects/' + project.id + '/issues/' + checkout + '?' + query);
+  await page.getByText('<unlocated>:12:4 · checkout', { exact: true }).waitFor();
+ } finally { await browser.close(); }
+ console.log('PROBE S7: empty and absent paths survive in issue API and UI, distinct functions group separately, malformed paths are refused, and platform path rules still apply.');
 }
 
 if (process.argv[1] && import.meta.url === pathToFileURL(resolve(process.argv[1])).href) {
@@ -165,7 +251,7 @@ if (process.argv[1] && import.meta.url === pathToFileURL(resolve(process.argv[1]
    Origin: origin, Cookie: cookie, ...body !== undefined ? { 'Content-Type': 'application/json' } : {}, ...headers,
   }, ...body !== undefined ? { body: typeof body === 'string' ? body : JSON.stringify(body) } : {} });
   const json = async (...args) => { const response = await req(...args); assert.ok(response.ok, `${args[0]}: HTTP ${response.status}`); return response.json(); };
-  await sentryInvalidEventFlow({ req, json, worker });
+  await sentryInvalidEventFlow({ req, json, worker, cookie });
   console.log('Sentry invalid-event HTTP journey passed.');
  } finally { await worker.stop(); }
 }

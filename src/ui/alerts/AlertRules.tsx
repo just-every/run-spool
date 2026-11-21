@@ -103,7 +103,7 @@ export function AlertRules({ project, rules, destinations, refresh }: Props) {
    <strong>{rule.name}</strong><p>{ruleSummary(rule,destinations.find(destination=>destination.id===rule.destination))}</p>
    {!rule.enabled && needsTest(destinations.find(d => d.id === rule.destination)) && <p className="callout">This destination needs a passing test and your review before this rule can be enabled.</p>}
    <Details title={`Rule ${rule.name}`}><p>{ruleSummary(rule,destinations.find(destination=>destination.id===rule.destination))}.</p></Details>
-  </div><button className="text-button" disabled={!!busy} onClick={() => edit(rule)}>Edit {rule.name}</button></li>)}</ul>
+  </div><button className="text-button" aria-label={`Edit rule ${rule.name}`} disabled={!!busy} onClick={() => edit(rule)}>Edit</button></li>)}</ul>
   <RuleDecisions project={project} rules={rules}/><h3>{editing ? 'Edit rule' : 'Create rule'}</h3>
   <form className="form-grid" onSubmit={e => { e.preventDefault(); const action = (e.nativeEvent as SubmitEvent).submitter?.getAttribute('value'); void (action === 'preview' ? sample() : save()); }}>
    <Field label="Rule name" required maxLength={100} value={name} disabled={!!busy} onChange={e => change({ name: e.target.value })}/>

@@ -27,7 +27,7 @@ const publicCodes = new Set(`
  upgrade_row_must_be_pure virtual_table wrong_product
  unauthenticated forbidden owner_required authority_changed step_up_required rate_limited operation_failed
 `.trim().split(/\s+/));
-const publicCode = code => typeof code === 'string' && publicCodes.has(code.split(':')[0]) ? code.split(':')[0] : 'operation_failed';
+const publicCode = code => code === 'schema_mismatch:owner_migration_history' ? code : typeof code === 'string' && publicCodes.has(code.split(':')[0]) ? code.split(':')[0] : 'operation_failed';
 
 // Public errors use the existing {error:code} vocabulary. Native messages can
 // contain SQL, row values or credentials; inspect causes only to choose status.

@@ -51,6 +51,7 @@ export async function testDestination(env:AlertEnvironment,session:NativeAuthori
  return {id:testId,state,message:detail};
 }
 export async function reviewTest(env:AlertEnvironment,session:NativeAuthority,project:string,id:string,testId:string){
- const result=await ownerBatch(env.DB,session,[s(env.DB,`UPDATE alert_destination_tests SET reviewed_at=? WHERE project=? AND destination=? AND id=? AND state='passing' RETURNING id`,Date.now(),project,id,testId),auditCommit(env.DB,'changes()>0')]);
- if(!result[0].results.length)throw new Error('A current passing test is required');return {reviewed:true};
+ const reviewedAt=Date.now();
+ const result=await ownerBatch(env.DB,session,[s(env.DB,`UPDATE alert_destination_tests SET reviewed_at=? WHERE project=? AND destination=? AND id=? AND state='passing' RETURNING id`,reviewedAt,project,id,testId),auditCommit(env.DB,'changes()>0')]);
+ if(!result[0].results.length)throw new Error('A current passing test is required');return {reviewed:true,reviewedAt};
 }

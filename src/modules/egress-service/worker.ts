@@ -1,4 +1,4 @@
-import module from './tls/egress.wasm';
+import module from './tls/spool-egress.ts';
 import { rustls } from './rustls.ts';
 import { connect } from 'cloudflare:sockets';
 import { dohResolver } from './doh.ts';

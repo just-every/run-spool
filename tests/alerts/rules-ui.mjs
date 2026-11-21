@@ -1,3 +1,4 @@
+import {openAlertDetails} from '../navigation.mjs';
 import assert from 'node:assert/strict';
 import { mkdir } from 'node:fs/promises';
 
@@ -13,7 +14,7 @@ export async function rulesUI(page, app, width) {
  }
  await app.db.batch(ids.map(id=>app.db.prepare('UPDATE events SET received=? WHERE project=? AND id=?').bind(Math.floor(Date.now()/300000)*300000-300000+100,'web',id)));
 
- await page.getByRole('button', { name: 'Rules', exact: true }).click();
+ await page.getByRole('button', { name: 'Rules', exact: true }).click();await openAlertDetails(page);
  const discard = page.getByRole('button', { name: 'Discard edit', exact: true });
  if (await discard.isVisible()) {
   page.once('dialog', dialog => dialog.accept());
@@ -76,14 +77,14 @@ export async function rulesUI(page, app, width) {
  const saved = await savedResponse;
  assert.ok(saved.ok(), `Filtered rule save failed (${saved.status()})`);
  assert.equal(saved.request().postDataJSON().previewToken, accepted.preview.token);
- await page.getByRole('button', { name: `Edit ${name}`, exact: true }).waitFor();
+ await page.getByRole('button', { name: `Edit rule ${name}`, exact: true }).waitFor();
  let rule = (await app.json(base + '/rules')).find(row => row.name === name);
  assert.ok(rule);
  assert.equal(rule.enabled, 1);
  const config = typeof rule.config === 'string' ? JSON.parse(rule.config) : rule.config;
  assert.deepEqual(config, { metric: 'count', filters: { environment: 'fixture', level: 'error', release: '', tags: { tenant: 'acme' } }, tagKeys: ['tenant'] });
  // Editing must restore every filter, and disabled drafts remain saveable without a token.
- await page.getByRole('button', { name: `Edit ${name}`, exact: true }).click();
+ await page.getByRole('button', { name: `Edit rule ${name}`, exact: true }).click();
  assert.equal(await page.getByLabel('Environment', { exact: true }).inputValue(), 'fixture');
  assert.equal(await page.getByLabel('Severity', { exact: true }).inputValue(), 'error');
  assert.equal(await page.getByLabel('Release filter', { exact: true }).inputValue(), 'none');
