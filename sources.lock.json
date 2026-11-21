@@ -5462,7 +5462,7 @@
       "executable": false
     },
     "src/auth/local-identity.server.mjs": {
-      "sha256": "f3188622893c361d378b227e5f7db649cc3bb81f4a7d7a11ece009bb91fb3e03",
+      "sha256": "97e0892291f738b7c7a52e31673ebbd1ca4bd8b176dc89ef21c646bccffbc431",
       "executable": false
     },
     "src/auth/local-members.server.ts": {
@@ -11294,7 +11294,7 @@
       "executable": false
     },
     "tests/dev-credentials.mjs": {
-      "sha256": "c96d089d27f0f2c261eee2e1828706b77ff530cb2ef7f92079539aaf898e3f90",
+      "sha256": "5778a9ff9a57992f93c5718d8549cd4173a28dc6e450b7782262bca0d9ca8ec9",
       "executable": false
     },
     "tests/discussion-flow.mjs": {

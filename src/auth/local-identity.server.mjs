@@ -13,8 +13,9 @@ import { hashToken, opaqueToken } from '../modules/operator-auth/crypto.mjs';
 import { readCookie, sessionCookie, isLoopbackHost } from '../modules/operator-auth/http.mjs';
 import { safeReturnTo } from '../modules/operator-auth/policy.mjs';
 import { isActiveOperator, emailAllowed, defaultRolePolicy } from '../modules/operator-auth/accounts/roles.mjs';
-import { devGate, devNotFound } from '../modules/operator-auth/dev-gate.mjs';
+import { DEV_KEY_HEADER, devGate, devNotFound } from '../modules/operator-auth/dev-gate.mjs';
 import { registerDevAdmission } from '../modules/operator-auth/dev-admission.mjs';
+import { personaSessions, redeemPersona } from '../modules/operator-auth/dev/persona-entry.mjs';
 import { definePersonas } from '../modules/operator-auth/dev/personas.mjs';
 import { cliSession } from '../modules/operator-auth/dev/cli-session.mjs';
 import { signInRefusal } from '../modules/operator-auth/dev/refusal.mjs';
@@ -24,6 +25,7 @@ import { oneClickPage } from '../modules/operator-auth/signin/one-click.mjs';
 
 export const DEV_LAYER_MARKER = 'rer-dev-layer:local-only-never-deploy';
 const headers = { 'cache-control': 'no-store', 'referrer-policy': 'no-referrer', 'x-content-type-options': 'nosniff', 'x-robots-tag': 'noindex, nofollow', 'x-rer-dev-layer': DEV_LAYER_MARKER };
+const authErrorResponse = error => Response.json({ error: error.code }, { status: error.status, headers });
 const text = (status, body) => new Response(body, { status, headers: { ...headers, 'content-type': 'text/plain; charset=utf-8' } });
 
 // RER Managed sets RER_INSTALLATION_ID with its management origin. Dev identity
@@ -53,10 +55,37 @@ export function withDevIdentity(worker, { bindings = env => env, config: authCon
       }
       const gate = devGate({ key: env.RER_DEV_KEY, origin: env.AUTH_ORIGIN, local: env.AUTH_LOCAL === 'true' });
       await prepareLocalMemberRequest(request, env);
-      registerDevAdmission(gate && env.RER_DEV_IDENTITY !== 'off' ? async r =>
-        await gate.admitsSession(r) || await localMemberAdmission(r, env) : null);
+      const scoped = gate && env.RER_DEV_IDENTITY !== 'off' ? personaSessions(env.RER_DEV_KEY, env.AUTH_ORIGIN) : null;
+      registerDevAdmission(scoped ? async (r, sessionId) =>
+        await gate.admitsSession(r) ||
+        (typeof sessionId === 'string' && !r.headers.has(DEV_KEY_HEADER) && await scoped.admits(r, sessionId)) ||
+        await localMemberAdmission(r, env) : null);
       const path = new URL(request.url).pathname;
-      if (path === '/__dev/key') return gate ? gate.exchange(request, authConfig(env).branding) : devNotFound();
+      if (path === '/__dev/key') {
+        if (!gate) return devNotFound();
+        return gate.exchange(request, authConfig(env).branding, {
+          redeemPersona: scoped ? grant => redeemPersona(request, grant, {
+            key: env.RER_DEV_KEY, origin: env.AUTH_ORIGIN, context: () => identity(env, authConfig, declared),
+            async enter(context) {
+              // One-click admission is a GET behind the key. Keep that key inside
+              // the Worker and issue only the cookie for the selected session.
+              const entryHeaders = new Headers({ host: new URL(request.url).host, [DEV_KEY_HEADER]: env.RER_DEV_KEY });
+              if (request.headers.has('cookie')) entryHeaders.set('cookie', request.headers.get('cookie'));
+              const entry = new Request(request.url, { headers: entryHeaders });
+              try {
+                const listed = await context.list(entry);
+                if (!listed.some(({ as, email }) => as === grant.as && (email ?? null) === grant.email)) {
+                  throw new AuthError('not_found', 404);
+                }
+                return await enter(entry, gate, context, { grant, scoped });
+              } catch (error) {
+                if (error instanceof AuthError) return authErrorResponse(error);
+                throw error;
+              }
+            },
+          }) : undefined,
+        });
+      }
       if (path === '/signin' && gate && env.RER_DEV_IDENTITY !== 'off' && ['GET', 'HEAD'].includes(request.method)) {
         if (!await gate.admits(request)) return new Response(null, { status: 303, headers: { ...headers, location: '/__dev/key' } });
         const context = identity(env, authConfig, declared);
@@ -81,7 +110,7 @@ export function withDevIdentity(worker, { bindings = env => env, config: authCon
               status: error.status,
               message: 'This account can no longer use this sign-in link. Choose an available account, or ask an owner or administrator to restore its access.',
             }));
-            return rejectedResponse(request, Response.json({ error: error.code }, { status: error.status, headers }));
+            return rejectedResponse(request, authErrorResponse(error));
           }
           throw error;
         }
@@ -138,27 +167,32 @@ function identity(env, authConfig, declared) {
   };
 }
 
-async function enter(request, gate, { config, store, hash, current, everyone, ownerProof, auth }) {
+async function enter(request, gate, { config, store, hash, current, everyone, ownerProof, auth }, scope) {
   if (request.method !== 'GET') return text(405, 'Method not allowed');
-  const url = new URL(request.url), as = url.searchParams.get('as') ?? 'owner';
+  const url = new URL(request.url), as = scope?.grant.as ?? url.searchParams.get('as') ?? 'owner';
+  const returnTo = scope ? '/app' : url.searchParams.get('returnTo');
   const reply = new Headers(headers);
   // A harness presenting the key header also receives the browser cookie.
-  if (!(request.headers.get('cookie') ?? '').includes(`${gate.cookieName}=`)) reply.append('set-cookie', await gate.setCookie());
+  if (!scope && !(request.headers.get('cookie') ?? '').includes(`${gate.cookieName}=`)) reply.append('set-cookie', await gate.setCookie());
+  const complete = async (location, sessionId) => {
+    if (scope && sessionId) reply.append('set-cookie', await scope.scoped.cookie(sessionId, config.sessionSeconds));
+    reply.set('location', location);
+    return new Response(null, { status: 303, headers: reply });
+  };
   const existing = await current(request);
   if (as === 'signed-out') {
     const token = readCookie(request, config);
     if (token) await store.run('UPDATE oa_sessions SET revoked_at=COALESCE(revoked_at,?) WHERE token_hash=?', [Date.now(), await hash(token)]);
     reply.append('set-cookie', sessionCookie('', config, 0));
-    reply.set('location', '/');
-    return new Response(null, { status: 303, headers: reply });
+    return complete('/');
   }
   const oneClick = async email => {
-    const value = await auth.oneClick.enter(request, { as: email, returnTo: url.searchParams.get('returnTo') ?? '/app' });
+    const value = await auth.oneClick.enter(request, { as: email, returnTo: returnTo ?? '/app' });
     reply.append('set-cookie', value.cookie);
-    reply.set('location', value.returnTo);
-    return new Response(null, { status: 303, headers: reply });
+    return complete(value.returnTo, value.session.id);
   };
   const persona = (await everyone()).find(p => p.as === as);
+  if (scope && scope.grant.email !== (persona ? persona.email : as)) throw new AuthError('not_found', 404);
   if (!persona) return oneClick(as);
   if (!persona.email) return text(409, 'No active owner remains in this app. Sign in another way, or run ~/.local/bin/rer reset --yes and ~/.local/bin/rer setup for a new owner.');
   let operator = await store.byEmail(persona.email);
@@ -186,12 +220,13 @@ async function enter(request, gate, { config, store, hash, current, everyone, ow
   });
   const domain = operator.email.slice(operator.email.lastIndexOf('@') + 1);
   if (operator.role !== 'owner' && await store.domainRule(domain)) return text(403, 'Sign-in refused');
+  let sessionId = existing?.id;
   if (existing?.kind !== 'dev' || existing.operator.id !== operator.id) {
     const token = opaqueToken(), session = { id: crypto.randomUUID(), hash: await hash(token), expiresAt: Date.now() + config.sessionSeconds * 1000 };
     const issued = await store.issue({ operatorId: operator.id, expectedVersion: operator.version, session, now: Date.now(), kind: 'dev' });
     if (!issued) return text(409, 'The operator changed while signing in. Try again.');
     reply.append('set-cookie', sessionCookie(token, config, config.sessionSeconds));
+    sessionId = session.id;
   }
-  reply.set('location', safeReturnTo(url.searchParams.get('returnTo')));
-  return new Response(null, { status: 303, headers: reply });
+  return complete(safeReturnTo(returnTo), sessionId);
 }

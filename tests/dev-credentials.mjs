@@ -9,6 +9,7 @@ import {tmpdir} from 'node:os';
 import {resolve} from 'node:path';
 import {authBindings,signIn,testDevKey,testOwner} from './auth.mjs';
 import {migrationEvidence} from './migration-evidence.mjs';
+import {signPersonaGrant} from '../src/modules/operator-auth/dev/persona-grant.mjs';
 
 // Local ingest/deploy grants work with their scoped key alone; dev agent reads need the owner gate. This runs the real
 // local entry (src/server.dev.ts) and the real deployed entry (src/server.ts) over one real migrated D1; only the
@@ -60,7 +61,32 @@ try{
  const ordinaryAgent=await minted(ordinary,'agent');
  for(const target of [local,remote])assert.equal(await status(await target('/api/projects/web/issues',{bearer:ordinaryAgent})),200,'an ordinary agent key is unchanged');
 
- // A dev session needs the key on every request; the deployed entry never admits it.
+ // The running app exchanges the plain key for the gate, or a signed persona for that session alone.
+ const exchange=body=>local('/__dev/key',{method:'POST',body});
+ const cookies=response=>response.headers.getSetCookie().map(line=>line.split(';')[0]).join('; ');
+ const plain=await exchange({key:testDevKey});assert.equal(plain.status,204);
+ const gateCookie=cookies(plain);
+ assert.equal(plain.headers.getSetCookie().length,1);
+ assert.ok(gateCookie.startsWith('rer_dev_gate_'));
+ assert.equal(await status(await local('/auth/session',{cookie:gateCookie})),401,'the plain exchange only opens the gate');
+ const redeem=async(as,email)=>{
+  const grant={as,email,expires:Math.floor(Date.now()/1000)+60};
+  return exchange({persona:{...grant,signature:await signPersonaGrant(testDevKey,origin,grant)}});
+ };
+ const ownerEntry=await redeem('owner',testOwner);
+ assert.equal(ownerEntry.status,200,'the running app redeems the owner link');
+ assert.deepEqual(await ownerEntry.json(),{location:'/app'});
+ const ownerPersona=cookies(ownerEntry);
+ assert.equal((await (await local('/auth/session',{cookie:ownerPersona})).json()).operator.email,testOwner);
+ assert.equal(await status(await local('/api/projects',{cookie:ownerPersona})),200);
+ assert.equal(await status(await local('/__dev/personas',{cookie:ownerPersona})),404,'a persona session cannot list or switch personas');
+ const unknown=await redeem('synthetic-spool-unknown','synthetic-spool-unknown@example.test');
+ assert.equal(unknown.status,404);
+ assert.equal(cookies(unknown),'');
+ assert.deepEqual(await unknown.json(),{error:'not_found'});
+ assert.equal(await status(await redeem('owner','synthetic-spool-unknown@example.test')),404,'the grant must name the listed account');
+
+ // A directly entered dev session needs the key on every request; the deployed entry never admits it.
  const entered=await local('/auth/dev/enter?as=owner',{key:true});assert.equal(entered.status,303);await entered.body?.cancel();
  // The browser also receives the port-named gate cookie (rer_dev_gate_<port>); the session cookie alone is what a request without the key carries.
  const dev=entered.headers.getSetCookie().map(line=>line.split(';')[0]).filter(pair=>!pair.startsWith('rer_dev_gate')).join('; ');
@@ -78,6 +104,19 @@ try{
  assert.equal(await status(await local('/api/organization',{method:'POST',cookie:dev,key:true,body:{id:'synthetic-spool-dev',name:'Synthetic dev team'}})),201);
  const invitation={email:'synthetic-spool-dev@example.test',name:'Synthetic dev invitee',role:'read-only',grants:[{project:'minted',role:'read-only'}]};
  assert.equal(await status(await local('/api/organization/invites',{method:'POST',cookie:dev,key:true,body:invitation})),202);
+ const personaInvite={...invitation,email:'synthetic-spool-persona@example.test',name:'Synthetic persona invitee'};
+ assert.equal(await status(await local('/api/organization/invites',{method:'POST',cookie:dev,key:true,body:personaInvite})),202);
+ const memberEntry=await redeem(personaInvite.email,personaInvite.email);
+ assert.equal(memberEntry.status,200,'the running app redeems a pending invitation by email');
+ assert.deepEqual(await memberEntry.json(),{location:'/app'});
+ const memberPersona=cookies(memberEntry);
+ assert.equal((await (await local('/auth/session',{cookie:memberPersona})).json()).operator.email,personaInvite.email);
+ const memberAccess=await (await local('/api/organization/me',{cookie:memberPersona})).json();
+ assert.equal(memberAccess.role,'read-only');
+ assert.deepEqual(memberAccess.projects.map(row=>row.id),['minted']);
+ assert.equal(await status(await local('/auth/dev/enter?as=owner',{cookie:memberPersona})),404);
+ console.log('Spool persona exchange: owner and pending invitee receive their own sessions; the plain exchange opens the gate only.');
+
  const inviteData=await (await local('/api/organization',{cookie:dev,key:true})).json();
  const inviteLink=inviteData.invites.find(row=>row.localLink)?.localLink;assert.ok(inviteLink);
  const inviteToken=new URL(inviteLink).searchParams.get('token');
