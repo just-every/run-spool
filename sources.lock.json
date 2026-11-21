@@ -11610,7 +11610,7 @@
       "executable": false
     },
     "tests/owner-setup-browser.mjs": {
-      "sha256": "94981d9db79503247854cfc31db6885d311eb9f9d9477180744b53554ef66df7",
+      "sha256": "d9c82add02cab96d0ff7d6325fee40cf199d57929383fab1a1ed90bc26457ac7",
       "executable": false
     },
     "tests/owner-setup-flow.mjs": {
