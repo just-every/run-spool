@@ -1,0 +1,9 @@
+Exact-SHA Verify receipt
+2026-11-21T03:15:26Z discovery
+{"conclusion":null,"head_branch":"cloud/sd-spool-release-0-7-17-c2","head_sha":"512977a936e6bda3f76c3a68e2511e62cb56090d","html_url":"https://github.com/just-every/run-spool/actions/runs/44860146875","id":44860146875,"name":"Verify","run_attempt":1,"status":"in_progress"}
+2026-11-21T03:20:28Z, 03:25:30Z, 03:30:32Z and 03:35:34Z: attempt 1 remained in progress.
+2026-11-21T03:40:36Z: status request rejected with HTTP 401 Bad credentials.
+2026-11-21T03:45:51Z
+Status request after launcher refresh
+{"conclusion":"success","head_sha":"512977a936e6bda3f76c3a68e2511e62cb56090d","html_url":"https://github.com/just-every/run-spool/actions/runs/44860146875","run_attempt":1,"status":"completed"}
+GitHub CLI calls used: 7
