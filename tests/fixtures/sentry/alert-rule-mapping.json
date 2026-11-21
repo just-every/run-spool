@@ -1,0 +1,349 @@
+{
+  "format": "spool-sentry-org-export",
+  "version": 1,
+  "organization": {
+    "id": "synthetic-alert-mapping-org",
+    "slug": "synthetic-alert-mapping-org",
+    "region": "us"
+  },
+  "window": {
+    "start": "2026-02-02T00:00:00Z",
+    "end": "2026-02-03T00:00:00Z"
+  },
+  "omissions": [],
+  "collections": [
+    {
+      "kind": "projects",
+      "project": null,
+      "pages": [
+        {
+          "cursor": null,
+          "nextCursor": null,
+          "response": [
+            {
+              "id": "synthetic-project-1",
+              "name": "Synthetic alert mapping",
+              "slug": "synthetic-alert-mapping",
+              "dateCreated": "2026-02-02T00:00:00Z"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "kind": "releases",
+      "project": null,
+      "pages": [
+        {
+          "cursor": null,
+          "nextCursor": null,
+          "response": []
+        }
+      ]
+    },
+    {
+      "kind": "teams",
+      "project": null,
+      "pages": [
+        {
+          "cursor": null,
+          "nextCursor": null,
+          "response": [
+            {
+              "id": "synthetic-team-1",
+              "slug": "synthetic-oncall",
+              "name": "Synthetic On Call",
+              "dateCreated": "2026-02-02T00:00:00Z",
+              "projects": [
+                {
+                  "slug": "synthetic-alert-mapping"
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "kind": "members",
+      "project": null,
+      "pages": [
+        {
+          "cursor": null,
+          "nextCursor": null,
+          "response": [
+            {
+              "id": "synthetic-member-1",
+              "email": "synthetic-oncall@example.com",
+              "name": "Synthetic Responder",
+              "orgRole": "member",
+              "pending": false,
+              "expired": false,
+              "dateCreated": "2026-02-02T00:00:00Z",
+              "user": {
+                "id": "synthetic-user-1"
+              }
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "kind": "team-members",
+      "project": null,
+      "team": "synthetic-oncall",
+      "pages": [
+        {
+          "cursor": null,
+          "nextCursor": null,
+          "response": [
+            {
+              "id": "synthetic-member-1",
+              "teamRole": "member"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "kind": "rules",
+      "project": "synthetic-alert-mapping",
+      "pages": [
+        {
+          "cursor": null,
+          "nextCursor": null,
+          "response": [
+            {
+              "id": "synthetic-numeric-level",
+              "name": "Synthetic numerical severity",
+              "conditions": [
+                {
+                  "id": "sentry.rules.conditions.first_seen_event.FirstSeenEventCondition"
+                }
+              ],
+              "filters": [
+                {
+                  "id": "sentry.rules.filters.level.LevelFilter",
+                  "level": "40",
+                  "match": "gte"
+                }
+              ],
+              "actions": [],
+              "actionMatch": "all",
+              "filterMatch": "all",
+              "frequency": 5,
+              "dateCreated": "2026-02-02T00:00:00Z"
+            },
+            {
+              "id": "synthetic-reappeared",
+              "name": "Synthetic reappeared issue",
+              "conditions": [
+                {
+                  "id": "sentry.rules.conditions.reappeared_event.ReappearedEventCondition"
+                }
+              ],
+              "filters": [],
+              "actions": [],
+              "actionMatch": "all",
+              "filterMatch": "all",
+              "frequency": 5,
+              "dateCreated": "2026-02-02T00:00:00Z"
+            },
+            {
+              "id": "synthetic-owners",
+              "name": "Synthetic issue owners",
+              "conditions": [
+                {
+                  "id": "sentry.rules.conditions.first_seen_event.FirstSeenEventCondition"
+                }
+              ],
+              "filters": [],
+              "actions": [
+                {
+                  "id": "sentry.mail.actions.NotifyEmailAction",
+                  "targetType": "IssueOwners",
+                  "fallthroughType": "ActiveMembers"
+                }
+              ],
+              "actionMatch": "all",
+              "filterMatch": "all",
+              "frequency": 5,
+              "dateCreated": "2026-02-02T00:00:00Z"
+            },
+            {
+              "id": "synthetic-team",
+              "name": "Synthetic imported team",
+              "conditions": [
+                {
+                  "id": "sentry.rules.conditions.first_seen_event.FirstSeenEventCondition"
+                }
+              ],
+              "filters": [],
+              "actions": [
+                {
+                  "id": "sentry.mail.actions.NotifyEmailAction",
+                  "targetType": "Team",
+                  "targetIdentifier": "synthetic-team-1"
+                }
+              ],
+              "actionMatch": "all",
+              "filterMatch": "all",
+              "frequency": 5,
+              "dateCreated": "2026-02-02T00:00:00Z"
+            },
+            {
+              "id": "synthetic-control",
+              "name": "Synthetic first seen",
+              "conditions": [
+                {
+                  "id": "sentry.rules.conditions.first_seen_event.FirstSeenEventCondition"
+                }
+              ],
+              "filters": [],
+              "actions": [],
+              "actionMatch": "all",
+              "filterMatch": "all",
+              "frequency": 5,
+              "dateCreated": "2026-02-02T00:00:00Z"
+            },
+            {
+              "id": "synthetic-unsupported",
+              "name": "Synthetic unsupported condition",
+              "conditions": [
+                {
+                  "id": "sentry.rules.conditions.event_attribute.EventAttributeCondition"
+                }
+              ],
+              "filters": [],
+              "actions": [],
+              "actionMatch": "all",
+              "filterMatch": "all",
+              "frequency": 5,
+              "dateCreated": "2026-02-02T00:00:00Z"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "kind": "metric_alerts",
+      "project": null,
+      "pages": [
+        {
+          "cursor": null,
+          "nextCursor": null,
+          "response": [
+            {
+              "id": "synthetic-shared",
+              "name": "Synthetic shared threshold destination",
+              "projects": [
+                "synthetic-alert-mapping"
+              ],
+              "dataset": "events",
+              "aggregate": "count()",
+              "timeWindow": 5,
+              "query": "",
+              "thresholdType": 0,
+              "triggers": [
+                {
+                  "label": "critical",
+                  "alertThreshold": 4,
+                  "actions": [
+                    {
+                      "id": "synthetic-critical-action",
+                      "type": "email",
+                      "targetType": "Team",
+                      "targetIdentifier": "synthetic-team-1"
+                    }
+                  ]
+                },
+                {
+                  "label": "warning",
+                  "alertThreshold": 2,
+                  "actions": [
+                    {
+                      "id": "synthetic-warning-action",
+                      "type": "email",
+                      "targetType": "Team",
+                      "targetIdentifier": "synthetic-team-1"
+                    }
+                  ]
+                }
+              ],
+              "resolveThreshold": null,
+              "dateCreated": "2026-02-02T00:00:00Z"
+            },
+            {
+              "id": "synthetic-crash-free",
+              "name": "Synthetic aliased crash-free rate",
+              "projects": [
+                "synthetic-alert-mapping"
+              ],
+              "dataset": "sessions",
+              "aggregate": "percentage(sessions_crashed, sessions) AS _crash_rate_alert_aggregate",
+              "timeWindow": 5,
+              "query": "",
+              "thresholdType": 1,
+              "triggers": [
+                {
+                  "label": "critical",
+                  "alertThreshold": 95,
+                  "actions": []
+                },
+                {
+                  "label": "warning",
+                  "alertThreshold": 99,
+                  "actions": []
+                }
+              ],
+              "resolveThreshold": 99.5,
+              "dateCreated": "2026-02-02T00:00:00Z"
+            },
+            {
+              "id": "synthetic-transaction",
+              "name": "Synthetic transaction wildcard",
+              "projects": [
+                "synthetic-alert-mapping"
+              ],
+              "dataset": "transactions",
+              "aggregate": "p95(transaction.duration)",
+              "timeWindow": 5,
+              "query": "transaction:/v1/*",
+              "thresholdType": 0,
+              "triggers": [
+                {
+                  "label": "critical",
+                  "alertThreshold": 4,
+                  "actions": []
+                }
+              ],
+              "resolveThreshold": null,
+              "dateCreated": "2026-02-02T00:00:00Z"
+            },
+            {
+              "id": "synthetic-http-status",
+              "name": "Synthetic HTTP status wildcard",
+              "projects": [
+                "synthetic-alert-mapping"
+              ],
+              "dataset": "events",
+              "aggregate": "count()",
+              "timeWindow": 5,
+              "query": "http.status_code:5*",
+              "thresholdType": 0,
+              "triggers": [
+                {
+                  "label": "critical",
+                  "alertThreshold": 4,
+                  "actions": []
+                }
+              ],
+              "resolveThreshold": null,
+              "dateCreated": "2026-02-02T00:00:00Z"
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

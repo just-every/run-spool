@@ -1,3 +1,4 @@
+import {splitStatements} from '../src/modules/portability/sql-text.mjs';
 import {registerLegacyMail} from './legacy-mail.mjs';
 import assert from 'node:assert/strict';
 import {createRequire} from 'node:module';
@@ -50,7 +51,6 @@ export async function startTestWorker(port, bindings={}, {beforeMigration,deferM
   try {
    const db=await native.getD1Database(database.binding);registerLegacyMail(origin,db);
    assert.equal((await db.prepare('PRAGMA foreign_keys').first()).foreign_keys,1,'D1 enforces foreign keys');
-   const {unstable_splitSqlQuery}=require('wrangler');
    const allFiles=(await readdir('migrations/core')).filter(file=>file.endsWith('.sql')).sort();
    if(beforeMigration)assert.ok(allFiles.includes(beforeMigration),'upgrade boundary is an actual migration');
    if(deferMigration)assert.ok(allFiles.includes(deferMigration),'deferred feature migration is actual');
@@ -62,14 +62,14 @@ export async function startTestWorker(port, bindings={}, {beforeMigration,deferM
    migrate=async name=>{
     assert.ok(allFiles.includes(name),'only an actual migration can be applied');
     const target=await native.getD1Database(database.binding);
-    const queries=unstable_splitSqlQuery(await readFile(resolve('migrations/core',name),'utf8')).filter(sql=>!/^PRAGMA foreign_keys\s*=\s*ON;?$/i.test(sql.trim()));
+    const queries=splitStatements(await readFile(resolve('migrations/core',name),'utf8')).filter(sql=>!/^PRAGMA foreign_keys\s*=\s*ON;?$/i.test(sql.trim()));
     await target.batch(queries.map(sql=>target.prepare(sql)));
    };
    assert.ok(files.length,'Actual core migrations are required');
-   const sql=(await Promise.all(files.map(file=>readFile(resolve('migrations/core',file),'utf8')))).join('\n');
+   const sources=await Promise.all(files.map(file=>readFile(resolve('migrations/core',file),'utf8')));
    // Only this standalone no-op is skipped, after proving enforcement above.
-   // Wrangler's splitter retains complete triggers and quoted semicolons.
-   const queries=unstable_splitSqlQuery(sql).filter(sql=>!/^PRAGMA foreign_keys\s*=\s*ON;?$/i.test(sql.trim()));
+   // Split each migration into complete SQLite statements before batching.
+   const queries=sources.flatMap(splitStatements).filter(sql=>!/^PRAGMA foreign_keys\s*=\s*ON;?$/i.test(sql.trim()));
    await db.batch(queries.map(sql=>db.prepare(sql)));
   }catch(error){error.migration=migrationFailure({status:null,stderr:error?.cause?.message??error?.message});throw error}
   const health=await fetch(origin+'/health');

@@ -1,4 +1,6 @@
+import {openAlertDetails} from './navigation.mjs';
 import {mock} from 'node:test';
+import {expect} from '@playwright/test';
 import {baselineUI} from './alerts/baseline-ui.mjs';
 import {rulesUI} from './alerts/rules-ui.mjs';
 import {deliveryClock,providerSigner} from './alerts/delivery-flow.mjs';
@@ -21,12 +23,28 @@ try {
  for(const width of [1440,390]) {
   app=await alertRuntime(inbox,{now:deliveryClock,extraBindings:{SENDGRID_EVENT_PUBLIC_KEY:provider.key,ALERT_EVENT_PROVENANCE:'fixture'}});const auth=await setup(app);await app.json('/api/projects','POST',{id:'empty-alerts',name:'New storefront'});await app.json('/api/projects/web/alerting/rules','POST',rule('webhook'));
   const context=await browser.newContext({timezoneId:'UTC',viewport:{width,height:900}});await context.clock.setFixedTime(deliveryClock);await context.addCookies([{name:app.cookie.split('=')[0],value:app.cookie.split('=')[1],url:app.origin}]);const page=await context.newPage();page.setDefaultTimeout(20000);page.on('pageerror',e=>errors.push(e.message));
-  await page.goto(app.origin);await (await workbenchLink(page,'Alerts')).click();await page.getByRole('button',{name:'Rules',exact:true}).click();
-  await page.getByRole('combobox',{name:'Project',exact:true}).selectOption('empty-alerts');await page.getByRole('button',{name:'Rules',exact:true}).click();await page.getByText('No destinations yet. Add your first email destination below.').waitFor();await page.screenshot({path:`docs/retained-verification/alert003/destinations-empty-${width}.png`,fullPage:true});await page.getByRole('button',{name:'Delivery log',exact:true}).click();await page.screenshot({path:`docs/retained-verification/alert003/deliveries-empty-${width}.png`,fullPage:true});await page.getByRole('combobox',{name:'Project',exact:true}).selectOption('web');await page.getByRole('button',{name:'Rules',exact:true}).click();
+  await page.goto(app.origin);await (await workbenchLink(page,'Alerts')).click();await page.getByRole('button',{name:'Rules',exact:true}).click();await openAlertDetails(page);
+  await page.getByRole('combobox',{name:'Project',exact:true}).selectOption('empty-alerts');await page.getByRole('button',{name:'Rules',exact:true}).click();await openAlertDetails(page);await page.getByText('No destinations yet. Add your first email destination below.').waitFor();await page.screenshot({path:`docs/retained-verification/alert003/destinations-empty-${width}.png`,fullPage:true});await page.getByRole('button',{name:'Delivery log',exact:true}).click();await page.screenshot({path:`docs/retained-verification/alert003/deliveries-empty-${width}.png`,fullPage:true});await page.getByRole('combobox',{name:'Project',exact:true}).selectOption('web');await page.getByRole('button',{name:'Rules',exact:true}).click();await openAlertDetails(page);
+  if(width===1440){
+   const short=page.getByRole('region',{name:'Add an email alert',exact:true});
+   assert.equal(await short.getByRole('button',{name:'Turn on',exact:true}).isDisabled(),true);
+   await short.getByLabel('Email me at',{exact:true}).fill('synthetic-spool-short@example.test');
+   const tested=page.waitForResponse(response=>new URL(response.url()).pathname.endsWith('/test')&&response.request().method()==='POST');
+   await short.getByRole('button',{name:'Send test email',exact:true}).click();const testResponse=await tested;assert.equal(testResponse.status(),200);assert.equal((await testResponse.json()).state,'passing');
+   await short.getByRole('button',{name:'Turn on',exact:true}).waitFor();
+   await expect(short.getByRole('button',{name:'Turn on',exact:true})).toBeEnabled();
+   await short.getByRole('button',{name:'Turn on',exact:true}).click();
+   await short.getByRole('status').filter({hasText:'Email alert turned on'}).waitFor();
+   const shortDestination=(await app.json('/api/projects/web/alerting/destinations')).rows.find(row=>row.recipient==='synthetic-spool-short@example.test');
+   const shortRule=(await app.json('/api/projects/web/alerting/rules')).find(row=>row.destination===shortDestination.id);
+   assert.ok(shortRule?.enabled,'the short flow persists an enabled native email rule');
+   const shortDest=(await app.json('/api/projects/web/alerting/destinations')).rows.find(row=>row.id===shortRule.destination);
+   assert.ok(shortDest.test.reviewed_at,'Turn on records review of the actual passing test');
+  }
   await page.screenshot({path:`docs/retained-verification/alert003/destinations-initial-${width}.png`,fullPage:true});
   await page.getByLabel('Destination name',{exact:true}).fill(`On call ${width}`);await page.getByLabel('Destination email',{exact:true}).fill(`oncall-${width}@example.com`);await page.getByRole('button',{name:'Add destination',exact:true}).click();
   if(width===1440){
-   const destination=page.locator('.alert-records > li').filter({has:page.getByRole('button',{name:`Edit On call ${width}`,exact:true})});
+   const destination=page.locator('.alert-records > li').filter({has:page.getByRole('button',{name:`Edit destination On call ${width}`,exact:true})});
    assert.equal(await destination.locator('strong').first().innerText(),`On call ${width}`,'The destination uses the name just entered');
    assert.doesNotMatch(await destination.innerText(),/Email route \w+ [A-F0-9]{8}|Member deadline label/i,'Everyday destination details expose no generated routing alias');
   }
@@ -34,29 +52,31 @@ try {
   if(width===1440){
    await page.getByLabel('Rule name',{exact:true}).fill(`Browser mail ${width}`);await page.getByRole('combobox',{name:'Destination',exact:true}).selectOption({label:`On call ${width} · Email`});
    const create=page.getByRole('button',{name:'Create rule',exact:true});assert.ok(await create.isDisabled(),'A passing but unreviewed destination cannot enable a rule');
+   await page.locator('button[aria-describedby]').and(create).waitFor();
    const hint=page.locator('#'+await create.getAttribute('aria-describedby'));assert.equal(await hint.count(),1);assert.match(await hint.innerText(),/review/i);
   }
   await page.getByRole('button',{name:`Review passing test for On call ${width}`,exact:true}).click();
-  await page.getByRole('button',{name:`Edit On call ${width}`,exact:true}).click();await page.getByLabel('Destination email',{exact:true}).fill(`updated-${width}@example.com`);await page.getByRole('button',{name:'Save destination',exact:true}).click();await page.getByText(`Email · updated-${width}@example.com`,{exact:true}).waitFor();
+  await page.getByRole('button',{name:`Edit destination On call ${width}`,exact:true}).click();await page.getByLabel('Destination email',{exact:true}).fill(`updated-${width}@example.com`);await page.getByRole('button',{name:'Save destination',exact:true}).click();await page.getByText(`Email · updated-${width}@example.com`,{exact:true}).waitFor();
   await page.getByRole('button',{name:`Test On call ${width}`,exact:true}).click();await page.getByRole('button',{name:`Review passing test for On call ${width}`,exact:true}).click();await page.screenshot({path:`docs/retained-verification/alert003/passing-${width}.png`,fullPage:true});
-  await page.getByLabel('Rule name',{exact:true}).fill(`Browser mail ${width}`);await page.getByRole('button',{name:'Alert feed',exact:true}).click();await page.getByRole('button',{name:'Rules',exact:true}).click();assert.equal(await page.getByLabel('Rule name',{exact:true}).inputValue(),`Browser mail ${width}`);await page.getByRole('combobox',{name:'Destination',exact:true}).selectOption({label:`On call ${width} · Email`});
+  await page.getByLabel('Rule name',{exact:true}).fill(`Browser mail ${width}`);await page.getByRole('button',{name:'Alert feed',exact:true}).click();await page.getByRole('button',{name:'Rules',exact:true}).click();await openAlertDetails(page);assert.equal(await page.getByLabel('Rule name',{exact:true}).inputValue(),`Browser mail ${width}`);await page.getByRole('combobox',{name:'Destination',exact:true}).selectOption({label:`On call ${width} · Email`});
   if(width===1440){
    const create=page.getByRole('button',{name:'Create rule',exact:true}),previewButton=page.getByRole('button',{name:'Preview rule',exact:true});
    assert.ok(await create.isDisabled());
-   const hint=page.locator('#'+await create.getAttribute('aria-describedby'));assert.equal(await hint.count(),1);
-   assert.ok((await hint.innerText()).toLowerCase().includes((await previewButton.innerText()).toLowerCase()),'A blocked save names the missing preview action after a reviewed test');
+   await expect(create).toHaveAttribute('aria-describedby', /\S+/);
+   const hint=page.locator('#'+await create.getAttribute('aria-describedby'));
+   await expect(hint,'A blocked save names the missing preview action after the reviewed destination refresh').toContainText(await previewButton.innerText());
    const nameBox=await page.getByLabel('Rule name',{exact:true}).locator('..').boundingBox(),eventsBox=await page.getByRole('group',{name:'Alert events',exact:true}).boundingBox();
    assert.ok(Math.abs(nameBox.y-eventsBox.y)<nameBox.height,'Rule fields start alongside alert events without a blank row');
   }
-  await page.getByRole('button',{name:'Preview rule',exact:true}).click();await page.getByRole('region',{name:'Rule preview',exact:true}).waitFor();await page.getByRole('button',{name:'Create rule',exact:true}).click();await page.getByRole('button',{name:`Edit Browser mail ${width}`,exact:true}).waitFor();
-  await page.reload();await (await workbenchLink(page,'Alerts')).click();await page.getByRole('button',{name:'Rules',exact:true}).click();await page.getByRole('button',{name:`Edit Browser mail ${width}`,exact:true}).click();await page.getByLabel('Rule name',{exact:true}).fill(`Updated mail ${width}`);await page.getByRole('button',{name:'Preview rule',exact:true}).click();await page.getByRole('region',{name:'Rule preview',exact:true}).waitFor();await page.getByRole('button',{name:'Save rule',exact:true}).click();await page.getByRole('button',{name:`Edit Updated mail ${width}`,exact:true}).waitFor();
+  await page.getByRole('button',{name:'Preview rule',exact:true}).click();await page.getByRole('region',{name:'Rule preview',exact:true}).waitFor();await page.getByRole('button',{name:'Create rule',exact:true}).click();await page.getByRole('button',{name:`Edit rule Browser mail ${width}`,exact:true}).waitFor();
+  await page.reload();await (await workbenchLink(page,'Alerts')).click();await page.getByRole('button',{name:'Rules',exact:true}).click();await openAlertDetails(page);await page.getByRole('button',{name:`Edit rule Browser mail ${width}`,exact:true}).click();await page.getByLabel('Rule name',{exact:true}).fill(`Updated mail ${width}`);await page.getByRole('button',{name:'Preview rule',exact:true}).click();await page.getByRole('region',{name:'Rule preview',exact:true}).waitFor();await page.getByRole('button',{name:'Save rule',exact:true}).click();await page.getByRole('button',{name:`Edit rule Updated mail ${width}`,exact:true}).waitFor();
   await rulesUI(page,app,width);
   const before=(await app.json('/api/projects/web/alerting/rules')).find(r=>r.name===`Updated mail ${width}`);
-  let currentLabel=`On call ${width}`;for(const nextLabel of [`Operations mailbox ${width}`,`On call ${width}`]){await page.getByRole('button',{name:`Edit ${currentLabel}`,exact:true}).click();await page.getByLabel('Destination name',{exact:true}).fill(nextLabel);await page.getByRole('button',{name:'Save destination',exact:true}).click();await page.getByRole('status').filter({hasText:'Existing rules and queued work continue.'}).waitFor();const kept=(await app.json('/api/projects/web/alerting/rules')).find(r=>r.id===before.id);assert.deepEqual([kept.destination,kept.revision,kept.enabled],[before.destination,before.revision,1]);currentLabel=nextLabel;}
-  await page.getByRole('button',{name:`Edit On call ${width}`,exact:true}).click();await page.getByLabel('Destination email',{exact:true}).fill(`rotated-${width}@example.com`);await page.getByRole('button',{name:'Save destination',exact:true}).click();await page.getByText(`Email · rotated-${width}@example.com`,{exact:true}).waitFor();
+  let currentLabel=`On call ${width}`;for(const nextLabel of [`Operations mailbox ${width}`,`On call ${width}`]){await page.getByRole('button',{name:`Edit destination ${currentLabel}`,exact:true}).click();await page.getByLabel('Destination name',{exact:true}).fill(nextLabel);await page.getByRole('button',{name:'Save destination',exact:true}).click();await page.getByRole('status').filter({hasText:'Existing rules and queued work continue.'}).waitFor();const kept=(await app.json('/api/projects/web/alerting/rules')).find(r=>r.id===before.id);assert.deepEqual([kept.destination,kept.revision,kept.enabled],[before.destination,before.revision,1]);currentLabel=nextLabel;}
+  await page.getByRole('button',{name:`Edit destination On call ${width}`,exact:true}).click();await page.getByLabel('Destination email',{exact:true}).fill(`rotated-${width}@example.com`);await page.getByRole('button',{name:'Save destination',exact:true}).click();await page.getByText(`Email · rotated-${width}@example.com`,{exact:true}).waitFor();
   const after=(await app.json('/api/projects/web/alerting/rules')).find(r=>r.id===before.id);assert.equal(after.revision,before.revision+1);assert.notEqual(after.destination,before.destination);assert.equal(after.enabled,0);
   await page.getByText('This destination needs a passing test and your review before this rule can be enabled.',{exact:true}).waitFor();await page.screenshot({path:`docs/retained-verification/alert003/disabled-review-${width}.png`,fullPage:true});
-  await page.getByRole('button',{name:`Test On call ${width}`,exact:true}).click();await page.getByRole('button',{name:`Review passing test for On call ${width}`,exact:true}).click();await page.getByRole('button',{name:`Edit Updated mail ${width}`,exact:true}).click();await page.getByLabel('Enabled',{exact:true}).check();await page.getByRole('button',{name:'Preview rule',exact:true}).click();await page.getByRole('region',{name:'Rule preview',exact:true}).waitFor();await page.getByRole('button',{name:'Save rule',exact:true}).click();
+  await page.getByRole('button',{name:`Test On call ${width}`,exact:true}).click();await page.getByRole('button',{name:`Review passing test for On call ${width}`,exact:true}).click();await page.getByRole('button',{name:`Edit rule Updated mail ${width}`,exact:true}).click();await page.getByLabel('Enabled',{exact:true}).check();await page.getByRole('button',{name:'Preview rule',exact:true}).click();await page.getByRole('region',{name:'Rule preview',exact:true}).waitFor();await page.getByRole('button',{name:'Save rule',exact:true}).click();
   const archive=await (await app.request('/api/archive')).text();assert.ok(!archive.includes(`rotated-${width}@example.com`));
   await app.json('/api/ingest/web','POST',event(`browser-${width}`,{message:'Payment confirmation callback failed',frames:[{file:`https://app.example.com/ui-${width}.js`,line:1,column:0,function:'browser'}]}),auth);await app.schedule(Date.now());
   await page.getByRole('button',{name:'Refresh alerts',exact:true}).click();await page.getByRole('button',{name:'Delivery log',exact:true}).click();await page.getByText('suppressed locally',{exact:true}).first().waitFor();// Keep the exact opener: a pending alerts refresh can prepend newer deliveries.
@@ -81,7 +101,7 @@ try {
    assert.equal((await app.request('/api/alert-events/sendgrid/web','POST',signed.body,signed.headers)).status,200);
    await page.getByRole('button',{name:'Refresh alerts',exact:true}).click();await page.getByText(new RegExp('Recipient: '+label)).first().waitFor();await page.screenshot({path:`docs/retained-verification/alert003/${label}-${width}.png`,fullPage:true});
   }
-  await page.getByRole('button',{name:'Rules',exact:true}).click();
+  await page.getByRole('button',{name:'Rules',exact:true}).click();await openAlertDetails(page);
   await app.db.prepare("UPDATE alert_destination_tests SET tested_at=? WHERE destination='webhook-v1'").bind(Date.now()-61000).run();
   await page.route('**/destinations/webhook-v1/test',route=>route.continue({headers:{...route.request().headers(),'x-fixture-unconfigured':'egress'}}));
   await page.getByRole('button',{name:'Test Verified receiver',exact:true}).click();await page.getByText(/failing test/).first().waitFor();await page.unroute('**/destinations/webhook-v1/test');await page.screenshot({path:`docs/retained-verification/alert003/failing-${width}.png`,fullPage:true});
@@ -103,7 +123,7 @@ try {
   await page.getByRole('button',{name:'Needs attention',exact:true}).click();await page.getByText(/held alert backlog/).first().waitFor();await page.screenshot({path:`docs/retained-verification/alert003/attention-${width}.png`,fullPage:true});
   await page.getByRole('button',{name:'Alert feed',exact:true}).click();await page.getByRole('button',{name:'Open issue',exact:true}).first().waitFor();
   await page.getByRole('combobox',{name:'Project',exact:true}).selectOption('other');await page.getByRole('button',{name:'Delivery log',exact:true}).click();assert.equal(await page.getByRole('button',{name:/Details: Delivery/}).count(),0);await page.getByRole('combobox',{name:'Project',exact:true}).selectOption('web');
-  await page.getByRole('button',{name:'Rules',exact:true}).click();await page.getByRole('button',{name:`Edit Updated mail ${width}`,exact:true}).waitFor();
+  await page.getByRole('button',{name:'Rules',exact:true}).click();await openAlertDetails(page);await page.getByRole('button',{name:`Edit rule Updated mail ${width}`,exact:true}).waitFor();
   assert.equal(await page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth+1),true);
   await page.getByRole('button',{name:'Alert feed',exact:true}).focus();await page.keyboard.press('Enter');await page.getByRole('button',{name:'Open issue',exact:true}).first().waitFor();
   const html=await page.content();assert.ok(!html.includes('alert-owner@example.com'));assert.ok(!html.includes(app.bindings.ALERT_DESTINATION_HASH_KEY));

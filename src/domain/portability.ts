@@ -1,3 +1,4 @@
+import { keyMetadataMigration, previousKeyMetadataObjects } from './key-metadata-compat';
 import { restoreTranslatedProjection } from './alerts/archive-history';
 import { ledgerReader } from '../modules/portability/ledgers.mjs';
 import { nativeSymbolTables, nativeDebugFileTables } from './native-symbols/archive';
@@ -79,7 +80,7 @@ function stagedValidation(later: string[] = []) {
 const tombstoneTables=Object.keys(tombstoneArchiveTables);
 const custodyExcluded=[...projectAgentArtifacts.artifacts.map(item=>item.table),...rosterArtifacts.map(item=>item.table)].filter(table=>!tombstoneTables.includes(table));
 export const portabilityPolicy = {
- product: 'runeditrun/errors-workbench', excludeTables: [...keyRateTables,...custodyExcluded,'spool_agent_operations','spool_agent_custody','spool_native_approvals','spool_erasure_agents','spool_native_audit_actors','restored_work','scrubbing_previews','spool_follow_up_alternates','spool_service_credentials','spool_local_invite_links','retention_runs','credentials', 'sessions', 'login_budget', 'browser_origin_guards','spool_authority_guards','operator_guards',...safeAuditExcludedTables,...followUpExcludedTables,'deployment_actors','release_order_keys','checkin_routes','checkin_links','ik_%', ...alertExcludedTables, ...erasureExcludedTables, ...executionExcludedTables, ...sentryCliExcludedTables],
+ product: 'runeditrun/errors-workbench', excludeTables: ['capture_sources',...keyRateTables,...custodyExcluded,'spool_agent_operations','spool_agent_custody','spool_native_approvals','spool_erasure_agents','spool_native_audit_actors','restored_work','scrubbing_previews','spool_follow_up_alternates','spool_service_credentials','spool_local_invite_links','retention_runs','credentials', 'sessions', 'login_budget', 'browser_origin_guards','spool_authority_guards','operator_guards',...safeAuditExcludedTables,...followUpExcludedTables,'deployment_actors','release_order_keys','checkin_routes','checkin_links','ik_%', ...alertExcludedTables, ...erasureExcludedTables, ...executionExcludedTables, ...sentryCliExcludedTables],
  exportRow: (table: string, row: any) => scrubExportRow(table, notificationPreferenceExportRow(table, reportingExportRow(table, suppressionExportRow(table, discussionExportRow(table, memberExportRow(table, proposalExportRow(table, deploymentExportRow(table, alertExportRow(table, row))))))))),
  requiredConfiguration: ['OWNER_EMAIL', 'SESSION_SECRET', 'AUTH_ORIGIN', 'AUTH_LOCAL', 'MAIL_PROVIDER', 'MAIL_FROM', 'ALERT_DESTINATIONS', 'ALERT_DESTINATION_HASH_KEY', 'ALERT_PUBLIC_ORIGIN', 'INTEGRATION_EGRESS'],
  validateStaged: stagedValidation(),
@@ -269,6 +270,31 @@ for(const later of laterTables){later.tables.push('sentry_transactions');later.m
 laterTables.unshift({tables:['sentry_transactions'],migrations:projectMetricMigrations});
 for(const later of laterTables)later.migrations.push('0109_feedback_review.sql');
 laterTables.unshift({tables:[],migrations:['0109_feedback_review.sql']});
+const rosterProposalMigration = '0110_sentry_roster_proposals.sql';
+const memberIdentityMigration = '0112_member_identity.sql';
+const captureSourcesMigration = '0113_capture_sources.sql';
+const alertProposalMigration = '0114_sentry_alert_proposals.sql';
+const afterRosterMigrations = [keyMetadataMigration, memberIdentityMigration, captureSourcesMigration, alertProposalMigration];
+const rosterMigrations = [rosterProposalMigration, ...afterRosterMigrations];
+// These upgrades preserve earlier review records and add no archived table after the roster.
+for (const later of laterTables) {
+ if (!later.tables.includes('spool_import_proposals')) later.tables.push('spool_import_proposals');
+ later.migrations.push(...rosterMigrations);
+}
+laterTables.unshift(
+ {tables: [], migrations: [alertProposalMigration]},
+ {tables: [], migrations: afterRosterMigrations},
+ {tables: ['spool_import_proposals'], migrations: rosterMigrations},
+);
+// The identity trigger is installation behavior, not an archived owner row.
+// Older releases lack it; a no-ledger archive may carry either known inventory.
+// Compare the entire selected inventory below so foreign or modified objects
+// still refuse instead of being installed as new behavior.
+function previousMemberIdentityObjects(objects:any[],manifest:any){
+ const present=Array.isArray(manifest.migrations)?manifest.migrations.includes(memberIdentityMigration):
+  Array.isArray(manifest.schemaObjects)&&manifest.schemaObjects.some((object:any)=>object.name==='spool_member_identity');
+ return present?objects:objects.filter(object=>object.name!=='spool_member_identity');
+}
 function beforeProjectMetricObjects(objects:any[],manifest:any){
  const added=[['0106_project_metric_alerts.sql',['alert_metric_states','alert_metric_events']],['0107_sentry_transactions.sql',['sentry_transactions']],['0108_alert_notify_targets.sql',['alert_target_destinations','alert_intent_recipients']]] as const;
  const missing:string[]=added.filter(([migration])=>!manifest.migrations?.includes(migration)).flatMap(([,tables])=>[...tables]);
@@ -277,6 +303,17 @@ function beforeProjectMetricObjects(objects:any[],manifest:any){
 function beforeProjectMetrics(table:any,manifest:any){
  if(table.name!=='alerts'||manifest.migrations?.includes('0106_project_metric_alerts.sql'))return table;
  return {...table,sql:table.sql.replace('issue TEXT REFERENCES issues(id)','issue TEXT NOT NULL REFERENCES issues(id)').replace(", CHECK((kind='metric' AND issue IS NULL) OR (kind<>'metric' AND issue IS NOT NULL))",''),columns:table.columns.map((column:any)=>column.name==='issue'?{...column,notnull:1}:column)};
+}
+function beforeSentryRosterTable(table:any,manifest:any){
+ if(table.name==='spool_import_proposals' && !manifest.migrations?.includes(alertProposalMigration)
+  && (Array.isArray(manifest.migrations) || !manifest.tables?.find((entry:any)=>entry.name===table.name)?.sql.includes(",'alert'"))) {
+  return {...table,sql:table.sql.replace('CREATE TABLE "spool_import_proposals"','CREATE TABLE spool_import_proposals').replace(",'alert'",'')};
+ }
+ if(table.name!=='sentry_import_targets'||manifest.tables?.some((t:any)=>t.name==='spool_import_proposals'))return table;
+ return {...table,sql:table.sql.replace(",'import-proposal'",'').replace('CREATE TABLE "sentry_import_targets"','CREATE TABLE sentry_import_targets')};
+}
+function beforeSentryRosterObjects(objects:any[],manifest:any){
+ return manifest.tables?.some((t:any)=>t.name==='spool_import_proposals')?objects:objects.filter(o=>o.table!=='spool_import_proposals');
 }
 async function earlierManifest(db: D1Database, manifest: any) {
  const current = await catalogue(db, policy(portabilityPolicy));
@@ -291,16 +328,19 @@ async function earlierManifest(db: D1Database, manifest: any) {
  const carriedReporting=Array.isArray(product.tables)&&reportingNames.every(name=>product.tables.some((table:any)=>table.name===name));
  // Every set that adds no archived table matches the same schema; an archive that records its migrations takes the
  // one holding every such migration it lacks (0.5.1 archives lack 0054, 0055 and 0056), never only the newest.
- const tableless = [...new Set(laterTables.filter(later => !later.tables.length).flatMap(later => later.migrations))];
- for (const later of laterTables) {
+ const carriedRoster=product.tables.some((table:any)=>table.name==='spool_import_proposals');
+ const compatibleSets=carriedRoster?laterTables.map(later=>({tables:later.tables.filter(name=>name!=='spool_import_proposals'),migrations:later.migrations.filter(name=>name!==rosterProposalMigration)})).filter(later=>later.migrations.length):laterTables;
+ const tableless = [...new Set(compatibleSets.filter(later => !later.tables.length).flatMap(later => later.migrations))];
+ for (const later of compatibleSets) {
   // A set that adds no archived table matches today's schema, so it applies only to an archive missing its migrations.
-  if (!later.tables.length && !(Array.isArray(manifest.migrations) && later.migrations.some(name => !manifest.migrations.includes(name)) && tableless.every(name => manifest.migrations.includes(name) || later.migrations.includes(name))) && !(later.migrations.length===1 && later.migrations[0]==='0109_feedback_review.sql' && !manifest.migrations?.length)) continue;
+  const reviewOnly=later.tables.length===0 && later.migrations.includes('0109_feedback_review.sql')
+    && later.migrations.every(name => ['0109_feedback_review.sql', ...afterRosterMigrations].includes(name));
+  if (!later.tables.length && !(Array.isArray(manifest.migrations) && later.migrations.some(name => !manifest.migrations.includes(name)) && tableless.every(name => manifest.migrations.includes(name) || later.migrations.includes(name))) && !(reviewOnly && !manifest.migrations?.length)) continue;
   const missing=later.tables.filter(name=>!carriedReporting||!reportingNames.includes(name));
   if(later.tables.length&&!missing.length)continue;
   // An archive that records no migration list is either older than 0054 (issue_resolutions in its first form) or a current
   // format that carries none: try the recorded reading first, then today's form of that table.
-  const reviewOnly=later.tables.length===0 && later.migrations.length===1 && later.migrations[0]==='0109_feedback_review.sql';
-  const earlierWith = (before0054: boolean) => reviewOnly ? current.tables.map((table:any)=>beforeFeedbackReview(table,manifest)) : current.tables.filter((table: any) => !missing.includes(table.name)).map((table:any)=>beforeFeedbackReview(beforeProjectMetrics(beforeAgentAttribution(table,manifest),manifest),manifest)).map((table:any)=>table.name==='issue_resolutions'&&before0054?{...table,sql:table.sql.replace('CREATE TABLE \"issue_resolutions\"','CREATE TABLE issue_resolutions').replace("('plain','current','next','named')","('plain','current')")}:table);
+  const earlierWith = (before0054: boolean) => reviewOnly ? current.tables.map((table:any)=>beforeSentryRosterTable(beforeFeedbackReview(table,manifest),manifest)) : current.tables.filter((table: any) => !missing.includes(table.name)).map((table:any)=>beforeSentryRosterTable(beforeFeedbackReview(beforeProjectMetrics(beforeAgentAttribution(table,manifest),manifest),manifest),manifest)).map((table:any)=>table.name==='issue_resolutions'&&before0054?{...table,sql:table.sql.replace('CREATE TABLE \"issue_resolutions\"','CREATE TABLE issue_resolutions').replace("('plain','current','next','named')","('plain','current')")}:table);
   let earlier: any[] | undefined;
   for (const before0054 of new Set([!manifest.migrations?.includes('0054_release_resolution_dist.sql'), false])) {
    const candidate = earlierWith(before0054);
@@ -311,28 +351,38 @@ async function earlierManifest(db: D1Database, manifest: any) {
   // A recognized native table upgrade must retain a complete, known object
   // inventory. An unrecorded index/trigger is never installed or acknowledged.
   // Archives without an object inventory still require Base's legacy replay.
-  if(product.schemaObjects!==undefined && canonicalJson(product.schemaObjects)!==canonicalJson(reviewOnly?current.schemaObjects:beforeProjectMetricObjects(previousRelayPrivacyObjects(previousNativeSymbolObjects(current.schemaObjects,manifest),manifest),manifest)))throw new PortabilityError('legacy_schema_object_inventory');
+  const previousObjects = reviewOnly ? current.schemaObjects : beforeSentryRosterObjects(beforeProjectMetricObjects(previousRelayPrivacyObjects(previousNativeSymbolObjects(current.schemaObjects,manifest),manifest),manifest),manifest);
+  const earlierObjects=previousKeyMetadataObjects(previousMemberIdentityObjects(previousObjects,manifest),manifest);
+  const earlierSchema = await schemaIdentityOf(earlier, earlierObjects);
+  // The CLI and native test runtime can preserve different SQL comments.
+  // Compare complete object identities with Base's SQLite token normalization.
+  if (product.schemaObjects !== undefined && await schemaIdentityOf(earlier, product.schemaObjects) !== earlierSchema) {
+   throw new PortabilityError('legacy_schema_object_inventory');
+  }
+  const gap=product.schemaObjects!==undefined && later.migrations.includes(keyMetadataMigration) && !manifest.migrations?.includes(keyMetadataMigration)
+   && manifest.migrations?.includes(memberIdentityMigration) && manifest.migrations.includes(captureSourcesMigration)
+   ? {migration:keyMetadataMigration,schema:earlierSchema} : undefined;
   // Normalize this positively matched native inventory to the destination. The
   // original binding and source history are checked before finalize; platform
   // bookkeeping is never installed as product data or presented as new history.
   const {migrations:sourceMigrations,migrationLedger:sourceLedger,...original}=manifest;
   const tables=current.tables.map((table:any)=>({...table,count:product.tables.find((old:any)=>old.name===table.name)?.count??0}));
   const excludedColumns=Object.fromEntries(Object.entries(manifest.excludedColumns).filter(([table])=>!platformTable(table)));
-  return {...original,schemaObjects:current.schemaObjects,schema:await schemaIdentityOf(tables,current.schemaObjects),tables,excludedColumns};
+  return {manifest:{...original,schemaObjects:current.schemaObjects,schema:await schemaIdentityOf(tables,current.schemaObjects),tables,excludedColumns},gap};
  }
  return null;
 }
 async function importRecords(service: any, source: ReadableStream<Uint8Array>, db?: D1Database, laterJournal?: LaterJournal) {
  let id, closing, binding: any, complete = false, rewritten = false;
- let translated:any=null,projection:any=null;const sourceLedger=ledgerReader(),translatedParts:any[]=[];
+ let translated:any=null,projection:any=null,gap;const sourceLedger=ledgerReader(),translatedParts:any[]=[];
  const attributionDefaults=new Map<string,Record<string,unknown>>();
  const archivedAttributionColumns=new Map<string,string[]>();
  try {
   for await (const record of readArchive(source)) {
    if (record.kind === 'manifest') {
     const earlier=db ? await earlierManifest(db,record) : null;
-    const manifest = retireArchiveSetupToken(earlier ?? record, portabilityPolicy.requiredConfiguration);
-    if(earlier){translated=record;sourceLedger.add(record);}
+    const manifest = retireArchiveSetupToken(earlier?.manifest ?? record, portabilityPolicy.requiredConfiguration);
+    if(earlier){translated=record;gap=earlier.gap;sourceLedger.add(record);}
     if(earlier)for(const [table,field,value] of [['repairs','recorded_by','owner'],['grouping_proposals','prepared_by',null],['feedback','private_data',null]] as const){
      const archived=record.tables.find((entry:any)=>entry.name===table);
      if(archived&&!archived.columns.some((column:any)=>column.name===field)){attributionDefaults.set(table,{[field]:value});archivedAttributionColumns.set(table,archived.columns.map((column:any)=>column.name).sort());}
@@ -358,7 +408,7 @@ async function importRecords(service: any, source: ReadableStream<Uint8Array>, d
   // A migrated schema or retired setup token changes the content and archive hashes;
   // readArchive has already verified the original archive's closing hashes
   // above, and finalize binds the staged parts to the manifest actually created.
-  if(translated)return await restoreTranslatedProjection(service,translated,projection,translatedParts,sourceLedger.ledgers(),laterJournal);
+  if(translated)return await restoreTranslatedProjection(service,translated,projection,translatedParts,sourceLedger.ledgers(),laterJournal,gap);
   await service.imports.finalize(id, { archiveHash: binding.digest(), ...(rewritten ? {} : { contentHash: closing.contentHash }), ...(laterJournal ? { laterJournal } : {}) }); complete = true;
  } finally { if (id && !complete) await service.imports.abort(id); }
 }

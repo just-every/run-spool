@@ -21,7 +21,7 @@ async function journey(width) {
  const checked=name=>evidence.checks.push({width,name});
 try {
  const cookie=await signIn(origin);await chooseLocalAgentPolicy(origin,cookie);
- async function api(path,method='GET',value){const response=await fetch(origin+path,{method,headers:{Cookie:cookie,Origin:origin,...value?{'Content-Type':'application/json'}:{}},...value?{body:JSON.stringify(value)}:{}});assert.ok(response.ok,`${method} ${path}: ${response.status}`);return path==='/api/archive'?archiveProjection(response):response.json();}
+ async function api(path,method='GET',value){const response=await fetch(origin+path,{method,headers:{Cookie:cookie,Origin:origin,Connection:'close',...value?{'Content-Type':'application/json'}:{}},...value?{body:JSON.stringify(value)}:{}});assert.ok(response.ok,`${method} ${path}: ${response.status}`);return path==='/api/archive'?archiveProjection(response):response.json();}
  browser=await launchBrowser();const context=await browser.newContext({viewport:{width,height:900},permissions:['clipboard-read','clipboard-write']});
  await context.addCookies([{name:cookie.split('=')[0],value:cookie.slice(cookie.indexOf('=')+1),url:origin}]);
  const page=await context.newPage(),pageErrors=[];page.on('pageerror',error=>pageErrors.push(error.message));page.setDefaultTimeout(15000);
@@ -29,7 +29,7 @@ try {
   await page.setViewportSize({width,height:900});if(assertLayout)assert.equal(await page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth+1),true,`${scenario} overflow`);
   const grouping=scenario.startsWith('grouping-'),rule=scenario.startsWith('grouping-rule-');
   if(grouping){const target=rule?page.getByRole('heading',{name:'Project grouping rules',exact:true}):page.locator('article[aria-label="Grouping proposal review"] h3').first();if(await target.isVisible())await target.evaluate(element=>element.scrollIntoView({block:'start'}));else{const empty=page.getByRole('heading',{name:'Agent grouping proposals',exact:true});if(await empty.isVisible())await empty.evaluate(element=>element.scrollIntoView({block:'start'}));}}
-  const shot=async name=>{const path=`${name}-${width}.jpg`;const archive=scenario==='private-archive',target=archive?page.getByRole('heading',{name:'Archive and restore',exact:true}).locator('..'):page;await target.screenshot({path:output+'/'+path,type:'jpeg',quality:85,...archive?{}:{fullPage:!grouping&&!scenario.startsWith('operator-')&&!['offline-workspace','unavailable-workspace','unavailable-issue','stale-offline-issue','reconnected-issue'].includes(scenario)},mask:[page.locator('.secret-key, input[type="password"], [data-secret]')]});evidence.captures.push({scenario:name,width,path});};
+  const shot=async name=>{const path=`${name}-${width}.jpg`;const archive=scenario==='private-archive',target=archive?page.getByRole('heading',{name:'Archive and restore',exact:true}).locator('..'):page;await target.screenshot({path:output+'/'+path,type:'jpeg',quality:85,...archive?{}:{fullPage:!grouping&&!scenario.startsWith('operator-')&&!['offline-workspace','unavailable-workspace','unavailable-issue','stale-offline-issue','reconnected-issue'].includes(scenario)},mask:[page.locator('.secret-key, input[type="password"], [data-secret], pre[aria-label="SDK init"], pre[aria-label="Browser helper init"], pre[aria-label="Sentry DSN"]')]});evidence.captures.push({scenario:name,width,path});};
   await shot(scenario);
   if(scenario==='grouping-proposal-proposed'||scenario==='grouping-proposal-approved'){const headings=page.locator('article[aria-label="Grouping proposal review"] .grouping-explanation h4');for(let index=0;index<await headings.count();index++){await headings.nth(index).evaluate(element=>element.scrollIntoView({block:'start'}));await shot(`${scenario}-effect-${index+1}`);}
    const action=scenario==='grouping-proposal-approved'?page.getByRole('heading',{name:'Review exact moves',exact:true}):page.getByRole('button',{name:'Approve proposal and open preview',exact:true});await action.evaluate(element=>element.scrollIntoView({block:'start'}));await shot(`${scenario}-decision`);}
@@ -60,11 +60,11 @@ try {
  await registerReleaseAndReturn({page,origin,project:'cedar',name:'autumn-deliveries',build:'dispatch-a',api,capture:scenario=>capture(scenario,width)});
  const snippet=await page.getByLabel('SDK init',{exact:true}).innerText();assert.ok(snippet.includes(JSON.stringify(origin)));assert.ok(!snippet.includes('location.origin'));
  application=await startDispatchApp({endpoint:origin,project:'cedar',ingestKey:project.ingestKey,release:'autumn-deliveries',build:'dispatch-a',environment:'production',debugId:'dispatch-map'});
- await page.getByLabel('Exact application origin',{exact:true}).fill(application.origin);await page.getByRole('button',{name:'Allow browser origin',exact:true}).click();await page.getByRole('status').filter({hasText:'Allowed'}).waitFor();
+ await page.getByLabel('Your website address',{exact:true}).fill(application.origin);await page.getByRole('button',{name:'Allow website',exact:true}).click();await page.getByRole('status').filter({hasText:'Saved:'}).waitFor();
  const appPage=await context.newPage();async function throwInApp(){await appPage.goto(application.origin);await appPage.getByRole('button',{name:'Prepare delivery'}).click();await appPage.waitForFunction(()=>window.captureOutcome?.outcome==='accepted');return appPage.evaluate(()=>window.captureOutcome);}
  const admitted=await throwInApp();assert.ok(admitted.issue);checked('Real minified application throws and capture crosses a second loopback origin');
  const issuePath='/projects/cedar/issues/'+admitted.issue;
- await (await workbenchLink(page,'Issues',false)).click();await page.locator('.unseen-label').waitFor();
+ await (await workbenchLink(page,'Issues',false)).click();await page.locator('.unseen-issue').waitFor();
  const row=page.locator('tbody tr').first();assert.match(await row.innerText(),/New/);await row.getByRole('link').click();await page.locator('.missing-map').waitFor();assert.equal(await page.locator('.missing-map').count(),1);
  await page.getByRole('button',{name:'Upload map',exact:true}).click();await page.getByLabel('Bundle debug ID',{exact:true}).waitFor();assert.equal(await page.getByLabel('Bundle debug ID',{exact:true}).inputValue(),'dispatch-map');
  await page.getByLabel('Source map file · max 256 KiB',{exact:true}).setInputFiles({name:'dispatch.js.map',mimeType:'application/json',buffer:Buffer.from(JSON.stringify(application.map))});
@@ -85,13 +85,13 @@ try {
  {await capture('mapped-issue',width);const audit=await new AxeBuilder({page}).withTags(['wcag2a','wcag2aa','wcag21aa']).analyze();assert.deepEqual(audit.violations.map(item=>item.id),[]);}
  await page.getByRole('button',{name:'Copy link',exact:true}).click();assert.equal(await page.evaluate(()=>navigator.clipboard.readText()),origin+issuePath);
  await page.reload();await page.locator('.mapped-frame').first().waitFor();assert.equal(new URL(page.url()).pathname,issuePath);
- await page.getByRole('link',{name:'All issues',exact:true}).click();await page.goBack();await page.locator('.mapped-frame').first().waitFor();await page.goForward();await page.getByRole('heading',{name:'Issues',exact:true}).last().waitFor();await page.waitForLoadState('networkidle');assert.equal(await page.locator('.unseen-label').count(),0);
+ await page.getByRole('link',{name:'All issues',exact:true}).click();await page.goBack();await page.locator('.mapped-frame').first().waitFor();await page.goForward();await page.getByRole('heading',{name:'Issues',exact:true}).last().waitFor();await page.waitForLoadState('networkidle');assert.equal(await page.locator('.unseen-issue').count(),0);
  await page.goto(origin+issuePath);const details=page.getByRole('button',{name:'Details: Issue and source evidence',exact:true});await details.click();await page.getByRole('dialog').waitFor();assert.ok(await page.getByRole('dialog').evaluate(dialog=>dialog.contains(document.activeElement)));await page.keyboard.press('Shift+Tab');assert.ok(await page.getByRole('dialog').evaluate(dialog=>dialog.contains(document.activeElement)));await page.keyboard.press('Escape');assert.equal(await details.evaluate(button=>document.activeElement===button),true);checked('Copy destination, refresh, history, viewed count and Details focus/Escape');
- await page.getByRole('combobox',{name:'Status',exact:true}).selectOption('resolved');await page.waitForFunction(()=>document.querySelector('.state-chip')?.textContent==='Resolved');
+ await page.getByRole('combobox',{name:'Status',exact:true}).selectOption('resolved');await page.getByRole('button',{name:'Confirm resolve',exact:true}).click();await page.waitForFunction(()=>document.querySelector('.state-chip')?.textContent==='Resolved');
  await api('/api/projects/cedar/releases','POST',{name:'winter-deliveries',build:'dispatch-b'});await api('/api/projects/cedar/artifacts','POST',{release:'winter-deliveries',build:'dispatch-b',debugId:'dispatch-map',map:application.map});application.setRelease('winter-deliveries','dispatch-b');const regressed=await throwInApp();assert.equal(regressed.issue,admitted.issue);
  application.setRelease('autumn-deliveries','dispatch-a');assert.equal((await throwInApp()).issue,admitted.issue);
  await appPage.evaluate(()=>{window.captureOutcome=null;});await appPage.getByRole('button',{name:'Track delivery'}).click();await appPage.waitForFunction(()=>window.captureOutcome?.outcome==='accepted');assert.notEqual((await appPage.evaluate(()=>window.captureOutcome)).issue,admitted.issue);
- await page.getByRole('link',{name:'All issues',exact:true}).click();await page.getByText('Regressed in winter-deliveries',{exact:true}).waitFor();await page.waitForFunction(()=>document.querySelectorAll('.unseen-label').length===2);assert.equal(await page.locator('.unseen-label').count(),2);assert.ok((await page.locator('tbody tr').first().innerText()).includes('Regressed in winter-deliveries'));
+ await page.getByRole('link',{name:'All issues',exact:true}).click();await page.getByText('Regressed in winter-deliveries',{exact:true}).waitFor();await page.waitForFunction(()=>document.querySelectorAll('.unseen-issue').length===2);assert.equal(await page.locator('.unseen-issue').count(),2);assert.ok((await page.locator('tbody tr').first().innerText()).includes('Regressed in winter-deliveries'));
  await capture('regression-priority',width);
  await page.locator('tbody tr').first().getByRole('link').click();await page.getByText('Regressed in winter-deliveries',{exact:true}).waitFor();checked('Resolved issue recurs in next release; late older release does not replace regression identity');
  // Check drafts across destinations without relying on browser refresh persistence.
@@ -102,14 +102,26 @@ try {
  const settingsNavigation=page.getByRole('navigation',{name:'Settings sections'});
  await settingsNavigation.getByRole('link',{name:'Projects & keys',exact:true}).click();
  if(width===1440){
+  const keyProof=async(name,target)=>{for(const screen of [1440,390]){await page.setViewportSize({width:screen,height:900});await target.scrollIntoViewIfNeeded();await target.screenshot({path:output+`/${name}-${screen}.png`,mask:[target.locator('[data-secret]')]});}await page.setViewportSize({width,height:900});};
   await expect(page.getByRole('heading',{name:'Project keys',exact:true})).toBeVisible();
-  await expect(page.getByRole('heading',{name:'Members',exact:true})).toBeHidden();
+  await keyProof('project-keys',page.getByRole('heading',{name:'Project keys',exact:true}).locator('..'));
+  await expect(page.getByRole('heading',{name:'Who can use Spool?',exact:true})).toBeHidden();
   const created=page.waitForResponse(response=>new URL(response.url()).pathname==='/api/projects/cedar/keys'&&response.request().method()==='POST');
-  await page.getByRole('button',{name:'Create deploy key',exact:true}).click();const createdResponse=await created;assert.equal(createdResponse.status(),201);
+  await page.getByLabel('New key name',{exact:true}).fill('synthetic-spool-1 deploy');await page.getByRole('button',{name:'Create deploy key',exact:true}).click();const createdResponse=await created;assert.equal(createdResponse.status(),201);
   const {hash:createdHash}=await createdResponse.json();
-  await page.getByRole('button',{name:'Dismiss key',exact:true}).click();
+  await keyProof('key-issued',page.getByRole('dialog',{name:'New project key',exact:true}));
+  const listedKeys=await api('/api/projects/cedar/keys');assert.equal(listedKeys.find(row=>row.hash===createdHash).last_used,null);assert.equal(typeof listedKeys.find(row=>row.kind==='ingest').last_used,'number','the key used by the live application has an actual last-use time');
+  await page.getByRole('button',{name:"I've saved it",exact:true}).click();
   const key=page.locator(`.key-row[data-key-hash="${createdHash}"]`);await key.getByRole('button',{name:'Details: Project key',exact:true}).click();
-  await page.getByRole('dialog',{name:'Project key',exact:true}).getByRole('button',{name:'Revoke key',exact:true}).click();
+  const keyDialog=page.getByRole('dialog',{name:'Project key',exact:true});
+  await keyDialog.getByLabel('Key name',{exact:true}).fill('synthetic-spool-2 deploy');await keyDialog.getByRole('button',{name:'Save key name',exact:true}).click();
+  await expect(key).toContainText('synthetic-spool-2 deploy');
+  await keyDialog.getByRole('button',{name:'Revoke key',exact:true}).click();
+  assert.equal((await api('/api/projects/cedar/keys')).find(row=>row.hash===createdHash).revoked,null,'opening the consequence confirmation does not revoke');
+  await keyDialog.getByRole('button',{name:'Keep key',exact:true}).click();
+  await keyDialog.getByRole('button',{name:'Revoke key',exact:true}).click();
+  await keyProof('key-revoke',keyDialog);
+  await keyDialog.getByRole('button',{name:'Confirm revoke',exact:true}).click();
   await expect(page.getByRole('dialog',{name:'Project key',exact:true})).toContainText('Revoked');
   assert.equal((await api('/api/projects/cedar/keys')).find(row=>row.kind==='ingest').revoked,null,'Revoking the created deploy key preserves the ingest key for later capture');
   await page.getByRole('button',{name:'Close details',exact:true}).click();
@@ -124,7 +136,7 @@ try {
   await page.goForward();await expect(page.getByRole('heading',{name:'Archive and restore',exact:true})).toBeVisible();
   // Links published before the split select the section holding the original target.
   await page.goto(origin+'/projects/cedar/settings#slack-destinations');
-  await expect(page.getByRole('region',{name:'Slack destinations',exact:true})).toBeVisible();
+  if(!await page.locator('#settings-alerts > details').evaluate(element=>element.open))await page.locator('#settings-alerts > details > summary').click();await expect(page.getByRole('region',{name:'Slack destinations',exact:true})).toBeVisible();
   await expect(settingsNavigation.getByRole('link',{name:'Alerts & integrations',exact:true})).toHaveAttribute('aria-current','page');
   await page.goto(origin+'/projects/cedar/settings#reports-configuration-title');
   await expect(page.getByRole('heading',{name:'Reports, dashboards and query tables',exact:true})).toBeVisible();
@@ -132,8 +144,13 @@ try {
  }
  await capture('settings-data',width);
  const beforeDownload=await archiveProjection(await fetch(origin+'/api/archive',{headers:{Cookie:cookie}}));
- const [download]=await Promise.all([page.waitForEvent('download'),page.getByRole('button',{name:'Download private archive',exact:true}).click()]);
- assert.equal(await download.failure(),null);assert.equal(download.suggestedFilename(),'spool-private-archive.jsonl');
+ let releaseBackup;
+ const backupHold=new Promise(resolve=>{releaseBackup=resolve});
+ if(width===1440)await page.route(origin+'/api/archive',async route=>{await backupHold;await route.continue();});
+ const downloading=page.waitForEvent('download');await page.getByRole('button',{name:'Download private archive',exact:true}).click();
+ if(width===1440){await expect(page.getByRole('button',{name:'Preparing your backup…',exact:true})).toBeDisabled();releaseBackup();}
+ const download=await downloading;if(width===1440)await page.unroute(origin+'/api/archive');
+ assert.equal(await download.failure(),null);assert.match(download.suggestedFilename(),/^spool-private-archive-\d{4}-\d{2}-\d{2}\.jsonl$/);await expect(page.getByRole('status').filter({hasText:'Downloaded spool-private-archive-'})).toBeVisible();
  const downloaded=await archiveProjection(new Response(await readFile(await download.path())));
  assert.deepEqual(downloaded.data,beforeDownload.data,'browser file carries every retained product row');
  assert.ok(downloaded.data.events.some(event=>event.id===admitted.eventId),'actual captured event travels');
@@ -156,10 +173,11 @@ try {
  }
  const destination=await startTestWorker(15483);
  try{
-  const destinationCookie=await signIn(destination.origin),headers={Cookie:destinationCookie,Origin:destination.origin};
+  const destinationCookie=await signIn(destination.origin);
+  const headers={Cookie:destinationCookie,Origin:destination.origin,Connection:'close'};
   if(width===1440)await damagedRestoreUI(browser,destination.origin,destinationCookie,downloaded.text,output);
   const restored=await fetch(destination.origin+'/api/restore',{method:'POST',headers:{...headers,'Content-Type':'application/x-ndjson','X-Confirm-Restore':'yes'},body:downloaded.text});
-  assert.equal(restored.status,200,'the actual browser file restores into an independent empty installation');await restored.body?.cancel();
+  const restoreResult=await restored.json();assert.equal(restored.status,200,'the actual browser file restores into an independent empty installation: '+(restoreResult.error??'confirmed'));
   assert.deepEqual((await archiveProjection(await fetch(destination.origin+'/api/archive',{headers}))).data,downloaded.data,'every downloaded product row and private map restores unchanged');
   if(width===1440)await erasedRestoreUI(browser,destination.origin,destinationCookie,downloaded.text,output);
  }finally{await destination.stop();}
@@ -196,6 +214,7 @@ try {
   assert.equal(await page.locator('.issue').count(),0);await recoveryScreens('unavailable-issue');
   await page.unroute(packetUrl);await page.getByRole('button',{name:'Retry evidence',exact:true}).click();
   await page.locator('.mapped-frame').first().waitFor();await page.getByLabel('Comment',{exact:true}).waitFor();await page.waitForLoadState('networkidle');
+  await page.waitForURL(url=>url.searchParams.has('event')&&url.searchParams.has('occurrence'));
   const retainedDestination=page.url(),retainedIssues=await api('/api/projects/cedar/issues');
   const draft='synthetic-spool-1 unsent investigation';
   const comment=page.getByLabel('Comment',{exact:true});await comment.fill(draft);await comment.focus();
@@ -247,12 +266,42 @@ try {
   // The UI sends a real native envelope. Replay its same message and exact
   // frames as an ordinary TypeError to isolate the test marker's grouping.
   const sent=page.waitForResponse(response=>response.url()===origin+'/api/ingest/cedar'&&response.request().method()==='POST');
-  await page.getByRole('button',{name:'Capture test exception',exact:true}).click();const response=await sent,event=response.request().postDataJSON(),test=await response.json();assert.equal(test.outcome,'accepted');
+  await page.getByRole('button',{name:'Send the test error again',exact:true}).click();const response=await sent,event=response.request().postDataJSON(),test=await response.json();assert.equal(test.outcome,'accepted');
   const ingest=async value=>{const response=await fetch(origin+'/api/ingest/cedar',{method:'POST',headers:{Origin:origin,Authorization:'Bearer '+project.ingestKey,'Content-Type':'application/json'},body:JSON.stringify(value)});assert.equal(response.status,201);return response.json();};
   const real=await ingest({...event,eventId:crypto.randomUUID(),type:'TypeError',environment:'production'});assert.notEqual(test.issue,real.issue,'a test never joins the real issue with the same message and frames');
-  const repeated=page.waitForResponse(response=>response.url()===origin+'/api/ingest/cedar'&&response.request().method()==='POST');await page.getByRole('button',{name:'Capture test exception',exact:true}).click();assert.equal((await (await repeated).json()).issue,test.issue);
+  const repeated=page.waitForResponse(response=>response.url()===origin+'/api/ingest/cedar'&&response.request().method()==='POST');await page.getByRole('button',{name:'Send the test error again',exact:true}).click();assert.equal((await (await repeated).json()).issue,test.issue);
+  await expect(page.locator('#test-capture [role="status"]')).toContainText('Test error received.');
+  for(const screen of [1440,390])await capture('capture-test-result',screen,screen===1440);await page.setViewportSize({width,height:900});
+  // Setup's send control and Capture share the same sample location.
+  await page.getByRole('button',{name:'Create ingest key',exact:true}).click();
+  const setupSample=page.waitForResponse(response=>response.url()===origin+'/api/ingest/cedar'&&response.request().method()==='POST');
+  await page.getByRole('button',{name:'Send test error',exact:true}).click();assert.equal((await(await setupSample).json()).issue,test.issue,'the setup send path groups with Capture');
+  await page.goto(origin+'/projects/cedar/issues/'+test.issue);
+  await expect(page.getByRole('combobox',{name:'Resolution',exact:true})).toHaveCount(0);
+  await page.getByRole('button',{name:'Resolve',exact:true}).click();
+  await expect(page.getByRole('combobox',{name:'Resolution',exact:true})).toHaveValue('plain');
+  for(const screen of [1440,390])await capture('issue-resolution-preset',screen,screen===1440);await page.setViewportSize({width,height:900});
+  await page.getByRole('button',{name:'Confirm resolve',exact:true}).click();
+  await expect(page.locator('.issue-status .state-chip')).toHaveText('Resolved');
+  await page.getByLabel('Project ingest key',{exact:true}).fill(project.ingestKey);
+  const returned=page.waitForResponse(response=>response.url()===origin+'/api/ingest/cedar'&&response.request().method()==='POST');
+  await page.getByRole('button',{name:'Send the test error again',exact:true}).click();assert.equal((await(await returned).json()).issue,test.issue,'the resolved sample returns to the original issue');
+  await expect(page.locator('.issue-status')).toContainText('Regressed');
+  const fresh=await api('/api/projects','POST',{id:'synthetic-spool-capture',name:'Synthetic capture project'});
+  await page.goto(origin+'/projects/'+fresh.id+'/capture');
+  await page.getByLabel('Project ingest key',{exact:true}).fill('synthetic-spool-invalid');
+  await expect(page.getByRole('button',{name:'Send the test error again',exact:true})).toBeEnabled();
+  const refused=page.waitForResponse(response=>response.url()===origin+'/api/ingest/'+fresh.id&&response.request().method()==='POST');
+  await page.getByRole('button',{name:'Send the test error again',exact:true}).click();assert.equal((await(await refused).json()).reason,'invalid_ingest_key');
+  await expect(page.getByRole('button',{name:'Retry exact event',exact:true})).toHaveCount(0);
+  await expect(page.getByRole('link',{name:'Create a new key',exact:true})).toBeVisible();
+  for(const screen of [1440,390])await capture('invalid-test-key',screen,screen===1440);await page.setViewportSize({width,height:900});
+  await page.getByRole('link',{name:'Create a new key',exact:true}).click();await expect(page.getByRole('heading',{name:'Project keys',exact:true})).toBeVisible();
+  await page.goto(origin+'/projects/'+fresh.id+'/capture');await page.getByLabel('Project ingest key',{exact:true}).fill(fresh.ingestKey);
+  const accepted=page.waitForResponse(response=>response.url()===origin+'/api/ingest/'+fresh.id&&response.request().method()==='POST');await page.getByRole('button',{name:'Send the test error again',exact:true}).click();assert.equal((await(await accepted).json()).outcome,'accepted');
+  assert.equal((await api('/api/projects/'+fresh.id+'/releases')).length,1,'Capture registers the sample release on a new project');
   const issues=await api('/api/projects/cedar/issues'),testIssue=issues.find(row=>row.id===test.issue),realIssue=issues.find(row=>row.id===real.issue);
-  assert.match(testIssue.title,/test/i,'the test is identified in its title');assert.equal(testIssue.count,2,'repeat test captures stay in their own issue');assert.equal(realIssue.count,1,'test captures do not increment the real issue');assert.equal(realIssue.title,'TypeError: '+event.message,'ordinary ingestion keeps the real error title');
+  assert.match(testIssue.title,/test/i,'the test is identified in its title');assert.equal(testIssue.count,4,'repeat test captures stay in their own issue');assert.equal(realIssue.count,1,'test captures do not increment the real issue');assert.equal(realIssue.title,'TypeError: '+event.message,'ordinary ingestion keeps the real error title');
   await page.goto(origin+'/projects/cedar/issues');await page.getByRole('link',{name:testIssue.title,exact:true}).waitFor();
   for(const screen of [1440,390])await capture('test-issue-list',screen,screen===1440);await page.setViewportSize({width,height:900});
   await page.getByRole('link',{name:testIssue.title,exact:true}).click();await page.getByRole('heading',{name:testIssue.title,exact:true}).waitFor();

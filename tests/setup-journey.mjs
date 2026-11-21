@@ -33,9 +33,12 @@ export async function firstProjectJourney(browser, origin, width) {
    assert.equal(await policy.evaluate(node=>!!(node.compareDocumentPosition(document.querySelector('button.primary-button'))&Node.DOCUMENT_POSITION_FOLLOWING)),true,'policy is shown before project creation');
    const guide=await context.newPage();try{const response=await guide.goto(new URL(await policy.getByRole('link').getAttribute('href'),origin).href);assert.equal(response.status(),200);assert.equal(await guide.locator('[id]').evaluateAll((nodes,id)=>nodes.some(node=>node.id===id),new URL(guide.url()).hash.slice(1)),true,'policy guide reaches the change route');}finally{await guide.close();}
   }
+  await page.getByLabel('What should we call this?',{exact:true}).fill('Brightwell Support');
+  await page.getByLabel('Your name',{exact:true}).fill('Test owner');
+  await page.getByLabel('Your email',{exact:true}).fill(testOwner);
   const name=page.getByLabel('Project name',{exact:true}),identifier=page.getByLabel('Project identifier',{exact:true}),submit=page.getByRole('button',{name:'Create project',exact:true});
   await identifier.waitFor();await submit.waitFor({state:'visible'});await page.waitForFunction(button=>button instanceof HTMLButtonElement&&!button.disabled,await submit.elementHandle());await inspect('pending');
-  async function tabTo(control,label){await page.keyboard.press('Tab');assert.equal(await control.evaluate(el=>el===document.activeElement),true,label+' receives keyboard focus');}
+  async function tabTo(control,label){for(let step=0;step<100;step++){await page.keyboard.press('Tab');if(await control.evaluate(el=>el===document.activeElement))return;}assert.fail(label+' is not reachable by keyboard');}
   await page.getByRole('heading',{name:'Create your first project',exact:true}).focus();
   await tabTo(name,'Project name');await page.keyboard.type('   ');
   await tabTo(identifier,'Project identifier');await page.keyboard.type('journey');
@@ -48,13 +51,14 @@ export async function firstProjectJourney(browser, origin, width) {
   if(width===1440){const saved=await (await request.get(origin+'/api/projects/journey/identity-policy')).json();assert.ok(Object.values(saved.policy).every(mode=>mode==='keep'),'project creation preserves the disclosed privacy default');}
   const key=page.getByLabel('Ingest key',{exact:true});await key.waitFor();assert.equal((await key.inputValue()).length>0,true);
   const init=page.getByLabel('SDK init',{exact:true}),initText=await init.innerText();assert.equal(initText.includes(await key.inputValue())&&initText.includes(JSON.stringify(origin)),true,'first-run SDK init carries this installation and the new ingest key');
+  await page.locator('.setup-steps>li>details>summary').click();
   if(width===1440){const support=page.getByRole('list',{name:'Sentry capture support',exact:true});await support.waitFor();}
   const dsn=page.getByLabel('Sentry DSN',{exact:true});assert.equal((await dsn.innerText()).includes(await key.inputValue()),true,'first-run setup still shows the Sentry DSN for the new ingest key');
   assert.deepEqual(consoleErrors,[],'setup form patterns compile without console errors');
   await context.grantPermissions(['clipboard-read','clipboard-write'],{origin});
   await page.getByRole('heading',{name:'Your project is ready',exact:true}).focus();
   const copy=page.getByRole('button',{name:'Copy ingest key',exact:true});
-  const mapStep=page.locator('.setup-next').getByRole('link');await tabTo(mapStep,'Source-map step');
+  const mapStep=page.getByRole('link',{name:'source-map setup',exact:true});await tabTo(mapStep,'Source-map step');
   await tabTo(key,'Ingest key');await tabTo(copy,'Copy ingest key button');await page.keyboard.press('Enter');
   const copyStatus=page.getByRole('status').filter({hasText:'Key copied.'});await copyStatus.waitFor();
   assert.equal(await copyStatus.evaluate(el=>typeof el.textContent==='string'&&el.textContent.trim().length>0),true,'keyboard copy gives feedback');
@@ -77,13 +81,13 @@ export async function firstProjectJourney(browser, origin, width) {
   const fromApp=(eventId=`app-${width}-${Date.now()}`)=>fetch(origin+'/api/ingest/journey',{method:'POST',headers:{Origin:appOrigin,Authorization:`Bearer ${ingestKey}`,'content-type':'application/json'},body:JSON.stringify({version:1,eventId,release:'1.0.0',build:'local',environment:'production',type:'TypeError',message:'From the app origin',frames:[{file:appOrigin+'/app.js',line:1,column:0,function:'checkout',debugId:'synthetic-spool-1'}]})});
   assert.equal((await (await fromApp()).json()).reason,'origin_not_allowed','an origin that first run has not allowed is refused');
   await tabTo(page.getByRole('link',{name:'source-map setup',exact:true}),'Source-map setup link');
-  await tabTo(page.getByLabel('Your app’s origin',{exact:true}),'App origin field');await page.keyboard.type(appOrigin);
+  await tabTo(page.getByLabel('Your website address',{exact:true}),'App origin field');await page.keyboard.type(appOrigin);
   const allowed=page.waitForResponse(response=>new URL(response.url()).pathname==='/api/projects/journey/browser-origins'&&response.request().method()==='POST');
-  await tabTo(page.getByRole('button',{name:'Allow origin',exact:true}),'Allow origin button');await page.keyboard.press('Enter');assert.equal((await allowed).status(),201);
+  await tabTo(page.getByRole('button',{name:'Allow website',exact:true}),'Allow origin button');await page.keyboard.press('Enter');assert.equal((await allowed).status(),201);
   assert.ok((await (await request.get(origin+'/api/projects/journey/browser-origins')).json()).some(row=>row.origin===appOrigin),'first run allowed the app origin');
-  await tabTo(page.getByRole('link',{name:'Manage allowed origins',exact:true}),'Manage allowed origins link');
+  await tabTo(page.getByRole('link',{name:'Manage allowed websites',exact:true}),'Manage allowed origins link');
   await tabTo(page.getByRole('button',{name:'Send test error',exact:true}),'Send test error button');await page.keyboard.press('Enter');
-  await page.getByRole('status').filter({hasText:'Test error received.'}).waitFor();
+  await page.getByRole('status').filter({hasText:'New alert raised'}).waitFor();
   const testIssue=page.getByRole('link',{name:'Open the test issue',exact:true});await tabTo(testIssue,'Open the test issue link');
   const issueId=decodeURIComponent((await testIssue.getAttribute('href')).split('/').at(-1));const testRow=(await (await request.get(origin+'/api/projects/journey/issues')).json()).find(row=>row.id===issueId);assert.ok(testRow,'the test error became an issue');assert.match(testRow.title,/test/i,'the first-run test has a recognizable issue title');
   const captured=await fromApp();assert.equal(captured.status,201,'the allowed app uses its scoped key without the owner gate');assert.equal((await captured.json()).outcome,'accepted');

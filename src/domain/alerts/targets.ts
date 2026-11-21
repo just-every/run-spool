@@ -1,4 +1,5 @@
 import { scrub } from '../privacy';
+import { importedTeamName } from '../sentry-import/roster-team';
 import { statement as s, type AlertEnvironment, type Intent } from './types';
 export type Recipient={member:string;email:string;reason:string};
 export type TargetDestination={id:string;project:string;label:string;channel:'mail';kind:'target';targetType:'team'|'member'|'issue_owners';target:string|null;fallthrough:'active_members'|'no_one';editable:true;recipient?:undefined;url?:undefined;key?:undefined;token?:undefined;channelId?:undefined};
@@ -57,4 +58,34 @@ export async function intentRecipients(env:AlertEnvironment,intent:Intent,d:Targ
 export async function authorizeRecipients(env:AlertEnvironment,project:string,rows:Recipient[]){
  const current=(await s(env.DB,authorizedMembers,project).all<Recipient>()).results;
  if(rows.some(row=>!current.some(member=>member.member===row.member&&member.email===row.email)))throw new Error('recipient_authority_changed');
+}
+
+/** Sentry's roster is a source identity index. An invitation alone gives no
+ * recipient access and a project team must have its own native assignment. */
+export async function importedAlertTarget(db: D1Database, project: string, organization: string, kind: string, id: string | null) {
+ if (!id || !['member','team'].includes(kind)) return null;
+ const row = await s(db,`SELECT p.id,p.payload FROM spool_import_proposals p JOIN sentry_import_targets m
+  ON m.kind='import-proposal' AND m.id=p.id
+  WHERE p.kind=? AND json_extract(m.source,'$.organization')=?
+    AND (json_extract(p.payload,'$.sourceId')=? OR (?='member' AND json_extract(p.payload,'$.sourceUserId')=?))
+    AND (?='team' OR p.state='invited') LIMIT 2`,kind,organization,id,kind,id,kind).all<{id:string;payload:string}>();
+ if(row.results.length!==1)return null;
+ const source=row.results[0],payload=JSON.parse(source.payload);
+ const teamName=importedTeamName(payload.name);
+ const scope=kind==='member'
+  ? {sql:`SELECT eligible.member target FROM (${authorizedMembers}) eligible
+          JOIN spool_import_proposals proposal ON proposal.id=? AND proposal.state='invited'
+          WHERE eligible.email=json_extract(proposal.payload,'$.email')`, args:[project,source.id]}
+  : {sql:`SELECT team target FROM spool_project_teams WHERE project=?
+            AND (team=? OR (team=? AND (SELECT COUNT(*) FROM spool_import_proposals p
+              JOIN sentry_import_targets m ON m.kind='import-proposal' AND m.id=p.id
+              JOIN json_each(p.payload,'$.projects') scope
+              WHERE p.kind='team' AND json_extract(m.source,'$.organization')=? AND scope.value=?
+               AND json_extract(p.payload,'$.name')=?)=1))
+            AND EXISTS(SELECT 1 FROM spool_import_proposals p,json_each(p.payload,'$.projects') scope
+                       WHERE p.id=? AND scope.value=?)`,
+     args:[project,payload.slug,teamName,organization,project,teamName,source.id,project]};
+ const target=await s(db,scope.sql,...scope.args).first<{target:string}>();
+ return target ? {type:kind,target:target.target,
+  guard:s(db,`INSERT INTO spool_authority_guards(ok) SELECT CASE WHEN EXISTS(SELECT 1 FROM (${scope.sql}) WHERE target=?) THEN 1 ELSE 0 END`,...scope.args,target.target)} : null;
 }

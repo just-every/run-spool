@@ -1,3 +1,4 @@
+import {splitStatements} from '../../src/modules/portability/sql-text.mjs';
 import {chooseLocalAgentPolicy} from '../agent-door/local-policy.mjs';
 import {registerLegacyMail} from '../legacy-mail.mjs';
 import assert from 'node:assert/strict';
@@ -48,8 +49,9 @@ export async function alertRuntime(receiver,{state,mail='development',egress=tru
  runtime=new Miniflare(convertV4MiniflareOptions({...worker,...serviceBindings?{serviceBindings}:{},modules:[{type:'ESModule',path:wrapper},...worker.modules],modulesRoot:'/',bindings,resourcePersistencePath:state??resolve(temporary,'state'),host:'127.0.0.1',port:15541}));
   await runtime.ready;const db=await runtime.getD1Database(database.binding);registerLegacyMail('http://127.0.0.1:15541',db);
   if(!(await db.prepare("SELECT name FROM sqlite_master WHERE type='table' AND name='projects'").first())){
-   const {unstable_splitSqlQuery}=require('wrangler');const sql=(await Promise.all((await readdir('migrations/core')).filter(f=>f.endsWith('.sql')).sort().map(f=>readFile('migrations/core/'+f,'utf8')))).join('\n');
-   await db.batch(unstable_splitSqlQuery(sql).filter(q=>!/^PRAGMA foreign_keys\s*=\s*ON;?$/i.test(q.trim())).map(q=>db.prepare(q)));
+   const files=(await readdir('migrations/core')).filter(file=>file.endsWith('.sql')).sort();
+   const sources=await Promise.all(files.map(file=>readFile(resolve('migrations/core',file),'utf8')));
+   await db.batch(sources.flatMap(splitStatements).filter(q=>!/^PRAGMA foreign_keys\s*=\s*ON;?$/i.test(q.trim())).map(q=>db.prepare(q)));
   }
   const origin='http://127.0.0.1:15541';let cookie=await signIn(origin,{emailLink:mail!=='development'});await chooseLocalAgentPolicy(origin,cookie);
   if(now!==undefined)await (await fetch(origin+'/__fixture/freeze',{method:'POST',headers:{Connection:'close'}})).arrayBuffer();

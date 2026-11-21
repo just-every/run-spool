@@ -5,6 +5,7 @@ import {resolve} from 'node:path';
 import {pathToFileURL} from 'node:url';
 import {createRequire} from 'node:module';
 import {build} from 'esbuild';
+import {splitStatements} from '../src/modules/portability/sql-text.mjs';
 import {readArchive} from '../src/modules/portability/index.mjs';
 import {platformTable} from '../src/modules/portability/bookkeeping.mjs';
 import {policy} from '../src/modules/portability/catalogue.mjs';
@@ -26,7 +27,7 @@ function withoutColumn(sql,name){
 }
 
 // TEAM-004 stores (migration 0059) and SRC-003's release/deploy stores (migration 0060) that the released schema lacks.
-const membershipTables = ['spool_reporting_items','spool_reporting_projects','spool_reporting_widgets','spool_reporting_shares','spool_team_digest_settings','spool_team_snoozes','spool_team_mail','spool_organizations','spool_members','spool_project_teams','spool_project_grants','spool_member_invites','spool_service_accounts','spool_service_scopes'];
+const membershipTables = ['spool_import_proposals','spool_reporting_items','spool_reporting_projects','spool_reporting_widgets','spool_reporting_shares','spool_team_digest_settings','spool_team_snoozes','spool_team_mail','spool_organizations','spool_members','spool_project_teams','spool_project_grants','spool_member_invites','spool_service_accounts','spool_service_scopes'];
 const citationTables = ['sentry_transactions','agent_door_retired_refs','bs_retired','native_symbols','native_debug_files','spool_notification_preferences','scrubbing_policies','scrubbing_changes','alert_rule_configs','issue_recurrence_boundaries','issue_priorities','issue_activity','issue_comments','issue_subscriptions','recurrence_policies','issue_suppressions',...membershipTables,'review_stamps','review_views','retention_policies','identity_policies','event_identities','project_identity_keys','health_sessions','health_aggregates','slack_delivery_meta','suspect_decisions','source_map_builds','source_map_build_files','artifact_storage_settings','loader_settings','short_id_prefixes','issue_short_ids','issue_short_id_moves','commits','release_commits','commit_links','repository_link_log','commit_sharing','sentry_releases','sentry_deploys'];
 
 // This is the unchanged output of the old native exporter, including its ledger.
@@ -40,23 +41,24 @@ for (const part of records.filter(r => r.kind === 'part')) for (const item of pa
 }
 const require = createRequire(import.meta.url);
 const {Miniflare, convertV4MiniflareOptions, Log, LogLevel} = require(require.resolve('miniflare', {paths: [require.resolve('wrangler/package.json')]}));
-const {unstable_splitSqlQuery} = require('wrangler');
 const migrations = JSON.parse(await readFile('management/integration/deployment-spec.json', 'utf8')).migrations;
 // Published tag bytes, fetched independently of this checkout's history.
 const released = JSON.parse(await readFile('tests/fixtures/deployment-spec-v0.6.0.json', 'utf8')).migrations;
 const temporary = await mkdtemp(resolve(tmpdir(), 'spool-old-archive-'));
 let runtime;
+const migrationStatements = migrations => migrations.flatMap(migration => splitStatements(migration.sql))
+ .filter(sql => !/^PRAGMA foreign_keys\s*=\s*ON;?$/i.test(sql.trim()));
 const rows = async (db, sql) => (await db.prepare(sql).all()).results;
 const canonicalRows = data => data.map(row => JSON.stringify(Object.fromEntries(Object.entries(row).sort()))).sort();
 try {
  const modulePath = resolve(temporary, 'portability.mjs');
  await build({entryPoints: ['src/domain/portability.ts'], outfile: modulePath, bundle: true, platform: 'node', format: 'esm'});
  const transfer = await import(pathToFileURL(modulePath));
- runtime = new Miniflare(convertV4MiniflareOptions({modules: true, script: 'export default {}', log: new Log(LogLevel.ERROR), d1Databases: {FRESH: 'fresh', OCCUPIED: 'occupied', MISMATCH: 'mismatch', ROUNDTRIP: 'roundtrip', UPGRADE: 'upgrade', CURRENT_UPGRADE: 'current-upgrade', PRE_METRIC: 'pre-metric', RECENT: 'recent'}}));
+ runtime = new Miniflare(convertV4MiniflareOptions({modules: true, script: 'export default {}', log: new Log(LogLevel.ERROR), d1Databases: {FRESH: 'fresh', OCCUPIED: 'occupied', MISMATCH: 'mismatch', ROUNDTRIP: 'roundtrip', UPGRADE: 'upgrade', CURRENT_UPGRADE: 'current-upgrade', PRE_METRIC: 'pre-metric', RECENT: 'recent', SETUP_UPGRADE: 'setup-upgrade', SETUP_RESTORE: 'setup-restore', SETUP_BACKUP: 'setup-backup', ALERT_BACKUP: 'alert-backup'}}));
  const ledgerTable = manifest.tables.find(t => t.name === 'rer_migrations');
  async function target(binding, schema = migrations) {
   const db = await runtime.getD1Database(binding);
-  const statements = unstable_splitSqlQuery(schema.map(m => m.sql).join('\n')).filter(sql => !/^PRAGMA foreign_keys\s*=\s*ON;?$/i.test(sql.trim()));
+  const statements = migrationStatements(schema);
   await db.batch(statements.map(sql => db.prepare(sql)));
   await db.prepare(ledgerTable.sql).run();
   await db.batch(schema.map(m => db.prepare('INSERT INTO rer_migrations(name,sha256) VALUES(?,?)').bind(m.name, m.sha256)));
@@ -75,17 +77,21 @@ try {
  // An existing capture key predates the loader migration; migrations preserve it too.
  const existingProject = (await rows(upgrade, 'SELECT id FROM projects ORDER BY created,id'))[0].id;
  await upgrade.prepare("INSERT INTO credentials(hash,project,kind,created,revoked) VALUES(?,?,'ingest',1,NULL)").bind('a'.repeat(64), existingProject).run();
+ await upgrade.prepare("INSERT INTO credentials(hash,project,kind,created,revoked) VALUES(?,?,'agent',2,9),(?,?,'deploy',3,NULL)").bind('b'.repeat(64),existingProject,'c'.repeat(64),existingProject).run();
  const oldTables = await rows(upgrade, "SELECT name,sql FROM sqlite_master WHERE type='table' AND name NOT LIKE 'sqlite_%' AND name NOT LIKE '_cf_%' ORDER BY name");
  const beforeUpgrade = new Map(await Promise.all(oldTables.map(async ({name}) => [name, canonicalRows(await rows(upgrade, `SELECT * FROM "${name}"`))])));
  const added = migrations.filter(migration => !released.some(old => old.name === migration.name));
- assert.ok(added.length, 'the test applies the unreleased migration to the populated release');
- const additions = unstable_splitSqlQuery(added.map(migration => migration.sql).join('\n')).filter(sql => !/^PRAGMA foreign_keys\s*=\s*ON;?$/i.test(sql.trim()));
+ const migrationNumber = ({name}) => Number(name.split('_', 1)[0]);
+ assert.deepEqual(added.map(migrationNumber).filter(number => number >= 110 && number <= 114), [110, 111, 112, 113, 114],
+  'the populated release applies roster, key metadata, both setup migrations and alert proposals in numeric order');
+ const additions = migrationStatements(added);
  await upgrade.batch(additions.map(sql => upgrade.prepare(sql)));
  for (const {name,sql} of oldTables) {
   const upgradedRows=await rows(upgrade, `SELECT * FROM "${name}"`);
   if(name==='feedback')assert.ok(upgradedRows.every(row=>row.private_data===null),'upgrade invents no contact, screenshot or reply consent for historical feedback');
   if(name==='alert_mail_jobs')assert.ok(upgradedRows.every(row=>row.agent_attribution===null),'upgrade never invents a first-send agent identity for historical mail');
-  assert.deepEqual(canonicalRows(name==='feedback'?upgradedRows.map(({private_data,...row})=>row):name==='alert_mail_jobs'?upgradedRows.map(({agent_attribution,...row})=>row):upgradedRows), beforeUpgrade.get(name), `populated upgrade preserves every pre-existing row: ${name}`);
+  if(name==='credentials')assert.ok(upgradedRows.every(row=>row.name===''&&row.last_used===null),'upgrade leaves historical key names blank and last use unknown');
+  assert.deepEqual(canonicalRows(name==='feedback'?upgradedRows.map(({private_data,...row})=>row):name==='alert_mail_jobs'?upgradedRows.map(({agent_attribution,...row})=>row):name==='credentials'?upgradedRows.map(({name,last_used,...row})=>row):upgradedRows), beforeUpgrade.get(name), `populated upgrade preserves every pre-existing row: ${name}`);
   const currentSql=(await upgrade.prepare("SELECT sql FROM sqlite_master WHERE type='table' AND name=?").bind(name).first()).sql;
   if(name==='audit_context'){
    assert.equal(currentSql,sql.replace(/\)\s*$/,', native_start INTEGER NOT NULL DEFAULT 0)'), 'native audit attribution adds only its declared default-zero cursor to the released context');
@@ -101,6 +107,12 @@ try {
    assert.equal(withoutColumn(currentSql,'private_data'),sql,'private review preserves all released feedback columns and constraints');
    const column=(await rows(upgrade,"PRAGMA table_info('feedback')")).find(column=>column.name==='private_data');
    assert.deepEqual({type:column.type,notnull:column.notnull,default:column.dflt_value},{type:'TEXT',notnull:0,default:'NULL'});
+  }else if(name==='sentry_import_targets'){
+   assert.equal(currentSql.replace(",'import-proposal'",'').replace('CREATE TABLE "sentry_import_targets"','CREATE TABLE sentry_import_targets'),sql,'roster import expands only the provenance kind discriminator');
+  }else if(name==='credentials'){
+   assert.equal(withoutColumn(withoutColumn(currentSql,'last_used'),'name'),sql,'key metadata preserves every released credential column and constraint');
+   const columns=await rows(upgrade,"PRAGMA table_info('credentials')");
+   assert.deepEqual(columns.filter(column=>['name','last_used'].includes(column.name)).map(({name,type,notnull,dflt_value})=>({name,type,notnull,dflt_value})),[{name:'name',type:'TEXT',notnull:1,dflt_value:"''"},{name:'last_used',type:'INTEGER',notnull:0,dflt_value:null}]);
   }else if(name==='alerts'){
    assert.equal(currentSql.replace('issue TEXT REFERENCES issues(id)','issue TEXT NOT NULL REFERENCES issues(id)').replace(", CHECK((kind='metric' AND issue IS NULL) OR (kind<>'metric' AND issue IS NOT NULL))",''),sql,'metric feed changes only issue nullability and its kind constraint');
   }else if(name!=='spool_audit_events')assert.equal(currentSql,sql,`populated upgrade preserves released table schema: ${name}`);
@@ -132,7 +144,7 @@ try {
  assert.ok(currentRows.get('projects').length && currentRows.get('events').length, '0068 installation has populated evidence');
  const from0068 = migrations.filter(m => m.name > '0068_artifact_build_sets.sql' && m.name <= '0073_identity_policy.sql');
  assert.equal(from0068.length, 5, 'all five c15 additive migrations follow 0068');
- await currentUpgrade.batch(unstable_splitSqlQuery(from0068.map(m => m.sql).join('\n')).filter(sql => !/^PRAGMA foreign_keys\s*=\s*ON;?$/i.test(sql.trim())).map(sql => currentUpgrade.prepare(sql)));
+ await currentUpgrade.batch(migrationStatements(from0068).map(sql => currentUpgrade.prepare(sql)));
  for (const {name,sql} of currentTables) {
   assert.deepEqual(canonicalRows(await rows(currentUpgrade, `SELECT * FROM "${name}"`)), currentRows.get(name), `0068 upgrade preserves every row: ${name}`);
   assert.equal((await currentUpgrade.prepare("SELECT sql FROM sqlite_master WHERE type='table' AND name=?").bind(name).first()).sql, sql, `0068 upgrade preserves schema: ${name}`);
@@ -142,13 +154,67 @@ try {
  // Backups made immediately before project metrics carry complete behavior and
  // hashed migration history, unlike the earlier table-only fixture above.
  const preMetric=await target('PRE_METRIC',migrations.filter(m=>m.name<'0106'));
- transfer.portabilityPolicy.validateStaged=context=>stagedValidation({...context,read:table=>table==='sentry_transactions'?Promise.resolve([]):context.read(table)});
+ transfer.portabilityPolicy.validateStaged=context=>stagedValidation({...context,read:table=>['sentry_transactions','spool_import_proposals'].includes(table)?Promise.resolve([]):context.read(table)});
  try{await transfer.restoreStream(await transfer.portability(preMetric),new Response(archive).body)}finally{transfer.portabilityPolicy.validateStaged=stagedValidation}
  const recentArchive=await new Response(await transfer.archiveStream(await transfer.portability(preMetric))).text(),recent=await target('RECENT');
  await transfer.restoreStream(await transfer.portability(recent),new Response(recentArchive).body);
  for(const [table,data] of Object.entries(expected))assert.deepEqual(canonicalRows(await rows(recent,`SELECT * FROM "${table}"`)),canonicalRows(data),'pre-metric native archive preserves '+table);
  assert.deepEqual(await rows(recent,'SELECT * FROM sentry_transactions'),[],'an old backup invents no transactions');
  console.log('PASS pre-metric archive with complete native objects and hashed ledger restores into the metric schema');
+
+ // An installation built by the setup round has already applied 0112 and
+ // 0113. Fill the 0111 gap and apply the alert proposal migration without rolling its ledger or evidence back.
+ const setupSchema = migrations.filter(migration => migrationNumber(migration) <= 113 && migrationNumber(migration) !== 111);
+ const setupUpgrade = await target('SETUP_UPGRADE', setupSchema);
+ await transfer.restoreStream(await transfer.portability(setupUpgrade), new Response(recentArchive).body);
+ const keyHash = 'd'.repeat(64);
+ await setupUpgrade.prepare("INSERT INTO credentials(hash,project,kind,created,revoked) VALUES(?,?,'ingest',1,NULL)").bind(keyHash, existingProject).run();
+ const rosterId='synthetic-archive-roster-team';
+ await setupUpgrade.prepare("INSERT INTO spool_import_proposals(id,project,kind,payload,version,created) VALUES(?,?,'team',?,1,1)").bind(rosterId, existingProject, JSON.stringify({name:'Synthetic archive team'})).run();
+ const rosterBefore=await rows(setupUpgrade,'SELECT * FROM spool_import_proposals');
+ const beforeSetupUpgrade = await new Response(await transfer.archiveStream(await transfer.portability(setupUpgrade))).text();
+ const setupLedger = await rows(setupUpgrade, 'SELECT name FROM rer_migrations ORDER BY rowid');
+ assert.deepEqual(setupLedger.map(migrationNumber).filter(number => number >= 110), [110, 112, 113]);
+ const appliedNames = new Set(setupLedger.map(({name}) => name));
+ const pending = migrations.filter(migration => !appliedNames.has(migration.name));
+ assert.deepEqual(pending.map(migrationNumber).slice(0,2), [111,114]);
+ let beforeAlertUpgrade;
+ for (const migration of pending) {
+  const {name,sql,sha256}=migration;
+  if(migrationNumber(migration)===114)beforeAlertUpgrade=await new Response(await transfer.archiveStream(await transfer.portability(setupUpgrade))).text();
+  await setupUpgrade.batch([
+   ...splitStatements(sql).map(statement => setupUpgrade.prepare(statement)),
+   setupUpgrade.prepare('INSERT INTO rer_migrations(name,sha256) VALUES(?,?)').bind(name, sha256),
+  ]);
+ }
+ assert.deepEqual((await rows(setupUpgrade, 'SELECT name FROM rer_migrations ORDER BY rowid')).map(migrationNumber).filter(number => number >= 110 && number <= 114), [110,112,113,111,114]);
+ assert.deepEqual(await rows(setupUpgrade,'SELECT * FROM spool_import_proposals'),rosterBefore,'migration preserves populated roster proposals');
+ assert.deepEqual(await setupUpgrade.prepare('SELECT project,kind,created,revoked,name,last_used FROM credentials WHERE hash=?').bind(keyHash).first(),
+  {project:existingProject,kind:'ingest',created:1,revoked:null,name:'',last_used:null});
+ const afterSetupUpgrade = await new Response(await transfer.archiveStream(await transfer.portability(setupUpgrade))).text();
+ const setupBackup = await target('SETUP_BACKUP');
+ await transfer.restoreStream(await transfer.portability(setupBackup), new Response(beforeSetupUpgrade).body);
+ const setupRestore = await target('SETUP_RESTORE');
+ const alertBackup=await target('ALERT_BACKUP');
+ await transfer.restoreStream(await transfer.portability(setupRestore), new Response(afterSetupUpgrade).body);
+ assert.ok(beforeAlertUpgrade);
+ await transfer.restoreStream(await transfer.portability(alertBackup),new Response(beforeAlertUpgrade).body);
+ for(const restored of [setupBackup,alertBackup,setupRestore]){
+  assert.deepEqual(await rows(restored,'SELECT * FROM spool_import_proposals'),rosterBefore,'restored roster proposals keep their review state');
+  assert.deepEqual((await rows(restored,'SELECT name FROM rer_migrations ORDER BY rowid')).map(migrationNumber).filter(number=>number>=110&&number<=114),[110,111,112,113,114],'restore keeps the destination migration ledger');
+ }
+ for (const [table,data] of Object.entries(expected)) {
+  assert.deepEqual(canonicalRows(await rows(setupUpgrade, `SELECT * FROM "${table}"`)), canonicalRows(data), `late 0111 preserves ${table}`);
+  assert.deepEqual(canonicalRows(await rows(setupBackup, `SELECT * FROM "${table}"`)), canonicalRows(data), `setup-era archive restores across 0111: ${table}`);
+  assert.deepEqual(canonicalRows(await rows(setupRestore, `SELECT * FROM "${table}"`)), canonicalRows(data), `late-0111 archive restores ${table}`);
+ }
+ for (const archiveText of [beforeSetupUpgrade,afterSetupUpgrade]) {
+  assert.ok(!archiveText.includes(keyHash), 'key grants stay out of archives on both sides of the upgrade');
+ }
+ assert.deepEqual(await rows(setupBackup,'SELECT * FROM credentials'),[]);
+ assert.deepEqual(await rows(setupRestore,'SELECT * FROM credentials'),[]);
+ console.log('PASS populated migration order 0110, 0112, 0113, 0111, 0114: existing evidence, key authority and roster proposals survive upgrade and archives on both sides restore');
+
  const fresh = await target('FRESH');
  const ledger = await rows(fresh, 'SELECT * FROM rer_migrations ORDER BY name');
  await transfer.restoreStream(await transfer.portability(fresh), new Response(archive).body);

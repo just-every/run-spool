@@ -2,6 +2,7 @@ import { normalizeEmail } from '../../modules/operator-auth/policy.mjs';
 import { identity, scrub } from '../privacy';
 
 export const memberTables = {
+ spool_import_proposals: ['id','project','kind','payload','state','version','created'],
  spool_organizations: ['id','name','created'],
  spool_members: ['id','organization','operator_id','email','name','role','state','version','created'],
  spool_project_teams: ['project','organization','team'],
@@ -20,6 +21,7 @@ export function memberExportRow(table:string,row:any) {
  if(table==='spool_team_digest_settings')return {...row,daily:0,weekly:0};
  if(table==='spool_team_snoozes')return {...row,historical:1};
  if(table==='spool_team_mail')return {...row,body:row.body.split('\n').map((line:string)=>scrub(line)).join('\n'),historical:1,state:'historical',code:'archive_inert'};
+ if(table==='spool_import_proposals')return {...row,state:'pending'};
  if(table==='spool_members')return {...row,operator_id:null,state:'inert',name:scrub(row.name)};
  if(table==='spool_service_accounts')return {...row,sponsor:'',state:'inert',name:scrub(row.name)};
  if(table==='spool_member_invites')return {...row,state:'inert'};
@@ -36,6 +38,14 @@ function indexed(rows:any[],key:string) {
  return found;
 }
 export function validateMemberArchive(data:any,alertRules:any[] = []) {
+ for(const row of indexed(data.spool_import_proposals,'id').values()){
+  require(data.projects.some((p:any)=>p.id===row.project)&&['member','team','ownership','alert'].includes(row.kind)&&row.state==='pending'&&integer(row.version)&&row.version>0&&integer(row.created));
+  let payload:any;try{payload=JSON.parse(row.payload)}catch{require(false)}
+  require(payload&&typeof payload==='object'&&!Array.isArray(payload));
+  if(row.kind==='member'){require(normalizeEmail(payload.email)===payload.email&&typeof payload.name==='string'&&['admin','billing','member'].includes(payload.role)&&Array.isArray(payload.grants));for(const grant of payload.grants)require(data.projects.some((p:any)=>p.id===grant.project)&&['maintainer','member','read-only'].includes(grant.role));require(payload.role!=='billing'||!payload.grants.length);}
+  if(row.kind==='alert')require(payload.enabled===false&&typeof payload.name==='string'&&Array.isArray(payload.omissions)&&Array.isArray(payload.destinations));
+  if(row.kind==='ownership')require(payload.enabled===false&&typeof payload.raw==='string'&&Array.isArray(payload.schema?.rules));
+ }
  const organizations=indexed(data.spool_organizations,'id'),members=indexed(data.spool_members,'id'),services=indexed(data.spool_service_accounts,'id');
  const projects=new Set(data.projects.map((row:any)=>row.id)),teams=new Map<string,string>(),emails=new Set<string>();
  for(const row of organizations.values())require(text(row.name)&&integer(row.created));

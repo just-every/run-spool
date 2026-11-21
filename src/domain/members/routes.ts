@@ -1,3 +1,4 @@
+import { importedMembers } from './imports';
 import { mailSuppressed } from '../../auth/mail.server.mjs';
 import { localDevelopmentEnabled } from '../../auth/local.server.mjs';
 import { localInvitationLink } from './local-invitations';
@@ -26,7 +27,7 @@ memberRoutes.use('*',async(c,next)=>{
 const organization=(db:D1Database)=>s(db,'SELECT * FROM spool_organizations ORDER BY created LIMIT 1').first<any>();
 memberRoutes.get('/me',async c=>{
  const session=c.get('teamSession'), org=await organization(c.env.DB);
- return c.json({mailSuppressed:mailSuppressed(c.env),localTransferConfirmation:localDevelopmentEnabled(c.env)&&session.kind==='dev',role:session.operator.role==='owner'?'owner':session.membership.role,memberId:session.membership?.id??(await s(c.env.DB,'SELECT id FROM spool_members WHERE operator_id=?',session.operator.id).first<any>())?.id,organization:org,projects:await memberProjects(c.env.DB,session)});
+ return c.json({profile:{name:session.operator.displayName,email:session.operator.email},mailSuppressed:mailSuppressed(c.env),localTransferConfirmation:localDevelopmentEnabled(c.env)&&session.kind==='dev',role:session.operator.role==='owner'?'owner':session.membership.role,memberId:session.membership?.id??(await s(c.env.DB,'SELECT id FROM spool_members WHERE operator_id=?',session.operator.id).first<any>())?.id,organization:org,projects:await memberProjects(c.env.DB,session)});
 });
 memberRoutes.get('/usage',async c=>{
  const session=c.get('teamSession');
@@ -38,22 +39,29 @@ memberRoutes.use('*',async(c,next)=>{
  if(session.operator.role!=='owner'&&session.membership?.role!=='admin')return c.json({error:'Project not found'},404);
  await next();
 });
+memberRoutes.route('/imports',importedMembers);
 memberRoutes.get('/',async c=>{
  const db=c.env.DB;
  const [org,members,grants,teams,services,scopes,invites]=await Promise.all([
   organization(db),s(db,"SELECT m.*,COALESCE(o.status,'inert') operatorStatus,CASE WHEN o.role='owner' THEN 'owner' ELSE m.role END role FROM spool_members m LEFT JOIN oa_operators o ON o.id=m.operator_id ORDER BY m.created,m.id").all(),
   s(db,'SELECT * FROM spool_project_grants').all(),s(db,'SELECT * FROM spool_project_teams').all(),s(db,'SELECT * FROM spool_service_accounts').all(),s(db,'SELECT * FROM spool_service_scopes').all(),s(db,'SELECT * FROM spool_member_invites').all(),
  ]);
- return c.json({organization:org,members:members.results,grants:grants.results,teams:teams.results,services:services.results,scopes:scopes.results,invites:await Promise.all(invites.results.map(async (row:any)=>({...row,localLink:await localInvitationLink(c.env,c.get('teamSession'),row.id)})))});
+ return c.json({organization:org,members:members.results,grants:grants.results,teams:teams.results,services:services.results,scopes:scopes.results,invites:await Promise.all(invites.results.map(async (row:any)=>({...row,state:row.state==='invited'&&members.results.some((m:any)=>m.id===row.member&&m.operatorStatus==='active')?'accepted':row.state,localLink:await localInvitationLink(c.env,c.get('teamSession'),row.id)})))});
 });
 memberRoutes.post('/',async c=>{
  const session=c.get('teamSession');if(session.operator.role!=='owner')return c.json({error:'Project not found'},404);
- const b=await jsonBody(c.req.raw,2048);fields(b,['id','name']);const id=identity(b.id,'organization'), label=name(b.name),time=Date.now();
+ const b=await jsonBody(c.req.raw,2048);fields(b,['id','name']);const id=identity(b.id??crypto.randomUUID(),'organization'), label=name(b.name),time=Date.now();
  if(await organization(c.env.DB))return c.json({error:'Organization already exists'},409);
  await ownerBatch(c.env.DB,session,[check(c.env.DB,'NOT EXISTS(SELECT 1 FROM spool_organizations)'),s(c.env.DB,'INSERT INTO spool_organizations VALUES(?,?,?)',id,label,time),
   s(c.env.DB,"INSERT INTO spool_members VALUES(?,?,?,?,?,'admin','active',1,?)",crypto.randomUUID(),id,session.operator.id,session.operator.email,session.operator.displayName,time),
   s(c.env.DB,"INSERT INTO spool_project_teams SELECT id,?,'Default team' FROM projects",id),auditCommit(c.env.DB)]);
  return c.json({id,name:label,created:time},201);
+});
+memberRoutes.put('/',async c=>{
+ const org=await organization(c.env.DB);if(!org)return c.json({error:'Organization not found'},404);
+ const b=await jsonBody(c.req.raw,2048);fields(b,['name']);const label=name(b.name);
+ await ownerBatch(c.env.DB,c.get('teamSession'),[s(c.env.DB,'UPDATE spool_organizations SET name=? WHERE id=?',label,org.id),auditCommit(c.env.DB)]);
+ return c.json({...org,name:label});
 });
 memberRoutes.post('/invites',async c=>{
  const org=await organization(c.env.DB);if(!org)return c.json({error:'Create an organization first'},409);

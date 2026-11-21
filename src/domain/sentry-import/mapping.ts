@@ -1,8 +1,10 @@
+import { memberIdentity, proposalId, timestamp } from '../members/import-model';
 import { sha256, canonicalJson } from '../../modules/import-kit/src/provenance/identity.ts';
 import type { ImportMapping, MappingResult, SourceBundle, SourceRecord } from '../../modules/import-kit/src/types.ts';
 import { identity, scrub } from '../privacy.ts';
 import { absentDist } from '../releases/build.ts';
 import { apiEvent } from './event.ts';
+import { mapAlert, sentryRuleKinds } from './alert-rules';
 import { mappingVersion, sourceText } from './source.ts';
 export const nativeProject=(organization:string,slug:string,vendor='sentry')=>`${vendor}-${sha256(JSON.stringify([organization,slug])).slice(0,32)}`;
 const time=(value:any)=>{const n=Date.parse(value);if(!Number.isSafeInteger(n)||n<0)throw new Error('Source timestamp required');return n};
@@ -57,6 +59,49 @@ export function organizationMapping(bundle:SourceBundle,operationKey:string,vend
     const names=[...releases.entries()].filter(([key])=>JSON.parse(key)[0]===slug).sort((a,b)=>time(a[1].dateCreated)-time(b[1].dateCreated)||a[0].localeCompare(b[0]));
     names.forEach(([key],index)=>seqs.set(key,index+1));
   }
+  const detectorRecords = bundle.records.filter(record => record.kind === 'detectors');
+  const detectorById = new Map(detectorRecords.map(record => [String((record.payload as any).data.id), record]));
+  const linkedDetectors = new Set(bundle.records.filter(record => record.kind === 'workflows').flatMap(record => {
+    const ids = (record.payload as any).data.detectorIds;
+    return Array.isArray(ids) ? ids.map(String) : [];
+  }));
+  const allowedProjects = [...projects.keys()].filter(slug => !projectErrors.has(slug)).sort();
+  function alertProjects(data: any, scoped: string | null): (string|undefined)[] {
+    const ids: any[] = scoped ? [scoped] : Array.isArray(data.projects) ? data.projects : [data.projectId ?? data.project];
+    return [...new Set(ids.map(value => {
+      const ref = value?.slug ?? value?.id ?? value;
+      return allowedProjects.find(slug => slug === ref || String(projects.get(slug).id) === String(ref));
+    }))];
+  }
+  function mapAlertRecord(record: SourceRecord): MappingResult {
+    const { organization, project, data } = record.payload as any;
+    const location = record.location?.pointer ?? '';
+    if (!allowedProjects.length) throw new Error('Alert proposal requires an accepted project');
+    if (record.kind === 'detectors' && linkedDetectors.has(String(data.id))) {
+      return { effects: [], unmapped: [{ reason: 'Monitor definition is linked from its workflow proposal.' }] };
+    }
+    const detectors = record.kind === 'workflows' && Array.isArray(data.detectorIds) && data.detectorIds.length
+      ? [...new Set(data.detectorIds.map(String))].map(ref => detectorById.get(ref as string))
+      : [undefined];
+    const result: MappingResult = { effects: [], unmapped: [] };
+    for (const detector of detectors) {
+      const linked = detector ? { data: (detector.payload as any).data, location: detector.location?.pointer ?? (detector as any).pointer ?? '' } : undefined;
+      const proposal = mapAlert(record.kind, data, location, linked);
+      const slugs = alertProjects(linked?.data ?? data, project);
+      for (const slug of slugs.length ? slugs : [undefined]) {
+        const custody = slug ?? allowedProjects[0], native = projectId(organization,custody);
+        const sourceId = record.kind + ':' + sha256(canonicalJson([String(data.id), slug ?? null, linked?.data.id ?? null]));
+        const id = proposalId(organization, 'alert', sourceId);
+        const unavailable = slug ? [] : [{ path: location, reason: 'Source project has no matching imported project' }];
+        const payload = canonicalJson({ ...proposal, omissions: [...proposal.omissions, ...unavailable] });
+        const created = Date.parse(data.dateCreated ?? data.created ?? '');
+        result.effects.push(...effects('import-proposal',id,{id,project:native,kind:'alert',payload,state:'pending',version:1,created:Number.isSafeInteger(created)&&created>=0?created:0},
+          {organization, project:custody, id:sourceId}).effects);
+        result.unmapped!.push(...[...proposal.omissions, ...unavailable].map(({path,reason}) => ({field:path,reason})));
+      }
+    }
+    return result;
+  }
   return {version:vendor==='sentry'?mappingVersion:'spool-bugsnag-org-v1',map(record:SourceRecord):MappingResult{
     const result=mapRecord(record);
     for(const effect of result.effects){const value=effect.value as any;value.source=provenance(value.source)}
@@ -80,6 +125,50 @@ export function organizationMapping(bundle:SourceBundle,operationKey:string,vend
         const seen=new Set<string>();
         for(const linked of data.projects){const slug=sourceText(linked.slug,'release project');if(seen.has(slug))continue;seen.add(slug);if(!projects.has(slug))throw new Error('Release project missing');const key=JSON.stringify([slug,name]);if((distSets.get(key)?.size??0)>1)throw new Error('Multiple distributions for one release are outside the native release contract');const build=[...distSets.get(key)??[]][0]??absentDist;const project=projectId(org,slug);
           result.effects.push(...effects('release',JSON.stringify([project,name]),{project,name,seq:seqs.get(key)!,build,created:time(data.dateCreated)},{organization:org,project:slug,id:name}).effects)}
+        return result;
+      }
+      if(vendor==='sentry'&&sentryRuleKinds.includes(record.kind))return mapAlertRecord(record);
+      if(vendor==='sentry'&&['members','teams','team-members','ownership'].includes(record.kind)){
+        const available=[...projects.keys()].filter(slug=>!projectErrors.has(slug));
+        if(!available.length)throw new Error('Roster requires an accepted project for erasure custody');
+        const sourceTeams=bundle.records.filter(r=>r.kind==='teams').map(r=>(r.payload as any).data);
+        const teamProjects=(team:any)=>available.filter(slug=>{
+          const row=projects.get(slug);
+          return Array.isArray(row.teams)&&row.teams.some((t:any)=>t.id===team.id||t.slug===team.slug)
+            || Array.isArray(team.projects)&&team.projects.some((p:any)=>p.slug===slug);
+        });
+        if(record.kind==='team-members')return {effects:[],unmapped:[{reason:'Team membership is represented by the pending roster scopes; no access is granted.'}]};
+        let kind:string,payload:any,slug:string,created:number;
+        if(record.kind==='members'){
+          kind='member';const member=memberIdentity(data),scopes=new Map<string,string>(),teamIds:string[]=[];
+          for(const team of sourceTeams){
+            const linked=bundle.records.filter(r=>r.kind==='team-members'&&(r.payload as any).team===team.slug&&(r.payload as any).data.id===data.id);
+            if(!linked.length)continue;
+            teamIds.push(sourceText(team.id,'team id'));
+            for(const r of linked){const role=(r.payload as any).data.teamRole;if(!['member','contributor','admin'].includes(role))throw new Error('Unsupported source team role; no scope is broadened');
+              if(member.projectRole)for(const project of teamProjects(team))scopes.set(project,scopes.get(project)==='maintainer'||member.projectRole==='maintainer'||role==='admin'?'maintainer':'member');}
+          }
+          slug=[...scopes.keys()].sort()[0]??available[0];created=member.sourceCreated;
+          payload={...member,sourceId:data.id,sourceRole:data.orgRole,teamIds,grants:[...scopes].sort().map(([slug,role])=>({project:projectId(org,slug),role})),
+            dropped:['user (including verified email, SSO, password and 2FA trust)','flags','inviteStatus','inviterName'],
+            sourceUserId:typeof data.user?.id==='string'?data.user.id:null};
+        }else if(record.kind==='teams'){
+          kind='team';sourceText(data.id,'team id');sourceText(data.slug,'team slug');sourceText(data.name,'team name');created=timestamp(data.dateCreated);
+          const linked=teamProjects(data);slug=linked[0]??available[0];
+          payload={sourceId:data.id,slug:data.slug,name:data.name,projects:linked.map(slug=>projectId(org,slug)),
+            memberIds:bundle.records.filter(r=>r.kind==='team-members'&&(r.payload as any).team===data.slug).map(r=>(r.payload as any).data.id),dropped:['access','hasAccess','isMember','teamRole','flags','avatar']};
+        }else{
+          kind='ownership';slug=sourceText(p.project,'ownership project');if(!projects.has(slug)||projectErrors.has(slug))throw new Error('Ownership project missing or rejected');
+          created=timestamp(data.dateCreated);timestamp(data.lastUpdated);
+          if(typeof data.raw!=='string'||!data.schema||!Array.isArray(data.schema.rules))throw new Error('Ownership raw and schema required');
+          payload={...data,enabled:false,sourceId:slug,sourceRevision:data.lastUpdated,
+            dropped:['isActive (disabled)','autoAssignment (not activated)','codeownersAutoSync (no provider consent or fetch)']};
+        }
+        const sourceId=sourceText(kind==='ownership'?slug:data.id,'source id'),id=proposalId(org,kind,sourceId);
+        const result=effects('import-proposal',id,{id,project:projectId(org,slug),kind,payload:canonicalJson(payload),state:'pending',version:1,created},{organization:org,project:slug,id:sourceId});
+        result.unmapped=omitted(data,record.kind==='members'?['id','email','name','orgRole','pending','expired','dateCreated','user']:record.kind==='teams'?['id','slug','name','dateCreated','projects']:['raw','schema','dateCreated','lastUpdated']);
+        if(record.kind==='members')result.unmapped.push({field:'user',reason:'User identity is retained only for ownership matching. Verification, SSO, 2FA, sessions and credentials confer no trust.'});
+        if(record.kind==='ownership')result.unmapped.push({field:'schema',reason:'Exact rules are disabled proposals. Unsupported matchers and unresolved owners require native review; source-order preview is not a repository revision.'});
         return result;
       }
       if(!['issues','events'].includes(record.kind))return {effects:[],unmapped:[{reason:'Unsupported collection retained in the private source journal, without native effects.'}]};

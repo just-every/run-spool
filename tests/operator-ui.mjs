@@ -30,15 +30,14 @@ export async function operatorUi({page,api,origin,project,issue,capture}){
 
  await page.goto(`${origin}/projects/${project}/issues/${issue}`);
  await page.getByRole('heading',{name:'Operator decisions',exact:true}).waitFor();
- const assignment=page.getByLabel('Assigned to',{exact:true});
+ const assignment=page.getByRole('combobox',{name:'Assign to',exact:true});
+ const directory=await api(root+'/assignment-members'),assignee=directory.members[0];
+ await assignment.waitFor();
  if(page.viewportSize().width===1440){
  const beforeAssignment=await api(root+'/operator-state');
- await assignment.fill('dev.lead@example.com');
- const [refused]=await Promise.all([page.waitForResponse(r=>r.url().endsWith('/assignment')&&r.request().method()==='PATCH'),page.getByRole('button',{name:'Save assignment',exact:true}).click()]);
- assert.equal(refused.status(),400);const refusal=await refused.json();assert.match(refusal.error,/email/i,'The public route explains why the value is refused');
- await page.getByRole('alert').filter({hasText:refusal.error}).waitFor();
- assert.equal(await assignment.inputValue(),'dev.lead@example.com','A refused assignment preserves the draft');
- assert.equal(await assignment.getAttribute('aria-invalid'),'true');
+ const current=await api(root+'/issues/'+issue+'/packet');
+ const refused=await fetch(origin+root+'/issues/'+issue+'/assignment',{method:'PATCH',headers:{Cookie:(await page.context().cookies()).map(row=>row.name+'='+row.value).join('; '),Origin:origin,'Content-Type':'application/json'},body:JSON.stringify({revision:current.issue.revision,label:'synthetic-private@example.test'})});
+ assert.equal(refused.status,400);const refusal=await refused.json();assert.match(refusal.error,/email/i,'The public route still refuses private data in legacy responsibility labels');
  assert.deepEqual((await api(root+'/operator-state')).assignments,beforeAssignment.assignments,'Refused private data changes no assignment');
  }
  if(page.viewportSize().width===1440){
@@ -51,45 +50,68 @@ export async function operatorUi({page,api,origin,project,issue,capture}){
   await page.locator('.timeline').getByText('Synthetic assignment follow-up',{exact:true}).waitFor();
  }
  if(page.viewportSize().width===1440){
-  const status=page.locator('.triage select').first(),next=await status.inputValue()==='acknowledged'?'open':'acknowledged';
+  const status=page.getByRole('combobox',{name:'Status',exact:true}),next=await status.inputValue()==='acknowledged'?'open':'acknowledged';
   const changed=page.waitForResponse(r=>new URL(r.url()).pathname===root+'/issues/'+issue&&r.request().method()==='PATCH');
   await status.selectOption(next);const statusResponse=await changed;assert.equal(statusResponse.status(),200,'The status write succeeds before an immediate assignment');
  }
- await assignment.fill('Browser operator');
- const [assigned]=await Promise.all([page.waitForResponse(r=>r.url().endsWith('/assignment')&&r.request().method()==='PATCH'),page.getByRole('button',{name:'Save assignment',exact:true}).click()]);
+ await assignment.selectOption(assignee.id);
+ const [assigned]=await Promise.all([page.waitForResponse(r=>r.url().endsWith('/assignment')&&r.request().method()==='PATCH'),page.getByRole('button',{name:'Assign',exact:true}).click()]);
  if(page.viewportSize().width===1440){page.emit('spool:assignment-saved');await page.unroute('**/issues/'+issue+'/packet');}
- assert.equal(assigned.status(),200);assert.equal((await assigned.json()).label,'Browser operator');
+ assert.equal(assigned.status(),200);assert.equal((await assigned.json()).member,assignee.id);
 
  if(page.viewportSize().width===1440){
   await page.getByRole('status').filter({hasText:/assignment.*saved/i}).waitFor();
   await capture('operator-assignment');
-  await page.waitForFunction(()=>!document.querySelector('input[maxlength="80"]')?.disabled);
+  await page.waitForFunction(()=>!document.querySelector('select[aria-label="Assign to"]')?.disabled);
   // Another writer really changes the issue while this loaded form stays stale.
   const current=await api(root+'/issues/'+issue+'/packet');
   await api(root+'/issues/'+issue+'/assignment','PATCH',{revision:current.issue.revision,label:'Another operator'});
-  await assignment.fill('Browser operator draft');
+  await assignment.selectOption('');
   const refused=page.waitForResponse(r=>r.url().endsWith('/assignment')&&r.request().method()==='PATCH');
-  await page.getByRole('button',{name:'Save assignment',exact:true}).click();assert.equal((await refused).status(),409,'A real concurrent write is still fenced');
-  await page.waitForFunction(()=>document.querySelector('input[maxlength="80"]')?.getAttribute('aria-invalid')==='true');
-  const feedback=page.locator('#'+await assignment.getAttribute('aria-describedby'));
-  assert.match(await feedback.innerText(),/reload/i,'The conflict names a recovery action available on this screen');
-  assert.doesNotMatch(await feedback.innerText(),/preview/i,'Assignment has no preview action');
-  assert.equal(await assignment.inputValue(),'Browser operator draft','A refused save preserves the draft');
+  await page.getByRole('button',{name:'Assign',exact:true}).click();assert.equal((await refused).status(),409,'A real concurrent write is still fenced');
+  const feedback=page.locator('.assignment-picker').getByRole('alert');
+  await feedback.waitFor();
+  const feedbackText=await feedback.innerText();
+  assert.match(feedbackText,/reload/i,'The conflict names a recovery action available on this screen');
+  assert.doesNotMatch(feedbackText,/preview/i,'Assignment has no preview action');
+  assert.equal(await assignment.inputValue(),'','A refused save preserves the unassignment draft');
   assert.equal((await api(root+'/operator-state')).assignments.find(row=>row.issue===issue).label,'Another operator','A stale assignment cannot overwrite another writer');
-  await page.reload();await page.waitForFunction(()=>!document.querySelector('input[maxlength="80"]')?.disabled);
-  await assignment.fill('Browser operator');
+  await page.reload();await page.waitForFunction(()=>!document.querySelector('select[aria-label="Assign to"]')?.disabled);
+  await assignment.selectOption(assignee.id);
   const recovered=page.waitForResponse(r=>r.url().endsWith('/assignment')&&r.request().method()==='PATCH');
-  await page.getByRole('button',{name:'Save assignment',exact:true}).click();assert.equal((await recovered).status(),200,'Reloaded assignment saves with the current revision');
+  await page.getByRole('button',{name:'Assign',exact:true}).click();assert.equal((await recovered).status(),200,'Reloaded assignment saves with the current revision');
  }
 
- await page.waitForFunction(()=>{const input=document.querySelector('input[maxlength="80"]');return input&&!input.disabled&&input.value==='Browser operator';});
- if(page.viewportSize().width===1440){await page.reload();await page.waitForFunction(()=>{const input=document.querySelector('input[maxlength="80"]');return input&&!input.disabled&&input.value==='Browser operator';});}
- const [unassigned]=await Promise.all([page.waitForResponse(r=>r.url().endsWith('/assignment')&&r.request().method()==='PATCH'),page.getByRole('button',{name:'Unassign',exact:true}).click()]);
+ await page.waitForFunction(id=>{const input=document.querySelector('select[aria-label="Assign to"]');return input&&!input.disabled&&input.value===id;},assignee.id);
+ if(page.viewportSize().width===1440){await page.reload();await page.waitForFunction(id=>{const input=document.querySelector('select[aria-label="Assign to"]');return input&&!input.disabled&&input.value===id;},assignee.id);}
+ // Keep the existing panel usable while an assignment refresh reads its old
+ // policy snapshot. Releasing that read after Add must preserve the saved policy.
+ let releasePolicyRead, policyReadSeen = false;
+ if(page.viewportSize().width===1440){
+  await page.getByRole('button',{name:'Details: Suppression policies',exact:true}).click();
+  await page.waitForFunction(()=>{const button=document.querySelector('dialog[open] button.primary-button');return button&&!button.disabled;});
+  await page.keyboard.press('Escape');
+  const gate=new Promise(resolve=>releasePolicyRead=resolve);
+  await page.route('**/alerting/controls',async route=>{const response=await route.fetch();policyReadSeen=true;await gate;await route.fulfill({response});});
+ }
+ await assignment.selectOption('');
+ const [unassigned]=await Promise.all([page.waitForResponse(r=>r.url().endsWith('/assignment')&&r.request().method()==='PATCH'),page.getByRole('button',{name:'Assign',exact:true}).click()]);
  assert.equal(unassigned.status(),200);assert.equal((await unassigned.json()).label,null);
- await page.waitForFunction(()=>{const input=document.querySelector('input[maxlength="80"]');return input&&!input.disabled&&input.value==='';});
+ await page.waitForFunction(()=>{const input=document.querySelector('select[aria-label="Assign to"]');return input&&!input.disabled&&input.value==='';});
+ if(releasePolicyRead){
+  for(let i=0;i<100&&!policyReadSeen;i++)await new Promise(resolve=>setTimeout(resolve,50));
+  assert.ok(policyReadSeen,'The older panel read is held before adding a policy');
+ }
  await page.getByRole('button',{name:'Details: Suppression policies',exact:true}).click();const dialog=page.getByRole('dialog');await dialog.waitFor();
  await dialog.getByRole('button',{name:'Add suppression policy',exact:true}).click();
  await page.waitForFunction(()=>document.querySelector('dialog[open]')?.textContent?.includes('Enabled'));
+ if(releasePolicyRead){
+  assert.equal((await api(root+'/operator-state')).policies.length,1,'The public API retains the saved policy');
+  releasePolicyRead();await page.waitForLoadState('networkidle');
+  await page.evaluate(()=>new Promise(resolve=>requestAnimationFrame(()=>requestAnimationFrame(resolve))));
+  await page.unroute('**/alerting/controls');
+  assert.equal(await dialog.getByRole('button',{name:'Disable policy',exact:true}).isVisible(),true,'A pre-save panel read cannot hide the saved policy');
+ }
  await dialog.getByRole('button',{name:'Disable policy',exact:true}).click();await page.waitForFunction(()=>document.querySelector('dialog[open]')?.textContent?.includes('Disabled'));
  await page.keyboard.press('Escape');
  const beforeSplitList=await api(root+'/issue-search');
@@ -146,10 +168,11 @@ export async function operatorUi({page,api,origin,project,issue,capture}){
   assert.equal((await api('/api/reports?projects='+project)).ownership.unowned,beforeSplitOwnership,'undo restores unowned counts');
   assert.ok(!list.rows.some(row=>row.id===splitPreview.plan.target));
   await page.goto(origin+'/projects/'+project+'/issues');
-  await page.locator('.issue-counts').waitFor();
-  await page.waitForFunction(()=>!document.querySelector('.issue-counts')?.textContent.includes('…'));
+  await page.locator('.issue-count-line').waitFor();
+  await page.waitForFunction(()=>document.querySelector('.issue-browser')?.getAttribute('aria-busy')==='false');
   assert.equal(await page.locator('.issue-open').count(),list.rows.length);
-  assert.equal(await page.locator('.issue-counts').getByText('Open',{exact:true}).locator('..').locator('strong').textContent(),String(list.facets.statuses.find(row=>row.value==='open')?.count??0));
+  const newCount=list.facets.statuses.find(row=>row.value==='open')?.count??0;
+  assert.ok((await page.locator('.issue-count-line').innerText()).split(' · ').includes(newCount+' New'),'the compact count line reconciles the unacknowledged issue count');
   await capture('operator-undone-list');
  }
  // Merge real captured issues using only the rendered review, apply and undo controls.

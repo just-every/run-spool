@@ -1,3 +1,4 @@
+import { keyMetadataMigration } from '../key-metadata-compat';
 import { PortabilityError,canonicalJson } from '../../modules/portability/index.mjs';
 import { archivedHistory,matchMigrationLedger,checkArchivedLedgers } from '../../modules/portability/ledgers.mjs';
 import { libraryMigrations } from '../../modules/portability/library-history.mjs';
@@ -6,7 +7,17 @@ import { ArchiveVerifier } from '../../modules/portability/format.mjs';
 import { catalogue,policy } from '../../modules/portability/catalogue.mjs';
 // A native schema translation must not turn an unverified legacy ledger into
 // current authority. Replay only destination-owned history, never archive SQL.
-export async function verifyTranslatedHistory(service:any,manifest:any,ledgers:any){
+type KnownMigrationGap = { migration: string; schema: string };
+
+// Setup could apply both independent migrations before key metadata became
+// available. Keep the rest of the ledger in its recorded order.
+function orderKeyMetadata(names:string[]){
+ const key=names.indexOf(keyMetadataMigration);
+ if(key<2||!names[key-2].startsWith('0112_')||!names[key-1].startsWith('0113_'))return names;
+ return [...names.slice(0,key-2),names[key],...names.slice(key-2,key),...names.slice(key+1)];
+}
+
+export async function verifyTranslatedHistory(service:any,manifest:any,ledgers:any,gap?:KnownMigrationGap){
  // Legacy table-only hashes can accompany a complete object inventory. Compare
  // replay in its canonical form; readArchive already verified the raw binding.
  const source=await restorableManifest(manifest,{canonical:true}),hasHistory=(ledgers!==undefined&&Object.keys(ledgers).length)||manifest.migrationLedger||manifest.migrations?.length;
@@ -17,16 +28,23 @@ export async function verifyTranslatedHistory(service:any,manifest:any,ledgers:a
  if(manifest.schemaObjects===undefined&&history.some((entry:any)=>!entry.sha256))throw new PortabilityError('schema_mismatch:legacy_schema',409);
  const replay=await factory(),files=replay.names.map((name:string)=>({name,sha256:replay.sha256?.(name),aliases:replay.aliases?.(name)}));
  const recorded=matchMigrationLedger(history??manifest.migrations.map((name:string)=>({name})),files,replay);
- if(canonicalJson(recorded)!==canonicalJson(replay.names.slice(0,recorded.length)))throw new PortabilityError('schema_mismatch:migration_history',409);
- const historical=await replay.schemaAfter(recorded,manifest.schemaObjects===undefined?{tablesOnly:true}:undefined);
+ const recordedOrder=canonicalJson(orderKeyMetadata(recorded)),replayOrder=orderKeyMetadata(replay.names);
+ const prefix=canonicalJson(recorded)===canonicalJson(replay.names.slice(0,recorded.length))
+  || recordedOrder===canonicalJson(replayOrder.slice(0,recorded.length));
+ // A complete, product-matched historical inventory can prove a single known
+ // omission. Every other migration must still match destination replay in order.
+ const fillsKnownGap=gap && replay.names.includes(gap.migration)
+  && recordedOrder===canonicalJson(replayOrder.filter(name=>name!==gap.migration).slice(0,recorded.length));
+ if(!prefix&&!fillsKnownGap)throw new PortabilityError('schema_mismatch:migration_history',409);
+ const historical=fillsKnownGap?gap.schema:await replay.schemaAfter(recorded,manifest.schemaObjects===undefined?{tablesOnly:true}:undefined);
  const current=await catalogue(service.db,config);
  if(historical!==source.schema||await replay.schemaAfter(replay.names)!==current.identity)throw new PortabilityError('schema_mismatch:legacy_schema',409);
 }
 
 // Previous native archives can contain entire bookkeeping-only parts. Repack
 // their verified projection before opening Base's ordinary atomic restore.
-export async function restoreTranslatedProjection(service:any,original:any,manifest:any,parts:any[],ledgers:any,laterJournal?:unknown){
- await verifyTranslatedHistory(service,original,ledgers);
+export async function restoreTranslatedProjection(service:any,original:any,manifest:any,parts:any[],ledgers:any,laterJournal?:unknown,gap?:KnownMigrationGap){
+ await verifyTranslatedHistory(service,original,ledgers,gap);
  manifest={...manifest,partCount:parts.length};
  const binding=new ArchiveVerifier(manifest);for(const part of parts)binding.add(part);
  let id:string|undefined,complete=false;

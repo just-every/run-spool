@@ -11,6 +11,7 @@ import { doorKey, importDoorResponse, ownerReadRequest } from './door.server';
 import { jsonBody } from '../owner-router';
 import type { OwnerSession } from '../owner-authority';
 import { finishOwnerRead, readOwnerInventory, readOwnerPlan } from './owner-reads.server';
+import { approveImportedRules } from './alert-approval';
 import { importReadReasons } from './read-reasons';
 
 const routes = new Hono<{Bindings:ManagedBindings;Variables:{owner:OwnerSession}}>();
@@ -58,6 +59,19 @@ routes.post('/',async c=>{
  if(input.enabled){try{ownerClaimConfig(c.env)}catch{return c.json({error:'Owner-claim trust configuration required'},409)}}
  await writeImportDoorSettings(c.env.DB,await doorKey(c.env),input,ownerImportPredicate(c.get('owner')));
  return c.json(await settings(c.env,c.get('owner')));
+});
+routes.post('/:planId/alert-rules',async c=>{
+ const input=await jsonBody(c.req.raw,1024);
+ if(Object.keys(input).join()!=='fingerprint'||typeof input.fingerprint!=='string'||! /^[a-f0-9]{64}$/.test(input.fingerprint))return c.json({error:'Reviewed import required'},400);
+ const planId=c.req.param('planId'),key=await doorKey(c.env),session=c.get('owner');
+ const plan=await c.env.DB.prepare('SELECT namespace FROM ik_door_plans WHERE id=? AND installation_id=?').bind(planId,key).first<{namespace:string}>();
+ if(!plan)return c.json({error:'Import not found'},404);
+ const request=await ownerReadRequest(c.env,session,key,plan.namespace);
+ try { return c.json(await approveImportedRules(c.env.DB,request,session,planId,input.fingerprint)); }
+ catch (error) {
+  if (error instanceof DoorError) return c.json({error:error.code},error.status as ContentfulStatusCode);
+  throw error;
+ }
 });
 /** Undo from history is one bounded step of the door's own undo, as the owner,
  * whichever authority approved the import and whether or not Business is on. */

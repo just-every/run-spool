@@ -18,7 +18,7 @@ const deliveryTables=['alert_provider_events','alert_digest_settings','alert_sno
 // TEAM-004 short IDs and commit citations (0059) arrive after repairs too; restore numbers the older archive's issues afresh.
 const citationTables=['spool_notification_preferences','short_id_prefixes','issue_short_ids','issue_short_id_moves','commits','release_commits','commit_links','repository_link_log','commit_sharing','sentry_releases','sentry_deploys'];
 // TEAM-001 membership/notification custody, alert conditions, scrubbing rules and c16's artifact stores also postdate the pre-repair archive.
-const laterCustodyTables=['sentry_transactions','agent_door_retired_refs','bs_retired','alert_rule_configs','scrubbing_policies','scrubbing_changes','spool_organizations','spool_members','spool_project_teams','spool_project_grants','spool_member_invites','spool_service_accounts','spool_service_scopes','spool_team_digest_settings','spool_team_snoozes','spool_team_mail','suspect_decisions','slack_delivery_meta','project_identity_keys','health_sessions','health_aggregates','identity_policies','event_identities','retention_policies','review_stamps','review_views'];
+const laterCustodyTables=['spool_import_proposals','sentry_transactions','agent_door_retired_refs','bs_retired','alert_rule_configs','scrubbing_policies','scrubbing_changes','spool_organizations','spool_members','spool_project_teams','spool_project_grants','spool_member_invites','spool_service_accounts','spool_service_scopes','spool_team_digest_settings','spool_team_snoozes','spool_team_mail','suspect_decisions','slack_delivery_meta','project_identity_keys','health_sessions','health_aggregates','identity_policies','event_identities','retention_policies','review_stamps','review_views'];
 const loaderTables=['loader_settings','artifact_storage_settings','source_map_builds','source_map_build_files'];
 const lifecycleTables=['issue_recurrence_boundaries','issue_priorities','issue_activity','issue_comments','issue_subscriptions','recurrence_policies','issue_suppressions'];
 const laterTables=[...lifecycleTables,...laterCustodyTables,...loaderTables,...deliveryTables,...citationTables,...repairTables,...operatorTables,...executionTables,'grouping_routes','inbound_filter_policies','feedback','grouping_policies','release_policies','release_metadata','release_builds','issue_resolutions','deployment_runs','deployment_steps','deployment_notices'];
@@ -45,8 +45,12 @@ const withoutRepairs=data=>Object.fromEntries(Object.entries(data).filter(([tabl
 // recorded migration prefix and table inventory consistent with that release.
 async function beforeFeedbackReviewRelease(manifest){
  await beforeRelayPrivacy(manifest);
- if(manifest.migrations)manifest.migrations=manifest.migrations.filter(name=>name!=='0109_feedback_review.sql');
- if(manifest.migrationLedger)manifest.migrationLedger={...manifest.migrationLedger,entries:manifest.migrationLedger.entries.filter(entry=>entry.name!=='0109_feedback_review.sql')};
+ // Keep the historical prefix even when later migrations are added or renumbered.
+ const laterMigration=name=>Number.parseInt(name,10)>=109;
+ if(manifest.migrations)manifest.migrations=manifest.migrations.filter(name=>!laterMigration(name));
+ if(manifest.migrationLedger)manifest.migrationLedger={...manifest.migrationLedger,entries:manifest.migrationLedger.entries.filter(entry=>!laterMigration(entry.name)&&(!manifest.migrations||manifest.migrations.includes(entry.name)))};
+ // These installation-only objects did not exist in the historical release.
+ if(manifest.schemaObjects)manifest.schemaObjects=manifest.schemaObjects.filter(object=>!['spool_member_identity','capture_sources'].includes(object.name)&&object.table!=='capture_sources');
  const migration=await readFile(new URL('../../migrations/core/0040_feedback.sql',import.meta.url),'utf8');
  const sql=/CREATE TABLE feedback \([\s\S]*?\n\);/.exec(migration)[0].replace(/;$/,'');
  manifest.tables=manifest.tables.map(table=>table.name==='feedback'?{...table,sql,columns:table.columns.filter(column=>column.name!=='private_data')}:table);

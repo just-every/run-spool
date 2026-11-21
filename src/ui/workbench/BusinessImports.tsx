@@ -3,11 +3,17 @@ import { useLiveRead } from './useLiveRead';
 import { Details } from './Details';
 import type { Request, Run } from './shared';
 
+type RuleReceipt = {
+  pending: number;
+  created: number;
+  items: { id: string; name: string; status: string; omissions: { path: string; reason: string }[] }[];
+};
+
 type BusinessImportState = {
   configured: boolean;
   enabled: boolean;
   keys: { kid: string; revoked: boolean }[];
-  history: { planId: string; jobId: string; namespace: string; fingerprint: string; state: string; caption: string }[];
+  history: { planId: string; jobId: string; namespace: string; fingerprint: string; state: string; caption: string; sentry?: { rules: RuleReceipt } }[];
 };
 
 export function BusinessImports({ request, run, busy }: { request: Request; run: Run; busy: boolean }) {
@@ -61,7 +67,24 @@ export function BusinessImports({ request, run, busy }: { request: Request; run:
         <h3>Import history</h3>
         {!state.history.length && <p>No business imports yet.</p>}
         {state.history.map(job => <div className="data-row" key={job.jobId}>
-          <div style={{ minWidth: 0, overflowWrap: 'anywhere' }}><p>{job.caption}</p><p><code>{job.namespace}</code></p></div>
+          <div style={{ minWidth: 0, overflowWrap: 'anywhere' }}>
+            <p>{job.caption}</p>
+            <p><code>{job.namespace}</code></p>
+            {job.sentry?.rules && job.sentry.rules.items.length > 0 && <>
+              <h4>Sentry alert rules</h4>
+              <p>{job.sentry.rules.pending > 0 && <span>{job.sentry.rules.pending} awaiting approval. </span>}
+                {job.sentry.rules.created > 0 && <span>{job.sentry.rules.created} created.</span>}</p>
+              <ul>{job.sentry.rules.items.map(rule => <li key={rule.id}>
+                <strong>{rule.name}</strong> <span>{rule.status}</span>
+                {rule.omissions.length > 0 && <ul>{rule.omissions.map(({ reason, path }, index) =>
+                  <li key={index}>{reason} <code>{path}</code></li>)}</ul>}
+              </li>)}</ul>
+              {job.sentry.rules.pending > 0 && <button className="text-button" disabled={disabled} onClick={() => void perform(async () => {
+                await request(`${path}/${encodeURIComponent(job.planId)}/alert-rules`, 'POST', { fingerprint: job.fingerprint });
+                await load();
+              })}>Create these rules</button>}
+            </>}
+          </div>
           <span>{job.state}</span>
           {(job.state === 'completed' || job.state === 'undoing') && <button className="text-button" disabled={disabled} aria-label={`Undo import ${job.caption}`} onClick={() => void perform(async () => {
             await request(`${path}/${encodeURIComponent(job.planId)}/undo`, 'POST');

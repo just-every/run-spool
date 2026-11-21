@@ -13,6 +13,12 @@ function leaves(value,path='') {
 }
 // Schema-specific expectations are declared independently of the product's mapper.
 function disposition(kind,path) {
+ if(['members','ownership'].includes(kind))return 'rejected'; // These captures lack required source timestamps.
+ if(['workflows','detectors'].includes(kind)&&['/id','/name'].includes(path))return 'mapped';
+ if(kind==='workflows'&&(/^\/detectorIds\/0$/.test(path)||/^\/triggers\/conditions\/0\/(type|comparison|conditionResult)$/.test(path)))return 'transformed';
+ if(kind==='detectors'&&(/^\/dataSources\/0\/queryObj\/snubaQuery\/(aggregate|dataset|eventTypes\/0|environment|query|timeWindow)$/.test(path)||/^\/conditionGroup\/conditions\/0\/(type|comparison|conditionResult)$/.test(path)))return 'transformed';
+ if(kind==='teams'&&['/id','/slug','/name'].includes(path))return 'mapped';
+ if(kind==='teams'&&path==='/dateCreated'||kind==='projects'&&/^\/teams\/\d+\/(id|slug)$/.test(path))return 'transformed';
  if(kind==='keys'&&['/public','/secret','/dsn/secret','/dsn/cdn'].includes(path))return 'redacted';
  const exact={projects:['/id','/slug'],releases:['/version'],issues:['/id']};
  const converted={projects:['/name','/dateCreated'],releases:['/dateCreated'],issues:['/title','/status','/firstSeen','/lastSeen'],events:['/eventID','/groupID','/dist','/environment','/release/version','/dateCreated','/entries/0/type','/entries/0/data/values/1/type','/entries/0/data/values/1/value','/entries/1/type']};
@@ -33,22 +39,26 @@ export async function fieldAccounting({origin,cookie,scratch,json,req}) {
   assert.deepEqual((await archiveProjection(await req('/api/archive'))).data,before.data,'documented-schema review has no native effect');
   const facts=planned.sentry;
   assert.ok(facts,'owner plan exposes source accounting');
+  assert.equal(facts.rules.sourceDefinitions,2,'the workflow and its linked monitor are accounted for');
+  assert.equal(facts.rules.created,0);
+  assert.equal(facts.rules.items.length,1,'a referenced monitor does not create a duplicate rule proposal');
+  assert.equal(facts.rules.items[0].state,'proposed');
   assert.equal(new Set(acquisition.inventory.map(row=>row.family)).size,8);
   assert.deepEqual(facts.capture, bundle.capture);
   console.log(`Sentry accounting ${profile}: planned ${planned.counts.input} records, ${facts.fields.length} field dispositions.`);
   assert.equal(planned.counts.duplicates,1);
-  assert.equal(planned.counts.rejected,0);
+  assert.equal(planned.counts.rejected,2,'member and ownership captures without source timestamps remain rejected, never invented');
   if(profile==='scaled')assert.ok(planned.counts.input>500,'scaled graph passes the former 500-record fence');
   const seen=new Set();let unique=0;
   for(const collection of bundle.collections)for(const page of collection.pages)for(const data of page.response) {
-   const id=collection.kind==='ownership'?'ownership':collection.kind==='releases'?data.version:collection.kind==='events'?data.eventID:data.id;
+   const id=collection.kind==='ownership'?collection.project:collection.kind==='releases'?data.version:collection.kind==='events'?data.eventID:data.id;
    const sourceId=JSON.stringify([bundle.organization.slug,collection.project,id]),key=JSON.stringify([collection.kind,sourceId]);
    if(seen.has(key))continue;seen.add(key);unique++;
    const actual=facts.fields.filter(row=>row.kind===collection.kind&&row.sourceId===sourceId);
    assert.deepEqual(actual.map(row=>row.path).sort(),leaves(data).sort(),'every independent actual scalar/empty container has exactly one disposition');
    assert.ok(actual.every(row=>row.reason&&row.location&&Number.isSafeInteger(row.bytes)));
    for(const row of actual)assert.equal(row.disposition,disposition(collection.kind,row.path),`${collection.kind} ${row.path}: independent schema disposition`);
-   if(!['projects','issues','events','releases'].includes(collection.kind))assert.ok(actual.every(row=>['unmapped','redacted'].includes(row.disposition)),'unsupported families never claim native mapping');
+   if(!['projects','issues','events','releases','teams','members','ownership','workflows','detectors'].includes(collection.kind))assert.ok(actual.every(row=>['unmapped','redacted'].includes(row.disposition)),'unsupported families never claim native mapping');
   }
   assert.equal(unique+1,planned.counts.unique);
   const events=facts.fields.filter(row=>row.kind==='events');
@@ -67,16 +77,24 @@ export async function fieldAccounting({origin,cookie,scratch,json,req}) {
   assert.equal((await resumed.status(planned.planId)).job.id,first.job.id);
   const applied=await resumed.apply(planned.planId,planned.fingerprint);assert.equal(applied.job.state,'completed');
   const report=await resumed.reconcile(planned.planId);assert.equal(report.ok,true);
+  assert.equal(report.sentry.rules.pending,1,'import creates a pending proposal');
+  assert.equal(report.sentry.rules.created,0);
+  const history=(await json('/api/imports/business')).history.find(row=>row.planId===planned.planId);
+  assert.deepEqual(history.sentry.rules,report.sentry.rules,'the owner history and reconciliation expose the same approval state');
   assert.equal(report.sentry.sourcePayloadBytes,facts.sourcePayloadBytes);
   assert.equal(report.sentry.byteLedger.reduce((n,r)=>n+r.sourceBytes,0),report.sentry.sourcePayloadBytes);
   assert.equal(report.sentry.byteLedger.reduce((n,r)=>n+r.nativeBytes,0),report.sentry.nativeBytes);
   for(const row of report.sentry.byteLedger)assert.equal(row.difference,row.sourceBytes-row.nativeBytes);
   assert.ok(report.sentry.nativeBytes>0);assert.notEqual(report.sentry.nativeBytes,report.sentry.sourcePayloadBytes);
   const count=new Set(capture.collections.find(c=>c.kind==='issues').responses.flatMap(p=>JSON.parse(p.body)).map(row=>row.id)).size;
-  const kinds={project:1,release:1,issue:count,event:count};
+  const kinds={project:1,release:1,issue:count,event:count,'import-proposal':2};
   assert.deepEqual(report.counts.byKind,kinds);
   const full=await archiveProjection(await req('/api/archive'));
   const imported=full.data.projects.find(p=>p.name==='Checkout 猫 café');assert.ok(imported);
+  const nativeRulesBefore=before.data.alert_rules.filter(row=>row.project===imported.id).length;
+  assert.equal(nativeRulesBefore,0,'the destination project starts without native alert rules');
+  const nativeRules=await json(`/api/projects/${imported.id}/alerting/rules`);
+  assert.deepEqual(nativeRules,[],'retained source definitions create no executable native rules');
   assert.deepEqual(await json(`/api/projects/${imported.id}/keys`),[],'source keys never become native authority');
   const issue=(await json(`/api/projects/${imported.id}/issues`))[0];
   const packet=await json(`/api/projects/${imported.id}/issues/${issue.id}/packet`);
@@ -90,7 +108,7 @@ export async function fieldAccounting({origin,cookie,scratch,json,req}) {
   await resumed.undo(same.planId);await resumed.undo(planned.planId);
   assert.deepEqual((await archiveProjection(await req('/api/archive'))).data,before.data,'newest-first undo exactly restores populated native state');
   if(process.env.SPOOL_IMPORT_RECEIPT)await writeFile(join(dirname(process.env.SPOOL_IMPORT_RECEIPT),`${profile}-accounting.json`),JSON.stringify(report.sentry,null,2)+'\n');
-  receipt.push({profile,sourceRecords:planned.counts.input,unique:planned.counts.unique,duplicates:planned.counts.duplicates,fields:facts.fields.length,arrays:facts.arrays.length,sourceBytes:acquisition.sourceBytes,bundleBytes:acquisition.bundleBytes,sourcePayloadBytes:facts.sourcePayloadBytes,nativeBytes:report.sentry.nativeBytes,byKind:kinds,interrupted:first.job.state==='applying',reconciled:report.ok});
+  receipt.push({profile,sourceRuleDefinitions:report.sentry.rules.sourceDefinitions,nativeAlertRulesBefore:nativeRulesBefore,nativeAlertRules:nativeRules.length,ruleReceipt:report.sentry.rules,sourceRecords:planned.counts.input,unique:planned.counts.unique,duplicates:planned.counts.duplicates,fields:facts.fields.length,arrays:facts.arrays.length,sourceBytes:acquisition.sourceBytes,bundleBytes:acquisition.bundleBytes,sourcePayloadBytes:facts.sourcePayloadBytes,nativeBytes:report.sentry.nativeBytes,byKind:kinds,interrupted:first.job.state==='applying',reconciled:report.ok});
  }
  // Refusals report every actual field of a rejected record without reflecting its values.
  const {bundle}=exportCapture(sentryOrganization());

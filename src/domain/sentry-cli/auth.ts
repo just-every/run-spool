@@ -20,6 +20,7 @@ export async function cliAuthority(c: Context, slugs: unknown[] = []): Promise<C
  if (!grant) return { response: cliError(c, 401, 'Invalid deploy key') };
  if (grant.kind !== 'deploy') return { response: cliError(c, 403, 'Agent keys are read-only and limited to their project.') };
  if (slugs.some(slug => slug !== grant.project)) return { response: cliError(c, 403, 'Deploy project scope required: this key belongs to another project.') };
+ await db.prepare('UPDATE credentials SET last_used=? WHERE hash=? AND revoked IS NULL').bind(Date.now(),digest).run();
  const project = grant.project, actorKey = await hash('deploy:' + digest);
  const actor = await db.prepare('SELECT label FROM deployment_actors WHERE project=? AND authority=?').bind(project, actorKey).first<{ label: string }>();
  return { project, auth: {

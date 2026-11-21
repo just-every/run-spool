@@ -8,6 +8,7 @@ import {startDispatchApp} from './triage-app.mjs';
 import {workbenchLink} from './navigation.mjs';
 import {admissionRuntime} from './admission-runtime.mjs';
 import {testSetupToken} from './auth.mjs';
+import {legacyMailRows} from './legacy-mail.mjs';
 import {teamViewportProof,teamKeyboardDetails} from './team-viewport.mjs';
 
 const organization='/api/organization';
@@ -20,10 +21,10 @@ export async function browserMembers(owner,projects) {
   const split=owner.cookie.indexOf('=');
   await context.addCookies([{name:owner.cookie.slice(0,split),value:owner.cookie.slice(split+1),url:owner.origin.replace('http:','https:'),secure:true}]);
   const page=await context.newPage();
-  await page.goto(owner.origin+'/projects/'+projects[0].id+'/settings');
+  await page.goto(owner.origin+'/projects/'+projects[0].id+'/settings#settings-organization');
+  await identitySettings(page,owner);
   const members=page.getByRole('region',{name:'Members',exact:true});
-  await members.getByRole('heading',{name:'Members',exact:true}).waitFor();
-  await members.locator('summary').filter({hasText:/^Invite a member$/}).click();
+  await members.getByRole('heading',{name:'Who can use Spool?',exact:true}).waitFor();
   const form=members.locator('form').filter({has:page.getByLabel('Email',{exact:true})});
   await form.getByLabel('Email',{exact:true}).fill(invitationIdentity);
   await form.getByLabel('Name',{exact:true}).fill('synthetic-spool-6');
@@ -35,7 +36,7 @@ export async function browserMembers(owner,projects) {
   assert.equal((await owner.json(organization+'/me')).mailSuppressed,false);
   assert.ok((await owner.json(organization)).invites.every(row=>!row.localLink),'mail-sending runtime returns no local invitation links');
   await members.locator('summary').filter({hasText:/^Invitations$/}).click();
-  await expect(members.getByRole('button',{name:'Copy invitation link',exact:true})).toHaveCount(0);
+  await expect(members.getByRole('button',{name:'Copy link',exact:true})).toHaveCount(0);
   // Stored grants contain member and created metadata; writes must send only the input shape.
   await members.getByRole('button',{name:'Details: synthetic-spool-6 access',exact:true}).click();
   const dialog=page.getByRole('dialog'),role=dialog.getByLabel(/^Organization role/),secondProject=dialog.getByLabel(new RegExp('^'+projects[1].name));
@@ -79,6 +80,57 @@ export async function browserMembers(owner,projects) {
   await usageLabels(page,owner,projects[0]);
   await context.close();
  }finally{await browser.close()}
+}
+
+// Extend the existing Members journey through native profile and organization doors.
+async function identitySettings(page,owner) {
+ const before=await owner.json(organization+'/me');
+ await page.getByRole('link',{name:'General',exact:true}).click();
+ const name=page.getByLabel('Installation name',{exact:true});
+ async function rename(value) {
+  await name.fill(value);
+  const saved=page.waitForResponse(r=>new URL(r.url()).pathname===organization&&r.request().method()==='PUT');
+  await name.press('Tab');assert.equal((await saved).status(),200);
+  await expect(page).toHaveTitle(value+' · Spool');
+  await expect(page.locator('.sidebar .wordmark')).toContainText(value);
+  assert.equal((await owner.json(organization+'/me')).organization.name,value);
+ }
+ await rename('Brightwell Support');
+ await page.reload();await expect(page).toHaveTitle('Brightwell Support · Spool');
+ await page.setViewportSize({width:390,height:900});
+ assert.equal(await page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth),true,'installation name fits the phone header');
+ await page.setViewportSize({width:1440,height:1000});await rename(before.organization.name);
+ await page.getByRole('link',{name:'Members',exact:true}).click();
+ const members=page.getByRole('region',{name:'Members',exact:true});
+ async function profile(label,value,path) {
+  await members.getByRole('button',{name:'Change '+label.toLowerCase(),exact:true}).click();
+  const input=members.getByLabel(label,{exact:true});await input.fill(value);
+  const saved=page.waitForResponse(r=>new URL(r.url()).pathname===path&&r.request().method()==='POST');
+  await input.press('Enter');const response=await saved;
+  if(response.status()===403&&(await response.json()).error==='step_up_required') {
+   const previous=(await legacyMailRows(owner.origin)).map(row=>row.id);
+   const sent=page.waitForResponse(r=>new URL(r.url()).pathname==='/auth/step-up'&&r.request().method()==='POST');
+   await members.getByRole('button',{name:'Send verification email',exact:true}).click();assert.equal((await sent).status(),202);
+   const row=(await legacyMailRows(owner.origin)).find(row=>!previous.includes(row.id));assert.ok(row);
+   const message=typeof row.message==='string'?JSON.parse(row.message):row.message;
+   const token=message.text.match(/\/auth\/confirm\?token=([A-Za-z0-9_-]+)/)?.[1];assert.ok(token);
+   const confirmed=await owner.req('/auth/confirm','POST',{token});assert.equal(confirmed.status,303);await confirmed.body?.cancel();
+   const retry=page.waitForResponse(r=>new URL(r.url()).pathname===path&&r.request().method()==='POST');
+   await input.press('Enter');assert.equal((await retry).status(),200);
+  } else assert.equal(response.status(),200);
+  await expect(members.getByRole('button',{name:'Change '+label.toLowerCase(),exact:true})).toBeVisible();
+ }
+ await profile('Your name','Synthetic identity owner','/auth/display-name');
+ await profile('Your email','synthetic-spool-identity@example.test','/auth/email');
+ const changed=await owner.json(organization+'/me'),roster=await owner.json(organization);
+ assert.equal(changed.profile.name,'Synthetic identity owner');assert.equal(changed.profile.email,'synthetic-spool-identity@example.test');
+ const own=roster.members.find(row=>row.id===changed.memberId);assert.equal(own.name,changed.profile.name);assert.equal(own.email,changed.profile.email);
+ await page.reload();await expect(page.getByRole('region',{name:'Members',exact:true})).toContainText(changed.profile.email);
+ await profile('Your email',before.profile.email,'/auth/email');await profile('Your name',before.profile.name,'/auth/display-name');
+ for(const path of ['/auth/display-name','/auth/email']) {
+  const denied=await owner.req(path,'POST',path.endsWith('/email')?{email:'synthetic-spool-denied@example.test'}:{displayName:'Synthetic refused'},{Cookie:''});
+  assert.equal(denied.status,401,'own identity cannot be changed without a person session');await denied.body?.cancel();
+ }
 }
 
 export async function memberBrowser(actor,project,issue) {
@@ -190,8 +242,9 @@ export async function teamTriage(owner,member,project,width) {
   await teamKeyboardDetails(memberPage,'Issue and source evidence',()=>screen(memberPage,'team-evidence-dialog'));await detailsClosed;
   probe('search','release query -> the isolated captured issue and its mapped frame');
 
-  const label=memberPage.getByLabel('Assigned to',{exact:true}),save=memberPage.getByRole('button',{name:'Save assignment',exact:true});
-  await label.fill('Cedar responder');await label.focus();await memberPage.keyboard.press('Tab');await expect(save).toBeFocused();
+  const label=memberPage.getByLabel('Assign to',{exact:true}),save=memberPage.getByRole('button',{name:'Assign',exact:true});
+  const assignees=await member.json(root+'/assignment-members'),target=assignees.members.find(row=>row.name===member.member.name);assert.ok(target);
+  await label.selectOption(target.id);await label.focus();await memberPage.keyboard.press('Tab');await expect(save).toBeFocused();
   let releaseAssignment;const gate=new Promise(resolve=>{releaseAssignment=resolve});let assignments=0;
   await memberPage.route('**/assignment',async route=>{if(route.request().method()==='PATCH'){assignments++;await gate;}await route.continue();});
   try {
@@ -201,11 +254,27 @@ export async function teamTriage(owner,member,project,width) {
    await save.evaluate(button=>button.click());releaseAssignment();assert.equal((await saved).status(),200);
    await expect(save).toBeEnabled();assert.equal(assignments,1,'a blocked duplicate activation sends exactly one assignment request');
   }finally{releaseAssignment();await memberPage.unroute('**/assignment');}
-  assert.equal((await owner.json(root+'/operator-state')).assignments.find(row=>row.issue===issue).label,'Cedar responder');
-  await expect(label).toHaveValue('Cedar responder');
-  probe('operator-label assignment','busy Save assignment plus duplicate activation -> one request and retained responsibility label');
+  assert.equal((await owner.json(root+'/operator-state')).assignments.find(row=>row.issue===issue).label,member.member.name);
+  await expect(label).toHaveValue(target.id);
+  if(width===1440){assert.ok((await owner.json(root+'/issues/'+issue+'/discussion')).activity.some(row=>row.kind==='assignment'&&row.detail.assignee===member.member.name));
+  assert.ok((await member.json(root+'/issue-search?assignee=me')).rows.some(row=>row.id===issue));
+  assert.ok(!(await owner.json(root+'/issue-search?assignee=me')).rows.some(row=>row.id===issue));
+  const assignedView=await member.json(root+'/review/views','POST',{q:'',status:'all',release:'all',sort:'priority',assignee:'me'});
+  assert.equal((await member.json(root+'/review/views')).views.find(row=>row.id===assignedView.id).query.assignee,'me');}
+  probe('member assignment','busy Assign plus duplicate activation -> one request and retained project member');
 
   const body='synthetic-spool-1 investigating the mapped delivery failure',comment=memberPage.getByLabel('Comment',{exact:true});
+  if(width===1440){
+   let releaseDiscussion;const pendingDiscussion=new Promise(resolve=>{releaseDiscussion=resolve});
+   await memberPage.route('**/issues/'+issue+'/discussion',async route=>{if(route.request().method()==='GET')await pendingDiscussion;await route.continue()});
+   try{
+    await memberPage.reload();await memberPage.getByRole('button',{name:'Comment',exact:true}).waitFor();
+    await expect(comment).toHaveCount(0);
+    await activate(memberPage.getByRole('button',{name:'Comment',exact:true}));releaseDiscussion();
+    await expect(comment).toBeFocused();
+   }finally{releaseDiscussion();await memberPage.unroute('**/issues/'+issue+'/discussion')}
+  }
+
   await comment.fill(body);await comment.focus();await memberPage.keyboard.press('Tab');
   const post=memberPage.getByRole('button',{name:'Post comment',exact:true});await expect(post).toBeFocused();
   const posted=memberPage.waitForResponse(response=>new URL(response.url()).pathname===root+'/issues/'+issue+'/comments'&&response.request().method()==='POST');
@@ -243,7 +312,7 @@ export async function teamTriage(owner,member,project,width) {
   await expect(memberPage.getByRole('main')).toContainText('access');await expect(memberPage.getByRole('main')).not.toContainText(packet.issue.title);
   await screen(memberPage,'team-permission');
   assert.deepEqual(errors,[],'the team path has no browser errors');
-  console.log('[UX-001] '+width+' native team independently registered, captured, mapped, searched, operator-label assigned without duplicate writes, commented, followed alert by touch and recorded repair approval; keyboard, Axe and reflow passed');
+  console.log('[UX-001] '+width+' native team independently registered, captured, mapped, searched, member assigned without duplicate writes, commented, followed alert by touch and recorded repair approval; keyboard, Axe and reflow passed');
  }finally{await browser.close();await application?.stop();}
 }
 
@@ -271,13 +340,12 @@ export async function localMailFlow() {
   browser=await launchBrowser();const context=await browser.newContext({viewport:{width:1440,height:1000},permissions:['clipboard-read','clipboard-write']});
   const split=cookie.indexOf('=');await context.addCookies([{name:cookie.slice(0,split),value:cookie.slice(split+1),url:app.origin}]);
   const page=await context.newPage();page.setDefaultTimeout(20000);
-  const settings=app.origin+'/projects/'+project.id+'/settings';await page.goto(settings);
+  const settings=app.origin+'/projects/'+project.id+'/settings#settings-organization';await page.goto(settings);
   const members=page.getByRole('region',{name:'Members',exact:true});
   await members.locator('summary').filter({hasText:/^Invitations$/}).click();
   const legacyRow=members.locator('div').filter({has:page.getByText(invitation.email+' · invited',{exact:true})}).last();
   await expect(legacyRow).toContainText(/remove[\s\S]*invite[\s\S]*again/i);
   await expect(legacyRow.locator('input')).toHaveCount(0);
-  await members.locator('summary').filter({hasText:/^Invite a member$/}).click();
   await members.getByLabel('Email',{exact:true}).fill('synthetic-spool-local@example.test');
   await members.getByLabel('Name',{exact:true}).fill('Synthetic local invitee');
   const form=members.locator('form').filter({has:page.getByLabel('Email',{exact:true})});
@@ -299,6 +367,9 @@ export async function localMailFlow() {
   const pending=page.waitForResponse(r=>new URL(r.url()).pathname==='/api/organization/invites'&&r.request().method()==='POST');
   await members.getByRole('button',{name:'Create invitation',exact:true}).click();assert.equal((await pending).status(),202);
   await expect(members.getByRole('status')).toBeVisible();
+  const immediate=members.getByLabel('Invitation link for synthetic-spool-local@example.test',{exact:true}).first();
+  await expect(immediate).toBeVisible();
+  await expect(members.locator('.data-row').filter({hasText:'Synthetic local invitee'}).first()).toContainText('Invited');
   // A reload proves the pending link survives navigation without minting a new token.
   await page.reload();await members.locator('summary').filter({hasText:/^Invitations$/}).click();
   const input=members.getByLabel('Invitation link for synthetic-spool-local@example.test',{exact:true});await input.waitFor();
@@ -309,7 +380,7 @@ export async function localMailFlow() {
   assert.ok(!native.envelope.includes(token),'the stored copy is encrypted');
   console.log('Local mail journey: pending native link available after reload');
   const beforeTokens=(await app.DB.prepare('SELECT COUNT(*) n FROM oa_tokens').first()).n;
-  await members.getByRole('button',{name:'Copy invitation link',exact:true}).click();
+  await members.getByRole('button',{name:'Copy link',exact:true}).click();
   assert.ok(await page.evaluate(async value=>(await navigator.clipboard.readText())===value,link),'clipboard contains the pending native link');
   assert.equal((await app.DB.prepare('SELECT COUNT(*) n FROM oa_tokens').first()).n,beforeTokens,'copy creates no second token');
   await members.locator('summary').filter({hasText:/^Verify identity for ownership transfer$/}).click();
@@ -318,7 +389,7 @@ export async function localMailFlow() {
   const challenge=await app.DB.prepare('SELECT consumed_at FROM oa_step_up_challenges ORDER BY created_at DESC LIMIT 1').first();
   assert.equal(challenge.consumed_at,null,'requesting suppressed mail creates no step-up proof');
   assert.equal((await app.DB.prepare('SELECT COUNT(*) n FROM rer_mail_development_outbox').first()).n,0,'local mail is neither sent nor retained as a mailbox');
-  const folder=process.env.SPOOL_LOCAL_MAIL_EVIDENCE;
+  const folder=process.env.SPOOL_LOCAL_MAIL_EVIDENCE||'.artifacts/local-invitations';
   if(folder){
    await mkdir(folder,{recursive:true});
    await members.screenshot({path:resolve(folder,'local-members-1440.png'),mask:[input]});
@@ -329,8 +400,10 @@ export async function localMailFlow() {
   await expect(members.getByRole('status').filter({hasText:/no email/i})).toContainText(/cannot/i);
   console.log('Local mail journey: missing-link recovery, copy and native verification complete');
   const inviteeContext=await browser.newContext({viewport:{width:1440,height:1000}}),invitee=await inviteeContext.newPage();invitee.setDefaultTimeout(20000);
-  await invitee.goto(link);const confirmed=invitee.waitForResponse(r=>new URL(r.url()).pathname==='/auth/confirm'&&r.request().method()==='POST');
-  await invitee.getByRole('button',{name:'Confirm',exact:true}).click();assert.equal((await confirmed).status(),303);
+  await invitee.goto(link);await expect(invitee.getByRole('main')).toContainText('Synthetic local owner');await expect(invitee.getByRole('main')).toContainText('Synthetic local team');await expect(invitee.getByRole('main')).toContainText(project.name);
+  if(folder){for(const width of [1440,390]){await invitee.setViewportSize({width,height:1000});await invitee.screenshot({path:resolve(folder,'invitation-page-'+width+'.png'),fullPage:true});}await invitee.setViewportSize({width:1440,height:1000});}
+  const confirmed=invitee.waitForResponse(r=>new URL(r.url()).pathname==='/auth/confirm'&&r.request().method()==='POST');
+  await invitee.getByRole('button',{name:'Join',exact:true}).click();assert.equal((await confirmed).status(),303);
   const session=await inviteeContext.request.get(app.origin+'/auth/session');assert.equal(session.status(),200);
   assert.equal((await session.json()).operator.role,'member');
   const access=await (await inviteeContext.request.get(app.origin+'/api/organization/me')).json();assert.equal(access.role,'read-only');assert.deepEqual(access.projects.map(row=>row.id),[project.id]);

@@ -1,5 +1,6 @@
-import { useEffect, useState, type FormEvent } from 'react';
-import { captureException } from '../../domain/capture';
+import { BrowserOrigins } from '../BrowserOrigins';
+import { useState } from 'react';
+import { sendTestSample, testResult, testResultLabel } from './testSample';
 import { receiptLabel } from './CaptureReceipts';
 import { hrefFor, sourceMapHref } from './location';
 import type { Request } from './shared';
@@ -32,39 +33,14 @@ export function SdkSetup({ endpoint, project, ingestKey, release, build }: { end
   </div>;
 }
 
-/**
- * The browser init sends from the app's own origin, which Spool refuses until the project allows it. The step is
- * tied to this project and lists what is already allowed; the app's origin itself is not known here, so the field
- * starts empty.
- */
-export function OriginStep({ project, request }: { project: string; request: Request }) {
-  const [origin, setOrigin] = useState(''), [allowed, setAllowed] = useState<string[] | null>(null), [busy, setBusy] = useState(false), [status, setStatus] = useState('');
-  const path = `/api/projects/${encodeURIComponent(project)}/browser-origins`;
-  useEffect(() => {
-    let alive = true;
-    request(path).then(rows => { if (alive) setAllowed(rows.map((row: any) => row.origin)); }, () => { if (alive) setAllowed(null); });
-    return () => { alive = false; };
-  }, [path, request]);
-  async function allow(event: FormEvent) {
-    event.preventDefault(); setBusy(true); setStatus('');
-    try {
-      const result = await request(path, 'POST', { origin });
-      setStatus(result.implicit ? `${result.origin} is Spool’s own origin and is always allowed.` : `Allowed ${result.origin}.`);
-      if (!result.implicit) setAllowed(rows => [...new Set([...(rows ?? []), result.origin])]);
-      setOrigin('');
-    } catch (failure) { setStatus(`Not allowed: ${(failure as Error).message}`); }
+export function OriginStep({ project, request, showDetails = true }: { project: string; request: Request; showDetails?: boolean }) {
+  const [busy, setBusy] = useState(false), [error, setError] = useState('');
+  async function run(work: () => Promise<unknown>) {
+    setBusy(true); setError('');
+    try { await work(); } catch (failure) { setError((failure as Error).message); }
     finally { setBusy(false); }
   }
-  return <div className="origin-step">
-    <h3>Allow your app’s origin</h3>
-    <p className="muted">In a browser, Spool accepts events only from origins this project allows, so the init above sends nothing until your app’s exact origin is allowed. Node and Workers send no origin and need only the key.</p>
-    <form className="origin-form" onSubmit={event => void allow(event)}>
-      <label className="form-field">Your app’s origin<input type="url" required maxLength={1024} placeholder="https://app.example" value={origin} disabled={busy} aria-describedby="origin-step-help" onChange={event => { setOrigin(event.target.value); setStatus(''); }} /></label>
-      <button className="primary-button" disabled={busy || !origin}>Allow origin</button>
-    </form>
-    <p id="origin-step-help" className="muted">Scheme, host and port only, such as <code>http://localhost:5173</code>. {allowed === null ? null : allowed.length ? <>Allowed now: {allowed.map((row, index) => <span key={row}>{index ? ', ' : ''}<code>{row}</code></span>)}.</> : 'No app origin is allowed yet.'} <a className="inline-link" href={hrefFor(project, 'capture')}>Manage allowed origins</a></p>
-    <p role="status">{status}</p>
-  </div>;
+  return <div className="origin-step"><BrowserOrigins {...{ project, request, busy, run, showDetails }} />{error && <p role="alert">{error}</p>}<a className="inline-link" href={hrefFor(project, 'capture')}>Manage allowed websites</a></div>;
 }
 
 export function SentryIntake({ dsn }: { dsn?: string }) {
@@ -83,25 +59,22 @@ export function SentryIntake({ dsn }: { dsn?: string }) {
 }
 
 /** Registers the release if it is new, then sends one real exception through the same capture code the SDK ships. */
-export function SendTestError({ project, ingestKey, release, build, request, onReceived }: { project: string; ingestKey: string; release: string; build: string; request: Request; onReceived?: () => void }) {
+export function SendTestError({ project, ingestKey, release, build, request, onReceived, buttonLabel = 'Send test error' }: { buttonLabel?: string; project: string; ingestKey: string; release: string; build: string; request: Request; onReceived?: () => void }) {
   const [busy, setBusy] = useState(false), [outcome, setOutcome] = useState<any>(null), [failure, setFailure] = useState('');
   async function send() {
     setBusy(true); setOutcome(null); setFailure('');
     try {
       await request(`/api/projects/${encodeURIComponent(project)}/releases`, 'POST', { name: release, build });
-      let exception: Error;
-      try { const order: any = {}; order.customer.email; throw new Error('Unexpected test result'); } catch (error) { exception = error as Error; }
-      // A distinct type labels the issue and keeps test captures out of real TypeError groups.
-      exception.name = 'SpoolTestError';
-      const received = await captureException(exception, { endpoint: location.origin, project, ingestKey, release, build, environment: 'spool-test', credentials: 'same-origin' });
+      const received = await testResult(request,project,await sendTestSample({ endpoint: location.origin, project, ingestKey, release, build, environment: 'spool-test', credentials: 'same-origin' }));
       setOutcome(received); if (received.outcome === 'accepted' || received.outcome === 'duplicate') onReceived?.();
     } catch (error) { setFailure((error as Error).message || 'The release could not be registered.'); }
     finally { setBusy(false); }
   }
   return <div className="send-test">
-    <button className="primary-button" type="button" disabled={busy || !ingestKey} onClick={() => void send()}>{busy ? 'Sending…' : 'Send test error'}</button>
-    <p className="muted">Registers release <code>{release}</code> build <code>{build}</code> if it is new, then sends one error with this key from this page. It checks the key and release, not your app’s browser origin.</p>
-    <p role="status">{failure ? `Not sent: ${failure}` : !outcome ? '' : outcome.outcome === 'accepted' || outcome.outcome === 'duplicate' ? 'Test error received.' : `Not received: ${outcome.reason ? receiptLabel(outcome.reason) : outcome.outcome}.`}</p>
+    <button className="primary-button" type="button" disabled={busy || !ingestKey} onClick={() => void send()}>{busy ? 'Sending…' : buttonLabel}</button>
+    {!ingestKey&&<p>Paste your saved ingest key to enable the test. <a className="inline-link" href={hrefFor(project, 'capture')+'#test-capture'}>Open Capture</a>.</p>}
+    <p className="muted">Registers release <code>{release}</code> build <code>{build}</code> if it is new and sends Spool’s sample with this key, so you can expect a new test issue, another event on the same issue, or a regression if you resolved it.</p>
+    <p role="status">{failure ? `Not sent: ${failure}` : !outcome ? '' : outcome.outcome === 'accepted' || outcome.outcome === 'duplicate' ? testResultLabel(outcome) : `Not received: ${outcome.reason ? receiptLabel(outcome.reason) : outcome.outcome}.`}</p>
     {outcome?.issue && <a className="inline-link" href={hrefFor(project, 'issues', outcome.issue)}>Open the test issue</a>}
   </div>;
 }

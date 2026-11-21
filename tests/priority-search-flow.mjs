@@ -123,6 +123,7 @@ export async function prioritySearchScreen({origin,project,expected,width}){
   await context.addCookies(cookie.split('; ').map(part=>({name:part.slice(0,part.indexOf('=')),value:part.slice(part.indexOf('=')+1),url:origin})));
   const page=await context.newPage();await page.goto(origin+'/projects/'+project+'/issues');
   await page.getByRole('status').filter({hasText:'90 issues'}).waitFor();
+  await page.locator('.issue-filter-panel>summary').click();
   assert.equal(await page.getByRole('combobox',{name:'Sort',exact:true}).inputValue(),'priority');
   const pageRows=()=>page.locator('tbody tr').evaluateAll(rows=>rows.map(row=>({id:row.querySelector('.issue-open').getAttribute('href').split('/').at(-1),priority:row.querySelector('.priority-chip').textContent.toLowerCase()})));
   const wanted=projection;

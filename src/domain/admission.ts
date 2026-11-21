@@ -1,3 +1,4 @@
+import { rememberCaptureSource } from './capture-sources';
 import {prepareScrubbing} from './scrubbing/model';
 import { spendKeyEvent, keyLimitedResponse } from './key-rate-limits/model';
 import {eventIdentityStatements,type PreparedIdentity} from './identities/intake';
@@ -30,6 +31,7 @@ export async function authorizeIngest(c:any,project:string,key:string|undefined)
   const scope={project,keyHash,foreign:policy.foreign,revision:policy.revision,policy:policy.policy,domain:policy.domain};
   if(!policy.allowed){await ingestBatch(c,scope,[outcomeStatement(c.env.DB,project,'filtered'),outcomeStatement(c.env.DB,project,'filtered:allowed_domains')]);return {response:c.json({outcome:'filtered',reason:policy.domain.reason,filters:['allowed_domains']},403)}}
   if(policy.cors)c.header('Access-Control-Allow-Origin',policy.cors);
+  await stmt(c.env.DB,'UPDATE credentials SET last_used=? WHERE hash=? AND revoked IS NULL',Date.now(),keyHash).run();
   return {scope};
 }
 function authority(c:any,scope:IngestScope){
@@ -103,6 +105,7 @@ export async function admitEvent(c:any,scope:IngestScope,input:Envelope,digest:s
       stmt(db,"UPDATE issue_resolutions SET seen_without_release=seen_without_release+1 WHERE project=? AND issue=? AND mode IN ('current','next','named') AND EXISTS(SELECT 1 FROM issues WHERE id=? AND state='resolved') AND ?=''",project,issue,issue,event.release),
       ...prepared.notes!.map(note=>outcomeStatement(db,project,'sentry_release_'+note)),
       outcomeStatement(db,project,'accepted'),
+      ...rememberCaptureSource(db,project,c.req.header('origin'),time),
       ...sentryTrimming(db,project,event),
       ...(originGuard?[stmt(db,'DELETE FROM browser_origin_guards WHERE id=?',originGuard)]:[]),
     ];

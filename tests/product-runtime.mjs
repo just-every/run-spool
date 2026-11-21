@@ -1,3 +1,5 @@
+import {restoreRequest} from './restore-request.mjs';
+import {restoreRequestFlow} from './restore-request-flow.mjs';
 import {chooseLocalAgentPolicy} from './agent-door/local-policy.mjs';
 import {localRuntime} from './local-runtime.mjs';
 import {nativeRefusal,outcomeTotals} from './admission-proof.mjs';
@@ -17,6 +19,7 @@ import {resolve} from 'node:path';
 import {createRequire} from 'node:module';
 import {createHash} from 'node:crypto';
 import {canonical} from '../src/domain/privacy.ts';
+import {splitStatements} from '../src/modules/portability/sql-text.mjs';
 import {finishProductRun,migrationFailure,observeChild,stopChild,stopCommand,workerOutput} from './product-diagnostics.mjs';
 import {miniflareAssets} from './product-assets.mjs';
 const require=createRequire(import.meta.url);
@@ -52,37 +55,40 @@ async function start(state,migrate=true){
   if(migrate){
    const db=await miniflare.getD1Database('DB');
    assert.equal((await db.prepare('PRAGMA foreign_keys').first()).foreign_keys,1);
-   const {unstable_splitSqlQuery}=require('wrangler');
    // D1 already enforces foreign keys; asserting it replaces the ON no-op rejected by D1 exec.
-   const queries=unstable_splitSqlQuery(await readFile(migrationFile,'utf8'))
+   const queries=splitStatements(await readFile(migrationFile,'utf8'))
     .filter(sql=>!/^PRAGMA foreign_keys\s*=\s*ON;?$/i.test(sql.trim()));
    try{await db.batch(queries.map(sql=>db.prepare(sql)))}catch(error){error.migration=migrationFailure({status:null,stderr:error?.cause?.message??error?.message});throw error}
   }
-  assert.equal((await fetch(origin+'/health')).status,200);return;
+  assert.equal((await fetch(origin+'/health',{headers:{Connection:'close'}})).status,200);return;
  }
  const migrated=migrate?spawnSync(process.execPath,['node_modules/wrangler/bin/wrangler.js','d1','execute','errors-local','--local','--config',cfg,'--persist-to',state,'--file',migrationFile],{env,encoding:'utf8',detached:true}):{status:0};try{assert.equal(migrated.status,0,'test database migrations succeed')}catch(error){error.migration=migrationFailure(migrated);throw error}finally{await stopCommand(migrated)}
  worker=observeChild(spawn(process.execPath,['node_modules/wrangler/bin/wrangler.js','dev','--local','--config',cfg,'--persist-to',state,'--port',String(port),'--inspector-port','15467'],{env,stdio:['ignore','pipe','pipe'],detached:true}),output);
- for(let i=0;i<120;i++){if(worker.fixtureSpawnError)throw worker.fixtureSpawnError;if(worker.exitCode!==null)throw new Error('Test Worker failed readiness; private output withheld');try{if((await fetch(origin+'/health')).ok)return}catch{}await new Promise(r=>setTimeout(r,250))}throw new Error('Test Worker failed readiness; private output withheld');
+ for(let i=0;i<120;i++){if(worker.fixtureSpawnError)throw worker.fixtureSpawnError;if(worker.exitCode!==null)throw new Error('Test Worker failed readiness; private output withheld');try{if((await fetch(origin+'/health',{headers:{Connection:'close'}})).ok)return}catch{}await new Promise(r=>setTimeout(r,250))}throw new Error('Test Worker failed readiness; private output withheld');
 }
 async function stop(){const active=miniflare;miniflare=null;try{if(active)await active.dispose()}finally{const child=worker;worker=null;await stopChild(child,{group:true})}}
 // Wrangler's two-hop local proxy can close a pooled idle connection before a POST reaches the app.
 // Native Miniflare serves the emitted assets and API in both browser and domain modes.
 // This removes Wrangler's extra local proxy hop, with no API retries.
 // --wrangler-proxy retains the failing control; Connection:close did not reliably fix it.
+// Native workerd also retires idle sockets. Keep fixture requests out of the idle
+// pool across browser work and stop/start transitions on this same origin.
 let cookie='',requestSequence=0;
 async function req(path,method='GET',value,headers={}){
  const requestId=requestSequence+1;
  let response;
  try {
-  response=await fetch(origin+path,{method,headers:{...(path==='/api/restore'?{'X-Confirm-Restore':'yes'}:{}),'X-Fixture-Request':String(++requestSequence),Origin:origin,...cookie?{Cookie:cookie}:{},...value?{'Content-Type':typeof value==='string'?'application/x-ndjson':'application/json'}:{},...headers},...value?{body:typeof value==='string'?value:JSON.stringify(value)}:{}});
+  const send = path === '/api/restore' ? restoreRequest : fetch;
+  response=await send(origin+path,{method,headers:{...(path==='/api/restore'?{'X-Confirm-Restore':'yes'}:{}),'X-Fixture-Request':String(++requestSequence),Origin:origin,Connection:'close',...cookie?{Cookie:cookie}:{},...value?{'Content-Type':typeof value==='string'?'application/x-ndjson':'application/json'}:{},...headers},...value?{body:typeof value==='string'?value:JSON.stringify(value)}:{}});
  } catch(error) {error.productRequest={method,path,ordinal:requestId};throw error}
  Object.defineProperty(response,'fixtureRequest',{value:requestId});return response;
 }
 async function json(path,method,value,headers){const r=await req(path,method,value,headers);try{assert.ok(r.ok,'product HTTP request succeeds');return await (path==='/api/archive'?archiveProjection(r):r.json())}catch(error){error.productRequest={method:method??'GET',status:r.status,ordinal:r.fixtureRequest};throw error}}
 async function login(options){cookie=await signIn(origin,options);await chooseLocalAgentPolicy(origin,cookie)}
-async function setupLocation(expected){const r=await fetch(origin+'/setup',{headers:{Cookie:cookie},redirect:'manual'});assert.equal(r.status,expected?303:200);if(expected)assert.equal(r.headers.get('location'),'/');}
+async function setupLocation(expected){const r=await fetch(origin+'/setup',{headers:{Cookie:cookie,Connection:'close'},redirect:'manual'});assert.equal(r.status,expected?303:200);if(expected)assert.equal(r.headers.get('location'),'/');}
 
 try {
+ await restoreRequestFlow();
  await mkdir(artifactDirectory,{recursive:true});
  temporary=await mkdtemp(resolve(tmpdir(),'errors-acceptance-'));
  env={...process.env,WRANGLER_SEND_METRICS:'false',WRANGLER_LOG_PATH:resolve(temporary,'logs')};

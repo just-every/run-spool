@@ -1,0 +1,340 @@
+{
+  "format": "spool-sentry-org-export",
+  "version": 1,
+  "organization": {
+    "id": "synthetic-alerts-1",
+    "slug": "synthetic-alerts-1",
+    "region": "us"
+  },
+  "window": {
+    "start": "2026-02-02T00:00:00Z",
+    "end": "2026-02-03T00:00:00Z"
+  },
+  "omissions": [],
+  "collections": [
+    {
+      "kind": "projects",
+      "project": null,
+      "pages": [
+        {
+          "cursor": null,
+          "nextCursor": null,
+          "response": [
+            {
+              "id": "synthetic-project-1",
+              "name": "Synthetic alerts",
+              "slug": "synthetic-alerts",
+              "dateCreated": "2026-02-02T00:00:00Z"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "kind": "releases",
+      "project": null,
+      "pages": [
+        {
+          "cursor": null,
+          "nextCursor": null,
+          "response": []
+        }
+      ]
+    },
+    {
+      "kind": "rules",
+      "project": "synthetic-alerts",
+      "pages": [
+        {
+          "cursor": null,
+          "nextCursor": null,
+          "response": [
+            {
+              "id": "synthetic-issue-rule-1",
+              "name": "Synthetic new issue",
+              "conditions": [
+                {
+                  "id": "sentry.rules.conditions.first_seen_event.FirstSeenEventCondition"
+                }
+              ],
+              "filters": [],
+              "actions": [],
+              "actionMatch": "all",
+              "filterMatch": "all",
+              "frequency": 5,
+              "dateCreated": "2026-02-02T00:00:00Z"
+            },
+            {
+              "id": "synthetic-issue-rule-2",
+              "name": "Synthetic event frequency",
+              "conditions": [
+                {
+                  "id": "sentry.rules.conditions.event_frequency.EventFrequencyCondition",
+                  "value": 3,
+                  "interval": "5m"
+                }
+              ],
+              "filters": [],
+              "actions": [],
+              "actionMatch": "all",
+              "filterMatch": "all",
+              "frequency": 5,
+              "dateCreated": "2026-02-02T00:00:00Z"
+            },
+            {
+              "id": "synthetic-issue-rule-3",
+              "name": "Synthetic Slack",
+              "conditions": [
+                {
+                  "id": "sentry.rules.conditions.first_seen_event.FirstSeenEventCondition"
+                }
+              ],
+              "filters": [],
+              "actions": [
+                {
+                  "id": "sentry.integrations.slack.notify_action.SlackNotifyServiceAction",
+                  "integration": 26,
+                  "channel": "synthetic-oncall"
+                }
+              ],
+              "actionMatch": "all",
+              "filterMatch": "all",
+              "frequency": 5,
+              "dateCreated": "2026-02-02T00:00:00Z"
+            },
+            {
+              "id": "synthetic-malformed",
+              "name": "Synthetic malformed rule",
+              "conditions": "invalid",
+              "filters": [],
+              "actions": []
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "kind": "metric_alerts",
+      "project": null,
+      "pages": [
+        {
+          "cursor": null,
+          "nextCursor": null,
+          "response": [
+            {
+              "id": "synthetic-metric-1",
+              "name": "Synthetic unique users",
+              "projects": [
+                "synthetic-alerts"
+              ],
+              "dataset": "events",
+              "aggregate": "count_unique(user)",
+              "timeWindow": 5,
+              "query": "event.type:error",
+              "thresholdType": 0,
+              "triggers": [
+                {
+                  "label": "critical",
+                  "alertThreshold": 1,
+                  "actions": []
+                }
+              ],
+              "dateCreated": "2026-02-02T00:00:00Z",
+              "environment": "production"
+            },
+            {
+              "id": "synthetic-metric-2",
+              "name": "Synthetic error thresholds",
+              "projects": [
+                "synthetic-alerts"
+              ],
+              "dataset": "events",
+              "aggregate": "count()",
+              "timeWindow": 5,
+              "query": "event.type:error",
+              "thresholdType": 0,
+              "triggers": [
+                {
+                  "label": "critical",
+                  "alertThreshold": 4,
+                  "actions": []
+                },
+                {
+                  "label": "warning",
+                  "alertThreshold": 2,
+                  "actions": []
+                }
+              ],
+              "dateCreated": "2026-02-02T00:00:00Z",
+              "resolveThreshold": 0,
+              "owner": "team:synthetic-oncall",
+              "lastTriggered": "2026-02-02T00:00:00Z"
+            },
+            {
+              "id": "synthetic-metric-3",
+              "name": "Synthetic crash-free sessions",
+              "projects": [
+                "synthetic-alerts"
+              ],
+              "dataset": "sessions",
+              "aggregate": "percentage(sessions_crashed, sessions)",
+              "timeWindow": 5,
+              "query": "",
+              "thresholdType": 1,
+              "triggers": [
+                {
+                  "label": "critical",
+                  "alertThreshold": 80,
+                  "actions": []
+                }
+              ],
+              "dateCreated": "2026-02-02T00:00:00Z",
+              "environment": "production"
+            },
+            {
+              "id": "synthetic-metric-4",
+              "name": "Synthetic unrepresentable aggregate",
+              "projects": [
+                "synthetic-alerts"
+              ],
+              "dataset": "events",
+              "aggregate": "histogram(transaction.duration)",
+              "timeWindow": 5,
+              "query": "event.type:error",
+              "thresholdType": 0,
+              "triggers": [
+                {
+                  "label": "critical",
+                  "alertThreshold": 1,
+                  "actions": []
+                }
+              ],
+              "dateCreated": "2026-02-02T00:00:00Z"
+            },
+            {
+              "id": "synthetic-session-count",
+              "name": "Synthetic session count",
+              "projects": [
+                "synthetic-alerts"
+              ],
+              "dataset": "sessions",
+              "aggregate": "count()",
+              "timeWindow": 5,
+              "environment": "production",
+              "query": "",
+              "thresholdType": 0,
+              "triggers": [
+                {
+                  "label": "critical",
+                  "alertThreshold": 0,
+                  "actions": []
+                }
+              ]
+            },
+            {
+              "id": "synthetic-failure-rate",
+              "name": "Synthetic session failure rate",
+              "projects": [
+                "synthetic-alerts"
+              ],
+              "dataset": "sessions",
+              "aggregate": "failure_rate()",
+              "timeWindow": 5,
+              "environment": "production",
+              "query": "",
+              "thresholdType": 0,
+              "triggers": [
+                {
+                  "label": "critical",
+                  "alertThreshold": 50,
+                  "actions": []
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "kind": "workflows",
+      "project": null,
+      "pages": [
+        {
+          "cursor": null,
+          "nextCursor": null,
+          "response": [
+            {
+              "id": "synthetic-workflow",
+              "name": "Synthetic current workflow",
+              "enabled": true,
+              "detectorIds": [
+                "synthetic-detector"
+              ],
+              "triggers": {
+                "logicType": "any",
+                "conditions": [
+                  {
+                    "type": "detector_changed",
+                    "comparison": "high",
+                    "conditionResult": true
+                  }
+                ],
+                "actions": []
+              },
+              "actionFilters": [],
+              "owner": "user:synthetic-owner",
+              "dateCreated": "2026-02-02T00:00:00Z"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "kind": "detectors",
+      "project": null,
+      "pages": [
+        {
+          "cursor": null,
+          "nextCursor": null,
+          "response": [
+            {
+              "id": "synthetic-detector",
+              "name": "Synthetic linked monitor",
+              "enabled": true,
+              "projectId": "synthetic-project-1",
+              "type": "metric_issue",
+              "dataSources": [
+                {
+                  "type": "snuba_query_subscription",
+                  "queryObj": {
+                    "snubaQuery": {
+                      "dataset": "events",
+                      "eventTypes": [
+                        "error"
+                      ],
+                      "aggregate": "count()",
+                      "query": "event.type:error",
+                      "timeWindow": 60,
+                      "environment": "production"
+                    }
+                  }
+                }
+              ],
+              "conditionGroup": {
+                "logicType": "any",
+                "conditions": [
+                  {
+                    "type": "event_frequency_count",
+                    "comparison": 2,
+                    "conditionResult": true
+                  }
+                ],
+                "actions": []
+              }
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

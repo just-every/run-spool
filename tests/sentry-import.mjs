@@ -1,5 +1,7 @@
+import { alertRulesImport } from './sentry-import/alert-rules.mjs';
 import { schemaPages } from './sentry-import/schema-pages.mjs';
 import { fieldAccounting } from './sentry-import/field-accounting.mjs';
+import { rosterOwnershipFlow } from './sentry-import/roster-ownership.mjs';
 import { bugsnagMigrationFlow } from './bugsnag-import.mjs';
 import assert from 'node:assert/strict';
 import { createHash } from 'node:crypto';
@@ -133,7 +135,7 @@ try{
   const restored=await startTestWorker(15524);
   try{
     const restoredCookie=await signIn(restored.origin);
-    const response=await fetch(restored.origin+'/api/restore',{method:'POST',headers:{Origin:restored.origin,Cookie:restoredCookie,'X-Confirm-Restore':'yes','Content-Type':'application/x-ndjson'},body:nativeArchive});assert.equal(response.status,200,'native archive restores scrubbed imported history');
+    const response=await fetch(restored.origin+'/api/restore',{method:'POST',headers:{Origin:restored.origin,Cookie:restoredCookie,'X-Confirm-Restore':'yes','Content-Type':'application/x-ndjson'},body:nativeArchive});assert.equal(response.status,200,'native archive restores scrubbed imported history'+(response.ok?'':': '+(await response.clone().json()).error));
     const restoredArchive=await archiveProjection(await fetch(restored.origin+'/api/archive',{headers:{Cookie:restoredCookie}}));
     const archived=await archiveProjection(new Response(nativeArchive));assert.deepEqual(restoredArchive.data,archived.data,'history marker and source identities survive native archive restore');
     const keys=await (await fetch(`${restored.origin}/api/projects/${importedProject.id}/keys`,{headers:{Cookie:restoredCookie}})).json();assert.deepEqual(keys,[]);
@@ -144,3 +146,7 @@ try{
 }finally{await stopWorker();await rm(scratch,{recursive:true,force:true});delete process.env.SPOOL_TEST_SESSION}
 
 await bugsnagMigrationFlow();
+
+await rosterOwnershipFlow();
+
+await alertRulesImport();

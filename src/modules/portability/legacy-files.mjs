@@ -8,7 +8,7 @@ import { ensureLegacyAudit, legacyTargetState, requireLegacyEmpty } from './lega
 import { insist, PortabilityError } from './storage.mjs';
 import { ledgerReader } from './ledgers.mjs';
 
-export async function recoverLegacyArchive({db,buckets,policy:input,migrations},path,output,transient,acknowledged) {
+export async function recoverLegacyArchive({db,buckets,policy:input,migrations,migrationHistory},path,output,transient,acknowledged) {
  insist(acknowledged===true,'legacy_acknowledgement_required',409);
  insist(typeof output==='string' && output!==path,'legacy_output_required',409);
  insist(!(await lstat(output).catch(error=>{if(error.code==='ENOENT')return null;throw error;})),'legacy_output_exists',409);
@@ -16,7 +16,7 @@ export async function recoverLegacyArchive({db,buckets,policy:input,migrations},
  // reads the archive's own migration ledger, if any, for placement (bridge.mjs).
  const ledger=ledgerReader();
  for await(const record of fileRecords(path,readLegacyArchive))ledger.add(record);
- const context={db,buckets,config:policy(input),migrations},target=await legacyTargetState(db,migrations);
+ const context={db,buckets,config:policy(input),migrations,migrationHistory},target=await legacyTargetState(db,migrations);
  await requireLegacyEmpty(context,target);
  let id,manifest,closing,integrity,status,complete=false;
  try {
@@ -40,7 +40,7 @@ export async function recoverLegacyArchive({db,buckets,policy:input,migrations},
  // A fresh export binds the recovered installation from this point forward.
  // A failure here must be reported; the durable restore audit remains intact.
  try {
-  const recovered=await exportArchive(await createPortability({db,buckets,policy:input}),output,transient);
+  const recovered=await exportArchive(await createPortability({db,buckets,policy:input,migrations,migrationHistory}),output,transient);
   return {...recovered,legacyRecovery:true,unverifiedMetadata:true,restoredContentHash:closing.contentHash,...(status.bridged?{bridged:status.bridged}:{}),...(status.safetyChanges?{safetyChanges:status.safetyChanges}:{})};
  }catch{throw new PortabilityError('legacy_restored_export_failed',500);}
 }

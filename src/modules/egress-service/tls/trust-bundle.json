@@ -6,8 +6,8 @@
     "checksum": "7dcd9d09a39985f5344844e66b0c530a33843579125f23e21e9f0f220850f22a"
   },
   "artifacts": {
-    "egress.wasm": "4743c1afe775e0fa519cc732d975aa55192cb03ed82592dee7e4597b6d6a1978",
-    "test.wasm": "096d721102f183cc4043057c15d9c11f8a30351f4b7acfbb475bc8dc017bbdf5"
+    "egress.wasm": "5fe30986dd6aa7235b90bfb34654ac20519354e57eac2250bd8d86a4d70f8456",
+    "test.wasm": "f950b0b751383aa2ea1f64d2e116e00ecc539a62a11a38dd0ec1f4f1a3e6133f"
   },
   "anchors": [
     {

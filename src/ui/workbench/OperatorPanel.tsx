@@ -65,12 +65,8 @@ export function CorrectionHistory({ entries, issueId, busy, onUndo, labels }: { 
 
 export function OperatorPanel({ project, packet, busy, request, run, refresh, initial }: { initial?: Promise<any[]>; project: string; packet: any; busy: boolean; request: Request; run: Run; refresh: () => void }) {
   const [state, setState] = useState<any>(null);
-  const [assignmentRevision, setAssignmentRevision] = useState<number | null>(null);
   const [history, setHistory] = useState<any[]>([]);
   const [references, setReferences] = useState<any>(null);
-  const [label, setLabel] = useState('');
-  const [assignmentError, setAssignmentError] = useState(''), [assignmentMessage, setAssignmentMessage] = useState('');
-  const assignmentFeedback = useId();
   const [selected, setSelected] = useState<string[]>([]);
   const [target, setTarget] = useState('');
   const [preview, setPreview] = useState<CorrectionPreview | null>(null);
@@ -83,25 +79,24 @@ export function OperatorPanel({ project, packet, busy, request, run, refresh, in
   const issue = packet.issue;
   const root = `/api/projects/${encodeURIComponent(project)}`;
 
-  const waitingForPacket = assignmentRevision !== null && issue.revision < assignmentRevision;
-  const ready = !!state && !waitingForPacket;
-  const labelEdited = useRef(false);
+  const ready = !!state;
   const consumedInitial = useRef<Promise<any[]> | undefined>(undefined);
-  useEffect(() => { labelEdited.current = false; setState(null); setAssignmentRevision(null); setPreview(null); setSelected([]); setGroupingError(''); setFailure(''); setAssignmentError(''); setAssignmentMessage(''); }, [root, issue.id]);
+  // A read begun before a local policy write cannot replace its saved receipt.
+  const policyRevision = useRef(0);
+  useEffect(() => { setState(null); setPreview(null); setSelected([]); setGroupingError(''); setFailure(''); }, [root, issue.id]);
   useLiveRead(async (signal, background) => {
-    if (waitingForPacket) return;
+    const revision = policyRevision.current;
     try {
       const prefetched = !background && initial && initial !== consumedInitial.current;
       consumedInitial.current = initial;
       const [operatorState, corrections] = await (prefetched ? initial : Promise.all([request(`${root}/operator-state`), request(`${root}/corrections`)]));
-      if (signal.aborted) return;
+      if (signal.aborted || revision !== policyRevision.current) return;
       const resolved = await loadCorrectionReferences(root, packet, corrections, request);
-      if (signal.aborted) return;
+      if (signal.aborted || revision !== policyRevision.current) return;
       setReferences(resolved); setState(operatorState); setHistory(corrections); setFailure('');
-      if (!labelEdited.current) setLabel(operatorState.assignments.find((assignment: any) => assignment.issue === issue.id)?.label ?? '');
       if (!state) setValue(packet.events?.[0]?.originalGrouping?.fingerprint ?? issue.fingerprint);
-    } catch (error) { if (!signal.aborted) setFailure((error as Error).message); }
-  }, [root, issue.id, issue.revision, assignmentRevision, request, initial], { live: !initial });
+    } catch (error) { if (!signal.aborted && revision === policyRevision.current) setFailure((error as Error).message); }
+  }, [root, issue.id, issue.revision, request, initial], { live: !initial });
 
   const groupingAction = (work: () => Promise<void>) => run(async () => {
     setGroupingError('');
@@ -142,39 +137,10 @@ export function OperatorPanel({ project, packet, busy, request, run, refresh, in
     });
   };
 
-  const saveAssignment = (nextLabel: string | null) => run(async () => {
-    setAssignmentError(''); setAssignmentMessage('');
-    try {
-      const saved = await request(`${root}/issues/${issue.id}/assignment`, 'PATCH', { revision: issue.revision, label: nextLabel });
-      setLabel(saved.label ?? '');
-      setAssignmentRevision(saved.revision);
-      labelEdited.current = false;
-      setState(null);
-      setAssignmentMessage(saved.label ? 'Assignment saved.' : 'Assignment cleared.');
-      refresh();
-    } catch (error) {
-      setAssignmentError((error as Error).message);
-    }
-  });
-
   const labels = correctionLabels(project, packet, references, preview, state?.audit ?? []);
   return <section className="evidence">
     <h2>Operator decisions</h2>
     {failure && <p role="alert">{failure}</p>}
-    <form className="form-grid" onSubmit={event => {
-      event.preventDefault();
-      void saveAssignment(label.trim() || null);
-    }}>
-      <div>
-        <Field label="Assigned to" aria-invalid={assignmentError ? true : undefined} aria-describedby={assignmentError || assignmentMessage ? assignmentFeedback : undefined} disabled={busy || !ready} maxLength={80} value={label} onChange={event => { labelEdited.current = true; setLabel(event.target.value); setAssignmentError(''); setAssignmentMessage(''); }} />
-        {assignmentError && <p id={assignmentFeedback} className="field-error" role="alert">{assignmentError}</p>}
-        {assignmentMessage && <p id={assignmentFeedback} role="status">{assignmentMessage}</p>}
-      </div>
-      <button className="primary-button" disabled={busy || !ready}>Save assignment</button>
-      <button type="button" className="text-button" disabled={busy || !ready} onClick={() => void saveAssignment(null)}>Unassign</button>
-    </form>
-    <p>A label records responsibility; it does not create an account, grant access or send a notification.</p>
-
     <div className="operator-controls" role="group" aria-label="Operator controls">
       <Details title="Correct grouping" triggerLabel="Correct grouping">
         <p>Corrections move only the reviewed events. Future events keep their original grouping. Retries stay with this issue. Imported history is excluded. A new preview replaces the previous unapplied preview.</p>
@@ -199,7 +165,9 @@ export function OperatorPanel({ project, packet, busy, request, run, refresh, in
         <form className="form-grid" onSubmit={event => {
           event.preventDefault();
           void run(async () => {
+            policyRevision.current++;
             await request(`${root}/suppression-policies`, 'POST', { field, mode, value, enabled: true });
+            policyRevision.current++;
             setState(await request(`${root}/operator-state`));
           });
         }}>
@@ -217,7 +185,9 @@ export function OperatorPanel({ project, packet, busy, request, run, refresh, in
         {state?.policies.map((policy: any) => <div className="callout" key={policy.id}>
           <p>{policy.enabled ? 'Enabled' : 'Disabled'} · {policy.field} · {policy.mode} · <code>{policy.value}</code> · revision {policy.revision}</p>
           <button className="text-button" disabled={busy} onClick={() => void run(async () => {
+            policyRevision.current++;
             await request(`${root}/suppression-policies/${policy.id}`, 'PATCH', { ...policy, enabled: !policy.enabled });
+            policyRevision.current++;
             setState(await request(`${root}/operator-state`));
           })}>{policy.enabled ? 'Disable' : 'Enable'} policy</button>
         </div>)}
