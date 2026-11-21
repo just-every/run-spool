@@ -18,7 +18,7 @@ export function CheckInRoutes({ project, request, run, busy }: { project: string
   <form className="form-grid" onSubmit={event => { event.preventDefault(); change(`Connected ${slug}.`, async () => { const result = await request(item(slug), 'PUT', { url, enabled: true }); setSlug(''); setUrl(''); return result; }); }}>
    <Field label="Monitor slug" value={slug} required maxLength={64} pattern="[A-Za-z0-9._-]+" autoComplete="off" onChange={event => setSlug(event.target.value.trim())} />
    <Field label="Uptime heartbeat capability URL" type="password" value={url} required autoComplete="off" onChange={event => setUrl(event.target.value.trim())} />
-   <p className="muted">Access to your own Uptime installation is required. Paste the separate capability URL Uptime shows once when it issues a heartbeat key. It is kept by this installation, never shown again and never exported.</p>
+   <p><a href="/docs/integration-egress#connect-cron-check-ins">Find your monitor slug and get the check-in URL from Uptime</a>. Spool keeps the URL private and excludes it from exports.</p>
    <button className="primary-button" disabled={busy || snapshot.connections.length >= snapshot.limit}>Connect monitor</button>{saved && <p role="status">{saved}</p>}
   </form>
  </section>;

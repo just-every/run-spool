@@ -72,7 +72,7 @@ Each preference read, save and refusal records a privacy-safe audit fact. Privat
 
 Making it a required secret would also force every installation to provide GitHub credentials.
 
-The current hosted deployment does **not support the optional GitHub connection secret**. Its `deploy.json` does not declare `GITHUB_CONNECTION`; `rer deploy --set-secret GITHUB_CONNECTION` refuses it as undeclared. There is no supported hosted credential-entry route today. Use local Spool for this workflow or ask your installation operator for a release with optional integration deployment support.
+The hosted deployment declares `GITHUB_CONNECTION` as an optional secret. An installation operator sets it with `rer deploy --environment <environment> --env-file <private env file> --set-secret GITHUB_CONNECTION` and removes it with `--unset-secret`; the guide covers both that command and the private local settings file. An installation owner can use **Check connection** to verify the App installation without minting an installation token.
 
 ## From INTEGRATION-EGRESS.md
 

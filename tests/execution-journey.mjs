@@ -13,7 +13,7 @@ import {shopFixture} from './execution/fixture.mjs';
 import {reproduceProof,runner,missingQueuedMap} from './execution/reproduce.mjs';
 import {awaitingConnection,connectedWorkflow,deployedWorkflow,expiredGrant} from './execution/fix.mjs';
 import {baseline,exposureVerdicts} from './execution/exposure.mjs';
-import {disconnectedGitHubSetup,executionPanel,restoredExecutionPanel} from './execution/ui.mjs';
+import {connectedGitHubSetup,disconnectedGitHubSetup,executionPanel,restoredExecutionPanel} from './execution/ui.mjs';
 import {executionFollowUp,attentionCaptures} from './execution/follow-up.mjs';
 // [SDK-008] A captured failure reproduced in the isolated sandbox, carried through a fix
 // branch under an exact expiring grant, and measured after the deploy, through
@@ -36,9 +36,10 @@ try{
  const requestsBeforeSetup=github.requests.length;
  results.setupCaptures=await disconnectedGitHubSetup(app,browser,directory,reproduced.issue);
  assert.equal(github.requests.length,requestsBeforeSetup,'viewing disconnected setup never contacts GitHub');
- await browser.close();browser=null;
  // The owner configures the GitHub App connection and restarts.
  await app.stop();app=await executionRuntime(state,15476,{GITHUB_CONNECTION:github.connection});
+ stage='connected-setup';await connectedGitHubSetup(app,browser,github,reproduced.issue,agent,directory);
+ await browser.close();browser=null;
  stage='expiry-start';const finishExpiry=await expiredGrant(app,github,reproduced);
  stage='connected';results.connected=await connectedWorkflow(app,github,reproduced,awaiting.id);
  stage='deploy';

@@ -15,14 +15,16 @@ export async function disconnectedGitHubSetup(app,browser,directory,issue){
    const page=await context.newPage();await page.goto(`${app.origin}/projects/shop/issues/${issue}`);
    const connection=page.getByRole('group',{name:'GitHub connection',exact:true});
    await connection.getByRole('status').filter({hasText:/not configured/i}).waitFor();
-   await connection.locator('.callout').filter({hasText:/setup.*unavailable/i}).waitFor();
-   await connection.getByText(/hosted.*cannot connect.*deployment.*optional.*secret/i).waitFor();
-   const guideLink=connection.getByRole('link',{name:'Set up the GitHub connection',exact:true});await guideLink.waitFor();
+   assert.equal(await connection.getByRole('button',{name:'Check connection',exact:true}).count(),0,'no connection check is offered without credentials');
+   const guideLink=connection.getByRole('link',{name:'GitHub connection guide',exact:true});await guideLink.waitFor();
    if(width===1440){
     const href=await guideLink.getAttribute('href');assert.equal(new URL(href,app.origin).origin,app.origin,'GitHub setup stays on this install');
     await guideLink.click();await page.locator('article').waitFor();
     assert.equal((await fetch(page.url())).status,200,'GitHub guide opens anonymously');
     const index=await (await fetch(app.origin+'/docs')).text();assert.ok(index.includes(`href="${new URL(page.url()).pathname}"`),'GitHub guide is reachable from docs index');
+    const hosted=page.getByRole('heading',{name:'Hosted Spool',exact:true});await hosted.waitFor();
+    const command=await page.locator('article pre').filter({hasText:/--set-secret/}).innerText();
+    assert.match(command,/rer deploy .*--env-file .*--set-secret GITHUB_CONNECTION/,'the hosted procedure uses the optional deployment secret command and a private env file');
     await page.goBack();await connection.getByRole('status').filter({hasText:/not configured/i}).waitFor();
    }
    const path=`${directory}/github-disconnected-${width}.png`;await connection.screenshot({path});captures.push(path);
@@ -34,6 +36,55 @@ export async function disconnectedGitHubSetup(app,browser,directory,issue){
   }finally{await context.close();}
  }
  return captures;
+}
+
+export async function connectedGitHubSetup(app,browser,github,issue,agentKey,directory){
+ const path='/api/projects/shop/fixes/connection-check';
+ const before=github.requests.length, workflowsPath=`/api/projects/shop/fixes?issue=${issue}`;
+ const snapshot=await app.json(workflowsPath);
+ for(const [headers,status] of [
+  [{Cookie:''},401],
+  [{Authorization:`Bearer ${agentKey}`},403],
+  [{Origin:'https://elsewhere.example'},403],
+ ]){
+  const result=await app.request(path,'POST',undefined,headers);
+  assert.equal(result.status,status,'the connection check requires a same-origin installation owner session');
+  await result.body?.cancel();
+ }
+ assert.equal(github.requests.length,before,'refused calls did not contact GitHub');
+ const context=await browser.newContext({viewport:{width:1440,height:900}});
+ try{
+  await openGate(context,app.origin);
+  await context.addCookies([{name:app.cookie.slice(0,app.cookie.indexOf('=')),value:app.cookie.slice(app.cookie.indexOf('=')+1),url:app.origin}]);
+  const page=await context.newPage();await page.goto(`${app.origin}/projects/shop/issues/${issue}`);
+  const connection=page.getByRole('group',{name:'GitHub connection',exact:true});
+  const capture=async state=>{for(const width of [1440,390]){await page.setViewportSize({width,height:900});await connection.screenshot({path:`${directory}/github-${state}-${width}.png`});}await page.setViewportSize({width:1440,height:900});};
+  const check=connection.getByRole('button',{name:'Check connection',exact:true});await check.waitFor();
+  assert.equal(github.requests.length,before,'viewing a configured connection is inert');
+  const reply=page.waitForResponse(response=>new URL(response.url()).pathname===path&&response.request().method()==='POST');
+  await check.click();
+  const response=await reply;assert.equal(response.status(),200);const result=await response.json();assert.equal(result.ok,true,JSON.stringify(result));
+  await connection.getByRole('status').filter({hasText:/GitHub confirmed access/}).waitFor();
+  await capture('confirmed');
+  github.state.refuseInstallationCheck=true;
+  await check.click();
+  await connection.getByRole('status').filter({hasText:/GitHub refused access/}).waitFor();
+  await capture('refused');
+  assert.equal(await connection.getByText('synthetic-spool-provider-private-detail').count(),0,'provider text is hidden');
+  github.state.refuseInstallationCheck=false;github.state.redirectInstallationCheck=true;
+  await check.click();
+  await connection.getByRole('status').filter({hasText:/GitHub could not check/}).waitFor();
+  const requests=github.requests.slice(before);
+  assert.equal(requests.length,3,'redirects never receive the App credential');
+  for(const {method,path,body,token} of requests){
+   assert.equal(method,'GET');
+   assert.match(path,/^\/app\/installations\/\d+$/);
+   assert.equal(body,null);
+   assert.equal(token,'app-jwt');
+  }
+  assert.equal(github.live(),0,'checking never mints an installation token');
+  assert.deepEqual(await app.json(workflowsPath),snapshot,'checking cannot modify the grant, workflow or receipts');
+ }finally{github.state.refuseInstallationCheck=false;github.state.redirectInstallationCheck=false;await context.close();}
 }
 
 // The issue page's reproduce-and-fix section at 1440 and 390: axe, no

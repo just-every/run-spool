@@ -1,22 +1,23 @@
 import { restoredWork, RESTORED_WORK_REASON } from '../restored-work';
-import { agentAuthority } from '../agent-door/native-authority';
+import { agentAuthority, type NativeAuthority } from '../agent-door/native-authority';
 import { runtimeBindings } from '../../auth/bindings';
 import { jsonBody, ownerProjectRouter, ownerWrites } from '../owner-router';
 import { reproducerView } from '../reproducers/view';
-import { connection, publicConnection } from './connection';
+import { checkConnection, connection, publicConnection } from './connection';
 import { grantSpec, proposalInput } from './grant';
 import { GrantRefused, RECEIPT_LIMIT, STEP_RECEIPTS } from './provider';
 import { advance, workflowView } from './workflow';
 
 // Owner routes for fix-branch workflows. Proposing records an exact grant;
-// approving starts its expiry; only an approved, unexpired grant with an owner
-// connection lets Spool call GitHub, and only through ProviderSession.
+// approving starts its expiry; workflow operations call GitHub through
+// ProviderSession under an approved, unexpired grant.
 const routes = ownerProjectRouter();
 const s = (db: D1Database, sql: string, ...args: any[]) => db.prepare(sql).bind(...args);
 const audit = (db: D1Database, project: string, kind: string, detail: object, time: number) =>
  s(db, 'INSERT INTO audit SELECT ?,?,?,?,? WHERE changes()=1', crypto.randomUUID(), project, kind, JSON.stringify(detail), time);
 const current = (c: any) => s(c.env.DB, 'SELECT * FROM fix_workflows WHERE project=? AND id=?', c.req.param('project'), c.req.param('fix')).first<any>();
 const view = async (c: any, row: any) => workflowView(c.env.DB, runtimeBindings(c.env), row);
+const canCheckConnection = (session: NativeAuthority) => session.operator.role === 'owner' && session.kind !== 'agent' && session.kind !== 'reviewer';
 // A provider step needs the workflow's lease: taken atomically, only while no
 // other step holds it and only when the receipt budget can hold the whole step.
 const LEASE_MS = 5 * 60_000;
@@ -45,7 +46,13 @@ routes.get('/', async c => {
  const project = c.req.param('project')!, issue = c.req.query('issue');
  if (!issue || !await s(c.env.DB, 'SELECT 1 FROM issues WHERE project=? AND id=?', project, issue).first()) return c.json({ error: 'Issue not found' }, 404);
  const rows = (await s(c.env.DB, 'SELECT * FROM fix_workflows WHERE project=? AND issue=? ORDER BY proposed DESC,id DESC', project, issue).all<any>()).results;
- return c.json({ connection: publicConnection(connection(runtimeBindings(c.env))), workflows: await Promise.all(rows.map(row => view(c, row))) });
+ return c.json({ connection: publicConnection(connection(runtimeBindings(c.env))), canCheckConnection: canCheckConnection(c.get('ownerSession')), workflows: await Promise.all(rows.map(row => view(c, row))) });
+});
+
+routes.post('/connection-check', async c => {
+ if (!canCheckConnection(c.get('ownerSession'))) return c.json({ error: 'Installation owner session required' }, 403);
+ const result = await checkConnection(connection(runtimeBindings(c.env)));
+ return c.json(result, 200, { 'Cache-Control': 'no-store' });
 });
 
 routes.post('/', async c => {
