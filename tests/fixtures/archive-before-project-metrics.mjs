@@ -10,5 +10,5 @@ export function beforeProjectMetrics(manifest){
   ...table,sql:table.sql.replace('issue TEXT REFERENCES issues(id)','issue TEXT NOT NULL REFERENCES issues(id)').replace(", CHECK((kind='metric' AND issue IS NULL) OR (kind<>'metric' AND issue IS NOT NULL))",''),
   columns:table.columns.map(column=>column.name==='issue'?{...column,notnull:1}:column)
  }:table);
- if(manifest.schemaObjects)manifest.schemaObjects=manifest.schemaObjects.filter(object=>!['sentry_transactions','alert_metric_states','alert_metric_events','alert_target_destinations','alert_intent_recipients'].includes(object.table));
+ if(manifest.schemaObjects)manifest.schemaObjects=manifest.schemaObjects.filter(object=>object.name!=='event_stamp_grouping'&&!['sentry_transactions','alert_metric_states','alert_metric_events','alert_target_destinations','alert_intent_recipients'].includes(object.table));
 }

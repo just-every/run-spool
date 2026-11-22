@@ -338,7 +338,10 @@ async function earlierManifest(db: D1Database, manifest: any) {
   // A set that adds no archived table matches today's schema, so it applies only to an archive missing its migrations.
   const reviewOnly=later.tables.length===0 && later.migrations.includes('0109_feedback_review.sql')
     && later.migrations.every(name => ['0109_feedback_review.sql', ...afterRosterMigrations].includes(name));
-  if (!later.tables.length && !(Array.isArray(manifest.migrations) && later.migrations.some(name => !manifest.migrations.includes(name)) && tableless.every(name => manifest.migrations.includes(name) || later.migrations.includes(name))) && !(reviewOnly && !manifest.migrations?.length) && !(previousStampInventory && later.migrations.length===1 && later.migrations[0]===stampGroupingMigration)) continue;
+  const recordedUpgrade = Array.isArray(manifest.migrations) && later.migrations.some(name => !manifest.migrations.includes(name))
+    && tableless.every(name => manifest.migrations.includes(name) || later.migrations.includes(name));
+  const stampIndexOnly = previousStampInventory && later.migrations.length === 1 && later.migrations[0] === stampGroupingMigration;
+  if (!later.tables.length && !recordedUpgrade && !(!manifest.migrations?.length && (reviewOnly || stampIndexOnly))) continue;
   const missing=later.tables.filter(name=>!carriedReporting||!reportingNames.includes(name));
   if(later.tables.length&&!missing.length)continue;
   // An archive that records no migration list is either older than 0054 (issue_resolutions in its first form) or a current

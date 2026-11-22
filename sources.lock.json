@@ -6698,7 +6698,7 @@
       "executable": false
     },
     "src/domain/portability.ts": {
-      "sha256": "4c68a8f78399bea6fb9238573b1c71362a05a99c5ec59a893dbda3d164c9f616",
+      "sha256": "4a4c0119dbc57603d2bcb056c23cfac4b01e6d9ade4b65dd87dabebc13f83445",
       "executable": false
     },
     "src/domain/privacy.ts": {
@@ -11406,7 +11406,7 @@
       "executable": false
     },
     "tests/fixtures/archive-before-project-metrics.mjs": {
-      "sha256": "7c1631f992bea68d79a350db70f3b5f01d127b564860433b45a66555c34a8368",
+      "sha256": "80003eeee578b802148fdf0f0d17ec024a29ce81a98dc56fb2091aeabd8f09b9",
       "executable": false
     },
     "tests/fixtures/archive-before-relay-privacy.mjs": {
