@@ -135,6 +135,7 @@
  .l-private{grid-template-columns:36.7% 22.7% 40.6%}
  .l-private .band-drawing{grid-column:1;grid-row:1;margin-top:var(--D)}
  .l-private .band-copy{grid-column:3;grid-row:1}
+ .l-private .band-copy p{max-width:36ch}
  .l-archive .band-copy,.l-run .band-copy{max-width:50%}
  .l-run .band-copy p{max-width:23em}
  .l-archive .band-drawing,.l-run .band-drawing{width:36.7%;margin-top:var(--G)}

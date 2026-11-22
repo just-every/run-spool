@@ -1,18 +1,90 @@
-import { useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { ownerFetch } from './client';
 import { download, type Run } from './shared';
 
-export function DownloadBackup({busy,run,label='Download private archive'}:{busy:boolean;run:Run;label?:string}) {
- const [preparing,setPreparing]=useState(false),[notice,setNotice]=useState('');
- return <div><button className="text-button" disabled={busy||preparing} onClick={()=>{
-  setPreparing(true);setNotice('');
-  void run(async()=>{try{
-   const response=await ownerFetch('/api/archive',{credentials:'same-origin'});
-   if(!response.ok)throw new Error('Backup download failed. Sign in and try again.');
-   const text=await response.text(),manifest=JSON.parse(text.split('\n')[0]);
-   const projects=manifest.tables.find((table:{name:string})=>table.name==='projects')?.count;
-   const day=new Date(manifest.exportedAt).toISOString().slice(0,10),name=`spool-private-archive-${day}.jsonl`;
-   download(text,name);setNotice(`Downloaded ${name}${Number.isSafeInteger(projects)?` (${projects} ${projects===1?'project':'projects'})`:''}`);
-  }finally{setPreparing(false);}});
- }}>{label}</button><div role="status" aria-live="polite">{preparing ? 'Preparing your archive…' : notice}</div></div>;
+const ARCHIVE_IDLE_MS = 60_000;
+
+function archiveText(response: Response, onChunk: () => void) {
+  const stream = response.body?.pipeThrough(new TransformStream<Uint8Array, Uint8Array>({
+    transform(chunk, output) {
+      onChunk();
+      output.enqueue(chunk);
+    },
+  }));
+  return new Response(stream).text();
+}
+
+type DownloadState = { phase: 'idle' | 'preparing' | 'receiving' } |
+  { phase: 'complete' | 'canceled' | 'failed'; message: string };
+
+export function DownloadBackup({ busy, run, label = 'Download private archive' }: { busy: boolean; run: Run; label?: string }) {
+  const [state, setState] = useState<DownloadState>({ phase: 'idle' });
+  const active = useRef<AbortController | null>(null);
+  const pending = state.phase === 'preparing' || state.phase === 'receiving';
+  const retry = state.phase === 'failed' || state.phase === 'canceled';
+
+  useEffect(() => () => {
+    const request = active.current;
+    active.current = null;
+    request?.abort();
+  }, []);
+
+  function startDownload() {
+    if (busy || active.current) return;
+    const request = new AbortController();
+    active.current = request;
+    setState({ phase: 'preparing' });
+
+    void run(async () => {
+      const timeout = new DOMException('Archive download timed out', 'TimeoutError');
+      let timer: number | undefined;
+      function waitForProgress() {
+        // Bound pauses while Spool prepares the archive or sends its next bytes.
+        window.clearTimeout(timer);
+        timer = window.setTimeout(() => request.abort(timeout), ARCHIVE_IDLE_MS);
+      }
+
+      try {
+        waitForProgress();
+        const response = await ownerFetch('/api/archive', { signal: request.signal });
+        request.signal.throwIfAborted();
+        if (!response.ok) {
+          await response.body?.cancel();
+          throw new Error('Archive response failed');
+        }
+
+        setState({ phase: 'receiving' });
+        waitForProgress();
+        const text = await archiveText(response, waitForProgress);
+        request.signal.throwIfAborted();
+        const manifest = JSON.parse(text.split('\n', 1)[0]);
+        const projects = manifest.tables.find((table: { name: string }) => table.name === 'projects')?.count;
+        const day = new Date(manifest.exportedAt).toISOString().slice(0, 10);
+        const name = `spool-private-archive-${day}.jsonl`;
+        download(text, name);
+        setState({ phase: 'complete', message: `Downloaded ${name}${Number.isSafeInteger(projects) ? ` (${projects} ${projects === 1 ? 'project' : 'projects'})` : ''}` });
+      } catch {
+        if (active.current !== request) return;
+        if (request.signal.reason === timeout) {
+          setState({ phase: 'failed', message: 'Spool stopped responding during the archive download. Try again.' });
+        } else if (request.signal.aborted) {
+          setState({ phase: 'canceled', message: 'Archive download canceled.' });
+        } else {
+          setState({ phase: 'failed', message: navigator.onLine ? 'The archive download failed. Try again.' : 'You’re offline. Reconnect and try the archive download again.' });
+        }
+      } finally {
+        window.clearTimeout(timer);
+        if (active.current === request) active.current = null;
+      }
+    });
+  }
+
+  return <div>
+    <div className="button-row">
+      <button type="button" className="text-button" disabled={busy || pending} onClick={startDownload}>{retry ? 'Retry archive download' : label}</button>
+      {pending && <button type="button" className="text-button" onClick={() => active.current?.abort()}>Cancel download</button>}
+    </div>
+    <div role="status">{state.phase === 'preparing' ? 'Preparing your archive…' : state.phase === 'receiving' ? 'Receiving your archive…' : state.phase === 'complete' || state.phase === 'canceled' ? state.message : ''}</div>
+    {state.phase === 'failed' && <p role="alert">{state.message}</p>}
+  </div>;
 }

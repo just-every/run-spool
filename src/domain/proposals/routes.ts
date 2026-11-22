@@ -11,6 +11,8 @@ import { ownerBatch } from '../owner-authority';
 import { auditedBatch, auditCommit, attributeAuditScope } from '../audit/context';
 import { guard, s } from '../operators/common';
 import { auditActor } from '../audit/identity';
+import { isShortId } from '../short-ids/format';
+import { resolveIssue } from '../short-ids/lookup';
 import { normalizeProposal } from './input';
 import { explainProposal, issueRevisions, proposalPreview } from './explanation';
 import { proposalStale, revisionGuards } from './lifecycle';
@@ -38,7 +40,10 @@ routes.post('/',async c=>{
  const bearer=c.req.header('authorization')?.replace(/^Bearer /i,''),digest=native?native.context.agent.id:await hash(bearer!);
  const source=await s(db,"SELECT minted_by FROM credentials WHERE hash=? AND kind='agent'",digest).first<any>();
  const actor=await auditActor(db,{kind:native?'agent':'service',authority:digest,owner:native?.operator.id??source?.minted_by,project});attributeAuditScope(actor);
- const input=normalizeProposal(await jsonBody(c.req.raw,32768)),id=crypto.randomUUID(),time=Date.now();
+ const submitted=await jsonBody(c.req.raw,32768);
+ const resolved=isShortId(submitted?.source)?await resolveIssue(db,project,submitted.source):undefined;
+ if(resolved===null)throw new Error('Issue not found');
+ const input=normalizeProposal(resolved?{...submitted,source:resolved.issue}:submitted),id=crypto.randomUUID(),time=Date.now();
  let preview,revisions;
  try{preview=await proposalPreview(db,project,input,id);revisions=null}catch(e){if(/revision conflict/i.test(String(e)))return c.json({error:'Stale issue or rule revision'},409);throw e}
  const review=await explainProposal(db,{project,input},preview),explanation=canonical(review);
@@ -49,6 +54,7 @@ routes.post('/',async c=>{
  const write=native?(db:D1Database,jobs:D1PreparedStatement[])=>ownerBatch(db,c.get('proposalOwner'),jobs):auditedBatch;
  try{await write(db,[
   ...native?[]:[guard(db,`EXISTS(SELECT 1 FROM credentials WHERE hash=? AND project=? AND kind='agent' AND revoked IS NULL AND ${mintedByCurrentPerson} AND ${await mintAdmission(c.req.raw)})`,digest,project)],
+  ...resolved?.requested?[guard(db,'EXISTS(SELECT 1 FROM issue_short_ids WHERE project=? AND short_id=? AND issue=?)',project,resolved.requested.shortId,input.source)]:[],
   ...revisionGuards(db,project,revisions),
   ...(input.kind==='rule'?[guard(db,'COALESCE((SELECT revision FROM grouping_policies WHERE project=?),0)=?',project,input.policyRevision)]:[]),
   s(db,'INSERT INTO grouping_proposals(id,project,kind,state,actor,input,explanation,revisions,correction,rule_revision,created,updated,prepared_by) VALUES(?,?,?,?,?,?,?,?,?,?,?,?,?)',id,project,input.kind,'proposed',row.actor,row.input,row.explanation,row.revisions,null,null,time,time,row.prepared_by),auditCommit(db),s(db,'DELETE FROM operator_guards')

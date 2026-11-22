@@ -5,6 +5,7 @@ import assert from 'node:assert/strict';
 import {mkdir,readFile,writeFile} from 'node:fs/promises';
 import {damagedRestoreUI,erasedRestoreUI} from './restore-refusal-ui.mjs';
 import {archiveProjection} from './archive.mjs';
+import {downloadBrowserArchive} from './archive-download-ui.mjs';
 import {expect} from '@playwright/test';
 import {execFileSync} from 'node:child_process';
 import AxeBuilder from '@axe-core/playwright';
@@ -144,12 +145,7 @@ try {
  }
  await capture('settings-data',width);
  const beforeDownload=await archiveProjection(await fetch(origin+'/api/archive',{headers:{Cookie:cookie}}));
- let releaseBackup;
- const backupHold=new Promise(resolve=>{releaseBackup=resolve});
- if(width===1440)await page.route(origin+'/api/archive',async route=>{await backupHold;await route.continue();});
- const downloading=page.waitForEvent('download');await page.getByRole('button',{name:'Download private archive',exact:true}).click();
- if(width===1440){await expect(page.getByRole('button',{name:'Download private archive',exact:true})).toBeDisabled();await expect(page.getByRole('status').filter({hasText:'Preparing your archive'})).toBeVisible();releaseBackup();}
- const download=await downloading;if(width===1440)await page.unroute(origin+'/api/archive');
+ const download=await downloadBrowserArchive(page,origin,{exerciseRecovery:width===1440});
  assert.equal(await download.failure(),null);assert.match(download.suggestedFilename(),/^spool-private-archive-\d{4}-\d{2}-\d{2}\.jsonl$/);await expect(page.getByRole('status').filter({hasText:'Downloaded spool-private-archive-'})).toBeVisible();
  const downloaded=await archiveProjection(new Response(await readFile(await download.path())));
  assert.deepEqual(downloaded.data,beforeDownload.data,'browser file carries every retained product row');

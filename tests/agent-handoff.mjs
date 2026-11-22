@@ -20,18 +20,24 @@ const directory=resolve('.artifacts/agent-handoff');await mkdir(directory,{recur
 async function groupingProposalHandoff(app,env,agent,mcp,issue,otherIssue){
  const path='/api/projects/a/grouping-proposals',packetPath='/api/projects/a/issues/'+issue+'/packet';
  const packet=await app.json(packetPath,'GET',undefined,agent),issues=await app.json('/api/projects/a/issues'),alerts=await app.json('/api/projects/a/alerts');
+ const shortId=packet.issue.short_id,otherShortId=(await app.json('/api/projects/b/issues/'+otherIssue+'/packet')).issue.short_id;
+ assert.ok(shortId&&otherShortId);
  const input={kind:'split',source:issue,revision:packet.issue.revision,events:[packet.events[0].id],
   variants:packet.events.map(row=>({stack:JSON.stringify(row.event.frames),release:row.event.release,route:''})),
   rationale:'Compare retained stack and release variants before moving this occurrence.',
   window:{start:Math.min(...packet.events.map(row=>row.received)),end:Math.max(...packet.events.map(row=>row.received))+1}};
- const file=resolve(app.checkout.root,'agent-proposal.json');await writeFile(file,JSON.stringify(input),{mode:0o600});
+ const shortInput={...input,source:shortId};
+ const file=resolve(app.checkout.root,'agent-proposal.json');await writeFile(file,JSON.stringify(shortInput),{mode:0o600});
  const submitted=await cli(['propose','--file',file,'--format','json'],env);assert.equal(submitted.code,0);const proposal=JSON.parse(submitted.stdout);
  assert.ok(proposal.id);assert.ok(proposal.actor);assert.match(proposal.label,/^proposed by agent .+ for .+$/);assert.ok(!Object.hasOwn(proposal,'explanation'));noSecrets(proposal);
+ assert.deepEqual(proposal.input,input,'A CLI proposal using the short ID returns the canonical source');
  const fromStdin=await cli(['propose','--stdin','--format','json'],env,JSON.stringify(input));assert.equal(fromStdin.code,0);assert.equal(JSON.parse(fromStdin.stdout).label,proposal.label);
+ const http=await app.request(path,'POST',{...shortInput,source:shortId.toLowerCase()},{...agent,headers:{'Idempotency-Key':crypto.randomUUID()}});
+ assert.equal(http.status,201);const httpProposal=await http.json();assert.deepEqual(httpProposal.input,input);
  const listed=await cli(['proposals','--format','json'],env);assert.equal(listed.code,0);const summaries=JSON.parse(listed.stdout);assert.ok(summaries.some(row=>row.id===proposal.id));for(const row of summaries){assert.match(row.label,/^proposed by agent .+ for .+$/);assert.ok(!Object.hasOwn(row,'explanation'));}noSecrets(summaries);
  const tools=(await mcp.client.listTools()).tools;assert.equal(tools.find(row=>row.name==='propose_grouping').annotations.readOnlyHint,false);
  const mcpProposal=mcpValue(await mcp.call('propose_grouping',input));assert.equal(mcpProposal.label,proposal.label);assert.ok(mcpValue(await mcp.call('list_grouping_proposals')).some(row=>row.id===mcpProposal.id));
- const canonicalProposal=mcpValue(await mcp.call('spool.grouping.propose',input));
+ const canonicalProposal=mcpValue(await mcp.call('spool.grouping.propose',shortInput));
  assert.notEqual(canonicalProposal.id,mcpProposal.id,'both proposal names submit an operation');
  // Each split has its own proposed destination; it does not create that issue.
  const operation=({id,created,updated,revisions,...value})=>value;
@@ -39,7 +45,7 @@ async function groupingProposalHandoff(app,env,agent,mcp,issue,otherIssue){
  assert.deepEqual(canonicalProposal.input,input);assert.equal(canonicalProposal.state,'proposed');
  const existingRevisions=row=>row.revisions.filter(revision=>issues.some(issue=>issue.id===revision.id));
  assert.deepEqual(existingRevisions(canonicalProposal),existingRevisions(mcpProposal),'both names bind the same current issue revisions');
- for(const row of [mcpProposal,canonicalProposal]){
+ for(const row of [proposal,httpProposal,mcpProposal,canonicalProposal]){
   assert.ok(!Object.hasOwn(row,'explanation'));noSecrets(row);
   const future=row.revisions.filter(revision=>!issues.some(issue=>issue.id===revision.id));assert.equal(future.length,1);assert.equal(future[0].revision,0);
   const stored=await app.json(path+'/'+row.id);assert.deepEqual(stored.input,row.input);assert.deepEqual(stored.revisions,row.revisions);assert.equal(stored.state,'proposed');assert.equal(stored.correction,null);
@@ -56,7 +62,7 @@ async function groupingProposalHandoff(app,env,agent,mcp,issue,otherIssue){
   ['spool.issues.read',{issue,state:'all'}],['spool.issues.read',{issue:'../b'}],
   ...['propose_grouping','spool.grouping.propose'].flatMap(name=>[
    [name,{...input,kind:'apply'}],[name,{...input,revision:-1}],
-   [name,{...input,window:{start:1,end:1}}],[name,{...input,source:otherIssue}],
+   [name,{...input,window:{start:1,end:1}}],[name,{...input,source:otherIssue}],[name,{...input,source:otherShortId}],
    [name,{...input,policy:{version:1,stack:'',fingerprint:''}}],
   ]),
   ...['approve_grouping','apply_grouping','undo_grouping','spool.grouping.correct','spool.issues.triage','synthetic-spool-unknown'].map(name=>[name,input]),
@@ -72,10 +78,11 @@ async function groupingProposalHandoff(app,env,agent,mcp,issue,otherIssue){
   const denied=await app.request(route,method,body,agent);assert.equal(denied.status,403,method+' '+route);await denied.body?.cancel();
  }
  const crossEnv={...env,SPOOL_URL:app.origin+'/api/projects/b'};assert.equal((await cli(['proposals','--format','json'],crossEnv)).code,3);assert.equal((await cli(['propose','--stdin'],crossEnv,JSON.stringify({...input,source:otherIssue}))).code,3);
- const foreign=await app.request(path,'POST',{...input,source:otherIssue},agent);assert.ok([400,403,404].includes(foreign.status));assert.ok(!(await foreign.text()).includes('PROJECT_B_PRIVATE'));
+ const foreign=await app.request(path,'POST',{...input,source:otherShortId},{...agent,headers:{'Idempotency-Key':crypto.randomUUID()}});
+ assert.equal(foreign.status,404);assert.equal((await foreign.json()).code,'not_found');
  assert.deepEqual(await app.json(packetPath,'GET',undefined,agent),packet,'proposals and denied decisions preserve packet evidence');assert.deepEqual(await app.json('/api/projects/a/issues'),issues);assert.deepEqual(await app.json('/api/projects/a/alerts'),alerts);
  assert.equal((await cli(['propose','--stdin','--key-stdin'],env,JSON.stringify(input))).code,4);assert.equal((await cli(['propose','--stdin'],env,'{')).code,4);
- return {submitted:4,canonicalSubmissionEqual:true,completeSummaryListsEqual:true,invalidCallsUnchanged:true,ownerActionsDenied:true,crossProjectDenied:true,inert:true};
+ return {submitted:5,canonicalSubmissionEqual:true,completeSummaryListsEqual:true,invalidCallsUnchanged:true,ownerActionsDenied:true,crossProjectDenied:true,inert:true};
 }
 let app,browser,secondOrigin,mcp,redirectServer,receivingServer,failure,stage='setup';traceStage('setup');const evidence={checks:[],captures:[]};
 try{
