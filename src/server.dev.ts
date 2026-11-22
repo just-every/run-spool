@@ -12,6 +12,8 @@ import { runtimeBindings, type Bindings } from './auth/bindings';
 import { signInPage } from './auth/sign-in.server';
 import { devPersonas } from './auth/dev-personas';
 import { privateRuntimePath } from './auth/private-runtime.server';
+import { localPasskeyResponse, localPasskeysEnabled, passkeyPath } from './auth/passkeys/door.server';
+import { enrolledPasskey } from './auth/passkeys/store.server';
 
 // "/" sends a visitor without a session to /sign-in, a page the key exchange never runs on (the
 // dev layer adds it to the root document). Locally, the root answers with the sign-in page itself.
@@ -26,6 +28,7 @@ const local = {
    return bindings.ASSETS.fetch(request);
   }
   const env = runtimeBindings(bindings as Bindings);
+  if (path === passkeyPath || path.startsWith(passkeyPath + '/')) return localPasskeyResponse(request, env);
   // Only the local owner's session can discover this machine's executable paths.
   // These bindings and this route are absent from the deployed Worker.
   if (path === '/api/agent-runtime') {
@@ -45,7 +48,12 @@ const local = {
   if (!managedInstallation(env) && devGate({ key: env.RER_DEV_KEY, origin: env.AUTH_ORIGIN, local: env.AUTH_LOCAL === 'true' })) admitLocalProjectKeys(request);
   const response = await worker.fetch(request, bindings, execution);
   const redirect = response.status === 303 && response.headers.get('location')?.startsWith('/sign-in');
-  if (new URL(request.url).pathname === '/' && request.method === 'GET' && redirect) return await signInPage(request, runtimeBindings(bindings as Bindings));
+  const localSignIn = path === '/' && request.method === 'GET' && redirect;
+  const signedOut = path === '/sign-in' && response.status === 200;
+  if (localSignIn || signedOut && localPasskeysEnabled(env)) {
+   const passkey = localPasskeysEnabled(env) && !!await enrolledPasskey(env);
+   return signInPage(request, env, undefined, passkey);
+  }
   return response;
  },
 } satisfies typeof worker;

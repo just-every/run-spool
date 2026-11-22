@@ -1,12 +1,14 @@
 # Hand it to your coding agent
 
-A coding agent, such as Claude Code or Codex, can read Spool's evidence directly instead of you copying and pasting it. Give it an agent key for one project’s evidence and inert grouping proposals; owner-only review and explicit apply control changes.
+A coding agent, such as Claude Code or Codex, can read Spool's evidence directly instead of you copying and pasting it. An agent key is read-only for one project except for submitting inert grouping proposals. The owner reviews and applies any grouping changes.
 
 ## Create a key
 
-1. Open Settings for the project.
-2. Under Project keys, choose Create agent key.
-3. Copy the key when Spool shows it. It is shown once.
+1. **Save the policy.** Open `/agents` on the installation as the owner. Answer all six policy questions and choose **No** or **Yes** for paid AI. Choose **No** to save in the form, or set spending caps in the policy document to allow paid AI.
+2. **Create the key.** Open **Settings → Projects & keys** and choose **Create agent key**.
+3. **Copy the key.** Spool shows it once.
+
+When an agent sets up Spool through the business harness, set-up prints the first-owner sign-in link on its own line. Pass it as `sign_in` on the Spool tool entry in `session.report` and keep it out of chat and files.
 
 An agent key works for one project only. Revoke it from **Settings** whenever you like.
 
@@ -34,7 +36,7 @@ With the key in an `Authorization: Bearer` header, the agent can make `GET` requ
 - `/api/projects/<project>/issues/<issue>/packet` returns an issue's evidence packet: its latest 10 occurrences with mapped stack frames, and capture receipts.
 - `/api/projects/<project>/alerts` and `/api/projects/<project>/outcomes` return the project's alerts and capture receipts.
 
-Everything else is refused. The key cannot resolve issues, change settings, upload maps, create keys or read another project.
+The key can also submit and list inert grouping proposals on the exact project. Only the owner can approve, reject or apply a proposal.
 
 ## A prompt to start from
 

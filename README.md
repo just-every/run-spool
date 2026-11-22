@@ -33,16 +33,16 @@
 
 Spool catches JavaScript, Python and Go errors, groups repeats into issues, and maps JavaScript stacks back to your original source. Download an evidence packet for a fix, give an agent evidence access and inert grouping-proposal submission to one project, and see when a resolved error comes back in a later release. One owner can keep several projects separate, export private evidence and restore it into a fresh copy.
 
-Public source: [just-every/run-spool](https://github.com/just-every/run-spool). The latest tagged Spool release is [v0.7.11](https://github.com/just-every/run-spool/tree/v0.7.11). The clone instructions below use `main`, which may be ahead of that tag; the tagged release has its own instructions. See the [changelog](CHANGELOG.md). Licensed under the [MIT License](LICENSE).
+Public source: [just-every/run-spool](https://github.com/just-every/run-spool). Published versions are listed in [GitHub Releases](https://github.com/just-every/run-spool/releases). See the [changelog](CHANGELOG.md). Licensed under the [MIT License](LICENSE).
 
 Run Spool on your computer without a Cloudflare account or mail provider, or deploy it to your own Cloudflare Worker and D1 database. The [first-release jobs and verification requirements](ACCEPTANCE.md) describe what to expect.
 
 ## Run it on your computer
 
-macOS, Linux or Windows with WSL2. git is required; rer brings Node and pnpm. One line, as on the [Run page](https://run-spool.com/run), installs rer, clones Spool and starts it:
+macOS, Linux or Windows with WSL2. git is required; rer brings Node and pnpm. The [Run page](https://run-spool.com/run) shows a one-line install for the tagged release it names. This command finds the newest stable release tag, prints it, clones it and starts Spool:
 
 ```sh
-curl -fsSL https://runeditrun.com/install.sh | sh -s -- dev just-every/run-spool
+SPOOL_TAG=$(git ls-remote --refs --tags --sort=-version:refname https://github.com/just-every/run-spool.git | awk '$2 ~ /^refs\/tags\/v[0-9]+\.[0-9]+\.[0-9]+$/ && !tag { sub("refs/tags/", "", $2); tag=$2 } END { if (tag) print tag }') && test -n "$SPOOL_TAG" && printf 'Installing Spool %s\n' "$SPOOL_TAG" && git clone --branch "$SPOOL_TAG" --single-branch https://github.com/just-every/run-spool.git run-spool && (cd run-spool && curl -fsSL https://runeditrun.com/install.sh | sh -s -- dev --host localhost)
 ```
 
 The installer puts rer in `~/.local/bin` and leaves your shell profile unchanged. The commands below use its full path and work in a fresh terminal. To also use the shorter `rer` command in this terminal:
@@ -53,9 +53,13 @@ export PATH="$HOME/.local/bin:$PATH"
 
 Repeat that PATH line in each new terminal if you want the shorter command. If you see 'command not found', run `~/.local/bin/rer cli path` and paste the line it prints.
 
-Already have Node 22 or later? `npx -y @runeditrun/rer dev just-every/run-spool` does the same.
+To clone a specific release, set `SPOOL_TAG` to the tag shown on the Run page or on the GitHub release you chose, then run:
 
-To start it again later, run `cd run-spool && ~/.local/bin/rer dev`. To run the tagged release instead, use `git clone --branch v0.7.11 https://github.com/just-every/run-spool.git spool && cd spool && ~/.local/bin/rer dev` in place of that line. Its dependencies and instructions are those shipped with that tag.
+```sh
+git clone --branch "$SPOOL_TAG" --single-branch https://github.com/just-every/run-spool.git run-spool
+```
+
+From that checkout, use `~/.local/bin/rer dev --host localhost` to start Spool. If you already have Node 22 or later, `npx -y @runeditrun/rer dev --host localhost` also works from the checkout. To restart later, use `cd run-spool && ~/.local/bin/rer dev --host localhost`.
 
 `~/.local/bin/rer dev` installs everything, prepares a local owner and prints a link that opens Spool signed in. First start uses `owner@run-spool.test` for the `run-spool` folder above, without asking for an email, even when input is piped. Another folder name produces `owner@<sanitized-folder-name>.test`; existing setup keeps its owner.
 
@@ -63,7 +67,9 @@ On the setup page, enter what to call this installation, your name and your emai
 
 Setup prepares private settings and the database, claims or preserves the owner, opens the local owner without email and stops its temporary app; run `~/.local/bin/rer dev` afterwards. It creates no sample project and sends no real email. For older state, follow [OPERATIONS.md](OPERATIONS.md#existing-installation-recovery).
 
-`~/.local/bin/rer dev` opens signed in as the owner. Open the private `RER_OPEN` link printed on this computer; its `#rer-dev=` fragment carries this checkout's owner gate. Keep the link and gate private. The header shows the installation name you choose; `~/.local/bin/rer demo` adds sample data in disposable state. Mail is silently suppressed in dev and demo; there is no local outbox viewer. To invite someone locally, open **Settings → Members**, create an invitation and copy its pending invitation link. The invitee opens their own single-use, expiring invitation directly in a separate browser on this computer and presses **Confirm**. They receive only their membership and project access. Never send them the owner’s RER_OPEN link: it signs in as the owner. After removal, their member session loses access; ask the owner for a new invitation to rejoin.
+`~/.local/bin/rer dev` opens signed in as the owner. Open the private `RER_OPEN` link printed on this computer; its `#rer-dev=` fragment carries this checkout's owner gate. Keep the link and gate private. The header shows the installation name you choose; `~/.local/bin/rer demo` adds sample data in disposable state. Mail is silently suppressed in dev and demo; there is no local outbox viewer. To invite someone locally, open **Settings → Members**, create an invitation and copy its pending invitation link. The invitee opens their own single-use, expiring invitation directly in a separate browser on this computer and presses **Join**. They receive only their membership and project access. Never send them the owner’s RER_OPEN link: it signs in as the owner. After removal, their member session loses access; ask the owner for a new invitation to rejoin.
+
+On `http://localhost`, open **Settings → General → Local passkey** after using the private owner link. Choose **Add passkey**. After signing out, choose **Sign in with a passkey** on the Sign in page. Keep the terminal link available on this computer if you lose access to the passkey.
 
 With rer dev v2 (using the rer version pinned in [package.json](package.json)), an ingest key created in dev works directly from your app against local Spool, and a deploy key works from your local build, without the owner gate. Allow your browser app's exact origin in Capture. Dev agent keys still need the gate for evidence and inert proposals: privately extract the `rer-dev` fragment value as `SPOOL_DEV_KEY` for the local agent CLI, as shown in [the agent guide](docs/WITH-YOUR-AGENT.md#local-agent-access). Never give the gate to a browser app. Every dev-minted key is refused by deployed Spool; create fresh keys there. Private archives exclude all project grants.
 
@@ -77,9 +83,9 @@ Export before reset and import only into an empty destination. Export includes p
 
 Back up first: export a private archive (Settings → **Download private archive**, or stop dev and run `~/.local/bin/rer export --output exports/spool.rer`). Keep the original checkout, database and private settings.
 
-For the latest tagged release, run `git fetch --tags && git checkout v0.7.11`, then `~/.local/bin/rer dev`. To keep following `main`, run `git pull --ff-only` and then `~/.local/bin/rer dev`. Hosted installations update with `~/.local/bin/rer deploy` from the original deploying checkout, retaining its private settings, generated secrets and deployment receipt; follow [the hosting update procedure](docs/HOSTED.md#update-to-a-newer-spool).
+For a tagged update, choose a version from GitHub Releases, set `SPOOL_TAG` to that tag, then run `git fetch --tags && git checkout "$SPOOL_TAG"` and `~/.local/bin/rer dev --host localhost`. To keep following `main`, run `git pull --ff-only` and then `~/.local/bin/rer dev`. Hosted installations update with `~/.local/bin/rer deploy` from the original deploying checkout, retaining its private settings, generated secrets and deployment receipt; follow [the hosting update procedure](docs/HOSTED.md#update-to-a-newer-spool).
 
-Those commands apply any migrations missing from the installed version. This `main` checkout includes migrations through `0099`; a tag applies the migrations shipped with that tag. Existing projects, evidence, triage states, grouping rules, inbound filters, alert rules and project keys are preserved. No reset or restore is needed for an upgrade. Older native private archives can also restore into a fresh, empty current installation. See the [release record](RELEASE.json) and [changelog](CHANGELOG.md).
+Those commands apply any migrations missing from the installed version. Existing projects, evidence, triage states, grouping rules, inbound filters, alert rules and project keys are preserved. No reset or restore is needed for an upgrade. Older native private archives can also restore into a fresh, empty current installation. See the [release record](RELEASE.json) and [changelog](CHANGELOG.md).
 
 ## Managed hosting
 

@@ -16,20 +16,21 @@ For the Free or Assisted account procedure below, you need:
 - a Cloudflare account with a workers.dev subdomain, its account ID, and an API token that can edit Workers scripts and D1;
 - for enabled email, a SendGrid API key that can send mail and a verified sender address; alternatively select `MAIL_PROVIDER=none` and use the guarded owner sign-in below.
 
-The [Run page](https://run-spool.com/run) uses `curl -fsSL https://runeditrun.com/install.sh | sh -s -- dev just-every/run-spool` for the first local start. The `setup` form below installs rer and prepares Spool without leaving a dev runtime running. Node and pnpm do not need to be on PATH.
+Choose the tagged checkout on the [Run page](https://run-spool.com/run). The steps below prepare it without leaving a dev runtime running. Node and pnpm do not need to be on PATH.
 
 ## First install
 
-1. Install and set up Spool on this computer:
+1. Set `SPOOL_TAG` to the tag shown on the Run page, then install and set up Spool on this computer:
 
    ```sh
-   curl -fsSL https://runeditrun.com/install.sh | sh -s -- setup just-every/run-spool
-   export PATH="$HOME/.local/bin:$PATH"
+   git clone --branch "$SPOOL_TAG" --single-branch https://github.com/just-every/run-spool.git run-spool
    cd run-spool
+   curl -fsSL https://runeditrun.com/install.sh | sh -s -- setup
+   export PATH="$HOME/.local/bin:$PATH"
    SPOOL_ENV=production # choose your environment name here
    ```
 
-   If you already followed the README, work from that `run-spool` checkout and skip the install line and `cd`. Run the PATH line in each new terminal, or use `~/.local/bin/rer` wherever this guide says `rer`; the installer does not edit your shell profile.
+   If you already followed the README, work from that `run-spool` checkout and skip the clone, `cd` and installer lines. Run the PATH line in each new terminal, or use `~/.local/bin/rer` wherever this guide says `rer`; the installer does not edit your shell profile.
 
    Explicit setup prompts for missing required answers in an interactive terminal. With non-TTY input, use `rer setup --answers <private-json-file> --non-interactive`; piping an email alone is not an answer file. Setup stops its temporary app when complete; `rer dev` starts a local server if you need one. These local answers do not replace the hosted settings below.
 
@@ -37,8 +38,6 @@ The [Run page](https://run-spool.com/run) uses `curl -fsSL https://runeditrun.co
 
    ```sh
    umask 077 && mkdir -p .rer/deploy && cat > .rer/deploy/"$SPOOL_ENV".env <<'EOF'
-   CLOUDFLARE_ACCOUNT_ID=
-   CLOUDFLARE_API_TOKEN=
    OWNER_EMAIL=
    MAIL_PROVIDER=sendgrid
    MAIL_FROM=
@@ -47,16 +46,16 @@ The [Run page](https://run-spool.com/run) uses `curl -fsSL https://runeditrun.co
    EOF
    ```
 
-   Open the generated `.rer/deploy/<environment>.env` in a text editor and fill in the account, owner and mail lines: your Cloudflare account ID and API token, the email address you will sign in with, the verified SendGrid sender, and the SendGrid API key. To turn email off deliberately, set `MAIL_PROVIDER=none` and leave `MAIL_FROM` and every sending credential empty. Keep these values out of shell commands. The file can be read only by you. Git ignores it, and `rer reset` keeps it. Keep it for every later deploy of this environment.
+   Open the generated `.rer/deploy/<environment>.env` in a text editor and fill in the owner email, verified SendGrid sender and SendGrid API key. To turn email off deliberately, set `MAIL_PROVIDER=none` and leave `MAIL_FROM` and every sending credential empty. Keep these values out of shell commands. The file can be read only by you. Git ignores it, and `rer reset` keeps it. Keep it for every later deploy of this environment.
 
-3. Stop local dev, then deploy and claim the hosted owner:
+3. Use your credential helper or shell environment to supply `CLOUDFLARE_ACCOUNT_ID` and `CLOUDFLARE_API_TOKEN` to rer. Keep all `CLOUDFLARE_*` and `CF_*` fields out of the private settings file. Stop local dev, then deploy and claim the hosted owner:
 
    ```sh
    rer dev --stop
    rer deploy --env-file .rer/deploy/"$SPOOL_ENV".env --environment "$SPOOL_ENV"
    ```
 
-   `rer deploy` builds this commit, creates the Worker and its database, applies the migrations, uploads the settings as secrets and checks `/health`. It also sends the one-time setup token to claim `OWNER_EMAIL` as the hosted owner, then removes `SETUP_TOKEN` from the deployed Worker secrets. No separate claim command is needed. An already claimed installation keeps its owner, and later deploys to this environment keep the setup token retired. Keep the original deploying checkout, the private environment file, `.rer/deploy/<environment>.secrets.env` generated secrets and `.rer/deploy/<environment>.json` deployment ownership record/receipt for as long as this deployment exists. Git ignores these private files; a fresh clone does not recover them. The record is needed for removal as well as future updates. rer keeps the generated session and alert hash secrets in the private `.rer/deploy/<environment>.secrets.env` file and reuses them on updates. It retires the one-time setup token automatically and issues a fresh one if an update needs to finish owner finalization. Do not replace the saved secrets during an update.
+   `rer deploy` builds this commit, creates the Worker and its database, applies the migrations, uploads the settings as secrets and checks `/health`. It also sends the one-time setup token to claim `OWNER_EMAIL` as the hosted owner, then removes `SETUP_TOKEN` from the deployed Worker secrets. The terminal can stay quiet for several minutes while Cloudflare applies the D1 migrations. Owner claim runs automatically. An already claimed installation keeps its owner, and later deploys to this environment keep the setup token retired. Keep the original deploying checkout, the private environment file, `.rer/deploy/<environment>.secrets.env` generated secrets and `.rer/deploy/<environment>.json` deployment ownership record/receipt for as long as this deployment exists. Git ignores these private files; a fresh clone does not recover them. The record is needed for removal as well as future updates. rer keeps the generated session and alert hash secrets in the private `.rer/deploy/<environment>.secrets.env` file and reuses them on updates. It retires the one-time setup token automatically and issues a fresh one if an update needs to finish owner finalization. Do not replace the saved secrets during an update.
 
 4. Add `/sign-in` to the hosted origin printed by deploy, open that address, enter your `OWNER_EMAIL` and follow the link in the email. A fresh installation then opens `/setup`: create your first project or choose **Restore a private archive** before creating one. Select an archive up to 16 MiB and choose **Restore into empty installation**, then create new project keys. Archives contain private source maps but exclude owner sessions and credential grants.
 
@@ -80,23 +79,24 @@ When email is off or you cannot receive the sign-in email, run this from the ori
 rer signin --env-file .rer/deploy/"$SPOOL_ENV".env --environment "$SPOOL_ENV"
 ```
 
-`rer signin` prints a private owner sign-in link once, without sending email. Open it now: it works once, expires within 15 minutes and is never saved by rer. Its use is recorded in the owner's audit log. The command requires this deployment's recorded Worker, account, project, environment and ownership receipt, and checks that the live Worker still matches that receipt before issuing a grant. A different checkout, account or replaced Worker cannot mint access. The command uses the Cloudflare credentials to issue the link for the already claimed owner; it does not create a second owner. Set `SPOOL_ENV` to the environment you deployed before running these commands in a new terminal; the rer default is `production`. You can also supply the account credentials through the environment. Keep this link private.
+`rer signin` prints a private owner sign-in link once, without sending email. Open it now: it works once, expires within 15 minutes and is never saved by rer. Its use is recorded in the owner's audit log. The command requires this deployment's recorded Worker, account, project, environment and ownership receipt, and checks that the live Worker still matches that receipt before issuing a grant. A different checkout, account or replaced Worker cannot mint access. The command uses the Cloudflare credentials to issue the link for the already claimed owner; it does not create a second owner. Set `SPOOL_ENV` to the environment you deployed before running these commands in a new terminal; the rer default is `production`. Supply the account credentials through the environment, as for deploy. Keep this link private.
 
 ## Update to a newer Spool
 
 1. Export first. Sign in to your hosted Spool, open **Settings** and choose **Download private archive**. Keep the downloaded `spool-private-archive.jsonl` until the update is confirmed.
 
-2. Set `SPOOL_ENV` to your existing environment name, then stop local dev, update this checkout and deploy it to the same environment:
+2. Set `SPOOL_ENV` to your existing environment name and `SPOOL_TAG` to the release you are upgrading to. Load your Cloudflare credentials as for the first deploy, then stop local dev, update the checkout and deploy it to the same environment:
 
    ```sh
    rer dev --stop
-   git pull --ff-only
+   git fetch --tags
+   git checkout "$SPOOL_TAG"
    rer install
    rer deploy --env-file .rer/deploy/"$SPOOL_ENV".env --environment "$SPOOL_ENV"
    rer run hosted check --environment "$SPOOL_ENV"
    ```
 
-   `git pull --ff-only` stops when the histories diverge or local changes conflict with the incoming changes; nonconflicting local edits may be preserved. Deploying to the same environment updates the same Worker and database: new migrations are applied and existing evidence, keys, settings and your owner stay. `rer run hosted check` uses the pinned Node supplied by rer and confirms that the hosted installation is healthy and running this checkout's commit.
+   If Git refuses to check out the tag because of local changes, preserve those changes before retrying. Deploying to the same environment updates the same Worker and database: new migrations are applied and existing evidence, keys, settings and your owner stay. `rer run hosted check` uses the pinned Node supplied by rer and confirms that the hosted installation is healthy and running this checkout's commit.
 
 3. Sign in as before; your projects and evidence are there. If the deploy fails, it names the failed step; fix the cause and run the same deploy again. The archive restores only into an empty installation ([restore procedure](../OPERATIONS.md#data-movement-and-retention)).
 

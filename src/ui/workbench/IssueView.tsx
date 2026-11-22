@@ -123,7 +123,7 @@ export function IssueView({ project, packet, panels, status, alert, busy, reques
     </section>
     <EventExplorer key={`${project}:${group.id}`} project={project} issue={group.id} refresh={packet} onSelect={setSelectedEvent}/>
     <div className="issue-collaboration"><Suppression {...{project,request,run,busy,readOnly}} issue={group} onChange={refresh}/>
-    <Discussion focusRequest={commentRequest} project={project} issue={group.id} refresh={packet} request={request} onChanged={revision=>{if(Number.isSafeInteger(revision))setLocalRevision({issue:group.id,revision:revision!});refresh();}}/></div>
+    <Discussion focusRequest={commentRequest} project={project} issue={group.id} refresh={packet} {...{ request, run, busy }} onChanged={revision=>{if(Number.isSafeInteger(revision))setLocalRevision({issue:group.id,revision:revision!});refresh();}}/></div>
     <CommitTimeline project={project} issue={group.id} shortId={group.short_id} refresh={packet} request={request}/>
     <IssueImpact key={`${project}:${group.id}`} project={project} issue={group.id} refresh={packet}/>
     <AffectedUsers project={project} issue={group.id} {...{request}} refresh={packet}/>

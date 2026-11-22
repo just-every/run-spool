@@ -1,12 +1,13 @@
 import { useEffect, useRef, useState } from 'react';
 import { personLabel, resolutionLabel, words } from './readable';
-import { date, stateLabel, type Request } from './shared';
+import { date, stateLabel, type Request, type Run } from './shared';
 import type { ActivityRow, DiscussionData } from '../../domain/discussion/model';
 
 type Data=DiscussionData&{recurrence:{sameRelease:number;olderRelease:number};activity:ActivityRow[];next:string|null};
-export function Discussion({project,issue,refresh,request,onChanged,focusRequest=0}:{focusRequest?:number;project:string;issue:string;refresh:unknown;request:Request;onChanged?:(revision?:number)=>void}) {
+export function Discussion({project,issue,refresh,request,run,busy: writing,onChanged,focusRequest=0}:{focusRequest?:number;project:string;issue:string;refresh:unknown;request:Request;run:Run;busy:boolean;onChanged?:(revision?:number)=>void}) {
  const base=`/api/projects/${encodeURIComponent(project)}/issues/${encodeURIComponent(issue)}`;
- const [data,setData]=useState<Data|null>(null),[error,setError]=useState(''),[body,setBody]=useState(''),[editing,setEditing]=useState<{id:string;version:number}|null>(null),[editBody,setEditBody]=useState(''),[busy,setBusy]=useState(false);
+ const [data,setData]=useState<Data|null>(null),[error,setError]=useState(''),[body,setBody]=useState(''),[editing,setEditing]=useState<{id:string;version:number}|null>(null),[editBody,setEditBody]=useState(''),[paging,setPaging]=useState(false);
+ const busy=writing||paging;
  const loadedIssue=useRef('');
  const commentInput=useRef<HTMLTextAreaElement>(null),focusedRequest=useRef(0);
  useEffect(()=>{if(focusRequest>focusedRequest.current&&data?.canWrite&&!busy&&commentInput.current){focusedRequest.current=focusRequest;commentInput.current.focus();}},[focusRequest,data?.canWrite,busy]);
@@ -16,20 +17,21 @@ export function Discussion({project,issue,refresh,request,onChanged,focusRequest
   return ()=>{alive=false};
  },[base,refresh,request]);
  async function mutate(path:string,method:string,input:Record<string,unknown>) {
-  if(!data)return;
-  setBusy(true);setError('');
-  try {
-   const result=await request(base+path,method,input);
-   // Publish our committed revision before showing the completed comment.
-   onChanged?.(result.revision);
-   setData(await request(base+'/discussion'));setBody('');setEditing(null);
-  }catch(failure){setError((failure as Error).message);try{setData(await request(base+'/discussion'))}catch{setData(null)}}
-  finally{setBusy(false)}
+  if(!data||busy)return;
+  await run(async()=>{
+   setError('');
+   try {
+    const result=await request(base+path,method,input);
+    // Publish our committed revision before showing the completed comment.
+    onChanged?.(result.revision);
+    setData(await request(base+'/discussion'));setBody('');setEditing(null);
+   }catch(failure){setError((failure as Error).message);try{setData(await request(base+'/discussion'))}catch{setData(null)}}
+  });
  }
  async function older() {
-  if(!data?.next)return;setBusy(true);setError('');
+  if(!data?.next)return;setPaging(true);setError('');
   try{const next:Data=await request(base+'/discussion?cursor='+encodeURIComponent(data.next));setData({...next,activity:[...data.activity,...next.activity]})}
-  catch(failure){setError((failure as Error).message)}finally{setBusy(false)}
+  catch(failure){setError((failure as Error).message)}finally{setPaging(false)}
  }
  return <section id="issue-discussion" className="evidence" aria-label="Discussion" aria-busy={busy}>
   <h2>Discussion</h2>

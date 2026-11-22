@@ -72,6 +72,7 @@
   "dependencies": {
     "@babel/parser": "7.29.8",
     "@jridgewell/trace-mapping": "0.3.31",
+    "@simplewebauthn/server": "14.0.3",
     "@tanstack/react-router": "1.170.41",
     "@tanstack/react-start": "1.168.60",
     "hono": "4.13.16",

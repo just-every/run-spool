@@ -1,25 +1,17 @@
 # Run it on your computer
 
-Spool runs on macOS, Linux or Windows with WSL2; on WSL2, run everything inside WSL2. Git is required; rer brings Node and pnpm. It supplies this project's pinned Node 22.20.0 runtime and pnpm 10.12.4, so you do not need either on PATH.
+Open a terminal on macOS or Linux, or inside WSL2 on Windows. Copy the install command under **Run it yourself** on the [Run page](https://run-spool.com/run). It clones the tagged release shown on that page into `run-spool` and starts Spool. Git is required. The installer supplies Node and pnpm.
 
-## Install and start
+Open the private `RER_OPEN` link printed in your terminal and keep it private. Name this installation and create your first project. You can change the installation name later in **Settings → General** and your own name or email in **Settings → Members**.
 
-One line, as on the [Run page](https://run-spool.com/run), installs rer, clones Spool into `run-spool` and starts it:
-
-```sh
-curl -fsSL https://runeditrun.com/install.sh | sh -s -- dev just-every/run-spool
-```
-
-Already have Node 22 or later? `npx -y @runeditrun/rer dev just-every/run-spool` does the same. To start it again later, run `cd run-spool && ~/.local/bin/rer dev`. If you see 'command not found', run `~/.local/bin/rer cli path` and paste the line it prints.
-
-Open the private owner link printed in your terminal, and keep it private. On the setup page, enter your name, your email and what to call this installation. You can change these later in Settings: General for the installation name, Members for your name and email.
+To start Spool again, run `cd run-spool && ~/.local/bin/rer dev --host localhost`. To stop it, run `~/.local/bin/rer dev --stop`. Starting with Spool 0.7.18, on localhost choose **Settings → General → Local passkey → Add passkey** to enable passkey sign-in for the owner.
 
 <details>
 <summary>Details</summary>
 
 For separate lifecycle steps, `~/.local/bin/rer install` installs the locked dependencies and `~/.local/bin/rer setup` prepares or preserves the owner and local settings, then stops its temporary app. Run `~/.local/bin/rer dev` afterwards to start Spool. Explicit `~/.local/bin/rer setup` prompts for missing required answers when stdin is a terminal (unless `--json` or `--non-interactive` is set). Piping an email alone is not a setup answer.
 
-To choose your real email before first start, run the same line with `setup` in place of `dev` (interactive `~/.local/bin/rer setup`) instead of going straight to `~/.local/bin/rer dev`. If dev already made a temporary owner, stop dev first and supply `OWNER_EMAIL` through the answers file to replace that temporary address while keeping its data. Saved answers are reused, so an existing address is not prompted again. Keep addresses and secrets out of shell arguments.
+To choose your real email before first start, use the pinned clone command under **Other ways to run locally** on the Run page, install rer, then run `~/.local/bin/rer setup` interactively from that checkout before starting dev. If dev already made a temporary owner, stop dev first and supply `OWNER_EMAIL` through the answers file to replace that temporary address while keeping its data. Saved answers are reused, so an existing address is not prompted again. Keep addresses and secrets out of shell arguments.
 
 For non-interactive setup, work from the Spool checkout and create an ignored private answers file:
 

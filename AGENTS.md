@@ -4,13 +4,9 @@
 
 Follow the public first-run instructions:
 
-macOS, Linux or Windows with WSL2. git is required; rer brings the declared Node 22.20.0 and pnpm 10.12.4 runtimes. Node does not need to be on PATH. The public first-run path matches the [README](README.md#run-it-on-your-computer) and [Run page](https://run-spool.com/run):
+macOS, Linux or Windows with WSL2. git is required; rer brings the declared Node 22.20.0 and pnpm 10.12.4 runtimes. Node does not need to be on PATH. Use the tagged install command on the [Run page](https://run-spool.com/run) or follow the [README](README.md#run-it-on-your-computer) to choose a stable tag.
 
-```sh
-curl -fsSL https://runeditrun.com/install.sh | sh -s -- dev just-every/run-spool
-```
-
-The installer clones into `run-spool` and leaves shell profiles unchanged. For later commands, run `export PATH="$HOME/.local/bin:$PATH"` in each terminal, or use `~/.local/bin/rer` wherever these instructions say `rer`. Restart with `cd run-spool && ~/.local/bin/rer dev`. Already have Node 22 or later? `npx -y @runeditrun/rer dev just-every/run-spool` is the alternative.
+The command clones into `run-spool` and leaves shell profiles unchanged. For later commands, run `export PATH="$HOME/.local/bin:$PATH"` in each terminal, or use `~/.local/bin/rer` wherever these instructions say `rer`. Restart with `cd run-spool && ~/.local/bin/rer dev --host localhost`.
 
 In an existing checkout, run `rer dev`. It installs dependencies and prepares the owner when needed. `rer install` and `rer setup` remain available separately. Use `rer describe` for supported maintenance commands; export before destructive reset and import only into an empty destination.
 

@@ -3,3 +3,5 @@
 
 /* Declaration help can contain long JSON examples without spaces. */
 .site-hosting .walk { overflow-wrap: anywhere; }
+
+.chooser .self .other-ways pre code{white-space:pre-wrap;overflow-wrap:anywhere}
