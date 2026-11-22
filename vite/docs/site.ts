@@ -1,7 +1,7 @@
 import { existsSync, readFileSync, statSync } from 'node:fs';
 import { dirname, join, normalize } from 'node:path';
 import { anchorsOf, renderMarkdown } from './markdown';
-import { publishedTag, releaseInstall } from '../../src/site/run';
+import { releaseInstall } from '../../src/site/run';
 import type { Heading } from './markdown';
 
 // docs/site.json lists the repository Markdown the site publishes, in display order. Every page is rendered here, at
@@ -58,7 +58,7 @@ export function buildSite(root: string): DocsSite {
     let markdown = readFileSync(join(root, entry.source), 'utf8');
     if (entry.slug === 'getting-started') {
       // Keep the Markdown readable on GitHub and publish the same tagged install as /run.
-      const recipe = [`To install Spool ${publishedTag}, paste this line into your terminal.`, '', '```sh', releaseInstall, '```'].join('\n');
+      const recipe = ['To install the latest stable Spool release, paste this line into your terminal.', '', '```sh', releaseInstall, '```'].join('\n');
       markdown = markdown.replace(/<!-- rer:start -->[\s\S]*?<!-- rer:end -->/, recipe);
     }
     const rendered = renderMarkdown(markdown, resolve);

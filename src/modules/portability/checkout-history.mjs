@@ -10,16 +10,20 @@ function bundledPrefix(history,files) {
 // Both evidence adapters bind the seed's files to live history and the complete
 // schema. Plain Wrangler history must select a literal ordered prefix within
 // each ledger. The merged chronology chooses how those prefixes are replayed.
-export async function checkoutHistory(db,input,files,replayFor,{nativeWrangler=false,ownerSources=[],nativePrefix=bundledPrefix}={}) {
+export async function checkoutHistory(db,input,files,replayFor,{nativeWrangler=false,ownerSources=[],nativePrefix=bundledPrefix,nativeOrder}={}) {
  const history=await (ownerSources.length?nativeMigrationHistory(db,ownerSources):readLedger(db)),ledger=history?.entries??[];
  insist(ledger.length,'schema_mismatch:legacy_evidence',409);
  requireAppliedOwnerFiles(history,files);
+ let hostedOrderOnly=false;
  if(!ledger.every(row=>row.sha256)) {
-  insist(nativeWrangler && history.table==='d1_migrations' && nativePrefix(history,files),
+  insist(nativeWrangler && history.table==='d1_migrations','schema_mismatch:legacy_evidence',409);
+  hostedOrderOnly=!nativePrefix(history,files);
+  insist(!hostedOrderOnly || nativeOrder && nativePrefix(history,nativeOrder.map(index=>files[index])),
    'schema_mismatch:legacy_evidence',409);
  }
  const applied=matchMigrationLedger(ledger,files);
- const config=policy(ownerMigrationPolicy(input,ownerSources)),replay=await replayFor(applied,config);
+ const config=policy(ownerMigrationPolicy(input,ownerSources)),replay=await replayFor(applied,config,hostedOrderOnly);
+ if(hostedOrderOnly)replay.hostedOrderOnly=true;
  insist(await replay.schemaAfter(replay.names)===(await catalogue(db,config)).identity,'schema_mismatch');
  return ownerSources.length?{...replay,ownerSources,history}:replay;
 }

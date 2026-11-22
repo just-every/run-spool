@@ -3,7 +3,7 @@
 Open a terminal on macOS or Linux, or inside WSL2 on Windows. Git is required. The installer supplies Node and pnpm.
 
 <!-- rer:start -->
-Copy the install command under **Run it yourself** on the [Run page](https://run-spool.com/run). It clones the tagged release shown on that page into `run-spool` and starts Spool.
+Copy the install command under **Run it yourself** on the [Run page](https://run-spool.com/run). It finds the latest stable release, clones it into `run-spool` and starts Spool.
 <!-- rer:end -->
 
 Open the private `RER_OPEN` link printed in your terminal and keep it private. Name this installation and create your first project. You can change the installation name later in **Settings → General** and your own name or email in **Settings → Members**.
@@ -17,7 +17,7 @@ To start Spool again, run `cd run-spool && ~/.local/bin/rer dev --host localhost
 
 For separate lifecycle steps, `~/.local/bin/rer install` installs the locked dependencies and `~/.local/bin/rer setup` prepares or preserves the owner and local settings, then stops its temporary app. Run `~/.local/bin/rer dev` afterwards to start Spool. Explicit `~/.local/bin/rer setup` prompts for missing required answers when stdin is a terminal (unless `--json` or `--non-interactive` is set). Piping an email alone is not a setup answer.
 
-To choose your real email before first start, use the pinned clone command under **Other ways to run locally** on the Run page, install rer, then run `~/.local/bin/rer setup` interactively from that checkout before starting dev. If dev already made a temporary owner, stop dev first and supply `OWNER_EMAIL` through the answers file to replace that temporary address while keeping its data. Saved answers are reused, so an existing address is not prompted again. Keep addresses and secrets out of shell arguments.
+To choose your real email before first start, use the clone command under **Other ways to run locally** on the Run page, install rer, then run `~/.local/bin/rer setup` interactively from that checkout before starting dev. If dev already made a temporary owner, stop dev first and supply `OWNER_EMAIL` through the answers file to replace that temporary address while keeping its data. Saved answers are reused, so an existing address is not prompted again. Keep addresses and secrets out of shell arguments.
 
 For non-interactive setup, work from the Spool checkout and create an ignored private answers file:
 

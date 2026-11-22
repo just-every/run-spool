@@ -39,7 +39,7 @@ Run Spool on your computer without a Cloudflare account or mail provider, or dep
 
 ## Run it on your computer
 
-macOS, Linux or Windows with WSL2. git is required; rer brings Node and pnpm. The [Run page](https://run-spool.com/run) shows a one-line install for the tagged release it names. This command finds the newest stable release tag, prints it, clones it and starts Spool:
+macOS, Linux or Windows with WSL2. git is required; rer brings Node and pnpm. This one-line install, also on the [Run page](https://run-spool.com/run), finds the newest stable release tag, prints it, clones it and starts Spool:
 
 ```sh
 SPOOL_TAG=$(git ls-remote --refs --tags --sort=-version:refname https://github.com/just-every/run-spool.git | awk '$2 ~ /^refs\/tags\/v[0-9]+\.[0-9]+\.[0-9]+$/ && !tag { sub("refs/tags/", "", $2); tag=$2 } END { if (tag) print tag }') && test -n "$SPOOL_TAG" && printf 'Installing Spool %s\n' "$SPOOL_TAG" && git clone --branch "$SPOOL_TAG" --single-branch https://github.com/just-every/run-spool.git run-spool && (cd run-spool && curl -fsSL https://runeditrun.com/install.sh | sh -s -- dev --host localhost)
@@ -53,7 +53,7 @@ export PATH="$HOME/.local/bin:$PATH"
 
 Repeat that PATH line in each new terminal if you want the shorter command. If you see 'command not found', run `~/.local/bin/rer cli path` and paste the line it prints.
 
-To clone a specific release, set `SPOOL_TAG` to the tag shown on the Run page or on the GitHub release you chose, then run:
+To clone a specific release, set `SPOOL_TAG` to the tag shown on the GitHub release you chose, then run:
 
 ```sh
 git clone --branch "$SPOOL_TAG" --single-branch https://github.com/just-every/run-spool.git run-spool

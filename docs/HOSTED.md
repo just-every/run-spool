@@ -16,11 +16,11 @@ For the Free or Assisted account procedure below, you need:
 - a Cloudflare account with a workers.dev subdomain, its account ID, and an API token that can edit Workers scripts and D1;
 - for enabled email, a SendGrid API key that can send mail and a verified sender address; alternatively select `MAIL_PROVIDER=none` and use the guarded owner sign-in below.
 
-Choose the tagged checkout on the [Run page](https://run-spool.com/run). The steps below prepare it without leaving a dev runtime running. Node and pnpm do not need to be on PATH.
+Choose a tagged checkout from [Spool's GitHub Releases](https://github.com/just-every/run-spool/releases). The steps below prepare it without leaving a dev runtime running. Node and pnpm do not need to be on PATH.
 
 ## First install
 
-1. Set `SPOOL_TAG` to the tag shown on the Run page, then install and set up Spool on this computer:
+1. Set `SPOOL_TAG` to your chosen release tag, then install and set up Spool on this computer:
 
    ```sh
    git clone --branch "$SPOOL_TAG" --single-branch https://github.com/just-every/run-spool.git run-spool

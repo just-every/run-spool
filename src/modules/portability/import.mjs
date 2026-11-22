@@ -55,7 +55,7 @@ export async function createImport(context,manifest,actor='direct',legacyRecover
     insist(table.dependencies.every(d=>target.dependencies.includes(d)),'schema_mismatch:dependencies:'+table.name,409);
   }
   const same=manifest.schema===cat.identity;
-  const {replays,...bridge}=unverified?await additiveBridge(db,ledger,manifest,cat,migrations,history,legacyRecovery,true):upgrade?{}:same?(await sameSchemaMigrations(db,ledger,manifest,cat,migrations,history)??{}):await additiveBridge(db,ledger,manifest,cat,migrations,history,legacyRecovery);
+  const {replays,...bridge}=unverified?await additiveBridge(db,historyLedger,manifest,cat,migrations,history,legacyRecovery,true):upgrade?{}:same?(await sameSchemaMigrations(db,historyLedger,manifest,cat,migrations,history)??{}):await additiveBridge(db,historyLedger,manifest,cat,migrations,history,legacyRecovery);
   // Finalize checks object references on the staged rows; a later migration
   // replayed into a reference table would publish rows that check never saw.
   const referenced=replays?.find(r=>Object.values(config.buckets).some(spec=>spec.objectReferences?.table===r.table));

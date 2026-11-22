@@ -10,7 +10,7 @@ There is no Settings switch that installs the service. An installation operator 
 
 Keep these integrations disabled until your operator has checked live Slack delivery or Uptime forwarding on your installation.
 
-Your installation operator can follow [Base's egress-service owner steps](https://github.com/runeditrun/base/blob/3637852064bf6ddadd15418518964d99d615cc46/modules/egress-service/OWNER-STEPS.md) to install the service.
+Your installation operator can follow [Base's egress-service owner steps](https://github.com/runeditrun/base/blob/8fa76d1ceef21535d0c1fa31298326d971bd8520/modules/egress-service/OWNER-STEPS.md) to install the service.
 
 ## Connect Slack
 

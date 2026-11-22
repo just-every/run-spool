@@ -82,7 +82,7 @@ The shipped Spool deployment declares no egress binding. There is no Settings sw
 
 Live hybrid egress qualification remains pending. Installing a binding does not by itself prove live Slack delivery or Uptime forwarding; keep these integrations disabled until the operator qualifies the selected deployment.
 
-Read [Base's egress-service owner steps and live qualification procedure](https://github.com/runeditrun/base/blob/3637852064bf6ddadd15418518964d99d615cc46/modules/egress-service/OWNER-STEPS.md). This link uses the Base revision recorded for Spool's vendored egress module in `base-copies.json`. The historical probe authorizations there do not authorize a new live run; an owner must separately authorize qualification and supply a safe external receiver outside the account's own zones. The installation steps below use Spool's copy of that module.
+Read [Base's egress-service owner steps and live qualification procedure](https://github.com/runeditrun/base/blob/8fa76d1ceef21535d0c1fa31298326d971bd8520/modules/egress-service/OWNER-STEPS.md). This link uses the Base revision recorded for Spool's vendored egress module in `base-copies.json`. The historical probe authorizations there do not authorize a new live run; an owner must separately authorize qualification and supply a safe external receiver outside the account's own zones. The installation steps below use Spool's copy of that module.
 
 ## From SUPPORTED-LANGUAGES.md
 

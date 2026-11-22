@@ -8,16 +8,15 @@ export const run: RunData = {
  licence: 'MIT', docs: true, paths: { product: 'errors-workbench' }, pricing: runPricing,
 };
 
-// The Run site updates from main. Use a published tag here so the installer
-// works even while the next release is being prepared.
-export const publishedTag = 'v0.7.17';
-export const releaseClone = `git clone --branch ${publishedTag} --single-branch ${run.repository}.git run-spool`;
+// Discover the latest stable tag when the command runs, as in the README.
+const findStableTag = String.raw`SPOOL_TAG=$(git ls-remote --refs --tags --sort=-version:refname ${run.repository}.git | awk '$2 ~ /^refs\/tags\/v[0-9]+\.[0-9]+\.[0-9]+$/ && !tag { sub("refs/tags/", "", $2); tag=$2 } END { if (tag) print tag }')`;
+const releaseClone = `${findStableTag} && test -n "$SPOOL_TAG" && printf 'Installing Spool %s\\n' "$SPOOL_TAG" && git clone --branch "$SPOOL_TAG" --single-branch ${run.repository}.git run-spool`;
 export const releaseInstall = `${releaseClone} && (cd run-spool && curl -fsSL https://runeditrun.com/install.sh | sh -s -- dev --host localhost)`;
 
 export function spoolRunPage(contract?: SeedContract) {
  const original = startLine(run);
- const details = `<details class="other-ways"><summary>Other ways to run locally</summary><p class="alt"><span>Clone the same release:</span></p><pre><code>${escape(releaseClone)}</code></pre><p class="alt"><span>Then, with rer already installed:</span></p><pre><code>cd run-spool &amp;&amp; ~/.local/bin/rer dev --host localhost</code></pre><p class="alt"><span>Or with Node 22 or later:</span></p><pre><code>cd run-spool &amp;&amp; npx -y @runeditrun/rer dev --host localhost</code></pre></details>`;
- return runPageHtml(identity, { ...run, leadLine: `Install Spool ${publishedTag} on your computer.` }, contract)
+ const details = `<details class="other-ways"><summary>Other ways to run locally</summary><p class="alt"><span>Clone the latest stable release:</span></p><pre><code>${escape(releaseClone)}</code></pre><p class="alt"><span>Then, with rer already installed:</span></p><pre><code>cd run-spool &amp;&amp; ~/.local/bin/rer dev --host localhost</code></pre><p class="alt"><span>Or with Node 22 or later:</span></p><pre><code>cd run-spool &amp;&amp; npx -y @runeditrun/rer dev --host localhost</code></pre></details>`;
+ return runPageHtml(identity, { ...run, leadLine: 'Install the latest stable Spool release on your computer.' }, contract)
   .replace(pipelines(original), () => pipelines(releaseInstall))
   .replace(`data-copy="${escape(original)}"`, () => `data-copy="${escape(releaseInstall)}"`)
   .replaceAll('>rer installs itself<', '>Clones Spool<')

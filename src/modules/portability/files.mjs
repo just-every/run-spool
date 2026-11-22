@@ -6,6 +6,7 @@ import { randomUUID } from 'node:crypto';
 import { readArchive } from './index.mjs';
 import { canonicalJson } from './hash.mjs';
 import { ledgerReader } from './ledgers.mjs';
+import { archiveStep } from './archive-step.mjs';
 export async function* fileRecords(path,reader=readArchive) {
  const file = await open(path, constants.O_RDONLY | constants.O_NOFOLLOW);
  try { yield* reader(Readable.toWeb(file.createReadStream({ autoClose: false }))); }
@@ -76,20 +77,27 @@ export async function importArchive(service, path, transient, journal, progress,
   const ledgers = ledger.ledgers();
   for await (const record of fileRecords(path)) {
    if (record.kind === 'manifest') {
-    manifest = record; id = await service.imports.create(manifest, undefined, {...options,...(ledgers?{ledgers}:{})});
+    manifest = record;
+    id = await archiveStep('preparing the restore', () => service.imports.create(manifest, undefined, {...options,...(ledgers?{ledgers}:{})}));
     const { skippedTables } = await service.imports.status(id);
     if (skippedTables?.length) progress?.({ phase: 'skipped', tables: skippedTables });
    }
    else if (record.kind === 'part') {
-    await service.imports.uploadPart(id, record.index, record);
+    await archiveStep('staging the restore', () => service.imports.uploadPart(id, record.index, record));
     staged += Buffer.byteLength(canonicalJson(record)) + 1;
     progress?.({ phase: 'staging', parts: record.index + 1, total: manifest.partCount, bytes: staged });
    }
    else closing = record;
   }
   progress?.({ phase: 'finishing', total: manifest.partCount });
-  const status = await service.imports.finalize(id, { contentHash: closing.contentHash, archiveHash: closing.archiveHash, ...(later ? { laterJournal: later } : {}) }); complete = true;
+  const status = await archiveStep('finishing the restore', () => service.imports.finalize(id, { contentHash: closing.contentHash, archiveHash: closing.archiveHash, ...(later ? { laterJournal: later } : {}) }));
+  complete = true;
   if(status.schemaUnverified)progress?.({phase:'schema-unverified',receipt:status.schemaUnverified});
   return { ...receipt(manifest, closing, transient), ...(status.schemaUnverified?{schemaUnverified:status.schemaUnverified}:{}), ...(status.bridged ? { bridged: status.bridged } : {}), ...(status.skippedTables ? { skippedTables: status.skippedTables } : {}), ...(status.safetyChanges ? { safetyChanges: status.safetyChanges } : {}) };
- } finally { if (id && !complete) await service.imports.abort(id); }
+ } catch (error) {
+  // A dead storage connection may also prevent cleanup. Preserve the original
+  // failure and stage; the next local import can clean up the abandoned job.
+  if (id && !complete) await service.imports.abort(id).catch(() => {});
+  throw error;
+ }
 }

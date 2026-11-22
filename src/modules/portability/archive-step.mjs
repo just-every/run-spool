@@ -1,6 +1,6 @@
 // Stage names are fixed by the implementation. Never send native messages,
 // SQL, object keys, row values or filesystem paths to the CLI.
-const steps=new Set(['export_object_inventory','export_snapshot','export_part']);
+const steps=new Set(['export_object_inventory','export_snapshot','export_part','preparing the restore','staging the restore','finishing the restore']);
 export async function archiveStep(step,operation) {
   try{return await operation();}
   catch(error){

@@ -1,6 +1,6 @@
 # Run it on your computer
 
-Open a terminal on macOS or Linux, or inside WSL2 on Windows. Copy the install command under **Run it yourself** on the [Run page](https://run-spool.com/run). It clones the tagged release shown on that page into `run-spool` and starts Spool. Git is required. The installer supplies Node and pnpm.
+Open a terminal on macOS or Linux, or inside WSL2 on Windows. Copy the install command under **Run it yourself** on the [Run page](https://run-spool.com/run). It finds the latest stable release, clones it into `run-spool` and starts Spool. Git is required. The installer supplies Node and pnpm.
 
 Open the private `RER_OPEN` link printed in your terminal and keep it private. Name this installation and create your first project. You can change the installation name later in **Settings → General** and your own name or email in **Settings → Members**.
 

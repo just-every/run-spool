@@ -628,8 +628,10 @@ The same explicit build-evidence adoption supports native Wrangler's plain
 the binding's declared directories when building. Each ledger's live names must
 select the exact ordered prefix of its files, and combined replay must reproduce
 the complete live schema, including indexes and triggers on excluded tables.
-Unknown names, gaps, reordered names, tracked but missing hashes, and schema
-drift refuse before restore writes. Existing hashes must still match; the
+For complete name-only v2 archives, the core ledger may also follow Wrangler's
+numeric filename order. Core-only Workers bundle snapshots of that order when
+it differs. Unknown names, gaps, tracked but missing hashes and schema drift
+refuse before restore writes. Existing hashes must still match; the
 Node automatic checkout path still requires hashed history. This binds the
 reviewed build to the verified current installation; it does not attest bytes
 Wrangler never recorded. Do not adopt an installation whose applied source
@@ -677,6 +679,13 @@ them into a scratch database to find the archive's place in that history:
 - Archives record the applied migration names in `manifest.migrations` (since
   additive restore). Every recorded migration must be applied here, and
   replaying exactly those must give the archive's schema identity.
+  A hosted export from the legacy deployment ledger can list filenames in
+  lexical order, which differs from Wrangler's application order for
+  mixed-width migration numbers. For an archive with a complete schema object
+  inventory, the recorded filenames must equal the set of files in a single
+  applied prefix. The destination replays that prefix in its own order and
+  checks the complete archive schema. Core and owner migrations after the
+  prefix can be bridged if additive.
 - Archives exported from an installation RER Platform migrated (a Managed
   installation leaving for native) also carry `manifest.migrationLedger`:
   `{origin:'rer_migrations',entries:[{name,sha256}]}` in application order,
