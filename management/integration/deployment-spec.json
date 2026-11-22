@@ -660,6 +660,12 @@
       "name": "0115_local_owner_passkeys.sql",
       "sha256": "3e362424f96710b3f0870aa5068b381ec607ecb7570531d729d5b31c16c50a64",
       "sql": "-- Local owner sign-in. Keep the last proof time after removal so an old\n-- registration response cannot put a removed passkey back.\nCREATE TABLE spool_local_owner_passkeys (\n operator_id TEXT PRIMARY KEY REFERENCES oa_operators(id) ON DELETE CASCADE,\n credential_id TEXT UNIQUE,\n public_key TEXT,\n counter INTEGER NOT NULL,\n last_proof_at INTEGER NOT NULL\n);\n"
+    },
+    {
+      "binding": "DB",
+      "name": "0116_stamp_grouping.sql",
+      "sha256": "facb4ea044a39e32a89dd1f543eaabe0ea8bfae4a8661f3de18882a055c5a2ac",
+      "sql": "-- Find the same native JavaScript location before and after debug-ID stamping.\nCREATE INDEX event_stamp_grouping ON events (\n  project, json_extract(payload,'$.type'), json_extract(payload,'$.frames[0].file'),\n  json_extract(payload,'$.frames[0].function'), json_extract(payload,'$.frames[0].column'),\n  json_extract(payload,'$.frames[0].line')\n) WHERE historical=0 AND json_type(payload,'$.sentry') IS NULL AND json_type(payload,'$.language') IS NULL;\n"
     }
   ],
   "compatibilityDate": "2026-09-08",
