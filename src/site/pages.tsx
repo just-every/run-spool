@@ -1,11 +1,11 @@
 import { renderToStaticMarkup } from 'react-dom/server';
 import docs from 'virtual:spool-docs';
-import { hostingPageHtml } from '../base/hosting-page';
 import { contractPageHtml } from '../base/contract-page';
 import { siteNotFoundHtml, type SiteBuild, type SiteContext } from '../base/run-site';
 import { identity } from '../identity';
 import { LandingPage } from '../ui/landing/Landing';
 import { DocsPage } from '../ui/docs/DocsPage';
+import { spoolHostingPage } from './hosting';
 import { run, spoolRunPage } from './run';
 import './site.css';
 
@@ -15,7 +15,7 @@ export function sitePages({ styles, contract, hosting }: SiteContext): SiteBuild
   pages: [
    { path: '/', html: '<!doctype html>' + renderToStaticMarkup(<LandingPage repository={run.repository} variant="site" styles={styles} />) },
    { path: '/run', html: styled(spoolRunPage(contract)) },
-   { path: '/docs/hosting', html: styled(hostingPageHtml(identity, run, hosting ?? null, contract)).replace('<body>', '<body class="site-hosting">') },
+   { path: '/docs/hosting', html: styled(spoolHostingPage({ hosting, contract })) },
    ...(contract ? [{ path: '/contract', html: styled(contractPageHtml(identity, run, contract)) }] : []),
    ...docs.pages.map(page => ({ path: page.href, html: '<!doctype html>' + renderToStaticMarkup(<DocsPage repository={run.repository} sections={docs.sections} page={page} pages={docs.pages} variant="site" styles={styles} />) })),
    { path: '/404', html: styled(siteNotFoundHtml(identity, run, contract)) },

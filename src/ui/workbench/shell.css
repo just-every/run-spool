@@ -38,6 +38,7 @@ html:has([data-rer-label="Demo"]) .brand .wordmark{font-size:30px}
 .right-panel h2{font-size:23px}
 .right-panel p{margin:10px 0;font-size:14px}
 .right-panel+.right-panel{margin-top:24px;padding-top:24px;border-top:var(--rule)}
+.packet-actions{display:flex;flex-direction:column;align-items:flex-start;gap:4px}
 .packet .highlight-button{width:100%;min-height:52px;margin:8px 0 4px;font-size:17px}
 
 /* Session states before the workbench opens. */

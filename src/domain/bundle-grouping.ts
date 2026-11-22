@@ -1,4 +1,5 @@
 import { grouping, hash, normalize, type Envelope } from './privacy';
+import { beforeStamp, matchesStamp } from './grouping/stamp';
 
 const bundleSuffix = /(^|\/)([^/]+?)(?:[.-]([a-fA-F0-9]{8,64})|-([A-Za-z0-9_-]{8}))(\.(?:m?js|cjs))$/;
 
@@ -24,9 +25,23 @@ export type GroupingRoute = {project:string; fingerprint:string; issue:string; b
 export const bundleTables = { grouping_routes: ['project','fingerprint','issue','basis'] };
 export const bundleDefaults = (data:any) => ({grouping_routes:[],...data});
 
+async function groupingFingerprints(db:D1Database,project:string,event:Envelope) {
+ const raw=grouping(event).basis, bundled=bundleBasis(event);
+ if(raw===bundled)return [await hash(raw)];
+ const key=await hash(bundled);
+ const route=await db.prepare('SELECT basis FROM grouping_routes WHERE project=? AND fingerprint=?').bind(project,key).first<{basis:string}>();
+ return Promise.all([hash(raw),route?hash(route.basis):key]);
+}
+
 export async function captureGrouping(db:D1Database,project:string,event:Envelope) {
- const raw=grouping(event);
+ let raw=grouping(event);
  if(event.sentry||('defaultBasis' in raw&&raw.basis!==raw.defaultBasis))return {...raw,fingerprint:await hash(raw.basis),route:null};
+ const unshifted=beforeStamp(event);
+ if(unshifted && await matchesStamp(db,project,event,
+  await groupingFingerprints(db,project,event), await groupingFingerprints(db,project,unshifted))) {
+  event=unshifted;
+  raw=grouping(event);
+ }
  const normalized=bundleBasis(event);
  if(normalized===raw.basis)return {...raw,fingerprint:await hash(raw.basis),route:null};
  const key=await hash(normalized);
@@ -57,8 +72,20 @@ export async function admissionBasis(event:Envelope,issue:{id:string;fingerprint
  const info=grouping(event),raw=info.basis;
  if(event.sentry||('defaultBasis' in info&&raw!==info.defaultBasis))return raw;
  if(await hash(raw)===issue.fingerprint)return raw;
- const key=await hash(recordedBundleBasis(event));
- return routes.find(route=>route.issue===issue.id&&route.fingerprint===key)?.basis??raw;
+ const fromRoute=async(input:Envelope)=>{
+  const key=await hash(recordedBundleBasis(input));
+  return routes.find(route=>route.issue===issue.id&&route.fingerprint===key)?.basis;
+ };
+ const routed=await fromRoute(event);
+ if(routed)return routed;
+ const unshifted=beforeStamp(event);
+ if(unshifted){
+  const basis=grouping(unshifted).basis;
+  if(await hash(basis)===issue.fingerprint)return basis;
+  const anchor=await fromRoute(unshifted);
+  if(anchor)return anchor;
+ }
+ return raw;
 }
 
 export async function validateBundleRoutes(data:any) {

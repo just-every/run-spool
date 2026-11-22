@@ -1,3 +1,4 @@
+import { predatesStampIndex, previousStampGroupingObjects, stampGroupingMigration } from './grouping/stamp';
 import { keyMetadataMigration, previousKeyMetadataObjects } from './key-metadata-compat';
 import { restoreTranslatedProjection } from './alerts/archive-history';
 import { ledgerReader } from '../modules/portability/ledgers.mjs';
@@ -274,7 +275,7 @@ const rosterProposalMigration = '0110_sentry_roster_proposals.sql';
 const memberIdentityMigration = '0112_member_identity.sql';
 const captureSourcesMigration = '0113_capture_sources.sql';
 const alertProposalMigration = '0114_sentry_alert_proposals.sql';
-const afterRosterMigrations = [keyMetadataMigration, memberIdentityMigration, captureSourcesMigration, alertProposalMigration];
+const afterRosterMigrations = [keyMetadataMigration, memberIdentityMigration, captureSourcesMigration, alertProposalMigration, stampGroupingMigration];
 const rosterMigrations = [rosterProposalMigration, ...afterRosterMigrations];
 // These upgrades preserve earlier review records and add no archived table after the roster.
 for (const later of laterTables) {
@@ -282,7 +283,8 @@ for (const later of laterTables) {
  later.migrations.push(...rosterMigrations);
 }
 laterTables.unshift(
- {tables: [], migrations: [alertProposalMigration]},
+ {tables: [], migrations: [stampGroupingMigration]},
+ {tables: [], migrations: [alertProposalMigration, stampGroupingMigration]},
  {tables: [], migrations: afterRosterMigrations},
  {tables: ['spool_import_proposals'], migrations: rosterMigrations},
 );
@@ -330,12 +332,13 @@ async function earlierManifest(db: D1Database, manifest: any) {
  // one holding every such migration it lacks (0.5.1 archives lack 0054, 0055 and 0056), never only the newest.
  const carriedRoster=product.tables.some((table:any)=>table.name==='spool_import_proposals');
  const compatibleSets=carriedRoster?laterTables.map(later=>({tables:later.tables.filter(name=>name!=='spool_import_proposals'),migrations:later.migrations.filter(name=>name!==rosterProposalMigration)})).filter(later=>later.migrations.length):laterTables;
+ const previousStampInventory=predatesStampIndex(product);
  const tableless = [...new Set(compatibleSets.filter(later => !later.tables.length).flatMap(later => later.migrations))];
  for (const later of compatibleSets) {
   // A set that adds no archived table matches today's schema, so it applies only to an archive missing its migrations.
   const reviewOnly=later.tables.length===0 && later.migrations.includes('0109_feedback_review.sql')
     && later.migrations.every(name => ['0109_feedback_review.sql', ...afterRosterMigrations].includes(name));
-  if (!later.tables.length && !(Array.isArray(manifest.migrations) && later.migrations.some(name => !manifest.migrations.includes(name)) && tableless.every(name => manifest.migrations.includes(name) || later.migrations.includes(name))) && !(reviewOnly && !manifest.migrations?.length)) continue;
+  if (!later.tables.length && !(Array.isArray(manifest.migrations) && later.migrations.some(name => !manifest.migrations.includes(name)) && tableless.every(name => manifest.migrations.includes(name) || later.migrations.includes(name))) && !(reviewOnly && !manifest.migrations?.length) && !(previousStampInventory && later.migrations.length===1 && later.migrations[0]===stampGroupingMigration)) continue;
   const missing=later.tables.filter(name=>!carriedReporting||!reportingNames.includes(name));
   if(later.tables.length&&!missing.length)continue;
   // An archive that records no migration list is either older than 0054 (issue_resolutions in its first form) or a current
@@ -352,7 +355,7 @@ async function earlierManifest(db: D1Database, manifest: any) {
   // inventory. An unrecorded index/trigger is never installed or acknowledged.
   // Archives without an object inventory still require Base's legacy replay.
   const previousObjects = reviewOnly ? current.schemaObjects : beforeSentryRosterObjects(beforeProjectMetricObjects(previousRelayPrivacyObjects(previousNativeSymbolObjects(current.schemaObjects,manifest),manifest),manifest),manifest);
-  const earlierObjects=previousKeyMetadataObjects(previousMemberIdentityObjects(previousObjects,manifest),manifest);
+  const earlierObjects=previousStampGroupingObjects(previousKeyMetadataObjects(previousMemberIdentityObjects(previousObjects,manifest),manifest),manifest);
   const earlierSchema = await schemaIdentityOf(earlier, earlierObjects);
   // The CLI and native test runtime can preserve different SQL comments.
   // Compare complete object identities with Base's SQLite token normalization.

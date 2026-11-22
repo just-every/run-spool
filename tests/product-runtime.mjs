@@ -6,6 +6,7 @@ import {nativeRefusal,outcomeTotals} from './admission-proof.mjs';
 import { operatorArchiveTamper, operatorRetentionAndErasure } from './operator-archive.mjs';
 import { operatorFlow } from './operator-flow.mjs';
 import { bundleGroupingFlow } from './bundle-grouping.mjs';
+import { stampGroupingFlow } from './stamp-grouping.mjs';
 import {queuedEntrypoint} from '@runeditrun/rer/queued-entry';
 const queuedExit=await queuedEntrypoint(import.meta.url);if(queuedExit!==null)process.exit(queuedExit);
 import {authBindings,signIn,browserSignIn} from './auth.mjs';
@@ -222,6 +223,7 @@ migrationFile=resolve(temporary,'all-migrations.sql');await writeFile(migrationF
  await operatorFlow({req,json});
  const inbound=await json('/api/projects/web/inbound-filters');inbound.policy.filters.messages={enabled:true,values:['*noise from old checkout*']};await json('/api/projects/web/inbound-filters','PUT',{revision:inbound.revision,policy:inbound.policy});
  const bundleRetention=await bundleGroupingFlow({json});
+ await stampGroupingFlow({json,origin});
  const archive=await json('/api/archive');assert.ok(!JSON.stringify(archive).includes('a@b.test'));assert.ok(!JSON.stringify(archive).includes('token=x'));await stop();await start(resolve(temporary,'state-a'),false);await login({bootstrap:false});await setupLocation(true);assert.ok(isDeepStrictEqual((await json('/api/archive')).data,archive.data),'private domain rows match exactly');assert.ok(!JSON.stringify(archive).includes(project.ingestKey));assert.ok(!('credentials' in archive.data));assert.ok(!('sessions' in archive.data));
  assert.equal((await req('/api/restore','POST',archive.text)).status,409);
 

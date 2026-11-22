@@ -148,7 +148,7 @@ try {
  const backupHold=new Promise(resolve=>{releaseBackup=resolve});
  if(width===1440)await page.route(origin+'/api/archive',async route=>{await backupHold;await route.continue();});
  const downloading=page.waitForEvent('download');await page.getByRole('button',{name:'Download private archive',exact:true}).click();
- if(width===1440){await expect(page.getByRole('button',{name:'Preparing your backup…',exact:true})).toBeDisabled();releaseBackup();}
+ if(width===1440){await expect(page.getByRole('button',{name:'Download private archive',exact:true})).toBeDisabled();await expect(page.getByRole('status').filter({hasText:'Preparing your archive'})).toBeVisible();releaseBackup();}
  const download=await downloading;if(width===1440)await page.unroute(origin+'/api/archive');
  assert.equal(await download.failure(),null);assert.match(download.suggestedFilename(),/^spool-private-archive-\d{4}-\d{2}-\d{2}\.jsonl$/);await expect(page.getByRole('status').filter({hasText:'Downloaded spool-private-archive-'})).toBeVisible();
  const downloaded=await archiveProjection(new Response(await readFile(await download.path())));

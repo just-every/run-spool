@@ -72,6 +72,8 @@ npx spool-sourcemaps --endpoint https://spool.example --project web \
 
 Each bundle needs its `.map` next to it. Run the tool before publishing the built application: it rewrites the bundle and map with the matching debug ID, so serve those resulting files. Both tools register the release, mark each bundle so the SDK can match its errors to the map, and upload the maps. A refused upload fails the build. Confirm success by triggering an error in the exact stamped build and checking its original-source frame as described below.
 
+Spool's source map CLI adds a debug-ID registration line to the generated bundle. If an earlier retained native JavaScript event in the same release and build matches the stamped frame's type, file, function and column, Spool can use the pre-stamp generated line for grouping once the exact artifact maps that shifted position. Repeats follow that grouping across releases. A new debug ID needs its own matching map. The stack and source-map lookup still show the reported coordinates.
+
 ## 4. Check it works
 
 Trigger an error in your application, then open **Capture** and choose **Check for events**. Open the received issue in **Issues** and check that its stack maps to your original source using the matching release, build and uploaded map.

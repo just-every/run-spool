@@ -1,7 +1,10 @@
 /* The shared Run page consumes this token; the installer theme schema does not yet admit it. */
 :root { --rer-font-mono: "IBM Plex Mono", ui-monospace, monospace; }
 
-/* Declaration help can contain long JSON examples without spaces. */
-.site-hosting .walk { overflow-wrap: anywhere; }
+.hosting-guide { overflow-wrap: anywhere; }
+.hosting-guide h3 { margin-top: 28px; }
+.hosting-guide ol { list-style: decimal; margin: 12px 0 0; padding-left: 1.3em; }
+.hosting-guide li > p + p, .hosting-guide .code + p { margin-top: 12px; }
+.hosting-guide .code pre { white-space: pre-wrap; overflow-wrap: anywhere; }
 
 .chooser .self .other-ways pre code{white-space:pre-wrap;overflow-wrap:anywhere}

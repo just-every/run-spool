@@ -14,5 +14,5 @@ export function DownloadBackup({busy,run,label='Download private archive'}:{busy
    const day=new Date(manifest.exportedAt).toISOString().slice(0,10),name=`spool-private-archive-${day}.jsonl`;
    download(text,name);setNotice(`Downloaded ${name}${Number.isSafeInteger(projects)?` (${projects} ${projects===1?'project':'projects'})`:''}`);
   }finally{setPreparing(false);}});
- }}>{preparing?'Preparing your backup…':label}</button>{notice&&<p role="status">{notice}</p>}</div>;
+ }}>{label}</button><div role="status" aria-live="polite">{preparing ? 'Preparing your archive…' : notice}</div></div>;
 }

@@ -15,7 +15,6 @@ import { Link } from '@tanstack/react-router';
 import type { IssuePanels } from './issuePanels';
 import { GroupingFacts } from './GroupingExplanation';
 import { Details } from './Details';
-import { AgentPacketCommand } from './AgentPacketCommand';
 import { EventExplorer } from './EventExplorer';
 import { FeedbackPanel } from './FeedbackPanel';
 import { SentryEvent } from './SentryEvent';
@@ -52,7 +51,6 @@ export function IssueView({ project, packet, panels, status, alert, busy, reques
   project: string; packet: any; panels: IssuePanels | null; status: string; alert?: Alert; busy: boolean; request: Request; run: Run; refresh: () => void; onUpload: (release: string, debugId: string) => void; onViewed: (id: string) => void; rail: ReactNode; readOnly?: boolean; manageProject?: boolean; manageOrganization?: boolean;
 }) {
   const [allFrames, setAllFrames] = useState(false), [copied, setCopied] = useState(false);
-  const [agentCommandOpen, setAgentCommandOpen] = useState(false);
   const [commentRequest,setCommentRequest]=useState(0);
   const [resolution,setResolution]=useState('plain'),[resolutionRelease,setResolutionRelease]=useState('');
   const [testKey,setTestKey] = useDraft(`${project}.capture-key`, '');
@@ -85,7 +83,6 @@ export function IssueView({ project, packet, panels, status, alert, busy, reques
         <AssignmentPicker {...{project,request,run,busy,refresh}} issue={group} onSaved={revision=>setLocalRevision({issue:group.id,revision})}/></div>
         <div className="button-row">{group.state!=='resolved'&&<button className="primary-button" disabled={busy} onClick={()=>setResolving(true)}>Resolve</button>}<button className="text-button" onClick={()=>{document.getElementById('issue-discussion')?.scrollIntoView({block:'start'});setCommentRequest(value=>value+1)}}>Comment</button>
         <details className="issue-secondary-actions"><summary aria-label="Issue actions" title="Issue actions">⋯</summary>
-          <Details title="Fix with an AI coding assistant" triggerLabel="Fix with an AI coding assistant" onOpen={()=>setAgentCommandOpen(true)}>{agentCommandOpen&&<AgentPacketCommand project={project} issue={group.short_id??group.id}/>}</Details>
           <button className="text-button" onClick={()=>download(packet,`spool-${group.short_id??'issue'}-packet.json`)}>Download details for a developer</button>
         </details></div>
         {resolving ? <form className="resolve-issue" onSubmit={e=>{e.preventDefault();void run(async()=>{const saved=await request(`/api/projects/${project}/issues/${group.id}`,'PATCH',{state:'resolved',revision:group.revision,resolution,...resolution==='named'?{release:resolutionRelease}:{}});setLocalRevision({issue:group.id,revision:saved.revision});setResolving(false);refresh()})}}>
@@ -121,6 +118,7 @@ export function IssueView({ project, packet, panels, status, alert, busy, reques
       {frames.length > 6 && <button className="text-button" onClick={() => setAllFrames(!allFrames)}>{allFrames ? 'Show fewer frames' : `Show all ${frames.length} frames`}</button>}
       <Details title="Issue and source evidence"><p>Source maps and recorded repository path mappings enrich the current lookup. Original receipt records remain unchanged.</p><pre>{JSON.stringify({ issue: group, grouping: packet.grouping, events: packet.events }, null, 2)}</pre></Details>
     </section>
+    {rail}
     <EventExplorer key={`${project}:${group.id}`} project={project} issue={group.id} refresh={packet} onSelect={setSelectedEvent}/>
     <div className="issue-collaboration"><Suppression {...{project,request,run,busy,readOnly}} issue={group} onChange={refresh}/>
     <Discussion focusRequest={commentRequest} project={project} issue={group.id} refresh={packet} {...{ request, run, busy }} onChanged={revision=>{if(Number.isSafeInteger(revision))setLocalRevision({issue:group.id,revision:revision!});refresh();}}/></div>
@@ -129,7 +127,6 @@ export function IssueView({ project, packet, panels, status, alert, busy, reques
     <AffectedUsers project={project} issue={group.id} {...{request}} refresh={packet}/>
     {!readOnly && <SuspectChanges project={project} issue={group.id} {...{request,run,busy}} refresh={group.id}/>}
     {manageOrganization && <FeedbackPanel key={`${project}:${group.id}`} project={project} issue={group.id} {...{request,run,busy}}/>}
-    {rail}
     <section className="evidence recent-occurrence"><h2>Recent occurrence</h2><dl className="issue-facts"><div><dt>Language</dt><dd>{language ?? event?.event.sentry?.platform ?? 'javascript'}</dd></div><div><dt>Release</dt><dd>{releaseLabel(event?.event.release)}</dd></div><div><dt>Build</dt><dd>{buildLabel(event?.event.build)}</dd></div><div><dt>Environment</dt><dd>{event?.event.environment ?? 'Unavailable'}</dd></div><div><dt>Last received</dt><dd>{date(group.last_seen)}</dd></div>{group.client_dropped > 0 && <div><dt>Not sent by the SDK</dt><dd>{group.client_dropped} more at this location (rate cap or repeats)</dd></div>}</dl></section>
     <section className="evidence"><h2>Observed deployments</h2><Details title="Observed deployments"><p>First and last events by receipt time. Deployment details are supplied by you or your deploy key.</p></Details>{(['first','last'] as const).map(key=>{const d=packet.deployments?.[key];return <div key={key}><h3>{key==='first'?'First seen':'Last seen'}</h3><p>{d?`${releaseLabel(d.release)} · ${d.environment}`:'No retained occurrence'}</p>{d?.manifest?<p><a href={d.manifest.repository} rel="noreferrer" target="_blank">Repository</a> · <code>{d.manifest.commit_sha}</code> · {date(d.manifest.deployed_at)}</p>:<p>Deployment and commit unknown for this environment.</p>}</div>})}</section>
     {manageProject && <OperatorPanel initial={panels?.operator} project={project} packet={{...packet,issue:group}} busy={busy} request={request} run={run} refresh={refresh}/>}
