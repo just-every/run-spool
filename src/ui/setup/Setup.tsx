@@ -16,6 +16,7 @@ export function Setup() {
  const [ready, setReady] = useState(false);
  const [restoring, setRestoring] = useState(false);
  const [busy, setBusy] = useState(false), [error, setError] = useState('');
+ const [sendingTest, setSendingTest] = useState(false);
  const [created, setCreated] = useState<CreatedProject | null>(null), [copied, setCopied] = useState(false);
  const [endpoint, setEndpoint] = useState(''), [release, setRelease] = useState('1.0.0'), [build, setBuild] = useState('local');
  const heading = useRef<HTMLHeadingElement>(null), notice = useRef<HTMLDivElement>(null);
@@ -49,7 +50,7 @@ export function Setup() {
       <li><h3>Save your key.</h3><p>Copy this key now. It is shown only once. If you lose it, create a new key in Settings.</p>
        <div className="secret-key setup-key"><label htmlFor="setup-ingest-key">Ingest key</label><textarea id="setup-ingest-key" rows={2} readOnly value={created.ingestKey} spellCheck={false} autoComplete="off" /><button className="text-button" type="button" onClick={() => void copyKey()}>Copy ingest key</button><p role="status">{copied ? 'Key copied.' : ''}</p></div>
       </li>
-      <li><h3>Send a test error.</h3><SendTestError project={created.id} ingestKey={created.ingestKey} release={release} build={build} request={api} /></li>
+      <li><h3>Send a test error.</h3><SendTestError project={created.id} ingestKey={created.ingestKey} release={release} build={build} request={api} onSendingChange={setSendingTest} /></li>
       <li><h3>Give this code to your developer.</h3><LocalCaptureNote endpoint={endpoint} />
        <OriginStep showDetails={false} project={created.id} request={api} />
        <div className="setup-release"><Field label="Release" value={release} required pattern="[a-zA-Z0-9._:@+\-]+" onChange={event => setRelease(event.target.value)} /><Field label="Build" value={build} required pattern="[a-zA-Z0-9._:\-]+" onChange={event => setBuild(event.target.value)} /></div>
@@ -57,7 +58,7 @@ export function Setup() {
        <details><summary>Details</summary>{created.devMinted && <p>This key works only with this local copy of Spool. After putting Spool online, sign in there and create a new key for your app.</p>}<SentryIntake dsn={created.dsn} /></details>
       </li>
      </ol>
-     <a className="primary-button setup-continue" href="/">Continue to workbench</a>
+     {sendingTest ? <button className="primary-button setup-continue" type="button" disabled>Waiting for test result…</button> : <a className="primary-button setup-continue" href="/">Continue to workbench</a>}
     </> : restoring ? <>
      <ArchiveSettings busy={busy || !ready} empty run={run} refresh={() => location.assign('/')} allowDownload={false} />
      <button className="text-button setup-alternative" disabled={busy} onClick={() => { setRestoring(false); setError(''); }}>Create a project instead</button>

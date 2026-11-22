@@ -53,7 +53,8 @@ export function endpoint(config, operation, args = {}) {
 function refusal(error, config) {
   const code = typeof error?.code === 'string' ? error.code : 'native_refused';
   const setup = typeof error?.setup_url === 'string' ? redact(error.setup_url, [config.key, config.devKey]) : null;
-  return `Spool refused the request: ${code}.${setup ? ` An owner chooses the company agent policy at ${setup}; this key works once it is chosen.` : ''}`;
+  const field = code === 'invalid_arguments' && /^variants\[\d+\]\.stack$/.test(error?.field) ? error.field : null;
+  return `Spool refused the request: ${code}.${field ? ` Missing required field: ${field}.` : ''}${setup ? ` An owner chooses the company agent policy at ${setup}; this key works once it is chosen.` : ''}`;
 }
 export async function rpc(config, method, params = {}) {
   const url = new URL('/mcp', config.root);

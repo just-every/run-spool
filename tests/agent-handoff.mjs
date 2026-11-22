@@ -27,6 +27,15 @@ async function groupingProposalHandoff(app,env,agent,mcp,issue,otherIssue){
   rationale:'Compare retained stack and release variants before moving this occurrence.',
   window:{start:Math.min(...packet.events.map(row=>row.received)),end:Math.max(...packet.events.map(row=>row.received))+1}};
  const shortInput={...input,source:shortId};
+ const oldGuideInput={...shortInput,variants:shortInput.variants.map(({release,route})=>({release,route}))};
+ const badHttp=await app.request(path,'POST',oldGuideInput,{...agent,headers:{'Idempotency-Key':crypto.randomUUID()}});
+ assert.equal(badHttp.status,400);
+ const invalid=await badHttp.json();
+ assert.equal(invalid.code,'invalid_arguments');
+ assert.equal(invalid.field,'variants[0].stack');
+ const badCli=await cli(['propose','--stdin','--format','json'],env,JSON.stringify(oldGuideInput));
+ assert.notEqual(badCli.code,0);
+ assert.ok(badCli.stderr.includes(invalid.field),'The CLI names the same missing field as the API');
  const file=resolve(app.checkout.root,'agent-proposal.json');await writeFile(file,JSON.stringify(shortInput),{mode:0o600});
  const submitted=await cli(['propose','--file',file,'--format','json'],env);assert.equal(submitted.code,0);const proposal=JSON.parse(submitted.stdout);
  assert.ok(proposal.id);assert.ok(proposal.actor);assert.match(proposal.label,/^proposed by agent .+ for .+$/);assert.ok(!Object.hasOwn(proposal,'explanation'));noSecrets(proposal);

@@ -49,11 +49,15 @@ export function orderedReleaseExports(exports:any){
   return {...status,contentHash:saved.closing.contentHash};
  };
  return {...exports,
-  advance:async(id:string,options:any)=>decorate(await exports.advance(id,options)),
+  advance:async(id:string,options:any,{includeOrderedHash=true}={})=>{
+   const status=await exports.advance(id,options);
+   return includeOrderedHash?decorate(status):status;
+  },
   status:async(id:string)=>decorate(await exports.status(id)),
   abort:async(id:string)=>{cache.delete(id);return exports.abort(id)},
   download:async(id:string)=>{
-   const status=await exports.status(id),saved=await snapshot(id,status),iterator=records(id,saved),encoder=new TextEncoder();
+   const status=await exports.status(id),encoder=new TextEncoder();
+   const iterator=(async function*(){yield* records(id,await snapshot(id,status))})();
    return new ReadableStream<Uint8Array>({
     async pull(controller){try{const next=await iterator.next();if(next.done)controller.close();else controller.enqueue(encoder.encode(canonicalJson(next.value)+'\n'))}catch(error){controller.error(error)}},
     async cancel(){await iterator.return(undefined)},

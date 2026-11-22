@@ -2,6 +2,7 @@ import { plural } from './readable';
 import { correctionLabels, loadCorrectionReferences } from './correctionReferences';
 import { useEffect, useId, useRef, useState } from 'react';
 import { Details } from './Details';
+import { hrefFor } from './location';
 import { useLiveRead } from './useLiveRead';
 import { date, Field, type Request, type Run } from './shared';
 
@@ -143,6 +144,7 @@ export function OperatorPanel({ project, packet, busy, request, run, refresh, in
     {failure && <p role="alert">{failure}</p>}
     <div className="operator-controls" role="group" aria-label="Operator controls">
       <Details title="Correct grouping" triggerLabel="Correct grouping">
+        <p><a className="inline-link" href={hrefFor(project, 'settings') + '#grouping-proposals-heading'}>Review agent grouping proposals</a></p>
         <p>Corrections move only the reviewed events. Future events keep their original grouping. Retries stay with this issue. Imported history is excluded. A new preview replaces the previous unapplied preview.</p>
         <fieldset>
           <legend>Occurrences to split into a new issue</legend>

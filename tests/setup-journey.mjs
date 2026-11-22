@@ -86,7 +86,21 @@ export async function firstProjectJourney(browser, origin, width) {
   await tabTo(page.getByRole('button',{name:'Allow website',exact:true}),'Allow origin button');await page.keyboard.press('Enter');assert.equal((await allowed).status(),201);
   assert.ok((await (await request.get(origin+'/api/projects/journey/browser-origins')).json()).some(row=>row.origin===appOrigin),'first run allowed the app origin');
   await tabTo(page.getByRole('link',{name:'Manage allowed websites',exact:true}),'Manage allowed origins link');
-  await tabTo(page.getByRole('button',{name:'Send test error',exact:true}),'Send test error button');await page.keyboard.press('Enter');
+  let releaseTest;
+  const testHeld=new Promise(resolve=>{releaseTest=resolve});
+  const sampleRoute='**/api/ingest/journey';
+  await page.route(sampleRoute,async route=>{await testHeld;await route.continue()},{times:1});
+  try {
+   await tabTo(page.getByRole('button',{name:'Send test error',exact:true}),'Send test error button');
+   const testSent=page.waitForRequest(sampleRoute);
+   await page.keyboard.press('Enter');
+   await testSent;
+   const waiting=page.locator('.setup-continue');
+   await waiting.waitFor();
+   assert.equal(await waiting.isDisabled(),true,'setup holds Continue while a test is in flight');
+   await waiting.scrollIntoViewIfNeeded();
+   await inspect('sending');
+  } finally {releaseTest();}
   await page.getByRole('status').filter({hasText:'New alert raised'}).waitFor();
   const testIssue=page.getByRole('link',{name:'Open the test issue',exact:true});await tabTo(testIssue,'Open the test issue link');
   const issueId=decodeURIComponent((await testIssue.getAttribute('href')).split('/').at(-1));const testRow=(await (await request.get(origin+'/api/projects/journey/issues')).json()).find(row=>row.id===issueId);assert.ok(testRow,'the test error became an issue');assert.match(testRow.title,/test/i,'the first-run test has a recognizable issue title');

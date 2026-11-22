@@ -23,8 +23,8 @@ Choose a tagged checkout from [Spool's GitHub Releases](https://github.com/just-
 1. Set `SPOOL_TAG` to your chosen release tag, then install and set up Spool on this computer:
 
    ```sh
-   git clone --branch "$SPOOL_TAG" --single-branch https://github.com/just-every/run-spool.git run-spool
-   cd run-spool
+   test -n "$SPOOL_TAG" && mkdir run-spool && git init -q run-spool && git -C run-spool remote add origin https://github.com/just-every/run-spool.git && git -C run-spool fetch --no-tags origin "refs/tags/$SPOOL_TAG:refs/tags/$SPOOL_TAG" && git -C run-spool checkout --quiet --detach "refs/tags/$SPOOL_TAG^{commit}" &&
+   cd run-spool &&
    curl -fsSL https://runeditrun.com/install.sh | sh -s -- setup
    export PATH="$HOME/.local/bin:$PATH"
    SPOOL_ENV=production # choose your environment name here
@@ -57,11 +57,13 @@ Choose a tagged checkout from [Spool's GitHub Releases](https://github.com/just-
 
    If you skipped local setup in a fresh checkout, add `--owner-name "Your name"` to the first deploy command. Spool requires a first-owner display name. The deploy command above uses the name saved by local setup. `OWNER_EMAIL` supplies the sign-in address.
 
-   `rer deploy` builds this commit, creates the Worker and its database, applies the migrations, uploads the settings as secrets and checks `/health`. It also sends the one-time setup token to claim `OWNER_EMAIL` as the hosted owner, then removes `SETUP_TOKEN` from the deployed Worker secrets. Cloudflare can take several minutes to apply the D1 migrations. rer reports progress during the wait. Owner claim runs automatically. An already claimed installation keeps its owner, and later deploys to this environment keep the setup token retired. Keep the original deploying checkout, the private environment file, `.rer/deploy/<environment>.secrets.env` generated secrets and `.rer/deploy/<environment>.json` deployment ownership record/receipt for as long as this deployment exists. Git ignores these private files; a fresh clone does not recover them. The record is needed for removal as well as future updates. rer keeps the generated session and alert hash secrets in the private `.rer/deploy/<environment>.secrets.env` file and reuses them on updates. It retires the one-time setup token automatically and issues a fresh one if an update needs to finish owner finalization. Do not replace the saved secrets during an update.
+   `rer deploy` builds this commit, creates the Worker and its database, applies the migrations, uploads the settings as secrets and checks `/health`. It also sends the one-time setup token to claim `OWNER_EMAIL` as the hosted owner, then removes `SETUP_TOKEN` from the deployed Worker secrets. The first deploy can spend several minutes applying D1 migrations. rer shows the current migration number and elapsed time. Wait for the hosted address before opening Spool. Owner claim runs automatically. An already claimed installation keeps its owner, and later deploys to this environment keep the setup token retired. Keep the original deploying checkout, the private environment file, `.rer/deploy/<environment>.secrets.env` generated secrets and `.rer/deploy/<environment>.json` deployment ownership record/receipt for as long as this deployment exists. Git ignores these private files; a fresh clone does not recover them. The record is needed for removal as well as future updates. rer keeps the generated session and alert hash secrets in the private `.rer/deploy/<environment>.secrets.env` file and reuses them on updates. It retires the one-time setup token automatically and issues a fresh one if an update needs to finish owner finalization. Do not replace the saved secrets during an update.
 
 4. Add `/sign-in` to the hosted origin printed by deploy, open that address, enter your `OWNER_EMAIL` and follow the link in the email. A fresh installation then opens `/setup`: create your first project or choose **Restore a private archive** before creating one. Select an archive up to 16 MiB and choose **Restore into empty installation**, then create new project keys. Archives contain private source maps but exclude owner sessions and credential grants.
 
-Alert destinations start empty. Add, edit and test email destinations from **Alerts → Rules** ([steps](ALERT-WEBHOOKS.md#manage-email-destinations)); no secret update or redeploy is needed. Webhooks remain operator-managed as described in that guide. Keep `ALERT_DESTINATION_HASH_KEY` unchanged while deliveries are active. Secrets are uploaded on the first deploy, and later deploys reuse the retained generated values.
+Alert destinations start empty. Open **Alerts → Rules → Manage destinations and rules** to add or edit an email destination. Test it and use its **Review passing test** action before enabling a rule that uses it. Follow the [email destination and rule setup steps](ALERT-WEBHOOKS.md#manage-email-destinations).
+
+Email destinations use the existing mail setup and can be changed from the workbench. The same guide covers operator-managed webhooks. Keep `ALERT_DESTINATION_HASH_KEY` unchanged while deliveries are active. Secrets are uploaded on the first deploy, and later deploys reuse the retained generated values.
 
 ## Turn email off deliberately
 

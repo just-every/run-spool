@@ -39,10 +39,10 @@ Run Spool on your computer without a Cloudflare account or mail provider, or dep
 
 ## Run it on your computer
 
-macOS, Linux or Windows with WSL2. git is required; rer brings Node and pnpm. This one-line install, also on the [Run page](https://run-spool.com/run), finds the newest stable release tag, prints it, clones it and starts Spool:
+macOS, Linux or Windows with WSL2. git is required; rer brings Node and pnpm. This one-line install, also on the [Run page](https://run-spool.com/run), finds the newest stable release tag, prints it, checks out the release commit and starts Spool:
 
 ```sh
-SPOOL_TAG=$(git ls-remote --refs --tags --sort=-version:refname https://github.com/just-every/run-spool.git | awk '$2 ~ /^refs\/tags\/v[0-9]+\.[0-9]+\.[0-9]+$/ && !tag { sub("refs/tags/", "", $2); tag=$2 } END { if (tag) print tag }') && test -n "$SPOOL_TAG" && printf 'Installing Spool %s\n' "$SPOOL_TAG" && git clone --branch "$SPOOL_TAG" --single-branch https://github.com/just-every/run-spool.git run-spool && (cd run-spool && curl -fsSL https://runeditrun.com/install.sh | sh -s -- dev --host localhost)
+SPOOL_TAG=$(git ls-remote --refs --tags --sort=-version:refname https://github.com/just-every/run-spool.git | awk '$2 ~ /^refs\/tags\/v[0-9]+\.[0-9]+\.[0-9]+$/ && !tag { sub("refs/tags/", "", $2); tag=$2 } END { if (tag) print tag }') && test -n "$SPOOL_TAG" && printf 'Installing Spool %s\n' "$SPOOL_TAG" && mkdir run-spool && git init -q run-spool && git -C run-spool remote add origin https://github.com/just-every/run-spool.git && git -C run-spool fetch --no-tags origin "refs/tags/$SPOOL_TAG:refs/tags/$SPOOL_TAG" && git -C run-spool checkout --quiet --detach "refs/tags/$SPOOL_TAG^{commit}" && (cd run-spool && curl -fsSL https://runeditrun.com/install.sh | sh -s -- dev --host localhost)
 ```
 
 A first local start usually takes about a minute. On a busy computer it can take longer: `rer dev` prints progress every 20 seconds, with the limit to allow.
@@ -58,7 +58,7 @@ Repeat that PATH line in each new terminal if you want the shorter command. If y
 To clone a specific release, set `SPOOL_TAG` to the tag shown on the GitHub release you chose, then run:
 
 ```sh
-git clone --branch "$SPOOL_TAG" --single-branch https://github.com/just-every/run-spool.git run-spool
+test -n "$SPOOL_TAG" && mkdir run-spool && git init -q run-spool && git -C run-spool remote add origin https://github.com/just-every/run-spool.git && git -C run-spool fetch --no-tags origin "refs/tags/$SPOOL_TAG:refs/tags/$SPOOL_TAG" && git -C run-spool checkout --quiet --detach "refs/tags/$SPOOL_TAG^{commit}"
 ```
 
 From that checkout, use `~/.local/bin/rer dev --host localhost` to start Spool. If you already have Node 22 or later, `npx -y @runeditrun/rer dev --host localhost` also works from the checkout. To restart later, use `cd run-spool && ~/.local/bin/rer dev --host localhost`.

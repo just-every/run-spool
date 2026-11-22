@@ -61,6 +61,7 @@ export function IssueView({ project, packet, panels, status, alert, busy, reques
   useEffect(() => { if (packet && alert) onViewed(alert.id); }, [packet, alert?.id, onViewed]);
   if (!packet) return <section className="evidence">{status === 'loading' ? <p role="status">Loading issue evidence…</p> : <><h2>Issue evidence unavailable</h2><p>The issue may have been removed, or its evidence could not be loaded.</p><button className="text-button" onClick={refresh}>Retry evidence</button></>}</section>;
   const group = localRevision && localRevision.issue===packet.issue.id ? {...packet.issue,revision:Math.max(packet.issue.revision,localRevision.revision)} : packet.issue;
+  const issueStatusLabel = (state: string) => state === 'open' && alert?.kind === 'regression' ? 'Reopened' : stateLabel(state);
   const event = selectedEvent ?? packet.events?.[0], hidden = hiddenSourceRows(event?.event);
   const frames: any[] = (event?.currentLookup ?? []).map((frame: any, sourceIndex: number) => ({...frame, sourceIndex})).filter((frame: any) => !hidden.has(frame.sourceIndex));
   const missing = frames.filter(frame => !['mapped','go_path_mapped','python_source'].includes(frame.status));
@@ -72,14 +73,14 @@ export function IssueView({ project, packet, panels, status, alert, busy, reques
   return <>
     <div className="issue-toolbar"><Link className="text-button" to={hrefFor(project) as any}>All issues</Link><button className="text-button" onClick={() => void run(async () => { await navigator.clipboard.writeText(new URL(hrefFor(project, 'issues', group.id), location.origin).href); setCopied(true); })}>{copied ? 'Link copied' : 'Copy link'}</button></div>
     <section className="issue">
-      <div className="issue-summary"><div className="issue-body"><div className="issue-status">{group.short_id && <code className="short-id" title="Short ID">{group.short_id}</code>}<span className={`state-chip ${group.state}`}>{stateLabel(group.state)}</span>{readOnly&&<Priority {...{project,request,run,busy,refresh,readOnly}} issue={group}/>}{alert?.kind!=='new_issue' && alert && <span className={`attention-badge ${alert.kind}`}>{attentionLabel(alert)}</span>}</div><p className="metadata">{event ? `Occurrence shown · ${releaseLabel(event.event.release)} · ${event.event.environment}` : 'Occurrence evidence deleted by retention'}</p></div><p className="issue-count"><strong>{group.count}</strong> <span>events</span></p>
+      <div className="issue-summary"><div className="issue-body"><div className="issue-status">{group.short_id && <code className="short-id" title="Short ID">{group.short_id}</code>}<span className={`state-chip ${group.state}`}>{issueStatusLabel(group.state)}</span>{readOnly&&<Priority {...{project,request,run,busy,refresh,readOnly}} issue={group}/>}{alert?.kind!=='new_issue' && alert && <span className={`attention-badge ${alert.kind}`}>{attentionLabel(alert)}</span>}</div><p className="metadata">{event ? `Occurrence shown · ${releaseLabel(event.event.release)} · ${event.event.environment}` : 'Occurrence evidence deleted by retention'}</p></div><p className="issue-count"><strong>{group.count}</strong> <span>events</span></p>
       </div>
       {readOnly&&<AssignmentPicker {...{project,request,run,busy,refresh,readOnly}} issue={group} onSaved={()=>{}}/>}
       {!readOnly && <div className="issue-main-actions">
         <div className="issue-triage-controls"><label className="form-field">Status<select aria-label="Status" value={group.state} disabled={busy} onChange={e => {
           if(e.target.value==='resolved'){setResolving(true);return;}
           void run(async () => { const saved = await request(`/api/projects/${project}/issues/${group.id}`, 'PATCH', { state: e.target.value, revision: group.revision }); setLocalRevision({issue:group.id,revision:saved.revision}); refresh(); });
-        }}>{states.filter(state=>state!=='suppressed'||group.state==='suppressed').map(state => <option key={state} value={state}>{stateLabel(state)}</option>)}</select></label>
+        }}>{states.filter(state=>state!=='suppressed'||group.state==='suppressed').map(state => <option key={state} value={state}>{issueStatusLabel(state)}</option>)}</select></label>
         <AssignmentPicker {...{project,request,run,busy,refresh}} issue={group} onSaved={revision=>setLocalRevision({issue:group.id,revision})}/></div>
         <div className="button-row">{group.state!=='resolved'&&<button className="primary-button" disabled={busy} onClick={()=>setResolving(true)}>Resolve</button>}<button className="text-button" onClick={()=>{document.getElementById('issue-discussion')?.scrollIntoView({block:'start'});setCommentRequest(value=>value+1)}}>Comment</button>
         <details className="issue-secondary-actions"><summary aria-label="Issue actions" title="Issue actions">⋯</summary>

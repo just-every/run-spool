@@ -358,6 +358,8 @@ export async function localMailFlow() {
   await expect(page.getByRole('alert')).toContainText(/remove[\s\S]*invite[\s\S]*again/i);
   await members.getByRole('button',{name:'Details: Synthetic local invitee access',exact:true}).click();
   const dialog=page.getByRole('dialog',{name:'Synthetic local invitee access',exact:true});
+  await expect(dialog.getByText(/\binvited\b/i)).toBeVisible();
+  await expect(dialog.getByText(/\bactive\b/i)).toHaveCount(0);
   await dialog.getByRole('checkbox',{name:/Remove Synthetic local invitee/}).check();
   const removed=page.waitForResponse(r=>new URL(r.url()).pathname.includes('/api/organization/members/')&&r.request().method()==='DELETE');
   await dialog.getByRole('button',{name:'Remove member',exact:true}).click();assert.equal((await removed).status(),200);
@@ -410,6 +412,23 @@ export async function localMailFlow() {
   const refused=await inviteeContext.request.post(app.origin+'/auth/confirm',{headers:{Origin:app.origin},data:{token}});assert.equal(refused.status(),400,'the very same link cannot be accepted twice');
   assert.equal((await refused.json()).error,'invalid_or_expired');
   const after=(await json('/api/organization')).invites;assert.ok(after.every(row=>!row.localLink),'accepted links are no longer exposed');
+  const manageInvitee=page.getByRole('button',{name:'Details: Synthetic local invitee access',exact:true});
+  const inviteeRow=members.locator('.data-row').filter({has:manageInvitee});
+  await manageInvitee.click();
+  const activeStatus=dialog.getByText(/read only · active/i);
+  await expect(activeStatus).toBeVisible();
+  const confirmedLabel=await activeStatus.innerText();
+  if(folder)for(const width of [1440,390]){
+   await page.setViewportSize({width,height:1000});
+   await dialog.screenshot({path:resolve(folder,`local-access-active-${width}.png`)});
+  }
+  await dialog.getByRole('button',{name:'Close details',exact:true}).click();
+  await expect(inviteeRow.locator('.muted')).toHaveText(confirmedLabel);
+  await expect(members.getByLabel('Invitation link for synthetic-spool-local@example.test',{exact:true})).toHaveCount(0);
+  if(folder)for(const width of [1440,390]){
+   await page.setViewportSize({width,height:1000});
+   await inviteeRow.screenshot({path:resolve(folder,`local-member-active-${width}.png`)});
+  }
   const member=(await json('/api/organization')).members.find(row=>row.name==='Synthetic local invitee');
   const transfer=await request('/api/organization/transfer',{member:member.id,version:member.version});assert.equal(transfer.status,403);assert.equal((await transfer.json()).error,'step_up_required','local messaging does not bypass native ownership proof');
   assert.equal((await inviteeContext.request.get(app.origin+'/api/organization')).status(),404,'read-only invitee cannot read invitation custody');

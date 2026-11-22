@@ -7,7 +7,7 @@ import { identity } from '../identity';
 import { releaseClone, run, withReleaseInstall } from './run';
 
 const guideSource = `${run.repository}/blob/main/docs/HOSTED.md`;
-const firstInstall = /^1\. Set `SPOOL_TAG`[^\n]*\n\n   ```sh\n   git clone [^\n]+\n   cd run-spool$/m;
+const firstInstall = /^1\. Set `SPOOL_TAG`[^\n]*\n\n   ```sh\n   test -n [^\n]+\n   cd run-spool &&$/m;
 
 function cloudflareGuide() {
  if (!firstInstall.test(hostedGuide)) throw new Error('The Spool hosting guide is missing its tagged first-install step.');

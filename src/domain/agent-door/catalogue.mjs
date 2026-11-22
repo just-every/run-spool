@@ -7,7 +7,9 @@ const num={type:'integer',minimum:0};
 const bool={type:'boolean'};
 const object=(properties,required=Object.keys(properties))=>({type:'object',properties,required,additionalProperties:false});
 const fields=(properties,required)=>object({project:str,...properties},required??['project',...Object.keys(properties)]);
-const proposal={kind:{enum:['split','merge','rule']},source:str,revision:num,events:{type:'array',items:str,minItems:1,maxItems:200},target:str,targetRevision:num,policyRevision:num,rationale:text,variants:{type:'array',items:object({stack:text,release:str,route:text}),minItems:1,maxItems:20},window:object({start:num,end:num}),policy:{type:'object'}};
+// The native proposal check reports the exact missing stack before admission.
+const variant=object({stack:{...text,description:'Required. JSON.stringify of packet.events[i].event.frames.'},release:str,route:text},['release','route']);
+const proposal={kind:{enum:['split','merge','rule']},source:str,revision:num,events:{type:'array',items:str,minItems:1,maxItems:200},target:str,targetRevision:num,policyRevision:num,rationale:text,variants:{type:'array',items:variant,minItems:1,maxItems:20},window:object({start:num,end:num}),policy:{type:'object'}};
 const grants={type:'array',items:object({project:str,role:{enum:['maintainer','member','read-only']}}),maxItems:100};
 const rule={name:str,enabled:bool,channel:{enum:['mail','webhook']},destination:str,kinds:{type:'array',items:{enum:['new_issue','regression','spike']}},windowMs:num,threshold:num,revision:num};
 const definitions=[

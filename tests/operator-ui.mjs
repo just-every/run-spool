@@ -234,7 +234,14 @@ export async function operatorUi({page,api,origin,project,issue,capture}){
  const proposalReview=page.getByRole('article',{name:'Grouping proposal review',exact:true});
  await page.goto(`${origin}/projects/${project}/settings#settings-processing`);
  await page.getByRole('heading',{name:'Agent grouping proposals',exact:true}).waitFor();await page.getByText('No agent grouping proposals yet.',{exact:true}).waitFor();await capture('grouping-proposal-empty');
- const rejected=await propose();await review(rejected);
+ const rejected=await propose();
+ await page.goto(`${origin}/projects/${project}/issues/${issue}`);
+ await page.getByRole('button',{name:'Details: Correct grouping',exact:true}).click();
+ const reviewLink=page.getByRole('dialog',{name:'Correct grouping',exact:true}).getByRole('link',{name:'Review agent grouping proposals',exact:true});
+ await capture('operator-grouping-proposals-link');
+ await reviewLink.click();
+ await proposalPanel.waitFor({state:'visible'});
+ await review(rejected);
  await proposalReview.getByRole('heading',{name:'Counterexamples inside the group',exact:true}).waitFor();assert.match(await proposalReview.innerText(),/proposed by agent /);
  const explained=await api(endpoint+'/'+rejected.id);assert.ok(explained.explanation.counterexamples.inside.length,'Real retained variants provide counterexamples');assert.ok(explained.explanation.counterexamples.outside.length,'Look-alike retained events remain visible');
  await capture('grouping-proposal-proposed');

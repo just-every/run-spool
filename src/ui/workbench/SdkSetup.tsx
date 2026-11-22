@@ -59,16 +59,17 @@ export function SentryIntake({ dsn }: { dsn?: string }) {
 }
 
 /** Registers the release if it is new, then sends one real exception through the same capture code the SDK ships. */
-export function SendTestError({ project, ingestKey, release, build, request, onReceived, buttonLabel = 'Send test error' }: { buttonLabel?: string; project: string; ingestKey: string; release: string; build: string; request: Request; onReceived?: () => void }) {
+export function SendTestError({ project, ingestKey, release, build, request, onReceived, onSendingChange, buttonLabel = 'Send test error' }: { buttonLabel?: string; project: string; ingestKey: string; release: string; build: string; request: Request; onReceived?: () => void; onSendingChange?: (sending: boolean) => void }) {
   const [busy, setBusy] = useState(false), [outcome, setOutcome] = useState<any>(null), [failure, setFailure] = useState('');
   async function send() {
     setBusy(true); setOutcome(null); setFailure('');
+    onSendingChange?.(true);
     try {
       await request(`/api/projects/${encodeURIComponent(project)}/releases`, 'POST', { name: release, build });
       const received = await testResult(request,project,await sendTestSample({ endpoint: location.origin, project, ingestKey, release, build, environment: 'spool-test', credentials: 'same-origin' }));
       setOutcome(received); if (received.outcome === 'accepted' || received.outcome === 'duplicate') onReceived?.();
     } catch (error) { setFailure((error as Error).message || 'The release could not be registered.'); }
-    finally { setBusy(false); }
+    finally { setBusy(false); onSendingChange?.(false); }
   }
   return <div className="send-test">
     <button className="primary-button" type="button" disabled={busy || !ingestKey} onClick={() => void send()}>{busy ? 'Sending…' : buttonLabel}</button>

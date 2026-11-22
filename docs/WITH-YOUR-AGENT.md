@@ -61,9 +61,47 @@ Use an environment or file key when proposal JSON uses stdin. `--key-stdin` and 
 {"kind":"split","source":"ISSUE_ID","revision":4,"events":["EVENT_ID"],"variants":[{"stack":"[{\"file\":\"https://app.example/bundle.js\",\"line\":1,\"column\":0,\"function\":\"checkout\"}]","release":"web@1.4.0","route":""}],"rationale":"This retained variant differs from the other failures in this group.","window":{"start":1792454400000,"end":1792458000000}}
 ```
 
-`variants` compares stack, release and route evidence: use `JSON.stringify(event.frames)` for each stack; use the sanitized Sentry transaction or request URL as route when available, otherwise an empty string. `window` uses received-time Unix milliseconds and must span a positive duration of at most 31 days. Cite 1–20 variants; each stack, release and route is bounded to 4,000, 200 and 500 characters respectively, and rationale to 2,000 characters. Split selects retained event IDs; merge replaces `events` with `target` and its `targetRevision`. A rule proposal instead supplies `policyRevision` and `policy: {version:1,stack,fingerprint}` using Spool's stack/fingerprint rule language, with empty strings for an unused rule kind. The source `revision` is always required. See [operator corrections](OPERATOR-CORRECTIONS.md) for the review boundary.
+Each `packet.events[]` entry wraps the captured payload under `event`. For an entry named `event`, serialize the stack with `JSON.stringify(event.event.frames)`. Use the sanitized Sentry transaction or request URL as the route when available, otherwise an empty string.
 
-The CLI sends only `POST /api/projects/:project/grouping-proposals` to create one inert proposal and `GET` on that exact route for safe summaries. The service assigns its alias and the label `proposed by agent <alias>`; the agent cannot supply or replace that attribution. Summaries include proposal input and revisions, actor, state and timestamps, without the owner's full explanation or additional evidence reads. Submitting does not move events, activate rules, suppress alerts or change repair results. The owner inspects the explanation and projected effects, then explicitly approves/applies or rejects. Agents cannot read proposal detail, approve, reject, apply or undo. Team roles remain future work under TEAM-001.
+To build a split from current evidence, set the CLI path, issue ID, retained event ID and your reason below. Run this in Bash with the same Node and credentials as the packet command above. Inspect `proposal.json` before submitting it.
+
+```bash
+spool_agent=/absolute/path/to/spool/packages/agent/bin/spool-agent.mjs
+issue_id=CHECKOUT-WEB-2
+event_id=RETAINED_EVENT_ID
+rationale='Describe why this occurrence belongs in a separate group.'
+(
+  set -eo pipefail
+  umask 077
+  set -o noclobber
+  node "$spool_agent" packet "$issue_id" --format json |
+    node -e '
+      const packet = JSON.parse(require("node:fs").readFileSync(0, "utf8"));
+      const [id, rationale] = process.argv.slice(1);
+      const event = packet.events.find(row => row.id === id && !row.historical);
+      if (!event) throw new Error("Choose a retained, live event ID from the packet.");
+      const { release, sentry } = event.event;
+      const stack = JSON.stringify(event.event.frames);
+      if (stack.length > 4000) throw new Error("Choose a stack citation within 4,000 characters.");
+      const route = sentry?.transaction ?? sentry?.request?.url ?? "";
+      console.log(JSON.stringify({
+        kind: "split",
+        source: packet.issue.short_id ?? packet.issue.id,
+        revision: packet.issue.revision,
+        events: [event.id],
+        variants: [{ stack, release, route }],
+        rationale,
+        window: { start: event.received, end: event.received + 1 }
+      }, null, 2));
+    ' "$event_id" "$rationale" > proposal.json
+)
+```
+
+`window` uses received-time Unix milliseconds and must span a positive duration of at most 31 days. Cite 1–20 variants. Each stack, release and route is bounded to 4,000, 200 and 500 characters respectively, and rationale to 2,000 characters. Split selects retained event IDs. Merge replaces `events` with `target` and its `targetRevision`. A rule proposal instead supplies `policyRevision` and `policy: {version:1,stack,fingerprint}` using Spool's stack and fingerprint rule language, with empty strings for an unused rule kind. The source `revision` is always required.
+
+The project API creates an inert proposal with `POST /api/projects/:project/grouping-proposals` and lists safe summaries with `GET` on the same route. The service assigns the label `proposed by agent <alias>`. Summaries include proposal input and revisions, actor, state and timestamps. Agents cannot read proposal detail or make a decision.
+
+As owner, open the issue and choose **Correct grouping → Review agent grouping proposals**, or go to **Settings → Issue processing → Agent grouping proposals** for that project. Choose **Review proposal** to read the rationale, evidence and projected effects, then **Reject grouping proposal** or **Approve proposal and open preview**. Applying the correction or saving the rules is a separate action. See [operator corrections](OPERATOR-CORRECTIONS.md#grouping).
 
 ## MCP configuration
 

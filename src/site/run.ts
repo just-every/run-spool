@@ -10,7 +10,7 @@ export const run: RunData = {
 
 // Discover the latest stable tag when the command runs, as in the README.
 const findStableTag = String.raw`SPOOL_TAG=$(git ls-remote --refs --tags --sort=-version:refname ${run.repository}.git | awk '$2 ~ /^refs\/tags\/v[0-9]+\.[0-9]+\.[0-9]+$/ && !tag { sub("refs/tags/", "", $2); tag=$2 } END { if (tag) print tag }')`;
-export const releaseClone = `${findStableTag} && test -n "$SPOOL_TAG" && printf 'Installing Spool %s\\n' "$SPOOL_TAG" && git clone --branch "$SPOOL_TAG" --single-branch ${run.repository}.git run-spool`;
+export const releaseClone = `${findStableTag} && test -n "$SPOOL_TAG" && printf 'Installing Spool %s\\n' "$SPOOL_TAG" && mkdir run-spool && git init -q run-spool && git -C run-spool remote add origin ${run.repository}.git && git -C run-spool fetch --no-tags origin "refs/tags/$SPOOL_TAG:refs/tags/$SPOOL_TAG" && git -C run-spool checkout --quiet --detach "refs/tags/$SPOOL_TAG^{commit}"`;
 export const releaseInstall = `${releaseClone} && (cd run-spool && curl -fsSL https://runeditrun.com/install.sh | sh -s -- dev --host localhost)`;
 
 export function withReleaseInstall(html: string) {

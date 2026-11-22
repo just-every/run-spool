@@ -4,6 +4,8 @@ These are owner workbench operations, independently authorized by every route an
 
 ## Grouping
 
+In the workbench, open an issue and choose **Correct grouping → Review agent grouping proposals**. The same review panel is under **Settings → Issue processing → Agent grouping proposals**. Open the proposal to review the rationale and expected changes. Reject it or approve it to open the preview. Apply the reviewed correction or save the rules to change grouping.
+
 An exact-project agent grant may submit one inert proposal with `POST /api/projects/:project/grouping-proposals` and read safe summaries with `GET` on that exact route. Each submission is bounded, scrubbed and attributed by the service as `proposed by agent <alias>`. The input compares stack/release/route variants with a rationale and received-time window, plus either a split's event IDs, a merge's target revision, or a versioned future-capture rule policy. Current source and relevant target/policy revisions fence the review. This exception grants no wider evidence access, operator identity or grouping authority; TEAM-001 roles are not implemented by these aliases.
 
 Only the owner reads `GET .../grouping-proposals/:id` with its full explanation, affected occurrences, counterexamples and alert/rate/repair implications. The owner uses `POST .../:id/approve` or `POST .../:id/reject` with `{}` after review. Submitting a proposal changes no group, policy, alert, delivery or repair result. Approval is an explicit owner action; agent credentials cannot approve, reject, apply or undo. Use the existing correction/policy owner flows for the resulting change and preserved history. See [agent setup and proposal JSON](WITH-YOUR-AGENT.md#propose-a-grouping-correction).

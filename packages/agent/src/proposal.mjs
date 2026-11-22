@@ -34,7 +34,7 @@ export const proposalSchema = {
     target: identity, targetRevision: revision,
     policy: { type: 'object', properties: { version: { type: 'integer', enum: [1] }, stack: { type: 'string', maxLength: 16000, description: 'Spool stack rule language; empty when unused.' }, fingerprint: { type: 'string', maxLength: 16000, description: 'Spool fingerprint rule language; empty when unused.' } }, required: ['version', 'stack', 'fingerprint'], additionalProperties: false },
     policyRevision: revision,
-    variants: { type: 'array', minItems: 1, maxItems: 20, items: { type: 'object', properties: { stack: { type: 'string', maxLength: 4000, description: 'JSON.stringify of the packet event frames.' }, release: { type: 'string', maxLength: 200 }, route: { type: 'string', maxLength: 500, description: 'Sanitized Sentry transaction/request URL, or empty when unavailable.' } }, required: ['stack', 'release', 'route'], additionalProperties: false } },
+    variants: { type: 'array', minItems: 1, maxItems: 20, items: { type: 'object', properties: { stack: { type: 'string', maxLength: 4000, description: 'JSON.stringify of packet.events[i].event.frames.' }, release: { type: 'string', maxLength: 200 }, route: { type: 'string', maxLength: 500, description: 'Sanitized Sentry transaction/request URL, or empty when unavailable.' } }, required: ['stack', 'release', 'route'], additionalProperties: false } },
     rationale: { type: 'string', minLength: 1, maxLength: 2000 },
     window: { type: 'object', description: 'Received-time Unix milliseconds; positive duration, at most 31 days.', properties: { start: { type: 'integer', minimum: 0 }, end: { type: 'integer', minimum: 0 } }, required: ['start', 'end'], additionalProperties: false },
   },

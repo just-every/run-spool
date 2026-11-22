@@ -108,7 +108,9 @@ export async function portability(db: D1Database, safeAudit = true, migrationPro
 export async function archiveStream(service: any): Promise<ReadableStream<Uint8Array>> {
  const id = await service.exports.create();
  try {
-  while ((await service.exports.advance(id, { maxParts: 16 })).phase === 'building') {}
+  // A one-shot download uses the checksum in its closing record. Avoid
+  // reading and rewriting every part ahead of the actual download.
+  while ((await service.exports.advance(id, { maxParts: 16 }, { includeOrderedHash: false })).phase === 'building') {}
   const reader = (await service.exports.download(id)).getReader();
   let ended = false;
   const cleanup = async () => { if (!ended) { ended = true; await reader.cancel(); await service.exports.abort(id); } };

@@ -10,10 +10,11 @@ For `spike`, `release` is null, `rule` is `{id, revision}`, and `window` is `{st
 
 ## Manage email destinations
 
-1. Select your project, open **Alerts → Rules**, and enter a **Destination name** and **Destination email**. Choose **Add destination**. No server settings or redeploy is needed.
-2. Choose **Test <name>** and check the mailbox. Hosted Spool reports provider acceptance, not confirmed receipt. Local development suppresses mail and says so explicitly. Tests are limited to one per destination per minute.
-3. Create a rule below, select that destination and choose its alert events. New issues and later-release regressions send after capture; volume spikes use the minute scheduler.
-4. To change the address, choose **Edit <name>**, update it and choose **Save destination**. Its rules move to a new revision. Queued sends to the old address stop; an already executing send cannot be retracted. Test the new address.
+1. Select your project and open **Alerts → Rules → Manage destinations and rules**. In **Alert destinations**, enter a **Destination name** such as **On-call team** and a **Destination email**, then choose **Add destination**. This uses the installation's existing mail configuration.
+2. Choose **Test On-call team** (the button uses your destination name). On a hosted installation, Spool reports provider acceptance. Check the mailbox to confirm receipt. Local development reports that mail was suppressed. Tests are limited to one per destination per minute.
+3. After checking the passing result, choose **Review passing test for On-call team**. This records your review and lets you enable rules that use the destination.
+4. In **Create rule**, name the rule, select the destination and choose its alert events. For regression-only email, select just **Regression**. Choose **Preview rule**, review the matches, then choose **Create rule** with **Enabled** checked. New issue and regression alerts send after capture. Volume spikes use the minute scheduler.
+5. To change the address, choose **Edit** on the destination, update it and choose **Save destination**. Its rules move to a new revision and are disabled. Queued sends to the old address stop. A send already in progress cannot be retracted. Test the new address and review the passing result before previewing and re-enabling its rules.
 
 Email destinations are private, project-scoped installation configuration (up to 20 per project). Only the signed-in owner can read or change their addresses. They are excluded from archives and erased with the project. After restore, add destinations again, select them in the restored rules and enable those rules. Mail uses this installation’s existing provider and sender. A blocked message names missing installation configuration.
 

@@ -10,6 +10,7 @@ import { retentionPreview, retentionWindows } from '../retention-policy';
 import { findDestination, destinationChoices } from '../alerts/destinations.server';
 import { type AlertEnvironment } from '../alerts/types';
 import { internalRecipient } from './people';
+import { missingVariantStack } from '../proposals/input';
 
 type Args=Record<string,any>;
 export const standard=():ClassAndFacts[]=>[{class:'standard',facts:{measure:1}}];
@@ -61,6 +62,10 @@ export function spoolTools(env:Bindings):ToolDefinition[] {
    target:(a,c)=>spoolTarget(env,route,a,c),
    async classify(a,c){
     if(!readOnly)await authorizeNative(env,route,method,a,c);
+    if(route==='proposals'&&!readOnly){
+     const field=missingVariantStack(a.variants);
+     if(field)throw new ToolRefusal('invalid_arguments','Missing required field',{field});
+    }
     if(route==='erasure-resume'){if(c.person.role!=='owner')throw new ToolRefusal('not_found');const row=await env.DB.prepare("SELECT 1 FROM rer_erasure_operations WHERE id=? AND entity='project'").bind(a.id).first();if(!row)throw new ToolRefusal('not_found');return [{class:'destructive',facts:{measure:1}}];}
     if(route==='witness'){await nativeWitness(env,a,c);return standard();}
     if(route==='access-member'){const authority=await authorize(a,c);return [{class:'access',facts:{measure:1,direction:authority.widens?'widens':'narrows'}}];}
