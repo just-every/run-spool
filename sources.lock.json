@@ -3014,7 +3014,7 @@
       "executable": false
     },
     "docs/HOSTED.md": {
-      "sha256": "ee7e7a52e9968313336ec5d6968552ff5995487f934cabcccd2e1917861258d8",
+      "sha256": "a8e43f7cf83266de83d7116c33231b67d7493fd81a9a4656585bde5c7fedad91",
       "executable": false
     },
     "docs/IMPORT-READS.md": {
@@ -3730,7 +3730,7 @@
       "executable": false
     },
     "docs/SENTRY-SWITCHING.md": {
-      "sha256": "e38f896b8765af0be8f02bb6d5bad4fa18e14cfb96f75808bd89bd94850eb2bf",
+      "sha256": "7437b1bf5178ef438ca49b4cda28ab30ecee13240ecc07b88b05e69a19ea37f1",
       "executable": false
     },
     "docs/SHORT-IDS.md": {
