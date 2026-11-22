@@ -4225,6 +4225,10 @@
       "sha256": "ac376bab41482b5e9fab36498f1fd1569adae3d01f27e3e4fd45613eff8e2a44",
       "executable": false
     },
+    "migrations/core/0115_local_owner_passkeys.sql": {
+      "sha256": "3e362424f96710b3f0870aa5068b381ec607ecb7570531d729d5b31c16c50a64",
+      "executable": false
+    },
     "ONBOARDING.md": {
       "sha256": "2b201e837e3caa66d4181b8955360372cd215f8288c108a81c383146a5806467",
       "executable": false
@@ -4455,6 +4459,10 @@
     },
     "public/fonts/zilla-slab-latin-700-normal.woff2": {
       "sha256": "e7164ba121877a43c5346ed4a1ff1d79db1e47c742839653db30635bae86d171",
+      "executable": false
+    },
+    "public/local-passkey-sign-in.js": {
+      "sha256": "012855095ac7856eca826f6e87b3590c9756abdb0a38d5568c38db75a419d910",
       "executable": false
     },
     "public/rer-theme.css": {
@@ -5483,6 +5491,18 @@
     },
     "src/auth/oidc-presentation.server.ts": {
       "sha256": "3c05ca03d1b8a4b543dec17aa43d0f1b541086830643ef438bb8ab3f6e1604cb",
+      "executable": false
+    },
+    "src/auth/passkeys/challenge.server.ts": {
+      "sha256": "ff8ec6145de47d78a5ac116c4154a7c113b486b4d9cabf20303ff997dfe3cf86",
+      "executable": false
+    },
+    "src/auth/passkeys/door.server.ts": {
+      "sha256": "cd33a84d6bea24a779845f1faad3fa251aec41bda9b9d420eb6255c5eb32d82e",
+      "executable": false
+    },
+    "src/auth/passkeys/store.server.ts": {
+      "sha256": "d2ca5db61b417ed9bd0271f21de4be544c970d50beb29536a998959060d369a5",
       "executable": false
     },
     "src/auth/private-runtime.server.ts": {
@@ -10657,6 +10677,10 @@
       "sha256": "5495573a3407e82d6b62bfe05cab97bf7cf0c6188ac1e5b11e78a0d97367e5db",
       "executable": false
     },
+    "src/ui/workbench/LocalPasskeySettings.tsx": {
+      "sha256": "ec93e2c5c6d0b22293198d160b4887087dd3a27451f6d3ad0331f19c5a5e8d87",
+      "executable": false
+    },
     "src/ui/workbench/location.ts": {
       "sha256": "66d0bc1550a55d2cd170a82faa47cfa7a8471dcabe50d8aee498be843e72b365",
       "executable": false
@@ -11499,6 +11523,10 @@
     },
     "tests/loader-upgrade.mjs": {
       "sha256": "8985173ca4071575be22a354d43e6ee6796eba0f045779ef8fa0a6c587ef3f46",
+      "executable": false
+    },
+    "tests/local-passkey.mjs": {
+      "sha256": "5dc62d6cd060523702f986b195a429088869b8aeae3442136e19214d2b957912",
       "executable": false
     },
     "tests/local-runtime.mjs": {
