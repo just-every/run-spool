@@ -1,5 +1,39 @@
 # Changelog
 
+## 0.7.21 — 2026-11-22
+
+Spool 0.7.21 fixes the owner sign-in link on a fresh local install, accepts short issue IDs in agent proposals and makes private archive downloads easier to recover.
+
+### What changed
+
+- **Reach owner sign-in after a fresh local install.** Spool uses rer 0.2.130, which fixes the macOS Chromium readiness failure that could stop a cold start before rer printed the private owner link.
+- **Use short issue IDs in agent proposals.** The CLI and HTTP API accept the short ID shown in the issue’s evidence packet. Spool resolves it within the project authorized by the agent key.
+- **See and control private archive downloads.** Settings shows when Spool is preparing or receiving the archive. Cancel while it is in progress, or retry after a cancellation, timeout or network failure.
+- **Supply the owner name on a first hosted deploy.** The Hosting guide explains how to pass `--owner-name "Your name"` when you skip local setup. Deploys from a checkout with local setup use the saved display name.
+- **See the same privacy policy before installing and creating a project.** The homepage and first-project notice explain that Spool scrubs emails, tokens and passwords from error text and keeps separate user IDs, emails, usernames and IP addresses sent by Sentry clients by default. The setup notice links to the policy for keeping, hashing or dropping those fields.
+
+### Updating
+
+If you are updating from 0.7.20, back up first. Download a private archive in Settings, or stop local dev and run `rer export --output exports/spool.jsonl`. On main, run `git pull --ff-only` and `rer dev --host localhost`. From a tagged checkout, run `git fetch --tags && git checkout v0.7.21` and `rer dev --host localhost` once v0.7.21 is published. For a hosted installation, follow the update steps in docs/HOSTED.md from the original deploying checkout. All 110 core SQL migrations are byte-identical to v0.7.20. There are no new migrations or breaking changes. Keep the existing database, private settings, project keys and deployment receipt. Import private archives only into an empty destination. Spool pins rer to 0.2.130. To turn hosted mail off, select `MAIL_PROVIDER=none`, leave sending credentials empty and remove any previously bound sending secrets as described in docs/HOSTED.md. Keep the original deployment credentials and ownership receipt for guarded `rer signin` access. The Spool SDK has its own release process.
+
+### Known limits
+
+- Transaction measurements retain bounded observations. Spool does not store spans, transaction tags or request data.
+- Imported rules that target issue owners stay disabled because they require native ownership rules. Rules that use Sentry’s unsupported `EventAttributeCondition` also stay disabled. The import names each skipped rule and its reason. Issue-owner notification selection uses its explicit fallback until verified issue ownership is available. Live provider delivery needs separate qualification. Deliberately mail-off hosted installations send no sign-in links, invitations or email alerts.
+- Passkey enrollment and sign-in are available to the local owner on `localhost`. Keep the private terminal sign-in link as a recovery option.
+- Local development sends no email. Email verification for ownership transfer remains unavailable there; only an owner session opened through the local access link uses local confirmation.
+- Browser restore is limited to 16 MiB. Use the CLI for larger current JSONL archives. Legacy JSON uploads over 16 MiB are refused and can end in a connection reset after the restore engine has begun reading.
+- Agent setup requires an owner to save all six policy answers, choose Yes or No for paid AI and create a project agent key. The agent CLI runs from a Spool checkout; it is not an npm-published package. Local agent calls also require the private dev gate described in the panel.
+- Erasing the owner is held while other stored agent text contains a different address that ends with the owner's address. The erasure match is case-sensitive.
+- Before the first project is created, opening a missing project URL as the owner redirects to setup instead of showing a not-found page.
+- Retained hosted archives still require separate Managed-to-native release qualification. If an archive is refused with `schema_mismatch`, restore into the release you exported from. Retrying a cut-off hosted restore can be refused until its five-minute lease expires; wait before retrying.
+- Bugsnag and Rollbar imports remain bounded to 2 MiB and 500 records. The Sentry organization import accepts up to 1,000 parsed records including its manifest, within 2 MiB, and the import door has separate request limits. Larger migrations, real-account migration and live provider delivery remain unqualified.
+- End-user erasure matches supported retained identities and attributable captured copies. Unknown aliases, partial identifiers, grouping-sensitive text, exception/stack/context copies, anonymous aggregates and external copies remain outside its matcher. Consented feedback contact, screenshots and replies are not matched by that contact; the owner must withdraw the report in the feedback inbox. Deleting matching events also deletes feedback attached to those exact occurrences.
+
+Product screenshot: .github/assets/release/spool-issue-page-1600.png
+
+Release notes by Run Edit Run fleet, 2026-11-22 (UTC).
+
 ## 0.7.20 — 2026-11-22
 
 Spool 0.7.20 keeps supported JavaScript errors grouped through source-map stamping, shows progress during private archive downloads and makes hosted setup and agent handoff easier to follow.
