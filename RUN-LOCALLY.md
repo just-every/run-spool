@@ -8,6 +8,8 @@ its local owner and starts development:
 curl -fsSL https://runeditrun.com/install.sh | sh -s -- dev just-every/run-spool
 ```
 
+A first local start usually takes about a minute. On a busy computer it can take longer: `rer dev` prints progress every 20 seconds, with the limit to allow.
+
 Already have Node 22 or later? `npx -y @runeditrun/rer dev just-every/run-spool`
 does the same. Set up only: `npx -y @runeditrun/rer setup just-every/run-spool`.
 rer supplies Node 22.20.0 and pnpm 10.12.4 for this checkout. From a runnable

@@ -2662,7 +2662,7 @@
       "executable": false
     },
     "CHANGELOG.md": {
-      "sha256": "af0dba0b6d492aa2fe27c44095c55ac42cc20a13b84837de478092ee115cbeb6",
+      "sha256": "ff39b5645482243c2d40972e45e52d4901664ca762eef5de38ea1ce2ee6a3365",
       "executable": false
     },
     "CLAUDE.md": {
@@ -3002,7 +3002,7 @@
       "executable": false
     },
     "docs/getting-started.md": {
-      "sha256": "8b8d11b7f40955470e1ae485e603b29193ab0ebc4290399e3b9829b9922baedf",
+      "sha256": "bfcbbf5c15c77dd73fc2052ae2624d7269a23a30a9d2f2a6c9413e06eada4e9a",
       "executable": false
     },
     "docs/GITHUB-CONNECTION.md": {
@@ -3014,7 +3014,7 @@
       "executable": false
     },
     "docs/HOSTED.md": {
-      "sha256": "f716cc08d19c6018dee56d9ff9f95078c57b204dab084954c7064f7b23904bbe",
+      "sha256": "a6075c0c59c8116a3bfc007ba37b1722d3885659b2462aa8bed024daab021dcd",
       "executable": false
     },
     "docs/IMPORT-READS.md": {
@@ -3026,7 +3026,7 @@
       "executable": false
     },
     "docs/install.md": {
-      "sha256": "d8ce2995697559402f297751c284a1dc6488ee0e75ed908fa0430e29e02af373",
+      "sha256": "0846ab148a503430ba5ee0deb6bf4aff342472002f8d8c87f4d6c4fe123a4c71",
       "executable": false
     },
     "docs/INTEGRATION-EGRESS.md": {
@@ -4246,7 +4246,7 @@
       "executable": false
     },
     "package.json": {
-      "sha256": "a91328e57eec477832f44ea0696cc219d3bfc5308d406d59255a91419f96738f",
+      "sha256": "8220ec04a3c0aca5765252618c96df3550c6f45a59ec4f06bb483c82aa3bb4ea",
       "executable": false
     },
     "packages/agent/bin/spool-agent.mjs": {
@@ -4418,7 +4418,7 @@
       "executable": false
     },
     "pnpm-lock.yaml": {
-      "sha256": "685b9e2e6873f2c4f80345674bfdb24a8dac346ceb967f4c19308ed3865390f2",
+      "sha256": "0523204c7673fd50f554622500bfc660dd60c9706fb4fb11c83985894a3231cd",
       "executable": false
     },
     "pnpm-workspace.yaml": {
@@ -4538,7 +4538,7 @@
       "executable": false
     },
     "README.md": {
-      "sha256": "a0729268962223abe7f4f4248e18e903b5729d167fe15d791542ed1a5b5ea110",
+      "sha256": "051ad99e615f36d38083ad55e4df614b3ababb15a482d3b34e4bd642d4d26625",
       "executable": false
     },
     "release-history/0.6.0.json": {
@@ -4574,11 +4574,11 @@
       "executable": false
     },
     "RELEASE.json": {
-      "sha256": "ecac6bc0c570451e938c1ae43fb14961557c1d83fa5069f721efc296283f0a53",
+      "sha256": "e80061f161ea69a78a47f5d377147be8add052cb3964992e50508b3403ab58fc",
       "executable": false
     },
     "RELEASE.md": {
-      "sha256": "e175c34f6fb6dd4fad7a19d90c89b54a49d6464f6225daef59378bf2614077e0",
+      "sha256": "e7fd0a0139842d644dd9df8f2cdf714ff05ac0e61bfa4000d32619ff4f5b0891",
       "executable": false
     },
     "rer-project.json": {
@@ -4594,7 +4594,7 @@
       "executable": false
     },
     "RUN-LOCALLY.md": {
-      "sha256": "25ad217ef94d3bdde6e5fc420d394ddb93549992993227da5a8983d4ca17730f",
+      "sha256": "6ce6eddb795f7e0d4b75365bef1ac945e0d0f0b2c67ec2a7c7c5004a0672b3e5",
       "executable": false
     },
     "scripts/agent-door/surface.mjs": {
@@ -10266,7 +10266,7 @@
       "executable": false
     },
     "src/site/run.ts": {
-      "sha256": "9f12ccb5b85ec3a4b635fdb5b786c4180569729b764336a9a1a99dac1537a80f",
+      "sha256": "a0cc75da7bdaa71f2fafebf9f9bb4a0a1df0e2add4ea84460fcf1cbecd6d7de1",
       "executable": false
     },
     "src/site/site.css": {

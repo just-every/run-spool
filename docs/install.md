@@ -2,6 +2,8 @@
 
 Open a terminal on macOS or Linux, or inside WSL2 on Windows. Copy the install command under **Run it yourself** on the [Run page](https://run-spool.com/run). It finds the latest stable release, clones it into `run-spool` and starts Spool. Git is required. The installer supplies Node and pnpm.
 
+A first local start usually takes about a minute. On a busy computer it can take longer: `rer dev` prints progress every 20 seconds, with the limit to allow.
+
 Open the private `RER_OPEN` link printed in your terminal and keep it private. Name this installation and create your first project. You can change the installation name later in **Settings → General** and your own name or email in **Settings → Members**.
 
 To start Spool again, run `cd run-spool && ~/.local/bin/rer dev --host localhost`. To stop it, run `~/.local/bin/rer dev --stop`. Starting with Spool 0.7.18, on localhost choose **Settings → General → Local passkey → Add passkey** to enable passkey sign-in for the owner.

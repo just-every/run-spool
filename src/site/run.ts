@@ -1,4 +1,4 @@
-import { escape, pipelines, runPageHtml, startLine, type RunData } from '../base/run-site';
+import { escape, PATHS, pipelines, runPageHtml, startLine, type RunData } from '../base/run-site';
 import type { SeedContract } from '../base/seed-contract.mjs';
 import { identity } from '../identity';
 import { runPricing } from '../base/run-pricing';
@@ -25,5 +25,6 @@ export function spoolRunPage(contract?: SeedContract) {
  return withReleaseInstall(runPageHtml(identity, { ...run, leadLine: 'Install the latest stable Spool release on your computer.' }, contract))
   .replaceAll('>rer installs itself<', '>Clones Spool<')
   .replaceAll('>Gets Spool<', '>Installs rer<')
+  .replaceAll(escape(PATHS.self.note), 'A first local start usually takes about a minute. On a busy computer it can take longer: <code>rer dev</code> prints progress every 20 seconds, with the limit to allow.')
   .replace(/<details class="other-ways">.*?<\/details>/, () => details);
 }

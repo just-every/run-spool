@@ -4,7 +4,7 @@ Spool 0.7.21 fixes the owner sign-in link on a fresh local install, accepts shor
 
 ### What changed
 
-- **Reach owner sign-in after a fresh local install.** Spool uses rer 0.2.130, which fixes the macOS Chromium readiness failure that could stop a cold start before rer printed the private owner link.
+- **Reach owner sign-in after a fresh local install.** Spool uses rer 0.2.131, which fixes the macOS Chromium readiness failure and shows startup progress while the private owner link is getting ready.
 - **Use short issue IDs in agent proposals.** The CLI and HTTP API accept the short ID shown in the issue’s evidence packet. Spool resolves it within the project authorized by the agent key.
 - **See and control private archive downloads.** Settings shows when Spool is preparing or receiving the archive. Cancel while it is in progress, or retry after a cancellation, timeout or network failure.
 - **Supply the owner name on a first hosted deploy.** The Hosting guide explains how to pass `--owner-name "Your name"` when you skip local setup. Deploys from a checkout with local setup use the saved display name.
@@ -12,7 +12,7 @@ Spool 0.7.21 fixes the owner sign-in link on a fresh local install, accepts shor
 
 ### Updating
 
-If you are updating from 0.7.20, back up first. Download a private archive in Settings, or stop local dev and run `rer export --output exports/spool.jsonl`. On main, run `git pull --ff-only` and `rer dev --host localhost`. From a tagged checkout, run `git fetch --tags && git checkout v0.7.21` and `rer dev --host localhost` once v0.7.21 is published. For a hosted installation, follow the update steps in docs/HOSTED.md from the original deploying checkout. All 110 core SQL migrations are byte-identical to v0.7.20. There are no new migrations or breaking changes. Keep the existing database, private settings, project keys and deployment receipt. Import private archives only into an empty destination. Spool pins rer to 0.2.130. To turn hosted mail off, select `MAIL_PROVIDER=none`, leave sending credentials empty and remove any previously bound sending secrets as described in docs/HOSTED.md. Keep the original deployment credentials and ownership receipt for guarded `rer signin` access. The Spool SDK has its own release process.
+If you are updating from 0.7.20, back up first. Download a private archive in Settings, or stop local dev and run `rer export --output exports/spool.jsonl`. On main, run `git pull --ff-only` and `rer dev --host localhost`. From a tagged checkout, run `git fetch --tags && git checkout v0.7.21` and `rer dev --host localhost` once v0.7.21 is published. For a hosted installation, follow the update steps in docs/HOSTED.md from the original deploying checkout. All 110 core SQL migrations are byte-identical to v0.7.20. There are no new migrations or breaking changes. Keep the existing database, private settings, project keys and deployment receipt. Import private archives only into an empty destination. Spool pins rer to 0.2.131. To turn hosted mail off, select `MAIL_PROVIDER=none`, leave sending credentials empty and remove any previously bound sending secrets as described in docs/HOSTED.md. Keep the original deployment credentials and ownership receipt for guarded `rer signin` access. The Spool SDK has its own release process.
 
 ### Known limits
 

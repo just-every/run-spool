@@ -45,6 +45,8 @@ macOS, Linux or Windows with WSL2. git is required; rer brings Node and pnpm. Th
 SPOOL_TAG=$(git ls-remote --refs --tags --sort=-version:refname https://github.com/just-every/run-spool.git | awk '$2 ~ /^refs\/tags\/v[0-9]+\.[0-9]+\.[0-9]+$/ && !tag { sub("refs/tags/", "", $2); tag=$2 } END { if (tag) print tag }') && test -n "$SPOOL_TAG" && printf 'Installing Spool %s\n' "$SPOOL_TAG" && git clone --branch "$SPOOL_TAG" --single-branch https://github.com/just-every/run-spool.git run-spool && (cd run-spool && curl -fsSL https://runeditrun.com/install.sh | sh -s -- dev --host localhost)
 ```
 
+A first local start usually takes about a minute. On a busy computer it can take longer: `rer dev` prints progress every 20 seconds, with the limit to allow.
+
 The installer puts rer in `~/.local/bin` and leaves your shell profile unchanged. The commands below use its full path and work in a fresh terminal. To also use the shorter `rer` command in this terminal:
 
 ```sh
