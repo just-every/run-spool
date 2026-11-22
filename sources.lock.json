@@ -11306,7 +11306,7 @@
       "executable": false
     },
     "tests/commands.mjs": {
-      "sha256": "29d7c20f4ce887bc5b9d4a2cb8c22ff1acac5b3de4ef8695bb107451f9bf211e",
+      "sha256": "d30396ab10c88673a2b2d3e28e0d2926e86de98533f504173e548b91530fe3f8",
       "executable": false
     },
     "tests/demo-capture.mjs": {

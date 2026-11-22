@@ -143,7 +143,6 @@ const put=(path,value)=>writeFile(resolve(root,path),value,{mode:0o600});
  const localhost = 'http://localhost:15530';
  const mobileDev=await ready(['dev','--foreground','--host','localhost','--port','15530'],localhost);browser=await launchBrowser();
  await firstProjectJourney(browser,localhost,390);
- diagnostics.stage('local-passkey');
  const openUrl=(await get('.rer/local/open-url')).trim();
  await localPasskeyJourney(browser,localhost,openUrl,390);
  const resumedCookies=await previewOwnerSession(localhost,parseEnv(await get('.dev.vars')).SESSION_SECRET);mobileDev.child.kill('SIGINT');assert.equal((await mobileDev.closed).code,130);
@@ -154,5 +153,5 @@ const put=(path,value)=>writeFile(resolve(root,path),value,{mode:0o600});
  assert.equal((await (await resumed.request.get(previewOrigin+'/api/projects')).json()).length,1);
  await resumed.close();await browser.close();browser=null;await command(['preview','--stop']);assert.equal((await mobileRestart.closed).code,0);
  diagnostics.stage('complete');
- console.log('Spool README commands passed: fresh-clone package bootstrap and contract omission, frozen install, setup failure/resume and owner preservation, foreground dev/preview, independent fresh setup/form completion and no-JS sign-in at 1440/390, ordinary owner session in production preview after restart, active reset refusal, validated CLI portability, reset/fresh owner, deploy dry-run.');
+ console.log('Spool README commands passed: fresh-clone package bootstrap and contract omission, frozen install, setup failure/resume and owner preservation, foreground dev/preview, independent fresh setup/form completion and no-JS sign-in at 1440/390, localhost passkey enrollment and sign-in, ordinary owner session in production preview after restart, active reset refusal, validated CLI portability, reset/fresh owner, deploy dry-run.');
 }catch(error){failure=diagnostics.failure(error);}finally{await finishJourney(diagnostics,failure,browser,checkout);}
