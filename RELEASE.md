@@ -1,21 +1,15 @@
-# Spool 0.7.22
+# Spool 0.7.23
 
-Spool 0.7.22 makes it easier to submit and review grouping proposals, set up email alerts and download private archives.
+Spool 0.7.23 clarifies what Spool retains when you switch from Sentry and how to recover a first Cloudflare deploy.
 
 ### What changed
 
-- **Build a grouping proposal from retained evidence.** The agent guide shows how to create a split from a packet and serialize `packet.events[i].event.frames` as the stack citation. The API and agent CLI identify a missing citation by its field, such as `variants[0].stack`.
-- **Find proposal review from the issue.** Owners can open **Correct grouping → Review agent grouping proposals** or find the same panel under **Settings → Issue processing**. Review the evidence and projected effects, then reject the proposal or approve it to open a preview. Applying a correction or saving a rule is a separate action.
-- **Find email destinations and rules.** Open **Alerts → Rules → Manage destinations and rules** to add a destination and review its passing test before enabling a rule. The guide walks through a regression-only email rule and explains how to re-enable rules after changing an address.
-- **Start private archive downloads sooner.** A one-shot download skips a separate checksum pass before streaming. The archive still carries its content checksum in the closing record.
-- **Install the latest stable tag without Git’s detached HEAD advice.** The Run page, Hosting page and install guides fetch the selected tag and quietly check out its release commit. The hosted guide explains how to follow first-deploy migration progress before opening Spool.
-- **Finish the setup test before opening the workbench.** The continue action waits while Spool sends the test error and receives its result.
-- **Recognize a reopened issue.** Opening an issue from a regression alert shows **Reopened** in the issue badge and status picker.
-- **See current member access.** The Members list distinguishes pending invitations from active sign-ins, and opening **Manage access** refreshes the roster after someone accepts an invitation.
+- **Review what moves from Sentry before changing the DSN.** The switching guide lists the four user identity fields Spool keeps by default in new projects and shows where to set each field to **Keep**, **Hash** or **Drop**. It also describes the bounded, scrubbed diagnostics Spool retains and which request data it excludes.
+- **Retry a first Cloudflare deploy after `invalid-deployments`.** If Cloudflare has yet to list the uploaded Worker deployment, run the retry command printed by rer from the same checkout with the same environment, private settings file and Cloudflare credentials. rer reuses the Worker and D1 database it already created to finish verification and owner claim.
 
 ### Updating
 
-If you are updating from 0.7.21, back up first. Download a private archive in Settings, or stop local dev and run `rer export --output exports/spool.jsonl`. On main, run `git pull --ff-only` and `rer dev --host localhost`. From a tagged checkout, run `git fetch --tags && git checkout --quiet --detach 'refs/tags/v0.7.22^{commit}'` and `rer dev --host localhost` once v0.7.22 is published. For a hosted installation, follow the update steps in docs/HOSTED.md from the original deploying checkout. All 110 core SQL migrations are byte-identical to v0.7.21. There are no new migrations or breaking changes. Keep the existing database, private settings, project keys and deployment receipt. Import private archives only into an empty destination. Spool pins rer to 0.2.131. To turn hosted mail off, select `MAIL_PROVIDER=none`, leave sending credentials empty and remove any previously bound sending secrets as described in docs/HOSTED.md. Keep the original deployment credentials and ownership receipt for guarded `rer signin` access. The Spool SDK has its own release process.
+If you are updating from 0.7.22, back up first. Download a private archive in Settings, or stop local dev and run `rer export --output exports/spool.jsonl`. On main, run `git pull --ff-only` and `rer dev --host localhost`. From a tagged checkout, run `git fetch --tags && git checkout --quiet --detach 'refs/tags/v0.7.23^{commit}'` and `rer dev --host localhost` once v0.7.23 is published. For a hosted installation, follow the update steps in docs/HOSTED.md from the original deploying checkout. All 110 core SQL migrations are byte-identical to v0.7.22. There are no new migrations or breaking changes. Keep the existing database, private settings, project keys and deployment receipt. Import private archives only into an empty destination. Spool pins rer to 0.2.131. To turn hosted mail off, select `MAIL_PROVIDER=none`, leave sending credentials empty and remove any previously bound sending secrets as described in docs/HOSTED.md. Keep the original deployment credentials and ownership receipt for guarded `rer signin` access. The Spool SDK has its own release process.
 
 ### Known limits
 
