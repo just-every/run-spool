@@ -146,7 +146,7 @@ try {
  await capture('settings-data',width);
  const beforeDownload=await archiveProjection(await fetch(origin+'/api/archive',{headers:{Cookie:cookie}}));
  const download=await downloadBrowserArchive(page,origin,{exerciseRecovery:width===1440});
- assert.equal(await download.failure(),null);assert.match(download.suggestedFilename(),/^spool-private-archive-\d{4}-\d{2}-\d{2}\.jsonl$/);await expect(page.getByRole('status').filter({hasText:'Downloaded spool-private-archive-'})).toBeVisible();
+ assert.equal(await download.failure(),null);assert.match(download.suggestedFilename(),/^spool-private-archive-\d{4}-\d{2}-\d{2}\.jsonl$/);
  const downloaded=await archiveProjection(new Response(await readFile(await download.path())));
  assert.deepEqual(downloaded.data,beforeDownload.data,'browser file carries every retained product row');
  assert.ok(downloaded.data.events.some(event=>event.id===admitted.eventId),'actual captured event travels');

@@ -11246,7 +11246,7 @@
       "executable": false
     },
     "tests/archive-download-ui.mjs": {
-      "sha256": "0a8f76ca0c3e2e0edb38ac5d2c80d2b5cfde531bd8ae52855ede723b2baaa701",
+      "sha256": "01fd3e30b67d911d51235583fe1eec704dcfc98adb7bd2c5c11d548429c87194",
       "executable": false
     },
     "tests/archive.mjs": {
@@ -12210,7 +12210,7 @@
       "executable": false
     },
     "tests/triage-journey.mjs": {
-      "sha256": "e5638371b377f066ed149981a33c573fa54436ed59c0151e51e1df5ba1143852",
+      "sha256": "8dc9dafeeede0a8cbb6293583937f7b51f23447ff0e66d3ce104eb97362e678c",
       "executable": false
     },
     "tests/tunnel-flow.mjs": {
