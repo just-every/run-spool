@@ -1,18 +1,19 @@
-# Spool 0.7.19
+# Spool 0.7.20
 
-Spool 0.7.19 keeps the public install commands on the latest stable release and improves first start on localhost, mobile agent handoff and release labels on issue details.
+Spool 0.7.20 keeps supported JavaScript errors grouped through source-map stamping, shows progress during private archive downloads and makes hosted setup and agent handoff easier to follow.
 
 ### What changed
 
-- **Install the latest stable release.** The Run page and Getting Started guide find the newest stable tag on GitHub when you run the command, print the selected tag and start Spool on localhost. The hosted guide points to GitHub Releases for choosing a tagged checkout.
-- **Give local owner sign-in time to get ready.** Spool now pins rer 0.2.129, which gives first-time Chromium provisioning a separate readiness budget and lets Chromium use a separate home directory for isolated runs. This helps the first launch and a fresh restore destination reach the local owner sign-in link.
-- **Read agent setup commands on a phone.** Long paths, including the Node path, wrap inside the agent handoff dialog at 390px.
-- **Identify the occurrence shown on a regressed issue.** The issue summary labels the displayed occurrence’s release and environment separately from the regression badge. Occurrences without a release show “No release.”
-- **Restore more eligible hosted archives.** For legacy archives with a complete schema inventory, Spool can match migrations recorded in lexical filename order to a verified applied prefix and replay them in the destination’s order.
+- **Keep the same issue when you stamp a source map.** Spool can group a native JavaScript error with its earlier occurrence when SDK debug-ID stamping shifts the generated line and Spool can confirm the match from recorded evidence. The fix applies to new occurrences.
+- **See when an archive is being prepared.** Settings announces “Preparing your archive…” while it prepares the private download, then shows the downloaded filename.
+- **Start hosting from the same stable release as the Run page.** The Cloudflare guide on the Hosting page uses the shared stable-tag selector. Supply Cloudflare credentials through your credential helper or shell environment and keep them out of the private deployment settings file.
+- **Find the agent handoff on the issue page.** Open **Fix with an AI coding assistant** in the evidence packet. For hosted Spool, the handoff explains where rer stores its Node executable, including when you set `XDG_DATA_HOME`.
 
 ### Updating
 
-From 0.7.18: Back up first. Download a private archive in Settings, or stop local dev and run `rer export --output exports/spool.jsonl`. From 0.7.18 on main, run `git pull --ff-only` and `rer dev --host localhost`. From a tag, run `git fetch --tags && git checkout v0.7.19` and `rer dev --host localhost` once that tag is published. For a hosted installation, follow the update steps in docs/HOSTED.md from the original deploying checkout. All 109 core SQL migrations are byte-identical to v0.7.18. There are no new migrations or breaking changes. Keep the existing database, private settings, project keys and deployment receipt. Import private archives only into an empty destination. Spool pins rer to 0.2.129. To turn hosted mail off, select `MAIL_PROVIDER=none`, leave sending credentials empty and remove any previously bound sending secrets as described in docs/HOSTED.md. Keep the original deployment credentials and ownership receipt for guarded `rer signin` access. This application release does not publish the Spool SDK.
+If you are updating from 0.7.19, back up first. Download a private archive in Settings, or stop local dev and run `rer export --output exports/spool.jsonl`. On main, run `git pull --ff-only` and `rer dev --host localhost`. From a tagged checkout, run `git fetch --tags && git checkout v0.7.20` and `rer dev --host localhost` once v0.7.20 is published. For a hosted installation, follow the update steps in docs/HOSTED.md from the original deploying checkout. All 109 core SQL migrations from 0.7.19 are byte-identical. One new migration applies on the next start or deploy. Keep the existing database, private settings, project keys and deployment receipt. Import private archives only into an empty destination. There are no breaking changes. Spool pins rer to 0.2.129. To turn hosted mail off, select `MAIL_PROVIDER=none`, leave sending credentials empty and remove any previously bound sending secrets as described in docs/HOSTED.md. Keep the original deployment credentials and ownership receipt for guarded `rer signin` access. The Spool SDK has its own release process.
+
+- `migrations/core/0116_stamp_grouping.sql` adds an index for matching native JavaScript stack locations before and after debug-ID stamping. Eligible older archives can still be restored into an empty installation.
 
 ### Known limits
 
