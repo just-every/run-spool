@@ -42,15 +42,16 @@ export async function expandMail(env:AlertEnvironment,intent:Intent,time:number)
  if(stored.message!==JSON.stringify(message)||stored.destination_hash!==digest)throw new Error('mail_identity_conflict');
 }
 export async function recoverMail(env:AlertEnvironment,time:number) {
+ if(!await s(env.DB,"SELECT 1 FROM alert_mail_jobs WHERE state='sending' AND claim_until<=? LIMIT 1",time).first())return;
  await env.DB.batch([
   s(env.DB,`UPDATE alert_mail_attempts SET finished=?,state='uncertain',code='claim_expired' WHERE finished IS NULL AND id IN(SELECT claim FROM alert_mail_jobs WHERE state='sending' AND claim_until<=?)`,time,time),
   s(env.DB,`UPDATE alert_mail_jobs SET state='uncertain',code='claim_expired',claim=NULL,claim_until=NULL WHERE state='sending' AND claim_until<=?`,time),
  ]);
 }
 // `only` limits a run to the given jobs; claims keep any concurrent run from sending the same job twice.
-export async function dispatchMail(env:AlertEnvironment,time:number,only?:string[],attribution?:MailAttribution) {
+export async function dispatchMail(env:AlertEnvironment,time:number,only?:string[],attribution?:MailAttribution,recovered=false) {
  const started=Date.now(),clock=()=>time+Date.now()-started;
- await recoverMail(env,time);
+ if(!recovered)await recoverMail(env,time);
  const jobs=(await s(env.DB,`SELECT j.*,i.rule_id,i.rule_revision,i.destination,i.channel FROM alert_mail_jobs j JOIN alert_intents i ON i.id=j.id WHERE i.state<>'snoozed' AND j.state='queued' AND j.next_at<=? AND (? IS NULL OR j.id IN (SELECT value FROM json_each(?))) ORDER BY j.next_at,j.id LIMIT 30`,time,only?JSON.stringify(only):null,only?JSON.stringify(only):null).all<any>()).results;
  for(const job of jobs) {
   if(await dispatchStanding(env as Bindings&AlertEnvironment,'alert-mail',job.id,clock))continue;
@@ -84,7 +85,7 @@ export async function dispatchMail(env:AlertEnvironment,time:number,only?:string
   const next=state==='queued'?finished+JSON.parse(job.retry_delays)[job.attempts]:null;
   await finishMail(env,job.id,claim,state,code,receipt,finished,next);
  }
- await recoverMail(env,clock());
+ if(jobs.length)await recoverMail(env,clock());
 }
 async function finishMail(env:AlertEnvironment,id:string,claim:string,state:string,code:string,receipt:string|null,time:number,next:number|null) {
  await env.DB.batch([

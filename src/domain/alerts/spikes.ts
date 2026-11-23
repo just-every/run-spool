@@ -9,9 +9,8 @@ import { configSql } from './preview';
 import { eligibleEvent,eventFilter,ruleConfig } from './filters';
 import { decision } from './measure';
 import { readIdentityPolicy,identityPolicyFence } from '../identities/policy';
-export async function evaluateSpikes(env:AlertEnvironment,time:number) {
- const cursor=await s(env.DB,'SELECT last_spike_rule FROM alert_scheduler WHERE id=1').first<{last_spike_rule:string}>();
- const rules=(await s(env.DB,`SELECT r.*,${configSql} config,c.next_start FROM alert_rules r JOIN alert_cursors c ON c.rule_id=r.id AND c.revision=r.revision WHERE r.enabled=1 AND c.next_start+r.window_ms<=? ORDER BY CASE WHEN r.id>? THEN 0 ELSE 1 END,r.id LIMIT 20`,time,cursor?.last_spike_rule??'').all<Rule&{next_start:number}>()).results;
+export async function evaluateSpikes(env:AlertEnvironment,time:number,lastRule:string) {
+ const rules=(await s(env.DB,`SELECT r.*,${configSql} config,c.next_start FROM alert_rules r JOIN alert_cursors c ON c.rule_id=r.id AND c.revision=r.revision WHERE r.enabled=1 AND c.next_start+r.window_ms<=? ORDER BY CASE WHEN r.id>? THEN 0 ELSE 1 END,r.id LIMIT 20`,time,lastRule).all<Rule&{next_start:number}>()).results;
  for(const rule of rules){
   const config=ruleConfig(JSON.parse(rule.config)),f=eventFilter(config),policy=await readIdentityPolicy(env.DB,rule.project);
   for(let turn=0,start=rule.next_start;turn<4&&start+rule.window_ms<=time;turn++,start+=rule.window_ms){

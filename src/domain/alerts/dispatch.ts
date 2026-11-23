@@ -2,23 +2,15 @@ import { activateImportedAlerts } from './import-waiting';
 import { evaluateMetrics } from './metrics';
 import { findDestination } from './destinations.server';
 import { holdAlerts, expireSnoozes } from './snoozes';
-import { queueDigests } from './digests';
-import { scheduledMail } from './scheduled-mail';
 import { projectProviderEvents } from './provider-events.server';
 import { webhookService } from './webhook.server';
 export { webhookService } from './webhook.server';
 import { dispatchMail, expandMail, recoverMail } from './mail';
+import { synchronizeHistory } from './history';
 import { evaluateSpikes } from './spikes';
 import { alertBody } from '../stored-text';
 import { namespace, statement as s } from './types';
 import type { AlertEnvironment, Intent } from './types';
-export async function synchronizeHistory(env:AlertEnvironment,time:number) {
- await env.DB.batch([
-  s(env.DB,`UPDATE alert_history SET state=CASE WHEN EXISTS(SELECT 1 FROM alert_suppressed x JOIN alert_intents i ON i.id=x.delivery_id WHERE x.delivery_id=alert_history.id AND x.released_at IS NULL AND i.state='snoozed') THEN 'snoozed' ELSE COALESCE((SELECT CASE WHEN d.state='queued' AND d.attempts>0 THEN 'retrying' WHEN d.state='rejected' AND json_extract((SELECT outcome FROM integration_attempts WHERE namespace=d.namespace AND delivery_id=d.id ORDER BY number DESC LIMIT 1),'$.code')='preflight_failed' THEN 'blocked' ELSE d.state END FROM integration_deliveries d WHERE d.namespace='spool.'||alert_history.project AND d.id=alert_history.id),(SELECT CASE WHEN state='queued' AND attempts>0 THEN 'retrying' ELSE state END FROM alert_mail_jobs WHERE id=alert_history.id),(SELECT state FROM alert_intents WHERE id=alert_history.id),state) END,
-   attempts=COALESCE((SELECT attempts FROM integration_deliveries WHERE namespace='spool.'||alert_history.project AND id=alert_history.id),(SELECT attempts FROM alert_mail_jobs WHERE id=alert_history.id),attempts),
-   code=CASE WHEN channel='webhook' AND (code LIKE 'http_%_signature_sent' OR code LIKE 'slack_%') THEN code ELSE COALESCE((SELECT json_extract(outcome,'$.code') FROM integration_resolutions WHERE namespace='spool.'||alert_history.project AND delivery_id=alert_history.id ORDER BY at DESC LIMIT 1),(SELECT json_extract(outcome,'$.code') FROM integration_attempts WHERE namespace='spool.'||alert_history.project AND delivery_id=alert_history.id ORDER BY number DESC LIMIT 1),(SELECT code FROM alert_mail_jobs WHERE id=alert_history.id),(SELECT code FROM alert_intents WHERE id=alert_history.id)) END,updated=? WHERE historical=0 AND code IS NOT 'retention_removed'`,time),
- ]);
-}
 // Expansion is idempotent: mail jobs and webhook deliveries are keyed by the intent id, and every send first takes a
 // durable claim, so the scheduled run and the dispatch after ingest can both reach the same intent without a second send.
 async function expandIntent(env:AlertEnvironment,service:ReturnType<typeof webhookService>,intent:Intent,time:number) {
@@ -54,17 +46,16 @@ export async function runAlerts(env:AlertEnvironment,scheduledTime:number) {
  if(!Number.isSafeInteger(scheduledTime)||scheduledTime<0)throw new Error('Invalid schedule time');
  const started=Date.now(),now=()=>Math.max(Date.now(),scheduledTime+Date.now()-started);
  // Every tick leaves a trace, so a cron that runs on an idle installation is told apart from one that never runs.
- await s(env.DB,'UPDATE alert_scheduler SET last_run=? WHERE id=1',started).run();
+ const cursor=await s(env.DB,'UPDATE alert_scheduler SET last_run=? WHERE id=1 RETURNING last_project,last_spike_rule',started)
+  .first<{last_project:string;last_spike_rule:string}>();
  await recoverMail(env,now());
  await expireSnoozes(env,scheduledTime);
- await holdAlerts(env,scheduledTime);
  await projectProviderEvents(env);
  await activateImportedAlerts(env.DB,scheduledTime);
- await evaluateSpikes(env,scheduledTime);
+ await evaluateSpikes(env,scheduledTime,cursor?.last_spike_rule??'');
  await evaluateMetrics(env,scheduledTime);
  await holdAlerts(env,scheduledTime);
- const cursor=await s(env.DB,'SELECT last_project FROM alert_scheduler WHERE id=1').first<{last_project:string}>();
- const projects=(await s(env.DB,`SELECT project FROM (SELECT DISTINCT project FROM alert_intents WHERE expanded=0 AND state IN ('pending','blocked') UNION SELECT DISTINCT project FROM alert_mail_jobs WHERE state IN ('queued','sending') UNION SELECT DISTINCT substr(namespace,7) project FROM integration_deliveries WHERE state IN ('queued','sending')) ORDER BY CASE WHEN project>? THEN 0 ELSE 1 END,project LIMIT 20`,cursor?.last_project??'').all<{project:string}>()).results;
+ const projects=(await s(env.DB,`SELECT project FROM (SELECT DISTINCT project FROM alert_intents INDEXED BY alert_intents_unexpanded WHERE expanded=0 AND state IN ('pending','blocked') UNION SELECT DISTINCT project FROM alert_mail_jobs INDEXED BY alert_mail_jobs_active WHERE state IN ('queued','sending') UNION SELECT DISTINCT substr(namespace,7) project FROM integration_deliveries WHERE state IN ('queued','sending')) ORDER BY CASE WHEN project>? THEN 0 ELSE 1 END,project LIMIT 20`,cursor?.last_project??'').all<{project:string}>()).results;
  for(const {project} of projects) {
   const service=webhookService(env,project,now);await service.recoverExpired();
   const expansion=await s(env.DB,'SELECT last_intent FROM alert_expansion_cursors WHERE project=?',project).first<{last_intent:string}>();
@@ -78,7 +69,7 @@ export async function runAlerts(env:AlertEnvironment,scheduledTime:number) {
   for(const delivery of due)await service.dispatch(delivery.id);
   await s(env.DB,"INSERT INTO alert_scheduler(id,last_project) VALUES(1,?) ON CONFLICT(id) DO UPDATE SET last_project=excluded.last_project",project).run();
  }
- await dispatchMail(env,now());
+ await dispatchMail(env,now(),undefined,undefined,true);
  await synchronizeHistory(env,now());
 }
 

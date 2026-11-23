@@ -95,7 +95,7 @@ async function prepare(env:Environment,row:any,time:number,attribution?:MailAttr
 }
 
 export async function dispatchNotices(env:Environment,time:number,only?:string[],attribution?:MailAttribution) {
- await env.DB.batch([
+ if(await s(env.DB,"SELECT 1 FROM follow_up_notices WHERE state='running' AND claim_until<=? LIMIT 1",time).first())await env.DB.batch([
   s(env.DB,"UPDATE follow_up_attempts SET state='uncertain',code='claim_expired',finished=? WHERE finished IS NULL AND id IN(SELECT claim FROM follow_up_notices WHERE state='running' AND claim_until<=?)",time,time),
   s(env.DB,"UPDATE follow_up_notices SET state='uncertain',code='claim_expired',claim=NULL,claim_until=NULL WHERE state='running' AND claim_until<=?",time),
  ]);

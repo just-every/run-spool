@@ -15,6 +15,7 @@ export async function queueDigests(env:AlertEnvironment,time:number){
   const period=digestPeriod(time,c.timezone,kind,c.hour);
   // Enabling does not backfill old periods; restore exports disable schedules.
   if(period.due<c.created)continue;
+  if(await s(env.DB,'SELECT 1 FROM alert_scheduled_mail WHERE project=? AND kind=? AND scope=? AND period=?',c.project,kind,scope,period.key).first())continue;
   const issues=(await s(env.DB,`WITH work AS (SELECT i.id,i.title,i.state,${primaryShortIdSql('i')} short_id,
    i.first_seen>=? AND i.first_seen<? new_work,
    EXISTS(SELECT 1 FROM alerts a WHERE a.project=i.project AND a.issue=i.id AND a.kind='regression' AND a.created>=? AND a.created<?) regressed,

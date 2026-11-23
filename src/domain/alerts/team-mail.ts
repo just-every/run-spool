@@ -4,7 +4,7 @@ import { alertServiceBatch } from './scheduled-mail';
 import { statement as s,type AlertEnvironment } from './types';
 
 export async function scheduledTeamMail(env:AlertEnvironment,time:number) {
- const rows=(await s(env.DB,"SELECT * FROM spool_team_mail WHERE historical=0 AND state IN ('queued','running') ORDER BY created,id LIMIT 30").all<any>()).results;
+ const rows=(await s(env.DB,"SELECT * FROM spool_team_mail INDEXED BY spool_team_mail_active WHERE historical=0 AND state IN ('queued','running') ORDER BY created,id LIMIT 30").all<any>()).results;
  for(const row of rows){
   const project=(await s(env.DB,'SELECT project FROM spool_project_teams WHERE organization=? AND team=? ORDER BY project LIMIT 1',row.organization,row.team).first<{project:string}>())?.project;
   if(!project){await s(env.DB,"UPDATE spool_team_mail SET state='blocked',code='team_unavailable',updated=? WHERE id=? AND state='queued'",time,row.id).run();continue;}

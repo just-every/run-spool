@@ -17,7 +17,7 @@ import type { AlertEnvironment } from './types';
 import { IntegrationsRepository } from '../../modules/integrations/core/repository';
 import { D1SqlDatabase } from '../../modules/integrations/core/database';
 import type { SqlDatabase } from '../../modules/integrations/core/database';
-import { synchronizeHistory } from './dispatch';
+import { synchronizeHistory } from './history';
 import { saveDestination } from './destination-management.server';
 import { testDestination, reviewTest, requireReviewedTest } from './destination-tests.server';
 type Env=Bindings&AlertEnvironment;

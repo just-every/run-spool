@@ -9,9 +9,11 @@ import { statement as s,type AlertEnvironment } from './types';
 export async function queueTeamDigests(env:AlertEnvironment,time:number) {
  const settings=(await s(env.DB,'SELECT * FROM spool_team_digest_settings WHERE daily=1 OR weekly=1').all<any>()).results;
  for(const row of settings)for(const kind of ['daily','weekly'] as const){
-  if(!row[kind]||!await activeTeamRecipient(env.DB,row.organization,row.team,row.member))continue;
+  if(!row[kind])continue;
   const period=digestPeriod(time,row.timezone,kind,row.hour);
   if(period.due<row.created)continue;
+  if(await s(env.DB,'SELECT 1 FROM spool_team_mail WHERE organization=? AND team=? AND member=? AND kind=? AND period=?',row.organization,row.team,row.member,kind,period.key).first())continue;
+  if(!await activeTeamRecipient(env.DB,row.organization,row.team,row.member))continue;
   const projects=(await s(env.DB,`SELECT t.project FROM spool_project_teams t JOIN spool_members m ON m.id=? AND m.organization=t.organization
    JOIN oa_operators o ON o.id=m.operator_id AND o.status='active'
    WHERE t.organization=? AND t.team=? AND m.state='active' AND (o.role='owner' OR m.role='admin' OR

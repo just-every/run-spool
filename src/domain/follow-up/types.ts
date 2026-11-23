@@ -6,7 +6,7 @@ export type Attention = {
  owner:string; due:number; state:string; reason:string; revision:number;
  created:number; updated:number; historical:number;
 };
-export const followUpExcludedTables = ['follow_up_settings','follow_up_feed_custody','follow_up_attention','follow_up_notices','follow_up_notice_meta','follow_up_attempts','follow_up_fix_steps','follow_up_deployment_attempts'];
+export const followUpExcludedTables = ['follow_up_alert_work','follow_up_settings','follow_up_feed_custody','follow_up_attention','follow_up_notices','follow_up_notice_meta','follow_up_attempts','follow_up_fix_steps','follow_up_deployment_attempts'];
 
 // These receipts describe successful storage, an idempotent retry, an owner
 // withdrawal, or successful forwarding. Keep real refusals, trimming and SDK

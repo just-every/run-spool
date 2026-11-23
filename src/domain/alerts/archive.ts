@@ -10,7 +10,7 @@ import { issueLink, publicOrigin } from './payload';
 import { isShortId } from '../short-ids/format';
 import { alertKinds } from './types';
 export const alertArchiveTables=['sentry_transactions','alert_rules','alert_history','alert_rule_configs',...deliveryArchiveTables,...slackHistoryTables];
-export const alertExcludedTables=['alert_target_destinations','alert_intent_recipients','alert_metric_states','alert_metric_events','alert_reactivation_markers','alert_rule_previews','alert_decisions','slack_destinations','alert_destination_tests','rer_mail_event_receipts','rer_mail_event_states','alert_destinations','alert_scheduler','alert_expansion_cursors','alert_intents','alert_cursors','alert_mail_jobs','alert_mail_attempts','integration_%'];
+export const alertExcludedTables=['alert_history_dirty','alert_target_destinations','alert_intent_recipients','alert_metric_states','alert_metric_events','alert_reactivation_markers','alert_rule_previews','alert_decisions','slack_destinations','alert_destination_tests','rer_mail_event_receipts','rer_mail_event_states','alert_destinations','alert_scheduler','alert_expansion_cursors','alert_intents','alert_cursors','alert_mail_jobs','alert_mail_attempts','integration_%'];
 export function alertExportRow(table:string,row:any) {
  if(table==='alert_rules')return {...row,enabled:0};
  if(table==='alert_history')return {...row,historical:1};

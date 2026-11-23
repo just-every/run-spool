@@ -7,7 +7,8 @@ import {serviceActor,auditSubject,projectAuditLabel,runAuditScope,auditedBatch} 
 export const retentionBatchLimit=50;
 export async function retentionRemaining(db:D1Database,project:string,c:RetentionWindows){
  const queries=[['events','received<?',[c.events]],['feedback','received<?',[c.feedback]],['health_sessions','updated<?',[c.sessions]],['exposures','last<?',[c.exposures]],['commits','received<? AND expired IS NULL AND COALESCE(message,author_name,author_email) IS NOT NULL',[c.commits]]] as const;
- const counts=await Promise.all(queries.map(async([table,where,values])=>(await db.prepare(`SELECT COUNT(*) n FROM ${table} WHERE project=? AND ${where}`).bind(project,...values).first<any>())!.n));return counts.reduce((a,b)=>a+b,0);
+ const counts=await db.batch<{n:number}>(queries.map(([table,where,values])=>db.prepare(`SELECT COUNT(*) n FROM ${table} WHERE project=? AND ${where}`).bind(project,...values)));
+ return counts.reduce((total,result)=>total+result.results[0].n,0);
 }
 // A minute cron visits at most five due projects. Each visit removes at most
 // fifty rows per type plus linked feedback (project cap 1,000); pending work resumes next cron.
@@ -25,12 +26,16 @@ export async function scheduledRetention(db:D1Database,time:number,env?:Bindings
   if(!await db.prepare('SELECT 1 FROM retention_runs WHERE project=? AND generation=?').bind(project,token).first())continue;
   try{
    const policy=await readRetentionPolicy(db,project);if(policy.held)throw new Error('retention_held');const cutoffs=retentionCutoffs(policy.windows,time);
-   if(await retentionRemaining(db,project,cutoffs)&&!(env&&await dispatchStanding(env,'retention',project,()=>time))){
+   let remaining=await retentionRemaining(db,project,cutoffs);
+   if(remaining&&!(env&&await dispatchStanding(env,'retention',project,()=>time))){
     const scope={actor:await serviceActor(db,'scheduled retention'),action:'retention.scheduled' as const,subject:await auditSubject(db,'project',project,project),projectLabel:await projectAuditLabel(db,project)};
     const scoped=new Proxy(db,{get(target,key){if(key==='batch')return async(statements:D1PreparedStatement[])=>{const fence=guard(target,"EXISTS(SELECT 1 FROM projects WHERE id=?) AND EXISTS(SELECT 1 FROM oa_operators WHERE role='owner' AND status='active') AND NOT EXISTS(SELECT 1 FROM rer_erasure_operations WHERE phase<>'complete') AND EXISTS(SELECT 1 FROM retention_runs WHERE project=? AND generation=?)",project,project,token);return (await auditedBatch(target,[fence,...statements],scope)).slice(1)};const value=Reflect.get(target,key,target);return typeof value==='function'?value.bind(target):value}});
     await runAuditScope(scope,()=>applyRetention(scoped,project,cutoffs.events,cutoffs,retentionBatchLimit));
+    remaining=await retentionRemaining(db,project,cutoffs);
+   }else if(remaining){
+    // A standing action may have pruned rows during its provider boundary.
+    remaining=await retentionRemaining(db,project,cutoffs);
    }
-   const remaining=await retentionRemaining(db,project,cutoffs);
    await db.prepare("UPDATE retention_runs SET last_day=?,last_run=?,lease_until=0,status=?,remaining=? WHERE project=? AND generation=?").bind(remaining?null:day,time,remaining?'pending':'complete',remaining,project,token).run();
   }catch{
    await db.prepare("UPDATE retention_runs SET last_run=?,lease_until=0,status='failed',last_day=NULL WHERE project=? AND generation=?").bind(time,project,token).run();

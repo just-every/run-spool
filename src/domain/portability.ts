@@ -1,3 +1,4 @@
+import { alertWorkMigrations,beforeAlertWorkObjects } from './alerts/archive-work-compat';
 import { predatesStampIndex, previousStampGroupingObjects, stampGroupingMigration } from './grouping/stamp';
 import { keyMetadataMigration, previousKeyMetadataObjects } from './key-metadata-compat';
 import { restoreTranslatedProjection } from './alerts/archive-history';
@@ -278,6 +279,8 @@ laterTables.unshift(
  {tables: [], migrations: afterRosterMigrations},
  {tables: ['spool_import_proposals'], migrations: rosterMigrations},
 );
+for(const later of laterTables)later.migrations.push(...alertWorkMigrations);
+laterTables.unshift(...alertWorkMigrations.map((_,index)=>({tables:[],migrations:alertWorkMigrations.slice(index)})));
 // The identity trigger is installation behavior, not an archived owner row.
 // Older releases lack it; a no-ledger archive may carry either known inventory.
 // Compare the entire selected inventory below so foreign or modified objects
@@ -310,7 +313,8 @@ function beforeSentryRosterObjects(objects:any[],manifest:any){
 async function earlierManifest(db: D1Database, manifest: any) {
  const current = await catalogue(db, policy(portabilityPolicy));
  if (manifest?.kind !== 'manifest') return null;
- const product = await restorableManifest(manifest);
+ const product = await restorableManifest(manifest,{canonical:true});
+ if(product.schemaObjects!==undefined && product.schema===current.identity)return null;
  // Base canonicalizes the product identity, including behavior objects.
  // Compare the known native table shape separately, then check the complete
  // behavior inventory before translating a format that declares it.
@@ -323,20 +327,23 @@ async function earlierManifest(db: D1Database, manifest: any) {
  const carriedRoster=product.tables.some((table:any)=>table.name==='spool_import_proposals');
  const compatibleSets=carriedRoster?laterTables.map(later=>({tables:later.tables.filter(name=>name!=='spool_import_proposals'),migrations:later.migrations.filter(name=>name!==rosterProposalMigration)})).filter(later=>later.migrations.length):laterTables;
  const previousStampInventory=predatesStampIndex(product);
+ const previousAlertInventory=Array.isArray(product.schemaObjects) &&
+  beforeAlertWorkObjects(current.schemaObjects,product).length!==current.schemaObjects.length;
  const tableless = [...new Set(compatibleSets.filter(later => !later.tables.length).flatMap(later => later.migrations))];
  for (const later of compatibleSets) {
   // A set that adds no archived table matches today's schema, so it applies only to an archive missing its migrations.
   const reviewOnly=later.tables.length===0 && later.migrations.includes('0109_feedback_review.sql')
-    && later.migrations.every(name => ['0109_feedback_review.sql', ...afterRosterMigrations].includes(name));
+    && later.migrations.every(name => ['0109_feedback_review.sql', ...afterRosterMigrations,...alertWorkMigrations].includes(name));
   const recordedUpgrade = Array.isArray(manifest.migrations) && later.migrations.some(name => !manifest.migrations.includes(name))
     && tableless.every(name => manifest.migrations.includes(name) || later.migrations.includes(name));
-  const stampIndexOnly = previousStampInventory && later.migrations.length === 1 && later.migrations[0] === stampGroupingMigration;
-  if (!later.tables.length && !recordedUpgrade && !(!manifest.migrations?.length && (reviewOnly || stampIndexOnly))) continue;
+  const stampIndexOnly = previousStampInventory && later.migrations.length === 1+alertWorkMigrations.length && later.migrations[0] === stampGroupingMigration;
+  const alertWorkOnly=later.migrations.every(name=>alertWorkMigrations.includes(name));
+  if (!later.tables.length && !recordedUpgrade && !(!manifest.migrations?.length && (reviewOnly || stampIndexOnly || alertWorkOnly && previousAlertInventory))) continue;
   const missing=later.tables.filter(name=>!carriedReporting||!reportingNames.includes(name));
   if(later.tables.length&&!missing.length)continue;
   // An archive that records no migration list is either older than 0054 (issue_resolutions in its first form) or a current
   // format that carries none: try the recorded reading first, then today's form of that table.
-  const earlierWith = (before0054: boolean) => reviewOnly ? current.tables.map((table:any)=>beforeSentryRosterTable(beforeFeedbackReview(table,manifest),manifest)) : current.tables.filter((table: any) => !missing.includes(table.name)).map((table:any)=>beforeSentryRosterTable(beforeFeedbackReview(beforeProjectMetrics(beforeAgentAttribution(table,manifest),manifest),manifest),manifest)).map((table:any)=>table.name==='issue_resolutions'&&before0054?{...table,sql:table.sql.replace('CREATE TABLE \"issue_resolutions\"','CREATE TABLE issue_resolutions').replace("('plain','current','next','named')","('plain','current')")}:table);
+  const earlierWith = (before0054: boolean) => reviewOnly || alertWorkOnly ? current.tables.map((table:any)=>beforeSentryRosterTable(beforeFeedbackReview(table,manifest),manifest)) : current.tables.filter((table: any) => !missing.includes(table.name)).map((table:any)=>beforeSentryRosterTable(beforeFeedbackReview(beforeProjectMetrics(beforeAgentAttribution(table,manifest),manifest),manifest),manifest)).map((table:any)=>table.name==='issue_resolutions'&&before0054?{...table,sql:table.sql.replace('CREATE TABLE \"issue_resolutions\"','CREATE TABLE issue_resolutions').replace("('plain','current','next','named')","('plain','current')")}:table);
   let earlier: any[] | undefined;
   for (const before0054 of new Set([!manifest.migrations?.includes('0054_release_resolution_dist.sql'), false])) {
    const candidate = earlierWith(before0054);
@@ -347,8 +354,9 @@ async function earlierManifest(db: D1Database, manifest: any) {
   // A recognized native table upgrade must retain a complete, known object
   // inventory. An unrecorded index/trigger is never installed or acknowledged.
   // Archives without an object inventory still require Base's legacy replay.
-  const previousObjects = reviewOnly ? current.schemaObjects : beforeSentryRosterObjects(beforeProjectMetricObjects(previousRelayPrivacyObjects(previousNativeSymbolObjects(current.schemaObjects,manifest),manifest),manifest),manifest);
-  const earlierObjects=previousStampGroupingObjects(previousKeyMetadataObjects(previousMemberIdentityObjects(previousObjects,manifest),manifest),manifest);
+  const previousObjects = reviewOnly || alertWorkOnly ? current.schemaObjects : beforeSentryRosterObjects(beforeProjectMetricObjects(previousRelayPrivacyObjects(previousNativeSymbolObjects(current.schemaObjects,manifest),manifest),manifest),manifest);
+  const earlierObjects=beforeAlertWorkObjects(previousStampGroupingObjects(previousKeyMetadataObjects(
+   previousMemberIdentityObjects(previousObjects,manifest),manifest),manifest),manifest);
   const earlierSchema = await schemaIdentityOf(earlier, earlierObjects);
   // The CLI and native test runtime can preserve different SQL comments.
   // Compare complete object identities with Base's SQLite token normalization.

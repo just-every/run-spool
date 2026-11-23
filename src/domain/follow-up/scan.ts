@@ -1,7 +1,6 @@
 import { auditCommit, auditedBatch } from '../audit/context';
 import { auditSubject, projectAuditLabel, serviceActor } from '../audit/identity';
-import { s, nonLossOutcomes, type Environment } from './types';
-const nonLossSql=nonLossOutcomes.map(reason=>"'"+reason+"'").join(',');
+import { s, type Environment } from './types';
 type Candidate={project:string;source:'alert'|'deployment'|'fix';source_id:string;due:number;state:string;reason:string};
 
 async function remember(env:Environment,row:Candidate,time:number) {
@@ -19,32 +18,12 @@ async function remember(env:Environment,row:Candidate,time:number) {
 /** One installation-wide scan, independent of the alert dispatch cursor. */
 export async function scanFollowUp(env:Environment,time:number) {
  if(!Number.isSafeInteger(time)||time<0)throw new Error('Invalid follow-up time');
- // Retain the mistaken attention identity and a reason instead of deleting
- // its history. Repeated ticks do not revise it again or resend old notices.
- // This also repairs installations that already scanned successful receipts.
- await env.DB.batch([
-  s(env.DB,`UPDATE follow_up_attention SET state='canceled',reason='successful_capture_not_loss',updated=?,revision=revision+1
-   WHERE source='alert' AND source_id LIKE 'loss:%' AND reason IN (${nonLossOutcomes.map(reason=>"'capture_loss_"+reason+"'").join(',')})`,time),
-  s(env.DB,`UPDATE follow_up_notices SET state='canceled',code='successful_capture_not_loss'
-   WHERE state IN ('queued','blocked') AND attention IN (SELECT id FROM follow_up_attention WHERE reason='successful_capture_not_loss' AND state='canceled')`),
- ]);
  // Expired provider boundaries never become retryable merely because a lease
  // disappeared. A delayed old worker may still finish; uncertainty stays fenced.
  await s(env.DB,"UPDATE follow_up_fix_steps SET state='uncertain',finished=? WHERE state='running' AND due<=?",time,time).run();
  const candidates=(await s(env.DB,`SELECT * FROM (
-  SELECT h.project,'alert' source,h.id source_id,
-   CASE WHEN h.state='accepted' THEN h.created+86400000 ELSE h.created+300000 END due,
-   CASE WHEN h.state='uncertain' THEN 'uncertain' WHEN h.state='blocked' THEN 'blocked' WHEN h.state='rejected' THEN 'failed' ELSE 'overdue' END state,
-   CASE WHEN h.state='accepted' THEN 'unacknowledged' WHEN h.state IN ('pending','queued','sending','retrying') THEN 'send_overdue' ELSE COALESCE(h.code,'delivery_failed') END reason
-  FROM alert_history h JOIN alerts a ON a.id=h.alert_id LEFT JOIN issues i ON i.id=a.issue AND i.project=h.project
-  WHERE h.historical=0 AND (h.state IN ('blocked','rejected','uncertain') OR
-   (h.state IN ('pending','queued','sending','retrying') AND h.created+300000<=?) OR
-   (h.state='accepted' AND i.state='open' AND h.created+86400000<=?))
-  UNION ALL
-  SELECT a.project,'alert','feed:'||a.id,a.created+86400000,'overdue','unacknowledged_feed'
-   FROM alerts a JOIN issues i ON i.id=a.issue AND i.project=a.project
-   WHERE i.state='open' AND a.created+86400000<=? AND NOT EXISTS(SELECT 1 FROM alert_history h WHERE h.alert_id=a.id)
-   AND EXISTS(SELECT 1 FROM follow_up_feed_custody f WHERE f.alert=a.id AND f.project=a.project)
+  SELECT project,'alert' source,source_id,due,state,reason FROM follow_up_alert_work
+   WHERE ready=1 AND ready_at<=?
   UNION ALL
   SELECT n.project,'deployment',n.deployment,r.deadline,
    CASE WHEN n.state='uncertain' THEN 'uncertain' WHEN n.state='blocked' THEN 'blocked' WHEN n.state='rejected' THEN 'failed' ELSE 'overdue' END,
@@ -58,20 +37,22 @@ export async function scanFollowUp(env:Environment,time:number) {
   SELECT f.project,'fix',f.workflow,f.due,CASE WHEN f.state='uncertain' THEN 'uncertain' ELSE 'failed' END,'provider_'||f.state
    FROM follow_up_fix_steps f WHERE f.state IN ('uncertain','rejected')
   ) candidate WHERE NOT EXISTS(SELECT 1 FROM follow_up_attention a WHERE a.project=candidate.project AND a.source=candidate.source AND a.source_id=candidate.source_id)
-  ORDER BY due,project,source,source_id`,time,time,time,time,time).all<Candidate>()).results;
- const additional=(await s(env.DB,`  SELECT z.project,'alert' source,'snooze:'||z.id source_id,z.until due,'overdue' state,'snooze_expired_backlog' reason
-  FROM alert_snoozes z WHERE z.historical=0 AND z.until<=? AND EXISTS(SELECT 1 FROM alert_suppressed x WHERE x.snooze_id=z.id AND x.released_at IS NULL)
+  ORDER BY due,project,source,source_id`,time,time,time).all<Candidate>()).results;
+ const additional=(await s(env.DB,`SELECT * FROM (
+  SELECT z.project,'alert' source,'snooze:'||z.id source_id,z.until due,'overdue' state,'snooze_expired_backlog' reason
+  FROM alert_snoozes z JOIN (SELECT DISTINCT snooze_id FROM alert_suppressed INDEXED BY alert_suppressed_active_snooze WHERE released_at IS NULL) x ON x.snooze_id=z.id
+  WHERE z.historical=0 AND z.until<=?
   UNION ALL
   SELECT x.project,'alert','held:'||x.delivery_id,x.created,'overdue','held_alert_backlog'
   FROM alert_suppressed x JOIN alert_history h ON h.id=x.delivery_id WHERE x.released_at IS NULL AND h.historical=0
   UNION ALL
   SELECT m.project,'alert','scheduled:'||m.id,m.created,'failed',COALESCE(m.code,'scheduled_mail_failed') FROM alert_scheduled_mail m WHERE m.historical=0 AND m.state IN ('blocked','rejected','uncertain')
-  UNION ALL
-  SELECT o.project,'alert','loss:'||o.window||':'||o.reason,o.window,'overdue','capture_loss_'||o.reason FROM outcomes o WHERE o.reason NOT IN (${nonLossSql}) AND o.count>0
+ ) candidate WHERE NOT EXISTS(SELECT 1 FROM follow_up_attention a WHERE a.project=candidate.project AND a.source=candidate.source AND a.source_id=candidate.source_id)
 `,time).all<Candidate>()).results;
  // D1 bounds compound SELECT terms. Keep the existing project sources and
  // these two team sources in separate reads, retaining the complete scan.
- const teamCandidates=(await s(env.DB,`SELECT t.project,'alert' source,'team-mail:'||m.id source_id,m.created due,'failed' state,COALESCE(m.code,'team_mail_failed') reason
+ const teamCandidates=(await s(env.DB,`SELECT * FROM (
+  SELECT t.project,'alert' source,'team-mail:'||m.id source_id,m.created due,'failed' state,COALESCE(m.code,'team_mail_failed') reason
    FROM spool_team_mail m JOIN spool_project_teams t ON t.organization=m.organization AND t.team=m.team
    WHERE m.historical=0 AND m.state IN ('blocked','rejected','uncertain')
     AND t.project=(SELECT project FROM spool_project_teams WHERE organization=m.organization AND team=m.team ORDER BY project LIMIT 1)
@@ -81,6 +62,7 @@ export async function scanFollowUp(env:Environment,time:number) {
    WHERE m.state<>'active' OR o.status IS NOT 'active' OR
     (o.role<>'owner' AND m.role<>'admin' AND NOT (m.role='member' AND EXISTS(
      SELECT 1 FROM spool_project_grants g WHERE g.member=m.id AND g.project=a.project AND g.role IN ('maintainer','member'))))
+ ) candidate WHERE NOT EXISTS(SELECT 1 FROM follow_up_attention a WHERE a.project=candidate.project AND a.source=candidate.source AND a.source_id=candidate.source_id)
 `).all<Candidate>()).results;
  candidates.push(...additional,...teamCandidates);
  // Do not bound this scan to the first N failures: durable failures would starve
@@ -97,16 +79,16 @@ export async function scanFollowUp(env:Environment,time:number) {
  await s(env.DB,`UPDATE follow_up_attention SET state=(SELECT CASE n.state WHEN 'uncertain' THEN 'uncertain' WHEN 'blocked' THEN 'blocked' WHEN 'rejected' THEN 'failed' ELSE 'overdue' END FROM deployment_notices n WHERE n.project=follow_up_attention.project AND n.deployment=source_id),updated=?,revision=revision+1
   WHERE source='deployment' AND historical=0 AND state='queued' AND EXISTS(SELECT 1 FROM deployment_notices n WHERE n.project=follow_up_attention.project AND n.deployment=source_id AND n.state<>'pending')`,time).run();
  await s(env.DB,`UPDATE follow_up_attention SET state='completed',updated=?,revision=revision+1 WHERE source='alert' AND state<>'completed' AND (
-  (source_id LIKE 'held:%' AND EXISTS(SELECT 1 FROM alert_suppressed x WHERE 'held:'||x.delivery_id=source_id AND x.released_at IS NOT NULL)) OR
-  (source_id LIKE 'snooze:%' AND EXISTS(SELECT 1 FROM alert_snoozes z WHERE 'snooze:'||z.id=source_id AND NOT EXISTS(SELECT 1 FROM alert_suppressed x WHERE x.snooze_id=z.id AND x.released_at IS NULL)))
+  (source_id LIKE 'held:%' AND EXISTS(SELECT 1 FROM alert_suppressed x WHERE x.delivery_id=substr(source_id,6) AND substr(source_id,1,5)='held:' AND x.released_at IS NOT NULL)) OR
+  (source_id LIKE 'snooze:%' AND EXISTS(SELECT 1 FROM alert_snoozes z WHERE z.id=substr(source_id,8) AND substr(source_id,1,7)='snooze:' AND NOT EXISTS(SELECT 1 FROM alert_suppressed x WHERE x.snooze_id=z.id AND x.released_at IS NULL)))
  )`,time).run();
  await s(env.DB,`UPDATE follow_up_attention SET state='completed',updated=?,revision=revision+1 WHERE source='alert' AND state='blocked' AND source_id LIKE 'alternate:%'
-  AND NOT EXISTS(SELECT 1 FROM spool_follow_up_alternates x WHERE x.project=follow_up_attention.project AND 'alternate:'||x.member=source_id)`,time).run();
+  AND NOT EXISTS(SELECT 1 FROM spool_follow_up_alternates x WHERE x.project=follow_up_attention.project AND x.member=substr(source_id,11) AND substr(source_id,1,10)='alternate:')`,time).run();
  // Source completion closes work without fabricating delivery of an uncertain
  // effect. An uncertain transport is closed only by an explicit owner decision.
  await s(env.DB,`UPDATE follow_up_attention SET state='completed',updated=?,revision=revision+1 WHERE historical=0 AND state NOT IN ('completed','canceled','uncertain') AND (
-  (source='alert' AND source_id LIKE 'suppression:%' AND EXISTS(SELECT 1 FROM issue_suppressions z JOIN issues i ON i.id=z.issue AND i.project=z.project WHERE 'suppression:'||z.id=source_id AND z.project=follow_up_attention.project AND i.state<>'open')) OR
-  (source='alert' AND source_id LIKE 'feed:%' AND EXISTS(SELECT 1 FROM alerts a JOIN issues i ON i.id=a.issue WHERE 'feed:'||a.id=source_id AND i.state<>'open')) OR
+  (source='alert' AND source_id LIKE 'suppression:%' AND EXISTS(SELECT 1 FROM issue_suppressions z JOIN issues i ON i.id=z.issue AND i.project=z.project WHERE z.id=substr(source_id,13) AND substr(source_id,1,12)='suppression:' AND z.project=follow_up_attention.project AND i.state<>'open')) OR
+  (source='alert' AND source_id LIKE 'feed:%' AND EXISTS(SELECT 1 FROM alerts a JOIN issues i ON i.id=a.issue WHERE a.id=substr(source_id,6) AND substr(source_id,1,5)='feed:' AND i.state<>'open')) OR
   (source='alert' AND EXISTS(SELECT 1 FROM alert_history h JOIN alerts a ON a.id=h.alert_id LEFT JOIN issues i ON i.id=a.issue WHERE h.id=source_id AND h.project=follow_up_attention.project AND (h.state='cancelled' OR (h.state='accepted' AND (reason<>'unacknowledged' OR i.state<>'open'))))) OR
   (source='deployment' AND (SELECT state FROM deployment_steps WHERE project=follow_up_attention.project AND deployment=source_id ORDER BY sequence DESC LIMIT 1) IN ('succeeded','failed','rolled_back'))
  )`,time).run();
