@@ -11,7 +11,13 @@ export function migrationReplay(plan,input,{dataOnly=[]}={}) {
   return {names:plan.map(migration=>migration.name),dataOnly,aliases:name=>files.get(name).aliases,statements:name=>files.get(name).statements,sha256:name=>files.get(name).sha256,async schemaAfter(names,options) {
     const {DatabaseSync}=await import(sqlite);
     const scratch=new DatabaseSync(':memory:');
-    const db={prepare:sql=>{const query=scratch.prepare(sql);let values=[];return {bind(...args){values=args;return this;},async all(){return {results:query.all(...values)};}};}};
+    const db={
+      prepare(sql) {
+        const query=scratch.prepare(sql);let values=[];
+        return {bind(...args){values=args;return this;},async all(){return {results:query.all(...values)};}};
+      },
+      batch:queries=>Promise.all(queries.map(query=>query.all())),
+    };
     try {
       for(const name of names)for(const sql of files.get(name).statements)scratch.exec(sql);
       return await schemaIdentity(db,config,options);

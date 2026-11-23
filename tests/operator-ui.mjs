@@ -171,8 +171,9 @@ export async function operatorUi({page,api,origin,project,issue,capture}){
   await page.locator('.issue-count-line').waitFor();
   await page.waitForFunction(()=>document.querySelector('.issue-browser')?.getAttribute('aria-busy')==='false');
   assert.equal(await page.locator('.issue-open').count(),list.rows.length);
-  const newCount=list.facets.statuses.find(row=>row.value==='open')?.count??0;
-  assert.ok((await page.locator('.issue-count-line').innerText()).split(' · ').includes(newCount+' New'),'the compact count line reconciles the unacknowledged issue count');
+  const statusCounts=['open','acknowledged','resolved','suppressed'].map(value=>list.facets.statuses.find(row=>row.value===value)?.count??0);
+  const shownCounts=(await page.locator('.issue-count-line').innerText()).split(' · ').map(label=>Number.parseInt(label,10));
+  assert.deepEqual(shownCounts,[list.total,...statusCounts],'the compact count line reconciles the total and each status');
   await capture('operator-undone-list');
  }
  // Merge real captured issues using only the rendered review, apply and undo controls.

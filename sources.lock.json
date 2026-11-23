@@ -2654,7 +2654,7 @@
       "executable": false
     },
     "base-copies.json": {
-      "sha256": "6bee906ef60bc9e2b3fbddd5869da8820f2b313b15e042cb8f2cfa06265d38cc",
+      "sha256": "8e09dfa87bc707ad45df53d359970ed614b4c38a717c705be30d95424cfbfeb4",
       "executable": false
     },
     "BROWSER-ORIGINS.md": {
@@ -10126,7 +10126,7 @@
       "executable": false
     },
     "src/modules/portability/migration-history.mjs": {
-      "sha256": "d28c26f5cc63a0fff323818ad254824c93878638c8a717f2472e32a55f78d663",
+      "sha256": "116999086dba6db77195631a6f922649366e7f511e9475531b0bfa7f2a9745fa",
       "executable": false
     },
     "src/modules/portability/migration-sql.mjs": {
@@ -11610,7 +11610,7 @@
       "executable": false
     },
     "tests/operator-ui.mjs": {
-      "sha256": "65aafb4e2e7fc7b7641b654d24b0775405b11c0de8bd1f2d2885ef04f0e67bf6",
+      "sha256": "8c322b5e426967b6d051cca7870376047875818cef1cda02fa0bce41e781d8f1",
       "executable": false
     },
     "tests/otlp-flow.mjs": {

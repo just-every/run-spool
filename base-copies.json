@@ -4488,7 +4488,8 @@
         "src/modules/portability/copies.mjs": "8fa76d1ceef21535d0c1fa31298326d971bd8520",
         "src/modules/portability/export.mjs": "8fa76d1ceef21535d0c1fa31298326d971bd8520",
         "src/modules/portability/index.d.mts": "8fa76d1ceef21535d0c1fa31298326d971bd8520",
-        "src/modules/portability/index.mjs": "8fa76d1ceef21535d0c1fa31298326d971bd8520"
+        "src/modules/portability/index.mjs": "8fa76d1ceef21535d0c1fa31298326d971bd8520",
+        "src/modules/portability/migration-history.mjs": "8fa76d1ceef21535d0c1fa31298326d971bd8520"
       },
       "acknowledged": {
         "src/modules/portability/cli-options.mjs": {
@@ -4513,6 +4514,10 @@
         },
         "src/modules/portability/index.mjs": {
           "sha256": "e87521426ab3c75d1c04ee39e8d4cc26ae12620cee58f9923a10c837a5980201",
+          "mode": "100644"
+        },
+        "src/modules/portability/migration-history.mjs": {
+          "sha256": "116999086dba6db77195631a6f922649366e7f511e9475531b0bfa7f2a9745fa",
           "mode": "100644"
         }
       }
