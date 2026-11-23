@@ -5914,7 +5914,7 @@
       "executable": false
     },
     "src/domain/api.ts": {
-      "sha256": "af0f67b892bcacc3ddcd68e2374f1d65ec670710265e534162160f9f54f04922",
+      "sha256": "d883f5b9a180eddf389f34d1e67efef99e5ad4b23c20784767f37f8672860906",
       "executable": false
     },
     "src/domain/archive-compat.ts": {
@@ -5922,7 +5922,7 @@
       "executable": false
     },
     "src/domain/archive-stream.ts": {
-      "sha256": "2df15b20a7b78470b5026ff60938ac5f57390b5af7da41ba4e13fecadb3be012",
+      "sha256": "e67536464d2481c2a3bd0ed76c3264f2b28e01030409991b1eabbdbe3abb4848",
       "executable": false
     },
     "src/domain/archive.ts": {
@@ -5946,7 +5946,7 @@
       "executable": false
     },
     "src/domain/audit/export.ts": {
-      "sha256": "eeb2533adc7f18a8aa2a0b26be17d762e6e8af392b0e94fe2d1a07c2ee814205",
+      "sha256": "81d61edd09ae91b982e60dbe01f91f3e83c9fba6b09ceef4560d36ff10b05d74",
       "executable": false
     },
     "src/domain/audit/identity.ts": {

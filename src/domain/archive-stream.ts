@@ -1,6 +1,6 @@
 import { PortabilityError, type Portability } from '../modules/portability/index.mjs';
 
-type RequestLifetime = {
+export type ArchiveRequestLifetime = {
  signal: AbortSignal;
  waitUntil: (work: Promise<unknown>) => void;
 };
@@ -11,7 +11,7 @@ type ArchiveService = {
  };
 };
 
-export async function archiveStream(service: ArchiveService, lifetime?: RequestLifetime): Promise<ReadableStream<Uint8Array>> {
+export async function archiveStream(service: ArchiveService, lifetime?: ArchiveRequestLifetime): Promise<ReadableStream<Uint8Array>> {
  const signal = lifetime?.signal;
  let id: string | undefined;
  let reader: ReadableStreamDefaultReader<Uint8Array> | undefined;
@@ -52,8 +52,10 @@ export async function archiveStream(service: ArchiveService, lifetime?: RequestL
    async pull(controller) {
     try {
      const next = await source.read();
+     signal?.throwIfAborted();
      if (next.done) {
       await cleanup();
+      signal?.throwIfAborted();
       controller.close();
      } else controller.enqueue(next.value);
     } catch (error) {
