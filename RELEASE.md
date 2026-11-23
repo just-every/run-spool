@@ -1,22 +1,17 @@
-# Spool 0.7.25
+# Spool 0.7.26
 
-Spool 0.7.25 reduces Cloudflare D1 reads during scheduled alert and follow-up work, issue browsing and health checks.
+Spool 0.7.26 fixes no-build browser capture and makes local and hosted agent workflows more reliable.
 
 ### What changed
 
-- **Spend fewer D1 reads on quiet cron ticks.** Settled alert history and alert follow-up scans now read indexed work as it changes or becomes due instead of scanning retained history every minute. In the same small-installation model, total D1 reads fell from 573,718 to 99,886 rows per day, and quiet cron dropped from 391 to 65 rows read per tick.
-- **Skip repeat digest and retention work.** Project and team digests check whether the period already has a digest before assembling one. The daily retention pass reuses its initial count when nothing has expired.
-- **Read fewer rows when browsing or filtering issues.** Issue lists limit the page before loading per-issue details, and search facets avoid a repeated scan of matching issues and events. The health check reads at most one project row.
-- **Preserve follow-up recovery for earlier installations and archives.** Upgrades repair legacy attention that mistook successful capture for loss and cancel its pending notices. Restoring an eligible older private archive rebuilds pending capture-loss work while preserving its delivery history.
+- **Send browser events without a build step.** The `/errors-capture.js` helper now sends captured errors when the setup omits the environment. It uses `production` by default and still accepts an explicit environment.
+- **Connect the agent CLI to local Spool.** The CLI accepts the dev key for `localhost`, IPv4 loopback and IPv6 loopback. It recognizes the owner selector copied with the key from the private local sign-in link and continues to refuse dev keys for non-loopback destinations.
+- **Submit hosted split proposals within the D1 budget.** The measured split proposal fell from 123 to 49 D1 binding calls, within the Workers Free limit of 50 per invocation. When Spool supplies a native refusal reason, the CLI displays it.
+- **Deploy from a fresh checkout.** The hosting guide now says to stop local dev only if it is running in that checkout.
 
 ### Updating
 
-If you are updating from 0.7.24, back up first. Download a private archive in Settings, or stop local dev and run `rer export --output exports/spool.jsonl`. On main, run `git pull --ff-only` and `rer dev --host localhost`. From a tagged checkout, use [GitHub Releases](https://github.com/just-every/run-spool/releases) to select the latest published stable tag. Fetch tags with `git fetch --tags`, check out the selected tag, then run `rer dev --host localhost`. For a hosted installation, follow the update steps in docs/HOSTED.md from the original deploying checkout. All 110 core SQL migrations from 0.7.24 are byte-identical. Four additive migrations apply on the next start or deploy. There are no breaking changes. Keep the existing database, private settings, project keys and deployment receipt. Import private archives only into an empty destination. Spool pins rer to 0.2.131. To turn hosted mail off, select `MAIL_PROVIDER=none`, leave sending credentials empty and remove any previously bound sending secrets as described in docs/HOSTED.md. Keep the original deployment credentials and ownership receipt for guarded `rer signin` access. The Spool SDK has its own release process.
-
-- `migrations/core/0117_alert_work_indexes.sql` indexes active alert work and tracks changed deliveries for history updates.
-- `migrations/core/0118_issue_read_indexes.sql` indexes issue and event lookups used in browsing and search.
-- `migrations/core/0119_metric_expiry_index.sql` indexes transaction expiry.
-- `migrations/core/0120_follow_up_alert_work.sql` indexes due alert follow-ups, backfills pending work and repairs legacy capture-loss attention.
+If you are updating from 0.7.25, back up first. Download a private archive in Settings, or stop local dev and run `rer export --output exports/spool.jsonl`. On main, run `git pull --ff-only` and `rer dev --host localhost`. From a tagged checkout, use [GitHub Releases](https://github.com/just-every/run-spool/releases) to select the latest published stable tag. Fetch tags with `git fetch --tags`, check out the selected tag, then run `rer dev --host localhost`. For a hosted installation, follow the update steps in docs/HOSTED.md from the original deploying checkout. All 114 core SQL migrations are byte-identical to 0.7.25. There are no new migrations or breaking changes. Keep the existing database, private settings, project keys and deployment receipt. Import private archives only into an empty destination. Spool pins rer to 0.2.131. To turn hosted mail off, select `MAIL_PROVIDER=none`, leave sending credentials empty and remove any previously bound sending secrets as described in docs/HOSTED.md. Keep the original deployment credentials and ownership receipt for guarded `rer signin` access. The Spool SDK has its own release process.
 
 ### Known limits
 
