@@ -1,25 +1,26 @@
-# Spool 0.7.24
+# Spool 0.7.25
 
-Spool 0.7.24 speeds up private archive downloads, makes developer packets available on mobile and clarifies reopened regressions in the issue list.
+Spool 0.7.25 reduces Cloudflare D1 reads during scheduled alert and follow-up work, issue browsing and health checks.
 
 ### What changed
 
-- **Start private archive downloads sooner.** Spool batches D1 reads for schema metadata and row counts, and reads only as far as it needs to prepare release ordering. It preserves that order and verifies the archive’s checksums during download.
-- **See when an archive transfer was interrupted.** If a browser cancels or disconnects during transfer, Spool cleans up the export and records **Result unconfirmed** in audit history. Only a completed stream records success.
-- **Download a developer packet on mobile.** At 390 px, open the issue’s **Evidence packet** and select **Download details for a developer** to save the JSON packet.
-- **Recognize reopened regressions in the issue list.** Regression rows show **Reopened**. The total and status filter say **New or reopened** for issues awaiting acknowledgment.
-- **Check source-map capacity before switching from Sentry.** The switching guide now matches the README. The published SDK 0.1.0 CLI and prepared-map picker accept flat V3 maps up to 256 KiB per file. The upload service and current checkout CLI accept flat or indexed V3 maps up to 1 MiB per file. The optional project storage cap applies, with no lifetime map count.
-- **Allow time for a first local start.** The Run page explains that startup can take several minutes and that `rer dev` reports progress about every 20 seconds.
-- **Keep legacy archive replay compatible.** The in-memory `node:sqlite` migration replay adapter now supports the batched schema reads used to verify legacy archives.
-
-Opus review 0.7.24 r2 passed on `6260d610`.
+- **Spend fewer D1 reads on quiet cron ticks.** Settled alert history and alert follow-up scans now read indexed work as it changes or becomes due instead of scanning retained history every minute. In the same small-installation model, total D1 reads fell from 573,718 to 99,886 rows per day, and quiet cron dropped from 391 to 65 rows read per tick.
+- **Skip repeat digest and retention work.** Project and team digests check whether the period already has a digest before assembling one. The daily retention pass reuses its initial count when nothing has expired.
+- **Read fewer rows when browsing or filtering issues.** Issue lists limit the page before loading per-issue details, and search facets avoid a repeated scan of matching issues and events. The health check reads at most one project row.
+- **Preserve follow-up recovery for earlier installations and archives.** Upgrades repair legacy attention that mistook successful capture for loss and cancel its pending notices. Restoring an eligible older private archive rebuilds pending capture-loss work while preserving its delivery history.
 
 ### Updating
 
-If you are updating from 0.7.23, back up first. Download a private archive in Settings, or stop local dev and run `rer export --output exports/spool.jsonl`. On main, run `git pull --ff-only` and `rer dev --host localhost`. From a tagged checkout, run `git fetch --tags && git checkout --quiet --detach 'refs/tags/v0.7.24^{commit}'` and `rer dev --host localhost` once v0.7.24 is published. For a hosted installation, follow the update steps in docs/HOSTED.md from the original deploying checkout. All 110 core SQL migrations are byte-identical to v0.7.23. There are no new migrations or breaking changes. Keep the existing database, private settings, project keys and deployment receipt. Import private archives only into an empty destination. Spool pins rer to 0.2.131. To turn hosted mail off, select `MAIL_PROVIDER=none`, leave sending credentials empty and remove any previously bound sending secrets as described in docs/HOSTED.md. Keep the original deployment credentials and ownership receipt for guarded `rer signin` access. The Spool SDK has its own release process.
+If you are updating from 0.7.24, back up first. Download a private archive in Settings, or stop local dev and run `rer export --output exports/spool.jsonl`. On main, run `git pull --ff-only` and `rer dev --host localhost`. From a tagged checkout, use [GitHub Releases](https://github.com/just-every/run-spool/releases) to select the latest published stable tag. Fetch tags with `git fetch --tags`, check out the selected tag, then run `rer dev --host localhost`. For a hosted installation, follow the update steps in docs/HOSTED.md from the original deploying checkout. All 110 core SQL migrations from 0.7.24 are byte-identical. Four additive migrations apply on the next start or deploy. There are no breaking changes. Keep the existing database, private settings, project keys and deployment receipt. Import private archives only into an empty destination. Spool pins rer to 0.2.131. To turn hosted mail off, select `MAIL_PROVIDER=none`, leave sending credentials empty and remove any previously bound sending secrets as described in docs/HOSTED.md. Keep the original deployment credentials and ownership receipt for guarded `rer signin` access. The Spool SDK has its own release process.
+
+- `migrations/core/0117_alert_work_indexes.sql` indexes active alert work and tracks changed deliveries for history updates.
+- `migrations/core/0118_issue_read_indexes.sql` indexes issue and event lookups used in browsing and search.
+- `migrations/core/0119_metric_expiry_index.sql` indexes transaction expiry.
+- `migrations/core/0120_follow_up_alert_work.sql` indexes due alert follow-ups, backfills pending work and repairs legacy capture-loss attention.
 
 ### Known limits
 
+- Active ticks that assemble new digests, expire retained data or process many due deliveries can still exceed the Cloudflare Workers Free plan’s 50 D1 binding calls per invocation.
 - Transaction measurements retain bounded observations. Spool does not store spans, transaction tags or request data.
 - Imported rules that target issue owners stay disabled because they require native ownership rules. Rules that use Sentry’s unsupported `EventAttributeCondition` also stay disabled. The import names each skipped rule and its reason. Issue-owner notification selection uses its explicit fallback until verified issue ownership is available. Live provider delivery needs separate qualification. Deliberately mail-off hosted installations send no sign-in links, invitations or email alerts.
 - Passkey enrollment and sign-in are available to the local owner on `localhost`. Keep the private terminal sign-in link as a recovery option.
