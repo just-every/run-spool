@@ -10662,7 +10662,7 @@
       "executable": false
     },
     "src/ui/workbench/IssueList.tsx": {
-      "sha256": "eecb3f698184b5ff618c7e20fb14c3e56b398decb6916dddc94e1e374bd4a141",
+      "sha256": "6980de99880ddd12fe4b527bb581fbcafbaeee5dde9009c1aee8bc7f79069256",
       "executable": false
     },
     "src/ui/workbench/issuePanels.ts": {
