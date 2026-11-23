@@ -18,6 +18,10 @@ async function remember(env:Environment,row:Candidate,time:number) {
 /** One installation-wide scan, independent of the alert dispatch cursor. */
 export async function scanFollowUp(env:Environment,time:number) {
  if(!Number.isSafeInteger(time)||time<0)throw new Error('Invalid follow-up time');
+ if(await s(env.DB,'SELECT 1 FROM follow_up_legacy_loss LIMIT 1').first()){
+  await s(env.DB,`UPDATE follow_up_attention SET state='canceled',reason='successful_capture_not_loss',updated=?,revision=revision+1
+   WHERE id IN (SELECT id FROM follow_up_legacy_loss)`,time).run();
+ }
  // Expired provider boundaries never become retryable merely because a lease
  // disappeared. A delayed old worker may still finish; uncertainty stays fenced.
  await s(env.DB,"UPDATE follow_up_fix_steps SET state='uncertain',finished=? WHERE state='running' AND due<=?",time,time).run();

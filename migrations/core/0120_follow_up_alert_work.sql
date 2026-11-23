@@ -47,7 +47,7 @@ BEGIN
  DELETE FROM follow_up_alert_work WHERE project=NEW.project AND source_id=NEW.source_id;
 END;
 
-CREATE TRIGGER IF NOT EXISTS follow_up_alert_work_issue AFTER UPDATE OF state ON issues WHEN (OLD.state='open') IS NOT (NEW.state='open')
+CREATE TRIGGER IF NOT EXISTS follow_up_alert_work_issue_state AFTER UPDATE OF state ON issues WHEN (OLD.state='open') IS NOT (NEW.state='open')
 BEGIN
  UPDATE follow_up_alert_work SET ready=NEW.state='open' WHERE issue=NEW.id AND project=NEW.project;
 END;
@@ -174,15 +174,40 @@ BEGIN
 END;
 
 
--- Finish the earlier repair once. Both tables hold local work only, and
--- current discovery excludes these successful capture receipts at admission.
-UPDATE follow_up_attention SET state='canceled',reason='successful_capture_not_loss',
- updated=CAST((julianday('now')-2440587.5)*86400000 AS INTEGER),revision=revision+1
+-- Successful receipts can still arrive from an older Worker during upgrade.
+-- Index only mistaken attention rows so the scheduler never revisits repairs.
+CREATE INDEX IF NOT EXISTS follow_up_legacy_loss_due ON follow_up_attention(id)
  WHERE source='alert' AND source_id LIKE 'loss:%' AND reason IN (
   'capture_loss_accepted','capture_loss_duplicate','capture_loss_feedback_accepted','capture_loss_feedback_duplicate',
   'capture_loss_feedback_withdrawn','capture_loss_session_stored','capture_loss_check_in_routed',
   'capture_loss_transaction_stored','capture_loss_transaction_duplicate','capture_loss_sentry_release_invalid_release_name',
   'capture_loss_sentry_release_automatic_release_pattern');
+CREATE VIEW IF NOT EXISTS follow_up_legacy_loss AS
+ SELECT id FROM follow_up_attention INDEXED BY follow_up_legacy_loss_due
+ WHERE source='alert' AND source_id LIKE 'loss:%' AND reason IN (
+  'capture_loss_accepted','capture_loss_duplicate','capture_loss_feedback_accepted','capture_loss_feedback_duplicate',
+  'capture_loss_feedback_withdrawn','capture_loss_session_stored','capture_loss_check_in_routed',
+  'capture_loss_transaction_stored','capture_loss_transaction_duplicate','capture_loss_sentry_release_invalid_release_name',
+  'capture_loss_sentry_release_automatic_release_pattern');
+
+CREATE TRIGGER IF NOT EXISTS follow_up_legacy_loss_cancel_notices AFTER UPDATE OF reason ON follow_up_attention
+ WHEN NEW.state='canceled' AND NEW.reason='successful_capture_not_loss' AND OLD.reason IS NOT NEW.reason
+ BEGIN
+  UPDATE follow_up_notices SET state='canceled',code='successful_capture_not_loss'
+   WHERE attention=NEW.id AND state IN ('queued','blocked');
+ END;
+-- A claim can finish after its attention has been repaired. Cancel any
+-- subsequent retry at that write without scanning repaired attention again.
+CREATE TRIGGER IF NOT EXISTS follow_up_legacy_loss_notice_update AFTER UPDATE OF state ON follow_up_notices
+ WHEN NEW.state IN ('queued','blocked') AND EXISTS(
+  SELECT 1 FROM follow_up_attention WHERE id=NEW.attention AND reason='successful_capture_not_loss' AND state='canceled')
+ BEGIN
+  UPDATE follow_up_notices SET state='canceled',code='successful_capture_not_loss' WHERE id=NEW.id;
+ END;
+
+UPDATE follow_up_attention SET state='canceled',reason='successful_capture_not_loss',
+ updated=CAST((julianday('now')-2440587.5)*86400000 AS INTEGER),revision=revision+1
+ WHERE id IN (SELECT id FROM follow_up_legacy_loss);
 UPDATE follow_up_notices SET state='canceled',code='successful_capture_not_loss'
  WHERE state IN ('queued','blocked') AND attention IN (
   SELECT id FROM follow_up_attention WHERE reason='successful_capture_not_loss' AND state='canceled');

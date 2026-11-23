@@ -3790,7 +3790,7 @@
       "executable": false
     },
     "management/integration/deployment-spec.json": {
-      "sha256": "1567efec3f3971e666ee085e39ec4c03f9bf63fdac9f81e8d1eb0a411c7c3f2d",
+      "sha256": "5dfff56114e4b06a63baf08e6aa3fae18b5265278065d84796148ac15c9d741c",
       "executable": false
     },
     "migrations/core/0001_errors.sql": {
@@ -4246,7 +4246,7 @@
       "executable": false
     },
     "migrations/core/0120_follow_up_alert_work.sql": {
-      "sha256": "63805e48eadc7eb78c1ee04f103e34146a29b0ac17d5dbd6ff262665083005c8",
+      "sha256": "29bc0279a3eb953fd246ce16cfb285e803f0e8483da4a57c162bde4591794ba9",
       "executable": false
     },
     "ONBOARDING.md": {
@@ -5770,7 +5770,7 @@
       "executable": false
     },
     "src/domain/alerts/archive-work-compat.ts": {
-      "sha256": "74ea3ef7d874a3d6b98e3d26e8b5878c8e4e19f47aa8e36dcfa6d7ddd9010731",
+      "sha256": "6fd4dbe4fcb03e514453930f259063430bcdb244d73aba59874fd8e62cc285c9",
       "executable": false
     },
     "src/domain/alerts/archive.ts": {
@@ -6374,7 +6374,7 @@
       "executable": false
     },
     "src/domain/follow-up/scan.ts": {
-      "sha256": "b2f724db0691f0adb4940098808214447e221c32bfe8ac81bc73da56709aaf05",
+      "sha256": "b0a36b1f82d36593d41e9d93492894414144a4d9f81d0400e81c60bbe60e2cc1",
       "executable": false
     },
     "src/domain/follow-up/types.ts": {
@@ -11438,11 +11438,11 @@
       "executable": false
     },
     "tests/fixtures/archive-before-project-metrics.mjs": {
-      "sha256": "80003eeee578b802148fdf0f0d17ec024a29ce81a98dc56fb2091aeabd8f09b9",
+      "sha256": "31bd788127f75d449865127271afcd027c6c554fc3ead2b58a81894709394b30",
       "executable": false
     },
     "tests/fixtures/archive-before-relay-privacy.mjs": {
-      "sha256": "b59f6509d0c633fb7d938398aed3075c64ad17e0b6834cf273b46a0ae915ed40",
+      "sha256": "35e2ee258e6a1e882a5d0b18c43a8b5110a399bbe682e6e057a238bd762aa7d2",
       "executable": false
     },
     "tests/fixtures/archive-before-sentry-roster.mjs": {

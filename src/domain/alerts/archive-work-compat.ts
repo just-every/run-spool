@@ -24,10 +24,12 @@ const objectsByMigration = {
  ],
  '0120_follow_up_alert_work.sql': [
   'follow_up_alert_work_due','follow_up_alert_work_issue','follow_up_alert_work_attention',
-  'follow_up_alert_work_issue','follow_up_alert_work_issue_delete','follow_up_alert_work_history_insert',
+  'follow_up_alert_work_issue_state','follow_up_alert_work_issue_delete','follow_up_alert_work_history_insert',
   'follow_up_alert_work_history_update','follow_up_alert_work_history_delete','follow_up_alert_work_feed_insert',
   'follow_up_alert_work_feed_delete','follow_up_alert_work_loss_insert','follow_up_alert_work_loss_update',
   'follow_up_alert_work_loss_delete','follow_up_alert_work_restore',
+  'follow_up_legacy_loss_due','follow_up_legacy_loss','follow_up_legacy_loss_cancel_notices',
+  'follow_up_legacy_loss_notice_update',
  ],
 };
 export const alertWorkMigrations = Object.keys(objectsByMigration);

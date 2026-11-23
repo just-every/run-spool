@@ -8,7 +8,7 @@ import {beforeProjectMetrics} from './archive-before-project-metrics.mjs';
 // relay audit triggers) and 0104 (roster digests). The earlier trigger text is read from migration 0099, which still
 // holds it; SQLite records a trigger as `CREATE TRIGGER <name> ...` without IF NOT EXISTS.
 export async function beforeRelayPrivacy(manifest){
- beforeProjectMetrics(manifest);
+ await beforeProjectMetrics(manifest);
  if(manifest.migrations)manifest.migrations=manifest.migrations.filter(name=>!['0102_agent_retired_refs.sql','0103_agent_door_relay_privacy.sql','0104_business_retired.sql','0105_local_invitation_links.sql'].includes(name));
  // The two tombstone tables of 0102 and 0104 had no place in an archive before them.
  manifest.tables=manifest.tables.filter(table=>!['agent_door_retired_refs','bs_retired'].includes(table.name));
