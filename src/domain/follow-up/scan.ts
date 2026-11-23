@@ -82,7 +82,8 @@ export async function scanFollowUp(env:Environment,time:number) {
   WHERE source='fix' AND historical=0 AND state<>'uncertain' AND EXISTS(SELECT 1 FROM follow_up_fix_steps f WHERE f.workflow=source_id AND f.state='uncertain')`,time).run();
  await s(env.DB,`UPDATE follow_up_attention SET state=(SELECT CASE n.state WHEN 'uncertain' THEN 'uncertain' WHEN 'blocked' THEN 'blocked' WHEN 'rejected' THEN 'failed' ELSE 'overdue' END FROM deployment_notices n WHERE n.project=follow_up_attention.project AND n.deployment=source_id),updated=?,revision=revision+1
   WHERE source='deployment' AND historical=0 AND state='queued' AND EXISTS(SELECT 1 FROM deployment_notices n WHERE n.project=follow_up_attention.project AND n.deployment=source_id AND n.state<>'pending')`,time).run();
- await s(env.DB,`UPDATE follow_up_attention SET state='completed',updated=?,revision=revision+1 WHERE source='alert' AND state<>'completed' AND (
+ await s(env.DB,`UPDATE follow_up_attention SET state='completed',updated=?,revision=revision+1 WHERE source='alert' AND state<>'completed'
+  AND (source_id LIKE 'held:%' OR source_id LIKE 'snooze:%') AND (
   (source_id LIKE 'held:%' AND EXISTS(SELECT 1 FROM alert_suppressed x WHERE x.delivery_id=substr(source_id,6) AND substr(source_id,1,5)='held:' AND x.released_at IS NOT NULL)) OR
   (source_id LIKE 'snooze:%' AND EXISTS(SELECT 1 FROM alert_snoozes z WHERE z.id=substr(source_id,8) AND substr(source_id,1,7)='snooze:' AND NOT EXISTS(SELECT 1 FROM alert_suppressed x WHERE x.snooze_id=z.id AND x.released_at IS NULL)))
  )`,time).run();

@@ -3790,7 +3790,7 @@
       "executable": false
     },
     "management/integration/deployment-spec.json": {
-      "sha256": "5dfff56114e4b06a63baf08e6aa3fae18b5265278065d84796148ac15c9d741c",
+      "sha256": "0fe484910452d44bd73d46179947e8335c14800cc6d85e0b7e96be9b022d6d3c",
       "executable": false
     },
     "migrations/core/0001_errors.sql": {
@@ -4234,7 +4234,7 @@
       "executable": false
     },
     "migrations/core/0117_alert_work_indexes.sql": {
-      "sha256": "1f8ebbd88d4758a8c1fa175903c4ea1fc5ccbed15bd5d7bc736a4275358e3966",
+      "sha256": "5f82d623278296a351c812d224da1e504c0a6687af14cd07f9091656e567b225",
       "executable": false
     },
     "migrations/core/0118_issue_read_indexes.sql": {
@@ -6374,7 +6374,7 @@
       "executable": false
     },
     "src/domain/follow-up/scan.ts": {
-      "sha256": "b0a36b1f82d36593d41e9d93492894414144a4d9f81d0400e81c60bbe60e2cc1",
+      "sha256": "89508b7acc3cd131b4104ac5f366a6011697d925c5f449d6c11d5c09c4d205fd",
       "executable": false
     },
     "src/domain/follow-up/types.ts": {

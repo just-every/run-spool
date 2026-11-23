@@ -20,7 +20,7 @@ CREATE INDEX IF NOT EXISTS alert_scheduled_mail_follow_up ON alert_scheduled_mai
 CREATE INDEX IF NOT EXISTS spool_team_mail_follow_up ON spool_team_mail(organization,team,id)
  WHERE historical=0 AND state IN ('blocked','rejected','uncertain');
 CREATE INDEX IF NOT EXISTS follow_up_attention_alert_open ON follow_up_attention(project,source_id)
- WHERE source='alert' AND state<>'completed';
+ WHERE source='alert' AND state<>'completed' AND (source_id LIKE 'held:%' OR source_id LIKE 'snooze:%');
 CREATE INDEX IF NOT EXISTS follow_up_attention_live ON follow_up_attention(project,state,source,source_id)
  WHERE historical=0 AND state NOT IN ('completed','canceled','uncertain');
 CREATE INDEX IF NOT EXISTS follow_up_attention_local_queued ON follow_up_attention(source,source_id,project)
