@@ -6478,7 +6478,7 @@
       "executable": false
     },
     "src/domain/investigation/search.ts": {
-      "sha256": "34dff75bd47dd3b86c2b0129209e88506c346f15fac10656ebd15db44bf460e9",
+      "sha256": "a6f7aabf7ce28c107aa0016b6a3e8a5648bedf1d7342d3fd915c79a424cd12f4",
       "executable": false
     },
     "src/domain/issue-attention.ts": {

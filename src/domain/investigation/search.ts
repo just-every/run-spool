@@ -41,6 +41,9 @@ async function search(c:any,exporting=false){
  if(c.req.query('assignee')==='me'){if(c.get('agent'))return c.json({error:'Sign in to use Assigned to me.'},403);where.push('EXISTS(SELECT 1 FROM issue_assignments a JOIN audit_actor_links l ON l.label=a.label WHERE a.project=i.project AND a.issue=i.id AND l.owner_id=?)');args.push(c.get('person').operator.id)}
  if(query.reviewPending)where.push(pendingReview('i'));
  for(const priority of query.issuePriorities){where.push(`${prioritySql('i')}=?`);args.push(priority)}
+ // A facet row already satisfies the event predicate. Only the issue-only
+ // reads need the separate existence check.
+ const facetFilter=where.join(' AND '),facetArgs=[...args];
  if(query.hasEventTerms||release!=='all'){where.push(`EXISTS(SELECT 1 FROM events e WHERE e.project=i.project AND e.issue=i.id AND ${query.sql}${release!=='all'?' AND e.release=?':''})`);args.push(...query.args,...release!=='all'?[release]:[])}
  const filtered=`FROM issues i WHERE ${where.join(' AND ')}`;
  const db:D1Database=c.env.DB;
@@ -70,9 +73,9 @@ async function search(c:any,exporting=false){
   for(const r of rows as any[]){const resolution=resolutions.get(r.id);r.resolution_commit=resolution?.commit??null;r.resolution_citation=resolution?.citation??null;r.resolution_release=resolution?.release??null;if(share){r.resolution_author=resolution?.author?[resolution.author.name,resolution.author.email&&`<${resolution.author.email}>`].filter(Boolean).join(' '):null;r.resolution_message=resolution?.message??null}}
   const keys=['short_id','id','title','state','priority','count','first_seen','last_seen','last_release','resolution_commit','resolution_citation','resolution_release',...share?['resolution_author','resolution_message']:[]];const cell=(v:any)=>'"'+inert(String(v??'')).replaceAll('"','""')+'"';return new Response(format==='csv'?[keys.join(','),...rows.map((r:any)=>keys.map(k=>cell(r[k])).join(','))].join('\r\n'):JSON.stringify({version:1,project,query:{q,status:state,release,sort,...c.req.query('assignee')==='me'?{assignee:'me'}:{}},total:exportTotal,rows,bounds:{limit:10000,complete:true},coverage:'Retained issue aggregates; counts include all retained occurrences of matched issues.'}),{headers:{'Content-Type':format==='csv'?'text/csv; charset=utf-8':'application/json','Content-Disposition':`attachment; filename="spool-issues.${format}"`,'Cache-Control':'no-store'}})}
  const eventPredicate=query.sql+(release!=='all'?' AND e.release=?':''),eventArgs=[...query.args,...release!=='all'?[release]:[]];
- const facets=`WITH matched AS MATERIALIZED (SELECT i.id ${filtered})`;
- const events='FROM events e JOIN matched i ON i.id=e.issue';
- const eventStatement=(select:string,tail='',joins='')=>db.prepare(`${facets} SELECT ${select} ${events} ${joins} WHERE e.project=? AND ${eventPredicate} ${tail}`).bind(...args,project,...eventArgs);
+ const events='FROM events e JOIN issues i ON i.id=e.issue AND i.project=e.project';
+ const eventStatement=(select:string,tail='',joins='')=>db.prepare(`SELECT ${select} ${events} ${joins}
+  WHERE e.project=? AND ${facetFilter} AND ${eventPredicate} ${tail}`).bind(project,...facetArgs,...eventArgs);
  const review=c.get('agent')?'0':`SUM(${pendingReview('i')})`;
  const [statuses,releases,environments,tags,matchingEvents]=await Promise.all([
   db.prepare(`SELECT i.state value,COUNT(*) count,${review} reviewPending ${filtered} GROUP BY i.state ORDER BY i.state`).bind(...args).all<{value:string;count:number;reviewPending:number}>(),
