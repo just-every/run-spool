@@ -1,20 +1,25 @@
-# Spool 0.7.26
+# Spool 0.7.27
 
-Spool 0.7.26 fixes no-build browser capture and makes local and hosted agent workflows more reliable.
+Spool 0.7.27 fixes first capture from Sentry and improves the npm-free browser helper and first-project setup.
 
 ### What changed
 
-- **Send browser events without a build step.** The `/errors-capture.js` helper now sends captured errors when the setup omits the environment. It uses `production` by default and still accepts an explicit environment.
-- **Connect the agent CLI to local Spool.** The CLI accepts the dev key for `localhost`, IPv4 loopback and IPv6 loopback. It recognizes the owner selector copied with the key from the private local sign-in link and continues to refuse dev keys for non-loopback destinations.
-- **Submit hosted split proposals within the D1 budget.** The measured split proposal fell from 123 to 49 D1 binding calls, within the Workers Free limit of 50 per invocation. When Spool supplies a native refusal reason, the CLI displays it.
-- **Deploy from a fresh checkout.** The hosting guide now says to stop local dev only if it is running in that checkout.
+- **Capture the first hosted Sentry error and session.** When concurrent first requests race to create a project’s identity key, Spool retries the affected Sentry error or session once after confirming that a key was saved for that same project. The retry uses the saved key.
+- **See why Sentry intake refused a request.** JSON refusals identify Spool and include a stable reason in the response body, the `X-Sentry-Error` header and the Worker log.
+- **Record separate throws with the npm-free browser helper.** Two consecutive throws can create separate occurrences even when their messages and locations match. The helper suppresses repeat reports of the same `Error` object within 100 ms and uses a per-location token bucket to cap bursts and feedback loops.
+- **Enter first-project details once setup is ready.** The setup form enables project fields when its data and identity policy are ready, prevents repeated submissions while busy and sends the same project ID and name.
+- **Follow clearer first-run and agent handoff instructions.** The local setup guide accounts for dependency installation on first start, and the agent guide points to the key and paste-in prompt controls.
 
 ### Updating
 
-If you are updating from 0.7.25, back up first. Download a private archive in Settings, or stop local dev and run `rer export --output exports/spool.jsonl`. On main, run `git pull --ff-only` and `rer dev --host localhost`. From a tagged checkout, use [GitHub Releases](https://github.com/just-every/run-spool/releases) to select the latest published stable tag. Fetch tags with `git fetch --tags`, check out the selected tag, then run `rer dev --host localhost`. For a hosted installation, follow the update steps in docs/HOSTED.md from the original deploying checkout. All 114 core SQL migrations are byte-identical to 0.7.25. There are no new migrations or breaking changes. Keep the existing database, private settings, project keys and deployment receipt. Import private archives only into an empty destination. Spool pins rer to 0.2.131. To turn hosted mail off, select `MAIL_PROVIDER=none`, leave sending credentials empty and remove any previously bound sending secrets as described in docs/HOSTED.md. Keep the original deployment credentials and ownership receipt for guarded `rer signin` access. The Spool SDK has its own release process.
+If you are updating from 0.7.26, back up first. Download a private archive in Settings, or stop local dev and run `rer export --output exports/spool.jsonl`. On main, run `git pull --ff-only` and `rer dev --host localhost`. From a tagged checkout, use [GitHub Releases](https://github.com/just-every/run-spool/releases) to select the latest published stable tag. Fetch tags with `git fetch --tags`, check out the selected tag, then run `rer dev --host localhost`. For a hosted installation, follow the update steps in docs/HOSTED.md from the original deploying checkout. All 114 core SQL migrations are byte-identical to 0.7.26. There are no new migrations or breaking changes. Keep the existing database, private settings, project keys and deployment receipt. Import private archives only into an empty destination. Spool pins rer to 0.2.131. To turn hosted mail off, select `MAIL_PROVIDER=none`, leave sending credentials empty and remove any previously bound sending secrets as described in docs/HOSTED.md. Keep the original deployment credentials and ownership receipt for guarded `rer signin` access. The Spool SDK has its own release process.
+
+Opus review passed for the product changes at `98c32255`.
 
 ### Known limits
 
+- Hosted split proposals can still exceed the Cloudflare Workers Free plan’s 50 D1 binding calls per invocation.
+- Native error intake, Sentry transactions, feedback and located logs can still return HTTP 403 on a project’s first identity-key collision when scrubbing rules are active.
 - Active ticks that assemble new digests, expire retained data or process many due deliveries can still exceed the Cloudflare Workers Free plan’s 50 D1 binding calls per invocation.
 - Transaction measurements retain bounded observations. Spool does not store spans, transaction tags or request data.
 - Imported rules that target issue owners stay disabled because they require native ownership rules. Rules that use Sentry’s unsupported `EventAttributeCondition` also stay disabled. The import names each skipped rule and its reason. Issue-owner notification selection uses its explicit fallback until verified issue ownership is available. Live provider delivery needs separate qualification. Deliberately mail-off hosted installations send no sign-in links, invitations or email alerts.
