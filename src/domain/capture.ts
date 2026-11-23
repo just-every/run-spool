@@ -172,4 +172,7 @@ export function listen(capture:(error:Error,dropped:number)=>unknown,drop:(resul
   target.addEventListener('error',onError);target.addEventListener('unhandledrejection',onRejection);
   return ()=>{target.removeEventListener('error',onError);target.removeEventListener('unhandledrejection',onRejection);admit.close()};
 }
-export function installBrowserCapture(options:CaptureOptions) { const sending={...options,transport:currentFetch()}; return listen((error,dropped)=>captureException(error,dropped?{...sending,dropped}:sending),result=>settle(result,options.onOutcome)) }
+export function installBrowserCapture({environment='production',...options}:Omit<CaptureOptions,'environment'>&{environment?:string}) {
+  const sending={...options,environment,transport:currentFetch()};
+  return listen((error,dropped)=>captureException(error,dropped?{...sending,dropped}:sending),result=>settle(result,options.onOutcome));
+}

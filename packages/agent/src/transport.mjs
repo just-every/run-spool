@@ -28,8 +28,12 @@ export async function configuration(options, env = process.env) {
   } catch { throw new AgentError('Unable to read agent key.', 2); }
   key = key?.trim();
   if (!key || !/^[A-Za-z0-9._~=-]{1,8192}$/.test(key)) throw new AgentError('An agent key is required through environment, file, or stdin.', 2);
-  const devKey = env.SPOOL_DEV_KEY?.trim();
-  if (devKey && (!isLoopback(root) || !/^[A-Za-z0-9._~=-]{1,8192}$/.test(devKey))) throw new AgentError('SPOOL_DEV_KEY is permitted only on loopback.');
+  const devInput = env.SPOOL_DEV_KEY?.trim();
+  if (devInput && !isLoopback(root)) throw new AgentError('SPOOL_DEV_KEY is permitted only on loopback.');
+  // rer prints the checkout key with the owner selector in the URL fragment.
+  const copiedFragment = /^(?:#?rer-dev=)?([A-Za-z0-9_-]{43,256})&as=owner$/.exec(devInput ?? '');
+  const devKey = copiedFragment?.[1] ?? devInput;
+  if (devKey && !/^[A-Za-z0-9._~=-]{1,8192}$/.test(devKey)) throw new AgentError('Invalid SPOOL_DEV_KEY. Copy the value after rer-dev= and before any & from the private RER_OPEN link.');
   return { root, key, devKey, timeout: options.timeout };
 }
 
@@ -54,7 +58,8 @@ function refusal(error, config) {
   const code = typeof error?.code === 'string' ? error.code : 'native_refused';
   const setup = typeof error?.setup_url === 'string' ? redact(error.setup_url, [config.key, config.devKey]) : null;
   const field = code === 'invalid_arguments' && /^variants\[\d+\]\.stack$/.test(error?.field) ? error.field : null;
-  return `Spool refused the request: ${code}.${field ? ` Missing required field: ${field}.` : ''}${setup ? ` An owner chooses the company agent policy at ${setup}; this key works once it is chosen.` : ''}`;
+  const reason = code === 'native_refused' && typeof error?.reason === 'string' ? redact(error.reason, [config.key, config.devKey]).replace(/\s+/g, ' ').trim().slice(0, 300) : '';
+  return `Spool refused the request: ${code}.${reason ? ` ${reason}` : ''}${field ? ` Missing required field: ${field}.` : ''}${setup ? ` An owner chooses the company agent policy at ${setup}; this key works once it is chosen.` : ''}`;
 }
 export async function rpc(config, method, params = {}) {
   const url = new URL('/mcp', config.root);

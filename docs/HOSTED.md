@@ -48,10 +48,9 @@ Choose a tagged checkout from [Spool's GitHub Releases](https://github.com/just-
 
    Open the generated `.rer/deploy/<environment>.env` in a text editor and fill in the owner email, verified SendGrid sender and SendGrid API key. To turn email off deliberately, set `MAIL_PROVIDER=none` and leave `MAIL_FROM` and every sending credential empty. Keep these values out of shell commands. The file can be read only by you. Git ignores it, and `rer reset` keeps it. Keep it for every later deploy of this environment.
 
-3. Use your credential helper or shell environment to supply `CLOUDFLARE_ACCOUNT_ID` and `CLOUDFLARE_API_TOKEN` to rer. Keep all `CLOUDFLARE_*` and `CF_*` fields out of the private settings file. Stop local dev, then deploy and claim the hosted owner:
+3. Use your credential helper or shell environment to supply `CLOUDFLARE_ACCOUNT_ID` and `CLOUDFLARE_API_TOKEN` to rer. Keep all `CLOUDFLARE_*` and `CF_*` fields out of the private settings file. If local dev is running in this checkout, stop it with `rer dev --stop`. Then deploy and claim the hosted owner:
 
    ```sh
-   rer dev --stop
    rer deploy --env-file .rer/deploy/"$SPOOL_ENV".env --environment "$SPOOL_ENV"
    ```
 

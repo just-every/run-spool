@@ -60,7 +60,7 @@ try {
  await page.getByRole('button',{name:'Register your first release',exact:true}).click();
  await registerReleaseAndReturn({page,origin,project:'cedar',name:'autumn-deliveries',build:'dispatch-a',api,capture:scenario=>capture(scenario,width)});
  const snippet=await page.getByLabel('SDK init',{exact:true}).innerText();assert.ok(snippet.includes(JSON.stringify(origin)));assert.ok(!snippet.includes('location.origin'));
- application=await startDispatchApp({endpoint:origin,project:'cedar',ingestKey:project.ingestKey,release:'autumn-deliveries',build:'dispatch-a',environment:'production',debugId:'dispatch-map'});
+ application=await startDispatchApp({endpoint:origin,project:'cedar',ingestKey:project.ingestKey,release:'autumn-deliveries',build:'dispatch-a',debugId:'dispatch-map'});
  await page.getByLabel('Your website address',{exact:true}).fill(application.origin);await page.getByRole('button',{name:'Allow website',exact:true}).click();await page.getByRole('status').filter({hasText:'Saved:'}).waitFor();
  const appPage=await context.newPage();async function throwInApp(){await appPage.goto(application.origin);await appPage.getByRole('button',{name:'Prepare delivery'}).click();await appPage.waitForFunction(()=>window.captureOutcome?.outcome==='accepted');return appPage.evaluate(()=>window.captureOutcome);}
  const admitted=await throwInApp();assert.ok(admitted.issue);checked('Real minified application throws and capture crosses a second loopback origin');

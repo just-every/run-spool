@@ -1,7 +1,8 @@
 import { ToolRefusal, type NativeTarget, type ToolContext } from '../../modules/agent-door/index.ts';
 import type { Bindings } from '../../auth/bindings';
-import { nativeCall } from './native';
+import { authorizeNative, nativeCall } from './native';
 import { localCredentialId } from './native-authority';
+import { resolveIssue } from '../short-ids/lookup';
 
 /** Resolve audit identities from visible native records. A proposed identifier
  * alone never proves a record exists or grants access to it. */
@@ -28,8 +29,16 @@ export async function spoolTarget(env: Bindings, route: string, args: Record<str
   return {kind:'project_erasure',id:row.id};
  }
  if(!args.project)return null;
+ if(route==='proposals'&&args.source){
+  // A proposal targets one issue. Resolve it under the native write authority
+  // without loading the issue list and a full developer packet for policy.
+  await authorizeNative(env,route,'POST',args,ctx);
+  const found=await resolveIssue(env.DB,args.project,args.source);
+  if(!found||(!found.requested&&!await env.DB.prepare('SELECT 1 FROM issues WHERE project=? AND id=?').bind(args.project,found.issue).first()))throw new ToolRefusal('not_found');
+  return {kind:'issue',id:found.issue};
+ }
  await nativeCall(env,'issues','GET',{project:args.project},ctx,'target');
- if(args.issue||(['proposals','grouping-preview'].includes(route)&&args.source)){
+ if(args.issue||(route==='grouping-preview'&&args.source)){
   const packet=await nativeCall(env,'packet','GET',{project:args.project,issue:args.issue??args.source},ctx,'target');
   return {kind:'issue',id:packet.issue.id};
  }

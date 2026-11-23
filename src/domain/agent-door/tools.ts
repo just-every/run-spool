@@ -65,6 +65,9 @@ export function spoolTools(env:Bindings):ToolDefinition[] {
     if(route==='proposals'&&!readOnly){
      const field=missingVariantStack(a.variants);
      if(field)throw new ToolRefusal('invalid_arguments','Missing required field',{field});
+     // Inert proposals always have the same class. Current native authority
+     // still applies on replay, even when target resolution is skipped.
+     return standard();
     }
     if(route==='erasure-resume'){if(c.person.role!=='owner')throw new ToolRefusal('not_found');const row=await env.DB.prepare("SELECT 1 FROM rer_erasure_operations WHERE id=? AND entity='project'").bind(a.id).first();if(!row)throw new ToolRefusal('not_found');return [{class:'destructive',facts:{measure:1}}];}
     if(route==='witness'){await nativeWitness(env,a,c);return standard();}

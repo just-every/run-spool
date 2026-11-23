@@ -8,7 +8,7 @@ import { mintedByCurrentPerson } from '../credential-fence';
 import { canonical, hash } from '../privacy';
 import { jsonBody } from '../owner-router';
 import { ownerBatch } from '../owner-authority';
-import { auditedBatch, auditCommit, attributeAuditScope } from '../audit/context';
+import { auditedBatch, auditCommit, attributeAuditScope, currentAuditScope } from '../audit/context';
 import { guard, s } from '../operators/common';
 import { auditActor } from '../audit/identity';
 import { isShortId } from '../short-ids/format';
@@ -20,11 +20,13 @@ const routes=new Hono<any>();
 const parsed=(row:any)=>({...row,input:JSON.parse(row.input),revisions:JSON.parse(row.revisions),explanation:JSON.parse(row.explanation),preparedBy:row.prepared_by??null,label:`proposed by agent ${row.prepared_by??row.actor}`});
 const summary=(row:any)=>{const r=parsed(row);return {id:r.id,kind:r.kind,state:r.state,actor:r.actor,preparedBy:r.preparedBy,label:r.label,input:r.input,revisions:r.revisions,created:r.created,updated:r.updated}};
 routes.use('*',async(c,next)=>{
- const project=c.req.param('project')!,session=await ownerSession(c.req.raw,c.env,resolveMembership),agent=await agentProject(c.req.raw,c.env.DB);
+ const project=c.req.param('project')!,native=agentAuthority(c.req.raw),session=await ownerSession(c.req.raw,c.env,resolveMembership);
+ // A native agent's session check already revalidates its exact grant.
+ const agent=native?null:await agentProject(c.req.raw,c.env.DB);
  if(!session&&agent!==project)return c.json({error:'Owner session or own-project agent grant required'},401);
  if(session&&!['GET','HEAD'].includes(c.req.method)&&!ownerWrite(c.req.raw,c.env))return c.json({error:'Same-origin required'},403);
  if(!await s(c.env.DB,'SELECT 1 FROM projects WHERE id=?',project).first())return c.json({error:'Project not found'},404);
- c.set('proposalOwner',session);c.set('proposalAgent',agent===project||!!agentAuthority(c.req.raw));await next();
+ c.set('proposalOwner',session);c.set('proposalAgent',agent===project||!!native);await next();
 });
 routes.get('/',async c=>{
  const db=c.env.DB,project=c.req.param('project')!,rows=(await s(db,'SELECT * FROM grouping_proposals WHERE project=? ORDER BY created DESC,id',project).all<any>()).results;
@@ -37,9 +39,9 @@ routes.post('/',async c=>{
  if(!c.get('proposalAgent'))return c.json({error:'An agent grant submits inert proposals; owner decisions use approve or reject'},403);
  const db=c.env.DB,project=c.req.param('project')!;
  const native=agentAuthority(c.req.raw);
- const bearer=c.req.header('authorization')?.replace(/^Bearer /i,''),digest=native?native.context.agent.id:await hash(bearer!);
- const source=await s(db,"SELECT minted_by FROM credentials WHERE hash=? AND kind='agent'",digest).first<any>();
- const actor=await auditActor(db,{kind:native?'agent':'service',authority:digest,owner:native?.operator.id??source?.minted_by,project});attributeAuditScope(actor);
+ const bearer=c.req.header('authorization')?.replace(/^Bearer /i,''),digest=native?null:await hash(bearer!);
+ const actor=native?currentAuditScope().actor:await auditActor(db,{kind:'service',authority:digest!,owner:(await s(db,"SELECT minted_by FROM credentials WHERE hash=? AND kind='agent'",digest).first<{minted_by:string}>())?.minted_by,project});
+ attributeAuditScope(actor);
  const submitted=await jsonBody(c.req.raw,32768);
  const resolved=isShortId(submitted?.source)?await resolveIssue(db,project,submitted.source):undefined;
  if(resolved===null)throw new Error('Issue not found');

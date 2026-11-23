@@ -2,7 +2,7 @@ import api from '../api';
 import { standingDatabase } from './standing';
 import type { Bindings } from '../../auth/bindings';
 import { ToolRefusal, type ToolContext,type UndoContext } from '../../modules/agent-door/index.ts';
-import { withAgentAuthority,withReviewerAuthority,requestAuthority } from './native-authority';
+import { admitsAgentRequest,withAgentAuthority,withReviewerAuthority } from './native-authority';
 import { runAuditScope } from '../audit/context';
 import { auditActor, auditLabel, subjectBinding, projectAuditLabel } from '../audit/identity';
 import { classifyRequest } from '../audit/classify';
@@ -59,7 +59,7 @@ export async function authorizeNative(env: Bindings, route:string,method:string,
  if(['privacy','erasure-resume'].includes(route)&&ctx.person.role!=='owner')throw new ToolRefusal('not_found');
  const request=new Request(new URL(nativePath(route,a),env.AUTH_ORIGIN),{method});
  try{
-  const permitted=await withAgentAuthority(request,env,ctx,{id:ctx.operationId,tool:'admission',project:a.project??null,target:''},()=>requestAuthority(request,env));
+  const permitted=await admitsAgentRequest(request,env,ctx);
   if(!permitted)throw new ToolRefusal('not_found');
  }catch(cause){if(cause instanceof ToolRefusal)throw cause;throw new ToolRefusal('not_found');}
 }

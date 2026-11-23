@@ -18,7 +18,11 @@ export function decodeShortIds<T extends Record<string, any>>(row: T) {
 export async function resolveIssue(db: D1Database, project: string, value: string): Promise<{ issue: string; requested?: { id: string; shortId: string; alias: boolean } } | null> {
  if (/^[a-f0-9]{64}$/.test(value)) return { issue: value };
  if (!isShortId(value)) return null;
- await ensureShortIds(db, project);
- const row = await db.prepare(`SELECT s.issue,s.short_id,s.short_id<>${primaryShortIdSql('i')} alias FROM issue_short_ids s JOIN issues i ON i.id=s.issue AND i.project=s.project WHERE s.short_id=? AND s.project=?`).bind(normalizeShortId(value), project).first<{ issue: string; short_id: string; alias: number }>();
+ const lookup = db.prepare(`SELECT s.issue,s.short_id,s.short_id<>${primaryShortIdSql('i')} alias FROM issue_short_ids s JOIN issues i ON i.id=s.issue AND i.project=s.project WHERE s.short_id=? AND s.project=?`).bind(normalizeShortId(value), project);
+ let row = await lookup.first<{ issue: string; short_id: string; alias: number }>();
+ if (!row) {
+  await ensureShortIds(db, project);
+  row = await lookup.first<{ issue: string; short_id: string; alias: number }>();
+ }
  return row ? { issue: row.issue, requested: { id: value, shortId: row.short_id, alias: row.alias === 1 } } : null;
 }

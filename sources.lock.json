@@ -3014,7 +3014,7 @@
       "executable": false
     },
     "docs/HOSTED.md": {
-      "sha256": "a8e43f7cf83266de83d7116c33231b67d7493fd81a9a4656585bde5c7fedad91",
+      "sha256": "23cf3bbf124aac409154a576a944828cd6c5cf39c6e1b53daee23b8eaf5c229e",
       "executable": false
     },
     "docs/IMPORT-READS.md": {
@@ -4298,7 +4298,7 @@
       "executable": false
     },
     "packages/agent/src/transport.mjs": {
-      "sha256": "cd0ffdc7da6eaa67434d4bf9063e9928dda78b9163b001a84626c767c7115936",
+      "sha256": "ec1ec2f8bbe7ddedaf71d681eed280176baa1924b022df71fbc49c0bee745d01",
       "executable": false
     },
     "packages/sdk/build.mjs": {
@@ -4446,7 +4446,7 @@
       "executable": false
     },
     "public/errors-capture.js": {
-      "sha256": "df1a441e911af23c26ca58a23d6c78a77fdea300c7b7a691c73d7a27650744a6",
+      "sha256": "2e89db4118d58e6e24282606db9ff6e36f3f44620238ee824bd8a959d40c17bc",
       "executable": false
     },
     "public/fonts/fonts.css": {
@@ -5730,11 +5730,11 @@
       "executable": false
     },
     "src/domain/agent-door/native-authority.ts": {
-      "sha256": "6be0037c261289492eaaa08d55a30f2d32a4c77c976615c7e4aeedbbbce29b9d",
+      "sha256": "55abcb2075a36a0a5cdfe415a94e511bf5df2da50e8feb0e630712f5ddf1f434",
       "executable": false
     },
     "src/domain/agent-door/native.ts": {
-      "sha256": "f60a16a7ec035b2ddba76a3fec3118e4b58e51dfa23eaa5bde9135a270248078",
+      "sha256": "5bbbb1cd6d916e1d8b3d7dabd83000d2526f8892c3c5df1717958079394fd50d",
       "executable": false
     },
     "src/domain/agent-door/people.ts": {
@@ -5750,11 +5750,11 @@
       "executable": false
     },
     "src/domain/agent-door/targets.ts": {
-      "sha256": "26a6949cd4e1dc61830bb722f45627b82b1fcb3413ab4b2f93e71933ffee71ec",
+      "sha256": "da546055f4bedf6826f0866c35f780e87d35735f1936fe15863437c62a86ac45",
       "executable": false
     },
     "src/domain/agent-door/tools.ts": {
-      "sha256": "f1aa227006421f6f5d099f3067bd2f655af9a8132a9554b074fcc92ef3ace2f0",
+      "sha256": "9903a4399d1a0802abbf7565f5bb6ec14d7a8604d3a5303a0f76363f702a6b47",
       "executable": false
     },
     "src/domain/agent-projection.ts": {
@@ -6034,7 +6034,7 @@
       "executable": false
     },
     "src/domain/capture.ts": {
-      "sha256": "ab819b5fc7e667d010c8c3aa379fab1934b7b8653f4b23c84c2a1508cde47390",
+      "sha256": "06b1fa4e9126c87d4590d536befe8e7ec5d940675ecf71766223745a7a2c931b",
       "executable": false
     },
     "src/domain/checkins/connection.ts": {
@@ -6666,7 +6666,7 @@
       "executable": false
     },
     "src/domain/operators/grouping.ts": {
-      "sha256": "308ab47f0b3ec33b91057bdd63f3f6b594d564dcba238ebe448119ade287d437",
+      "sha256": "00c55215eabc7f2718a6b4bf9a499c01697796b649935ecc85398e15a3e287fe",
       "executable": false
     },
     "src/domain/operators/headlines.ts": {
@@ -6742,7 +6742,7 @@
       "executable": false
     },
     "src/domain/proposals/explanation.ts": {
-      "sha256": "7824f6bf21d432074ea7d9e1995237ccbde98e458865ef128b304f16a4b98542",
+      "sha256": "ca066987a507b3e01c6568461d2c5b87ae8c3c69ab4444b01cfa2dccb85c3b4d",
       "executable": false
     },
     "src/domain/proposals/input.ts": {
@@ -6754,7 +6754,7 @@
       "executable": false
     },
     "src/domain/proposals/routes.ts": {
-      "sha256": "19c2ec275489ab239d17cef4b3b74671aae72f0da56e18b43fae955e2b862525",
+      "sha256": "ab4ab21db2cff7225857c00871d6e77eb3db3493842a6e497058a58491c70bc1",
       "executable": false
     },
     "src/domain/proposals/text.ts": {
@@ -7282,7 +7282,7 @@
       "executable": false
     },
     "src/domain/short-ids/lookup.ts": {
-      "sha256": "f1444ed41b47a047f3a309f70f9bae81965d4e90586b31c3fa2739223a916c36",
+      "sha256": "5cbd2ee37c531773142077199458af0e7d3441df2ac77d2106131e2ce999f9d6",
       "executable": false
     },
     "src/domain/source-map-builds.ts": {
@@ -12238,7 +12238,7 @@
       "executable": false
     },
     "tests/triage-journey.mjs": {
-      "sha256": "8dc9dafeeede0a8cbb6293583937f7b51f23447ff0e66d3ce104eb97362e678c",
+      "sha256": "a33078fa01c0fd85f4271f70c481537ad1631e64fbbdf3d08cb7f7afa26359f2",
       "executable": false
     },
     "tests/tunnel-flow.mjs": {
