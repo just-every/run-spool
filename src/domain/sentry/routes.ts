@@ -2,6 +2,7 @@ import { admitTransactions } from './transactions';
 import {prepareScrubbing} from '../scrubbing/model';
 import {prepareLocatedLogs} from './located-log';
 import {prepareEventIdentity} from '../identities/intake';
+import {firstIdentityKeyChanged} from '../identities/key';
 import { admitSessions } from '../sessions/intake';
 import { filterCategory } from '../filters/categories';
 import { Hono, type Context } from 'hono';
@@ -22,6 +23,14 @@ async function sentryAuthority(c:Context<{Bindings:Bindings}>,envelope:WireObjec
   const row=await c.env.DB.prepare('SELECT project FROM sentry_project_aliases WHERE id=?').bind(c.req.param('alias')!).first<{project:string}>();
   if(!row)throw new SentryWireError('invalid_ingest_key',401);
   return authorizeIngest(c,row.project,key);
+}
+type ScrubbingKey=Awaited<ReturnType<typeof prepareScrubbing>>['key'];
+async function prepareException(db:D1Database,project:string,raw:WireObject,header:WireObject,key?:ScrubbingKey){
+  const privacy=await prepareScrubbing(db,project,raw,key);
+  const identity=await prepareEventIdentity(db,project,privacy.document.user,privacy);
+  const sample=Number(header.trace?.sample_rate),sampleRate=header.trace?.sample_rate!==undefined&&Number.isFinite(sample)&&sample>0&&sample<=1?sample:undefined;
+  const event=convertSentry(privacy.document,header.event_id,raw.user!==undefined?'identity_'+identity.reason:undefined,sampleRate);
+  return {event,identity,privacy};
 }
 const paths=['/:alias/envelope/','/:alias/envelope','/:alias/store/','/:alias/store'];
 routes.on(['OPTIONS','POST'],paths,async(c,next)=>{
@@ -64,8 +73,8 @@ routes.on('POST',paths,async c=>{
     const envelope=store?{header:{},items:[{header:{type:'event'},bytes}]}:parseEnvelope(bytes);
     const auth=await sentryAuthority(c,envelope.header);if('response' in auth)return auth.response;scope=auth.scope;
     type Privacy={jobs:D1PreparedStatement[]};
-    let eventScrubbingKey:Awaited<ReturnType<typeof prepareScrubbing>>['key']=null;
-    const dropped=new Map<string,number>(),clientDiscarded=new Map<string,number>(),events:{event:any;digest:string;identity?:Awaited<ReturnType<typeof prepareEventIdentity>>;privacy?:Privacy}[]=[],feedback=[],checkIns:typeof envelope.items=[],sessions:typeof envelope.items=[],transactions:typeof envelope.items=[];
+    let eventScrubbingKey:ScrubbingKey=null;
+    const dropped=new Map<string,number>(),clientDiscarded=new Map<string,number>(),events:{event:any;digest:string;identity?:Awaited<ReturnType<typeof prepareEventIdentity>>;privacy?:Privacy;raw?:WireObject}[]=[],feedback=[],checkIns:typeof envelope.items=[],sessions:typeof envelope.items=[],transactions:typeof envelope.items=[];
     let clientReports=0,invalidReports=0,filteredReports=0;
     for(const item of envelope.items){
       if(item.header.type==='client_report'){
@@ -95,23 +104,28 @@ routes.on('POST',paths,async c=>{
         if(store)throw new SentryWireError('unsupported_event_type',422);
         const reason=unsupportedReason(typeof raw.type==='string'?raw.type:'unknown');dropped.set(reason,(dropped.get(reason)??0)+1);continue;
       }
-      const privacy:Awaited<ReturnType<typeof prepareScrubbing<WireObject>>>=await prepareScrubbing(c.env.DB,scope.project,raw,eventScrubbingKey);
-      // Events prepared before the first admission must share the same pending
-      // project key; each accepted event still commits its own privacy fences.
-      eventScrubbingKey=privacy.key;
-      const identity=await prepareEventIdentity(c.env.DB,scope.project,privacy.document.user,privacy);
-      const sample=Number(envelope.header.trace?.sample_rate),sampleRate=envelope.header.trace?.sample_rate!==undefined&&Number.isFinite(sample)&&sample>0&&sample<=1?sample:undefined;
-      let event:ReturnType<typeof convertSentry>;
-      try{event=convertSentry(privacy.document,envelope.header.event_id,raw.user!==undefined?'identity_'+identity.reason:undefined,sampleRate)}catch(error){
+      let prepared:Awaited<ReturnType<typeof prepareException>>;
+      try{prepared=await prepareException(c.env.DB,scope.project,raw,envelope.header,eventScrubbingKey)}catch(error){
         if(store||!(error instanceof SentryWireError))throw error;
         dropped.set('invalid_item',(dropped.get('invalid_item')??0)+1);continue;
       }
-      events.push({event,digest:await hash(canonical(raw)),identity,privacy});
+      // Events prepared before the first admission must share the same pending
+      // project key; each accepted event still commits its own privacy fences.
+      eventScrubbingKey=prepared.privacy.key;
+      events.push({...prepared,digest:await hash(canonical(raw)),raw});
     }
     if(dropped.size||clientDiscarded.size)await ingestBatch(c,scope,[...dropped,...clientDiscarded].map(([reason,count])=>outcomeStatement(c.env.DB,scope!.project,reason,count)));
     let id:string|undefined,keyRefusal:any,keyLimited=0;
-    for(const {event,digest,identity,privacy} of events){
-      const response=await admitEvent(c,scope,event,digest,true,identity,privacy);
+    for(const {event,digest,identity,privacy,raw} of events){
+      let response=await admitEvent(c,scope,event,digest,true,identity,privacy);
+      // A competing first session or error can install its key before this
+      // transaction. Recompute hashes with that key and retry only this item.
+      if(response.status===403&&raw&&identity?.identityKey?.pending&&
+        (await response.clone().json() as {reason?:string}).reason==='ingest_authority_changed'&&
+        await firstIdentityKeyChanged(c.env.DB,scope.project,identity.identityKey)){
+        const refreshed=await prepareException(c.env.DB,scope.project,raw,envelope.header);
+        response=await admitEvent(c,scope,refreshed.event,digest,true,refreshed.identity,refreshed.privacy);
+      }
       if(!response.ok){const result=await response.json() as any;
         if(response.status===429&&result.reason==='key_rate_limited'){keyRefusal=result;keyLimited++;continue}
         return c.json(result,response.status as any);

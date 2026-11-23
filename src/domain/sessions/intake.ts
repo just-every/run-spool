@@ -5,7 +5,7 @@ import type {Envelope} from '../privacy';
 import {readReleasePolicy,autoReleaseAllowed} from '../releases/policy';
 import { absentDist } from '../releases/build';
 import { prepareRelease } from '../releases/admission';
-import { identityHash,prepareIdentityKey } from '../identities/key';
+import { firstIdentityKeyChanged,identityHash,prepareIdentityKey } from '../identities/key';
 import { parseSessions } from './item';
 export async function admitSessions(c:any,scope:IngestScope,items:SentryItem[],sdk?:any){
  const db=c.env.DB as D1Database,p=scope.project,counts:Record<string,number>={};
@@ -26,20 +26,27 @@ export async function admitSessions(c:any,scope:IngestScope,items:SentryItem[],s
   if(prepared.refusal){await record(prepared.refusal,[outcomeStatement(db,p,'session_release_refused')]);continue}
   if(!prepared.event?.release){await record('session_release_refused');continue}
   const cutoff=Date.now()-90*86400000;if(rows.some(r=>r.started<cutoff)){await record('session_invalid');continue}
-  const jobs=[...prepared.jobs!,stmt(db,'DELETE FROM health_sessions WHERE project=? AND started<?',p,cutoff),stmt(db,'DELETE FROM health_aggregates WHERE project=? AND started<?',p,cutoff)];
-  const identity=rows.some(r=>r.did)?await prepareIdentityKey(db,p):null;if(identity)jobs.push(...identity.jobs);
-  let conflict=false;
-  for(const row of rows){
-   if(row.sid){
-    const prior=await stmt(db,'SELECT release,environment,started FROM health_sessions WHERE project=? AND sid=?',p,row.sid).first<any>();
-    if(prior&&(prior.release!==release||prior.environment!==environment||prior.started!==row.started)){conflict=true;break}
-    jobs.push(stmt(db,`INSERT INTO health_sessions VALUES(?,?,?,?,?,?,?,?,?) ON CONFLICT(project,sid) DO UPDATE SET
-     updated=MAX(updated,excluded.updated),errors=MAX(errors,excluded.errors),user_hash=COALESCE(user_hash,excluded.user_hash),
-     status=CASE WHEN status='crashed' OR excluded.status='crashed' THEN 'crashed' WHEN status='abnormal' OR excluded.status='abnormal' THEN 'abnormal' WHEN status='unhandled' OR excluded.status='unhandled' THEN 'unhandled' WHEN excluded.updated>=updated THEN excluded.status ELSE status END`,p,row.sid,release,environment,row.started,row.updated,row.status,row.errors,row.did?await identityHash(identity!.key,row.did):null));
-   }else jobs.push(stmt(db,'INSERT INTO health_aggregates VALUES(?,?,?,?,?,?) ON CONFLICT(project,release,environment,started,status) DO UPDATE SET quantity=quantity+excluded.quantity',p,release,environment,row.started,row.status,row.quantity));
+  const identity=rows.some(r=>r.did)?await prepareIdentityKey(db,p):null;
+  const store=async(key:typeof identity)=>{
+   const jobs=[...prepared.jobs!,stmt(db,'DELETE FROM health_sessions WHERE project=? AND started<?',p,cutoff),stmt(db,'DELETE FROM health_aggregates WHERE project=? AND started<?',p,cutoff),...key?.jobs??[]];
+   for(const row of rows){
+    if(row.sid){
+     const prior=await stmt(db,'SELECT release,environment,started FROM health_sessions WHERE project=? AND sid=?',p,row.sid).first<any>();
+     if(prior&&(prior.release!==release||prior.environment!==environment||prior.started!==row.started))return record('session_invalid');
+     jobs.push(stmt(db,`INSERT INTO health_sessions VALUES(?,?,?,?,?,?,?,?,?) ON CONFLICT(project,sid) DO UPDATE SET
+      updated=MAX(updated,excluded.updated),errors=MAX(errors,excluded.errors),user_hash=COALESCE(user_hash,excluded.user_hash),
+      status=CASE WHEN status='crashed' OR excluded.status='crashed' THEN 'crashed' WHEN status='abnormal' OR excluded.status='abnormal' THEN 'abnormal' WHEN status='unhandled' OR excluded.status='unhandled' THEN 'unhandled' WHEN excluded.updated>=updated THEN excluded.status ELSE status END`,p,row.sid,release,environment,row.started,row.updated,row.status,row.errors,row.did?await identityHash(key!.key,row.did):null));
+    }else jobs.push(stmt(db,'INSERT INTO health_aggregates VALUES(?,?,?,?,?,?) ON CONFLICT(project,release,environment,started,status) DO UPDATE SET quantity=quantity+excluded.quantity',p,release,environment,row.started,row.status,row.quantity));
+   }
+   return record('session_stored',jobs);
   }
-  if(conflict){await record('session_invalid');continue}
-  try{await record('session_stored',jobs)}catch(error){if(!String((error as Error).message).includes('session_capacity'))throw error;await record('session_capacity')}
+  try{
+   await store(identity).catch(async error=>{
+    const message=String((error as Error).message);
+    if(!(message.includes('spool_authority_guards')||message.includes('CHECK constraint failed'))||!await firstIdentityKeyChanged(db,p,identity))throw error;
+    await store(await prepareIdentityKey(db,p));
+   });
+  }catch(error){if(!String((error as Error).message).includes('session_capacity'))throw error;await record('session_capacity')}
  }
  return {counts,retryAfter:retryUntil?Math.max(1,Math.ceil((retryUntil-Date.now())/1000)):0};
 }
