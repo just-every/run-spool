@@ -20,7 +20,7 @@ node /absolute/path/to/spool/packages/agent/bin/spool-agent.mjs packet ISSUE_ID 
 node /absolute/path/to/spool/packages/agent/bin/spool-agent.mjs outcomes
 ```
 
-The workbench shows the key separately from its setup commands. Its **Copy agent key** button copies only the credential; **Copy setup lines** uses hidden prompts and contains no credential values. Paste the key at the prompt so it does not enter shell history.
+On the Agent handoff panel, **Copy agent key** copies the credential and **Copy paste-in prompt** copies the instructions for your agent. Paste the credential at the hidden Agent key prompt so it stays out of shell history. The issue’s agent command panel also offers **Copy setup lines** for shell commands with hidden prompts.
 
 Instead of the key environment variable, use `--key-file /absolute/private/key-file` (keep it readable only by you), or pipe the key to an HTTP command with `--key-stdin`. These credential options and `--timeout-ms` work before or after the command:
 

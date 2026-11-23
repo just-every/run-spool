@@ -58,6 +58,8 @@ The outermost reported exception supplies the stack. Frames are reversed from Se
 
 6. Trigger a real exception from the deployed/minified app on its own origin. Open the Spool issue, inspect its original path/line/column and compare it to source. Node applications must await `Sentry.flush()` before exiting. An SDK flush confirms transport handling, not acceptance; verify the owner issue packet and outcomes. Under the opt-in **Registered sequence only** rule, a refused release shows a reason and Register link in Spool, and registering does not retroactively admit the refused event: reproduce an actual exception after registration.
 
+For a Spool HTTP 403, inspect `X-Sentry-Error` and the response body’s `reason` and `message`. Check the browser’s Network panel if a cross-origin refusal prevents the SDK from reading the response. The project’s **Settings → Projects & keys** explains which capture settings to check.
+
 Keep the SDK's former DSN available for reversal. Reverting configuration is separate from undoing imported history and does not move events captured after the switch back to Sentry.
 
 ## Replace a Sentry Loader Script tag

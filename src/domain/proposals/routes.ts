@@ -14,7 +14,7 @@ import { auditActor } from '../audit/identity';
 import { isShortId } from '../short-ids/format';
 import { resolveIssue } from '../short-ids/lookup';
 import { normalizeProposal } from './input';
-import { explainProposal, issueRevisions, proposalPreview } from './explanation';
+import { explainProposal, proposalPreview } from './explanation';
 import { proposalStale, revisionGuards } from './lifecycle';
 const routes=new Hono<any>();
 const parsed=(row:any)=>({...row,input:JSON.parse(row.input),revisions:JSON.parse(row.revisions),explanation:JSON.parse(row.explanation),preparedBy:row.prepared_by??null,label:`proposed by agent ${row.prepared_by??row.actor}`});
@@ -46,10 +46,10 @@ routes.post('/',async c=>{
  const resolved=isShortId(submitted?.source)?await resolveIssue(db,project,submitted.source):undefined;
  if(resolved===null)throw new Error('Issue not found');
  const input=normalizeProposal(resolved?{...submitted,source:resolved.issue}:submitted),id=crypto.randomUUID(),time=Date.now();
- let preview,revisions;
- try{preview=await proposalPreview(db,project,input,id);revisions=null}catch(e){if(/revision conflict/i.test(String(e)))return c.json({error:'Stale issue or rule revision'},409);throw e}
- const review=await explainProposal(db,{project,input},preview),explanation=canonical(review);
- revisions=await issueRevisions(db,project,input,preview,review);
+ let preview;
+ try{preview=await proposalPreview(db,project,input,id)}catch(e){if(/revision conflict/i.test(String(e)))return c.json({error:'Stale issue or rule revision'},409);throw e}
+ const {review,revisions,revisionsMatch}=await explainProposal(db,{project,input},preview),explanation=canonical(review);
+ if(!revisionsMatch)throw new Error('Issue revision conflict');
  if(new TextEncoder().encode(explanation).length>2097152)return c.json({error:'Exact proposal explanation exceeds 2 MiB; narrow the proposal'},400);
 
  const row={id,project,kind:input.kind,state:'proposed',actor:actor.label,prepared_by:native?.context.actor.label??null,input:canonical(input),explanation,revisions:canonical(revisions),correction:null,rule_revision:null,created:time,updated:time};
@@ -83,12 +83,13 @@ routes.post('/:id/:action',async c=>{
   return c.json({error:'Stale issue or rule revision; request a new proposal'},409);
  }
  const input=JSON.parse(row.input),preview=await proposalPreview(db,project,input,row.id),state=action==='approve'?'approved':'rejected',time=Date.now();
- const review=await explainProposal(db,row,preview),explanation=canonical(review),revisions=await issueRevisions(db,project,input,preview,review);
+ const {review,revisions,revisionsMatch}=await explainProposal(db,row,preview),explanation=canonical(review);
+ if(!revisionsMatch)throw new Error('Issue revision conflict');
  if(new TextEncoder().encode(explanation).length>2097152)return c.json({error:'Exact proposal explanation exceeds 2 MiB'},400);
  const jobs=[guard(db,'EXISTS(SELECT 1 FROM grouping_proposals WHERE project=? AND id=? AND state=?)',project,row.id,row.state),...revisionGuards(db,project,JSON.parse(row.revisions)),...revisionGuards(db,project,revisions),...(input.kind==='rule'?[guard(db,'COALESCE((SELECT revision FROM grouping_policies WHERE project=?),0)=?',project,input.policyRevision)]:[])];
  if(action==='approve'&&row.kind!=='rule')jobs.push(s(db,"UPDATE grouping_proposals SET state='stale',correction=NULL,updated=? WHERE project=? AND correction IN (SELECT id FROM grouping_corrections WHERE project=? AND state='preview')",time,project,project),s(db,"DELETE FROM grouping_corrections WHERE project=? AND state='preview'",project),s(db,"INSERT INTO grouping_corrections VALUES(?,?,?,'preview',?,?,?)",preview.id,project,row.kind,JSON.stringify(preview.plan),time,time));
  jobs.push(s(db,'UPDATE grouping_proposals SET state=?,correction=?,explanation=?,revisions=?,updated=? WHERE project=? AND id=?',state,action==='approve'&&row.kind!=='rule'?preview.id:null,explanation,canonical(revisions),time,project,row.id),auditCommit(db),s(db,'DELETE FROM operator_guards'));
  try{await ownerBatch(db,session,jobs)}catch(e){if(/operator_guards/.test(String(e)))return c.json({error:'Issue or proposal revision conflict'},409);throw e}
- return c.json({...parsed({...row,state,revisions:canonical(revisions),explanation,correction:action==='approve'&&row.kind!=='rule'?preview.id:null,updated:time}),explanation:await explainProposal(db,row,preview),...(action==='approve'?{preview}:{})});
+ return c.json({...parsed({...row,state,revisions:canonical(revisions),explanation,correction:action==='approve'&&row.kind!=='rule'?preview.id:null,updated:time}),explanation:(await explainProposal(db,row,preview)).review,...(action==='approve'?{preview}:{})});
 });
 export default routes;

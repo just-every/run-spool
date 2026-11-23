@@ -68,6 +68,8 @@ Alert destinations start empty. Open **Alerts → Rules → Manage destinations 
 
 Email destinations use the existing mail setup and can be changed from the workbench. The same guide covers operator-managed webhooks. Keep `ALERT_DESTINATION_HASH_KEY` unchanged while deliveries are active. Secrets are uploaded on the first deploy, and later deploys reuse the retained generated values.
 
+Snooze expiry notices and digests use the minute schedule. Cloudflare says [Cron Trigger changes can take up to 15 minutes to propagate](https://developers.cloudflare.com/workers/configuration/cron-triggers/#2-update-configuration), then the trigger runs at the next scheduled time. The deploy output warns that on some accounts the first run can take about two hours. Check **Settings → Alerts & integrations → Scheduled alert run** for **Waiting for first scheduled run** or the last run time.
+
 ## Turn email off deliberately
 
 Set `MAIL_PROVIDER=none` in the private environment file for the deployment. Leave `MAIL_FROM`, `MAIL_API_KEY`, `MAIL_ACCOUNT_ID` and `MAIL_RELAY_URL` empty; sending credentials together with `none` refuse before build or upload. Spool needs no sender or DKIM setting while mail is off. A missing, `later` or `direct` selection never means off. Enabled Resend, SendGrid, Cloudflare or managed RER mail still requires its sender and API key; Cloudflare also requires its account ID and RER its assigned relay URL.

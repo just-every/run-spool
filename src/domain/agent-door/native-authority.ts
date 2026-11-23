@@ -20,18 +20,22 @@ const actors = new WeakMap<Request, AgentAuthority>();
 export const agentAuthority = (request: Request) => actors.get(request);
 const operatorById = (db: D1Database, id: string) => db.prepare('SELECT id,email,display_name AS displayName,role,status,version,created_at AS createdAt FROM oa_operators WHERE id=?').bind(id);
 
-async function permitsProjectGrant(request: Request, env: Bindings, ctx: ToolContext) {
- const id = localCredentialId(ctx.clientId);
- if (!id) return true;
- const grant = await env.DB.prepare(`SELECT project FROM credentials WHERE hash=? AND kind='agent' AND revoked IS NULL AND ${mintedByCurrentPerson}`).bind(id).first<{project:string}>();
- return !!grant && agentReadPath(request,grant.project);
+async function admittedOperator<T>(request: Request, db: D1Database, operator: D1PreparedStatement, clientId?: string): Promise<T | null> {
+ const id = localCredentialId(clientId);
+ if (!id) return operator.first<T>();
+ const [operators,grants] = await db.batch([
+  operator,
+  db.prepare(`SELECT project FROM credentials WHERE hash=? AND kind='agent' AND revoked IS NULL AND ${mintedByCurrentPerson}`).bind(id),
+ ]);
+ const grant = grants.results[0] as {project:string} | undefined;
+ return grant && agentReadPath(request,grant.project) ? (operators.results[0] as T | undefined) ?? null : null;
 }
 
 /** A policy classification or replay checks current native access without
  * creating a write authority or loading the policy snapshot used by its fence. */
 export async function admitsAgentRequest(request: Request, env: Bindings, ctx: ToolContext) {
- const operator = await operatorById(env.DB,ctx.person.id).first<Operator>();
- if (operator?.status !== 'active' || !await permitsProjectGrant(request,env,ctx)) return false;
+ const operator = await admittedOperator<Operator>(request,env.DB,operatorById(env.DB,ctx.person.id),ctx.clientId);
+ if (operator?.status !== 'active') return false;
  return operator.role === 'owner' || !!await resolveMembership(request,env,{operator});
 }
 
@@ -54,9 +58,9 @@ export async function requestAuthority(request: Request, env: Bindings, resolver
  const actor = actors.get(request)??reviewers.get(request);
  if (!actor) return ownerSession(request,env,resolver);
  // Re-read on every native admission; a saved role is never authority.
- const current = await env.DB.prepare('SELECT status,version FROM oa_operators WHERE id=?').bind(actor.operator.id).first<{status:string;version:number}>();
+ const operator = env.DB.prepare('SELECT status,version FROM oa_operators WHERE id=?').bind(actor.operator.id);
+ const current = await admittedOperator<{status:string;version:number}>(request,env.DB,operator,actor.kind==='agent'?actor.context.clientId:undefined);
  if (current?.status !== 'active' || current.version !== actor.operator.version) return null;
- if (actor.kind==='agent'&&!await permitsProjectGrant(request,env,actor.context)) return null;
  return actor.operator.role === 'owner' ? actor : resolver(request,env,actor);
 }
 export const nativeWrite = (request: Request, env: Bindings) => actors.has(request) || reviewers.has(request) || ownerWrite(request,env);

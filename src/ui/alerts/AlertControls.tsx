@@ -6,11 +6,32 @@ import {Field} from '../workbench/shared';
 // Earlier digest work lines included a stored issue hash after the optional short ID.
 const readableDigest = (body: string) => body.replace(/^(?:([a-z0-9_-]+) )?[a-f0-9]{64}: /gim, (_, shortId: string | undefined) => shortId ? `${shortId} · ` : '');
 
-export function AlertControls({project,rules,feed,destinations}:{project:string;rules:any[];feed:any[];destinations:any[]}){
+function digestDestinations(destinations: any[], rules: any[]) {
+ const mail=destinations.filter(d=>d.channel==='mail');
+ const byRule=mail.map(d=>{
+  if(!mail.some(other=>other.id!==d.id&&other.label===d.label))return d;
+  const linked=rules.filter(rule=>rule.destination===d.id);
+  const names=linked.map(rule=>`${rule.name}${rule.enabled?'':' (off)'}`).join(', ');
+  return {...d,label:`${d.label} · ${names?`Rule ${names}`:'No alert rule'}`};
+ });
+ const labelled=byRule.map(d=>({id:d.id,label:d.recipient&&byRule.some(other=>other.id!==d.id&&other.label===d.label)
+  ? `${d.label} · ${d.recipient}` : d.label }));
+ return labelled.map((d,index)=>({ ...d,label:labelled.some(other=>other.id!==d.id&&other.label===d.label)
+  ? `${d.label} (${labelled.slice(0,index+1).filter(other=>other.label===d.label).length})` : d.label }));
+}
+
+export function AlertControls({project,revision,rules,feed,destinations}:{project:string;revision:number;rules:any[];feed:any[];destinations:any[]}){
  const [data,setData]=useState<any>(null),[draft,setDraft]=useState<any>(null),[error,setError]=useState(''),[message,setMessage]=useState(''),[busy,setBusy]=useState(false);
  const [scope,setScope]=useState('issue'),[target,setTarget]=useState(''),[until,setUntil]=useState('');
+ const [now,setNow]=useState(Date.now);
  async function load(){const value=await alertApi(`/api/projects/${project}/alerting/controls`);setData(value);setDraft((old:any)=>old??value.settings)}
- useEffect(()=>{void load().catch(e=>setError(e.message))},[project]);
+ useEffect(()=>{void load().catch(e=>setError(e.message))},[project,revision]);
+ useEffect(()=>{
+  const next=data?.snoozes.reduce((earliest:number,z:any)=>!z.historical&&!z.resumed_at&&z.until>now?Math.min(earliest,z.until):earliest,Infinity);
+  if(!Number.isFinite(next))return;
+  const timer=setTimeout(()=>setNow(Date.now()),Math.min(Math.max(0,next-Date.now()),2_147_483_647));
+  return ()=>clearTimeout(timer);
+ },[data,now]);
  async function act(path:string,method:string,body:any){setBusy(true);setError('');setMessage('');try{await alertApi(`/api/projects/${project}/alerting/${path}`,method,body);setMessage('Saved. Capture receipts and held backlog remain visible.');await load()}catch(e){setError((e as Error).message)}finally{setBusy(false)}}
  const field=(key:string,value:any)=>setDraft((d:any)=>({...d,[key]:value}));
  if(!data||!draft)return <p role="status">Loading digest and snooze settings…</p>;
@@ -21,7 +42,7 @@ export function AlertControls({project,rules,feed,destinations}:{project:string;
  return <><section className="evidence"><h2>Timezone digests</h2><p>Project timezone defaults to UTC. Daily and weekly mail covers completed calendar periods, including DST. Weekly periods end Monday. Personal mail goes to the installation owner.</p>
  <form className="form-grid" onSubmit={e=>{e.preventDefault();void act('digest-settings','PUT',{timezone:draft.timezone,destination:draft.destination||null,daily:!!draft.daily,weekly:!!draft.weekly,personal_daily:!!draft.personal_daily,personal_weekly:!!draft.personal_weekly,hour:Number(draft.hour),quiet_start:draft.quiet_start,quiet_end:draft.quiet_end})}}>
  <Field label="Project timezone (IANA)" required value={draft.timezone} onChange={e=>field('timezone',e.target.value)} placeholder="America/New_York"/>
- <label className="form-field">Project digest destination<select aria-label="Project digest destination" value={draft.destination??''} onChange={e=>field('destination',e.target.value)}><option value="">Choose tested email destination</option>{destinations.filter(d=>d.channel==='mail').map(d=><option key={d.id} value={d.id}>{d.label}</option>)}</select></label>
+ <label className="form-field">Project digest destination<select aria-label="Project digest destination" value={draft.destination??''} onChange={e=>field('destination',e.target.value)}><option value="">Choose tested email destination</option>{digestDestinations(destinations,rules).map(d=><option key={d.id} value={d.id}>{d.label}</option>)}</select></label>
  <Field label="Digest hour in project timezone" type="number" min={0} max={23} required value={draft.hour} onChange={e=>field('hour',Number(e.target.value))}/>
  {(['daily','weekly','personal_daily','personal_weekly'] as const).map(k=><label className="alert-check" key={k}><input type="checkbox" checked={!!draft[k]} onChange={e=>field(k,e.target.checked)}/>{k.replaceAll('_',' ')}</label>)}
  <label className="alert-check"><input type="checkbox" checked={draft.quiet_start!==null} onChange={e=>{field('quiet_start',e.target.checked?22:null);field('quiet_end',e.target.checked?7:null)}}/>Quiet hours</label>
@@ -33,7 +54,7 @@ export function AlertControls({project,rules,feed,destinations}:{project:string;
  <label className="form-field">Snooze scope<select aria-label="Snooze scope" value={scope} onChange={e=>{setScope(e.target.value);setTarget('')}}><option value="issue">Issue</option><option value="rule">Rule</option><option value="project">Project maintenance</option></select></label>
  {scope!=='project'&&<label className="form-field">Snooze target<select aria-label="Snooze target" required value={target} onChange={e=>setTarget(e.target.value)}><option value="">Choose {scope}</option>{choices.map(c=><option key={c.id} value={c.id}>{c.name}</option>)}</select></label>}
  <Field label="Snooze expiry (your local time)" type="datetime-local" required value={until} onChange={e=>setUntil(e.target.value)}/><button className="primary-button" disabled={busy}>Snooze until expiry</button></form>
- {!data.snoozes.length?<p>No snoozes set.</p>:<ul className="alert-records">{data.snoozes.map((z:any)=><li key={z.id}><div><strong>{z.scope} · {z.historical?'restored, inert':z.resumed_at?'expired · resumption recorded':'snoozed'}</strong><p>{targetLabel(z)} · {period(z)}</p><p>{z.suppressed} suppressed alerts kept</p></div></li>)}</ul>}
+ {!data.snoozes.length?<p>No snoozes set.</p>:<ul className="alert-records">{data.snoozes.map((z:any)=><li key={z.id}><div><strong>{z.scope} · {z.historical?'restored, inert':z.resumed_at?'expired · resumption recorded':z.until>now?'snoozed':data.lastScheduledRun?'expired · resumption pending':'expired · waiting for first scheduled run'}</strong><p>{targetLabel(z)} · {period(z)}</p><p>{z.suppressed} suppressed alerts kept</p></div></li>)}</ul>}
  <h3>Held alerts ({data.held.filter((x:any)=>!x.released_at).length})</h3><button className="text-button" disabled={busy} onClick={()=>void act('held/release','POST',{})}>Release expired held alerts</button><ul className="alert-records">{data.held.map((x:any)=><li key={x.delivery_id}><div><strong>{x.reason} · {x.released_at?'released':'held'}</strong><p>{issueReference({short_id:x.issue_short_id,title:x.issue_title})} · Rule: {referenceText(x.rule_name)||'Rule no longer available'}</p><p>{date(x.created)}</p></div></li>)}</ul></section>
  {error&&<p role="alert" className="callout">{error}</p>}{message&&<p role="status">{message}</p>}</>;
 }

@@ -32,7 +32,7 @@ export function Alerts({project,onIssue}:{project:string;onIssue:(id:string)=>vo
  </details>
  <EmailAlert key={project+'-email'} project={project} refresh={refresh}/>
  </>}
- {tab==='controls'&&<AlertControls key={project} project={project} feed={data.feed} rules={data.rules} destinations={data.destinations.rows.filter((d:any)=>d.kind!=='target')}/>}
+ {tab==='controls'&&<AlertControls key={project} project={project} revision={revision} feed={data.feed} rules={data.rules} destinations={data.destinations.rows.filter((d:any)=>d.kind!=='target')}/>}
  {tab==='attention'&&<NeedsAttention onControls={()=>setTab('controls')} key={project} project={project} destinations={data.destinations.rows.filter((d:any)=>d.kind!=='target')}/>}
  {tab==='deliveries'&&<AlertDeliveries key={project} project={project} rows={data.deliveries} refresh={refresh}/>}
  </>}

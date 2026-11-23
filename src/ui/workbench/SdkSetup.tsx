@@ -43,7 +43,7 @@ export function OriginStep({ project, request, showDetails = true }: { project: 
   return <div className="origin-step"><BrowserOrigins {...{ project, request, busy, run, showDetails }} />{error && <p role="alert">{error}</p>}<a className="inline-link" href={hrefFor(project, 'capture')}>Manage allowed websites</a></div>;
 }
 
-export function SentryIntake({ dsn }: { dsn?: string }) {
+export function SentryIntake({ dsn, settings = false }: { dsn?: string; settings?: boolean }) {
   return <div className="sentry-intake">
     <h3>Already using Sentry? Point your DSN here</h3>
     <p>Keep your Sentry browser or Node SDK and replace only its DSN. By default, events can arrive without a release, and an unseen release is created automatically. Settings shows the release ordering rule; choose registered sequence only there if your project requires registration first. An omitted dist is shown as <code>sentry-no-dist</code>.</p>
@@ -55,6 +55,7 @@ export function SentryIntake({ dsn }: { dsn?: string }) {
       <li><strong>Other telemetry:</strong> replays, profiles, attachments, logs and metrics are counted as unsupported and are not retained.</li>
     </ul>
     {dsn ? <CodeBlock label="Sentry DSN" code={dsn} /> : <p>The DSN is available alongside a newly created ingest key in Settings → Projects & keys or Capture. Copy it before dismissing the key or reloading.</p>}
+    {settings && <p>For HTTP 403, check the response’s <code>X-Sentry-Error</code> or JSON <code>reason</code>. For <code>origin_not_allowed</code> or <code>referer_not_allowed</code>, add the app under <a className="inline-link" href="#browser-origins-heading">Your website address</a> or check Allowed browser domains in <a className="inline-link" href="#settings-privacy">Privacy &amp; filtering</a>. For <code>ingest_authority_changed</code>, retry the same envelope and check the ingest key if it fails again.</p>}
   </div>;
 }
 

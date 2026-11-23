@@ -62,7 +62,7 @@ export async function captureException(error:unknown,options:CaptureOptions,even
 }
 // The fetch present now; reading it can throw on a hostile global, and then the send settles as transport_failure.
 export function currentFetch():typeof fetch|undefined { try { const value=globalThis.fetch; return typeof value==='function'?value:undefined } catch { return undefined } }
-const repeatWindowMs=5000,repeatEntries=256,locationEntries=16_384,evictionChecks=8,locationStackChars=8192,burst=30,refillMs=2000;
+const objectRepeatMs=100,patternWindowMs=5000,repeatEntries=256,locationEntries=16_384,evictionChecks=8,locationStackChars=8192,burst=30,refillMs=2000;
 export interface Dropped { outcome:'dropped'; reason:'client_cap'|'duplicate'; eventId:'' }
 // Where an error happened: its type and top frame's file, function and line, as Spool groups an issue (the message is
 // excluded). Store only a fixed-size fingerprint: stacks and frame paths come from the page and can be arbitrarily long.
@@ -110,8 +110,9 @@ function heldError(tracked:TrackedError):Error|undefined {
   if(!frames(tracked.stack).length)return undefined;
   return tracked.error;
 }
-// A page error that repeats one captured in the last few seconds (same location and message) is dropped as a duplicate;
-// the repeat map is in time order, so pruning stops at the first live entry, and it keeps at most `repeatEntries` keys, oldest first out.
+// Two listeners can report the same Error object. Suppress that repeat briefly.
+// Let two separate errors with the same location and message through, then
+// suppress that pattern until its burst window resets (including fetch feedback loops).
 // Each location sends at most `burst` errors at once and then one every `refillMs`; over that, the latest error there is
 // held and sent when the location may send again, and the one it replaces is dropped. Every send carries the number of
 // errors at its location that were not sent since its last send. The location table is bounded; only a fully refilled
@@ -119,7 +120,7 @@ function heldError(tracked:TrackedError):Error|undefined {
 // capacity, unseen locations settle as dropped until a safe spot is available. A page whose own fetch wrapper reports
 // Spool's refusals as errors therefore cannot turn one error into a stream of sends, and every drop settles.
 function guard(send:(error:Error,dropped:number)=>void,drop:(reason:Dropped['reason'])=>void) {
-  const recent=new Map<string,number>(),spots=new Map<string,Spot>();
+  const objects=new WeakMap<Error,number>(),patterns=new Map<string,{at:number;count:number}>(),spots=new Map<string,Spot>();
   const refill=(spot:Spot,now:number)=>{spot.tokens=Math.min(burst,spot.tokens+(now-spot.at)/refillMs);spot.at=now};
   const dispatch=(spot:Spot,error:Error)=>{spot.tokens=Math.max(0,spot.tokens-1);const dropped=spot.dropped;spot.dropped=0;send(error,dropped)};
   const touch=(place:string,spot:Spot)=>{spots.delete(place);spots.set(place,spot)};
@@ -144,12 +145,19 @@ function guard(send:(error:Error,dropped:number)=>void,drop:(reason:Dropped['rea
     take(error:Error) {
       const now=Date.now(),tracked=location(error);
       if(!tracked){drop('client_cap');return}
-      const {place,error:captured}=tracked,key=`${place}\n${captured.message}`;
-      for(const [seen,at] of recent){if(now-at<repeatWindowMs)break;recent.delete(seen)}
+      const {place,error:captured}=tracked,seen=objects.get(error),key=`${place}\n${captured.message}`;
+      for(const [old,pattern] of patterns){if(now-pattern.at<patternWindowMs)break;patterns.delete(old)}
+      const pattern=patterns.get(key);
       let spot=spots.get(place);
-      if(recent.has(key)){if(spot){refill(spot,now);touch(place,spot);countDrop(spot)}drop('duplicate');return}
-      recent.set(key,now);
-      if(recent.size>repeatEntries)recent.delete(recent.keys().next().value!);
+      if((seen!==undefined&&now-seen<objectRepeatMs)||(pattern&&pattern.count>=2)){
+        if(spot){refill(spot,now);touch(place,spot);countDrop(spot)}drop('duplicate');return;
+      }
+      objects.set(error,now);
+      if(pattern)pattern.count++;
+      else {
+        patterns.set(key,{at:now,count:1});
+        if(patterns.size>repeatEntries)patterns.delete(patterns.keys().next().value!);
+      }
       spot=acquire(place,now);
       if(!spot){drop('client_cap');return}
       if(!spot.held&&spot.tokens>=1)return dispatch(spot,captured);
