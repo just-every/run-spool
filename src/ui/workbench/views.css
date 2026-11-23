@@ -38,7 +38,6 @@ div.key-row{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1.6fr) aut
 .metadata{font:400 14px/1.5 var(--font-code);overflow-wrap:anywhere}
 .issue-count{text-align:center;font-size:var(--font-small)}
 .issue-count strong{display:block;font:700 40px/1 var(--font-display)}
-.phone-download{display:none}
 .triage{padding-left:24px;border-left:var(--rule)}
 .triage select{min-width:170px}
 .stack-heading{margin-bottom:12px;font-size:20px}
@@ -119,9 +118,6 @@ span.frame-function{font-family:var(--font-text)}
  .triage{grid-column:1/-1;padding:12px 0 0;border-left:0;border-top:var(--hairline-border)}
  .triage .form-field{flex-direction:row;align-items:center;gap:14px}
  .triage select{flex:1;min-width:0}
- /* The packet's Download sits in the summary card so it shares the first screen with the marked frame; the rail keeps its description. */
- .phone-download{display:inline-flex;grid-column:1/-1;width:100%;min-height:48px;margin-top:2px}
- .packet .rail-download{display:none}
  .stack-row{grid-template-columns:18px minmax(0,1fr);gap:4px 10px;padding:8px 10px}
  .frame-source{grid-column:2}
  .issue-facts{grid-template-columns:1fr;gap:12px}

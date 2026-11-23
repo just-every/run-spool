@@ -7,7 +7,7 @@ import { date, download } from './shared';
 import { releaseLabel, buildLabel } from './releaseLabels';
 export function EvidenceRail({ packet, outcomes, readOnly }: { packet: any; outcomes: any; readOnly: boolean }) {
   const [agentCommandOpen, setAgentCommandOpen] = useState(false);
-  return <aside className="right" aria-label="Issue evidence"><section className="right-panel packet"><h2>Evidence packet</h2><button className="text-button rail-download" onClick={() => download(packet, `spool-${packet.issue.short_id ?? 'issue'}-packet.json`)}><span aria-hidden="true">↓</span> Download details for a developer</button>
+  return <aside className="right" aria-label="Issue evidence"><section className="right-panel packet"><h2>Evidence packet</h2><button className="text-button" onClick={() => download(packet, `spool-${packet.issue.short_id ?? 'issue'}-packet.json`)}><span aria-hidden="true">↓</span> Download details for a developer</button>
     <div className="packet-actions">
     {!readOnly && <Details title="Fix with an AI coding assistant" triggerLabel="Fix with an AI coding assistant" onOpen={() => setAgentCommandOpen(true)}>
       {agentCommandOpen && <AgentPacketCommand project={packet.issue.project} issue={packet.issue.short_id ?? packet.issue.id} />}

@@ -25,6 +25,6 @@ export function spoolRunPage(contract?: SeedContract) {
  return withReleaseInstall(runPageHtml(identity, { ...run, leadLine: 'Install the latest stable Spool release on your computer.' }, contract))
   .replaceAll('>rer installs itself<', '>Clones Spool<')
   .replaceAll('>Gets Spool<', '>Installs rer<')
-  .replaceAll(escape(PATHS.self.note), 'A first local start usually takes about a minute. On a busy computer it can take longer: <code>rer dev</code> prints progress every 20 seconds, with the limit to allow.')
+  .replaceAll(escape(PATHS.self.note), 'Allow several minutes for a first local start. <code>rer dev</code> reports progress about every 20 seconds while setting up the owner and starting the app.')
   .replace(/<details class="other-ways">.*?<\/details>/, () => details);
 }

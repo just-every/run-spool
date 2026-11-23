@@ -34,7 +34,9 @@ The outermost reported exception supplies the stack. Frames are reversed from Se
      --release web@1.2.0 --build build-42 --key-env SPOOL_DEPLOY_KEY dist/app.js
    ```
 
-   Each bundle requires an adjacent `.map`. This injects the standard Sentry debug registration after the bundle's directive prologue, preserves shebangs and strict/sloppy execution, and adjusts generated line/column mappings with matching `debug_id` metadata. Existing matching identities are reused, identical API retries are idempotent, and conflicting map content or release/build identities reject. Up to twenty flat maps of 256 KiB per project are supported; indexed maps and unbounded artifact bundles are not.
+   Each bundle requires an adjacent `.map`. This injects the standard Sentry debug registration after the bundle's directive prologue, preserves shebangs and strict/sloppy execution, and adjusts generated line/column mappings with matching `debug_id` metadata. Existing matching identities are reused, identical API retries are idempotent, and conflicting map content or release/build identities reject.
+
+   The published npm SDK 0.1.0 CLI and the prepared-map picker on **Releases** accept only flat V3 maps up to 256 KiB per file. The upload service and current checkout CLI accept flat or indexed V3 maps up to 1 MiB per file. There is no lifetime map count. All uploads respect the optional project artifact-storage byte cap.
 
    The CLI and the Rollup/Vite build plugin ship in Spool's SDK package, `@just-every/spool` (`npm install --save-dev @just-every/spool`). The plugin is server-side CI tooling:
 

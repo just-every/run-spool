@@ -30,7 +30,10 @@ export async function readCopy(db,table,copy,offset,limit,encoded=false) {
   // two-byte workerd serialization. Names and scalar framing count separately.
   const overhead=selected.reduce((n,c)=>n+utf8(c.name).length*12+128,256);
   const weight=sum(selected.map(c=>`COALESCE(length(CAST(s.${quote(c.name)} AS BLOB)),0)`));
-  const sizes=await all(db,`SELECT (${weight})*12+${overhead} AS bytes ${from}`,limit,offset);
+  const [{results:sizes},{results:meta}]=await db.batch([
+    statement(db,`SELECT (${weight})*12+${overhead} AS bytes ${from}`,limit,offset),
+    statement(db,`SELECT * FROM ${quote(sidecar(copy))} ORDER BY rer_portability_row_order LIMIT ? OFFSET ?`,limit,offset),
+  ]);
   const raw=[];
   for(let start=0;start<sizes.length;) {
     let end=start,bytes=0;
@@ -38,7 +41,6 @@ export async function readCopy(db,table,copy,offset,limit,encoded=false) {
     insist(end>start,'row_part_too_large:'+table.name);
     raw.push(...await all(db,`SELECT ${columns} ${from}`,end-start,offset+start));start=end;
   }
-  const meta=await all(db,`SELECT * FROM ${quote(sidecar(copy))} ORDER BY rer_portability_row_order LIMIT ? OFFSET ?`,limit,offset);
   insist(raw.length===meta.length,'copy_inventory:'+table.name);
   return raw.map((row,i)=>({row,meta:meta[i]}));
 }

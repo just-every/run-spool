@@ -51,7 +51,10 @@ import { shortIdTables } from './short-ids/archive';
 import { commitTables } from './commits/archive';
 import { sentryCliTables, sentryCliExcludedTables } from './sentry-cli/archive';
 import { ensureShortIds } from './short-ids/assign';
+import { archiveStream } from './archive-stream';
 import type { ArchivePolicy, MigrationReplay } from '../modules/portability/index.mjs';
+
+export { archiveStream };
 
 export type MigrationProvider = (db: D1Database, policy: ArchivePolicy) => Promise<MigrationReplay>;
 
@@ -104,21 +107,6 @@ export async function portability(db: D1Database, safeAudit = true, migrationPro
    return checked.imports.finalize(id, options);
   },
  } };
-}
-export async function archiveStream(service: any): Promise<ReadableStream<Uint8Array>> {
- const id = await service.exports.create();
- try {
-  // A one-shot download uses the checksum in its closing record. Avoid
-  // reading and rewriting every part ahead of the actual download.
-  while ((await service.exports.advance(id, { maxParts: 16 }, { includeOrderedHash: false })).phase === 'building') {}
-  const reader = (await service.exports.download(id)).getReader();
-  let ended = false;
-  const cleanup = async () => { if (!ended) { ended = true; await reader.cancel(); await service.exports.abort(id); } };
-  return new ReadableStream({
-   async pull(controller) { try { const next = await reader.read(); if (next.done) { await cleanup(); controller.close(); } else controller.enqueue(next.value); } catch (error) { await cleanup(); controller.error(error); } },
-   cancel: cleanup,
-  });
- } catch (error) { await service.exports.abort(id); throw error; }
 }
 // Archives from before later additive tables (the identity link's two in
 // 0020, erasure receipts in 0018, and before that the two repair tables in 0016) carry exactly today's inventory

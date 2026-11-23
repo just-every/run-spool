@@ -31,7 +31,7 @@ export async function createPortability({db,buckets={},policy:input,migrations,m
     actor:id=>job(db,id).then(row=>row.actor),
   },migrationRoot);
   return {
-    exports:{create:actor=>createExport(context,actor),advance:(id,options)=>advanceExport(context,id,options),status:id=>exportStatus(context,id),download:id=>downloadExport(context,id),abort:id=>abortExport(context,id)},
+    exports:{create:(actor,options)=>createExport(context,actor,options),advance:(id,options)=>advanceExport(context,id,options),status:id=>exportStatus(context,id),download:id=>downloadExport(context,id),abort:id=>abortExport(context,id)},
     imports,
     status:lookup,
     actor,

@@ -7,14 +7,19 @@ type Snapshot={source:string;rows:any[];closing?:any};
 
 /** Base owns the immutable snapshot and transfer fences. Only the release row
  * presentation changes; row identities, table inventory and private data stay
- * in that snapshot. All parts and both archive digests are verified again. */
+ * in that snapshot. The downloaded records are verified as they are read. */
 export function orderedReleaseExports(exports:any){
  const cache=new Map<string,Snapshot>();
  const snapshot=async(id:string,status:any):Promise<Snapshot>=>{
   const prior=cache.get(id);if(prior&&prior.source===status.contentHash)return prior;
   const metadata=new Map<string,number>(),policies=new Map<string,ReleasePolicy>(),rows:any[]=[];
   const key=(project:string,name:string)=>JSON.stringify([project,name]);
+  let releaseCount=0;
   for await(const record of readArchive(await exports.download(id))){
+   if(record.kind==='manifest'){
+    releaseCount=record.tables.find(table=>table.name==='releases')?.count??0;
+    if(!releaseCount)break;
+   }
    if(record.kind!=='part')continue;
    for(const item of record.items as any[]){
     if(item.kind!=='row')continue;
@@ -22,6 +27,8 @@ export function orderedReleaseExports(exports:any){
     if(item.table==='release_policies')policies.set(item.row.project,validateReleasePolicy(JSON.parse(item.row.policy)));
     if(item.table==='releases')rows.push(item);
    }
+   // release_metadata and release_policies precede releases in archive order.
+   if(rows.length===releaseCount)break;
   }
   rows.sort((a,b)=>a.row.project<b.row.project?-1:a.row.project>b.row.project?1:compareReleases(
    {...a.row,first_seen:metadata.get(key(a.row.project,a.row.name))},
@@ -37,9 +44,12 @@ export function orderedReleaseExports(exports:any){
     if(offset!==saved.rows.length)throw new Error('Release archive inventory changed');
     const closing={...record,contentHash:content.digest(),archiveHash:binding.digest()};saved.closing=closing;yield closing;continue;
    }
-   const items=record.items.map((item:any)=>item.kind==='row'&&item.table==='releases'?{...saved.rows[offset++],index:item.index}:item);
-   const part=await makePart(record.index,items);await checkPart(part,record.index);
-   binding.add(part);for(const item of items)content.add(item);yield part;
+   let part=record;
+   if(record.items.some(item=>item.kind==='row'&&item.table==='releases')){
+    const items=record.items.map(item=>item.kind==='row'&&item.table==='releases'?{...saved.rows[offset++],index:item.index}:item);
+    part=await makePart(record.index,items);await checkPart(part,record.index);
+   }
+   binding.add(part);for(const item of part.items)content.add(item);yield part;
   }
  };
  const decorate=async(status:any)=>{

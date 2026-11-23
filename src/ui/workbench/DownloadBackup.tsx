@@ -39,13 +39,12 @@ export function DownloadBackup({ busy, run, label = 'Download private archive' }
       const timeout = new DOMException('Archive download timed out', 'TimeoutError');
       let timer: number | undefined;
       function waitForProgress() {
-        // Bound pauses while Spool prepares the archive or sends its next bytes.
+        // Large installations can take longer to prepare than a pause in the transfer.
         window.clearTimeout(timer);
         timer = window.setTimeout(() => request.abort(timeout), ARCHIVE_IDLE_MS);
       }
 
       try {
-        waitForProgress();
         const response = await ownerFetch('/api/archive', { signal: request.signal });
         request.signal.throwIfAborted();
         if (!response.ok) {

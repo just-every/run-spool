@@ -4483,11 +4483,36 @@
         "modules/portability/worker-owner-history.mjs"
       ],
       "adapted": {
-        "src/modules/portability/cli-options.mjs": "c2efb501cbc148c2aee4d5e1107ebdba81469006"
+        "src/modules/portability/cli-options.mjs": "c2efb501cbc148c2aee4d5e1107ebdba81469006",
+        "src/modules/portability/catalogue.mjs": "8fa76d1ceef21535d0c1fa31298326d971bd8520",
+        "src/modules/portability/copies.mjs": "8fa76d1ceef21535d0c1fa31298326d971bd8520",
+        "src/modules/portability/export.mjs": "8fa76d1ceef21535d0c1fa31298326d971bd8520",
+        "src/modules/portability/index.d.mts": "8fa76d1ceef21535d0c1fa31298326d971bd8520",
+        "src/modules/portability/index.mjs": "8fa76d1ceef21535d0c1fa31298326d971bd8520"
       },
       "acknowledged": {
         "src/modules/portability/cli-options.mjs": {
           "sha256": "b1f26ef74bba1467e312762ad74bb51a55b6c3829842d35b461c8e10cdbefa0a",
+          "mode": "100644"
+        },
+        "src/modules/portability/catalogue.mjs": {
+          "sha256": "8105bdd2ca90fada84bfa609fc8d19a9e1038f8c7af66e2e42e2ad3c44503342",
+          "mode": "100644"
+        },
+        "src/modules/portability/copies.mjs": {
+          "sha256": "fe7b82602a670928dbf7017864381d6968fc7bddf8ed3bdb20f18a6c93611b0a",
+          "mode": "100644"
+        },
+        "src/modules/portability/export.mjs": {
+          "sha256": "cf64dacce3ac2a313bf41ae5667ea5cad45d058ece93334f0fce082e376cbf31",
+          "mode": "100644"
+        },
+        "src/modules/portability/index.d.mts": {
+          "sha256": "55b1566dd11225a01b7fd0d08a4b73bd4f5c4ca9210d5b634903f9ccce2eb7f2",
+          "mode": "100644"
+        },
+        "src/modules/portability/index.mjs": {
+          "sha256": "e87521426ab3c75d1c04ee39e8d4cc26ae12620cee58f9923a10c837a5980201",
           "mode": "100644"
         }
       }

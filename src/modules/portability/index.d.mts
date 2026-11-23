@@ -57,7 +57,7 @@ export interface PortabilityOptions {
   onExport?:(event:ExportEvent)=>[sql:string,args:unknown[]][];
 }
 export interface Portability {
-  exports: {create(actor?:string):Promise<string>;advance(id:string,options?:{expectedPart?:number;maxParts?:number}):Promise<Status>;status(id:string):Promise<Status>;download(id:string):Promise<ReadableStream<Uint8Array>>;abort(id:string):Promise<Status>};
+  exports: {create(actor?:string,options?:{signal?:AbortSignal}):Promise<string>;advance(id:string,options?:{expectedPart?:number;maxParts?:number;signal?:AbortSignal}):Promise<Status>;status(id:string):Promise<Status>;download(id:string):Promise<ReadableStream<Uint8Array>>;abort(id:string):Promise<Status>};
   imports: {active(actor?:string):Promise<Status|null>;/** ledgers: the rows of each migration ledger table an old archive carries, as read from it; they place it in the destination's history and must equal its parts. */create(manifest:Manifest,actor?:string,options?:{ledgers?:Record<string,Row[]>;acknowledgeUnverifiedSchemaObjects?:boolean}):Promise<string>;uploadPart(id:string,index:number,part:Part):Promise<Status>;finalize(id:string,options:{archiveHash:string;contentHash?:string;laterJournal?:LaterJournal}):Promise<Status>;status(id:string):Promise<Status>;abort(id:string):Promise<Status>;/** Aborts the import left staged by a crashed restore and returns its id; call only as the destination's sole operator. */abortAbandoned():Promise<string|null>};
   status(id:string):Promise<Status>;actor(id:string):Promise<string>;
   erasureStatements(table:string,primaryKey:Record<string,Cell>):Promise<D1PreparedStatement[]>;

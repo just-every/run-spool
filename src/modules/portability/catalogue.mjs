@@ -1,4 +1,4 @@
-import { all, insist, quote, PortabilityError } from './storage.mjs';
+import { insist, quote, PortabilityError } from './storage.mjs';
 import { canonicalJson, base64, unbase64, utf8 } from './hash.mjs';
 import { schemaIdentityOf } from './schema-identity.mjs';
 import { platformTables, platformTable, identifier, matches } from './bookkeeping.mjs';
@@ -63,8 +63,10 @@ export function excludedTable(table,input={}) {
   return false;
 }
 async function archived(db,config) {
-  const objects=await all(db,"SELECT name,sql,type,tbl_name FROM sqlite_master WHERE sql IS NOT NULL AND substr(lower(name),1,7) <> 'sqlite_' AND substr(lower(name),1,4) <> '_cf_' ORDER BY name");
-  const kinds=await all(db,'PRAGMA table_list');
+  const [{results:objects},{results:kinds}]=await db.batch([
+    db.prepare("SELECT name,sql,type,tbl_name FROM sqlite_master WHERE sql IS NOT NULL AND substr(lower(name),1,7) <> 'sqlite_' AND substr(lower(name),1,4) <> '_cf_' ORDER BY name"),
+    db.prepare('PRAGMA table_list'),
+  ]);
  return archivedInventory({objects,kinds},config);
 }
 function archivedInventory({objects:input,kinds},config) {
@@ -97,15 +99,24 @@ function inventoryIdentity({entries,excluded,schemaObjects},{legacyExcludedObjec
 export async function catalogue(db,config) {
   const {objects,kinds,excluded,entries,schemaObjects}=await archived(db,config);
   const tables=[];
-  for(const entry of entries) {
+  // Batch only bounded metadata reads. Each pair describes one table.
+  const metadata=[];
+  for(let offset=0;offset<entries.length;offset+=32) {
+    const page=entries.slice(offset,offset+32);
+    metadata.push(...await db.batch(page.flatMap(({name})=>[
+      db.prepare(`PRAGMA table_xinfo(${quote(name)})`),
+      db.prepare(`PRAGMA foreign_key_list(${quote(name)})`),
+    ])));
+  }
+  for(const [index,entry] of entries.entries()) {
     insist(!/^CREATE\s+VIRTUAL\s+TABLE/i.test(entry.sql) && kinds.find(x=>x.name===entry.name)?.type!=='shadow','virtual_table:'+entry.name);
-    const columns=(await all(db,`PRAGMA table_xinfo(${quote(entry.name)})`)).map(c=>({name:c.name,type:c.type,notnull:c.notnull,pk:c.pk,hidden:c.hidden}));
+    const columns=metadata[index*2].results.map(c=>({name:c.name,type:c.type,notnull:c.notnull,pk:c.pk,hidden:c.hidden}));
     insist(columns.every(c=>[0,2,3].includes(c.hidden) && !c.name.startsWith('rer_portability_')),'unsupported_column:'+entry.name);
     columns.forEach(c=>{if(c.hidden)c.generated=c.hidden===2?'virtual':'stored';delete c.hidden;});
     // Both archived base cells and visible staging reads must fit D1's SQL
     // limit, with room for copy names and joins.
     insist([false,true].every(encoded=>utf8(projectedColumns({columns},encoded)).length+1024+columns.length*64<=100000),'transfer_sql_limit:'+entry.name);
-    const dependencies=[...new Set((await all(db,`PRAGMA foreign_key_list(${quote(entry.name)})`)).map(ref=>objects.find(x=>x.type==='table' && identifier(x.name)===identifier(ref.table))?.name??ref.table))].sort();
+    const dependencies=[...new Set(metadata[index*2+1].results.map(ref=>objects.find(x=>x.type==='table' && identifier(x.name)===identifier(ref.table))?.name??ref.table))].sort();
     for(const parent of dependencies) insist(!excluded.some(x=>x.name===parent),'excluded_foreign_key:'+entry.name+':'+parent);
     const rowidAlias=columns.some(c=>c.pk)?null:['rowid','_rowid_','oid'].find(alias=>!columns.some(c=>c.name.toLowerCase()===alias));
     insist(rowidAlias!==undefined,'unsupported_rowid:'+entry.name);

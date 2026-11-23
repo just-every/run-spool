@@ -13,7 +13,8 @@ import { capturePayload, payloadRange } from './payloads.mjs';
 import { dropProviderData } from './provider-data.mjs';
 import { dropDevData } from './dev-data.mjs';
 import { revokePolicyApprovals, refusePolicyApprovals } from './policy-data.mjs';
-export async function createExport(context,actor='direct') {
+export async function createExport(context,actor='direct',{signal}={}) {
+  signal?.throwIfAborted();
   const {db,buckets}=context,s=await state(db);insist(!s.applying,'import_applying',409);
   const {config,ledger,migrations:replay}=await transferHistory(context);
   const cat=await catalogue(db,config),id=crypto.randomUUID(),objects=[];
@@ -33,19 +34,25 @@ export async function createExport(context,actor='direct') {
   const row={id,kind:'export',actor,phase:'building',completed:0,metadata:{manifest,copies,cursor:{table:0,row:0,binary:0,offset:0},partBytes:config.partBytes}};
   const audit=context.onExport?context.onExport({id,actor:actor==='direct'?null:actor,scope:'installation'}):[];
   prepareInventory(row);
+  signal?.throwIfAborted();
   await archiveStep('export_snapshot',()=>db.batch([guard(db,'EXISTS(SELECT 1 FROM rer_portability_state WHERE id=1 AND applying=0 AND source_identity=? AND epoch=?)',s.source_identity,s.epoch),
     ...cat.tables.flatMap(t=>createCopy(db,t,copies[t.name],true)),statement(db,'INSERT INTO rer_portability_jobs(id,kind,actor,phase,metadata) VALUES(?,?,?,?,?)',id,'export',actor,row.phase,metadataJson(row.metadata)),...inventoryStatements(db,row),db.prepare('DELETE FROM rer_portability_guard'),
     ...audit.map(([sql,args])=>statement(db,sql,...args))]));
   try {
+    signal?.throwIfAborted();
     await dropDevData(db,cat.tables,copies);
     await dropProviderData(db,cat.tables,copies);
     await revokePolicyApprovals(db,copies);
-    for(const t of manifest.tables) t.count=(await statement(db,`SELECT COUNT(*) AS n FROM ${quote(copies[t.name])}`).first()).n;
+    if(manifest.tables.length) {
+      const counts=await db.batch(manifest.tables.map(table=>db.prepare(`SELECT COUNT(*) AS n FROM ${quote(copies[table.name])}`)));
+      manifest.tables.forEach((table,index)=>{table.count=counts[index].results[0].n;});
+    }
     for(const [name,producer] of Object.entries(config.extraPayloads).sort()) {
       const descriptor=await capturePayload(db,id,manifest.payloads.length,await producer.produce());manifest.payloads.push({name,...descriptor});
     }
     await save(db,row).run();
     await checkReferences(context,copies,objects);
+    signal?.throwIfAborted();
     return id;
   }catch(e){await abortExport(context,id);throw e;}
 }
@@ -58,7 +65,8 @@ async function nextItems(context,row) {
       await normalizeCopy(context,table,copies[table.name]);
       // A product row transform cannot re-enable a delegation after scrubbing.
       if(table.name==='oa_policy_approvals')await refusePolicyApprovals(db,copies);
-      row.metadata.normalized??=[];row.metadata.normalized.push(table.name);await save(db,row).run();
+      // Checkpoint normalization with the part that depends on it.
+      row.metadata.normalized??=[];row.metadata.normalized.push(table.name);
     }
     const records=await readCopy(db,table,copies[table.name],cursor.row,Math.min(1000,Math.ceil(partBytes/128)),true);
     const items=[];let size=200;
@@ -99,9 +107,10 @@ async function nextItems(context,row) {
   }
   return items;
 }
-export async function advanceExport(context,id,{expectedPart,maxParts=1}={}) {
+export async function advanceExport(context,id,{expectedPart,maxParts=1,signal}={}) {
   insist(Number.isSafeInteger(maxParts) && maxParts>0 && maxParts<=100,'advance_limit');
   for(let n=0;n<maxParts;n++) {
+    signal?.throwIfAborted();
     const row=await job(context.db,id,'export');
     if(row.phase==='complete')return exportStatus(context,id);
     insist(row.phase==='building','export_phase',409);
@@ -117,7 +126,10 @@ export async function advanceExport(context,id,{expectedPart,maxParts=1}={}) {
       await checkReferences(context,row.metadata.copies,row.metadata.manifest.objects);
       row.metadata.manifest.partCount=row.completed;
       const verifier=new ContentVerifier(row.metadata.manifest),archive=new ArchiveVerifier(row.metadata.manifest);
-      for await(const part of parts(context.db,id,row.completed)){archive.add(part);for(const item of part.items)verifier.add(item);}
+      for await(const part of parts(context.db,id,row.completed)){
+        signal?.throwIfAborted();
+        archive.add(part);for(const item of part.items)verifier.add(item);
+      }
       row.metadata.contentHash=verifier.digest();row.metadata.archiveHash=archive.digest();row.phase='complete';await save(context.db,row).run();
       // Finished snapshots are kept until abort so erasure can invalidate them.
       return exportStatus(context,id);

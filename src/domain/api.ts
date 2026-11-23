@@ -253,7 +253,12 @@ api.get('/api/projects/:project/issues/:issue/packet',async c=>{
   const packet=found&&await issuePacket(c.env.DB,c.req.param('project'),found.issue,found.requested);
   return packet===null?c.json({error:'Issue not found'},404):c.body(packet,200,{'Content-Type':'application/json; charset=UTF-8'});
 });
-api.get('/api/archive',async c=>new Response(await auditedExport(c.env.DB,await archiveStream(await portability(c.env.DB))),{headers:{'Content-Type':'application/x-ndjson','Content-Disposition':'attachment; filename=errors-private-archive.jsonl','Cache-Control':'no-store'}}));
+api.get('/api/archive',async c=>{
+ const source=await archiveStream(await portability(c.env.DB),{
+  signal:c.req.raw.signal,waitUntil:work=>c.executionCtx.waitUntil(work),
+ });
+ return new Response(await auditedExport(c.env.DB,source),{headers:{'Content-Type':'application/x-ndjson','Content-Disposition':'attachment; filename=errors-private-archive.jsonl','Cache-Control':'no-store'}});
+});
 // A refusal that leaves the upload unread makes the server reset the connection after its 400 (an HTTP/1.1 server cannot
 // answer past an unread body), and the owner's browser then reports a network error instead of the refusal. So whatever
 // the restore leaves unread is read and thrown away before the answer: chunk by chunk, never buffered, never past this cap.

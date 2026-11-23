@@ -1,4 +1,6 @@
 import { expect } from '@playwright/test';
+import { once } from 'node:events';
+import { createServer } from 'node:http';
 
 async function proveRecovery(page, archive, url) {
   const start = archive.getByRole('button', { name: 'Download private archive', exact: true });
@@ -23,19 +25,35 @@ async function proveRecovery(page, archive, url) {
     await expect(status).not.toBeEmpty();
     await expect(cancel).toBeEnabled();
     await page.clock.fastForward(120_000);
-    await expect(problem).toBeVisible();
-    await expect(retry).toBeEnabled();
-
-    const nextRequest = page.waitForRequest(url);
-    await retry.click();
-    await nextRequest;
-    await expect(status).not.toBeEmpty();
+    await expect(cancel).toBeEnabled();
+    await expect(problem).toBeHidden();
     await cancel.click();
     await expect(retry).toBeEnabled();
     await expect(status).not.toBeEmpty();
   } finally {
     held.resolve();
     await page.unroute(url, hold);
+  }
+
+  // Send real headers and part of the body, then hold the transfer open.
+  const origin = new URL(url).origin;
+  const stalled = createServer((_request, response) => {
+    response.writeHead(200, { 'Content-Type': 'application/x-ndjson', 'Access-Control-Allow-Origin': origin });
+    response.write('{');
+  }).listen(0, '127.0.0.1');
+  try {
+    await once(stalled, 'listening');
+    const stalledUrl = `http://127.0.0.1:${stalled.address().port}/archive`;
+    await page.route(url, route => route.continue({ url: stalledUrl }), { times: 1 });
+    const headers = page.waitForResponse(response => response.status() === 200 && [url, stalledUrl].includes(response.url()));
+    await retry.click();
+    await headers;
+    await page.clock.fastForward(120_000);
+    await expect(problem).toBeVisible();
+    await expect(retry).toBeEnabled();
+  } finally {
+    stalled.closeAllConnections();
+    await new Promise(resolve => stalled.close(resolve));
   }
 
   await page.route(url, route => route.abort('failed'), { times: 1 });
