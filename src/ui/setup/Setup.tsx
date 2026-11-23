@@ -20,11 +20,7 @@ export function Setup() {
  const [created, setCreated] = useState<CreatedProject | null>(null), [copied, setCopied] = useState(false);
  const [endpoint, setEndpoint] = useState(''), [release, setRelease] = useState('1.0.0'), [build, setBuild] = useState('local');
  const heading = useRef<HTMLHeadingElement>(null), notice = useRef<HTMLDivElement>(null);
- useEffect(() => {
-  setReady(true);
-  setEndpoint(location.origin);
-  if (created || restoring || document.activeElement === document.body) heading.current?.focus();
- }, [created, restoring]);
+ useEffect(() => { setReady(true); setEndpoint(location.origin); heading.current?.focus(); }, [created, restoring]);
  useEffect(() => { if (error) notice.current?.focus(); }, [error]);
  async function run(work: () => Promise<unknown>) {
   setBusy(true); setError('');
@@ -68,7 +64,7 @@ export function Setup() {
      <button className="text-button setup-alternative" disabled={busy} onClick={() => { setRestoring(false); setError(''); }}>Create a project instead</button>
     </> : <>
      <h2>One project per application</h2><p>Choose a stable identifier such as <code className="mark">web-app</code> and a name you will recognize. You can create more projects later.</p>
-     <ProjectForm request={api} run={run} busy={busy || !ready || !identity.ready} beforeCreate={identity.initialize} onCreated={setCreated} onHydratedEdits={identity.adoptEdits}><SetupIdentity value={identity.value} onChange={identity.change} disabled={busy} /></ProjectForm>
+     <ProjectForm request={api} run={run} busy={busy} disabled={!ready || !identity.ready} beforeCreate={identity.initialize} onCreated={setCreated}><SetupIdentity value={identity.value} onChange={identity.setValue} disabled={busy || !ready || !identity.ready} /></ProjectForm>
      <p className="setup-note">The next step shows your ingest key once, with the SDK setup for your application.</p>
      <div className="setup-alternative"><p>Moving from another Spool? Restore before creating a project.</p><button className="text-button" disabled={busy || !ready} onClick={() => { setRestoring(true); setError(''); }}>Restore a private archive</button></div>
      <noscript><p>Project creation needs JavaScript. Enable it and reload this page to continue.</p></noscript>

@@ -17,38 +17,25 @@ export async function initializeSetupIdentity(request: Request, value: SetupIden
 }
 
 export function useSetupIdentity(request: Request) {
-  const [defaults, setDefaults] = useState<SetupIdentityValue>({ installationName: '', name: '', email: '' });
-  const [edits, setEdits] = useState<Partial<SetupIdentityValue>>({});
+  const [value, setValue] = useState<SetupIdentityValue>({ installationName: '', name: '', email: '' });
   const [ready, setReady] = useState(false), [error, setError] = useState('');
   useEffect(() => {
     let live = true;
     void Promise.all([request('/auth/session'), request('/api/organization/me')]).then(([session, access]) => {
       if (!live) return;
       const localDefault = !access.organization && access.localTransferConfirmation && /^owner@[^@]+\.test$/i.test(session.operator.email);
-      setDefaults({ installationName: access.organization?.name ?? '', name: localDefault ? '' : session.operator.displayName, email: localDefault ? '' : session.operator.email });
+      setValue({ installationName: access.organization?.name ?? '', name: localDefault ? '' : session.operator.displayName, email: localDefault ? '' : session.operator.email });
       setReady(true);
     }).catch(failure => { if (live) setError(identityMessage(failure)); });
     return () => { live = false; };
   }, [request]);
-  const value = { ...defaults, ...edits };
-  function change(field: keyof SetupIdentityValue, input: string) {
-    setEdits(previous => ({ ...previous, [field]: input }));
-  }
-  function adoptEdits(inputs: ReadonlyMap<string, string>) {
-    const initial: Partial<SetupIdentityValue> = {};
-    for (const field of ['installationName', 'name', 'email'] as const) {
-      const input = inputs.get(field);
-      if (input !== undefined) initial[field] = input;
-    }
-    setEdits(previous => ({ ...previous, ...initial }));
-  }
-  return { value, change, adoptEdits, ready, error, initialize: () => initializeSetupIdentity(request, value) };
+  return { value, setValue, ready, error, initialize: () => initializeSetupIdentity(request, value) };
 }
 
-export function SetupIdentity({ value, onChange, disabled = false }: { value: SetupIdentityValue; onChange: (field: keyof SetupIdentityValue, input: string) => void; disabled?: boolean }) {
+export function SetupIdentity({ value, onChange, disabled = false }: { value: SetupIdentityValue; onChange: (value: SetupIdentityValue) => void; disabled?: boolean }) {
   return <>
-    <Field data-setup-field="installationName" label="What should we call this?" placeholder="Brightwell Support" autoComplete="organization" required maxLength={120} disabled={disabled} value={value.installationName} onChange={event => onChange('installationName', event.target.value)} />
-    <Field data-setup-field="name" label="Your name" autoComplete="name" required maxLength={120} disabled={disabled} value={value.name} onChange={event => onChange('name', event.target.value)} />
-    <Field data-setup-field="email" label="Your email" type="email" autoComplete="email" required maxLength={254} disabled={disabled} value={value.email} onChange={event => onChange('email', event.target.value)} />
+    <Field label="What should we call this?" placeholder="Brightwell Support" autoComplete="organization" required maxLength={120} disabled={disabled} value={value.installationName} onChange={event => onChange({ ...value, installationName: event.target.value })} />
+    <Field label="Your name" autoComplete="name" required maxLength={120} disabled={disabled} value={value.name} onChange={event => onChange({ ...value, name: event.target.value })} />
+    <Field label="Your email" type="email" autoComplete="email" required maxLength={254} disabled={disabled} value={value.email} onChange={event => onChange({ ...value, email: event.target.value })} />
   </>;
 }

@@ -6,7 +6,7 @@ Open a terminal on macOS or Linux, or inside WSL2 on Windows. Git is required. T
 Copy the install command under **Run it yourself** on the [Run page](https://run-spool.com/run). It finds the latest stable release, clones it into `run-spool` and starts Spool.
 <!-- rer:end -->
 
-A first local start usually takes about a minute. On a busy computer it can take longer: `rer dev` prints progress every 20 seconds, with the limit to allow.
+A first local start can take several minutes while rer installs dependencies and prepares Spool. `rer dev` prints progress every 20 seconds and shows how long it will wait.
 
 Open the private `RER_OPEN` link printed in your terminal and keep it private. Name this installation and create your first project. You can change the installation name later in **Settings → General** and your own name or email in **Settings → Members**.
 

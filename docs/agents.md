@@ -6,7 +6,7 @@ A coding agent, such as Claude Code or Codex, can read Spool's evidence directly
 
 1. **Save the policy.** Open `/agents` on the installation as the owner. Answer all six policy questions and choose **No** or **Yes** for paid AI. Choose **No** to save in the form, or set spending caps in the policy document to allow paid AI.
 2. **Create the key.** Open **Settings → Projects & keys** and choose **Create agent key**.
-3. **Copy the key.** Spool shows it once.
+3. **Save the key.** Select **Copy agent key** while Spool shows it. Select **Copy paste-in prompt** to copy the instructions for your agent.
 
 When an agent sets up Spool through the business harness, set-up prints the first-owner sign-in link on its own line. Pass it as `sign_in` on the Spool tool entry in `session.report` and keep it out of chat and files.
 

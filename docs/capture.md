@@ -23,7 +23,7 @@ installBrowserCapture({ endpoint: 'http://127.0.0.1:8787', project: 'web-app',
 
 Use your Spool address, project key and registered release/build, and allow your application's exact origin on **Capture**. This helper captures browser errors and unhandled rejections without npm or a bundler. For Node, Workers or build-time map tooling, use the SDK below.
 
-Two separate errors with the same location and message count as two occurrences. The helper skips further copies of that pattern for five seconds from the first report, and skips a second report of the same `Error` object within 100 ms. To limit floods, it sends up to 30 errors at once from each error location, then one every two seconds, keeping the latest error while that location waits.
+The browser helper skips a second report of the same `Error` object within 100 ms. Separate throws can create separate occurrences even when they share a message and location. The helper also limits bursts at each error location.
 
 ## 1. Add the Spool SDK
 

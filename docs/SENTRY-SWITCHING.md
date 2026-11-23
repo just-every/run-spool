@@ -12,6 +12,8 @@ Before changing the DSN, review **Settings → Privacy & filtering → User iden
 
 The Sentry error envelope and legacy store endpoints convert exceptions into Spool's existing admission path: project key, exact browser origin, release handling (see [Sentry release identity](SENTRY-RELEASES.md)), scrubbing, duplicate identity, grouping, bounded storage, diagnosis and alerts. Unsupported items are counted under a fixed taxonomy and discarded. No unsupported payloads are retained. Text feedback from modern feedback events/items and legacy user_report is retained separately under [Text feedback](FEEDBACK.md), with exact occurrence association, owner review and withdrawal. Contact, screenshots and other attachments are excluded. [Individual sessions and server aggregates](SENTRY-SESSIONS.md) provide observed release health; missing-release sessions are counted as invalid, and device/OS cohorts and Spool-SDK sessions remain unavailable. Bounded transaction timing summaries and SDK-reported client-discard counts are retained. Full traces and individual spans, attachments, replay, profiles, logs and metrics are counted as unsupported and are not retained. Cron check-ins are never stored as evidence; they are routed to a connected Uptime heartbeat, or counted as unrouted, under [Cron check-ins](CHECK-INS.md).
 
+If intake returns HTTP 4xx, inspect the response body or the `X-Sentry-Error` header. Spool refusals include `"source":"spool"` and a stable `reason` such as `origin_not_allowed` or `ingest_authority_changed`. The Worker logs the same reason as `sentry_intake_refused`. For a response without the Spool marker, check the hosting provider's response and request logs.
+
 Capture support summary updated by Run Edit Run fleet, 16 November 2026.
 
 The full verify runs unmodified `@sentry/browser` and `@sentry/node` 11.6.0 with their default integrations, and one parallel job per server runtime runs an unmodified Sentry SDK program (see [Runtime qualification](#runtime-qualification)). The same program and SDK configuration use a local reference collector DSN and then a Spool DSN; only the DSN changes. Browser capture checks mapped source coordinates at 1440 and 390, and Node capture awaits flush. Exact-head results belong in the completion evidence; package pins alone do not prove runtime behavior. These programs make no Sentry account or service calls.
@@ -57,8 +59,6 @@ The outermost reported exception supplies the stack. Frames are reversed from Se
    ```
 
 6. Trigger a real exception from the deployed/minified app on its own origin. Open the Spool issue, inspect its original path/line/column and compare it to source. Node applications must await `Sentry.flush()` before exiting. An SDK flush confirms transport handling, not acceptance; verify the owner issue packet and outcomes. Under the opt-in **Registered sequence only** rule, a refused release shows a reason and Register link in Spool, and registering does not retroactively admit the refused event: reproduce an actual exception after registration.
-
-For a Spool HTTP 403, inspect `X-Sentry-Error` and the response body’s `reason` and `message`. Check the browser’s Network panel if a cross-origin refusal prevents the SDK from reading the response. The project’s **Settings → Projects & keys** explains which capture settings to check.
 
 Keep the SDK's former DSN available for reversal. Reverting configuration is separate from undoing imported history and does not move events captured after the switch back to Sentry.
 

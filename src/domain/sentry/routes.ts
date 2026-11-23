@@ -15,7 +15,6 @@ import { feedbackInput } from '../feedback/input';
 import { admitFeedback } from '../feedback/admission';
 import { clientReportCounts } from './client-reports';
 import { admitCheckIns } from '../checkins/intake';
-import { sentryRefusal } from './refusal';
 import { SentryWireError, readSentryBytes, parseEnvelope, objectJson, unsupportedReason, isErrorEventType, type WireObject } from './wire.ts';
 const routes=new Hono<{Bindings:Bindings}>();
 async function sentryAuthority(c:Context<{Bindings:Bindings}>,envelope:WireObject={}) {
@@ -25,35 +24,45 @@ async function sentryAuthority(c:Context<{Bindings:Bindings}>,envelope:WireObjec
   return authorizeIngest(c,row.project,key);
 }
 const paths=['/:alias/envelope/','/:alias/envelope','/:alias/store/','/:alias/store'];
+routes.on(['OPTIONS','POST'],paths,async(c,next)=>{
+  await next();
+  const response=c.res;
+  if(response.status<400||!response.headers.get('Content-Type')?.startsWith('application/json'))return;
+  const body=await response.json() as {reason?:string;outcome?:string};
+  const reason=body.reason??body.outcome??'rejected';
+  const headers=new Headers(response.headers);
+  headers.set('X-Sentry-Error',reason);
+  console.warn(JSON.stringify({source:'spool',event:'sentry_intake_refused',status:response.status,reason}));
+  c.res=new Response(JSON.stringify({...body,source:'spool',reason}),{status:response.status,headers});
+});
 routes.on('OPTIONS',paths,async c=>{
   c.header('Vary','Origin, Access-Control-Request-Method, Access-Control-Request-Headers');
   const alias=c.req.param('alias')!,origin=c.req.header('origin'),requested=c.req.header('access-control-request-headers')??'';
   const headers=requested?requested.toLowerCase().split(',').map(v=>v.trim()):[];
-  if(!/^[1-9][0-9]{0,15}$/.test(alias)||!origin||c.req.header('access-control-request-method')!=='POST'||requested.length>256||new Set(headers).size!==headers.length||headers.some(h=>!['content-type','x-sentry-auth','authorization'].includes(h)))return sentryRefusal(c,{outcome:'rejected',reason:'preflight_not_allowed'},403);
+  if(!/^[1-9][0-9]{0,15}$/.test(alias)||!origin||c.req.header('access-control-request-method')!=='POST'||requested.length>256||new Set(headers).size!==headers.length||headers.some(h=>!['content-type','x-sentry-auth','authorization'].includes(h)))return c.json({error:'Preflight not allowed',reason:'preflight_not_allowed'},403);
   const row=await c.env.DB.prepare('SELECT project FROM sentry_project_aliases WHERE id=?').bind(alias).first<{project:string}>();
-  if(!row)return sentryRefusal(c,{outcome:'rejected',reason:'project_or_origin_not_allowed'},403);
+  if(!row)return c.json({error:'Origin not allowed',reason:'origin_not_allowed'},403);
   const policy=await ingestOrigin(c.env.DB,row.project,origin,c.env.AUTH_ORIGIN,c.req.header('referer'));
-  if(!policy.allowed)return sentryRefusal(c,{outcome:'rejected',reason:policy.domain.reason!},403);
+  if(!policy.allowed)return c.json({error:'Origin not allowed',reason:policy.domain.reason},403);
   c.header('Access-Control-Allow-Origin',origin);c.header('Access-Control-Allow-Methods','POST');c.header('Access-Control-Allow-Headers','Content-Type, X-Sentry-Auth, Authorization');c.header('Access-Control-Max-Age','60');return c.body(null,204);
 });
 routes.on('POST',paths,async c=>{
   c.header('Vary','Origin');c.header('Access-Control-Expose-Headers','Retry-After, X-Sentry-Rate-Limits, X-Sentry-Error');
   let scope:IngestScope|undefined;
-  const refusal=async(response:Response)=>sentryRefusal(c,await response.json(),response.status);
   try{
     let bytes:Uint8Array;
     try{bytes=await readSentryBytes(c.req.raw)}catch(error){
       // A refused encoding cannot expose envelope credentials. Header/query grants
       // still authorize its outcome through the normal project/origin fences.
       if(error instanceof SentryWireError&&error.status===415){
-        const auth=await sentryAuthority(c);if('response' in auth)return refusal(auth.response);scope=auth.scope;
+        const auth=await sentryAuthority(c);if('response' in auth)return auth.response;scope=auth.scope;
       }
       throw error;
     }
     const store=/\/store\/?$/.test(c.req.path);
     // Parse ALL item byte boundaries before authenticating, counting or admitting anything.
     const envelope=store?{header:{},items:[{header:{type:'event'},bytes}]}:parseEnvelope(bytes);
-    const auth=await sentryAuthority(c,envelope.header);if('response' in auth)return refusal(auth.response);scope=auth.scope;
+    const auth=await sentryAuthority(c,envelope.header);if('response' in auth)return auth.response;scope=auth.scope;
     type Privacy={jobs:D1PreparedStatement[]};
     let eventScrubbingKey:Awaited<ReturnType<typeof prepareScrubbing>>['key']=null;
     const dropped=new Map<string,number>(),clientDiscarded=new Map<string,number>(),events:{event:any;digest:string;identity?:Awaited<ReturnType<typeof prepareEventIdentity>>;privacy?:Privacy}[]=[],feedback=[],checkIns:typeof envelope.items=[],sessions:typeof envelope.items=[],transactions:typeof envelope.items=[];
@@ -104,15 +113,15 @@ routes.on('POST',paths,async c=>{
     for(const {event,digest,identity,privacy} of events){
       const response=await admitEvent(c,scope,event,digest,true,identity,privacy);
       if(!response.ok){const result=await response.json() as any;
-        if(response.status===429&&result.reason==='key_rate_limited'){c.header('X-Sentry-Error',result.reason);keyRefusal=result;keyLimited++;continue}
-        return sentryRefusal(c,result,response.status);
+        if(response.status===429&&result.reason==='key_rate_limited'){keyRefusal=result;keyLimited++;continue}
+        return c.json(result,response.status as any);
       }
       id=event.eventId;
     }
     const transactionCounts=transactions.length?await admitTransactions(c,scope,transactions,envelope.header.event_id):{};
     const receipts=[];
     // Admit errors first so feedback in the same envelope can bind their exact occurrence.
-    for(const report of feedback){const response=await admitFeedback(c,scope,report),result=await response.json();if(!response.ok)return sentryRefusal(c,result as any,response.status);receipts.push(result);id??=report.id}
+    for(const report of feedback){const response=await admitFeedback(c,scope,report),result=await response.json();if(!response.ok)return c.json(result,response.status as any);receipts.push(result);id??=report.id}
     const {counts:sessionCounts,retryAfter}=sessions.length?await admitSessions(c,scope,sessions,envelope.header.sdk):{counts:{},retryAfter:0};
     const registrationRequired=sessionCounts.missing_release_register_required||sessionCounts.unregistered_release_or_build;
     // A successful mixed envelope can refuse sessions without pausing companion errors.
@@ -122,13 +131,11 @@ routes.on('POST',paths,async c=>{
     return c.json({...(keyRefusal??{}),...id?{id}:{},dropped:Object.fromEntries(dropped),...dropped.has('invalid_item')?{refusedItems:[{type:'event',reason:'invalid_item',quantity:dropped.get('invalid_item')}]}:{},...clientReports?{clientReports:{received:clientReports-invalidReports-filteredReports,invalid:invalidReports,...filteredReports?{filtered:filteredReports}:{},discarded:Object.fromEntries(clientDiscarded)}}:{},...receipts.length?{feedback:receipts}:{},...checkIns.length?{checkIns:checkInCounts}:{},...sessions.length?{sessions:sessionCounts}:{},...transactions.length?{transactions:transactionCounts}:{},...registrationRequired?{register:`/projects/${encodeURIComponent(scope.project)}/releases`}:{}},keyLimited?429:200);
   }catch(error){
     if(error instanceof SentryWireError){
-      if(scope){try{await recordIngest(c,scope,error.status===415?'unsupported_content_encoding':error.reason.includes('feedback')?error.status===413?'feedback_oversized':'feedback_invalid':error.reason==='missing_release_register_required'?error.reason:error.status===413?'oversized':'invalid')}catch(failure){return refusal(await ingestFailure(c,scope,failure))}}
-      const result={outcome:'rejected',reason:error.reason,...error.encoding?{encoding:scrub(error.encoding)}:{},...error.reason==='missing_release_register_required'&&scope?{register:`/projects/${encodeURIComponent(scope.project)}/releases`}:{}};
-      return sentryRefusal(c,result,error.status);
+      if(scope){try{await recordIngest(c,scope,error.status===415?'unsupported_content_encoding':error.reason.includes('feedback')?error.status===413?'feedback_oversized':'feedback_invalid':error.reason==='missing_release_register_required'?error.reason:error.status===413?'oversized':'invalid')}catch(failure){return ingestFailure(c,scope,failure)}}
+      return c.json({outcome:'rejected',reason:error.reason,...error.encoding?{encoding:scrub(error.encoding)}:{},...error.reason==='missing_release_register_required'&&scope?{register:`/projects/${encodeURIComponent(scope.project)}/releases`}:{}},error.status as any);
     }
-    if(String((error as Error).message).startsWith('D1'))return scope?refusal(await ingestFailure(c,scope,error)):sentryRefusal(c,{outcome:'unavailable',reason:'transaction_not_confirmed'},503);
-    if(scope)await recordIngest(c,scope,'invalid');
-    return c.json({outcome:'rejected',reason:scrub((error as Error).message)},400);
+    if(scope){if(String((error as Error).message).startsWith('D1'))return ingestFailure(c,scope,error);await recordIngest(c,scope,'invalid')}
+    return c.json({outcome:'rejected',reason:'invalid_payload'},400);
   }
 });
 export default routes;
