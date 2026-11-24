@@ -27,7 +27,7 @@ import { checkInRoutes } from './checkins/routes';
 import proposalRoutes from './proposals/routes';
 import followUpRoutes from './follow-up/routes';
 import { auditRoutes } from './audit/routes';
-import { auditProjectBinding } from './audit/context';
+import { auditProjectBinding, currentAuditScope } from './audit/context';
 import { auditedExport } from './audit/export';
 import deploymentHistoryRoutes from './deployments/routes';
 import { releasePolicyRoutes } from './releases/routes';
@@ -66,6 +66,8 @@ type Bindings = OwnerBindings & AlertEnvironment;
 import { normalize, identity, hash, token, scrub, canonical } from './privacy';
 import { ownerAlert, ownerIssue } from './stored-text';
 import { archiveStream, restoreStream } from './portability';
+import { archiveWithProgress } from './archive-stream';
+import { archiveProgressHeader } from './archive-progress';
 import { portability } from './portability-worker';
 import { PortabilityError } from '../modules/portability/index.mjs';
 import { authorizeIngest, admitEvent, recordIngest, ingestFailure } from './admission';
@@ -213,7 +215,9 @@ api.route('/api/projects/:project/commits',commitRoutes);
 api.route('/api/projects/:project/sentry-uploads',sentryUploadRoutes);
 api.get('/api/projects',async c=>c.json(await memberProjects(c.env.DB,c.get('session'))));
 api.post('/api/projects',async c=>{const b=await body(c);const id=identity(b.id,'project');if(typeof b.name!=='string'||!b.name.trim())throw new Error('Name required');if(await erasedProjectIdentifier(c.env.DB,id))return c.json({error:'This identifier belonged to an erased project. Choose another identifier.'},409);const name=scrub(b.name);const key=token(),prefix=await projectPrefix(c.env.DB,id),created=now();await write(c,[stmt(c.env.DB,'INSERT INTO projects VALUES(?,?,?)',id,name,created),stmt(c.env.DB,'INSERT INTO identity_policies VALUES(?,1,?,?)',id,JSON.stringify(newProjectIdentityPolicy()),created),stmt(c.env.DB,"INSERT INTO spool_project_teams SELECT ?,id,'Default team' FROM spool_organizations",id),prefixStatement(c.env.DB,prefix,id,created),...await auditProjectBinding(c.env.DB,id),mintCredential(c,await hash(key),id,'ingest'),...c.get('dev')?[recordDevMint(c.env.DB,await hash(key))]:[],audit(c.env.DB,id,'project_created',{id})]);return c.json({id,name,shortIdPrefix:prefix,defaultOnFilters,inboundPolicy:defaultInboundPolicy(),ingestKey:key,devMinted:c.get('dev'),dsn:await projectDsn(c.env.DB,c.env.AUTH_ORIGIN,id,key)},201)});
-api.get('/api/projects/:project/releases',async c=>{await readReleasePolicy(c.env.DB,c.req.param('project'));return c.json((await stmt(c.env.DB,`SELECT releases.*,(SELECT auto_created FROM release_metadata m WHERE m.project=releases.project AND m.release=releases.name) auto_created,(SELECT first_seen FROM release_metadata m WHERE m.project=releases.project AND m.release=releases.name) first_seen,(SELECT environment FROM release_metadata m WHERE m.project=releases.project AND m.release=releases.name) first_environment,(SELECT sdk FROM release_metadata m WHERE m.project=releases.project AND m.release=releases.name) creating_sdk,(SELECT json_group_array(json_object('environment',environment,'commitSha',commit_sha,'repository',repository,'deployedAt',deployed_at,'pathMappings',json((SELECT payload FROM deployment_path_mappings m WHERE m.project=d.project AND m.release=d.release AND m.environment=d.environment)))) FROM deployment_manifests d WHERE d.project=releases.project AND d.release=releases.name) deployments,(SELECT released FROM sentry_releases x WHERE x.project=releases.project AND x.release=releases.name) finalized,(SELECT COUNT(*) FROM release_commits rc WHERE rc.project=releases.project AND rc.release=releases.name) commit_count,(SELECT json_group_array(json_object('id',id,'environment',environment,'name',name,'url',url,'started',started,'finished',finished)) FROM sentry_deploys sd WHERE sd.project=releases.project AND sd.release=releases.name) cli_deploys FROM releases WHERE project=? ORDER BY ${releaseOrderSql()}`,c.req.param('project')).all()).results)});
+api.get('/api/projects/:project/releases',async c=>{await readReleasePolicy(c.env.DB,c.req.param('project'));return c.json((await stmt(c.env.DB,`SELECT releases.*,
+ (SELECT json_group_array(build) FROM (SELECT releases.build UNION SELECT b.build FROM release_builds b
+  WHERE b.project=releases.project AND b.release=releases.name ORDER BY build)) builds,(SELECT auto_created FROM release_metadata m WHERE m.project=releases.project AND m.release=releases.name) auto_created,(SELECT first_seen FROM release_metadata m WHERE m.project=releases.project AND m.release=releases.name) first_seen,(SELECT environment FROM release_metadata m WHERE m.project=releases.project AND m.release=releases.name) first_environment,(SELECT sdk FROM release_metadata m WHERE m.project=releases.project AND m.release=releases.name) creating_sdk,(SELECT json_group_array(json_object('environment',environment,'commitSha',commit_sha,'repository',repository,'deployedAt',deployed_at,'pathMappings',json((SELECT payload FROM deployment_path_mappings m WHERE m.project=d.project AND m.release=d.release AND m.environment=d.environment)))) FROM deployment_manifests d WHERE d.project=releases.project AND d.release=releases.name) deployments,(SELECT released FROM sentry_releases x WHERE x.project=releases.project AND x.release=releases.name) finalized,(SELECT COUNT(*) FROM release_commits rc WHERE rc.project=releases.project AND rc.release=releases.name) commit_count,(SELECT json_group_array(json_object('id',id,'environment',environment,'name',name,'url',url,'started',started,'finished',finished)) FROM sentry_deploys sd WHERE sd.project=releases.project AND sd.release=releases.name) cli_deploys FROM releases WHERE project=? ORDER BY ${releaseOrderSql()}`,c.req.param('project')).all<{builds:string}>()).results.map(row=>({...row,builds:JSON.parse(row.builds) as string[]})))});
 api.get('/api/projects/:project/keys',async c=>c.json((await stmt(c.env.DB,`SELECT hash,kind,name,last_used,created,revoked,CASE WHEN revoked IS NULL AND NOT ${mintedByCurrentPerson} THEN 1 ELSE 0 END stopped FROM credentials WHERE project=?`,c.req.param('project')).all()).results));
 api.post('/api/projects/:project/keys',async c=>{const b=await body(c);if(!['ingest','agent','deploy'].includes(b.kind))throw new Error('Invalid grant kind');if(!canManageProjectKey(c.get('session'),b.kind))return c.json({error:'Project not found'},404);if(b.name!==undefined&&(typeof b.name!=='string'||b.name.trim().length>100))throw new Error('Use a key name of up to 100 characters');const name=scrub((b.name??'').trim());const t=token(),h=await hash(t);await write(c,[mintCredential(c,h,c.req.param('project'),b.kind,name),...c.get('dev')?[recordDevMint(c.env.DB,h)]:[],audit(c.env.DB,c.req.param('project'),'key_created',{hash:h,kind:b.kind})]);return c.json({key:t,hash:h,kind:b.kind,...b.kind==='ingest'?{dsn:await projectDsn(c.env.DB,c.env.AUTH_ORIGIN,c.req.param('project'),t)}:{}},201)});
 api.put('/api/projects/:project/keys/:hash',async c=>{const key=await stmt(c.env.DB,'SELECT kind FROM credentials WHERE project=? AND hash=?',c.req.param('project'),c.req.param('hash')).first<{kind:string}>();if(!key||!canManageProjectKey(c.get('session'),key.kind))return c.json({error:'Project not found'},404);const b=await body(c,2048);if(typeof b.name!=='string'||b.name.trim().length>100)throw new Error('Use a key name of up to 100 characters');await write(c,[stmt(c.env.DB,'UPDATE credentials SET name=? WHERE project=? AND hash=?',scrub(b.name.trim()),c.req.param('project'),c.req.param('hash')),audit(c.env.DB,c.req.param('project'),'key_named',{hash:c.req.param('hash')})]);return c.json({ok:true})});
@@ -265,9 +269,26 @@ api.get('/api/projects/:project/issues/:issue/packet',async c=>{
   return packet===null?c.json({error:'Issue not found'},404):c.body(packet,200,{'Content-Type':'application/json; charset=UTF-8'});
 });
 api.get('/api/archive',async c=>{
- const lifetime={signal:c.req.raw.signal,waitUntil:(work:Promise<unknown>)=>c.executionCtx.waitUntil(work)};
- const source=await archiveStream(await portability(c.env.DB),lifetime);
- return new Response(await auditedExport(c.env.DB,source,lifetime),{headers:{'Content-Type':'application/x-ndjson','Content-Disposition':'attachment; filename=errors-private-archive.jsonl','Cache-Control':'no-store'}});
+ const { signal } = c.req.raw;
+ const db = c.env.DB, scope = currentAuditScope();
+ const progress = c.req.header(archiveProgressHeader) === '1';
+ const waitUntil = (work:Promise<unknown>) => c.executionCtx.waitUntil(work);
+ const prepare = (signal: AbortSignal) => {
+  const lifetime = {signal,waitUntil};
+  return auditedExport(db,async () => {
+   signal.throwIfAborted();
+   const service = await portability(db);
+   signal.throwIfAborted();
+   return archiveStream(service,lifetime);
+  },lifetime,scope,progress);
+ };
+ const source = progress ? archiveWithProgress(prepare,signal) : await prepare(signal);
+ return new Response(source,{headers:{
+  'Content-Type':'application/x-ndjson',
+  'Content-Disposition':'attachment; filename=errors-private-archive.jsonl',
+  'Cache-Control':'no-store',
+  ...(progress ? { [archiveProgressHeader]:'1' } : {}),
+ }});
 });
 // A refusal that leaves the upload unread makes the server reset the connection after its 400 (an HTTP/1.1 server cannot
 // answer past an unread body), and the owner's browser then reports a network error instead of the refusal. So whatever

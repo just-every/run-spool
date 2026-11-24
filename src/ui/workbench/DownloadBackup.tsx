@@ -1,14 +1,19 @@
 import { useEffect, useRef, useState } from 'react';
+import { archiveProgressByte, archiveProgressHeader } from '../../domain/archive-progress';
 import { ownerFetch } from './client';
 import { download, type Run } from './shared';
 
 const ARCHIVE_IDLE_MS = 60_000;
 
 function archiveText(response: Response, onChunk: () => void) {
+  let firstChunk = true;
   const stream = response.body?.pipeThrough(new TransformStream<Uint8Array, Uint8Array>({
     transform(chunk, output) {
+      const bytes = firstChunk && chunk[0] === archiveProgressByte ? chunk.subarray(1) : chunk;
+      firstChunk = false;
+      if (!bytes.byteLength) return;
       onChunk();
-      output.enqueue(chunk);
+      output.enqueue(bytes);
     },
   }));
   return new Response(stream).text();
@@ -45,16 +50,17 @@ export function DownloadBackup({ busy, run, label = 'Download private archive' }
       }
 
       try {
-        const response = await ownerFetch('/api/archive', { signal: request.signal });
+        const response = await ownerFetch('/api/archive', { signal: request.signal, headers: { [archiveProgressHeader]: '1' } });
         request.signal.throwIfAborted();
         if (!response.ok) {
           await response.body?.cancel();
           throw new Error('Archive response failed');
         }
 
-        setState({ phase: 'receiving' });
-        waitForProgress();
-        const text = await archiveText(response, waitForProgress);
+        const text = await archiveText(response, () => {
+          if (timer === undefined) setState({ phase: 'receiving' });
+          waitForProgress();
+        });
         request.signal.throwIfAborted();
         const manifest = JSON.parse(text.split('\n', 1)[0]);
         const projects = manifest.tables.find((table: { name: string }) => table.name === 'projects')?.count;

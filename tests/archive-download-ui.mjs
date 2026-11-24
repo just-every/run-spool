@@ -37,8 +37,11 @@ async function proveRecovery(page, archive, url) {
 
   // Send real headers and part of the body, then hold the transfer open.
   const origin = new URL(url).origin;
-  const stalled = createServer((_request, response) => {
+  const transfer = Promise.withResolvers();
+  const stalled = createServer(async (_request, response) => {
     response.writeHead(200, { 'Content-Type': 'application/x-ndjson', 'Access-Control-Allow-Origin': origin });
+    response.write(' ');
+    await transfer.promise;
     response.write('{');
   }).listen(0, '127.0.0.1');
   try {
@@ -49,9 +52,15 @@ async function proveRecovery(page, archive, url) {
     await retry.click();
     await headers;
     await page.clock.fastForward(120_000);
+    await expect(cancel).toBeEnabled();
+    await expect(problem).toBeHidden();
+    transfer.resolve();
+    await expect(status).toContainText(/receiving/i);
+    await page.clock.fastForward(120_000);
     await expect(problem).toBeVisible();
     await expect(retry).toBeEnabled();
   } finally {
+    transfer.resolve();
     stalled.closeAllConnections();
     await new Promise(resolve => stalled.close(resolve));
   }

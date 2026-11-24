@@ -113,7 +113,7 @@ export async function firstProjectJourney(browser, origin, width) {
    const opened=context.waitForEvent('page');await mapStep.click({modifiers:['ControlOrMeta']});const maps=await opened;
    try {
     await maps.getByRole('heading',{name:'Set up original-source mapping',exact:true}).waitFor();
-    await maps.locator('#upload-map').getByRole('combobox').selectOption('1.0.0');
+    await maps.locator('#upload-map').getByRole('combobox',{name:'Release',exact:true}).selectOption('1.0.0');
     const map={version:3,file:'app.js',debug_id:'synthetic-spool-1',sources:['src/checkout.ts'],names:[],mappings:'AAAA',sourcesContent:['export function checkout() { throw new Error("synthetic checkout failure"); }']};
     await maps.getByLabel('Source map file · max 256 KiB',{exact:true}).setInputFiles({name:'app.js.map',mimeType:'application/json',buffer:Buffer.from(JSON.stringify(map))});
     await maps.getByLabel('Bundle debug ID',{exact:true}).fill('synthetic-spool-1');
@@ -123,6 +123,7 @@ export async function firstProjectJourney(browser, origin, width) {
     const mapped=packet.events.find(event=>event.id===mappedEventId).atAdmission[0];
     assert.equal(mapped.status,'mapped','the map uploaded from the setup step is used on admission');assert.equal(mapped.original.file,map.sources[0]);assert.equal(mapped.original.line,1);assert.equal(mapped.original.column,0);
     await maps.goto(origin+'/projects/journey/issues/'+captured.issue);await maps.locator('.mapped-frame').first().waitFor();
+    await mapSentryBuild(maps,origin,new URL(await dsn.innerText()),map);
    } finally {await maps.close();}
    await page.getByRole('button',{name:'Copy Sentry DSN',exact:true}).focus();
   }
@@ -133,4 +134,38 @@ export async function firstProjectJourney(browser, origin, width) {
   assert.equal((await request.get(origin+'/missing')).status(),404);
   const cookies=await context.cookies();return cookies.map(cookie=>cookie.name+'='+cookie.value).join('; ');
  } finally {await context?.close();await plain.close();}
+}
+
+async function mapSentryBuild(page, origin, dsn, map) {
+ const release='counter@1.9.0',build='build-19',path='/api/projects/journey',file='https://checkout.example/counter.min.js';
+ const url=new URL(`/api${dsn.pathname}/envelope/`,origin);
+ url.searchParams.set('sentry_key',dsn.username);
+ url.searchParams.set('sentry_version','7');
+ const send=async(type,item)=>{
+  const response=await fetch(url,{method:'POST',body:'{}\n'+JSON.stringify({type})+'\n'+JSON.stringify(item)});
+  assert.equal(response.status,200);
+  return response.json();
+ };
+ const capture=()=>{
+  const event_id=crypto.randomUUID().replaceAll('-','');
+  return send('event',{event_id,release,dist:build,exception:{values:[{type:'CheckoutError',value:'Counter lost its order',stacktrace:{frames:[{filename:file,lineno:1,colno:1,function:'checkout'}]}}]},debug_meta:{images:[{type:'sourcemap',code_file:file,debug_id:map.debug_id}]}}).then(()=>event_id);
+ };
+ const session=await send('session',{sid:crypto.randomUUID(),started:new Date().toISOString(),attrs:{release,environment:'production'}});
+ assert.equal(session.sessions.session_stored,1);
+ await capture();
+ const issues=await (await page.request.get(origin+path+'/issues')).json();
+ const issue=issues.find(row=>row.title.includes('Counter lost its order'));
+ await page.goto(origin+'/projects/journey/issues/'+issue.id);
+ await page.getByRole('button',{name:'Upload map',exact:true}).click();
+ const picker=page.locator('#upload-map');
+ const identifier=picker.getByRole('combobox',{name:'Build identifier',exact:true});
+ await identifier.waitFor();
+ assert.equal(await identifier.inputValue(),build,'the picker uses the occurrence build after a no-dist session created the release');
+ await picker.locator('input[type=file]').setInputFiles({name:'counter.min.js.map',mimeType:'application/json',buffer:Buffer.from(JSON.stringify(map))});
+ const upload=page.waitForResponse(response=>new URL(response.url()).pathname===path+'/artifacts'&&response.request().method()==='POST');
+ await picker.getByRole('button',{name:'Upload matching map',exact:true}).click();
+ assert.equal((await upload).status(),201);
+ const eventId=await capture();
+ const packet=await (await page.request.get(origin+path+'/issues/'+issue.id+'/packet')).json();
+ assert.equal(packet.events.find(event=>event.id===eventId).atAdmission[0].original.file,map.sources[0]);
 }

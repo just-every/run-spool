@@ -2,6 +2,7 @@ import { operatorAuth } from '../../auth/session.server';
 import { runtimeBindings, type Bindings } from '../../auth/bindings';
 import { AuthError } from '../../modules/operator-auth/index.mjs';
 import { hash } from '../privacy';
+import { archiveProgressHeader } from '../archive-progress';
 import { mintAdmission } from '../dev-credentials';
 import { mintedByCurrentPerson } from '../credential-fence';
 import { auditActor, auditLabel, boundAuditLabel, projectAuditLabel, randomAuditLabel, serviceActor, subjectBinding, unidentifiedActor } from './identity';
@@ -75,6 +76,8 @@ export async function wrapRequest(request: Request, env: Bindings, next: () => P
  }
  scope={...scope,actor:await admittedActor(request,env,scope,response)};
  if(bound===undefined&&response.status<400)await auditLabel(env.DB,binding,subject.label);
+ // A progressive archive reports its real outcome from the stream.
+ if(door.action==='archive.export'&&response.headers.get(archiveProgressHeader)==='1')return response;
  // Ordinary successful reads do not swamp the action chronology. Named evidence/export
  // reads and every denied read remain observable.
  if(!(door.action==='private.action'&&['GET','HEAD'].includes(request.method)&&response.status<400)&&!(door.action==='grouping.proposals'&&response.status<400&&quietRead(request,scope.actor)))await observe(response.status);

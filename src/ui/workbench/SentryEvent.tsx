@@ -67,8 +67,10 @@ export function SentryEvent({data,grouping,lookupPath}:{data:any;grouping:any;lo
  return <div className="event-diagnostic">
   <h2>Related Exceptions</h2>{exceptions.length?trees:<><h3>{data.logentry?.formatted??data.message??'Message event'}</h3>{data.stacktrace?.frames&&<ol className="exception-stack">{data.stacktrace.frames.map((f:any,i:number)=><Frame key={i} frame={f} index={i} classification={grouping?.stack?.[i]}/>)}</ol>}</>}
   {!!data.truncation?.length&&<div className="callout"><h3>Reported capture bounds</h3><ul>{data.truncation.map((t:any,i:number)=><li key={i}>{t.path}: {t.omitted?`${t.omitted} ${t.reason==='value_bytes'?'bytes':t.reason.includes('frames')?'frames':'values'} omitted · `:''}{t.reason}</li>)}</ul></div>}
-  <Details title="Raw stack trace" triggerLabel="Raw stack trace"><button className="text-button" onClick={async()=>{try{await navigator.clipboard.writeText(raw);setCopied(true);setFailure('')}catch{setFailure('Clipboard access was refused. Select and copy the text below.')}}}>{copied?'Stack trace copied':'Copy raw stack trace'}</button>{failure&&<p role="alert">{failure}</p>}<pre>{raw}</pre></Details>
-  <Details title="Event grouping information" triggerLabel="Grouping information"><GroupingFacts grouping={grouping} event={data} /></Details>
+  <div className="event-diagnostic-actions">
+   <Details title="Raw stack trace" triggerLabel="Raw stack trace"><button className="text-button" onClick={async()=>{try{await navigator.clipboard.writeText(raw);setCopied(true);setFailure('')}catch{setFailure('Clipboard access was refused. Select and copy the text below.')}}}>{copied?'Stack trace copied':'Copy raw stack trace'}</button>{failure&&<p role="alert">{failure}</p>}<pre>{raw}</pre></Details>
+   <Details title="Event grouping information" triggerLabel="Grouping information"><GroupingFacts grouping={grouping} event={data} /></Details>
+  </div>
   <div className="event-sections">{sections.filter(key=>data[key]!==undefined).map(key=><details key={key}><summary>{key==='_meta'?'SDK trimming and filtering remarks':key[0].toUpperCase()+key.slice(1)}</summary><pre>{JSON.stringify(data[key],null,2)}</pre></details>)}</div>
  </div>;
 }
