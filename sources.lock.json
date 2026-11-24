@@ -11365,6 +11365,14 @@
       "sha256": "d30396ab10c88673a2b2d3e28e0d2926e86de98533f504173e548b91530fe3f8",
       "executable": false
     },
+    "tests/cron-d1-budget.mjs": {
+      "sha256": "03c6a39b15939c5334ef6d26c5403e982ce8d3a8e4d954a87877f996dd23e3f8",
+      "executable": false
+    },
+    "tests/d1-budget/metered-entry.mjs": {
+      "sha256": "bf26cac333301c1278f3ee615906e739e6ea69a989d515b979b946bb09937812",
+      "executable": false
+    },
     "tests/demo-capture.mjs": {
       "sha256": "df42d84ba609b8451e5c02cd9fc0b14055c75da459cf889edcde831a787de750",
       "executable": false
@@ -11430,7 +11438,7 @@
       "executable": false
     },
     "tests/execution/ui.mjs": {
-      "sha256": "ca2def113c872ddafd9295da9e2e2aca8105b9ba1c9685ad56855dd76ca96d5c",
+      "sha256": "0e9fb2104a6a19fecbab723624260e060fd7ba67725ddcda25d190d43534133a",
       "executable": false
     },
     "tests/feedback-flow.mjs": {
@@ -11806,7 +11814,7 @@
       "executable": false
     },
     "tests/repair-recovery/ui.mjs": {
-      "sha256": "3bde54a09b3d7d0d762766cfbc93c45845065b68240d3220d578ed55afe4cf8b",
+      "sha256": "5982b5d1eb9c75cc39ce5fe47d08b40067f8fcbc96e0e7a3ad2579397ac94894",
       "executable": false
     },
     "tests/repair-recovery/verdicts.mjs": {
@@ -12250,7 +12258,7 @@
       "executable": false
     },
     "tests/triage-journey.mjs": {
-      "sha256": "a33078fa01c0fd85f4271f70c481537ad1631e64fbbdf3d08cb7f7afa26359f2",
+      "sha256": "c84a38b6977175fc858448353f3ec61a9668865cb3b08ba25d0f06ba116a1766",
       "executable": false
     },
     "tests/tunnel-flow.mjs": {

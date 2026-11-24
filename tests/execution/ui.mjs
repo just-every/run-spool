@@ -104,7 +104,8 @@ export async function executionPanel(app,browser,directory,issue,reproducer){
    await card.getByRole('button',{name:'Queue sandbox run'}).click();
    const command=await section.locator('.run-ticket code').innerText();
    const result=await runner(command);assert.equal(result.code,0,result.output);
-   await page.waitForResponse(response=>response.url().includes('/reproducers?issue=')&&response.ok(),{timeout:30000});
+   // The issue re-reads on return to the tab; a window focus is that return.
+   await Promise.all([page.waitForResponse(response=>response.url().includes('/reproducers?issue=')&&response.ok(),{timeout:30000}),page.evaluate(()=>window.dispatchEvent(new Event('focus')))]);
    await page.waitForFunction(([count])=>document.querySelectorAll('section.execution article.reproducer .run.reproduced').length>count,[before]);
    // The exact grant opens in its dialog; Escape returns.
    await section.getByRole('button',{name:'Details: Exact grant'}).first().click();

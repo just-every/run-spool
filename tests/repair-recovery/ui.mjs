@@ -33,7 +33,8 @@ const focusVisible=page=>page.evaluate(()=>{
  }finally{field.focus({preventScroll:true});}
 });
 async function verdict(page,text){await page.locator('.repairs .verdict').filter({hasText:text}).first().waitFor();}
-async function refresh(page){await page.waitForResponse(response=>response.url().includes('/repairs?issue=')&&response.ok(),{timeout:30000});}
+// The issue re-reads on return to the tab; a window focus is that return.
+async function refresh(page){await Promise.all([page.waitForResponse(response=>response.url().includes('/repairs?issue=')&&response.ok(),{timeout:30000}),page.evaluate(()=>window.dispatchEvent(new Event('focus')))]);}
 export async function repairPanel(app,browser,directory){
  const captures=[];
  for(const width of [1440,390]){
