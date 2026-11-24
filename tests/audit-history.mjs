@@ -83,6 +83,13 @@ try {
  assert.deepEqual(archive.manifest.payloads.map(x=>x.name),['safe_audit']);
  assert.deepEqual(archive.data.audit.filter(r=>r.kind==='retention_gap').map(r=>JSON.parse(r.detail).removed),[1],'AUDIT-001 retention journal written once');
  assert.deepEqual(rows.filter(r=>r.action==='archive.export').map(r=>[r.source,r.outcome]),[['request','started'],['request','succeeded'],['request','succeeded']]);
+ rows=await since(async()=>{
+  const progressive=await req('/api/archive','GET',undefined,{'X-Spool-Archive-Progress':'1'});
+  assert.equal(progressive.status,200);
+  assert.equal((await archiveProjection(progressive)).data.projects[0].id,project.id);
+ });
+ assert.deepEqual(rows.filter(r=>r.action==='archive.export').map(r=>r.outcome),['started','succeeded'],
+  'the progress response does not record success before the archive completes');
 
  // Restore appends the archived chronology after the destination's own, then records the restore.
  target=await startTestWorker(15556);

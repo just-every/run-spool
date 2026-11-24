@@ -1,4 +1,5 @@
 import { PortabilityError, type Portability } from '../modules/portability/index.mjs';
+import { archiveProgressByte } from './archive-progress';
 
 export type ArchiveRequestLifetime = {
  signal: AbortSignal;
@@ -69,4 +70,29 @@ export async function archiveStream(service: ArchiveService, lifetime?: ArchiveR
   await cleanup();
   throw error;
  }
+}
+
+/** The acknowledgement carries no evidence. The archive still goes through the
+ * same snapshot, audit and cancellation path after the response can flush. */
+export function archiveWithProgress(
+ prepare: (signal: AbortSignal) => Promise<ReadableStream<Uint8Array>>,
+ signal: AbortSignal,
+): ReadableStream<Uint8Array> {
+ const canceled = new AbortController();
+ const lifetime = AbortSignal.any([signal, canceled.signal]);
+ let ready: Promise<ReadableStreamDefaultReader<Uint8Array>> | undefined;
+ return new ReadableStream({
+  start(controller) { controller.enqueue(Uint8Array.of(archiveProgressByte)); },
+  async pull(controller) {
+   const reader = await (ready ??= prepare(lifetime).then(source => source.getReader()));
+   const next = await reader.read();
+   if (next.done) controller.close();
+   else controller.enqueue(next.value);
+  },
+  async cancel(reason) {
+   canceled.abort(reason);
+   const reader = await ready?.catch(() => undefined);
+   await reader?.cancel(reason);
+  },
+ });
 }
