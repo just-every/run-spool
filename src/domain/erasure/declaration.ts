@@ -42,7 +42,9 @@ export const projectErasure = defineErasure({
    'grouping_routes', 'grouping_corrections', 'event_grouping', 'issue_assignments', 'suppression_policies', 'event_suppressions', 'deployment_path_mappings', 'deployment_manifests', 'alerts', 'alert_provider_events','alert_digest_settings','alert_snoozes','alert_suppressed','alert_scheduled_mail','alert_destination_tests','alert_destinations', 'alert_rules', 'alert_cursors', 'alert_expansion_cursors', 'alert_history', 'alert_intents', 'alert_mail_jobs', 'repairs', 'repair_checks',
    'reproducers', 'reproducer_runs', 'reproducer_run_tokens', 'fix_workflows', 'fix_leases', 'fix_receipts', 'exposures'].map(fromProject),
   { table: 'alert_mail_attempts', from: 'alert_mail_jobs', on: { delivery_id: 'id' } },
-  ...['rer_mail_event_receipts','rer_mail_event_states'].map(table=>({table,from:'projects',on:{event_namespace:'id'}})),
+  ...['rer_mail_event_receipts','rer_mail_event_states','alert_provider_pending'].map(table=>({table,from:'projects',on:{event_namespace:'id'}})),
+  // Summaries the 0121 triggers keep from this project's rows.
+  ...['spool_capacity_counts','issue_client_drops'].map(fromProject),
   // Development mail captured for this project's alert deliveries.
   { table: 'rer_mail_development_outbox', from: 'alert_mail_jobs', where: "CASE WHEN json_valid(message) THEN json_extract(message,'$.deliveryId') END=?", params: ['id'] },
   // The dev-minted mark of a deleted project credential.
@@ -63,6 +65,8 @@ export const projectErasure = defineErasure({
   ...retainedAgentArtifacts,
   {table:'spool_audit_events',reason:'Safe chronology retains random actor and subject labels, action, time and outcome only; private attribution links are erased.'},
   { table: 'oa_operators', reason: 'The installation owner stays: project erasure preserves installation authority.' },
+  { table: 'spool_read_versions', reason: 'An installation-wide change token for the issue list; it names no project and holds random text only.' },
+  { table: 'spool_work_gates', reason: 'Installation-wide change counters for scheduled sweeps; they name no project.' },
   { table: 'oa_bootstrap', reason: 'The one-owner claim ledger stays with the installation.' },
   { table: 'oc_owner_claims', reason: 'The managed owner-claim ledger stays with the installation.' },
   { table: 'rer_erasure_operations', reason: 'Erasure receipts keep counts and times only.' },
