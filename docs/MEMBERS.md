@@ -9,7 +9,9 @@ Locally, the owner copies the pending invitation from **Settings → Members →
 Invitations**. There is no local outbox viewer. Open that invitee’s own link
 **directly in a separate browser on this computer**, then press **Confirm**.
 The single-use link expires and signs in only with that membership’s project
-access. Do not share or open the owner’s `RER_OPEN` link in the member’s browser:
+access. A mail-off link is kept only for invitations the installation owner
+sent: an invitation an administrator sent has no link to copy, and hosted
+installs never keep one. Do not share or open the owner’s `RER_OPEN` link in the member’s browser:
 it grants owner authority. A removed member loses access on the next request
 and needs a fresh invitation to rejoin. A browser that already received the
 owner gate retains that separate owner authority; use a fresh browser for a

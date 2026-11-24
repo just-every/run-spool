@@ -4,6 +4,8 @@ The owner configures rules in Alerts → Rules. New issue, regression and reacti
 
 Filters select environment, severity, a named release or no release, and exact values for owner-approved tag keys. The same filters run in preview and admission. Session percentage supports environment and release because sessions do not carry event severity or tags.
 
+A rule's count fires at or above its number, so a Sentry condition of “more than 10” imports as 11; a distinct-users rule fires above its number. A member alert target must be an active member with access to the project: members who are still only invited are refused with “Target has no authorized access to this project”.
+
 Affected users are distinct retained SDK-008 user keys. Events without a key are named and counted separately. A user condition is refused when policy drops all keys or no retained key exists. Session percentage uses observed SDK-005 individual and aggregate sessions: affected sessions divided by all observed sessions in the window. No session data means refusal, not zero. Session percentage currently needs a matching retained issue to anchor its alert.
 
 ## Preview and enabling

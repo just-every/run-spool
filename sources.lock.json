@@ -2650,7 +2650,7 @@
       "executable": false
     },
     "AGENTS.md": {
-      "sha256": "cdc868092a1453ed0f6ca37ee86e98bd24344a8a283a1ccc471102fbc8d692af",
+      "sha256": "91f3f837fbf1d21c661033e447995419fe1d20695dd817c387be0092ed6ef964",
       "executable": false
     },
     "base-copies.json": {
@@ -2922,7 +2922,7 @@
       "executable": false
     },
     "docs/ALERT-RULES.md": {
-      "sha256": "c44dc8b3cac889b85d41193bc689078656a1ceba3591bb0b2b6f03b31bb35eba",
+      "sha256": "c966ae1f7cdd22354d0dcdb1da0e2281cc98c2920a485e96b7293f7d18a17571",
       "executable": false
     },
     "docs/ALERT-WEBHOOKS.md": {
@@ -3002,7 +3002,7 @@
       "executable": false
     },
     "docs/getting-started.md": {
-      "sha256": "7ab847ec70903bffe7925144e25fefbb55602afa9e1d022e0112239e959b9288",
+      "sha256": "bef887c1dc0d8143dfb8fae19bb0499c20baed120e2c3e81c0983ddf24917556",
       "executable": false
     },
     "docs/GITHUB-CONNECTION.md": {
@@ -3026,7 +3026,7 @@
       "executable": false
     },
     "docs/install.md": {
-      "sha256": "0846ab148a503430ba5ee0deb6bf4aff342472002f8d8c87f4d6c4fe123a4c71",
+      "sha256": "7ca6fd079ef260b031d939c7ac2565e5a7b31da003abe5ebf30ef16db695c331",
       "executable": false
     },
     "docs/INTEGRATION-EGRESS.md": {
@@ -3050,7 +3050,7 @@
       "executable": false
     },
     "docs/MEMBERS.md": {
-      "sha256": "458e34972d6564548e7668095f833d234d136a675b4d9f04788256cc2c2f51d4",
+      "sha256": "1d6757a79a872ba09dac186755012de6c9d673635a56a31641be88a6e35b90da",
       "executable": false
     },
     "docs/NOTIFICATIONS.md": {
@@ -3730,7 +3730,7 @@
       "executable": false
     },
     "docs/SENTRY-SWITCHING.md": {
-      "sha256": "a1fb31763e111ced0f3b86b2778e37506ef22bf745326289c074e7efb72d9f2f",
+      "sha256": "39f6d8abb7f1b1d6bc419d6d25166e118c23f83ad4d33e0c7f3b26689a2ccd18",
       "executable": false
     },
     "docs/SHORT-IDS.md": {
@@ -4554,7 +4554,7 @@
       "executable": false
     },
     "README.md": {
-      "sha256": "e2b53e1ee867d7f223e4482b8efb4647a59495aae386c6d721942670240d9616",
+      "sha256": "fc5464e7f0cfee1e5ff471e67f06a1fcfd2fda2f38e4f7dd637986f51b236f20",
       "executable": false
     },
     "release-history/0.6.0.json": {
