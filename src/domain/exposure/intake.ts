@@ -20,8 +20,9 @@ export async function exposureResponse(c: any) {
  let evicted = 0;
  try {
   const result = await ingestBatch(c, scope, exposureStatements(db, project, report, time));
-  // The first batch statement checks authority; the third deletes old rows.
-  evicted = result[2].meta.changes;
+  // The first batch statement checks authority; the third deletes old rows. Its returned rows
+  // count them: D1's meta.changes would add the capacity counter's trigger writes.
+  evicted = result[2].results.length;
  } catch (error) {
   if (String((error as Error).message).includes('exposure_budget')) { await recordIngest(c, scope, 'exposure_budget'); return c.json({ outcome: 'dropped', reason: 'exposure_budget' }, 429); }
   return ingestFailure(c, scope, error);

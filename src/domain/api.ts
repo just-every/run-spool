@@ -234,11 +234,16 @@ api.on(['POST','DELETE'],'/api/projects/:project/browser-origins',async c=>{
 });
 api.get('/api/projects/:project/issues',async c=>{
   const project=c.req.param('project');
-  await readReleasePolicy(c.env.DB,project);
   const state=c.req.query('state')??'all',limitParam=c.req.query('limit')??'100',limit=Number(limitParam);
   if(!['open','all'].includes(state))throw new Error('Issue state must be open or all');
   if(!/^[1-9]\d*$/.test(limitParam)||!Number.isSafeInteger(limit)||limit>100)throw new Error('Issue limit must be an integer from 1 to 100');
+  // Every table this list reads replaces the token (migration 0121): an unchanged list is one row.
+  const etag=async()=>{const row=await stmt(c.env.DB,"SELECT token FROM spool_read_versions WHERE name='issues'").first<{token:string}>();return row&&`"issues-${row.token}-${state}-${limit}-${c.get('project')?'agent':'owner'}"`};
+  const known=c.req.header('If-None-Match'),before=known?await etag():null;
+  if(before&&known===before)return c.body(null,304,{ETag:before});
+  await readReleasePolicy(c.env.DB,project);
   await ensureShortIds(c.env.DB,project);
+  const current=await etag();if(current)c.header('ETag',current);
   const order="CASE json_extract(attention,'$.kind') WHEN 'regression' THEN 2 WHEN 'new_issue' THEN 1 ELSE 0 END DESC,i.last_seen DESC,i.id DESC";
   const rows=(await stmt(c.env.DB,`WITH page AS MATERIALIZED (
     SELECT i.*,${issueAttentionSql} FROM issues i

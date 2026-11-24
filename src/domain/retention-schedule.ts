@@ -4,14 +4,14 @@ import {guard} from '../modules/portability/storage.mjs';
 import {applyRetention} from './retention';
 import {readRetentionPolicy,retentionCutoffs,type RetentionWindows} from './retention-policy';
 import {serviceActor,auditSubject,projectAuditLabel,runAuditScope,auditedBatch} from './audit';
-export const retentionBatchLimit=50;
+export const retentionBatchLimit=200;
 export async function retentionRemaining(db:D1Database,project:string,c:RetentionWindows){
  const queries=[['events','received<?',[c.events]],['feedback','received<?',[c.feedback]],['health_sessions','updated<?',[c.sessions]],['exposures','last<?',[c.exposures]],['commits','received<? AND expired IS NULL AND COALESCE(message,author_name,author_email) IS NOT NULL',[c.commits]]] as const;
  const counts=await db.batch<{n:number}>(queries.map(([table,where,values])=>db.prepare(`SELECT COUNT(*) n FROM ${table} WHERE project=? AND ${where}`).bind(project,...values)));
  return counts.reduce((total,result)=>total+result.results[0].n,0);
 }
 // A minute cron visits at most five due projects. Each visit removes at most
-// fifty rows per type plus linked feedback (project cap 1,000); pending work resumes next cron.
+// two hundred rows per type plus linked feedback (project cap 1,000); pending work resumes next cron.
 export async function scheduledRetention(db:D1Database,time:number,env?:Bindings){
  const day=Math.floor(time/86400000);
  const projects=(await db.prepare(`SELECT p.id FROM projects p LEFT JOIN retention_policies policy ON policy.project=p.id LEFT JOIN retention_runs r ON r.project=p.id

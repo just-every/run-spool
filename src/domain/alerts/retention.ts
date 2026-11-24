@@ -1,5 +1,4 @@
 import { statement as s } from './types';
-import { correctionMembership, originalMembership } from '../operators/provenance';
 
 export const RETAINED_HEADLINE = '[headline unavailable after retention]';
 
@@ -7,13 +6,19 @@ export const RETAINED_HEADLINE = '[headline unavailable after retention]';
 // every issue the exact erased occurrence occupied, including intermediate
 // corrections and undo, while retaining the alert and delivery chronology.
 export function withdrawAlertEvidence(db: D1Database, project: string, cutoff: number, candidates: string, time: number) {
+ // The removed events are found by key, and the alerts by the issues those events occupy.
  const affected = `WITH removed AS (
-  SELECT e.* FROM events e WHERE e.project=? AND e.received<? AND EXISTS(
-   SELECT 1 FROM json_each(?) candidate WHERE e.project=json_extract(candidate.value,'$.project')
-    AND e.id=json_extract(candidate.value,'$.id') AND e.occurrence=json_extract(candidate.value,'$.occurrence'))
+  SELECT e.* FROM events e WHERE e.project=? AND e.received<? AND (e.id,e.occurrence) IN (
+   SELECT json_extract(candidate.value,'$.id'),json_extract(candidate.value,'$.occurrence') FROM json_each(?) candidate)
+ ), occupied(issue) AS (
+  SELECT issue FROM removed
+  UNION SELECT g.original_issue FROM removed e JOIN event_grouping g ON g.project=e.project AND g.event=e.id AND g.occurrence=e.occurrence
+  UNION SELECT side.value FROM grouping_corrections c,json_each(c.plan,'$.moves') m,removed e,
+   json_each(json_array(json_extract(m.value,'$.from'),json_extract(m.value,'$.to'))) side
+   WHERE c.project=e.project AND c.state IN ('applied','undone')
+    AND json_extract(m.value,'$.event')=e.id AND json_extract(m.value,'$.occurrence')=e.occurrence
  ), affected AS (
-  SELECT a.id FROM alerts a WHERE a.project=? AND EXISTS(SELECT 1 FROM removed e
-   WHERE a.issue=e.issue OR ${originalMembership('e', 'a.issue')} OR ${correctionMembership('e', 'a.issue')})
+  SELECT a.id FROM alerts a WHERE a.project=? AND a.issue IN (SELECT issue FROM occupied)
  )`;
  const statement = (sql: string, ...args: any[]) => s(db, `${affected} ${sql}`, project, cutoff, candidates, project, ...args);
  const deliveries = 'SELECT id FROM alert_intents WHERE project=? AND alert_id IN (SELECT id FROM affected)';

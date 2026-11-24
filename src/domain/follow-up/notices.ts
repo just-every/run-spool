@@ -11,12 +11,15 @@ import { auditSubject, serviceActor } from '../audit/identity';
 import { recordAudit } from '../audit/record';
 import { s, type Environment } from './types';
 import { activeProjectRecipient } from '../members/notifications';
+import { whenChanged } from '../work-gates';
 type NoticeResult={state:string;code:string;messageId?:string;retryAfterMs?:number};
 type PreparedNotice={digest:string;provider?:'slack';send:(claim:string,now:()=>number)=>Promise<NoticeResult>};
 
 export async function queueNotices(env:Environment,time:number) {
  // A notice is keyed by the original attention item and destination, never by
  // another notice. Changing the alternate cannot recurse through its failures.
+ // Both reads cover every open item, so they run when attention or its routing changed.
+ await whenChanged(env.DB,'follow_up_notices',time,async()=>{
  await s(env.DB,`INSERT INTO follow_up_notices(id,attention,project,destination,channel,next_at,body)
   SELECT lower(hex(randomblob(16))),a.id,a.project,c.destination,c.channel,?,
    json_object('schema','spool.follow_up.v1','attentionId',a.id,'source',a.source,'reason',a.reason,'due',a.due)
@@ -30,6 +33,7 @@ export async function queueNotices(env:Environment,time:number) {
   FROM follow_up_attention a JOIN spool_follow_up_alternates m ON m.project=a.project
   WHERE a.historical=0 AND a.state NOT IN ('completed','canceled') AND a.source_id NOT LIKE 'team-mail:%' AND a.source_id NOT LIKE 'alternate:%'
   ON CONFLICT(attention,destination,channel) DO NOTHING`,time).run();
+ });
 }
 
 async function prepare(env:Environment,row:any,time:number,attribution?:MailAttribution):Promise<PreparedNotice> {

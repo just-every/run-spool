@@ -4,14 +4,16 @@ import { serviceActor, auditSubject, projectAuditLabel } from '../audit/identity
 import { statement as s, type AlertEnvironment } from './types';
 
 export async function projectProviderEvents(env:AlertEnvironment) {
- // Also repairs a crash between Base's idempotent receipt and this safe projection.
- const rows=(await s(env.DB,`SELECT r.event_json FROM rer_mail_event_receipts r
-  WHERE r.provider='sendgrid' AND r.tenant_id='spool' AND NOT EXISTS(
-   SELECT 1 FROM alert_provider_events e WHERE e.event_id=r.event_id)`).all<any>()).results;
+ // Also repairs a crash between Base's idempotent receipt and this safe projection: a receipt
+ // stays pending (migration 0121) until its projection commits or its delivery is gone.
+ const rows=(await s(env.DB,`SELECT p.event_namespace,p.event_id,r.event_json FROM alert_provider_pending p
+  CROSS JOIN rer_mail_event_receipts r WHERE r.provider='sendgrid' AND r.tenant_id='spool' AND r.event_namespace=p.event_namespace AND r.event_id=p.event_id
+  ORDER BY p.event_namespace,p.event_id LIMIT 200`).all<any>()).results;
  for(const row of rows){const e=JSON.parse(row.event_json);
-  if(!await s(env.DB,"SELECT 1 FROM alert_history WHERE project=? AND id=? AND channel='mail' AND historical=0",e.eventNamespace,e.deliveryId).first())continue;
+  const projected=s(env.DB,'DELETE FROM alert_provider_pending WHERE event_namespace=? AND event_id=?',row.event_namespace,row.event_id);
+  if(!await s(env.DB,"SELECT 1 FROM alert_history WHERE project=? AND id=? AND channel='mail' AND historical=0",e.eventNamespace,e.deliveryId).first()){await projected.run();continue}
   const scope={actor:await serviceActor(env.DB,'mail'),subject:await auditSubject(env.DB,'delivery',e.deliveryId,e.eventNamespace),projectLabel:await projectAuditLabel(env.DB,e.eventNamespace),action:'notification.attempt' as const};
-  await auditedBatch(env.DB,[s(env.DB,`INSERT INTO alert_provider_events VALUES(?,?,?,?,?,?,?) ON CONFLICT(event_id) DO NOTHING`,e.eventId,e.eventNamespace,e.deliveryId,e.type,e.type==='dropped'?'dropped':e.status,e.occurredAt,env.ALERT_EVENT_PROVENANCE==='fixture'?'fixture':'sendgrid'),auditCommit(env.DB,'changes()>0')],scope);
+  await auditedBatch(env.DB,[s(env.DB,`INSERT INTO alert_provider_events VALUES(?,?,?,?,?,?,?) ON CONFLICT(event_id) DO NOTHING`,e.eventId,e.eventNamespace,e.deliveryId,e.type,e.type==='dropped'?'dropped':e.status,e.occurredAt,env.ALERT_EVENT_PROVENANCE==='fixture'?'fixture':'sendgrid'),auditCommit(env.DB,'changes()>0'),projected],scope);
  }
 }
 export async function providerEventResponse(request:Request,env:AlertEnvironment):Promise<Response|null> {
