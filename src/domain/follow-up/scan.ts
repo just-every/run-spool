@@ -1,6 +1,7 @@
 import { auditCommit, auditedBatch } from '../audit/context';
 import { auditSubject, projectAuditLabel, serviceActor } from '../audit/identity';
 import { s, type Environment } from './types';
+import { whenChanged } from '../work-gates';
 type Candidate={project:string;source:'alert'|'deployment'|'fix';source_id:string;due:number;state:string;reason:string};
 
 async function remember(env:Environment,row:Candidate,time:number) {
@@ -82,13 +83,15 @@ export async function scanFollowUp(env:Environment,time:number) {
   WHERE source='fix' AND historical=0 AND state<>'uncertain' AND EXISTS(SELECT 1 FROM follow_up_fix_steps f WHERE f.workflow=source_id AND f.state='uncertain')`,time).run();
  await s(env.DB,`UPDATE follow_up_attention SET state=(SELECT CASE n.state WHEN 'uncertain' THEN 'uncertain' WHEN 'blocked' THEN 'blocked' WHEN 'rejected' THEN 'failed' ELSE 'overdue' END FROM deployment_notices n WHERE n.project=follow_up_attention.project AND n.deployment=source_id),updated=?,revision=revision+1
   WHERE source='deployment' AND historical=0 AND state='queued' AND EXISTS(SELECT 1 FROM deployment_notices n WHERE n.project=follow_up_attention.project AND n.deployment=source_id AND n.state<>'pending')`,time).run();
+ await s(env.DB,`UPDATE follow_up_attention SET state='completed',updated=?,revision=revision+1 WHERE source='alert' AND state='blocked' AND source_id LIKE 'alternate:%'
+  AND NOT EXISTS(SELECT 1 FROM spool_follow_up_alternates x WHERE x.project=follow_up_attention.project AND x.member=substr(source_id,11) AND substr(source_id,1,10)='alternate:')`,time).run();
+ // These sweeps read every open item, so they run when an item, issue, delivery, suppression or step changed.
+ await whenChanged(env.DB,'follow_up_close',time,async()=>{
  await s(env.DB,`UPDATE follow_up_attention SET state='completed',updated=?,revision=revision+1 WHERE source='alert' AND state<>'completed'
   AND (source_id LIKE 'held:%' OR source_id LIKE 'snooze:%') AND (
   (source_id LIKE 'held:%' AND EXISTS(SELECT 1 FROM alert_suppressed x WHERE x.delivery_id=substr(source_id,6) AND substr(source_id,1,5)='held:' AND x.released_at IS NOT NULL)) OR
   (source_id LIKE 'snooze:%' AND EXISTS(SELECT 1 FROM alert_snoozes z WHERE z.id=substr(source_id,8) AND substr(source_id,1,7)='snooze:' AND NOT EXISTS(SELECT 1 FROM alert_suppressed x WHERE x.snooze_id=z.id AND x.released_at IS NULL)))
  )`,time).run();
- await s(env.DB,`UPDATE follow_up_attention SET state='completed',updated=?,revision=revision+1 WHERE source='alert' AND state='blocked' AND source_id LIKE 'alternate:%'
-  AND NOT EXISTS(SELECT 1 FROM spool_follow_up_alternates x WHERE x.project=follow_up_attention.project AND x.member=substr(source_id,11) AND substr(source_id,1,10)='alternate:')`,time).run();
  // Source completion closes work without fabricating delivery of an uncertain
  // effect. An uncertain transport is closed only by an explicit owner decision.
  await s(env.DB,`UPDATE follow_up_attention SET state='completed',updated=?,revision=revision+1 WHERE historical=0 AND state NOT IN ('completed','canceled','uncertain') AND (
@@ -97,4 +100,5 @@ export async function scanFollowUp(env:Environment,time:number) {
   (source='alert' AND EXISTS(SELECT 1 FROM alert_history h JOIN alerts a ON a.id=h.alert_id LEFT JOIN issues i ON i.id=a.issue WHERE h.id=source_id AND h.project=follow_up_attention.project AND (h.state='cancelled' OR (h.state='accepted' AND (reason<>'unacknowledged' OR i.state<>'open'))))) OR
   (source='deployment' AND (SELECT state FROM deployment_steps WHERE project=follow_up_attention.project AND deployment=source_id ORDER BY sequence DESC LIMIT 1) IN ('succeeded','failed','rolled_back'))
  )`,time).run();
+ });
 }

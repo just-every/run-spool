@@ -17,8 +17,8 @@ export function exposureStatements(db: D1Database, project: string, report: Expo
   stmt(db, `DELETE FROM exposures WHERE project=? AND rowid IN (
    SELECT rowid FROM exposures WHERE project=? AND NOT (release=? AND environment=? AND client=? AND flow IN (SELECT value FROM json_each(?)))
    ORDER BY last,first,release,environment,flow,client LIMIT MAX(0,
-    (SELECT COUNT(*) FROM exposures WHERE project=?)+
-    (SELECT COUNT(*) FROM json_each(?) f WHERE NOT EXISTS(SELECT 1 FROM exposures x WHERE x.project=? AND x.release=? AND x.environment=? AND x.client=? AND x.flow=f.value))-?))`,
+    COALESCE((SELECT n FROM spool_capacity_counts WHERE project=? AND kind='exposures'),0)+
+    (SELECT COUNT(*) FROM json_each(?) f WHERE NOT EXISTS(SELECT 1 FROM exposures x WHERE x.project=? AND x.release=? AND x.environment=? AND x.client=? AND x.flow=f.value))-?)) RETURNING 1`,
    project, project, report.release, report.environment, report.client, flows,
    project, flows, project, report.release, report.environment, report.client, CAPACITY),
   // This must immediately follow DELETE: changes() is the actual eviction

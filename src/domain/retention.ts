@@ -1,9 +1,8 @@
 import {AuthError} from '../modules/operator-auth/index.mjs';
 import {readRetentionPolicy,retentionPolicyFence,type RetentionWindows} from './retention-policy';
-import { tombstone } from '../modules/portability/journal.mjs';
+import { tombstone, invalidateTransfersStatements } from '../modules/portability/journal.mjs';
 import { state, statement, guard } from '../modules/portability/storage.mjs';
 import { occurrenceKey, occurrenceKeys, type OccurrenceTable } from './occurrences';
-import { portability } from './portability';
 import { scrub } from './privacy';
 import { retentionAlertStatements } from './alerts/spikes';
 import { withdrawAlertEvidence, RETAINED_HEADLINE } from './alerts/retention';
@@ -12,6 +11,8 @@ import { feedbackRetentionStatements } from './feedback/custody';
 import { commitRetentionStatements } from './commits/retention';
 
 type Candidate = Record<string, string>;
+// A batch names its rows by primary key: (project,id,occurrence) lookups, never a scan of the project.
+export const selectedEvents = "(id,occurrence) IN (SELECT json_extract(value,'$.id'),json_extract(value,'$.occurrence') FROM json_each(?))";
 const predicates = {
  events: 'received<?',
  artifacts: 'created<? AND NOT EXISTS(SELECT 1 FROM events WHERE events.project=artifacts.project AND events.release=artifacts.release AND events.build=artifacts.build)',
@@ -30,9 +31,10 @@ async function erase(db: D1Database, source: string, table: OccurrenceTable, row
   const encoded = JSON.stringify(candidates);
   for (const field of ['tombstone', 'legacy']) jobs.push(statement(db,
    `INSERT OR IGNORE INTO rer_portability_journal SELECT ?,json_extract(candidate.value,'$.${field}') FROM json_each(?) candidate WHERE json_extract(candidate.value,'$.${field}') IS NOT NULL AND EXISTS(SELECT 1 FROM ${table} WHERE ${eligible} AND ${match})`, source, encoded, project, cutoff));
-  if(table==='events')jobs.push(
+  if(table==='events'){jobs.push(
    ...withdrawAlertEvidence(db, project, cutoff, encoded, Date.now()),
-   statement(db, `DELETE FROM sentry_import_targets WHERE kind='event' AND EXISTS(SELECT 1 FROM events WHERE ${eligible} AND sentry_import_targets.id=json_array(events.project,events.id) AND EXISTS(SELECT 1 FROM json_each(?) candidate WHERE ${match}))`,project,cutoff,encoded));
+   statement(db, `DELETE FROM sentry_import_targets WHERE kind='event' AND id IN (SELECT json_array(events.project,events.id) FROM events WHERE ${eligible} AND ${selectedEvents})`,project,cutoff,encoded),
+   statement(db, `DELETE FROM events WHERE ${eligible} AND ${selectedEvents}`, project, cutoff, encoded));continue}
   jobs.push(statement(db, `DELETE FROM ${table} WHERE ${eligible} AND EXISTS(SELECT 1 FROM json_each(?) candidate WHERE ${match})`, project, cutoff, encoded));
  }
  return jobs;
@@ -42,25 +44,31 @@ export async function applyRetention(db: D1Database, project: string, cutoff: nu
  const policy=await readRetentionPolicy(db,project);
  if(policy.held)throw new AuthError('Retention is paused by a legal hold',409);
  const windows=cutoffs??{events:cutoff,artifacts:cutoff,feedback:cutoff,exposures:cutoff,commits:cutoff,sessions:cutoff};
- const transfer = await portability(db), before = await state(db), auditId = crypto.randomUUID();
- const events = (await statement(db, 'SELECT project,id,occurrence FROM events WHERE project=? AND received<? ORDER BY received,id LIMIT ?', project, cutoff, limit??10000).all()).results as Candidate[];
- const selected=JSON.stringify(events);
- const selectedMatch="EXISTS(SELECT 1 FROM json_each(?) candidate WHERE events.id=json_extract(candidate.value,'$.id') AND events.occurrence=json_extract(candidate.value,'$.occurrence'))";
+ const before = await state(db), auditId = crypto.randomUUID();
+ // The oldest events first, so every event a batch keeps sorts after its last one.
+ const rows = (await statement(db, 'SELECT project,id,occurrence,issue,received FROM events WHERE project=? AND received<? ORDER BY received,id LIMIT ?', project, cutoff, limit??10000).all()).results as any[];
+ const events = rows.map(({project,id,occurrence}) => ({project,id,occurrence})) as Candidate[];
+ const selected=JSON.stringify(events),placed=limit?JSON.stringify(rows.map(({id,occurrence,issue})=>({id,occurrence,issue}))):'';
+ const removedBy:Record<string,number>={};for(const row of rows)removedBy[row.issue]=(removedBy[row.issue]??0)+1;
+ const selectedMatch="(events.id,events.occurrence) IN (SELECT json_extract(value,'$.id'),json_extract(value,'$.occurrence') FROM json_each(?))";
  const maps = (await statement(db, 'SELECT project,release,build,debug,occurrence FROM artifacts WHERE project=? AND created<?', project, limit?0:windows.artifacts).all()).results as Candidate[];
- const retained = (await statement(db, `SELECT id,occurrence,issue,payload FROM events WHERE project=? AND ${limit?'NOT '+selectedMatch:'received>=?'} ORDER BY received,id`, project, limit?selected:cutoff).all()).results as any[];
+ // Only issues that lose an event change: each keeps its count less the removed events and
+ // takes its headline from its earliest kept event, found by its (project,issue,received,id) index.
+ const last = rows.at(-1), affected = [...new Set(rows.map(row => row.issue as string))];
+ const firsts = last ? (await statement(db, `SELECT a.value issue,(SELECT json_array(e.id,e.occurrence,e.payload) FROM events e WHERE e.project=? AND e.issue=a.value AND (e.received,e.id)>(?,?) ORDER BY e.received,e.id LIMIT 1) first FROM json_each(?) a`, project, last.received, last.id, JSON.stringify(affected)).all()).results as { issue: string; first: string | null }[] : [];
  // Resolve membership in the write transaction: a correction can move a
  // retained headline after this read. Never reattach its text to its old issue.
  const headlines: D1PreparedStatement[] = [];
- for (let offset = 0; offset < retained.length; offset += 50) {
-  const titles = retained.slice(offset, offset + 50).map(row => { const event = JSON.parse(row.payload); return { id: row.id, occurrence: row.occurrence, title: scrub(event.type + ': ' + event.message) }; });
+ const kept = firsts.flatMap(row => { if (!row.first) return []; const [id, occurrence, payload] = JSON.parse(row.first), event = JSON.parse(payload); return [{ id, occurrence, title: scrub(event.type + ': ' + event.message) }]; });
+ for (let offset = 0; offset < kept.length; offset += 50) {
   headlines.push(statement(db, `WITH headlines AS (
-   SELECT e.issue,json_extract(candidate.value,'$.title') title FROM events e,json_each(?) candidate
+   SELECT e.issue,json_extract(candidate.value,'$.title') title FROM json_each(?) candidate CROSS JOIN events e
    WHERE e.project=? AND e.id=json_extract(candidate.value,'$.id') AND e.occurrence=json_extract(candidate.value,'$.occurrence')
     AND e.id=(SELECT id FROM events WHERE project=e.project AND issue=e.issue ORDER BY received,id LIMIT 1)
-  ) UPDATE issues SET title=(SELECT title FROM headlines WHERE issue=issues.id) WHERE project=? AND id IN (SELECT issue FROM headlines)`, JSON.stringify(titles), project, project));
+  ) UPDATE issues SET title=(SELECT title FROM headlines WHERE issue=issues.id) WHERE project=? AND id IN (SELECT issue FROM headlines)`, JSON.stringify(kept.slice(offset, offset + 50)), project, project));
  }
  const copies = await db.prepare(transferInventory).first<{ inventory: string }>();
- const invalidation = await transfer.invalidateTransfersStatements();
+ const invalidation = await invalidateTransfersStatements(db);
  const eventJobs = await erase(db, before.source_identity, 'events', events, project, cutoff);
  const mapJobs = await erase(db, before.source_identity, 'artifacts', maps, project, windows.artifacts);
  const exposureJobs = await retentionExposureStatements(db, before.source_identity, project, windows.exposures, Date.now(), limit);
@@ -77,7 +85,8 @@ export async function applyRetention(db: D1Database, project: string, cutoff: nu
   // rows. If transfer custody changed after discovery, the whole apply retries.
   guard(db, `(${transferInventory})=?`, copies!.inventory),
   ...invalidation,
-  ...(limit?[guard(db,`(SELECT COUNT(*) FROM events WHERE project=? AND received<? AND ${selectedMatch})=?`,project,cutoff,selected,events.length)]:[]),
+  // A scheduled batch's events are all still there, each in the issue it was read from.
+  ...(limit?[guard(db,`(SELECT COUNT(*) FROM events WHERE project=? AND received<? AND (events.id,events.occurrence,events.issue) IN (SELECT json_extract(value,'$.id'),json_extract(value,'$.occurrence'),json_extract(value,'$.issue') FROM json_each(?)))=?`,project,cutoff,placed,events.length)]:[]),
   // The journal row is written once and never revised: it counts the events
   // this batch removes, and the guard after the deletions proves none remain.
   statement(db, "INSERT INTO audit SELECT ?,?,'retention_gap',json_object('cutoff',?,'removed',?,'dedupHorizon',?),?", auditId, project, cutoff, events.length, cutoff, Date.now()),
@@ -85,7 +94,9 @@ export async function applyRetention(db: D1Database, project: string, cutoff: nu
   ...feedbackJobs,
   ...commitRetentionStatements(db,project,windows.commits,Date.now(),limit),
   ...eventJobs,
-  statement(db, 'UPDATE issues SET count=(SELECT COUNT(*) FROM events WHERE project=issues.project AND issue=issues.id),title=?,revision=revision+1 WHERE project=?', RETAINED_HEADLINE, project),
+  limit?statement(db, `UPDATE issues SET count=MAX(0,count-COALESCE(json_extract(?,'$."'||issues.id||'"'),0)),title=?,revision=revision+1
+   WHERE project=? AND id IN (SELECT value FROM json_each(?))`, JSON.stringify(removedBy), RETAINED_HEADLINE, project, JSON.stringify(affected))
+   :statement(db, 'UPDATE issues SET count=(SELECT COUNT(*) FROM events WHERE project=issues.project AND issue=issues.id),title=?,revision=revision+1 WHERE project=? AND id IN (SELECT value FROM json_each(?))', RETAINED_HEADLINE, project, JSON.stringify(affected)),
   limit?guard(db,`NOT EXISTS(SELECT 1 FROM events WHERE project=? AND ${selectedMatch})`,project,selected):guard(db, 'NOT EXISTS(SELECT 1 FROM events WHERE project=? AND received<?)', project, cutoff),
   ...headlines, ...mapJobs, ...exposureJobs,
   statement(db,'INSERT OR IGNORE INTO rer_portability_journal SELECT ?,? WHERE EXISTS(SELECT 1 FROM health_sessions WHERE project=? AND updated<?)',before.source_identity,sessionFence,project,windows.sessions),

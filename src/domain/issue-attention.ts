@@ -12,8 +12,8 @@ export function decodeIssueAttention<T extends { attention: string | null }>(iss
 }
 
 // Errors the SDK counted at an issue's location but did not send (its per-location cap or a repeat), as reported on the
-// retained events that carried the count.
-export const clientDroppedSql = `(SELECT COALESCE(SUM(json_extract(e.payload,'$.dropped')),0) FROM events e WHERE e.project=i.project AND e.issue=i.id) client_dropped`;
+// retained events that carried the count. Event triggers keep the tally (migration 0121).
+export const clientDroppedSql = `COALESCE((SELECT d.dropped FROM issue_client_drops d WHERE d.project=i.project AND d.issue=i.id),0) client_dropped`;
 
 // Native empty aggregates keep correction provenance but are not triage work.
 // Imported issue-only exports remain inspectable even without collected events.

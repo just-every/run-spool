@@ -47,8 +47,12 @@ function releaseKeySql(release:string,order:string){
 export function releaseOrderSql(release='releases',direction:'ASC'|'DESC'='ASC',order=releasePolicyOrderSql(release+'.project')){
  return releaseKeySql(release,order).map(key=>`${key} ${direction}`).join(',');
 }
+/** Steps through the (project,issue,release) index one distinct release at a time, so an
+ * issue's release list costs its releases, not its events. */
 export function issueReleasesSql(issue='i'){
- return `(SELECT json_group_array(name) FROM (SELECT DISTINCT e.release name FROM events e LEFT JOIN releases r ON r.project=e.project AND r.name=e.release WHERE e.project=${issue}.project AND e.issue=${issue}.id ORDER BY CASE WHEN e.release='' THEN 0 ELSE 1 END,${releaseOrderSql('r')}))`;
+ const next=(after:string)=>`(SELECT MIN(e.release) FROM events e WHERE e.project=${issue}.project AND e.issue=${issue}.id${after})`;
+ return `(SELECT json_group_array(name) FROM (WITH RECURSIVE seen(name) AS (SELECT ${next('')} UNION ALL SELECT ${next(' AND e.release>seen.name')} FROM seen WHERE seen.name IS NOT NULL)
+  SELECT seen.name FROM seen LEFT JOIN releases r ON r.project=${issue}.project AND r.name=seen.name WHERE seen.name IS NOT NULL ORDER BY CASE WHEN seen.name='' THEN 0 ELSE 1 END,${releaseOrderSql('r')}))`;
 }
 export function releaseComparisonSql(left:string,right:string,order=releasePolicyOrderSql(left+'.project')){
  return `(${releaseKeySql(left,order).join(',')})>(${releaseKeySql(right,order).join(',')})`;
