@@ -47,7 +47,7 @@
     "test:sentry:sdk": "node tests/sentry-sdk.mjs",
     "test:sentry:cli": "node tests/sentry-cli-compat.mjs",
     "test:sdk": "node tests/sdk-package.mjs",
-    "test:alerts": "node tests/alerts-runtime.mjs && node tests/alerts-immediate.mjs && node tests/alerts-edge-runtime.mjs && node tests/alerts-native.mjs && node tests/alerts-egress.mjs",
+    "test:alerts": "node tests/alerts-runtime.mjs && node tests/alerts-immediate.mjs && node tests/alerts-edge-runtime.mjs && node tests/alerts-native.mjs && node tests/alerts-egress.mjs && node tests/cron-d1-budget.mjs",
     "test:alerts-ui": "node tests/alerts-ui.mjs",
     "test:admission": "node tests/owner-claim.mjs && node tests/owner-editor.mjs && node tests/managed-sign-in.mjs",
     "test:dev-credentials": "node tests/dev-credentials.mjs",
