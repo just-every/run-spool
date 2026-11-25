@@ -5437,6 +5437,10 @@
       "sha256": "fb28e8b21285da499a26101e8812a64ede8b480942d6aa184dc27078d60da06a",
       "executable": false
     },
+    "scripts/test-budget.mjs": {
+      "sha256": "51d701465fe724bd3e1eb1228fe5d7074e2627ca7b8aa76af29aa151078daea8",
+      "executable": false
+    },
     "scripts/verify-app.mjs": {
       "sha256": "4c3a87c809e2b671a555dc36171b60675f87be96362de7d2269d9f5e1c3100b6",
       "executable": false
@@ -11007,6 +11011,10 @@
     },
     "TARGET.md": {
       "sha256": "7f84c591ef3f902cd07db0e2e13eded8d81ec072b4f558fbb41f889df92e4f2a",
+      "executable": false
+    },
+    "test-budget.json": {
+      "sha256": "7962454dfd02f23d5e024c44c4f0658081e4b107f6c4feeeddc024460c14a355",
       "executable": false
     },
     "tests/admission-proof.mjs": {
