@@ -2,7 +2,6 @@ import { importedAlertPrefix, localImportDestination } from './import-state';
 import { levelTagSql } from './filters';
 import { configSql } from './preview';
 import { regressionSql } from '../releases/order';
-import { originalMembership } from '../operators/provenance';
 import { statement as s } from './types';
 import { issueLink, publicOrigin } from './payload';
 import { captureFact } from './capture-history';
@@ -18,10 +17,13 @@ const firstUnsuppressedAlert = `NOT EXISTS(SELECT 1 FROM alerts previous WHERE p
     SELECT 1 FROM grouping_corrections correction WHERE correction.project=i.project AND correction.state IN ('applied','undone')
      AND (json_extract(correction.plan,'$.target')=i.id OR EXISTS(
       SELECT 1 FROM json_each(correction.plan,'$.issues') member WHERE json_extract(member.value,'$.id')=i.id))))))
- AND NOT EXISTS(SELECT 1 FROM events e WHERE e.project=i.project AND e.historical=0
-  AND (e.issue=i.id OR ${originalMembership('e','i.id')})
+${[`events e WHERE e.project=i.project AND e.issue=i.id`,
+ // Events a grouping correction moved away keep their original issue here; the few corrected rows lead.
+ `event_grouping g CROSS JOIN events e ON e.project=g.project AND e.id=g.event AND e.occurrence=g.occurrence WHERE g.project=i.project AND g.original_issue=i.id`,
+].map(source=>`
+ AND NOT EXISTS(SELECT 1 FROM ${source} AND e.historical=0
   AND NOT (e.id=? AND e.occurrence=?)
-  AND NOT EXISTS(SELECT 1 FROM event_suppressions x WHERE x.project=e.project AND x.event=e.id AND x.occurrence=e.occurrence))`;
+  AND NOT EXISTS(SELECT 1 FROM event_suppressions x WHERE x.project=e.project AND x.event=e.id AND x.occurrence=e.occurrence))`).join('')}`;
 // SQL evaluates this inside event admission, so an in-flight HTTP request cannot
 // commit an old received timestamp after a complete spike window was consumed.
 export const receivedAtSql="CAST(strftime('%s','now') AS INTEGER)*1000+CAST(substr(strftime('%f','now'),4,3) AS INTEGER)";
@@ -68,5 +70,5 @@ export function admissionAlerts(db:D1Database,input:{alertId:string;project:stri
    'projectId',project,'issueId',id,'occurredAt',?,'title',title,'release',json_object('name',?,'build',?,'sequence',current_sequence),'issueUrl',?,'shortId',short_id,'resolution',json(resolution),'trigger',json_object('event',?,'occurrence',?))
  FROM candidate WHERE current_unsuppressed=1 AND state<>'suppressed'
   AND (first_capture=1 OR reactivated=1 OR (state='resolved' AND regresses=1))`,
- eventId,occurrence,eventId,occurrence,eventId,occurrence,eventId,occurrence,issue,project,id,time,id,new Date(time).toISOString(),release,build,issueLink(publicOrigin(input.origin),project,issue),eventId,occurrence),...routeStatements(db,id,time,undefined,{eventId,occurrence}),s(db,"DELETE FROM alert_reactivation_markers WHERE project=? AND issue=? AND EXISTS(SELECT 1 FROM alerts WHERE id=? AND kind='reactivation')",project,issue,id)];
+ eventId,occurrence,eventId,occurrence,eventId,occurrence,eventId,occurrence,eventId,occurrence,issue,project,id,time,id,new Date(time).toISOString(),release,build,issueLink(publicOrigin(input.origin),project,issue),eventId,occurrence),...routeStatements(db,id,time,undefined,{eventId,occurrence}),s(db,"DELETE FROM alert_reactivation_markers WHERE project=? AND issue=? AND EXISTS(SELECT 1 FROM alerts WHERE id=? AND kind='reactivation')",project,issue,id)];
 }

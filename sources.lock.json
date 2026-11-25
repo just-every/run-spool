@@ -3790,7 +3790,7 @@
       "executable": false
     },
     "management/integration/deployment-spec.json": {
-      "sha256": "8eef9929fd7208e0e751fd8171fb1727654d8c2f8d4757c7ac65575c0fbed127",
+      "sha256": "d8ad5669c00274ed9ef2dd4cbd1f18550a5184138f514c32930f6b70b85ec24b",
       "executable": false
     },
     "migrations/core/0001_errors.sql": {
@@ -4250,7 +4250,7 @@
       "executable": false
     },
     "migrations/core/0121_bounded_reads.sql": {
-      "sha256": "bae0d1fe58fa889feb817fb25f563bfca29eef8596ece6bd5d961f02db4f29a9",
+      "sha256": "aeef8d1015893020bcfe224d803206ce9ca4a653857fd0f21ad4c2482e61fab9",
       "executable": false
     },
     "ONBOARDING.md": {
@@ -5698,7 +5698,7 @@
       "executable": false
     },
     "src/domain/admission.ts": {
-      "sha256": "9947d199571861ab266d8d9884171b1289fe2874a646ba8c75d797bf07f1ca10",
+      "sha256": "4e781a40c56b37a6a6d98bd7fc2d21f937a5a370e944475538ce0965265adf03",
       "executable": false
     },
     "src/domain/agent-access.ts": {
@@ -5766,7 +5766,7 @@
       "executable": false
     },
     "src/domain/alerts/admission.ts": {
-      "sha256": "d7329c810e4a07fd87796091e58d5dffb9d3d6a00ed06f81dc28e2eb7ee96eda",
+      "sha256": "f6c3068845a51967f0a061a9c7d0edf39e7cf6fa3fe8b9a633879ea7235411d8",
       "executable": false
     },
     "src/domain/alerts/archive-history.ts": {
@@ -5774,7 +5774,7 @@
       "executable": false
     },
     "src/domain/alerts/archive-work-compat.ts": {
-      "sha256": "aece1038b0b9fe441f7712f35161da49d4ff084533684fe9dcac1c1ab2cedffa",
+      "sha256": "a6e36d1faa5f8f8da70a77603990b71efb64eddf47dbd11d931d4e4c7947610c",
       "executable": false
     },
     "src/domain/alerts/archive.ts": {
@@ -5786,7 +5786,7 @@
       "executable": false
     },
     "src/domain/alerts/capture-history.ts": {
-      "sha256": "96edb14e29f6ac13319d1b85cf73cddc7d8839a5a229fb28648a62d7779bee14",
+      "sha256": "62d15119f76c0597b4631858f02cc4203c9f350c91428288c05d52eb435b8c0a",
       "executable": false
     },
     "src/domain/alerts/controls-routes.ts": {
@@ -5850,7 +5850,7 @@
       "executable": false
     },
     "src/domain/alerts/measure.ts": {
-      "sha256": "1de07cd702c208ec03fee5a71990e605519950077a68889db020880932a3e668",
+      "sha256": "d3a9ec1fdf0f76bf45b5f952796627933ef2047d265c784cc4bf9249c87bbe40",
       "executable": false
     },
     "src/domain/alerts/metric-measure.ts": {
@@ -5910,7 +5910,7 @@
       "executable": false
     },
     "src/domain/alerts/spikes.ts": {
-      "sha256": "86a8391f7a0b6b4b13543b41e5b57006c29efbfe78b247f60143339e5d4728ad",
+      "sha256": "a76f2809707065f1e52d5cfd8a55de639ffdc64a027a35991190a23c6123339e",
       "executable": false
     },
     "src/domain/alerts/target-management.server.ts": {
@@ -5942,7 +5942,7 @@
       "executable": false
     },
     "src/domain/api.ts": {
-      "sha256": "b1e70e86df9ef75ef35683ae737ee55459d845727848ce4275ed4c213def91cc",
+      "sha256": "3a152710e36aee6e4cfa722da6a6aebcca9f7712fa1da0506d06b9b264d617f9",
       "executable": false
     },
     "src/domain/archive-compat.ts": {
@@ -6946,7 +6946,7 @@
       "executable": false
     },
     "src/domain/retention-schedule.ts": {
-      "sha256": "f820489d7413f1a38514868a9e528c3dbbef3fdbc6cf3275b51d192aeefb705f",
+      "sha256": "631298c7c10377c17dd9641e6e22d15db6c0a549fa68546027fed1ab638136ea",
       "executable": false
     },
     "src/domain/retention.ts": {
@@ -11366,7 +11366,7 @@
       "executable": false
     },
     "tests/cron-d1-budget.mjs": {
-      "sha256": "03c6a39b15939c5334ef6d26c5403e982ce8d3a8e4d954a87877f996dd23e3f8",
+      "sha256": "996d6b9ba595446f487c9be078dfeb9fa79302a707c24248951064902c02547a",
       "executable": false
     },
     "tests/d1-budget/metered-entry.mjs": {
@@ -11458,7 +11458,7 @@
       "executable": false
     },
     "tests/fixtures/archive-before-project-metrics.mjs": {
-      "sha256": "31bd788127f75d449865127271afcd027c6c554fc3ead2b58a81894709394b30",
+      "sha256": "ef3520cf2648d74fd9c6a8c3c9ce279e7e77512ee6bbaa0509bfbe7d39f96736",
       "executable": false
     },
     "tests/fixtures/archive-before-relay-privacy.mjs": {
@@ -12222,7 +12222,7 @@
       "executable": false
     },
     "tests/source-map-capacity.mjs": {
-      "sha256": "908ddeef17ba8be2474c98303aef7ac534e176f7d9fe7e091ee310981726b9c5",
+      "sha256": "4a5e86eb97ac5230bd0763b1e95a9b9c1b74bee046d30801eea32a9bc78e9b28",
       "executable": false
     },
     "tests/source-map-plugins.mjs": {

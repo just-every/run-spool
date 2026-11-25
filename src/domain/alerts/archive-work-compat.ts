@@ -61,7 +61,7 @@ const objectsByMigration = {
   'spool_gate_notices_follow_up_settings_insert','spool_gate_notices_follow_up_settings_update',
   'spool_gate_notices_spool_follow_up_alternates_insert','spool_gate_notices_spool_follow_up_alternates_update',
   'spool_gate_notices_spool_follow_up_alternates_delete','alert_provider_pending_receipt',
-  'alert_provider_pending_receipt_delete','spool_bounded_reads_restore',
+  'alert_provider_pending_receipt_delete','audit_project_kind_issue','audit_project_kind_created','spool_bounded_reads_restore',
  ],
 };
 // 0121 also replaced these capacity triggers, which counted the whole project on every insert.

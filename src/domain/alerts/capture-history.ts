@@ -1,8 +1,9 @@
 import { statement as s } from './types';
 
 export const captureAuditKinds = ['capture_history_started', 'capture_unsuppressed'];
+// The issue is compared without column affinity, so the (project,kind,issue) audit index finds the one fact.
 export const captureFact = (kind: string, issue: string) => `EXISTS(SELECT 1 FROM audit capture
- WHERE capture.project=i.project AND capture.kind='${kind}' AND json_extract(capture.detail,'$.issue')=${issue})`;
+ WHERE capture.project=i.project AND capture.kind='${kind}' AND json_extract(capture.detail,'$.issue')=+(${issue}))`;
 
 // Only a newly created issue proves that tracking covers its entire native
 // lifetime. Old archives can lack these facts; missing retained rows do not

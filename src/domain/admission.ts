@@ -79,7 +79,7 @@ export async function admitEvent(c:any,scope:IngestScope,input:Envelope,digest:s
     event=prepared.event!;
     const releaseSequence=event.release?`(SELECT seq FROM releases WHERE project=? AND name=?)`:'0';
     const releaseArgs=event.release?[project,event.release]:[];
-    const count=await stmt(db,'SELECT COUNT(*) total FROM events WHERE project=?',project).first<any>();
+    const count=await stmt(db,"SELECT COALESCE((SELECT n FROM spool_capacity_counts WHERE project=? AND kind='events'),0) total",project).first<any>();
     if(count.total>=10000){await record('budget');c.header('Retry-After','60');return c.json({outcome:'dropped',reason:'retained_event_budget',retryAfter:60},429)}
     const groupingPolicy=await readGroupingPolicy(db,project);
     event=normalize(event.sentry?{...event,grouping:undefined,sentry:{...event.sentry,grouping:groupingPolicy.revision?groupingPolicy:undefined}}:{...event,grouping:groupingPolicy.revision?groupingPolicy:undefined});

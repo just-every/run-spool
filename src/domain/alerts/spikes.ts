@@ -7,7 +7,7 @@ import { hash } from '../privacy';
 import { primaryShortIdSql } from '../short-ids/lookup';
 import { configSql } from './preview';
 import { eligibleEvent,eventFilter,ruleConfig } from './filters';
-import { decision } from './measure';
+import { baselineSince, decision, retentionGapCutoff } from './measure';
 import { readIdentityPolicy,identityPolicyFence } from '../identities/policy';
 export async function evaluateSpikes(env:AlertEnvironment,time:number,lastRule:string) {
  const rules=(await s(env.DB,`SELECT r.*,${configSql} config,c.next_start FROM alert_rules r JOIN alert_cursors c ON c.rule_id=r.id AND c.revision=r.revision WHERE r.enabled=1 AND c.next_start+r.window_ms<=? ORDER BY CASE WHEN r.id>? THEN 0 ELSE 1 END,r.id LIMIT 20`,time,lastRule).all<Rule&{next_start:number}>()).results;
@@ -15,10 +15,12 @@ export async function evaluateSpikes(env:AlertEnvironment,time:number,lastRule:s
   const config=ruleConfig(JSON.parse(rule.config)),f=eventFilter(config),policy=await readIdentityPolicy(env.DB,rule.project);
   for(let turn=0,start=rule.next_start;turn<4&&start+rule.window_ms<=time;turn++,start+=rule.window_ms){
    const from=rule.revision===1&&rule.id.startsWith(importedAlertPrefix)?Math.max(start,rule.created):start;
-   const end=start+rule.window_ms,issues=(await s(env.DB,`SELECT DISTINCT i.id FROM events e JOIN issues i ON i.id=e.issue AND i.project=e.project WHERE e.project=? AND ${eligibleEvent()} AND e.received>=? AND e.received<? AND ${f.sql} AND i.state<>'suppressed' ORDER BY i.id LIMIT 100`,rule.project,config.metric==='baseline'?start-8*7*86400000:from,end,...f.args).all<{id:string}>()).results;
+   // Only an issue seen in this window can fire, baseline rules included: the earlier weeks are read per issue.
+   const end=start+rule.window_ms,issues=(await s(env.DB,`SELECT DISTINCT i.id FROM events e JOIN issues i ON i.id=e.issue AND i.project=e.project WHERE e.project=? AND ${eligibleEvent()} AND e.received>=? AND e.received<? AND ${f.sql} AND i.state<>'suppressed' ORDER BY i.id LIMIT 100`,rule.project,from,end,...f.args).all<{id:string}>()).results;
+   const gapCutoff=config.metric==='baseline'&&issues.length?await retentionGapCutoff(env.DB,rule.project,baselineSince(from)):null;
    const jobs:D1PreparedStatement[]=[];
    for(const issue of config.metric==='session_percent'?issues.slice(0,1):issues){
-    const d=await decision(env.DB,rule.project,config,issue.id,from,end,rule.threshold),id=await hash(JSON.stringify(['spike',rule.id,rule.revision,issue.id,start]));
+    const d=await decision(env.DB,rule.project,config,issue.id,from,end,rule.threshold,gapCutoff),id=await hash(JSON.stringify(['spike',rule.id,rule.revision,issue.id,start]));
     const authority=`EXISTS(SELECT 1 FROM alert_cursors c JOIN alert_rules r ON r.id=c.rule_id AND r.revision=c.revision WHERE c.rule_id=? AND c.revision=? AND c.next_start=? AND r.enabled=1)`;
     const args=[rule.id,rule.revision,start];
     jobs.push(identityPolicyFence(env.DB,rule.project,policy.revision));
