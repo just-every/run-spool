@@ -105,7 +105,7 @@ async function ownerCli(app) {
    const old=record[name];record[name]=value;await save();await assert.rejects(run());record[name]=old;await save();
   }
   await writeFile(envPath,`CLOUDFLARE_ACCOUNT_ID=${account}\nCLOUDFLARE_API_TOKEN=\n`,{mode:0o600});await assert.rejects(run(),/Cloudflare credentials/);await credentials();
-  replaced=true;await assert.rejects(run(),/no longer the one/);replaced=false;
+  replaced=true;await assert.rejects(run(),{code:'safety_refusal'});replaced=false;
   assert.equal(writes,before,'all custody refusals leave the real auth ledger unchanged');
  },async close(){await rm(root,{recursive:true,force:true})}};
 }
