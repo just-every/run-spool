@@ -2662,7 +2662,7 @@
       "executable": false
     },
     "CHANGELOG.md": {
-      "sha256": "57cb13bd72d23f0c76253ac16eee5122b2d3a394a9a67a188d9fe02dc9718a42",
+      "sha256": "994d30bdf93ddf49e7659510ee55ebb2887672611a195e70f23983b16b4654d3",
       "executable": false
     },
     "CLAUDE.md": {
@@ -3014,7 +3014,7 @@
       "executable": false
     },
     "docs/HOSTED.md": {
-      "sha256": "23cf3bbf124aac409154a576a944828cd6c5cf39c6e1b53daee23b8eaf5c229e",
+      "sha256": "39a8bbcf4677172f86aa88a39a2bc5c350db32b23bf9a56fb75d622ed4d6724f",
       "executable": false
     },
     "docs/IMPORT-READS.md": {
@@ -4266,7 +4266,7 @@
       "executable": false
     },
     "package.json": {
-      "sha256": "92ea2ffb88e01cb9c360842300eb885b9bbf9e91c82f1f41fb85971a920cde2b",
+      "sha256": "7d0a52f145b049f4509b0c12ffa88380fc32ca2c6bf0de93b94dab65a84ab868",
       "executable": false
     },
     "packages/agent/bin/spool-agent.mjs": {
@@ -4438,7 +4438,7 @@
       "executable": false
     },
     "pnpm-lock.yaml": {
-      "sha256": "0523204c7673fd50f554622500bfc660dd60c9706fb4fb11c83985894a3231cd",
+      "sha256": "e86071d28b83f2b15e557caa6ac590c56d5bb11a9c6f18735e42caefebc8f930",
       "executable": false
     },
     "pnpm-workspace.yaml": {
@@ -4594,11 +4594,11 @@
       "executable": false
     },
     "RELEASE.json": {
-      "sha256": "2e0de505d972a7d4427047f095eba9080cf29389b661b83ff78939491f294890",
+      "sha256": "9b3f7a3678ba9e35466350a65044d1e64d65a065fb4f70efcc13bb2cf8a6b53d",
       "executable": false
     },
     "RELEASE.md": {
-      "sha256": "e721be1e45c026fdfdc2d3767754e6c01393edb9235b952411d35c3ac88eaa06",
+      "sha256": "283e59dbd70688c3eebe4302867360787a64ba9709517d8b42814169ed95f051",
       "executable": false
     },
     "rer-project.json": {
@@ -12314,7 +12314,7 @@
       "executable": false
     },
     "wrangler.jsonc": {
-      "sha256": "95ba206b562d18f9b280e792f2a36786848d0c5d91a79e9260be6ea02615c09c",
+      "sha256": "5a7daa44c989767578a05bbe4422df0ca88c80553b8b0beb88d95a1f27b47f84",
       "executable": false
     }
   }
