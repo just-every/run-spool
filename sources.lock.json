@@ -2662,7 +2662,7 @@
       "executable": false
     },
     "CHANGELOG.md": {
-      "sha256": "e90bccc5b41428c8efd5e4fee3679100a46c8d8e3a1d6b6a2ac33c1f1836bbc1",
+      "sha256": "307894b8ba80a89c3c71badce6219acb37c4ccdc77f29eca8379740b8765ba00",
       "executable": false
     },
     "CLAUDE.md": {
@@ -3014,7 +3014,7 @@
       "executable": false
     },
     "docs/HOSTED.md": {
-      "sha256": "e3c6a4c42a9ccd6747739501f3193f37c35409fb1b8f9bd2b783ce95d00ff473",
+      "sha256": "58ffbf4791068facff6638a9350a9078b6c8a7663e8d17ede9f3505403f1412f",
       "executable": false
     },
     "docs/IMPORT-READS.md": {
@@ -4266,7 +4266,7 @@
       "executable": false
     },
     "package.json": {
-      "sha256": "7d0a52f145b049f4509b0c12ffa88380fc32ca2c6bf0de93b94dab65a84ab868",
+      "sha256": "cc5eb25567f389c232580e688161525b305a39b74d30819d10ec7cbb0f80f703",
       "executable": false
     },
     "packages/agent/bin/spool-agent.mjs": {
@@ -4438,7 +4438,7 @@
       "executable": false
     },
     "pnpm-lock.yaml": {
-      "sha256": "e86071d28b83f2b15e557caa6ac590c56d5bb11a9c6f18735e42caefebc8f930",
+      "sha256": "25b0cf0e63688ace08a7f3f84e60f6be4af2d187cd640a035e59c9b034b45b0f",
       "executable": false
     },
     "pnpm-workspace.yaml": {
@@ -4594,11 +4594,11 @@
       "executable": false
     },
     "RELEASE.json": {
-      "sha256": "9b3f7a3678ba9e35466350a65044d1e64d65a065fb4f70efcc13bb2cf8a6b53d",
+      "sha256": "778c8e730970c66234854b78331057ffb8feec96a0280baaee2820a92eb0c22b",
       "executable": false
     },
     "RELEASE.md": {
-      "sha256": "283e59dbd70688c3eebe4302867360787a64ba9709517d8b42814169ed95f051",
+      "sha256": "b0767c2f01c4baad54a9019ca32ec3a7a3ea1236909ba7a33380534dec70bb41",
       "executable": false
     },
     "rer-project.json": {
@@ -5466,7 +5466,7 @@
       "executable": false
     },
     "seed.json": {
-      "sha256": "14917d057eff4a9dbcad6cb199c8038de7d034022908da21c3072a13b481790f",
+      "sha256": "a7a0eebf771d38416a6d555aca86fc36bb432d463a0564da5da7e2f87694b917",
       "executable": false
     },
     "src/archive-evidence.d.ts": {
