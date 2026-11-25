@@ -6,7 +6,7 @@ export type AlertEnvironment = {
  DB: D1Database; ALERT_DESTINATIONS?: string; ALERT_PUBLIC_ORIGIN?: string;
  ALERT_DESTINATION_HASH_KEY?: string; INTEGRATION_EGRESS?: TrustedTransport;
  SLACK_TIMEOUT_MS?: string; SENDGRID_EVENT_PUBLIC_KEY?: string; ALERT_EVENT_PROVENANCE?: string;
- MAIL_PROVIDER?: string; MAIL_FROM?: string; MAIL_API_KEY?: string; MAIL_ACCOUNT_ID?: string; MAIL_RELAY_URL?: string;
+ MAIL_PROVIDER?: string; MAIL_RECIPIENTS?: string; MAIL_FROM?: string; MAIL_API_KEY?: string; MAIL_ACCOUNT_ID?: string; MAIL_RELAY_URL?: string;
  AUTH_LOCAL?: string; AUTH_ORIGIN?: string; RER_DEMO?: string;
 };
 export type Rule = { id:string; project:string; revision:number; name:string; enabled:number;

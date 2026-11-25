@@ -70,6 +70,20 @@ Alert destinations start empty. Open **Alerts → Rules → Manage destinations 
 
 Email destinations use the existing mail setup and can be changed from the workbench. The same guide covers operator-managed webhooks. Keep `ALERT_DESTINATION_HASH_KEY` unchanged while deliveries are active. Secrets are uploaded on the first deploy, and later deploys reuse the retained generated values.
 
+## Send alerts to the owner only
+
+Set public `MAIL_RECIPIENTS=owner` with the mail inputs and every message the installation sends goes to `OWNER_EMAIL` alone. A message to any other address (another alert destination, an invitation, team or digest mail) is refused before it reaches the provider: its destination test fails, so no rule can use it, and a queued job is blocked as `preflight_failed`. The default, `any`, keeps ordinary behaviour. With mail off (`MAIL_PROVIDER=none`) nothing is sent either way.
+
+Send from outside any zone whose DNS you cannot change: the RER relay (`MAIL_PROVIDER=rer` with the assigned `MAIL_FROM`, `MAIL_RELAY_URL` and `MAIL_API_KEY`) or an already verified SendGrid sender (`MAIL_PROVIDER=sendgrid`, `MAIL_FROM`, and the SendGrid key as `MAIL_API_KEY`). Put the key in the private `--env-file`, never on the command line, and set it only through `rer deploy`: `wrangler secret put` or a settings PATCH makes rer's receipt stale and the next deploy and `rer signin` refuse with `owned-resource-replaced`.
+
+```sh
+rer deploy --set-secret MAIL_PROVIDER=sendgrid --set-secret MAIL_RECIPIENTS=owner --set-secret MAIL_FROM --set-secret MAIL_API_KEY --env-file .rer/deploy/"$SPOOL_ENV".env --environment "$SPOOL_ENV"
+```
+
+The same entries in the environment file show in `rer deploy --dry-run --json` as secret inputs, so the plan can be checked first. Run `--set-secret` and `--dry-run` on separate runs.
+
+First check: sign in as the owner, open **Alerts → Rules → Manage destinations and rules**, add an email destination with the owner address, choose **Test**, and read the TEST message in the owner's inbox. Adding any other address and testing it must fail, with nothing sent.
+
 ## Turn email off deliberately
 
 Set `MAIL_PROVIDER=none` in the private environment file for the deployment. Leave `MAIL_FROM`, `MAIL_API_KEY`, `MAIL_ACCOUNT_ID` and `MAIL_RELAY_URL` empty; sending credentials together with `none` refuse before build or upload. Spool needs no sender or DKIM setting while mail is off. A missing, `later` or `direct` selection never means off. Enabled Resend, SendGrid, Cloudflare or managed RER mail still requires its sender and API key; Cloudflare also requires its account ID and RER its assigned relay URL.

@@ -1,5 +1,9 @@
 # Changelog
 
+## Unreleased
+
+- **Email the owner only.** `MAIL_RECIPIENTS=owner`, a deploy input, sends every email to `OWNER_EMAIL` alone and refuses any other address before the provider is called. Default `any` is unchanged. See [Send alerts to the owner only](docs/HOSTED.md#send-alerts-to-the-owner-only).
+
 ## 0.7.28 — 2026-11-25
 
 Spool 0.7.28 reduces Cloudflare D1 reads during scheduled work and issue browsing, acknowledges hosted archive downloads sooner, and improves source-map upload and mobile issue details.

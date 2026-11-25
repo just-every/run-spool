@@ -131,6 +131,25 @@
       ]
     },
     {
+      "name": "MAIL_RECIPIENTS",
+      "label": "Who email may reach",
+      "kind": "select",
+      "required": false,
+      "default": "any",
+      "options": [
+        {
+          "value": "any",
+          "label": "Anyone Spool is told to email"
+        },
+        {
+          "value": "owner",
+          "label": "Only the owner email"
+        }
+      ],
+      "group": "email",
+      "help": "Choose Only the owner email for a tool that must never email anyone else: every message to another address is refused before it reaches the provider, including invitations, team and digest mail."
+    },
+    {
       "name": "MAIL_RELAY_URL",
       "label": "Managed mail relay URL",
       "kind": "url",

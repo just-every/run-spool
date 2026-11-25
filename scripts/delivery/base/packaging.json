@@ -59,6 +59,7 @@
         "AUTH_ORIGIN",
         "OWNER_EMAIL",
         "MAIL_PROVIDER",
+        "MAIL_RECIPIENTS",
         "MAIL_FROM",
         "MAIL_RELAY_URL",
         "RER_MANAGEMENT_ORIGIN",

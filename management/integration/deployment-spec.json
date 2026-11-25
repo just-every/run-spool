@@ -709,6 +709,7 @@
     "MAIL_FROM": "",
     "OWNER_EMAIL": "",
     "MAIL_PROVIDER": "",
+    "MAIL_RECIPIENTS": "",
     "MAIL_RELAY_URL": "",
     "MAIL_ACCOUNT_ID": ""
   },

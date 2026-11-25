@@ -3,7 +3,7 @@ import { dispatchStanding } from '../agent-door/standing';
 import type { Bindings } from '../../auth/bindings';
 import { serviceActor,auditSubject } from '../audit/identity';
 import { recordAudit } from '../audit/record';
-import { operatorMail, productionMailConfig } from '../../auth/mail.server.mjs';
+import { operatorMail, productionMailConfig, recipientsAllowed } from '../../auth/mail.server.mjs';
 import { localDevelopmentEnabled } from '../../auth/local.server.mjs';
 import { parseAddress, validateConfig, validateMessage } from '../../modules/mail/src/core/validation.mjs';
 import { authorizedDestination, destinationHash } from './destinations.server';
@@ -61,6 +61,7 @@ export async function dispatchMail(env:AlertEnvironment,time:number,only?:string
    const kept=destination.kind==='target'?await keptRecipients(env,job):null;
    if(destination.kind==='target'){if(!kept?.length)throw new Error('no_recipients');await authorizeRecipients(env,job.project,kept)}
    const recipients=kept?kept.map(r=>r.email):destination.recipient!;
+   if(!recipientsAllowed(env,[recipients].flat()))throw 0;
    if(await destinationHash(env,JSON.stringify([recipients,env.MAIL_FROM,env.MAIL_PROVIDER]))!==job.destination_hash)throw 0;
    validateMessage(JSON.parse(job.message),env.MAIL_PROVIDER);
   } catch {

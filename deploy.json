@@ -63,6 +63,11 @@
       "optional": true
     },
     {
+      "binding": "MAIL_RECIPIENTS",
+      "environment": "MAIL_RECIPIENTS",
+      "optional": true
+    },
+    {
       "binding": "MAIL_RELAY_URL",
       "environment": "MAIL_RELAY_URL",
       "optional": true

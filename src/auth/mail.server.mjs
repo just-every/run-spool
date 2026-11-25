@@ -1,4 +1,4 @@
-import { createMailSender } from '../modules/mail/index.mjs'
+import { createMailSender, MailValidationError } from '../modules/mail/index.mjs'
 import { validateConfig, parseAddress } from '../modules/mail/src/core/validation.mjs'
 import { localDevelopmentEnabled } from './local.server.mjs'
 
@@ -10,6 +10,18 @@ export function productionMailConfig(env) {
     ...(env.MAIL_PROVIDER === 'rer' ? { relayUrl: env.MAIL_RELAY_URL } : {}),
     ...(env.MAIL_PROVIDER === 'cloudflare' ? { accountId: env.MAIL_ACCOUNT_ID } : {}),
   }
+}
+
+// MAIL_RECIPIENTS=owner: every message this installation sends goes to OWNER_EMAIL alone. Any other recipient is refused before
+// a provider is called, so invitations, team and digest mail and other alert destinations can never reach anyone else.
+const mailbox = value => {
+  const text = String(value).trim(), open = text.lastIndexOf('<')
+  return (text.endsWith('>') && open >= 0 ? text.slice(open + 1, -1) : text).trim().toLowerCase()
+}
+export function recipientsAllowed(env, recipients) {
+  if (env.MAIL_RECIPIENTS !== 'owner') return true
+  const owner = env.OWNER_EMAIL ? mailbox(env.OWNER_EMAIL) : ''
+  return Boolean(owner) && recipients.length > 0 && recipients.every(value => mailbox(value) === owner)
 }
 
 export function mailSuppressed(env) {
@@ -25,6 +37,7 @@ export function operatorMail(env) {
 
   return {
     async send(message) {
+      if (!recipientsAllowed(env, [...(message.to ?? []), ...(message.cc ?? []), ...(message.bcc ?? [])])) throw new MailValidationError('recipient_not_owner')
       return createMailSender(productionMailConfig(env)).send(message)
     },
   }
@@ -39,6 +52,7 @@ export function validateMailConfiguration(env) {
     return
   }
   if (mailSuppressed(env)) return
+  if (env.MAIL_RECIPIENTS !== undefined && !['', 'any', 'owner'].includes(env.MAIL_RECIPIENTS)) throw new Error('mail_recipients_invalid')
   validateConfig(productionMailConfig(env))
   parseAddress(env.MAIL_FROM)
 }
