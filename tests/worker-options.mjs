@@ -27,7 +27,7 @@ const unsupportedRuntime=[
  'worker_loaders','vpc_services','vpc_networks','wasm_modules','text_blobs',
  'data_blobs','workflows','durable_objects','queues','logfwdr','unsafe',
  'containers','cloudchamber','migrations','exports','connect','tail_consumers',
- 'streaming_tail_consumers','site','access','cache','limits',
+ 'streaming_tail_consumers','site','access','cache',
  'env','previews','secrets','addresses','route','routes','first_party_worker'
 ];
 // Normalized emitted configs include these empty wrappers even without bindings.
@@ -45,6 +45,12 @@ function emptyCapability(value,collections=[]) {
 export async function emittedWorkerOptions(configPath,miniflare) {
  const config=JSON.parse(await readFile(configPath,'utf8')),directory=dirname(configPath);
  for(const field of unsupportedRuntime)assert.ok(emptyCapability(config[field],emptyCollections[field]),`Unsupported emitted runtime capability: ${field}`);
+ // rer applies the CPU override at Cloudflare upload on Workers Paid. The local
+ // runtime has no account plan, so validate this setting without applying it.
+ const {limits={}}=config;
+ assert.ok(limits&&typeof limits==='object'&&!Array.isArray(limits)&&Object.entries(limits).every(
+  ([key,value])=>key==='cpu_ms'&&Number.isSafeInteger(value)&&value>0
+ ),'Unsupported emitted Worker limits configuration');
  assert.ok(config.triggers===undefined||(config.triggers!==null&&typeof config.triggers==='object'&&!Array.isArray(config.triggers)&&Object.keys(config.triggers).every(key=>key==='crons'||key==='events')),'Unsupported emitted trigger configuration');
  assert.ok(config.triggers?.crons===undefined||(Array.isArray(config.triggers.crons)&&config.triggers.crons.every(cron=>typeof cron==='string'&&cron.length)),'Emitted cron schedules must be nonempty strings');
  assert.ok(config.triggers?.events===undefined||(Array.isArray(config.triggers.events)&&config.triggers.events.length===0),'Emitted event subscriptions are unsupported');

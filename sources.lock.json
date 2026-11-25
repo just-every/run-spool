@@ -12274,7 +12274,7 @@
       "executable": false
     },
     "tests/worker-options.mjs": {
-      "sha256": "fea99a961b6bac2e70e41433aa009992b1d697a5677b1b65aca8373c531b176d",
+      "sha256": "9d1cbb8a435c02f323e71292fd83c1fb6ae4a445761421482c208701b49cac7a",
       "executable": false
     },
     "tests/worker.mjs": {
