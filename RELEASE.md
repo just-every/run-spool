@@ -1,20 +1,22 @@
-# Spool 0.7.27
+# Spool 0.7.28
 
-Spool 0.7.27 fixes first capture from Sentry and improves the npm-free browser helper and first-project setup.
+Spool 0.7.28 reduces Cloudflare D1 reads during scheduled work and issue browsing, acknowledges hosted archive downloads sooner, and improves source-map upload and mobile issue details.
 
 ### What changed
 
-- **Capture the first hosted Sentry error and session.** When concurrent first requests race to create a project’s identity key, Spool retries the affected Sentry error or session once after confirming that a key was saved for that same project. The retry uses the saved key.
-- **See why Sentry intake refused a request.** JSON refusals identify Spool and include a stable reason in the response body, the `X-Sentry-Error` header and the Worker log.
-- **Record separate throws with the npm-free browser helper.** Two consecutive throws can create separate occurrences even when their messages and locations match. The helper suppresses repeat reports of the same `Error` object within 100 ms and uses a per-location token bucket to cap bursts and feedback loops.
-- **Enter first-project details once setup is ready.** The setup form enables project fields when its data and identity policy are ready, prevents repeated submissions while busy and sends the same project ID and name.
-- **Follow clearer first-run and agent handoff instructions.** The local setup guide accounts for dependency installation on first start, and the agent guide points to the key and paste-in prompt controls.
+- **Read fewer D1 rows on steady minute cron runs.** In measurements with 30 and 89 days of retained history, a steady minute run dropped from about 394,000 and 1.1 million rows respectively to 90 rows at both ages. Counters, change tracking and indexes keep scheduled reads bounded by the work due.
+- **Skip rebuilding an unchanged issue list.** A poll with a matching ETag returns HTTP 304 after reading 11 D1 rows.
+- **Scheduled work and refresh timing.** Metric rules with windows over 10 minutes are evaluated every 5 minutes (up to 5 minutes of alert lag), the workbench refreshes every 60 s and stops after 5 idle minutes, and follow-up sweeps can lag up to an hour without a trigger.
+- **See hosted archive download progress sooner.** Spool acknowledges browser download requests before preparing the archive. In a scratch Cloudflare deployment, the first download after deploy went from 5.61 s to 0.23 s for response headers and from 7.22 s to 11.20 s for the full download. An immediate repeat reached headers in 0.25 s and completed in 13.23 s. After three idle minutes, headers arrived in 0.91 s and the download completed in 12.69 s. The earlier 22.7 s first download remains unexplained.
+- **Find the build for a Sentry-created release.** Upload map from an issue selects the occurrence’s build even when Sentry created the release automatically from a session without a distribution identifier. The release history lists observed builds for the picker.
+- **Read stack and grouping details on narrow screens.** At 390 px, Raw stack trace and Grouping information have separate, spaced controls that wrap as needed.
+- **Follow the first-run guide from setup to handoff.** The guide walks through receiving a test event, saving and naming the ingest key, and handing over the Sentry import.
 
 ### Updating
 
-If you are updating from 0.7.26, back up first. Download a private archive in Settings, or stop local dev and run `rer export --output exports/spool.jsonl`. On main, run `git pull --ff-only` and `rer dev --host localhost`. From a tagged checkout, use [GitHub Releases](https://github.com/just-every/run-spool/releases) to select the latest published stable tag. Fetch tags with `git fetch --tags`, check out the selected tag, then run `rer dev --host localhost`. For a hosted installation, follow the update steps in docs/HOSTED.md from the original deploying checkout. All 114 core SQL migrations are byte-identical to 0.7.26. There are no new migrations or breaking changes. Keep the existing database, private settings, project keys and deployment receipt. Import private archives only into an empty destination. Spool pins rer to 0.2.131. To turn hosted mail off, select `MAIL_PROVIDER=none`, leave sending credentials empty and remove any previously bound sending secrets as described in docs/HOSTED.md. Keep the original deployment credentials and ownership receipt for guarded `rer signin` access. The Spool SDK has its own release process.
+If you are updating from 0.7.27, back up first. Download a private archive in Settings, or stop local dev and run `rer export --output exports/spool.jsonl`. On main, run `git pull --ff-only` and `rer dev --host localhost`. From a tagged checkout, use [GitHub Releases](https://github.com/just-every/run-spool/releases) to select the latest published stable tag. Fetch tags with `git fetch --tags`, check out the selected tag, then run `rer dev --host localhost`. For a hosted installation, follow the update steps in docs/HOSTED.md from the original deploying checkout. All 114 core SQL migrations from 0.7.27 are byte-identical. One new migration applies on the next start or deploy. Keep the existing database, private settings, project keys and deployment receipt. Import private archives only into an empty destination. Spool pins rer to 0.2.131. To turn hosted mail off, select `MAIL_PROVIDER=none`, leave sending credentials empty and remove any previously bound sending secrets as described in docs/HOSTED.md. Keep the original deployment credentials and ownership receipt for guarded `rer signin` access. The Spool SDK has its own release process.
 
-Opus review passed for the product changes at `98c32255`.
+- `migrations/core/0121_bounded_reads.sql` backfills D1 counters and summaries, tracks issue-list and follow-up changes, and adds indexes for bounded reads. Private archive restores rebuild the summaries from restored data.
 
 ### Known limits
 
@@ -35,4 +37,4 @@ Opus review passed for the product changes at `98c32255`.
 
 Product screenshot: .github/assets/release/spool-issue-page-1600.png
 
-Release notes by Run Edit Run fleet, 2026-11-23 (UTC).
+Release notes by Run Edit Run fleet, 2026-11-25 (UTC).
