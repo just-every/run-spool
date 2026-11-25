@@ -503,7 +503,9 @@ jobs:
 
   full-push-proof:
     needs: [plan, shards]
-    if: ${{ github.event_name == 'push' && startsWith(github.ref, 'refs/heads/') && needs.plan.outputs.tier == 'push' && needs.plan.outputs.coverage == 'full' && needs.shards.result == 'success' }}
+    # always(): shards needs the push-skipped commands job, and without it this proof job is skipped on every
+    # push, so no later main or tag Verify could ever reuse a branch result.
+    if: ${{ always() && github.event_name == 'push' && startsWith(github.ref, 'refs/heads/') && needs.plan.outputs.tier == 'push' && needs.plan.outputs.coverage == 'full' && needs.shards.result == 'success' }}
     runs-on: ubuntu-24.04
     timeout-minutes: 1
     steps:
