@@ -196,8 +196,7 @@ in the real Worker. Provider fixture keys are generated per run and never saved.
 
 The published declaration check accepts the existing owner-account sender binding.
 Native audit target checks now follow the cursor beyond the first 200 rows.
-The dated marker ledger in `tests/agent-door/pending.mjs` preserves historical
-requirements and their current proof boundaries. The released narrowing probe
+The released narrowing probe
 now accepts closed-schema injection refusal without changing native revoke
 arguments. Native held erasure, tombstones, reviewer Undo and worker custody
 have dedicated tests. The Base adoption acknowledgement still lists at most

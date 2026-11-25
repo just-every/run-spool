@@ -19,10 +19,6 @@ on:
       - src/domain/scrub.ts
       - src/domain/scrub-keyed.ts
       - .github/workflows/sdk-release.yml
-  pull_request:
-    paths:
-      - packages/sdk/**
-      - .github/workflows/sdk-release.yml
   workflow_dispatch:
 
 permissions:

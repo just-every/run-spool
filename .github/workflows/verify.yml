@@ -4,7 +4,6 @@ on:
   push:
     branches: ['**']
     tags: ['**']
-  pull_request:
   workflow_dispatch:
   workflow_call:
     inputs:
@@ -16,7 +15,7 @@ permissions:
   contents: read
 
 concurrency:
-  group: seed-verify-${{ github.workflow }}-${{ github.event_name }}-${{ github.ref == 'refs/heads/main' && github.run_id || github.event.pull_request.number || github.ref }}
+  group: seed-verify-${{ github.workflow }}-${{ github.event_name }}-${{ github.ref == 'refs/heads/main' && github.run_id || github.ref }}
   cancel-in-progress: ${{ github.ref != 'refs/heads/main' }}
 
 env:
@@ -101,6 +100,7 @@ jobs:
       - run: pnpm install --frozen-lockfile
       - name: Check source and portable contract
         run: |
+          node scripts/test-budget.mjs
           pnpm run check -- --profile first-party
           pnpm source:check
           node scripts/edition-authoring/cli.mjs verify-base --offline

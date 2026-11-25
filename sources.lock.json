@@ -2614,7 +2614,7 @@
       "executable": false
     },
     ".github/workflows/sdk-release.yml": {
-      "sha256": "1755ce0f4c8d487d35d1eddb9bb0b19862433b4b48d96888f69c21642f12f81f",
+      "sha256": "c510e5c372041c22d1d45c91cc1e880da8820813f9fcae848282731ab658dc0a",
       "executable": false
     },
     ".github/workflows/verify-nightly.yml": {
@@ -2622,7 +2622,7 @@
       "executable": false
     },
     ".github/workflows/verify.yml": {
-      "sha256": "483e00a882b987ddea882a19f51c588ce9589f8a39c73d9af819ace630dfc8fa",
+      "sha256": "ea9c01b0b595281aa0c5ffff5105d822710ce851d55e91c8a5e5ffad95ed7b3f",
       "executable": false
     },
     ".gitignore": {
@@ -2654,7 +2654,7 @@
       "executable": false
     },
     "base-copies.json": {
-      "sha256": "8e09dfa87bc707ad45df53d359970ed614b4c38a717c705be30d95424cfbfeb4",
+      "sha256": "2ff749da0bcce2e235c2ec01b94ae931665ee979e90c62e0d9598546b423ea1e",
       "executable": false
     },
     "BROWSER-ORIGINS.md": {
@@ -2906,7 +2906,7 @@
       "executable": false
     },
     "docs/AGENT-DOOR.md": {
-      "sha256": "0432e148b45a568b085f0b9be6cf05352b6c368cc8b57fd52a523e3acbbff533",
+      "sha256": "011e0541b99e328e05db480d536a71d9df039c649354725c6360e2a98892540a",
       "executable": false
     },
     "docs/agents.md": {
@@ -5446,7 +5446,7 @@
       "executable": false
     },
     "scripts/verify-evidence.mjs": {
-      "sha256": "9224f772d6a17f043448694eca3c149df83070417b995a2840497e36a9ad0100",
+      "sha256": "b396b3994f24676824c470df748911cec6029ad555c6b9df19cc43e93322fde5",
       "executable": false
     },
     "scripts/verify-light.mjs": {
@@ -5454,7 +5454,7 @@
       "executable": false
     },
     "scripts/verify-plan.mjs": {
-      "sha256": "45fe2ab9c5cbc72d0186bf77fab32c985605caae6ecee50676dd618612c3e78f",
+      "sha256": "beafebc0c3fc5e71c7c37038c20c2ced553878db9db6e3540cfa353466a903d5",
       "executable": false
     },
     "SEED-COMMAND-CONTRACT.md": {
@@ -11071,10 +11071,6 @@
     },
     "tests/agent-door/pause-contract.mjs": {
       "sha256": "0ddb51bf83a3be5feb83d99906c3de2751c56b7fa49bcee4fc66aac526d9b7db",
-      "executable": false
-    },
-    "tests/agent-door/pending.mjs": {
-      "sha256": "92cfb76a87bca9f9565cb8365ce0f543bcb78eb04fc516be34f533016230d500",
       "executable": false
     },
     "tests/agent-door/people.mjs": {

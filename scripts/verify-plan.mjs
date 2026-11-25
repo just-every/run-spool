@@ -1,6 +1,4 @@
-import { readFile } from 'node:fs/promises';
 import { execFileSync } from 'node:child_process';
-import { setTimeout as wait } from 'node:timers/promises';
 import { githubEvidence } from './verify-evidence.mjs';
 import { lightReaders } from './verify-light.mjs';
 
@@ -13,17 +11,29 @@ const full = reason => ({ coverage: 'full', skip: false, reason, readers: [] });
 // full-push-proof is emitted only for branch refs, after all push shards.
 const pushCandidate = run => run.event === 'push' && Boolean(run.head_branch);
 export async function planVerification({ env = process.env, fetch = globalThis.fetch, cwd = process.cwd(), plan,
- sleep = wait, readers = lightReaders } = {}) {
- const tier = env.GITHUB_REF?.startsWith('refs/tags/v') ? 'all' : env.GITHUB_EVENT_NAME === 'schedule' ? 'nightly' : env.TIER || 'push';
+ readers = lightReaders } = {}) {
+ let tier = env.GITHUB_REF?.startsWith('refs/tags/v') ? 'all' : env.GITHUB_EVENT_NAME === 'schedule' ? 'nightly' : env.TIER || 'push';
  if (!['push', 'nightly', 'all'].includes(tier)) throw Error('Unknown verification tier');
  const result = full('No qualifying push evidence');
  const finish = decision => ({ ...decision, tier, matrix: { include: (decision.skip || decision.coverage === 'light' ? []
   : tier === 'all' ? [...plan.push, ...plan.nightly] : plan[tier]).map(({ name, browser }) => ({ name, browser })) } });
- if (env.GITHUB_REF?.startsWith('refs/tags/')) return finish(full('Release tags require all coverage'));
  try {
   const api = githubEvidence(env, fetch), current = await api.run(env.GITHUB_RUN_ID);
-  if ((env.GITHUB_EVENT_NAME !== 'pull_request' && current.head_sha !== env.GITHUB_SHA) || current.name !== env.GITHUB_WORKFLOW
-   || current.repository.full_name !== env.GITHUB_REPOSITORY || current.event !== env.GITHUB_EVENT_NAME) return finish(result);
+  if (current.head_sha !== env.GITHUB_SHA || current.name !== env.GITHUB_WORKFLOW
+   || current.repository.full_name !== env.GITHUB_REPOSITORY || current.event !== env.GITHUB_EVENT_NAME) return finish(
+    env.GITHUB_REF?.startsWith('refs/tags/') ? full('Release tags require all coverage') : result);
+  // A release tag points at a commit whose branch push Verify already passed (in full, reused or light: its verify
+  // job enforces the coverage it chose). Reuse that green result and run only the slow tier (commands) once for the
+  // release. Any one complete green run of the exact commit is enough.
+  if (env.GITHUB_REF?.startsWith('refs/tags/')) {
+   for (const evidence of (await api.candidates(current, env.GITHUB_SHA, pushCandidate)).slice(0, 5)) {
+    if (await api.proof(evidence, ['plan', 'verify'])) {
+     tier = 'nightly';
+     return finish(full('A push Verify passed this exact commit; the tag runs the slow tier only'));
+    }
+   }
+   return finish(full('Release tag commit has no green push Verify'));
+  }
   // Cache presence is an optimization hint. Only the newest trusted attempt's
   // proof can authorize it; an old immutable cache cannot conceal a failure.
   if (tier === 'nightly' && env.NIGHTLY_CACHE_HIT === 'true' && current.head_branch === 'main') {
@@ -33,33 +43,8 @@ export async function planVerification({ env = process.env, fetch = globalThis.f
    }
    return finish(full('Nightly marker has no current successful proof'));
   }
-  if (tier !== 'push' || !['push', 'pull_request'].includes(env.GITHUB_EVENT_NAME)) return finish(result);
-  let head = env.GITHUB_SHA, headBranch = current.head_branch;
-  if (env.GITHUB_EVENT_NAME === 'pull_request') {
-   const event = JSON.parse(await readFile(env.GITHUB_EVENT_PATH, 'utf8')), pr = event.pull_request;
-   if (!shaShape(pr?.head?.sha) || typeof pr.head.ref !== 'string'
-    || pr.head.repo?.id !== current.repository.id || pr.head.repo?.full_name !== env.GITHUB_REPOSITORY
-    || pr.base?.repo?.id !== current.repository.id || pr.base.repo.full_name !== env.GITHUB_REPOSITORY
-    || current.head_branch !== pr.head.ref || !api.sameRepository(current, current)) return finish(full('Fork or ambiguous PR identity'));
-   head = pr.head.sha; headBranch = pr.head.ref;
-   if (![head, env.GITHUB_SHA].includes(current.head_sha)) return finish(full('PR run identity differs from its head and merge ref'));
-   const headCommit = await api.get(`commits/${head}`), mergeCommit = await api.get(`commits/${env.GITHUB_SHA}`);
-   if (!commitShape(headCommit) || headCommit.sha !== head || !commitShape(mergeCommit) || mergeCommit.sha !== env.GITHUB_SHA
-    || headCommit.commit.tree.sha !== mergeCommit.commit.tree.sha) return finish(full('PR merge tree differs from its head'));
-   // Bounded synchronization with the separate push producer, not retries of a
-   // failed lookup or failed verification. Missing evidence eventually runs CI.
-   for (let poll = 0; poll < 4; poll++) {
-    const evidence = await api.newest(current, head, run => pushCandidate(run) && run.head_branch === headBranch);
-    if (evidence?.status === 'completed') {
-     if (await api.proof(evidence, ['plan', 'full-push-proof', 'verify', ...plan.push.map(shard => `shards (${shard.name})`)])) {
-      return finish({ ...result, coverage: 'reuse', skip: true, reason: 'Head push verified the identical merge tree' });
-     }
-     return finish(full('Head push did not complete full verification'));
-    }
-    if (poll < 3) await sleep(5000);
-   }
-   return finish(full('Head push wait expired'));
-  }
+  if (tier !== 'push' || env.GITHUB_EVENT_NAME !== 'push') return finish(result);
+  const head = env.GITHUB_SHA, headBranch = current.head_branch;
   if (!env.GITHUB_REF?.startsWith('refs/heads/') || !api.sameRepository(current, current)
    || current.head_branch !== env.GITHUB_REF.slice('refs/heads/'.length)) return finish(result);
   const exact = await api.newest(current, head, run => pushCandidate(run) && run.head_branch !== headBranch);

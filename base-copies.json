@@ -62,7 +62,7 @@
       },
       "acknowledged": {
         ".github/workflows/verify.yml": {
-          "sha256": "483e00a882b987ddea882a19f51c588ce9589f8a39c73d9af819ace630dfc8fa",
+          "sha256": "ea9c01b0b595281aa0c5ffff5105d822710ce851d55e91c8a5e5ffad95ed7b3f",
           "mode": "100644"
         }
       },
@@ -1248,7 +1248,16 @@
       },
       "originFiles": [
         "export/verify-evidence.mjs"
-      ]
+      ],
+      "adapted": {
+        "scripts/verify-evidence.mjs": "8fa76d1ceef21535d0c1fa31298326d971bd8520"
+      },
+      "acknowledged": {
+        "scripts/verify-evidence.mjs": {
+          "sha256": "b396b3994f24676824c470df748911cec6029ad555c6b9df19cc43e93322fde5",
+          "mode": "100644"
+        }
+      }
     },
     {
       "path": "scripts/verify-light.mjs",
@@ -1276,7 +1285,16 @@
       },
       "originFiles": [
         "export/verify-plan.mjs"
-      ]
+      ],
+      "adapted": {
+        "scripts/verify-plan.mjs": "8fa76d1ceef21535d0c1fa31298326d971bd8520"
+      },
+      "acknowledged": {
+        "scripts/verify-plan.mjs": {
+          "sha256": "beafebc0c3fc5e71c7c37038c20c2ced553878db9db6e3540cfa353466a903d5",
+          "mode": "100644"
+        }
+      }
     },
     {
       "path": "SEED-COMMAND-CONTRACT.md",
