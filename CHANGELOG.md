@@ -13,6 +13,7 @@ Spool 0.7.28 reduces Cloudflare D1 reads during scheduled work and issue browsin
 - **Find the build for a Sentry-created release.** Upload map from an issue selects the occurrence’s build even when Sentry created the release automatically from a session without a distribution identifier. The release history lists observed builds for the picker.
 - **Read stack and grouping details on narrow screens.** At 390 px, Raw stack trace and Grouping information have separate, spaced controls that wrap as needed.
 - **Follow the first-run guide from setup to handoff.** The guide walks through receiving a test event, saving and naming the ingest key, and handing over the Sentry import.
+- **Keep the 30-second CPU limit on Workers Paid.** Deploys carry the limit in the Worker configuration. Workers Free uses Cloudflare's plan limit.
 
 ### Updating
 

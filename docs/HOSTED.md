@@ -10,6 +10,8 @@ This checkout uses the rer version pinned in [package.json](../package.json). Fr
 
 `rer deploy` puts this checkout on your own Cloudflare account as one Worker with its D1 database, at `https://spool-<environment>.<your-subdomain>.workers.dev`. Choose your environment name once as `SPOOL_ENV` below (default `production`). Use a lowercase identifier starting with a letter, with letters, digits and single hyphens between segments (at most 32 characters), and keep using the same one in later terminals too.
 
+The deployment token must be able to read the account's Workers settings. `rer deploy` sets the per-invocation CPU limit from `wrangler.jsonc` (30 seconds) on Workers Paid and leaves Workers Free on Cloudflare's plan limit. If rer cannot determine the plan, it stops before changing Cloudflare resources. After deploying, check `result.limits.cpu_ms` in the [Worker settings response](https://developers.cloudflare.com/api/resources/workers/subresources/scripts/subresources/script_and_version_settings/methods/get/).
+
 For the Free or Assisted account procedure below, you need:
 
 - this checkout, set up as in the [README](../README.md#run-it-on-your-computer) (git is required; the installer brings rer, Node and pnpm);
