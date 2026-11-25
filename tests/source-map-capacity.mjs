@@ -55,7 +55,8 @@ export async function sourceMapCapacity({origin,request,app,browser}) {
  await capField.waitFor();assert.equal(await capField.inputValue(),'42','[SRC-004] a cap edit survives in-app navigation (it is saved on leaving)');
  await page.getByLabel('Release name',{exact:true}).fill('synthetic-spool-draft@1');await page.getByLabel('Build identifier',{exact:true}).fill('b2');
  const storageRefresh=page.waitForResponse(r=>r.url().endsWith('/artifact-storage')&&r.request().method()==='GET');
- await page.getByRole('button',{name:'Register release',exact:true}).click();await(await storageRefresh).finished();
+ // The cap section re-reads on return to the tab; a window focus is that return.
+ await page.getByRole('button',{name:'Register release',exact:true}).click();await page.evaluate(()=>window.dispatchEvent(new Event('focus')));await(await storageRefresh).finished();
  await page.evaluate(()=>new Promise(done=>requestAnimationFrame(()=>requestAnimationFrame(done))));
  assert.equal(await capField.inputValue(),'42','[SRC-004] refreshing releases preserves the cap edit');
  await capField.fill(String(storage.bytes));await page.locator('.save-mark[data-state="saved"]').waitFor();
