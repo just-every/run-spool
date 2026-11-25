@@ -2662,7 +2662,7 @@
       "executable": false
     },
     "CHANGELOG.md": {
-      "sha256": "307894b8ba80a89c3c71badce6219acb37c4ccdc77f29eca8379740b8765ba00",
+      "sha256": "49e943d75cb4a93e4d9cf740b4e3bf06d78c039975fa4489c1e50b35cf543508",
       "executable": false
     },
     "CLAUDE.md": {
@@ -3014,7 +3014,7 @@
       "executable": false
     },
     "docs/HOSTED.md": {
-      "sha256": "58ffbf4791068facff6638a9350a9078b6c8a7663e8d17ede9f3505403f1412f",
+      "sha256": "d1e4c6d0f91f614b30f8f96707113f97b23d1985d5a8e78f99f1438f267479cd",
       "executable": false
     },
     "docs/IMPORT-READS.md": {
@@ -5514,7 +5514,7 @@
       "executable": false
     },
     "src/auth/mail.server.mjs": {
-      "sha256": "597113c9e2a0a82ec4ee60e4113b6ce7a41c2c351133d634130d51082a59fcc4",
+      "sha256": "1549730555020697b825ac5894ea18ca1f4012423bcd1d631c00c98af62ee5b8",
       "executable": false
     },
     "src/auth/oidc-presentation.server.ts": {
@@ -5538,7 +5538,7 @@
       "executable": false
     },
     "src/auth/session.server.ts": {
-      "sha256": "ad00965ffb1ad85870dfdba51ee6b48406ca9fb356dbfef8d50f0bfcae403619",
+      "sha256": "afb18140423645ef8e74a6c6ef2701e2a9c817407dac1da9f349d1cb67ca8eb8",
       "executable": false
     },
     "src/auth/sign-in.server.ts": {
@@ -10678,7 +10678,7 @@
       "executable": false
     },
     "src/ui/workbench/identityMessage.ts": {
-      "sha256": "d0dab12621d95e36de39150d608aab11065e70ac9f149844d5a4f55fde54f72b",
+      "sha256": "83cc3662c8a1dcd4a0d89bfb3f06c523972125f438250f6af4ca8dbfe2e83851",
       "executable": false
     },
     "src/ui/workbench/IdentityPolicy.tsx": {
@@ -11262,7 +11262,7 @@
       "executable": false
     },
     "tests/alerts/owner-only-mail.mjs": {
-      "sha256": "fddc762c6ca31a587f6e79f1a773cea6796c9c90170e928be45c371fc4cdfe73",
+      "sha256": "e61f39f7ec2f6dbfeecd1175be8a64d6985cd6f9d0c25cd403a9463c97a2f4a9",
       "executable": false
     },
     "tests/alerts/plain-resolve.mjs": {

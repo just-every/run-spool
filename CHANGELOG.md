@@ -2,6 +2,8 @@
 
 ## Unreleased
 
+- **The owner signs in by email, and only the owner.** With `MAIL_RECIPIENTS=owner` the sign-in page mails a single-use, 15-minute sign-in link to `OWNER_EMAIL` alone. A member's address now gets the same answer and no mail, as a stranger's always did; before, it got "We could not send the sign-in email", which showed it belonged to an account. While this is on, the owner cannot change their sign-in email away from `OWNER_EMAIL` in Settings, so their email sign-in cannot be cut off. See [Send alerts to the owner only](docs/HOSTED.md#send-alerts-to-the-owner-only).
+
 ## 0.7.29 — 2026-11-26
 
 Spool 0.7.29 lets a hosted installation email only its owner, and lets `rer deploy` finish uploading Spool's Worker over a slow connection.

@@ -24,6 +24,13 @@ export function recipientsAllowed(env, recipients) {
   return Boolean(owner) && recipients.length > 0 && recipients.every(value => mailbox(value) === owner)
 }
 
+// MAIL_RECIPIENTS=owner: only the owner, at OWNER_EMAIL, is mailed a sign-in link. Any other address, a member's included,
+// gets the same accepted answer a stranger gets and no mail, so the sign-in form reveals no account.
+export function ownerOnlySignIn(env) {
+  if (env.MAIL_RECIPIENTS !== 'owner' || mailSuppressed(env)) return undefined
+  return ({ email, operator }) => operator?.role === 'owner' && recipientsAllowed(env, [email])
+}
+
 export function mailSuppressed(env) {
   return env.RER_DEMO === '1' || localDevelopmentEnabled(env)
 }

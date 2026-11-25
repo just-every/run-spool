@@ -74,7 +74,7 @@ Email destinations use the existing mail setup and can be changed from the workb
 
 ## Send alerts to the owner only
 
-Set public `MAIL_RECIPIENTS=owner` with the mail inputs and every message the installation sends goes to `OWNER_EMAIL` alone. A message to any other address (another alert destination, an invitation, team or digest mail) is refused before it reaches the provider: its destination test fails, so no rule can use it, and a queued job is blocked as `preflight_failed`. The default, `any`, keeps ordinary behaviour. With mail off (`MAIL_PROVIDER=none`) nothing is sent either way.
+Set public `MAIL_RECIPIENTS=owner` with the mail inputs and every message the installation sends goes to `OWNER_EMAIL` alone. A message to any other address (another alert destination, an invitation, team or digest mail) is refused before it reaches the provider: its destination test fails, so no rule can use it, and a queued job is blocked as `preflight_failed`. The owner signs in from the sign-in page: entering `OWNER_EMAIL` mails the owner a single-use sign-in link that expires in 15 minutes. Any other address, a member's included, gets the same answer on the page and no mail, so the page never reveals who has an account. While this is on, the owner's sign-in email stays `OWNER_EMAIL`: Settings refuses to change it, and a new owner address is set with `OWNER_EMAIL` in the next `rer deploy`. The default, `any`, keeps ordinary behaviour. With mail off (`MAIL_PROVIDER=none`) nothing is sent either way.
 
 Send from outside any zone whose DNS you cannot change: the RER relay (`MAIL_PROVIDER=rer` with the assigned `MAIL_FROM`, `MAIL_RELAY_URL` and `MAIL_API_KEY`) or an already verified SendGrid sender (`MAIL_PROVIDER=sendgrid`, `MAIL_FROM`, and the SendGrid key as `MAIL_API_KEY`). Put the key in the private `--env-file`, never on the command line, and set it only through `rer deploy`: `wrangler secret put` or a settings PATCH makes rer's receipt stale and the next deploy and `rer signin` refuse with `owned-resource-replaced`.
 
@@ -84,7 +84,7 @@ rer deploy --set-secret MAIL_PROVIDER=sendgrid --set-secret MAIL_RECIPIENTS=owne
 
 The same entries in the environment file show in `rer deploy --dry-run --json` as secret inputs, so the plan can be checked first. Run `--set-secret` and `--dry-run` on separate runs.
 
-First check: sign in as the owner, open **Alerts → Rules → Manage destinations and rules**, add an email destination with the owner address, choose **Test**, and read the TEST message in the owner's inbox. Adding any other address and testing it must fail, with nothing sent.
+First check: on the sign-in page enter the owner address, open the sign-in message and confirm. Then open **Alerts → Rules → Manage destinations and rules**, add an email destination with the owner address, choose **Test**, and read the TEST message in the owner's inbox. Adding any other address and testing it must fail, with nothing sent.
 
 ## Turn email off deliberately
 

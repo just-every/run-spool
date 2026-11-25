@@ -3,7 +3,7 @@ import { AuthError, createOperatorAuth, createAuthHandler, securityHeaders } fro
 import { readInput } from '../modules/operator-auth/input.mjs';
 import { createDependencies } from '../modules/dependencies/index.mjs';
 import { createIdpOwnerClaimHandler } from '../modules/owner-claim/idp.mjs';
-import { operatorMail } from './mail.server.mjs';
+import { operatorMail, ownerOnlySignIn, recipientsAllowed } from './mail.server.mjs';
 import type { Bindings } from './bindings';
 import { successorConfirmation } from '../domain/erasure/owner-transfer.ts';
 import type { MailSender } from '../modules/operator-auth/index.mjs';
@@ -15,14 +15,24 @@ export function authConfig(env: Bindings) {
   branding: { productName: 'Spool', accentColor: '#1C1C1B', signInPath: '/sign-in' } };
 }
 export function operatorAuth(env: Bindings, teamInvites = false, mailSender: MailSender | undefined = operatorMail(env)) {
- return createOperatorAuth({ db: env.DB, config: authConfig(env),
+ const auth = createOperatorAuth({ db: env.DB, config: authConfig(env),
   rolePolicy: async ({ actor, action, role }) => {
    if (actor.role==='owner' && ['operators:list','sessions:list','sessions:revoke'].includes(action)) return true;
    if (!teamInvites || action!=='operators:invite' || role!=='member') return false;
    return actor.role==='owner' || !!await env.DB.prepare("SELECT 1 FROM spool_members WHERE operator_id=? AND role='admin' AND state='active'").bind(actor.id).first();
   },
   mailSender, clientIp: request => request.headers.get('CF-Connecting-IP') ?? '',
+  hooks: { beforeMagicLink: ownerOnlySignIn(env) },
  });
+ // MAIL_RECIPIENTS=owner mails sign-in links to OWNER_EMAIL alone, so the owner keeps that address: moving it would end
+ // their email sign-in without a word on the public form.
+ if (env.MAIL_RECIPIENTS !== 'owner' || !auth.changeEmail) return auth;
+ const changeEmail = auth.changeEmail;
+ return Object.freeze({ ...auth, async changeEmail(request: Request, input: { email: string }) {
+  const actor = await auth.getSession(request);
+  if (actor?.operator.role === 'owner' && !recipientsAllowed(env, [String(input?.email ?? '')])) throw new AuthError('owner_email_pinned', 409);
+  return changeEmail(request, input);
+ } });
 }
 export async function ownerSession(request: Request, env: Bindings, resolver?: (request: Request, env: Bindings, session: Session) => Promise<TeamSession | null>): Promise<TeamSession | null> {
  // An explicitly presented credential chooses that transport's authority;
