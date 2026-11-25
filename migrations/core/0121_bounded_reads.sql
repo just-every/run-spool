@@ -6,7 +6,7 @@
 CREATE TABLE IF NOT EXISTS spool_capacity_counts (
  project TEXT NOT NULL, kind TEXT NOT NULL, n INTEGER NOT NULL,
  PRIMARY KEY(project,kind)
-) WITHOUT ROWID;
+);
 INSERT INTO spool_capacity_counts(project,kind,n) SELECT project,'events',COUNT(*) FROM events GROUP BY project
  ON CONFLICT(project,kind) DO UPDATE SET n=excluded.n;
 INSERT INTO spool_capacity_counts(project,kind,n) SELECT project,'transactions',COUNT(*) FROM sentry_transactions GROUP BY project
@@ -102,7 +102,7 @@ CREATE TRIGGER exposure_capacity BEFORE INSERT ON exposures WHEN COALESCE((SELEC
 CREATE TABLE IF NOT EXISTS issue_client_drops (
  project TEXT NOT NULL, issue TEXT NOT NULL, dropped INTEGER NOT NULL,
  PRIMARY KEY(project,issue)
-) WITHOUT ROWID;
+);
 INSERT INTO issue_client_drops(project,issue,dropped)
  SELECT project,issue,SUM(iif(json_valid(payload),json_extract(payload,'$.dropped'),NULL)) FROM events
  WHERE iif(json_valid(payload),json_extract(payload,'$.dropped'),NULL) IS NOT NULL GROUP BY project,issue
@@ -132,7 +132,7 @@ END;
 -- an unchanged list answers its poll from one row.
 CREATE TABLE IF NOT EXISTS spool_read_versions (
  name TEXT PRIMARY KEY, token TEXT NOT NULL
-) WITHOUT ROWID;
+);
 INSERT INTO spool_read_versions(name,token) VALUES('issues',lower(hex(randomblob(8))))
  ON CONFLICT(name) DO UPDATE SET token=excluded.token;
 CREATE TRIGGER IF NOT EXISTS spool_issue_list_issues_insert AFTER INSERT ON issues BEGIN UPDATE spool_read_versions SET token=lower(hex(randomblob(8))) WHERE name='issues'; END;
@@ -170,7 +170,7 @@ CREATE TRIGGER IF NOT EXISTS spool_issue_list_release_policies_delete AFTER DELE
 -- and at least hourly; queued notices likewise follow attention and routing.
 CREATE TABLE IF NOT EXISTS spool_work_gates (
  name TEXT PRIMARY KEY, pending INTEGER NOT NULL, done INTEGER NOT NULL, run_at INTEGER NOT NULL
-) WITHOUT ROWID;
+);
 INSERT INTO spool_work_gates(name,pending,done,run_at) VALUES('follow_up_close',1,0,0),('follow_up_notices',1,0,0)
  ON CONFLICT(name) DO UPDATE SET pending=pending+1;
 CREATE TRIGGER IF NOT EXISTS spool_gate_close_follow_up_attention_insert AFTER INSERT ON follow_up_attention BEGIN UPDATE spool_work_gates SET pending=pending+1 WHERE name='follow_up_close'; END;
@@ -197,7 +197,7 @@ CREATE TRIGGER IF NOT EXISTS spool_gate_notices_spool_follow_up_alternates_delet
 CREATE TABLE IF NOT EXISTS alert_provider_pending (
  event_namespace TEXT NOT NULL, event_id TEXT NOT NULL,
  PRIMARY KEY(event_namespace,event_id)
-) WITHOUT ROWID;
+);
 INSERT INTO alert_provider_pending(event_namespace,event_id)
  SELECT r.event_namespace,r.event_id FROM rer_mail_event_receipts r
  WHERE r.provider='sendgrid' AND r.tenant_id='spool' AND NOT EXISTS(SELECT 1 FROM alert_provider_events e WHERE e.event_id=r.event_id)
