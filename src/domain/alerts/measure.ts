@@ -19,7 +19,15 @@ export async function captureLoss(db:D1Database,project:string,start:number,end:
  const dropped=await s(db,"SELECT SUM(COALESCE(json_extract(payload,'$.dropped'),0)) count FROM events WHERE project=? AND received>=? AND received<? AND historical=0",project,start,end).first<any>();
  if(dropped?.count)rows.push({reason:'sdk_dropped',count:dropped.count});return rows;
 }
-export async function decision(db:D1Database,project:string,config:RuleConfig,issue:string,start:number,end:number,threshold:number){
+const week=7*86400000;
+/** The latest cutoff retention applied after `since`. A cutoff never passes the time its gap was recorded, so gaps
+ * recorded earlier cannot reach a later window; the (project,kind,created) index reads only the recent ones. */
+export async function retentionGapCutoff(db:D1Database,project:string,since:number){
+ return (await s(db,"SELECT MAX(json_extract(detail,'$.cutoff')) cutoff FROM audit WHERE project=? AND kind='retention_gap' AND created>?",project,since).first<{cutoff:number|null}>())?.cutoff??null;
+}
+/** The baseline compares eight earlier weeks: one gap lookup covers all of them. */
+export const baselineSince=(start:number)=>start-8*week;
+export async function decision(db:D1Database,project:string,config:RuleConfig,issue:string,start:number,end:number,threshold:number,gapCutoff?:number|null){
  const m=await eventMeasure(db,project,config,start,end,issue),base={start,end,issue,count:m.count,users:m.users,unattributed:m.unattributed,threshold,metric:config.metric};
  if(config.metric==='users')return {...base,fired:m.users>threshold,reason:`${m.users} distinct retained users; ${m.unattributed} events without user key; requires more than ${threshold}`};
  if(config.metric==='session_percent'){
@@ -28,10 +36,11 @@ export async function decision(db:D1Database,project:string,config:RuleConfig,is
  }
  if(config.metric==='count')return {...base,fired:m.count>=threshold,reason:`Fixed threshold: ${m.count} accepted occurrences; requires ${threshold}`};
  const traffic=await eventMeasure(db,project,{...config,filters:{...config.filters,tags:undefined,level:undefined}},start,end),loss=await captureLoss(db,project,start,end),history:any[]=[],excluded:any[]=[];
- for(let week=1;week<=8;week++){
-  const from=start-week*7*86400000,to=end-week*7*86400000;
+ const cutoff=gapCutoff===undefined?await retentionGapCutoff(db,project,baselineSince(start)):gapCutoff;
+ for(let back=1;back<=8;back++){
+  const from=start-back*week,to=end-back*week;
   const missing=await captureLoss(db,project,from,to);
-  const gap=await s(db,"SELECT 1 FROM audit WHERE project=? AND kind='retention_gap' AND json_extract(detail,'$.cutoff')>? LIMIT 1",project,from).first();
+  const gap=cutoff!==null&&cutoff>from;
   if(missing.length||gap){excluded.push({start:from,end:to,reasons:missing.length?missing.map(r=>r.reason):['retention_gap']});continue}
   const [errors,total]=await Promise.all([eventMeasure(db,project,config,from,to,issue),eventMeasure(db,project,{...config,filters:{...config.filters,tags:undefined,level:undefined}},from,to)]);
   if(total.count<10){excluded.push({start:from,end:to,reasons:['low_traffic']});continue}

@@ -213,6 +213,10 @@ BEGIN
  DELETE FROM alert_provider_pending WHERE event_namespace=OLD.event_namespace AND event_id=OLD.event_id;
 END;
 
+-- Intake and baseline alerts look up one kind of audit fact: by issue, or by time.
+CREATE INDEX IF NOT EXISTS audit_project_kind_issue ON audit(project,kind,json_extract(detail,'$.issue'));
+CREATE INDEX IF NOT EXISTS audit_project_kind_created ON audit(project,kind,created);
+
 -- A restore copies archived rows with their triggers paused: rebuild what they keep.
 CREATE TRIGGER IF NOT EXISTS spool_bounded_reads_restore AFTER UPDATE OF import_job ON rer_portability_state WHEN OLD.import_job IS NOT NULL AND NEW.import_job IS NULL AND OLD.applying=1
 BEGIN
