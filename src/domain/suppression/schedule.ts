@@ -3,17 +3,19 @@ import {serviceActor,auditSubject,projectAuditLabel} from '../audit/identity';
 import {s} from '../operators/common';
 import {userCountSql} from './model';
 
+// Whether an active suppression of issue_suppressions has met its condition at `time` (a SQL parameter).
+export const suppressionEligible=(time:string)=>`CASE mode
+   WHEN 'until' THEN deadline<=${time} WHEN 'snooze' THEN deadline<=${time}
+   WHEN 'count' THEN observed_count>=occurrence_target
+   WHEN 'users' THEN ${userCountSql('issue_suppressions.project','issue_suppressions.issue')}>=user_target
+   WHEN 'escalating' THEN (SELECT COUNT(*) FROM events e WHERE e.project=issue_suppressions.project AND e.issue=issue_suppressions.issue AND e.received>${time}-window_ms AND e.received<=${time})>forecast
+   ELSE 0 END`;
 export async function scheduleSuppression(env:{DB:D1Database},time:number){
  if(!Number.isSafeInteger(time)||time<0)throw new Error('Invalid suppression schedule time');
  const rows=(await s(env.DB,`SELECT z.*,i.revision FROM issue_suppressions z JOIN issues i ON i.project=z.project AND i.id=z.issue
   WHERE z.state='active' AND z.historical=0 AND i.state='suppressed' AND z.mode<>'forever' ORDER BY z.started,z.id`).all<any>()).results;
  for(const row of rows){
-  const eligible=`CASE mode
-   WHEN 'until' THEN deadline<=? WHEN 'snooze' THEN deadline<=?
-   WHEN 'count' THEN observed_count>=occurrence_target
-   WHEN 'users' THEN ${userCountSql('issue_suppressions.project','issue_suppressions.issue')}>=user_target
-   WHEN 'escalating' THEN (SELECT COUNT(*) FROM events e WHERE e.project=issue_suppressions.project AND e.issue=issue_suppressions.issue AND e.received>?-window_ms AND e.received<=?)>forecast
-   ELSE 0 END`;
+  const eligible=suppressionEligible('?');
   // The winning state transition is the witness carried by changes() through
   // reopening, history and attention. Concurrent ticks commit exactly once.
   const actor=await serviceActor(env.DB,'alerts'),scope={actor,action:'automation.follow_up' as const,

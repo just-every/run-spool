@@ -30,7 +30,7 @@ export async function expireSnoozes(env:AlertEnvironment,time:number){
 // The admission transaction records explicit snoozes. This also holds work
 // waiting on configuration, and quiet hours are evaluated before expansion.
 export function quietActive(c:any,time:number){const {hour}=localDate(time,c.timezone);return c.quiet_start!==null&&(c.quiet_start<c.quiet_end?hour>=c.quiet_start&&hour<c.quiet_end:hour>=c.quiet_start||hour<c.quiet_end)}
-const holdable=`(i.expanded=0 AND i.state IN ('pending','blocked') OR EXISTS(SELECT 1 FROM alert_mail_jobs j WHERE j.id=i.id AND j.state='queued') OR EXISTS(SELECT 1 FROM integration_deliveries d WHERE d.namespace='spool.'||i.project AND d.id=i.id AND d.state='queued'))`;
+export const holdable=`(i.expanded=0 AND i.state IN ('pending','blocked') OR EXISTS(SELECT 1 FROM alert_mail_jobs j WHERE j.id=i.id AND j.state='queued') OR EXISTS(SELECT 1 FROM integration_deliveries d WHERE d.namespace='spool.'||i.project AND d.id=i.id AND d.state='queued'))`;
 export async function holdAlerts(env:AlertEnvironment,time:number){
  const projects=(await s(env.DB,`SELECT DISTINCT project FROM alert_snoozes WHERE historical=0 AND resumed_at IS NULL AND until>? UNION SELECT project FROM alert_digest_settings WHERE quiet_start IS NOT NULL
   UNION SELECT t.project FROM spool_team_snoozes z JOIN spool_project_teams t ON t.organization=z.organization AND t.team=z.team WHERE z.historical=0 AND z.resumed_at IS NULL AND z.until>?`,time,time).all<any>()).results;

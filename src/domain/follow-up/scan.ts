@@ -85,7 +85,12 @@ export async function scanFollowUp(env:Environment,time:number) {
   WHERE source='deployment' AND historical=0 AND state='queued' AND EXISTS(SELECT 1 FROM deployment_notices n WHERE n.project=follow_up_attention.project AND n.deployment=source_id AND n.state<>'pending')`,time).run();
  await s(env.DB,`UPDATE follow_up_attention SET state='completed',updated=?,revision=revision+1 WHERE source='alert' AND state='blocked' AND source_id LIKE 'alternate:%'
   AND NOT EXISTS(SELECT 1 FROM spool_follow_up_alternates x WHERE x.project=follow_up_attention.project AND x.member=substr(source_id,11) AND substr(source_id,1,10)='alternate:')`,time).run();
- // These sweeps read every open item, so they run when an item, issue, delivery, suppression or step changed.
+ await closeFollowUp(env,time);
+}
+
+/** Closes open items whose source finished. These sweeps read every open item, so they run when an item, issue,
+ * delivery, suppression or step changed (and at least hourly); the minute probe runs them alone when only that is due. */
+export async function closeFollowUp(env:Environment,time:number) {
  await whenChanged(env.DB,'follow_up_close',time,async()=>{
  await s(env.DB,`UPDATE follow_up_attention SET state='completed',updated=?,revision=revision+1 WHERE source='alert' AND state<>'completed'
   AND (source_id LIKE 'held:%' OR source_id LIKE 'snooze:%') AND (

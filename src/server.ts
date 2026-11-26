@@ -27,7 +27,8 @@ import { providerEventResponse } from './domain/alerts/provider-events.server';
 import { runAlerts } from './domain/alerts/dispatch';
 import { queueDigests } from './domain/alerts/digests';
 import { scheduledMail } from './domain/alerts/scheduled-mail';
-import { scanFollowUp } from './domain/follow-up/scan';
+import { scanFollowUp, closeFollowUp } from './domain/follow-up/scan';
+import { scheduledDue } from './domain/scheduled/due';
 import { queueNotices, dispatchNotices } from './domain/follow-up/notices';
 import { staticAssetResponse } from './base/static-assets';
 import { admitted, setupStateResponse } from './base/setup-state';
@@ -43,6 +44,17 @@ import { importDoorResponse, openDoorAtClaim } from './domain/sentry-import/door
 import { cutoverStatusPath, rerCutoverStatus } from './domain/rer-cutover-status.server';
 export async function scheduled(event: ScheduledController, bindings: Bindings & AlertEnvironment, _execution: ExecutionContext) {
  const env = runtimeBindings(bindings) as Bindings & AlertEnvironment;
+ // One read decides the minute (domain/scheduled/due.ts). With nothing due, only the rare periodic steps that are
+ // due run; otherwise the whole pass runs in order, so one step's output reaches the next in the same minute.
+ const due = await scheduledDue(env.DB, event.scheduledTime);
+ if (!due.work) {
+  if (due.retention) await scheduledRetention(env.DB, event.scheduledTime, env);
+  if (due.close) await closeFollowUp(env, event.scheduledTime);
+  // A queued digest or notice is sent in the same minute, as the whole pass would.
+  if (due.digests) { await queueDigests(env, event.scheduledTime); await scheduledMail(env, event.scheduledTime); }
+  if (due.notices) { await queueNotices(env, event.scheduledTime); await dispatchNotices(env, event.scheduledTime); }
+  return;
+ }
  // Accepted erasure jobs continue here after the client disconnects, even when
  // an earlier scheduled step fails.
  try {
