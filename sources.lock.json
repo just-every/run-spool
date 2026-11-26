@@ -2654,7 +2654,7 @@
       "executable": false
     },
     "base-copies.json": {
-      "sha256": "cf096d9616eed4f8cfb0cee5f4a1a7ad03c2d27ae90cc4a050fb7de348ee98fd",
+      "sha256": "f76f34351aded1dd8a594ce7a5720205f6fbeb92161041ed06f3faf1985ff058",
       "executable": false
     },
     "BROWSER-ORIGINS.md": {
@@ -5514,7 +5514,7 @@
       "executable": false
     },
     "src/auth/mail.server.mjs": {
-      "sha256": "1549730555020697b825ac5894ea18ca1f4012423bcd1d631c00c98af62ee5b8",
+      "sha256": "e8d8ebe2ad4f53507cbb37756302e17ae960a86f30055784eaa31f9074b735f1",
       "executable": false
     },
     "src/auth/oidc-presentation.server.ts": {
@@ -9282,7 +9282,7 @@
       "executable": false
     },
     "src/modules/mail/index.mjs": {
-      "sha256": "c0501b55f9ba53796926bed1abb22c8690ad2a66b03e09407a84a632c5a4a0c0",
+      "sha256": "1828d6ddff3456c49114498b722ae884da1736f6181858c1607568bf8b659bd0",
       "executable": false
     },
     "src/modules/mail/LICENSE": {
@@ -9306,7 +9306,7 @@
       "executable": false
     },
     "src/modules/mail/README.md": {
-      "sha256": "00154803c5caf2fa952b4b1a26f849dc44fd9fbbc23db18a5715eb592f63fef9",
+      "sha256": "43f04ee71fb003affbe706640ef60d8a716ba48827a6eec1adfa1ec60145f3b0",
       "executable": false
     },
     "src/modules/mail/src/adapters/cloudflare/headers.mjs": {
@@ -9363,6 +9363,10 @@
     },
     "src/modules/mail/src/adapters/rer/list-headers.mjs": {
       "sha256": "2ee80e4fa4e9185efebc5ce02fca2f777dfce7b423f31d6a1ede5a19f411195b",
+      "executable": false
+    },
+    "src/modules/mail/src/adapters/rer/owner.mjs": {
+      "sha256": "2bc6966d74ea883f7b5f42616e8ec932f4166b1367d4c778e93b14b47dcfe6de",
       "executable": false
     },
     "src/modules/mail/src/adapters/resend/index.mjs": {
@@ -11262,7 +11266,7 @@
       "executable": false
     },
     "tests/alerts/owner-only-mail.mjs": {
-      "sha256": "e61f39f7ec2f6dbfeecd1175be8a64d6985cd6f9d0c25cd403a9463c97a2f4a9",
+      "sha256": "ec1761b00755483d94031e2585fdddf0b7282d89e223a2bfb162f4bb2490e147",
       "executable": false
     },
     "tests/alerts/plain-resolve.mjs": {

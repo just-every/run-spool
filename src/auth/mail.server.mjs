@@ -1,4 +1,4 @@
-import { createMailSender, MailValidationError } from '../modules/mail/index.mjs'
+import { createMailSender, createOwnerRelaySender, MailValidationError } from '../modules/mail/index.mjs'
 import { validateConfig, parseAddress } from '../modules/mail/src/core/validation.mjs'
 import { localDevelopmentEnabled } from './local.server.mjs'
 
@@ -41,6 +41,13 @@ export function operatorMail(env) {
     return createMailSender({ provider: 'development', mode: 'development' })
   }
   if (!env.MAIL_PROVIDER || env.MAIL_PROVIDER === 'development' || env.MAIL_PROVIDER === 'none') return undefined
+  if (env.MAIL_PROVIDER === 'rer' && env.MAIL_RECIPIENTS === 'owner') {
+    return createOwnerRelaySender({
+      ownerEmail: env.OWNER_EMAIL,
+      relayUrl: env.MAIL_RELAY_URL,
+      apiKey: env.MAIL_API_KEY,
+    })
+  }
 
   return {
     async send(message) {
