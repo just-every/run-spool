@@ -2654,7 +2654,7 @@
       "executable": false
     },
     "base-copies.json": {
-      "sha256": "cf096d9616eed4f8cfb0cee5f4a1a7ad03c2d27ae90cc4a050fb7de348ee98fd",
+      "sha256": "62cda59eec83881dc197a558e34e8ba92505807219ac3651df6938d7bfa9f411",
       "executable": false
     },
     "BROWSER-ORIGINS.md": {
@@ -9538,7 +9538,7 @@
       "executable": false
     },
     "src/modules/operator-auth/accounts/admin.mjs": {
-      "sha256": "ef68f9a24788ef0ac00bb0012d988c7661992926491a03b39783b529f6134017",
+      "sha256": "e38f8d3b2e4888a767dfd27f2042ad3ad76916e36748ceea9d77e006d151c25f",
       "executable": false
     },
     "src/modules/operator-auth/accounts/audit.mjs": {
@@ -9690,7 +9690,7 @@
       "executable": false
     },
     "src/modules/operator-auth/conformance/index.mjs": {
-      "sha256": "60e925f31c3c927889aae0dfeb82809e3f325cb572d4c31efe591d5ddc0a5010",
+      "sha256": "6cbb458a7c153bf02ac2b65a4683b86b9754bddd611f102a1a292b510047cd33",
       "executable": false
     },
     "src/modules/operator-auth/conformance/presentation.mjs": {
@@ -9818,7 +9818,7 @@
       "executable": false
     },
     "src/modules/operator-auth/identity/email-link/index.mjs": {
-      "sha256": "07f2d1f51a22e445179995ed3fecba155c954264f8738da1ba69afe2a1d39e2c",
+      "sha256": "9159a33de529821a383ae5aeb0a055ac64ac48b29c49a5e701b24f4f781633db",
       "executable": false
     },
     "src/modules/operator-auth/identity/email-link/message.mjs": {
@@ -11262,7 +11262,7 @@
       "executable": false
     },
     "tests/alerts/owner-only-mail.mjs": {
-      "sha256": "e61f39f7ec2f6dbfeecd1175be8a64d6985cd6f9d0c25cd403a9463c97a2f4a9",
+      "sha256": "ab8dd46195ce8f1b520471e30ed1e518895f69c78316c1c9824b86e2f306b57c",
       "executable": false
     },
     "tests/alerts/plain-resolve.mjs": {
@@ -11274,7 +11274,7 @@
       "executable": false
     },
     "tests/alerts/receiver.mjs": {
-      "sha256": "ac61b63d53e2f9ee0ba394c104fdf9d7eebd305c27dd38a13241891bc9815f1f",
+      "sha256": "60dbccfbe0a7877e582ce2843097e21dc43df2b8b78754025bcc19d73cb91e8c",
       "executable": false
     },
     "tests/alerts/repair-recurrence.mjs": {

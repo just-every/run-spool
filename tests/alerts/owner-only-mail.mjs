@@ -59,6 +59,15 @@ async function ownerSignInMail(app,inbox) {
   assert.deepEqual(await ask(email,false),ownerJson,'the JSON door answers '+email+' exactly as it answers the owner');
  }
  assert.deepEqual(inbox.sendgridRecipients.slice(before),[[testOwner],[testOwner]],'sign-in mail reached the provider for the owner alone');
+ // A slow provider takes the mail and never answers within the transport limit: the send is uncertain, not refused. The
+ // page gives the owner's usual answer, and the link in the late mail still signs in, once.
+ inbox.mailStatuses.push('hang');
+ assert.deepEqual(await ask(testOwner,true),owner,'a timed-out send answers as a sent link');
+ const late=inbox.lateMail.at(-1)?.content.find(part=>part.type==='text/plain').value.match(/\/auth\/confirm\?token=([A-Za-z0-9_-]+)/)?.[1];
+ assert.ok(late&&late!==token,'the late mail carries a fresh link');
+ const lateConfirm=()=>app.request('/auth/confirm','POST',{token:late},{Cookie:''});
+ assert.equal((await lateConfirm()).status,303,'the late link signs in');
+ assert.equal((await lateConfirm()).status,400,'the late link is single-use');
  // The owner keeps OWNER_EMAIL while only it is mailed, so moving the address can never end their email sign-in.
  const moved=await app.request('/auth/email','POST',{email:stranger},{Cookie:session});
  assert.equal(moved.status,409);assert.equal((await moved.json()).error,'owner_email_pinned');
