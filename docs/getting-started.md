@@ -10,7 +10,7 @@ A first local start can take several minutes while rer installs dependencies and
 
 Open the private `RER_OPEN` link printed in your terminal and keep it private. Name this installation and create your first project. You can change the installation name later in **Settings → General** and your own name or email in **Settings → Members**.
 
-To start Spool again, run `cd run-spool && ~/.local/bin/rer dev --host localhost`. To stop it, run `~/.local/bin/rer dev --stop`. Starting with Spool 0.7.18, on localhost choose **Settings → General → Local passkey → Add passkey** to enable passkey sign-in for the owner.
+To start Spool again, run `cd run-spool && ~/.local/bin/rer dev`. To stop it, run `~/.local/bin/rer dev --stop`. Starting with Spool 0.7.18, on localhost choose **Settings → General → Local passkey → Add passkey** to enable passkey sign-in for the owner. If your install is on `127.0.0.1`, run `~/.local/bin/rer dev --stop`, then `~/.local/bin/rer setup --host localhost` once; Spool keeps its data and later starts follow the saved address.
 
 <details>
 <summary>Details</summary>
@@ -60,7 +60,7 @@ Spool's first check is one test event received: use **Send test error** to check
 
 ## Stopping and starting
 
-With terminal (TTY) output, `~/.local/bin/rer dev` stays in the foreground; stop it with Ctrl+C. With non-TTY output, it returns once ready and leaves the server running in the background; stop it with `~/.local/bin/rer dev --stop`. You can also stop it from another terminal. Use `--foreground` or `--detach` to choose explicitly. Your owner, projects and events are kept on this computer and are still there the next time you run `~/.local/bin/rer dev`. If signed-in pages never finish loading while `/health` answers, one stop and start has cured it: run `~/.local/bin/rer dev --stop`, then `~/.local/bin/rer dev --host localhost`.
+With terminal (TTY) output, `~/.local/bin/rer dev` stays in the foreground; stop it with Ctrl+C. With non-TTY output, it returns once ready and leaves the server running in the background; stop it with `~/.local/bin/rer dev --stop`. You can also stop it from another terminal. Use `--foreground` or `--detach` to choose explicitly. Your owner, projects and events are kept on this computer and are still there the next time you run `~/.local/bin/rer dev`. If signed-in pages never finish loading while `/health` answers, one stop and start has cured it: run `~/.local/bin/rer dev --stop`, then `~/.local/bin/rer dev`.
 
 Stop dev before deploying, verifying, resetting or transferring local data.
 
