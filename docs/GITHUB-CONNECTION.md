@@ -18,7 +18,7 @@ Fix branches need a GitHub App installed on the target repository. The installat
 
 Use the original deployment checkout and the same environment, Cloudflare account credentials and private deployment receipt as in [Hosting Spool](HOSTED.md#run-spool-on-your-cloudflare-account). Update an existing installation to a version that declares `GITHUB_CONNECTION` before configuring it.
 
-Open the existing private deploy env file for that environment in an editor. Add `GITHUB_CONNECTION=` followed immediately by the one-line JSON object. Use the JSON object's own quotes without wrapping the whole object in quotes. Preserve all other settings. For a first install, deploy with that env file as in the hosting guide. For an existing deployment, set or replace the secret with the command below. Set `SPOOL_ENV` to the environment you deployed, such as `production`.
+Open the existing private deploy env file for that environment in an editor. Add `GITHUB_CONNECTION=` followed immediately by the one-line JSON object. Use the JSON object's own quotes without wrapping the whole object in quotes. Preserve all other settings. For a first install, deploy with that env file as in the hosting guide. For an existing deployment that already holds the secret, replace it with the command below (`--set-secret` takes the name only and reads the value from the file; it does not deploy code). If the deployment has never held `GITHUB_CONNECTION`, the plain `rer deploy --env-file` above binds it. Set `SPOOL_ENV` to the environment you deployed, such as `production`.
 
 ```sh
 rer deploy --environment "$SPOOL_ENV" --env-file .rer/deploy/"$SPOOL_ENV".env --set-secret GITHUB_CONNECTION

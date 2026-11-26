@@ -78,8 +78,16 @@ Set public `MAIL_RECIPIENTS=owner` with the mail inputs and every message the in
 
 Send from outside any zone whose DNS you cannot change: the RER relay (`MAIL_PROVIDER=rer` with the assigned `MAIL_FROM`, `MAIL_RELAY_URL` and `MAIL_API_KEY`) or an already verified SendGrid sender (`MAIL_PROVIDER=sendgrid`, `MAIL_FROM`, and the SendGrid key as `MAIL_API_KEY`). Put the key in the private `--env-file`, never on the command line, and set it only through `rer deploy`: `wrangler secret put` or a settings PATCH makes rer's receipt stale and the next deploy and `rer signin` refuse with `owned-resource-replaced`.
 
+Put every value, public selectors included (`MAIL_PROVIDER=sendgrid`, `MAIL_RECIPIENTS=owner`), in the private environment file next to `MAIL_FROM` and `MAIL_API_KEY`. `--set-secret` takes names only; rer reads each value from the environment or `--env-file`, and refuses `--set-secret NAME=value`. A name set for the first time is bound by the plain deploy that reads the file:
+
 ```sh
-rer deploy --set-secret MAIL_PROVIDER=sendgrid --set-secret MAIL_RECIPIENTS=owner --set-secret MAIL_FROM --set-secret MAIL_API_KEY --env-file .rer/deploy/"$SPOOL_ENV".env --environment "$SPOOL_ENV"
+rer deploy --env-file .rer/deploy/"$SPOOL_ENV".env --environment "$SPOOL_ENV"
+```
+
+To rotate or change a value on a deployment that already holds the name, edit the file, then name it. `--set-secret` alone changes the secrets of the deployed Worker in one new version and does not deploy code:
+
+```sh
+rer deploy --set-secret MAIL_API_KEY --env-file .rer/deploy/"$SPOOL_ENV".env --environment "$SPOOL_ENV"
 ```
 
 The same entries in the environment file show in `rer deploy --dry-run --json` as secret inputs, so the plan can be checked first. Run `--set-secret` and `--dry-run` on separate runs.
@@ -92,7 +100,7 @@ Set `MAIL_PROVIDER=none` in the private environment file for the deployment. Lea
 
 Run the same `rer deploy` command for the selected environment. The deployment binds `none` to the runtime and reports the guarded sign-in command below. If mail credentials were already bound to that Worker, use `rer deploy --unset-secret MAIL_API_KEY --env-file .rer/deploy/"$SPOOL_ENV".env --environment "$SPOOL_ENV"` and remove any previously bound `MAIL_ACCOUNT_ID` and `MAIL_RELAY_URL` the same way. Deploy preflight reports existing bound credentials by name; selecting off alone does not delete a secret retained on the Worker.
 
-The sign-in page directs the deploying owner to `rer signin`. Email sign-in links and invitations return `503 mail_unavailable`, including known and unknown addresses. Alerts stay visibly blocked without a send or a provider acceptance. Capture, issues and project settings keep working after guarded owner admission; signed-out private pages remain protected. Hosted installs expose no local-development entry or invitation link. To enable mail later, select a provider and use `rer deploy --set-secret` for its configured provider inputs in the same environment, retaining its ownership receipt.
+The sign-in page directs the deploying owner to `rer signin`. Email sign-in links and invitations return `503 mail_unavailable`, including known and unknown addresses. Alerts stay visibly blocked without a send or a provider acceptance. Capture, issues and project settings keep working after guarded owner admission; signed-out private pages remain protected. Hosted installs expose no local-development entry or invitation link. To enable mail later, select a provider and put its configured provider inputs in the private environment file and run the plain `rer deploy --env-file` for the same environment, retaining its ownership receipt.
 
 — Run Edit Run fleet, 2026-11-15.
 
