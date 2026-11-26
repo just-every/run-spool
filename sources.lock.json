@@ -2650,7 +2650,7 @@
       "executable": false
     },
     "AGENTS.md": {
-      "sha256": "3f0a2e876bfe7d663a34a47987467296b1ec75aa89fec3180c8ecd2b419ebbab",
+      "sha256": "f93eb016514ef94fc223bd8cb109e14ec143b8b47381ed3b3a2bbf87cf341fdb",
       "executable": false
     },
     "base-copies.json": {
@@ -3002,7 +3002,7 @@
       "executable": false
     },
     "docs/getting-started.md": {
-      "sha256": "bef887c1dc0d8143dfb8fae19bb0499c20baed120e2c3e81c0983ddf24917556",
+      "sha256": "0baf45dc56d572b57e7b62553a6f084ac03c86f9c904ae404290bdc2dc354c79",
       "executable": false
     },
     "docs/GITHUB-CONNECTION.md": {
@@ -3026,7 +3026,7 @@
       "executable": false
     },
     "docs/install.md": {
-      "sha256": "7ca6fd079ef260b031d939c7ac2565e5a7b31da003abe5ebf30ef16db695c331",
+      "sha256": "527ae582a9c1f766db76b68f1899abdf1cf91648b4f28533cce778f5d061d68a",
       "executable": false
     },
     "docs/INTEGRATION-EGRESS.md": {
@@ -4558,7 +4558,7 @@
       "executable": false
     },
     "README.md": {
-      "sha256": "fc5464e7f0cfee1e5ff471e67f06a1fcfd2fda2f38e4f7dd637986f51b236f20",
+      "sha256": "fc6304e1771321c4e82f01e29ea706a819f1e42bf8cdb9b75e53ddb03ae77229",
       "executable": false
     },
     "release-history/0.6.0.json": {
@@ -4598,7 +4598,7 @@
       "executable": false
     },
     "RELEASE.md": {
-      "sha256": "b0767c2f01c4baad54a9019ca32ec3a7a3ea1236909ba7a33380534dec70bb41",
+      "sha256": "33a2641693b2d34b9aa669712c3b6157ea5393259fe2a2df3715aa12527c3b11",
       "executable": false
     },
     "rer-project.json": {
