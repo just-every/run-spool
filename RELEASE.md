@@ -1,17 +1,14 @@
-# Spool 0.7.32
+# Spool 0.7.33
 
-Spool 0.7.32 reduces the work needed to download an archive, run the minute Cron and prepare a split proposal on Cloudflare Workers Free.
+Spool 0.7.33 runs the same code as 0.7.32. It was published again so new setups can get it from the catalogue.
 
 ### What changed
 
-- **Private archives download in pages.** Spool reads and sends a backup in smaller batches so it can finish on Workers Free. In a local benchmark, CPU dropped from about 1,609 ms to 7 ms per invocation, and D1 calls dropped from 232 to 9.
-- **The minute Cron checks what is due before doing the work.** One database query decides which tasks need to run. For the measured workload, the minute tick dropped from about 55 to 7 CPU ms and from 72 to 22 D1 calls, within the Workers Free limits.
-- **Split proposals reuse database reads.** Preparing a split dropped from 53 to 37 D1 calls, within the Workers Free limit. Warm runs stayed below 10 CPU ms in local measurements. The measured cold run took about 14 ms.
-- **Publishing a release starts the hosted demo deployment.** The demo workflow deploys the published tag so visitors can try the same version.
+- The once-a-minute alert check fits a Cloudflare Workers Free account in the measured workload. As in 0.7.32, a typical check took about 7 ms of CPU against a 10 ms limit.
 
 ### Updating
 
-If you are updating from 0.7.31, back up first. Download a private archive in Settings, or stop local dev and run `rer export --output exports/spool.jsonl`. On main, run `git pull --ff-only` and `rer dev --host localhost`. From a tagged checkout, use [GitHub Releases](https://github.com/just-every/run-spool/releases) to select the latest published stable tag. Fetch tags with `git fetch --tags`, check out the selected tag, then run `rer dev --host localhost`. For a hosted installation, follow the update steps in docs/HOSTED.md from the original deploying checkout. All 115 core SQL migrations are byte-identical to 0.7.31. There are no new migrations or breaking changes. Keep the existing database, private settings, project keys and deployment receipt. Import private archives only into an empty destination. Spool pins rer to 0.2.135. To turn hosted mail off, select `MAIL_PROVIDER=none`, leave sending credentials empty and remove any previously bound sending secrets as described in docs/HOSTED.md. Keep the original deployment credentials and ownership receipt for guarded `rer signin` access. The Spool SDK has its own release process.
+If you are updating from 0.7.32, back up first. Download a private archive in Settings, or stop local dev and run `rer export --output exports/spool.jsonl`. On main, run `git pull --ff-only` and `rer dev --host localhost`. From a tagged checkout, use [GitHub Releases](https://github.com/just-every/run-spool/releases) to select the latest published stable tag. Fetch tags with `git fetch --tags`, check out the selected tag, then run `rer dev --host localhost`. For a hosted installation, follow the update steps in docs/HOSTED.md from the original deploying checkout. All 115 core SQL migrations are byte-identical to 0.7.32. There are no new migrations or breaking changes. Keep the existing database, private settings, project keys and deployment receipt. Import private archives only into an empty destination. Spool pins rer to 0.2.135. To turn hosted mail off, select `MAIL_PROVIDER=none`, leave sending credentials empty and remove any previously bound sending secrets as described in docs/HOSTED.md. Keep the original deployment credentials and ownership receipt for guarded `rer signin` access. The Spool SDK has its own release process.
 
 ### Known limits
 
