@@ -14,21 +14,25 @@ routes.get('/:project/corrections',async c=>{const auth=await authorize(c);if('r
 export async function previewCorrection(db:D1Database,project:string,b:any,id:string=crypto.randomUUID()){
 
  if(!['split','merge'].includes(b.kind)||typeof b.source!=='string'||!Number.isSafeInteger(b.revision))throw new Error('Invalid correction');
- const source=await s(db,'SELECT * FROM issues WHERE project=? AND id=?',project,b.source).first<any>();
+ const split=b.kind==='split', selected=split?b.events:null;
+ const valid=Array.isArray(selected)&&selected.length>0&&selected.length<=200&&new Set(selected).size===selected.length&&selected.every((v:any)=>typeof v==='string');
+ const sourceQuery=s(db,'SELECT id,revision,count,algorithm FROM issues WHERE project=? AND id=?',project,b.source);
+ const splitRead=split&&valid?await db.batch<any>([
+  sourceQuery,
+  s(db,'SELECT id,occurrence,issue,historical FROM events WHERE project=? AND issue=? AND id IN (SELECT value FROM json_each(?)) ORDER BY id',project,b.source,JSON.stringify(selected)),
+ ]):undefined;
+ const source=splitRead?splitRead[0].results[0]:await sourceQuery.first<any>();
  if(!source)throw new Error('Issue not found');
  if(source.revision!==b.revision)throw new Error('Revision conflict');
  if(!['js-frame-v1','python-frame-v1','go-frame-v1','sentry-chain-v1'].includes(source.algorithm))throw new Error('Imported history cannot be regrouped with live capture');
- const fingerprint=b.kind==='split'?await hash('operator-split:'+id):null,target=b.kind==='split'?await hash(project+':'+fingerprint):b.target;
+ const fingerprint=split?await hash('operator-split:'+id):null,target=split?await hash(project+':'+fingerprint):b.target;
  if(typeof target!=='string'||target===source.id)throw new Error('Choose a different target');
- const destination=b.kind==='merge'?await s(db,'SELECT * FROM issues WHERE project=? AND id=?',project,target).first<any>():null;
- if(b.kind==='merge'&&(!destination||!['js-frame-v1','python-frame-v1','go-frame-v1','sentry-chain-v1'].includes(destination.algorithm)))throw new Error('Target must be a live capture issue in this project');
- if(b.kind==='merge'&&destination.revision!==b.targetRevision)throw new Error('Target revision conflict');
- const selected=b.kind==='split'?b.events:null;
- if(b.kind==='split'&&(!Array.isArray(selected)||!selected.length||selected.length>200||new Set(selected).size!==selected.length||selected.some((v:any)=>typeof v!=='string')))throw new Error('Select 1 to 200 distinct retained event IDs');
+ const destination=split?null:await s(db,'SELECT id,revision,count,algorithm FROM issues WHERE project=? AND id=?',project,target).first<any>();
+ if(!split&&(!destination||!['js-frame-v1','python-frame-v1','go-frame-v1','sentry-chain-v1'].includes(destination.algorithm)))throw new Error('Target must be a live capture issue in this project');
+ if(!split&&destination.revision!==b.targetRevision)throw new Error('Target revision conflict');
+ if(split&&!splitRead)throw new Error('Select 1 to 200 distinct retained event IDs');
  // A split can select a bounded subset even when its source has more than 200 events.
- const rows=(await (b.kind==='split'
-  ?s(db,'SELECT id,occurrence,issue,historical FROM events WHERE project=? AND issue=? AND id IN (SELECT value FROM json_each(?)) ORDER BY id',project,source.id,JSON.stringify(selected))
-  :s(db,'SELECT id,occurrence,issue,historical FROM events WHERE project=? AND issue=? ORDER BY id LIMIT 201',project,source.id)).all<any>()).results;
+ const rows=splitRead?splitRead[1].results:(await s(db,'SELECT id,occurrence,issue,historical FROM events WHERE project=? AND issue=? ORDER BY id LIMIT 201',project,source.id).all<any>()).results;
  if(!rows.length||rows.length>200||rows.some((e:any)=>e.historical)||selected&&rows.length!==selected.length)throw new Error('Correction requires 1 to 200 retained live occurrences');
  const moves=rows.map((e:any)=>({event:e.id,occurrence:e.occurrence,from:source.id,to:target}));
  const issues=[{id:source.id,revision:source.revision,count:source.count,after:source.count-moves.length},...(destination?[{id:destination.id,revision:destination.revision,count:destination.count,after:destination.count+moves.length}]:[])];

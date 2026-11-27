@@ -4,7 +4,7 @@ import type { Bindings } from '../../auth/bindings';
 import { ToolRefusal, type ToolContext,type UndoContext } from '../../modules/agent-door/index.ts';
 import { admitsAgentRequest,withAgentAuthority,withReviewerAuthority } from './native-authority';
 import { runAuditScope } from '../audit/context';
-import { auditActor, auditLabel, subjectBinding, projectAuditLabel } from '../audit/identity';
+import { auditLabelFromLookup, auditLabelStatements, subjectBinding } from '../audit/identity';
 import { classifyRequest } from '../audit/classify';
 import { issueProjection } from '../agent-projection';
 
@@ -84,11 +84,19 @@ export async function nativeCall(env: Bindings, route:string,method:string,args:
  const request=new Request(url,{method,headers:{'content-type':'application/json'},...method==='GET'?{}:{body:JSON.stringify(body)}});
  const operation={id:crypto.randomUUID(),tool,project:a.project??null,target:String(a.issue??a.id??a.name??a.project??'installation')};
  const door=classifyRequest(request);
- const actor=await auditActor(env.DB,{kind:ctx.agent?'agent':ctx.person.role==='owner'?'owner':'member',authority:ctx.agent?.id??ctx.person.id,owner:ctx.person.id,project:a.project});
- const subject=door?{kind:door.kind,label:await auditLabel(env.DB,subjectBinding(door.kind,door.project?JSON.stringify([door.project,door.subject]):door.subject,door.project))}: {kind:'project' as const,label:await auditLabel(env.DB,subjectBinding('project',String(a.project??'installation'),a.project))};
+ const actorKind=ctx.agent?'agent':ctx.person.role==='owner'?'owner':'member';
+ const subjectKind=door?.kind??'project';
+ const binding=door?subjectBinding(subjectKind,door.project?JSON.stringify([door.project,door.subject]):door.subject,door.project):subjectBinding(subjectKind,String(a.project??'installation'),a.project);
+ const labels=(await Promise.all([
+  auditLabelStatements(env.DB,{kind:actorKind,authority:ctx.agent?.id??ctx.person.id,owner:ctx.person.id,project:a.project}),
+  auditLabelStatements(env.DB,binding),
+ ])).flat();
  const nativeEnv=ctx.agent&&method!=='GET'&&['alert','followup','retention'].includes(route)?{...env,DB:standingDatabase(env.DB,route,a,ctx as ToolContext)}:env;
- const work=()=>runAuditScope({actor,action:door?.action??'private.action',subject,projectLabel:null},()=>Promise.resolve(api.fetch(request,nativeEnv)));
- const response=ctx.agent?await withAgentAuthority(request,env,ctx as ToolContext,operation,work):await withReviewerAuthority(request,env,ctx.person.id,work);
+ const work=async([,actorLookup,,subjectLookup]:D1Result[])=>runAuditScope({
+  actor:{kind:actorKind,label:auditLabelFromLookup(actorLookup)},action:door?.action??'private.action',
+  subject:{kind:subjectKind,label:auditLabelFromLookup(subjectLookup)},projectLabel:null,
+ },()=>Promise.resolve(api.fetch(request,nativeEnv)));
+ const response=ctx.agent?await withAgentAuthority(request,env,ctx as ToolContext,operation,work,labels):await withReviewerAuthority(request,env,ctx.person.id,work,labels);
  if(response.ok&&route==='issue-export'&&a.format==='csv')return {format:'csv',content:await response.text()};
  let value:any;try{value=await response.json();}catch{throw new ToolRefusal('native_unavailable');}
  if(!response.ok)throw new ToolRefusal([401,403,404].includes(response.status)?'not_found':response.status===409?'revision_conflict':'native_refused','Native action refused',{status:response.status,reason:typeof value?.error==='string'?value.error:undefined});

@@ -15,17 +15,25 @@ function liveBinding(binding: Binding) {
 }
 /** Only call with server-established authority; this function never authorizes. */
 export async function auditLabel(db: D1Database, binding: Binding, label = randomAuditLabel()): Promise<string> {
+ const [,lookup]=await db.batch(await auditLabelStatements(db,binding,label));
+ return auditLabelFromLookup(lookup);
+}
+
+export async function auditLabelStatements(db: D1Database, binding: Binding, label = randomAuditLabel()): Promise<[D1PreparedStatement,D1PreparedStatement]> {
  const [lookup,owner,project] = await Promise.all([
   authorityHash(binding.kind,binding.authority), binding.owner ? authorityHash('owner',binding.owner) : null,
   binding.project ? authorityHash('project',binding.project) : null,
  ]);
  const {predicate,params}=liveBinding(binding);
- const result=await db.batch([
+ return [
   db.prepare(`INSERT INTO audit_actor_links(kind,lookup_hash,label,owner_hash,project_hash,owner_id,project,created) SELECT ?,?,?,?,?,?,?,? WHERE ${predicate} ON CONFLICT(kind,lookup_hash) DO NOTHING`)
    .bind(binding.kind,lookup,label,owner,project,binding.owner??null,binding.project??null,Date.now(),...params),
   db.prepare(`SELECT label FROM audit_actor_links WHERE kind=? AND lookup_hash=? AND ${predicate}`).bind(binding.kind,lookup,...params),
- ]);
- const row=result[1].results[0] as {label:string}|undefined;
+ ];
+}
+
+export function auditLabelFromLookup(result: D1Result): string {
+ const row=result.results[0] as {label:string}|undefined;
  // Erased or nonexistent authority has no durable mapping. The observation
  // may still be retained under a fresh, intentionally unbound alias.
  return row?.label??randomAuditLabel();

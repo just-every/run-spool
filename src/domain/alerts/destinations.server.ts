@@ -1,4 +1,4 @@
-import { findTarget,targetChoices,type TargetDestination } from './targets';
+import { targetChoices,type TargetDestination } from './targets';
 import { savedSlack } from './slack-destinations.server';
 import { localDevelopmentEnabled } from '../../auth/local.server.mjs';
 import { productionMailConfig } from '../../auth/mail.server.mjs';
@@ -24,13 +24,37 @@ export function destinations(env:AlertEnvironment):Destination[] {
   }return rows;
  }catch{throw new Error('destination_configuration')}
 }
+function configuredDestination(env:AlertEnvironment,project:string,id:string,channel:string) {
+ const found=destinations(env).find(d=>d.id===id&&d.project===project&&d.channel===channel);
+ if(!found)throw new Error('destination_unconfigured');
+ return found;
+}
+
+type MailDestinationLookup = {
+ target_label:string|null; targetType:TargetDestination['targetType']; target:string|null; fallthrough:TargetDestination['fallthrough'];
+ label:string; recipient:string|null;
+};
+
+async function findMailDestination(env:AlertEnvironment,project:string,id:string,rule?:Pick<Intent,'rule_id'|'rule_revision'>):Promise<Destination> {
+ const row=await s(env.DB,`SELECT t.label target_label,t.target_type targetType,t.target,t.fallthrough,d.label,d.recipient
+  FROM (SELECT ? project,? destination) scope
+  LEFT JOIN alert_target_destinations t ON t.project=scope.project AND t.id=scope.destination
+  LEFT JOIN alert_destinations d ON d.project=scope.project AND d.id=scope.destination
+  ${rule?'WHERE EXISTS(SELECT 1 FROM alert_rules r WHERE r.project=scope.project AND r.id=? AND r.revision=? AND r.enabled=1 AND r.channel=\'mail\' AND r.destination=scope.destination)':''}`,
+  project,id,...(rule?[rule.rule_id,rule.rule_revision]:[])).first<MailDestinationLookup>();
+ if(!row)throw new Error('rule_revoked');
+ if(row.target_label!==null)return {id,project,label:row.target_label,channel:'mail',kind:'target',targetType:row.targetType,target:row.target,fallthrough:row.fallthrough,editable:true};
+ if(row.recipient!==null)return {id,project,label:row.label,recipient:row.recipient,channel:'mail',editable:true};
+ return configuredDestination(env,project,id,'mail');
+}
+
 export async function findDestination(env:AlertEnvironment,project:string,id:string,channel:string) {
- const target=channel==='mail'?await findTarget(env,project,id):null;if(target)return target;
- const slack=channel==='webhook'?await savedSlack(env,project,id):null;if(slack)return slack;
- const saved=channel==='mail'?await s(env.DB,'SELECT id,project,label,recipient FROM alert_destinations WHERE project=? AND id=?',project,id).first<any>():null;
- const found=saved?{...saved,channel:'mail' as const,editable:true}:destinations(env).find(d=>d.id===id&&d.project===project&&d.channel===channel);if(!found)throw new Error('destination_unconfigured');return found;
+ if(channel==='mail')return findMailDestination(env,project,id);
+ const slack=channel==='webhook'?await savedSlack(env,project,id):null;
+ return slack??configuredDestination(env,project,id,channel);
 }
 export async function authorizedDestination(env:AlertEnvironment,intent:Intent) {
+ if(intent.channel==='mail')return findMailDestination(env,intent.project,intent.destination,intent);
  const allowed=await s(env.DB,'SELECT 1 FROM alert_rules WHERE project=? AND id=? AND revision=? AND enabled=1 AND channel=? AND destination=?',intent.project,intent.rule_id,intent.rule_revision,intent.channel,intent.destination).first();
  if(!allowed)throw new Error('rule_revoked');return findDestination(env,intent.project,intent.destination,intent.channel);
 }

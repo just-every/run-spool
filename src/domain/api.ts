@@ -1,3 +1,4 @@
+import { browserArchive } from './archive-pages';
 import { recentCapture } from './capture-sources';
 import { canManageProjectKey } from './project-key-authority';
 import { keyRateRoutes } from './key-rate-limits/routes';
@@ -274,6 +275,14 @@ api.get('/api/projects/:project/issues/:issue/packet',async c=>{
   return packet===null?c.json({error:'Issue not found'},404):c.body(packet,200,{'Content-Type':'application/json; charset=UTF-8'});
 });
 api.get('/api/archive',async c=>{
+ if (c.req.header(archiveProgressHeader) === '2') {
+  const session = c.get('session');
+  if (!session || session.kind === 'agent' || session.kind === 'reviewer') return c.json({error:'Sign in required'},401);
+  const response = await browserArchive(c.env.DB, session, c.req.raw, new URL(c.req.url).searchParams);
+  response.headers.set(archiveProgressHeader, '2');
+  response.headers.set('Cache-Control', 'no-store');
+  return response;
+ }
  const { signal } = c.req.raw;
  const db = c.env.DB, scope = currentAuditScope();
  const progress = c.req.header(archiveProgressHeader) === '1';

@@ -1,23 +1,8 @@
 import { useEffect, useRef, useState } from 'react';
-import { archiveProgressByte, archiveProgressHeader } from '../../domain/archive-progress';
-import { ownerFetch } from './client';
+import { exportArchive } from './exportArchive';
 import { download, type Run } from './shared';
 
 const ARCHIVE_IDLE_MS = 60_000;
-
-function archiveText(response: Response, onChunk: () => void) {
-  let firstChunk = true;
-  const stream = response.body?.pipeThrough(new TransformStream<Uint8Array, Uint8Array>({
-    transform(chunk, output) {
-      const bytes = firstChunk && chunk[0] === archiveProgressByte ? chunk.subarray(1) : chunk;
-      firstChunk = false;
-      if (!bytes.byteLength) return;
-      onChunk();
-      output.enqueue(bytes);
-    },
-  }));
-  return new Response(stream).text();
-}
 
 type DownloadState = { phase: 'idle' | 'preparing' | 'receiving' } |
   { phase: 'complete' | 'canceled' | 'failed'; message: string };
@@ -44,25 +29,17 @@ export function DownloadBackup({ busy, run, label = 'Download private archive' }
       const timeout = new DOMException('Archive download timed out', 'TimeoutError');
       let timer: number | undefined;
       function waitForProgress() {
-        // Large installations can take longer to prepare than a pause in the transfer.
         window.clearTimeout(timer);
         timer = window.setTimeout(() => request.abort(timeout), ARCHIVE_IDLE_MS);
       }
 
       try {
-        const response = await ownerFetch('/api/archive', { signal: request.signal, headers: { [archiveProgressHeader]: '1' } });
-        request.signal.throwIfAborted();
-        if (!response.ok) {
-          await response.body?.cancel();
-          throw new Error('Archive response failed');
-        }
-
-        const text = await archiveText(response, () => {
-          if (timer === undefined) setState({ phase: 'receiving' });
+        let receiving = false;
+        const { manifest, text } = await exportArchive(request.signal, () => {
+          if (!receiving) { receiving = true; setState({ phase: 'receiving' }); }
           waitForProgress();
         });
         request.signal.throwIfAborted();
-        const manifest = JSON.parse(text.split('\n', 1)[0]);
         const projects = manifest.tables.find((table: { name: string }) => table.name === 'projects')?.count;
         const day = new Date(manifest.exportedAt).toISOString().slice(0, 10);
         const name = `spool-private-archive-${day}.jsonl`;

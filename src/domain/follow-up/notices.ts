@@ -20,19 +20,21 @@ export async function queueNotices(env:Environment,time:number) {
  // another notice. Changing the alternate cannot recurse through its failures.
  // Both reads cover every open item, so they run when attention or its routing changed.
  await whenChanged(env.DB,'follow_up_notices',time,async()=>{
- await s(env.DB,`INSERT INTO follow_up_notices(id,attention,project,destination,channel,next_at,body)
+ await env.DB.batch([
+  s(env.DB,`INSERT INTO follow_up_notices(id,attention,project,destination,channel,next_at,body)
   SELECT lower(hex(randomblob(16))),a.id,a.project,c.destination,c.channel,?,
    json_object('schema','spool.follow_up.v1','attentionId',a.id,'source',a.source,'reason',a.reason,'due',a.due)
   FROM follow_up_attention a JOIN follow_up_settings c ON c.project=a.project
   WHERE c.destination IS NOT NULL AND NOT EXISTS(SELECT 1 FROM spool_follow_up_alternates m WHERE m.project=a.project)
    AND a.historical=0 AND a.state NOT IN ('completed','canceled') AND a.source_id NOT LIKE 'team-mail:%' AND a.source_id NOT LIKE 'alternate:%'
-  ON CONFLICT(attention,destination,channel) DO NOTHING`,time).run();
- await s(env.DB,`INSERT INTO follow_up_notices(id,attention,project,destination,channel,next_at,body)
+  ON CONFLICT(attention,destination,channel) DO NOTHING`,time),
+  s(env.DB,`INSERT INTO follow_up_notices(id,attention,project,destination,channel,next_at,body)
   SELECT lower(hex(randomblob(16))),a.id,a.project,'member:'||m.member,'mail',?,
    json_object('schema','spool.follow_up.v1','attentionId',a.id,'source',a.source,'reason',a.reason,'due',a.due)
   FROM follow_up_attention a JOIN spool_follow_up_alternates m ON m.project=a.project
   WHERE a.historical=0 AND a.state NOT IN ('completed','canceled') AND a.source_id NOT LIKE 'team-mail:%' AND a.source_id NOT LIKE 'alternate:%'
-  ON CONFLICT(attention,destination,channel) DO NOTHING`,time).run();
+  ON CONFLICT(attention,destination,channel) DO NOTHING`,time),
+ ]);
  });
 }
 

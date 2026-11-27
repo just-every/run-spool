@@ -28,7 +28,7 @@ import { runAlerts } from './domain/alerts/dispatch';
 import { queueDigests } from './domain/alerts/digests';
 import { scheduledMail } from './domain/alerts/scheduled-mail';
 import { scanFollowUp, closeFollowUp } from './domain/follow-up/scan';
-import { scheduledDue } from './domain/scheduled/due';
+import { scheduledDue, scheduledFollowUp } from './domain/scheduled/due';
 import { queueNotices, dispatchNotices } from './domain/follow-up/notices';
 import { staticAssetResponse } from './base/static-assets';
 import { admitted, setupStateResponse } from './base/setup-state';
@@ -37,6 +37,7 @@ import { localOwnerLobby } from './auth/local-owner-lobby.server';
 import { identity } from './identity';
 import { docsResponse, isDocsRequest } from './ui/docs/document.server';
 import { continueErasures } from './domain/erasure/service';
+import { expireBrowserArchives } from './domain/archive-pages';
 import { ownerErasureResponse } from './domain/erasure/owner-routes';
 import { AuthError } from './modules/operator-auth/index.mjs';
 import type { AlertEnvironment } from './domain/alerts/types';
@@ -44,36 +45,37 @@ import { importDoorResponse, openDoorAtClaim } from './domain/sentry-import/door
 import { cutoverStatusPath, rerCutoverStatus } from './domain/rer-cutover-status.server';
 export async function scheduled(event: ScheduledController, bindings: Bindings & AlertEnvironment, _execution: ExecutionContext) {
  const env = runtimeBindings(bindings) as Bindings & AlertEnvironment;
- // One read decides the minute (domain/scheduled/due.ts). With nothing due, only the rare periodic steps that are
- // due run; otherwise the whole pass runs in order, so one step's output reaches the next in the same minute.
- const due = await scheduledDue(env.DB, event.scheduledTime);
- if (!due.work) {
-  if (due.retention) await scheduledRetention(env.DB, event.scheduledTime, env);
-  if (due.close) await closeFollowUp(env, event.scheduledTime);
-  // A queued digest or notice is sent in the same minute, as the whole pass would.
-  if (due.digests) { await queueDigests(env, event.scheduledTime); await scheduledMail(env, event.scheduledTime); }
-  if (due.notices) { await queueNotices(env, event.scheduledTime); await dispatchNotices(env, event.scheduledTime); }
-  return;
- }
+ const time = event.scheduledTime;
+ const due = await scheduledDue(env.DB, time);
+ let alertsChanged = false;
  // Accepted erasure jobs continue here after the client disconnects, even when
  // an earlier scheduled step fails.
  try {
   try {
-   await deploymentTimeouts(env,event.scheduledTime);
-   await runAlerts(env,event.scheduledTime);
-   await expireReplayCalls({options:{db:env.DB},now:()=>event.scheduledTime});
+   if (due.deployments) await deploymentTimeouts(env,time);
+   alertsChanged = true; // A failed dispatcher may already have committed work.
+   alertsChanged = await runAlerts(env,time,due);
+   if (due.replay) await expireReplayCalls({options:{db:env.DB},now:()=>time});
   } finally {
    // A broken dispatcher must not prevent independent operator follow-up.
-   await scheduledRetention(env.DB,event.scheduledTime,env);
-   await scheduleSuppression(env,event.scheduledTime);
-   await scanFollowUp(env,event.scheduledTime);
-   await queueDigests(env,event.scheduledTime);
-   await scheduledMail(env,event.scheduledTime);
-   await queueNotices(env,event.scheduledTime);
-   await dispatchNotices(env,event.scheduledTime);
+   if (due.retention) await scheduledRetention(env.DB,time,env);
+   if (due.suppression) await scheduleSuppression(env,time);
+   const followUp = due.deployments || alertsChanged || due.retention || due.suppression
+    ? await scheduledFollowUp(env.DB,time) : due;
+   if (followUp.followUp) await scanFollowUp(env,time);
+   else if (followUp.close) await closeFollowUp(env,time);
+   if (due.digests) await queueDigests(env,time);
+   if (due.scheduledMail || due.digests || due.snoozes) await scheduledMail(env,time);
+   const queueFollowUp = followUp.notices || followUp.followUp;
+   if (queueFollowUp) await queueNotices(env,time);
+   if (due.sendNotices || queueFollowUp) await dispatchNotices(env,time);
   }
  } finally {
-  await continueErasures(env.DB, Date.now() + 20_000,env.SESSION_SECRET,(id,principal,key)=>spoolAgentDoor(env).invoke('spool.privacy.continue',{id,idempotency_key:key},principal));
+  try {
+   if (due.browserArchives) await expireBrowserArchives(env.DB,time);
+  } finally {
+   if (due.erasure) await continueErasures(env.DB, Date.now() + 20_000,env.SESSION_SECRET,(id,principal,key)=>spoolAgentDoor(env).invoke('spool.privacy.continue',{id,idempotency_key:key},principal));
+  }
  }
 }
 // A refusal raised while reading the session (a foreign Host, for one) answers as

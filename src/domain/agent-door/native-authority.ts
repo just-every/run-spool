@@ -1,4 +1,4 @@
-import type { Operator } from '../../modules/operator-auth/index.mjs';
+import { AuthError, type Operator } from '../../modules/operator-auth/index.mjs';
 import type { ToolContext } from '../../modules/agent-door/index.ts';
 import { ownerSession, ownerWrite } from '../../auth/session.server';
 import type { Bindings } from '../../auth/bindings';
@@ -20,26 +20,31 @@ const actors = new WeakMap<Request, AgentAuthority>();
 export const agentAuthority = (request: Request) => actors.get(request);
 const operatorById = (db: D1Database, id: string) => db.prepare('SELECT id,email,display_name AS displayName,role,status,version,created_at AS createdAt FROM oa_operators WHERE id=?').bind(id);
 
-async function permitsProjectGrant(request: Request, env: Bindings, ctx: ToolContext) {
- const id = localCredentialId(ctx.clientId);
- if (!id) return true;
- const grant = await env.DB.prepare(`SELECT project FROM credentials WHERE hash=? AND kind='agent' AND revoked IS NULL AND ${mintedByCurrentPerson}`).bind(id).first<{project:string}>();
- return !!grant && agentReadPath(request,grant.project);
+async function admittedOperator<T>(request: Request, db: D1Database, operator: D1PreparedStatement, clientId?: string): Promise<T | null> {
+ const id = localCredentialId(clientId);
+ if (!id) return operator.first<T>();
+ const [operators,grants] = await db.batch([
+  operator,
+  db.prepare(`SELECT project FROM credentials WHERE hash=? AND kind='agent' AND revoked IS NULL AND ${mintedByCurrentPerson}`).bind(id),
+ ]);
+ const grant = grants.results[0] as {project:string} | undefined;
+ return grant && agentReadPath(request,grant.project) ? (operators.results[0] as T | undefined) ?? null : null;
 }
 
 /** A policy classification or replay checks current native access without
  * creating a write authority or loading the policy snapshot used by its fence. */
 export async function admitsAgentRequest(request: Request, env: Bindings, ctx: ToolContext) {
- const operator = await operatorById(env.DB,ctx.person.id).first<Operator>();
- if (operator?.status !== 'active' || !await permitsProjectGrant(request,env,ctx)) return false;
+ const operator = await admittedOperator<Operator>(request,env.DB,operatorById(env.DB,ctx.person.id),ctx.clientId);
+ if (operator?.status !== 'active') return false;
  return operator.role === 'owner' || !!await resolveMembership(request,env,{operator});
 }
 
 export async function withAgentAuthority<T>(request: Request, env: Bindings, ctx: ToolContext,
- operation: AgentAuthority['operation'], run: () => Promise<T>): Promise<T> {
- const [operators,policies] = await env.DB.batch([
+ operation: AgentAuthority['operation'], run: (results:D1Result[]) => Promise<T>, auditLabels: D1PreparedStatement[] = []): Promise<T> {
+ const [operators,policies,...results] = await env.DB.batch([
   operatorById(env.DB,ctx.person.id),
   env.DB.prepare('SELECT envelope,local_revision FROM agent_door_state WHERE id=1'),
+  ...auditLabels,
  ]);
  const operator = operators.results[0] as Operator|undefined;
  if (!operator || operator.status !== 'active') throw new Error('native_sponsor_unavailable');
@@ -47,17 +52,21 @@ export async function withAgentAuthority<T>(request: Request, env: Bindings, ctx
  // Read-only classification also runs before the first policy is adopted.
  // The write guard still requires an actual current policy row.
  actors.set(request, {kind:'agent',operator,context:ctx,operation,policy:policy??{envelope:null,local_revision:0}});
- try { return await run(); } finally { actors.delete(request); }
+ try { return await run(results); } finally { actors.delete(request); }
 }
 
-export async function requestAuthority(request: Request, env: Bindings, resolver = resolveMembership): Promise<NativeAuthority | null> {
+export async function requestAuthority(request: Request, env: Bindings, resolver = resolveMembership, nativeProject?: string): Promise<NativeAuthority | null> {
  const actor = actors.get(request)??reviewers.get(request);
  if (!actor) return ownerSession(request,env,resolver);
  // Re-read on every native admission; a saved role is never authority.
- const current = await env.DB.prepare('SELECT status,version FROM oa_operators WHERE id=?').bind(actor.operator.id).first<{status:string;version:number}>();
+ const operator = nativeProject===undefined
+  ? env.DB.prepare('SELECT status,version FROM oa_operators WHERE id=?').bind(actor.operator.id)
+  : env.DB.prepare('SELECT status,version,EXISTS(SELECT 1 FROM projects WHERE id=?) projectExists FROM oa_operators WHERE id=?').bind(nativeProject,actor.operator.id);
+ const current = await admittedOperator<{status:string;version:number;projectExists?:number}>(request,env.DB,operator,actor.kind==='agent'?actor.context.clientId:undefined);
  if (current?.status !== 'active' || current.version !== actor.operator.version) return null;
- if (actor.kind==='agent'&&!await permitsProjectGrant(request,env,actor.context)) return null;
- return actor.operator.role === 'owner' ? actor : resolver(request,env,actor);
+ if(actor.operator.role!=='owner')return resolver(request,env,actor);
+ if(current.projectExists===0)throw new AuthError('Project not found',404);
+ return actor;
 }
 export const nativeWrite = (request: Request, env: Bindings) => actors.has(request) || reviewers.has(request) || ownerWrite(request,env);
 
@@ -96,10 +105,11 @@ export function nativeAttribution(db: D1Database, actor: AgentAuthority) {
 export interface ReviewerAuthority {kind:'reviewer';operator:Operator;membership?:Membership}
 const reviewers=new WeakMap<Request,ReviewerAuthority>();
 export const reviewerAuthority=(request:Request)=>reviewers.get(request);
-export async function withReviewerAuthority<T>(request:Request,env:Bindings,personId:string,run:()=>Promise<T>):Promise<T>{
- const operator=await env.DB.prepare('SELECT id,email,display_name AS displayName,role,status,version,created_at AS createdAt FROM oa_operators WHERE id=?').bind(personId).first<Operator>();
+export async function withReviewerAuthority<T>(request:Request,env:Bindings,personId:string,run:(results:D1Result[])=>Promise<T>,auditLabels:D1PreparedStatement[]):Promise<T>{
+ const [operators,...results]=await env.DB.batch([operatorById(env.DB,personId),...auditLabels]);
+ const operator=operators.results[0] as Operator|undefined;
  if(!operator||operator.status!=='active')throw new Error('native_reviewer_unavailable');
- reviewers.set(request,{kind:'reviewer',operator});try{return await run();}finally{reviewers.delete(request);}
+ reviewers.set(request,{kind:'reviewer',operator});try{return await run(results);}finally{reviewers.delete(request);}
 }
 export function reviewerGuard(db:D1Database,actor:ReviewerAuthority){
  const m=actor.membership;

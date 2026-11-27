@@ -73,7 +73,7 @@ async function proveRecovery(page, archive, url) {
 
 export async function downloadBrowserArchive(page, origin, { exerciseRecovery = false } = {}) {
   const archive = page.getByRole('heading', { name: 'Archive and restore', exact: true }).locator('..');
-  if (exerciseRecovery) await proveRecovery(page, archive, `${origin}/api/archive`);
+  if (exerciseRecovery) await proveRecovery(page, archive, `${origin}/api/archive?archive=start`);
   const downloading = page.waitForEvent('download');
   await archive.getByRole('button', { name: exerciseRecovery ? 'Retry archive download' : 'Download private archive', exact: true }).click();
   const download = await downloading;

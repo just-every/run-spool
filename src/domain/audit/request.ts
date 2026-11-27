@@ -5,7 +5,7 @@ import { hash } from '../privacy';
 import { archiveProgressHeader } from '../archive-progress';
 import { mintAdmission } from '../dev-credentials';
 import { mintedByCurrentPerson } from '../credential-fence';
-import { auditActor, auditLabel, boundAuditLabel, projectAuditLabel, randomAuditLabel, serviceActor, subjectBinding, unidentifiedActor } from './identity';
+import { auditActor, auditLabel, auditLabelFromLookup, auditLabelStatements, boundAuditLabel, projectAuditLabel, randomAuditLabel, serviceActor, subjectBinding, unidentifiedActor } from './identity';
 import { currentAuditScope, runAuditScope, type AuditScope } from './context';
 import { classifyRequest } from './classify';
 import { recordAudit, responseOutcome, unverified } from './record';
@@ -20,12 +20,13 @@ export async function requestActor(request: Request, bindings: Bindings): Promis
  const bearer=/^Bearer ([^\s]+)$/i.exec(request.headers.get('authorization')??'')?.[1];
  if(session&&!request.headers.has('authorization'))return auditActor(env.DB,{kind:session.operator.role==='owner'?'owner':'member',authority:session.operator.id});
  if(!bearer)return unidentifiedActor();
- const digest=await hash(bearer);
- const grant=await env.DB.prepare(`SELECT kind,project,minted_by FROM credentials WHERE hash=? AND revoked IS NULL AND ${mintedByCurrentPerson} AND ${await mintAdmission(request)}`)
-  .bind(digest).first<{kind:'agent'|'deploy'|'ingest';project:string;minted_by:string|null}>();
+ const [digest,admission]=await Promise.all([hash(bearer),mintAdmission(request)]);
+ const grant=await env.DB.prepare(`SELECT credentials.kind,credentials.project,credentials.minted_by,link.service
+  FROM credentials LEFT JOIN spool_service_credentials link ON link.hash=credentials.hash
+  WHERE credentials.hash=? AND credentials.revoked IS NULL AND ${mintedByCurrentPerson} AND ${admission}`)
+  .bind(digest).first<{kind:'agent'|'deploy'|'ingest';project:string;minted_by:string|null;service:string|null}>();
  if(!grant)return unidentifiedActor();
- const service=await env.DB.prepare('SELECT service FROM spool_service_credentials WHERE hash=?').bind(digest).first<{service:string}>();
- return auditActor(env.DB,{kind:service?'service':grant.kind,authority:service?.service??digest,owner:grant.minted_by,project:grant.project});
+ return auditActor(env.DB,{kind:grant.service===null?grant.kind:'service',authority:grant.service??digest,owner:grant.minted_by,project:grant.project});
 }
 
 /** A page that keeps itself current re-reads quietly: its first, foreground read is the recorded one. Signed-in people only; a credential's reads are always recorded. */
@@ -54,14 +55,30 @@ async function admittedActor(request: Request, env: Bindings, door: AuditScope, 
  */
 export async function wrapRequest(request: Request, env: Bindings, next: () => Promise<Response>): Promise<Response> {
  const door=classifyRequest(request); if(!door)return next();
+ // The bounded reads belong to one export. Record refusals and leave its
+ // successful page transfers to the initial and terminal audit facts.
+ const archivePage=door.action==='archive.export'&&request.headers.get(archiveProgressHeader)==='2'&&
+  ['capture','schema','rows'].includes(new URL(request.url).searchParams.get('archive')??'');
+ const page=archivePage?await next():undefined;
+ if(page?.ok)return page;
  const actor=await requestActor(request,env);
  // A request no session or credential admitted only reads the alias of the object it names;
  // the binding waits for its handler to admit it, so refused guesses leave no durable mapping.
  const binding=subjectBinding(door.kind,door.project?JSON.stringify([door.project,door.subject]):door.subject,door.project);
- const [bound,projectLabel]=await Promise.all([
-  unverified(actor)?boundAuditLabel(env.DB,binding):auditLabel(env.DB,binding),
-  door.project?projectAuditLabel(env.DB,door.project):null,
- ]);
+ let bound:string|undefined, projectLabel:string|null;
+ if(!unverified(actor)&&door.project){
+  const aliases=await Promise.all([
+   auditLabelStatements(env.DB,binding),
+   auditLabelStatements(env.DB,subjectBinding('project',door.project,door.project)),
+  ]);
+  const [,subjectLookup,,projectLookup]=await env.DB.batch(aliases.flat());
+  bound=auditLabelFromLookup(subjectLookup);projectLabel=auditLabelFromLookup(projectLookup);
+ } else {
+  [bound,projectLabel]=await Promise.all([
+   unverified(actor)?boundAuditLabel(env.DB,binding):auditLabel(env.DB,binding),
+   door.project?projectAuditLabel(env.DB,door.project):null,
+  ]);
+ }
  const subject={kind:door.kind,label:bound??randomAuditLabel()};
  let scope: AuditScope={actor,action:door.action,subject,projectLabel};
  const observe=async(status:number)=>{
@@ -69,7 +86,7 @@ export async function wrapRequest(request: Request, env: Bindings, next: () => P
   await recordAudit(env.DB,fact);
  };
  let response: Response;
- try { response=await runAuditScope(scope,async()=>{const result=await next();scope=currentAuditScope();return result;}); }
+ try { response=await runAuditScope(scope,async()=>{const result=page??await next();scope=currentAuditScope();return result;}); }
  catch(error) {
   await observe(error instanceof AuthError?error.status:503);
   throw error;
@@ -77,7 +94,7 @@ export async function wrapRequest(request: Request, env: Bindings, next: () => P
  scope={...scope,actor:await admittedActor(request,env,scope,response)};
  if(bound===undefined&&response.status<400)await auditLabel(env.DB,binding,subject.label);
  // A progressive archive reports its real outcome from the stream.
- if(door.action==='archive.export'&&response.headers.get(archiveProgressHeader)==='1')return response;
+ if(door.action==='archive.export'&&['1','2'].includes(response.headers.get(archiveProgressHeader)??''))return response;
  // Ordinary successful reads do not swamp the action chronology. Named evidence/export
  // reads and every denied read remain observable.
  if(!(door.action==='private.action'&&['GET','HEAD'].includes(request.method)&&response.status<400)&&!(door.action==='grouping.proposals'&&response.status<400&&quietRead(request,scope.actor)))await observe(response.status);

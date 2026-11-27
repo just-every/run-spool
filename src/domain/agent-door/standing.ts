@@ -46,11 +46,11 @@ async function job(env:Environment,kind:Kind,id:string) {
   kind==='alert-webhook'?`SELECT d.id,i.project,d.attempts,i.rule_id config_id,r.revision FROM integration_deliveries d JOIN alert_intents i ON d.id=i.id AND d.namespace='spool.'||i.project JOIN alert_rules r ON r.id=i.rule_id AND r.project=i.project AND r.revision=i.rule_revision AND r.enabled=1 WHERE d.id=?`:
   kind==='followup'?`SELECT n.id,n.project,n.attempts,c.project config_id,c.revision FROM follow_up_notices n JOIN follow_up_settings c ON c.project=n.project AND c.destination=n.destination AND c.channel=n.channel WHERE n.id=? AND NOT EXISTS(SELECT 1 FROM spool_follow_up_alternates a WHERE a.project=n.project)`:
   `SELECT r.project id,r.project,r.generation item,r.project config_id,p.revision FROM retention_runs r JOIN retention_policies p ON p.project=r.project WHERE r.project=? AND r.status='running' AND p.held=0`;
- const row=await env.DB.prepare(sql).bind(id).first<any>();if(!row)return null;
  const configKind=kind.startsWith('alert-')?'alert':kind;
- const saved=await env.DB.prepare('SELECT principal FROM spool_agent_custody WHERE kind=? AND id=? AND project=?').bind(configKind,row.config_id,row.project).first<{principal:string}>();
+ const saved=await env.DB.prepare(`SELECT j.*,c.principal FROM (${sql}) j
+  JOIN spool_agent_custody c ON c.kind=? AND c.id=j.config_id AND c.project=j.project`).bind(id,configKind).first<any>();
  if(!saved)return null;
- const principal=JSON.parse(saved.principal);
+ const {principal:value,...row}=saved,principal=JSON.parse(value);
  if(principal.revision!==row.revision)return null;
  return {...row,principal};
 }

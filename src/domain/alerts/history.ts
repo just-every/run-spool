@@ -1,7 +1,7 @@
 import { statement as s,type AlertEnvironment } from './types';
 
-export async function synchronizeHistory(env:AlertEnvironment,time:number) {
- if(!await s(env.DB,'SELECT 1 FROM alert_history_dirty LIMIT 1').first())return;
+export async function synchronizeHistory(env:AlertEnvironment,time:number,hasWork=false) {
+ if(!hasWork&&!await s(env.DB,'SELECT 1 FROM alert_history_dirty LIMIT 1').first())return;
  // Clearing markers and publishing the projection share a transaction. A
  // competing claim either contributes here or leaves a marker for the next run.
  await env.DB.batch([
