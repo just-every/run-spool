@@ -17,3 +17,11 @@ export const statement = (db:D1Database, sql:string, ...args:(string|number|null
 export const namespace = (project:string) => `spool.${project}`;
 export const configSql="COALESCE((SELECT config FROM alert_rule_configs cfg WHERE cfg.rule_id=r.id),'{\"metric\":\"count\",\"filters\":{},\"tagKeys\":[]}')";
 export const holdable=`(i.expanded=0 AND i.state IN ('pending','blocked') OR EXISTS(SELECT 1 FROM alert_mail_jobs j WHERE j.id=i.id AND j.state='queued') OR EXISTS(SELECT 1 FROM integration_deliveries d WHERE d.namespace='spool.'||i.project AND d.id=i.id AND d.state='queued'))`;
+
+export type QueuedAlertMail = Pick<Intent, 'id' | 'project' | 'rule_id' | 'rule_revision' | 'destination' | 'channel'> & {
+ message: string; destination_hash: string; attempts: number; max_attempts: number; retry_delays: string; standing: number;
+};
+export type ScheduledAlertWork = {
+ spikes(time: number, lastRule: string): Promise<boolean>;
+ deliverMail(job: QueuedAlertMail, time: number, started: number): Promise<void>;
+};

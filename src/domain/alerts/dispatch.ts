@@ -2,12 +2,12 @@ import { destinations, findDestination } from './destinations.server';
 import { holdAlerts, expireSnoozes } from './snoozes';
 import { webhookService } from './webhook.server';
 export { webhookService } from './webhook.server';
-import { dispatchMail, expandMail, recoverMail } from './mail';
+import { dispatchMail, dispatchScheduledMail, expandMail, recoverMail } from './mail';
 import { synchronizeHistory } from './history';
 import { alertBody } from '../stored-text';
 import type { ScheduledDue } from '../scheduled/due';
 import { namespace, statement as s } from './types';
-import type { AlertEnvironment, Intent } from './types';
+import type { AlertEnvironment, Intent, ScheduledAlertWork } from './types';
 // Expansion is idempotent: mail jobs and webhook deliveries are keyed by the intent id, and every send first takes a
 // durable claim, so the scheduled run and the dispatch after ingest can both reach the same intent without a second send.
 async function expandIntent(env:AlertEnvironment,service:()=>ReturnType<typeof webhookService>,intent:Intent,time:number) {
@@ -69,13 +69,13 @@ export async function dispatchAdmitted(env:AlertEnvironment,alertId:string) {
  await synchronizeHistory(env,now());
 }
 
-export async function runAlerts(env:AlertEnvironment,scheduledTime:number,due:ScheduledDue) {
+export async function runAlerts(env:AlertEnvironment,scheduledTime:number,due:ScheduledDue,work:ScheduledAlertWork) {
  const started=Date.now(),now=()=>Math.max(Date.now(),scheduledTime+Date.now()-started);
  if(due.recoverMail)await recoverMail(env,now());
  if(due.snoozes)await expireSnoozes(env,scheduledTime);
  if(due.providerEvents)await (await import('./provider-events.server')).projectProviderEvents(env);
  if(due.importedRules)await (await import('./import-waiting')).activateImportedAlerts(env.DB,scheduledTime);
- const spikesChanged=due.spikes&&await (await import('./spikes')).evaluateSpikes(env,scheduledTime,due.last_spike_rule);
+ const spikesChanged=due.spikes&&await work.spikes(scheduledTime,due.last_spike_rule);
  if(due.transactions)await s(env.DB,'DELETE FROM sentry_transactions WHERE received<?',Math.floor(scheduledTime/60000)*60000-30*86400000).run();
  // A newly activated metric has no state and is evaluated in this minute.
  const metricsChanged=(due.metrics||due.importedRules)&&await (await import('./metrics')).evaluateMetrics(env,scheduledTime);
@@ -114,7 +114,7 @@ export async function runAlerts(env:AlertEnvironment,scheduledTime:number,due:Sc
   if(webhooks.length)deliveryChanged=true;
   await s(env.DB,"INSERT INTO alert_scheduler(id,last_project) VALUES(1,?) ON CONFLICT(id) DO UPDATE SET last_project=excluded.last_project",project).run();
  }
- if(due.mail||expandedMail)await dispatchMail(env,now(),undefined,undefined,true);
+ if(due.mail||expandedMail)await dispatchScheduledMail(env,now(),work);
  const changed=!!(due.history||due.recoverMail||due.providerEvents||due.hold||due.mail||deliveryChanged||newAlerts);
  if(changed)await synchronizeHistory(env,now(),true);
  return changed;

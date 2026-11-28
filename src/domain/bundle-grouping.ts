@@ -42,7 +42,8 @@ export async function captureGrouping(db:D1Database,project:string,event:Envelop
   event=unshifted;
   raw=grouping(event);
  }
- const normalized=bundleBasis(event);
+ const file=event.frames[0]!.file,bundled=bundleFile(file);
+ const normalized=bundled===file?raw.basis:basisWithFile(event,bundled);
  if(normalized===raw.basis)return {...raw,fingerprint:await hash(raw.basis),route:null};
  const key=await hash(normalized);
  let route=await db.prepare('SELECT * FROM grouping_routes WHERE project=? AND fingerprint=?').bind(project,key).first<GroupingRoute>();

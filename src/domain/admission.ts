@@ -65,8 +65,9 @@ function sentryTrimming(db:D1Database,project:string,event:Envelope){
  return [...(frames?[outcomeStatement(db,project,'sentry_trimmed_frames',frames)]:[]),...(values?[outcomeStatement(db,project,'sentry_trimmed_values',values)]:[])];
 }
 /** The sole native/Sentry admission transaction. Import history never calls this. */
-export async function admitEvent(c:any,scope:IngestScope,input:Envelope,digest:string,sentryIntake=false,identity?:PreparedIdentity,preScrubbed?:{jobs:D1PreparedStatement[]}):Promise<Response>{
-  let event=normalize(input);const {project}=scope,db=c.env.DB;
+export async function admitEvent(c:any,scope:IngestScope,input:Envelope,digest:string,sentryIntake=false,identity?:PreparedIdentity,preScrubbed?:{jobs:D1PreparedStatement[];clean?:(text:string)=>string}):Promise<Response>{
+  const clean=preScrubbed?.clean??scrub;
+  let event=normalize(input,clean);const {project}=scope,db=c.env.DB;
   const record=(reason:string)=>recordIngest(c,scope,reason);
   const duplicate=async(row:any)=>{await record(row.digest===digest?'duplicate':'conflict');return c.json({outcome:row.digest===digest?'duplicate':'conflict',issue:row.issue},row.digest===digest?200:409)};
   try{
@@ -88,13 +89,13 @@ export async function admitEvent(c:any,scope:IngestScope,input:Envelope,digest:s
     const count=await stmt(db,"SELECT COALESCE((SELECT n FROM spool_capacity_counts WHERE project=? AND kind='events'),0) total",project).first<any>();
     if(count.total>=10000){await record('budget');c.header('Retry-After','60');return c.json({outcome:'dropped',reason:'retained_event_budget',retryAfter:60},429)}
     const groupingPolicy=await readGroupingPolicy(db,project);
-    event=normalize(event.sentry?{...event,grouping:undefined,sentry:{...event.sentry,grouping:groupingPolicy.revision?groupingPolicy:undefined}}:{...event,grouping:groupingPolicy.revision?groupingPolicy:undefined});
+    event=normalize(event.sentry?{...event,grouping:undefined,sentry:{...event.sentry,grouping:groupingPolicy.revision?groupingPolicy:undefined}}:{...event,grouping:groupingPolicy.revision?groupingPolicy:undefined},clean);
     const {algorithm,basis,fingerprint,route}=await captureGrouping(db,project,event),issue=await hash(project+':'+fingerprint);
     const diagnosis=JSON.stringify(await diagnose(db,project,event)),time=Date.now(),originGuard=scope.foreign?crypto.randomUUID():null,alertId=crypto.randomUUID(),occurrence=crypto.randomUUID();
     const {statements:alertStatements,routing}=admissionAlerts(db,{alertId,project,issue,eventId:event.eventId,occurrence,release:event.release,build:event.build,sequence:0,time,origin:c.env.ALERT_PUBLIC_ORIGIN??c.env.AUTH_ORIGIN});
     const jobs=[spendKeyEvent(db,project,scope.keyHash),...privacy.jobs,...prepared.jobs!,groupingPolicyFence(db,project,groupingPolicy.revision),
       ...(originGuard?[stmt(db,'INSERT INTO browser_origin_guards VALUES(?,?,?)',originGuard,project,scope.foreign)]:[]),
-      stmt(db,"INSERT INTO issues(id,project,fingerprint,algorithm,title,state,revision,count,first_seen,last_seen) VALUES(?,?,?,?,?,'open',0,0,?,?) ON CONFLICT(id) DO NOTHING",issue,project,fingerprint,algorithm,scrub(event.type+': '+event.message),time,time),
+      stmt(db,"INSERT INTO issues(id,project,fingerprint,algorithm,title,state,revision,count,first_seen,last_seen) VALUES(?,?,?,?,?,'open',0,0,?,?) ON CONFLICT(id) DO NOTHING",issue,project,fingerprint,algorithm,clean(event.type+': '+event.message),time,time),
       ...assignShortId(db,project,issue,time),
       ...(route?[
        stmt(db,'INSERT INTO grouping_routes VALUES(?,?,?,?) ON CONFLICT(project,fingerprint) DO NOTHING',project,route.fingerprint,issue,basis),

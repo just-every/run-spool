@@ -22,7 +22,7 @@ export async function alertRuntime(receiver,{state,mail='development',egress=tru
  // so withdrawal checks start with actual nonempty copies; development mail stays suppressed.
  // Only this test host can replace the transport. The exact HTTPS identity still
  // passes unchanged through Base prepare/validation/fingerprint/signing.
- await writeFile(wrapper,`import application from ${JSON.stringify(worker.modules[0].path)};
+ await writeFile(wrapper,`import application from ${JSON.stringify(worker.modules[0].path)};export * from ${JSON.stringify(worker.modules[0].path)};
  // Optional fixture clock applies inside the Worker as well as the test host, but only after owner sign-in:
  // the session must be minted on the real clock because every owner write checks it against real database time.
  ${now===undefined?'':`const NativeDate=Date;let frozen;globalThis.Date=class extends NativeDate{constructor(...args){super(...(args.length?args:[frozen??NativeDate.now()]))}static now(){return frozen??NativeDate.now()}};`}

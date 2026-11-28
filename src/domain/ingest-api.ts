@@ -47,7 +47,17 @@ ingestRoutes.post('/api/ingest/:project',async c=>{
       return ingestRejection(c,c.json({outcome:'rejected',reason:parsed.rejected===408?'body_timeout':parsed.rejected===413?'body_limit':'Body exceeds limit'},parsed.rejected as ContentfulStatusCode));
     }
     const privacy=await prepareScrubbing(c.env.DB,auth.scope.project,parsed.value);
-    return admitEvent(c,auth.scope,normalize(privacy.document),await hash(canonical(parsed.value)),false,undefined,privacy);
+    // Normalization is repeated around release and grouping policy. Cache
+    // identical strings in this capture so every pass uses the same scrubber.
+    const scrubbed = new Map<string,string>();
+    const clean = (text:string) => {
+     const prior=scrubbed.get(text);
+     if(prior!==undefined)return prior;
+     const value=scrub(text);
+     scrubbed.set(text,value);
+     return value;
+    };
+    return admitEvent(c,auth.scope,normalize(privacy.document,clean),await hash(canonical(parsed.value)),false,undefined,{...privacy,clean});
   }catch(error){try{await recordIngest(c,auth.scope,'invalid')}catch(failure){return ingestFailure(c,auth.scope,failure)}return ingestRejection(c,c.json({outcome:'rejected',reason:scrub((error as Error).message)},400))}
 });
 

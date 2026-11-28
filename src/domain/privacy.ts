@@ -29,7 +29,7 @@ export function sdkSessionReference(value:unknown):string|undefined {
 }
 const clientPattern = /^[A-Za-z0-9_-]{16,64}$/;
 export function client(value: unknown): string { if (typeof value !== 'string' || !clientPattern.test(value)) throw new Error('Invalid client'); return value; }
-export function normalize(v: any): Envelope {
+export function normalize(v: any, clean = scrub): Envelope {
   if (!v || (v.language !== undefined && !['javascript','python','go'].includes(v.language))) throw new Error('Unsupported language');
   const language = v.language === 'javascript' ? undefined : v.language;
   const nativeJava = ['java','android'].includes(v.sentry?.platform);
@@ -49,11 +49,11 @@ export function normalize(v: any): Envelope {
   if (Object.keys(v).some(k => !allowed.has(k))) throw new Error('Unsupported envelope field');
   if (v.dropped !== undefined && (!Number.isSafeInteger(v.dropped) || v.dropped < 1 || v.dropped > 1e9)) throw new Error('Invalid dropped count');
   if ((v.breadcrumbs ?? []).length > 20 || (v.breadcrumbs ?? []).some((b:any)=>typeof b!=='string')) throw new Error('Invalid breadcrumbs');
-  return { version: 1, ...(language ? {language} : {}), eventId: identity(v.eventId,'eventId'),release:v.sentry?(v.release===''?'':releaseIdentity(v.release)):identity(v.release,'release'),build:v.sentry&&v.sentry.dist===undefined&&v.build===absentDist?absentDist:identity(v.build,'build'),environment:identity(v.environment,'environment'),type:v.sentry ? (typeof v.type==='string'?scrub(v.type):'Error') : language==='go' ? goType(v.type) : identity(v.type,'type'),message:scrub(v.message),frames:v.frames.map((f:any)=>{
+  return { version: 1, ...(language ? {language} : {}), eventId: identity(v.eventId,'eventId'),release:v.sentry?(v.release===''?'':releaseIdentity(v.release)):identity(v.release,'release'),build:v.sentry&&v.sentry.dist===undefined&&v.build===absentDist?absentDist:identity(v.build,'build'),environment:identity(v.environment,'environment'),type:v.sentry ? (typeof v.type==='string'?clean(v.type):'Error') : language==='go' ? goType(v.type) : identity(v.type,'type'),message:clean(v.message),frames:v.frames.map((f:any)=>{
     if (!f || typeof f.file!=='string' || typeof f.function!=='string' || !Number.isSafeInteger(f.line) || f.line<1 || f.line>1e7 || (!((language || nativeJava) && (f.column === undefined || f.column === null)) && (!Number.isSafeInteger(f.column) || f.column<0 || f.column>1e7)) || Object.keys(f).some(k=>!['file','line','column','function','debugId'].includes(k))) throw new Error('Invalid frame');
     const path=framePath(f.file,language);
-    return {file:path,line:f.line,column:f.column ?? null,function:scrub(language==='go'?goFunction(f.function):f.function),...(f.debugId ? {debugId:identity(f.debugId,'debugId')} : {})};
-  }),breadcrumbs:(v.breadcrumbs??[]).map(scrub),...(v.dropped !== undefined ? { dropped: v.dropped } : {}),...(v.client !== undefined ? { client: client(v.client) } : {}),...(v.exceptionSource !== undefined ? {exceptionSource:v.exceptionSource} : {}),...(v.grouping !== undefined ? {grouping:validateGroupingSnapshot(v.grouping)} : {}),...(v.sdkSession !== undefined ? {sdkSession:sdkSessionReference(v.sdkSession)} : {}),...(v.sentry !== undefined ? {sentry:sanitizeSentry(v.sentry)} : {})};
+    return {file:path,line:f.line,column:f.column ?? null,function:clean(language==='go'?goFunction(f.function):f.function),...(f.debugId ? {debugId:identity(f.debugId,'debugId')} : {})};
+  }),breadcrumbs:(v.breadcrumbs??[]).map(clean),...(v.dropped !== undefined ? { dropped: v.dropped } : {}),...(v.client !== undefined ? { client: client(v.client) } : {}),...(v.exceptionSource !== undefined ? {exceptionSource:v.exceptionSource} : {}),...(v.grouping !== undefined ? {grouping:validateGroupingSnapshot(v.grouping)} : {}),...(v.sdkSession !== undefined ? {sdkSession:sdkSessionReference(v.sdkSession)} : {}),...(v.sentry !== undefined ? {sentry:sanitizeSentry(v.sentry)} : {})};
 }
 export async function hash(value: string): Promise<string> { return [...new Uint8Array(await crypto.subtle.digest('SHA-256',new TextEncoder().encode(value)))].map(v=>v.toString(16).padStart(2,'0')).join('') }
 export function token(): string { return [...crypto.getRandomValues(new Uint8Array(32))].map(v=>v.toString(16).padStart(2,'0')).join('') }

@@ -53,7 +53,7 @@ export async function findDestination(env:AlertEnvironment,project:string,id:str
  const slack=channel==='webhook'?await savedSlack(env,project,id):null;
  return slack??configuredDestination(env,project,id,channel);
 }
-export async function authorizedDestination(env:AlertEnvironment,intent:Intent) {
+export async function authorizedDestination(env:AlertEnvironment,intent:Pick<Intent,'project'|'destination'|'channel'|'rule_id'|'rule_revision'>) {
  if(intent.channel==='mail')return findMailDestination(env,intent.project,intent.destination,intent);
  const allowed=await s(env.DB,'SELECT 1 FROM alert_rules WHERE project=? AND id=? AND revision=? AND enabled=1 AND channel=? AND destination=?',intent.project,intent.rule_id,intent.rule_revision,intent.channel,intent.destination).first();
  if(!allowed)throw new Error('rule_revoked');return findDestination(env,intent.project,intent.destination,intent.channel);

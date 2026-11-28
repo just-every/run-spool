@@ -16,7 +16,7 @@ export async function executionRuntime(state,port,extra={}){
  const {worker,database}=await emittedWorkerOptions(resolve('dist/server/wrangler.json'),miniflare);
  await mkdir(state,{recursive:true});
  const entry=resolve(state,'execution-entry.mjs');
- await writeFile(entry,`import application from ${JSON.stringify(worker.modules[0].path)};export default {fetch(request,env,ctx){if(new URL(request.url).pathname==='/__fixture/schedule')return request.json().then(async body=>{await application.scheduled({scheduledTime:body.time,cron:'* * * * *'},env,ctx);return Response.json({})});return application.fetch(request,env,ctx)}};`);
+ await writeFile(entry,`import application from ${JSON.stringify(worker.modules[0].path)};export * from ${JSON.stringify(worker.modules[0].path)};export default {fetch(request,env,ctx){if(new URL(request.url).pathname==='/__fixture/schedule')return request.json().then(async body=>{await application.scheduled({scheduledTime:body.time,cron:'* * * * *'},env,ctx);return Response.json({})});return application.fetch(request,env,ctx)}};`);
  const runtime=new Miniflare(convertV4MiniflareOptions({...worker,modules:[{type:'ESModule',path:entry},...worker.modules],modulesRoot:'/',bindings:{...worker.bindings,...authBindings(origin),...extra},resourcePersistencePath:state,host:'127.0.0.1',port}));
  try{
   await runtime.ready;const db=await runtime.getD1Database(database.binding);registerLegacyMail(origin,db);

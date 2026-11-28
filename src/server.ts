@@ -6,6 +6,8 @@ import { AuthError } from './modules/operator-auth/errors.mjs';
 import type { AlertEnvironment } from './domain/alerts/types';
 import { ingestApi, isNativeIngest } from './domain/ingest-api';
 
+export { SpoolAlertWork } from './server-alert-work';
+
 export async function scheduled(event: ScheduledController, bindings: Bindings & AlertEnvironment, execution: ExecutionContext) {
  const scheduler = await import('./server-scheduled');
  return scheduler.scheduled(event, bindings, execution);

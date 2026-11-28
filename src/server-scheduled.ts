@@ -1,5 +1,6 @@
 import { scheduledDue, scheduledFollowUp } from './domain/scheduled/due';
 import { runtimeBindings, type Bindings } from './auth/bindings';
+import { demoAlertWork } from './server-alert-work';
 import type { AlertEnvironment } from './domain/alerts/types';
 
 const alertStages = [
@@ -7,7 +8,7 @@ const alertStages = [
  'metrics', 'hold', 'expand', 'webhooks', 'mail', 'history',
 ] as const;
 
-export async function scheduled(event: ScheduledController, bindings: Bindings & AlertEnvironment, _execution: ExecutionContext) {
+export async function scheduled(event: ScheduledController, bindings: Bindings & AlertEnvironment, execution: ExecutionContext) {
  const env = runtimeBindings(bindings) as Bindings & AlertEnvironment;
  const time = event.scheduledTime;
  const due = await scheduledDue(env.DB, time);
@@ -19,7 +20,8 @@ export async function scheduled(event: ScheduledController, bindings: Bindings &
    if (due.deployments) await (await import('./domain/deployments/timeouts')).deploymentTimeouts(env,time);
    if (alertStages.some(stage => due[stage])) {
     alertsChanged = true; // A failed dispatcher may already have committed work.
-    alertsChanged = await (await import('./domain/alerts/dispatch')).runAlerts(env,time,due);
+    const alertWork = env.RER_DEMO==='1' ? demoAlertWork(env) : execution.exports.SpoolAlertWork;
+    alertsChanged = await (await import('./domain/alerts/dispatch')).runAlerts(env,time,due,alertWork);
    }
    if (due.replay) await (await import('./modules/agent-door/erasure')).expireReplayCalls({options:{db:env.DB},now:()=>time});
   } finally {

@@ -7,10 +7,13 @@ export function validateReleasePolicy(v:any):ReleasePolicy{
  if(!v||Object.keys(v).sort().join()!=='order,pattern,version'||v.version!==1||!['sentry','first_seen','semver','registered'].includes(v.order)||typeof v.pattern!=='string'||!v.pattern||v.pattern.length>200||/[\u0000-\u001f\u007f]/.test(v.pattern)||scrub(v.pattern)!==v.pattern)throw new Error('Expected release ordering rule and sanitized automatic-release pattern (at most 200 characters)');
  return {version:1,order:v.order,pattern:v.pattern};
 }
+export async function releasePolicySnapshot(db:D1Database,project:string){
+ const row=await db.prepare('SELECT revision,policy FROM release_policies WHERE project=?').bind(project).first<{revision:number;policy:string}>();
+ return row?{revision:row.revision,policy:validateReleasePolicy(JSON.parse(row.policy))}:{revision:0,policy:defaultReleasePolicy()};
+}
 export async function readReleasePolicy(db:D1Database,project:string){
  await ensureReleaseOrderKeys(db,project);
- const row=await db.prepare('SELECT revision,policy FROM release_policies WHERE project=?').bind(project).first<any>();
- return row?{revision:row.revision,policy:validateReleasePolicy(JSON.parse(row.policy))}:{revision:0,policy:defaultReleasePolicy()};
+ return releasePolicySnapshot(db,project);
 }
 export const autoReleaseAllowed=(name:string,policy:ReleasePolicy)=>wildcardMatch(name,policy.pattern);
 export async function releaseOrderRanks(db:D1Database,project:string){

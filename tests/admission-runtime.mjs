@@ -34,7 +34,7 @@ export async function admissionRuntime(extra = {}, {port, deferClaimMigration = 
  const mailBindings=hostedMail?{AUTH_ORIGIN:trustedOrigin,AUTH_LOCAL:'false',MAIL_PROVIDER:mailProvider,MAIL_API_KEY:mailProvider==='none'?'':'synthetic-provider-key',...(mailProvider==='none'?{MAIL_FROM:''}:{})}:{};
  if(hostedMail){
   const entry=resolve(temporary,'hosted-mail.mjs');hostedEntry=entry;
-  await writeFile(entry,`import application from ${JSON.stringify(emitted.modules[1].path)};
+  await writeFile(entry,`import application from ${JSON.stringify(emitted.modules[1].path)};export * from ${JSON.stringify(emitted.modules[1].path)};
 export default {...application,async scheduled(event,env,ctx){try{return await application.scheduled(event,env,ctx)}catch(error){console.error('Scheduled fixture failure: '+(error?.stack??error)+'; cause='+(error?.cause?.message??'none'));throw error}},async fetch(request,env,ctx){if(new URL(request.url).pathname==='/__fixture/schedule'){const {time}=await request.json();await application.scheduled({scheduledTime:time,cron:'* * * * *'},env,ctx);return Response.json({});}const url=new URL(request.url),headers=new Headers(request.headers);if(headers.get('origin')===url.origin)headers.set('origin',${JSON.stringify(trustedOrigin)});headers.set('host','spool.example');return application.fetch(new Request(${JSON.stringify(trustedOrigin)}+url.pathname+url.search,{method:request.method,headers,body:request.body,redirect:'manual'}),env,ctx)}};`);
   hostedSource=await readFile(entry,'utf8');
   emitted.modules.unshift({type:'ESModule',path:entry});

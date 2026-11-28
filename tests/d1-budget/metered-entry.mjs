@@ -1,6 +1,6 @@
 // The real local Worker entry (the deployed Worker plus local sign-in) with its D1 binding metered:
 // every statement adds D1's own meta.rows_read. GET /__d1_meter answers the reads since the last reset.
-import app from '../../src/server.dev.ts';
+import app, { SpoolAlertWork as AlertWork } from '../../src/server.dev.ts';
 
 let rows = 0, unmetered = 0;
 const count = meta => { if (Number.isSafeInteger(meta?.rows_read)) rows += meta.rows_read; else unmetered++; };
@@ -23,6 +23,10 @@ const metered = db => new Proxy(db, { get(target, key) {
  const value = Reflect.get(target, key, target);
  return typeof value === 'function' ? value.bind(target) : value;
 } });
+
+export class SpoolAlertWork extends AlertWork {
+ constructor(ctx, env) { super(ctx, { ...env, DB: metered(env.DB) }); }
+}
 
 export default {
  async scheduled(event, env, context) { return app.scheduled(event, { ...env, DB: metered(env.DB) }, context); },
