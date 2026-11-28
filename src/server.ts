@@ -1,4 +1,5 @@
 import { wrapRequest } from './domain/audit/request';
+import { currentAuditScope } from './domain/audit/context';
 import { withDemo } from './modules/demo/index.mjs';
 import { privateRuntimePath } from './auth/private-runtime.server';
 import { runtimeBindings, type Bindings } from './auth/bindings';
@@ -7,6 +8,7 @@ import type { AlertEnvironment } from './domain/alerts/types';
 import { ingestApi, isNativeIngest } from './domain/ingest-api';
 
 export { SpoolAlertWork } from './server-alert-work';
+export { SpoolCapture } from './server-capture';
 
 export async function scheduled(event: ScheduledController, bindings: Bindings & AlertEnvironment, execution: ExecutionContext) {
  const scheduler = await import('./server-scheduled');
@@ -26,7 +28,11 @@ export default withDemo({
   return wrapRequest(request, env, async () => {
    if (privateRuntimePath(request.url)) return new Response('Not found', { status: 404 });
    const path = new URL(request.url).pathname;
-   if (isNativeIngest(request.method, path)) return ingestApi.fetch(request, env, execution);
+   if (isNativeIngest(request.method, path)) {
+    // The local key gate and demo database belong to the request that opened them.
+    if (env.AUTH_LOCAL==='true' || env.RER_DEMO==='1') return ingestApi.fetch(request, env, execution);
+    return execution.exports.SpoolCapture({props:{audit:currentAuditScope()}}).fetch(request);
+   }
    const { handle } = await import('./server-application');
    return handle(request, env, execution, path);
   }).catch(refused);

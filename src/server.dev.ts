@@ -2,7 +2,7 @@
 // src/server.ts, and `rer build` refuses any output that contains the dev layer. It adds dev
 // sign-in, personas and the Dev product label.
 import worker from './server';
-export { SpoolAlertWork } from './server';
+export { SpoolAlertWork, SpoolCapture } from './server';
 import { managedInstallation } from './modules/operator-auth/dev/index.mjs';
 import { withDevIdentity } from './auth/local-identity.server.mjs';
 import { devGate } from './modules/operator-auth/dev-gate.mjs';
