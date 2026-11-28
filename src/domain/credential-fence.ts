@@ -11,6 +11,12 @@ export function credentialDigest(request: Request, bearer: string): Promise<stri
  return digest;
 }
 
+// A token's kind is fixed when it is minted. Admission still reads its live
+// project, revocation and minting authority before accepting anything.
+const nonAgentCaptures = new WeakSet<Request>();
+export const noteNonAgentCapture = (request:Request) => nonAgentCaptures.add(request);
+export const isNonAgentCapture = (request:Request) => nonAgentCaptures.has(request);
+
 // Agent and deploy keys belong to the person whose session minted them. They count only while that
 // person is active at the identity fence (oa_operators.version) recorded at minting: a fence from the
 // linked Auth install or a suspension moves the version, so they never count again, and nothing comes

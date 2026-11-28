@@ -3,15 +3,17 @@ import { AuthError } from '../../modules/operator-auth/errors.mjs';
 import { requireOrigin } from '../../modules/operator-auth/http.mjs';
 import { archiveProgressHeader } from '../archive-progress';
 import { mintAdmission } from '../dev-credentials';
-import { credentialDigest, mintedByCurrentPerson } from '../credential-fence';
+import { credentialDigest, mintedByCurrentPerson, noteNonAgentCapture } from '../credential-fence';
 import { auditActor, auditLabel, auditLabelFromLookup, auditLabelStatements, boundAuditLabel, projectAuditLabel, randomAuditLabel, serviceActor, subjectBinding, unidentifiedActor } from './identity';
 import { currentAuditScope, runAuditScope, type AuditScope } from './context';
 import { classifyRequest } from './classify';
 import { recordAudit, responseOutcome, unverified } from './record';
 import type { AuditActor, AuditFact } from './types';
 
-/** Attribution follows existing auth admission, never supplies authority. */
-export async function requestActor(request: Request, bindings: Bindings, nativeCapture = false): Promise<AuditActor> {
+type RequestIdentity = Parameters<typeof auditActor>[1];
+
+/** Attribution follows existing auth admission. The handler checks the live grant. */
+async function requestIdentity(request: Request, bindings: Bindings, nativeCapture = false): Promise<RequestIdentity | null> {
  const env=runtimeBindings(bindings);
  const bearer=/^Bearer ([^\s]+)$/i.exec(request.headers.get('authorization')??'')?.[1];
  let session;
@@ -24,16 +26,22 @@ export async function requestActor(request: Request, bindings: Bindings, nativeC
    const {operatorAuth}=await import('../../auth/session.server');
    session=await operatorAuth(env).getSession(request);
   }
- } catch (error) { if(error instanceof AuthError)return unidentifiedActor();throw error; }
- if(session&&!request.headers.has('authorization'))return auditActor(env.DB,{kind:session.operator.role==='owner'?'owner':'member',authority:session.operator.id});
- if(!bearer)return unidentifiedActor();
+ } catch (error) { if(error instanceof AuthError)return null;throw error; }
+ if(session&&!request.headers.has('authorization'))return {kind:session.operator.role==='owner'?'owner':'member',authority:session.operator.id,owner:session.operator.id};
+ if(!bearer)return null;
  const [digest,admission]=await Promise.all([credentialDigest(request,bearer),mintAdmission(request)]);
  const grant=await env.DB.prepare(`SELECT credentials.kind,credentials.project,credentials.minted_by,link.service
   FROM credentials LEFT JOIN spool_service_credentials link ON link.hash=credentials.hash
   WHERE credentials.hash=? AND credentials.revoked IS NULL AND ${mintedByCurrentPerson} AND ${admission}`)
   .bind(digest).first<{kind:'agent'|'deploy'|'ingest';project:string;minted_by:string|null;service:string|null}>();
- if(!grant)return unidentifiedActor();
- return auditActor(env.DB,{kind:grant.service===null?grant.kind:'service',authority:grant.service??digest,owner:grant.minted_by,project:grant.project});
+ if(!grant)return null;
+ if(nativeCapture&&grant.kind!=='agent')noteNonAgentCapture(request);
+ return {kind:grant.service===null?grant.kind:'service',authority:grant.service??digest,owner:grant.minted_by,project:grant.project};
+}
+
+export async function requestActor(request: Request, env: Bindings): Promise<AuditActor> {
+ const identity=await requestIdentity(request,env);
+ return identity?auditActor(env.DB,identity):unidentifiedActor();
 }
 
 /** A page that keeps itself current re-reads quietly: its first, foreground read is the recorded one. Signed-in people only; a credential's reads are always recorded. */
@@ -68,19 +76,22 @@ export async function wrapRequest(request: Request, env: Bindings, next: () => P
   ['capture','schema','rows'].includes(new URL(request.url).searchParams.get('archive')??'');
  const page=archivePage?await next():undefined;
  if(page?.ok)return page;
- const actor=await requestActor(request,env,door.action==='capture.native'||door.action==='capture.exposure');
+ const identity=await requestIdentity(request,env,door.action==='capture.native'||door.action==='capture.exposure');
  // A request no session or credential admitted only reads the alias of the object it names;
  // the binding waits for its handler to admit it, so refused guesses leave no durable mapping.
  const binding=subjectBinding(door.kind,door.project?JSON.stringify([door.project,door.subject]):door.subject,door.project);
- let bound:string|undefined, projectLabel:string|null;
- if(!unverified(actor)&&door.project){
+ let actor:AuditActor, bound:string|undefined, projectLabel:string|null;
+ if(identity&&door.project){
   const aliases=await Promise.all([
+   auditLabelStatements(env.DB,identity),
    auditLabelStatements(env.DB,binding),
    auditLabelStatements(env.DB,subjectBinding('project',door.project,door.project)),
   ]);
-  const [,subjectLookup,,projectLookup]=await env.DB.batch(aliases.flat());
+  const [,actorLookup,,subjectLookup,,projectLookup]=await env.DB.batch(aliases.flat());
+  actor={kind:identity.kind,label:auditLabelFromLookup(actorLookup)};
   bound=auditLabelFromLookup(subjectLookup);projectLabel=auditLabelFromLookup(projectLookup);
  } else {
+  actor=identity?await auditActor(env.DB,identity):unidentifiedActor();
   [bound,projectLabel]=await Promise.all([
    unverified(actor)?boundAuditLabel(env.DB,binding):auditLabel(env.DB,binding),
    door.project?projectAuditLabel(env.DB,door.project):null,

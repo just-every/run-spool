@@ -1,6 +1,6 @@
 import { agentAuthority,localCredentialId } from './agent-door/context';
 import { mintAdmission } from './dev-credentials';
-import { credentialDigest, mintedByCurrentPerson } from './credential-fence';
+import { credentialDigest, isNonAgentCapture, mintedByCurrentPerson } from './credential-fence';
 
 type Grant = {project:string; mintedBy:string|null};
 const currentAgent = `hash=? AND kind='agent' AND revoked IS NULL AND ${mintedByCurrentPerson}`;
@@ -8,7 +8,7 @@ const currentAgent = `hash=? AND kind='agent' AND revoked IS NULL AND ${mintedBy
 /** Only a current, admitted bearer whose minting person is unfenced counts; query parameters are never credentials. */
 export async function agentProject(request: Request, db: D1Database): Promise<string | null> {
  const native=agentAuthority(request),clientId=localCredentialId(native?.context.clientId);
- if(!clientId)return (await bearerAgentGrant(request,db))?.project??null;
+ if(!clientId)return isNonAgentCapture(request)?null:(await bearerAgentGrant(request,db))?.project??null;
  const project=agentPathProject(request);
  if(project===null)return null;
  const grant=await db.prepare(`UPDATE credentials SET last_used=? WHERE ${currentAgent} AND project=? RETURNING project`)

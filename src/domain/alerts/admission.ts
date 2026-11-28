@@ -51,9 +51,7 @@ export function routeStatements(db:D1Database,alertId:string,time:number,onlyRul
  s(db,`INSERT INTO alert_history(id,project,alert_id,rule_id,rule_revision,channel,destination,state,created,updated)
  SELECT id,project,alert_id,rule_id,rule_revision,channel,destination,state,created,? FROM alert_intents WHERE alert_id=? ON CONFLICT(id) DO NOTHING`,time,alertId)];
 }
-export function admissionAlerts(db:D1Database,input:{alertId:string;project:string;issue:string;eventId:string;occurrence:string;release:string;build:string;sequence:number;time:number;origin?:string}) {
- const {alertId:id,project,issue,eventId,occurrence,release,build,time}=input;
- const alert=s(db,`WITH candidate AS (
+const admitAlertSql = `WITH candidate AS (
   SELECT i.project,i.id,i.title,i.state,i.latest_release_seq,i.resolved_seq,EXISTS(SELECT 1 FROM alert_reactivation_markers m WHERE m.project=i.project AND m.issue=i.id) reactivated,${primaryShortIdSql('i')} short_id,${commitResolutionSql('i')} resolution,
    (SELECT release_seq FROM events incoming WHERE incoming.project=i.project AND incoming.id=? AND incoming.occurrence=?) current_sequence,
    EXISTS(SELECT 1 FROM events incoming WHERE incoming.project=i.project AND incoming.id=? AND incoming.occurrence=? AND ${regressionSql()}) regresses,
@@ -68,7 +66,11 @@ export function admissionAlerts(db:D1Database,input:{alertId:string;project:stri
   json_object('schema','spool.alert.v1','alertId',?,'kind',CASE WHEN first_capture THEN 'new_issue' WHEN reactivated THEN 'reactivation' ELSE 'regression' END,
    'projectId',project,'issueId',id,'occurredAt',?,'title',title,'release',json_object('name',?,'build',?,'sequence',current_sequence),'issueUrl',?,'shortId',short_id,'resolution',json(resolution),'trigger',json_object('event',?,'occurrence',?))
  FROM candidate WHERE current_unsuppressed=1 AND state<>'suppressed'
-  AND (first_capture=1 OR reactivated=1 OR (state='resolved' AND regresses=1))`,
+  AND (first_capture=1 OR reactivated=1 OR (state='resolved' AND regresses=1))`;
+
+export function admissionAlerts(db:D1Database,input:{alertId:string;project:string;issue:string;eventId:string;occurrence:string;release:string;build:string;sequence:number;time:number;origin?:string}) {
+ const {alertId:id,project,issue,eventId,occurrence,release,build,time}=input;
+ const alert=s(db,admitAlertSql,
  eventId,occurrence,eventId,occurrence,eventId,occurrence,eventId,occurrence,eventId,occurrence,issue,project,id,time,id,new Date(time).toISOString(),release,build,issueLink(publicOrigin(input.origin),project,issue),eventId,occurrence);
  const route=routeStatements(db,id,time,undefined,{eventId,occurrence});
  return {routing:route[0],statements:[alert,...route,

@@ -3,7 +3,7 @@ import {prepareScrubbing} from './scrubbing/model';
 import { spendKeyEvent, keyLimitedResponse } from './key-rate-limits/model';
 import {eventIdentityStatements,type PreparedIdentity} from './identities/intake';
 import { auditedBatch } from './audit/context';
-import { prepareRelease } from './releases/admission';
+import { releasePolicyFence } from './releases/policy';
 import { regressionSql,newerReleaseSql } from './releases/order';
 import { groupingPolicyFence } from './grouping/policy';
 import { inboundPolicyFence } from './filters/policy';
@@ -13,7 +13,7 @@ import { inboundDomainFences, type DomainDecision } from './filters/domains';
 import type { InboundPolicy } from './filters/types';
 import { policyMatch, matchArgs } from './suppression/policy-match';
 import { normalize, scrub, type Envelope } from './privacy';
-import { captureEvidence, type CaptureEvidence } from './capture-evidence';
+import { prepareCapture, type CapturePlan } from './capture-evidence';
 import type { AlertEnvironment } from './alerts/types';
 import { ingestOrigin } from './origins';
 import { admissionAlerts, receivedAtSql } from './alerts/admission';
@@ -21,6 +21,9 @@ import { startCaptureHistory, rememberUnsuppressedCapture } from './alerts/captu
 import { mintAdmission } from './dev-credentials';
 import { credentialDigest, mintedByCurrentPerson } from './credential-fence';
 import { assignShortId } from './short-ids/assign';
+const observeReleaseSql = `UPDATE issue_resolutions SET observed_seq=(SELECT CASE WHEN ${newerReleaseSql('issue_resolutions.project','incoming','issue_resolutions.observed_seq')} THEN incoming.release_seq ELSE issue_resolutions.observed_seq END FROM events incoming WHERE incoming.project=issue_resolutions.project AND incoming.id=? AND incoming.occurrence=?) WHERE project=? AND issue=?`;
+const advanceIssueSql = `UPDATE issues AS i SET count=count+1,last_seen=?,revision=revision+1,state=CASE WHEN state='resolved' AND EXISTS(SELECT 1 FROM events incoming WHERE incoming.project=i.project AND incoming.id=? AND incoming.occurrence=? AND ${regressionSql()} AND NOT EXISTS(SELECT 1 FROM event_suppressions receipt WHERE receipt.project=incoming.project AND receipt.event=incoming.id AND receipt.occurrence=incoming.occurrence)) THEN 'open' ELSE state END WHERE id=?`;
+
 export const stmt=(db:D1Database,sql:string,...args:any[])=>db.prepare(sql).bind(...args);
 export interface IngestScope { project:string; keyHash:string; foreign:string|null; revision:number; policy:InboundPolicy; domain:DomainDecision }
 export async function authorizeIngest(c:any,project:string,key:string|undefined):Promise<{scope:IngestScope}|{response:Response}>{
@@ -72,7 +75,7 @@ export function dispatchAfterCapture(env: AlertEnvironment, id: string) {
 export async function admitEvent(c:any,scope:IngestScope,input:Envelope,digest:string,sentryIntake=false,identity?:PreparedIdentity,preScrubbed?:{
  jobs:D1PreparedStatement[];
  clean?:(text:string)=>string;
- readEvidence?:(project:string,event:Envelope)=>Promise<CaptureEvidence>;
+ planCapture?:(project:string,event:Envelope)=>Promise<CapturePlan>;
  onAlertAdmitted?:(id:string)=>void;
 }):Promise<Response>{
   const clean=preScrubbed?.clean??scrub;
@@ -90,19 +93,21 @@ export async function admitEvent(c:any,scope:IngestScope,input:Envelope,digest:s
      .first<{digest:string|null;issue:string|null;total:number}>())!;
     if(precheck.digest!==null)return await duplicate(precheck);
     if(precheck.total>=120){await record('rate_limited');c.header('Retry-After','60');return c.json({outcome:'dropped',reason:'minute_budget',retryAfter:60},429)}
-    const prepared=await prepareRelease(db,project,event,sentryIntake);
-    if(prepared.refusal){await record(prepared.refusal);return c.json({outcome:'rejected',reason:prepared.refusal,register:`/projects/${encodeURIComponent(project)}/releases`},422)}
-    event=prepared.event!;
-    const releaseSequence=event.release?`(SELECT seq FROM releases WHERE project=? AND name=?)`:'0';
-    const releaseArgs=event.release?[project,event.release]:[];
-    const count=await stmt(db,"SELECT COALESCE((SELECT n FROM spool_capacity_counts WHERE project=? AND kind='events'),0) total",project).first<any>();
-    if(count.total>=10000){await record('budget');c.header('Retry-After','60');return c.json({outcome:'dropped',reason:'retained_event_budget',retryAfter:60},429)}
-    const evidence=preScrubbed?.readEvidence ? await preScrubbed.readEvidence(project,event) : await captureEvidence(db,project,event,clean);
+    const planned=preScrubbed?.planCapture;
+    const prepared=planned ? await planned(project,event).then(plan=>'refusal' in plan?plan:{...plan,jobs:[releasePolicyFence(db,project,plan.policyRevision)]})
+      : await prepareCapture(db,project,event,sentryIntake,clean);
+    if('refusal' in prepared){
+     if(prepared.refusal==='retained_event_budget'){await record('budget');c.header('Retry-After','60');return c.json({outcome:'dropped',reason:'retained_event_budget',retryAfter:60},429)}
+     await record(prepared.refusal);return c.json({outcome:'rejected',reason:prepared.refusal,register:`/projects/${encodeURIComponent(project)}/releases`},422);
+    }
+    const {evidence,registeredRelease}=prepared;
     event=evidence.event;
+    const releaseSequence=registeredRelease?`(SELECT seq FROM releases WHERE project=? AND name=?)`:'0';
+    const releaseArgs=registeredRelease?[project,registeredRelease]:[];
     const {algorithm,basis,fingerprint,route,issue,diagnosis,groupingRevision}=evidence;
     const time=Date.now(),originGuard=scope.foreign?crypto.randomUUID():null,alertId=crypto.randomUUID(),occurrence=crypto.randomUUID();
     const {statements:alertStatements,routing}=admissionAlerts(db,{alertId,project,issue,eventId:event.eventId,occurrence,release:event.release,build:event.build,sequence:0,time,origin:c.env.ALERT_PUBLIC_ORIGIN??c.env.AUTH_ORIGIN});
-    const jobs=[spendKeyEvent(db,project,scope.keyHash),...privacy.jobs,...prepared.jobs!,groupingPolicyFence(db,project,groupingRevision),
+    const jobs=[spendKeyEvent(db,project,scope.keyHash),...privacy.jobs,...prepared.jobs,groupingPolicyFence(db,project,groupingRevision),
       ...(originGuard?[stmt(db,'INSERT INTO browser_origin_guards VALUES(?,?,?)',originGuard,project,scope.foreign)]:[]),
       stmt(db,"INSERT INTO issues(id,project,fingerprint,algorithm,title,state,revision,count,first_seen,last_seen) VALUES(?,?,?,?,?,'open',0,0,?,?) ON CONFLICT(id) DO NOTHING",issue,project,fingerprint,algorithm,clean(event.type+': '+event.message),time,time),
       ...assignShortId(db,project,issue,time),
@@ -115,10 +120,10 @@ export async function admitEvent(c:any,scope:IngestScope,input:Envelope,digest:s
       ...identity?eventIdentityStatements(db,identity,event.eventId,occurrence):[],
       stmt(db,`INSERT INTO event_suppressions SELECT e.project,e.id,e.occurrence,(SELECT json_group_array(json_object('id',p.id,'revision',p.revision,'field',p.field,'mode',p.mode,'value',p.value)) FROM suppression_policies p WHERE ${policyMatch}) FROM events e WHERE e.project=? AND e.id=? AND EXISTS(SELECT 1 FROM suppression_policies p WHERE ${policyMatch})`,...matchArgs(project,fingerprint,event.release,event.message),project,event.eventId,...matchArgs(project,fingerprint,event.release,event.message)),
       stmt(db,"INSERT INTO issue_resolutions(project,issue,mode,seen_without_release,updated,boundary_seq,observed_seq) VALUES(?,?,'current',0,?,NULL,0) ON CONFLICT(project,issue) DO NOTHING",project,issue,time),
-      stmt(db,`UPDATE issue_resolutions SET observed_seq=(SELECT CASE WHEN ${newerReleaseSql('issue_resolutions.project','incoming','issue_resolutions.observed_seq')} THEN incoming.release_seq ELSE issue_resolutions.observed_seq END FROM events incoming WHERE incoming.project=issue_resolutions.project AND incoming.id=? AND incoming.occurrence=?) WHERE project=? AND issue=?`,event.eventId,occurrence,project,issue),
+      stmt(db,observeReleaseSql,event.eventId,occurrence,project,issue),
       ...alertStatements,
       rememberUnsuppressedCapture(db,project,issue,event.eventId,occurrence,time),
-      stmt(db,`UPDATE issues AS i SET count=count+1,last_seen=?,revision=revision+1,state=CASE WHEN state='resolved' AND EXISTS(SELECT 1 FROM events incoming WHERE incoming.project=i.project AND incoming.id=? AND incoming.occurrence=? AND ${regressionSql()} AND NOT EXISTS(SELECT 1 FROM event_suppressions receipt WHERE receipt.project=incoming.project AND receipt.event=incoming.id AND receipt.occurrence=incoming.occurrence)) THEN 'open' ELSE state END WHERE id=?`,time,event.eventId,occurrence,issue),
+      stmt(db,advanceIssueSql,time,event.eventId,occurrence,issue),
       stmt(db,"UPDATE issue_resolutions SET seen_without_release=seen_without_release+1 WHERE project=? AND issue=? AND mode IN ('current','next','named') AND EXISTS(SELECT 1 FROM issues WHERE id=? AND state='resolved') AND ?=''",project,issue,issue,event.release),
       ...prepared.notes!.map(note=>outcomeStatement(db,project,'sentry_release_'+note)),
       outcomeStatement(db,project,'accepted'),

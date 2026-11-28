@@ -1,25 +1,38 @@
 import { WorkerEntrypoint } from 'cloudflare:workers';
+import { Context } from 'hono';
 import { runtimeBindings, type Bindings } from './auth/bindings';
 import type { AlertEnvironment } from './domain/alerts/types';
 import { runAuditScope, type AuditScope } from './domain/audit/context';
-import { ingestApi } from './domain/ingest-api';
-import { captureEvidence, type CaptureEvidence } from './domain/capture-evidence';
+import { nativeAdmission, type IngestEnv, type NativeCaptureInput } from './domain/ingest-api';
+import { apiError } from './domain/api-middleware';
+import type { IngestScope } from './domain/admission';
+import { prepareCapture, type CapturePlan } from './domain/capture-evidence';
 import type { Envelope } from './domain/privacy';
 
 // Hosted capture uses the same scope as its request audit. Admission still
 // checks the exact project key and writes its transaction fact with the event.
 export class SpoolCapture extends WorkerEntrypoint<Bindings & AlertEnvironment, {audit:AuditScope}> {
- async capture(request: Request): Promise<{body:string|null;status:number;headers:Record<string,string>;alertId:string|undefined}> {
+ async capture(input: NativeCaptureInput, grant: IngestScope): Promise<{body:string|null;status:number;headers:Record<string,string>;alertId:string|undefined}> {
   const scope=this.ctx.props.audit;
   if (!scope) throw new Error('capture_audit_required');
   let alertId: string | undefined;
-  const work=(this.ctx.exports as unknown as {SpoolCapture:Pick<SpoolCapture,'evidence'>}).SpoolCapture;
+  const work=(this.ctx.exports as unknown as {SpoolCapture:{
+   plan(project:string,event:Envelope):Promise<CapturePlan & Disposable>;
+  }}).SpoolCapture;
   const env={
    ...runtimeBindings(this.env),
-   readEvidence: (project:string,event:Envelope) => work.evidence(project,event),
+   async planCapture(project:string,event:Envelope) {
+    using result=await work.plan(project,event);
+    return {...result};
+   },
    onAlertAdmitted: (id:string) => {alertId=id;},
   };
-  const response=await runAuditScope(scope,async()=>ingestApi.fetch(request,env,this.ctx));
+  const request=new Request(input.url,{method:'POST',headers:input.headers});
+  const context=new Context<IngestEnv>(request,{env,executionCtx:this.ctx,path:new URL(input.url).pathname});
+  const response=await runAuditScope(scope,async()=>{
+   try { return await nativeAdmission(context,grant,input.text); }
+   catch(error) { if(error instanceof Error)return apiError(error,context);throw error; }
+  });
   return {
    body: response.body===null ? null : await response.text(),
    status: response.status,
@@ -27,7 +40,10 @@ export class SpoolCapture extends WorkerEntrypoint<Bindings & AlertEnvironment, 
    alertId,
   };
  }
- evidence(project: string, event: Envelope): Promise<CaptureEvidence> {
-  return captureEvidence(this.env.DB,project,event);
+ async plan(project: string, event: Envelope): Promise<CapturePlan> {
+  const prepared=await prepareCapture(this.env.DB,project,event,false);
+  if('refusal' in prepared)return prepared;
+  const {jobs, ...plan}=prepared;
+  return plan;
  }
 }

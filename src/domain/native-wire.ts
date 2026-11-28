@@ -2,7 +2,7 @@ import { rejectedResponse } from '../base/rejected-response';
 
 /** Read only the accepted native JSON budget. Rejected chunked uploads finish
  * through Base's same bounded discard as declared-size/auth refusals. */
-export async function nativeBody(request: Request): Promise<{value: unknown} | {rejected: number}> {
+export async function nativeBody(request: Request): Promise<{text: string} | {rejected: number}> {
  const limit = 32768;
  if (Number(request.headers.get('content-length') ?? 0) > limit) return {rejected:400};
  const reader = request.body?.getReader();
@@ -28,6 +28,6 @@ export async function nativeBody(request: Request): Promise<{value: unknown} | {
   }
   const bytes = new Uint8Array(size); let position = 0;
   for (const chunk of chunks) { bytes.set(chunk,position); position += chunk.length; }
-  return {value:JSON.parse(new TextDecoder().decode(bytes))};
+  return {text:new TextDecoder().decode(bytes)};
  } finally { reader.releaseLock(); }
 }

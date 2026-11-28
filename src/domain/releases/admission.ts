@@ -27,5 +27,5 @@ export async function prepareRelease(db:D1Database,project:string,input:Envelope
    if(!existing&&/^(?:[a-f0-9]{40}|[a-f0-9]{64})$/.test(event.release))jobs.push(shaReleaseStatement(db,project,event.release,time));
   }
  }
- return {event,jobs:[releasePolicyFence(db,project,snapshot.revision),...jobs],notes};
+ return {event,policyRevision:snapshot.revision,jobs:[releasePolicyFence(db,project,snapshot.revision),...jobs],notes};
 }
