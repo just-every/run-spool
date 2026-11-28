@@ -107,8 +107,6 @@ const write=(c:any,statements:D1PreparedStatement[])=>ownerBatch(c.env.DB,c.get(
 const ownerDb=(c:any)=>ownerDatabase(c.env.DB,c.get('session'));
 api.use('*',apiAccess);
 api.onError(apiError);
-// The scheduler's last run is public on purpose: it holds no project or credential data and shows whether the cron ticks.
-api.get('/health',async c=>{await c.env.DB.prepare('SELECT 1 FROM projects LIMIT 1').first();const scheduler=await c.env.DB.prepare('SELECT last_run FROM alert_scheduler WHERE id=1').first<{last_run:number|null}>();return c.json({status:'ok',ok:true,deployment:{sourceSha:c.env.RER_DEPLOY_SOURCE,fingerprint:c.env.RER_DEPLOY_FINGERPRINT,versionId:c.env.RER_VERSION?.id},alerts:{lastScheduledRun:scheduler?.last_run?new Date(scheduler.last_run).toISOString():null}})});
 api.route('/',ingestRoutes);
 // The reproducer runner's single-use run tokens are its only authority.
 api.route('/api/sandbox',runnerRoutes);

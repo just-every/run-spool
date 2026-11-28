@@ -5962,7 +5962,7 @@
       "executable": false
     },
     "src/domain/api.ts": {
-      "sha256": "8e72ad754fbf27469ce4045d55c2908456d8fb8577b58a943d8f342d4f4f22f9",
+      "sha256": "e8703eb32babd6a947b48fc86f8c32d8a452d73227cd8881d51a0eb1b9dcb458",
       "executable": false
     },
     "src/domain/archive-compat.ts": {
@@ -6447,6 +6447,10 @@
     },
     "src/domain/grouping/stamp.ts": {
       "sha256": "004f9f66e10ad5f3d0e1b4efaab93b85619e4fffb3bed79f6a56c2710bbb733f",
+      "executable": false
+    },
+    "src/domain/health.ts": {
+      "sha256": "fc9b5cc2a39aa63b2be9dcd5c4df88d9540d890eb5eb3cdd9e9abd29ccf0480a",
       "executable": false
     },
     "src/domain/identities/archive.ts": {
@@ -10366,7 +10370,7 @@
       "executable": false
     },
     "src/server.ts": {
-      "sha256": "eaa59c61d0f93f3a86f77823399ccbc229964fe2eb1d94bd39fb87d5542ce07f",
+      "sha256": "47a931e9a914061c51cde1ae8bd9d1d36c803ee3fa4f360b0891e01b868b1c25",
       "executable": false
     },
     "src/site/hosting.ts": {
@@ -11686,7 +11690,7 @@
       "executable": false
     },
     "tests/mail-off.mjs": {
-      "sha256": "3371e2434f91b8f3ec6592e151b4db4cd0ad91b6a72b3dcdbdf3841059213cb0",
+      "sha256": "f96b82280a4683b1c8ba2be2d4b35cda9cdb09d49c03caf0b898d86fcd4adc03",
       "executable": false
     },
     "tests/managed-sign-in.mjs": {
