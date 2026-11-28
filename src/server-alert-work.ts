@@ -1,6 +1,6 @@
 import { WorkerEntrypoint } from 'cloudflare:workers';
 import { runtimeBindings, type Bindings } from './auth/bindings';
-import type { AlertEnvironment, ImmediateAlertWork, MailExpansionIntent, MailIntent, QueuedAlertMail, ScheduledAlertWork } from './domain/alerts/types';
+import type { AlertEnvironment, ExpansionCheckpoint, ImmediateAlertWork, MailExpansionIntent, MailIntent, QueuedAlertMail, ScheduledAlertWork } from './domain/alerts/types';
 
 declare global {
  namespace Cloudflare {
@@ -14,10 +14,10 @@ async function spikes(env: Environment, time: number, lastRule: string) {
  const {evaluateSpikes} = await import('./domain/alerts/spikes');
  return evaluateSpikes(env,time,lastRule);
 }
-async function expandMail(env: Environment, project: string, intents: MailExpansionIntent[], time: number, started: number) {
+async function expandMail(env: Environment, project: string, intents: MailExpansionIntent[], time: number, started: number, checkpoint: ExpansionCheckpoint) {
  const {expandProjectAlerts,webhookService}=await import('./domain/alerts/dispatch');
  const now=()=>Math.max(Date.now(),time+Date.now()-started);
- return expandProjectAlerts(env,project,intents,now,()=>webhookService(env,project,now));
+ return expandProjectAlerts(env,project,intents,now,()=>webhookService(env,project,now),checkpoint);
 }
 async function deliverMail(env: Environment, jobs: QueuedAlertMail[], time: number, started: number) {
  const {dispatchMailJob} = await import('./domain/alerts/mail');
@@ -29,7 +29,7 @@ async function deliverMail(env: Environment, jobs: QueuedAlertMail[], time: numb
 export function demoAlertWork(env: Environment): ScheduledAlertWork {
  return {
   spikes: (time,lastRule) => spikes(env,time,lastRule),
-  expandMail: (project,intents,time,started) => expandMail(env,project,intents,time,started),
+  expandMail: (project,intents,time,started,checkpoint) => expandMail(env,project,intents,time,started,checkpoint),
   deliverMail: (jobs,time,started) => deliverMail(env,jobs,time,started),
  };
 }
@@ -40,8 +40,8 @@ export class SpoolAlertWork extends WorkerEntrypoint<Environment> implements Sch
  spikes(time: number, lastRule: string) {
   return spikes(runtimeBindings(this.env),time,lastRule);
  }
- expandMail(project: string, intents: MailExpansionIntent[], time: number, started: number) {
-  return expandMail(runtimeBindings(this.env),project,intents,time,started);
+ expandMail(project: string, intents: MailExpansionIntent[], time: number, started: number, checkpoint: ExpansionCheckpoint) {
+  return expandMail(runtimeBindings(this.env),project,intents,time,started,checkpoint);
  }
  deliverMail(jobs: QueuedAlertMail[], time: number, started: number) {
   return deliverMail(runtimeBindings(this.env),jobs,time,started);

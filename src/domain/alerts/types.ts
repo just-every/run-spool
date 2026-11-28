@@ -24,6 +24,7 @@ export type QueuedAlertMail = Pick<Intent, 'id' | 'project' | 'rule_id' | 'rule_
 export type PendingAlertIntent = Intent & {unresolved_mail:number};
 export type MailIntent = Intent & {channel:'mail'};
 export type MailExpansionIntent = PendingAlertIntent & MailIntent;
+export type ExpansionCheckpoint = {final:boolean;previous?:string;advanceProject:boolean};
 export type MailDeliveryWork = {
  deliverMail(jobs: QueuedAlertMail[], time: number, started: number): Promise<void>;
 };
@@ -32,5 +33,5 @@ export type ImmediateAlertWork = MailDeliveryWork & {
 };
 export type ScheduledAlertWork = MailDeliveryWork & {
  spikes(time: number, lastRule: string): Promise<boolean>;
- expandMail(project: string, intents: MailExpansionIntent[], time: number, started: number): Promise<{changed:boolean;mail:boolean}>;
+ expandMail(project: string, intents: MailExpansionIntent[], time: number, started: number, checkpoint:ExpansionCheckpoint): Promise<{changed:boolean;mail:boolean}>;
 };

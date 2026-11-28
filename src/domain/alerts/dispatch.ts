@@ -7,7 +7,7 @@ import { synchronizeHistory } from './history';
 import { alertBody } from '../stored-text';
 import type { ScheduledDue } from '../scheduled/due';
 import { namespace, statement as s } from './types';
-import type { AlertEnvironment, ImmediateAlertWork, Intent, MailExpansionIntent, MailIntent, PendingAlertIntent, ScheduledAlertWork } from './types';
+import type { AlertEnvironment, ExpansionCheckpoint, ImmediateAlertWork, Intent, MailExpansionIntent, MailIntent, PendingAlertIntent, ScheduledAlertWork } from './types';
 // Expansion is idempotent: mail jobs and webhook deliveries are keyed by the intent id, and every send first takes a
 // durable claim, so the scheduled run and the dispatch after ingest can both reach the same intent without a second send.
 async function expandIntent(env:AlertEnvironment,service:()=>ReturnType<typeof webhookService>,intent:Intent,time:number) {
@@ -82,9 +82,11 @@ export async function expandAdmittedMail(env:AlertEnvironment,intents:MailIntent
  for(const intent of intents)await expandIntent(env,service,intent,Date.now());
 }
 
-export async function expandProjectAlerts(env:AlertEnvironment,project:string,intents:PendingAlertIntent[],now:()=>number,service:()=>ReturnType<typeof webhookService>) {
+const advanceProject=(db:D1Database,project:string)=>s(db,"INSERT INTO alert_scheduler(id,last_project) VALUES(1,?) ON CONFLICT(id) DO UPDATE SET last_project=excluded.last_project",project);
+
+export async function expandProjectAlerts(env:AlertEnvironment,project:string,intents:PendingAlertIntent[],now:()=>number,service:()=>ReturnType<typeof webhookService>,checkpoint?:ExpansionCheckpoint) {
  let configuredMail:ReturnType<typeof environmentMailDestinations>|undefined;
- let lastIntent:string|undefined,changed=false,mail=false,webhook=false;
+ let lastIntent=checkpoint?.previous,changed=false,mail=false,webhook=false,completed=false;
  try {
   for(const intent of intents) {
    // Missing destinations are checked at selection on every visit. A newly configured
@@ -98,9 +100,15 @@ export async function expandProjectAlerts(env:AlertEnvironment,project:string,in
    }
    lastIntent=intent.id;
   }
+  completed=true;
  } finally {
-  // Even a failed destination gets a turn in the existing round robin.
-  if(lastIntent!==undefined)await s(env.DB,'INSERT INTO alert_expansion_cursors(project,last_intent) VALUES(?,?) ON CONFLICT(project) DO UPDATE SET last_intent=excluded.last_intent',project,lastIntent).run();
+  // A successful intermediate batch leaves the cursor to the final batch.
+  // An interrupted batch records the last intent processed across all batches.
+  if(lastIntent!==undefined&&(!completed||!checkpoint||checkpoint.final)){
+   const cursor=s(env.DB,'INSERT INTO alert_expansion_cursors(project,last_intent) VALUES(?,?) ON CONFLICT(project) DO UPDATE SET last_intent=excluded.last_intent',project,lastIntent);
+   if(completed&&checkpoint?.advanceProject)await env.DB.batch([cursor,advanceProject(env.DB,project)]);
+   else await cursor.run();
+  }
  }
  return {changed,mail,webhook};
 }
@@ -129,7 +137,7 @@ export async function runAlerts(env:AlertEnvironment,scheduledTime:number,due:Sc
   const service=()=>webhook??=webhookService(env,project,now);
   if(due.webhooks&&(await service().recoverExpired()).length)deliveryChanged=true;
   const intents=await pendingExpansion(env.DB,project);
-  let expandedWebhook=false;
+  let expandedWebhook=false,projectAdvanced=false;
   if(intents.length && intents.every((intent): intent is MailExpansionIntent => intent.channel==='mail')) {
    // Preserve room for every later project and at least one delivery call.
    // A few recipient expansions in one invocation can exhaust a Free tick.
@@ -137,8 +145,11 @@ export async function runAlerts(env:AlertEnvironment,scheduledTime:number,due:Sc
    const groups=Math.min(available,Math.ceil(intents.length/2));
    const size=Math.ceil(intents.length/groups);
    for(let offset=0;offset<intents.length;offset+=size){
-    const result=await work.expandMail(project,intents.slice(offset,offset+size),scheduledTime,started);
+    const final=offset+size>=intents.length;
+    const checkpoint={final,previous:intents[offset-1]?.id,advanceProject:final&&!due.webhooks};
+    const result=await work.expandMail(project,intents.slice(offset,offset+size),scheduledTime,started,checkpoint);
     invocations++;
+    projectAdvanced=checkpoint.advanceProject;
     expandedMail ||= result.mail;
     deliveryChanged ||= result.changed;
    }
@@ -151,7 +162,7 @@ export async function runAlerts(env:AlertEnvironment,scheduledTime:number,due:Sc
   const webhooks=due.webhooks||expandedWebhook?(await s(env.DB,`SELECT d.id FROM integration_deliveries d JOIN alert_intents i ON i.id=d.id AND d.namespace='spool.'||i.project WHERE i.project=? AND i.state<>'snoozed' AND d.state='queued' AND d.next_at<=? AND d.attempts<d.max_attempts ORDER BY d.next_at,d.id LIMIT 30`,project,now()).all<{id:string}>()).results:[];
   for(const delivery of webhooks)await service().dispatch(delivery.id);
   if(webhooks.length)deliveryChanged=true;
-  await s(env.DB,"INSERT INTO alert_scheduler(id,last_project) VALUES(1,?) ON CONFLICT(id) DO UPDATE SET last_project=excluded.last_project",project).run();
+  if(!projectAdvanced)await advanceProject(env.DB,project).run();
  }
  if(due.mail||expandedMail)await dispatchBoundMail(env,now(),work,31-invocations);
  const changed=!!(due.history||due.recoverMail||due.providerEvents||due.hold||due.mail||deliveryChanged||newAlerts);
