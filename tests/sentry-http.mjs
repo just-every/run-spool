@@ -53,6 +53,8 @@ try{
   assert.equal(count('sentry_unsupported_statsd'),2);assert.equal(count('sentry_unsupported_unknown'),3);
   assert.equal(count('sentry_unsupported_other_telemetry'),0,'statsd is no longer pooled with other telemetry');
   assert.equal(count('accepted'),1,'unsupported items never create accepted error volume');
+  assert.equal(counted.recentCapture.count,count('accepted'),'the capture panel agrees with recent accepted volume');
+  assert.equal(counted.captureKeys.active,1,'the capture panel counts the live ingest key but excludes the deploy key');
   assert.equal(count('sentry_unsupported_attachment'),2);assert.equal(count('session_invalid'),1);
   const snapshot=await archiveProjection(await req('/api/archive'));
   const legacyData=structuredClone(snapshot.data);

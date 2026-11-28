@@ -21,10 +21,12 @@ const inert=(text:string)=>/^[\s\p{Cc}]*[=+\-@]/u.test(text)?"'"+text:text;
 // Independently enforce the read door; mounting this router never supplies authority.
 const authorize=async(c:any,next:any)=>{
  const project=c.req.param('project'),grant=await agentProject(c.req.raw,c.env.DB);
- if(grant!==project&&!await ownerSession(c.req.raw,c.env,resolveMembership))return c.json({error:'Sign in required'},401);
+ // The parent can supply native authority from this request. Direct mounts still check it here.
+ const person=grant===project?null:c.get('session')??await ownerSession(c.req.raw,c.env,resolveMembership);
+ if(grant!==project&&!person)return c.json({error:'Sign in required'},401);
  if(grant&&grant!==project)return c.json({error:'Project scope required'},403);
  c.set('agent',!!grant);
- if(!grant)c.set('person',await ownerSession(c.req.raw,c.env,resolveMembership));
+ if(!grant)c.set('person',person);
  if(!await c.env.DB.prepare('SELECT 1 FROM projects WHERE id=?').bind(project).first())return c.json({error:'Project not found'},404);
  await next();
 };
@@ -47,9 +49,12 @@ async function search(c:any,exporting=false){
  if(query.hasEventTerms||release!=='all'){where.push(`EXISTS(SELECT 1 FROM events e WHERE e.project=i.project AND e.issue=i.id AND ${query.sql}${release!=='all'?' AND e.release=?':''})`);args.push(...query.args,...release!=='all'?[release]:[])}
  const filtered=`FROM issues i WHERE ${where.join(' AND ')}`;
  const db:D1Database=c.env.DB;
- const signature=await hash(JSON.stringify([project,q,state,release,sort,c.req.query('assignee')??'all']));
+ const signCursor=()=>hash(JSON.stringify([project,q,state,release,sort,c.req.query('assignee')??'all']));
  let cursor:any=null;
- if(c.req.query('cursor')){try{cursor=JSON.parse(atob(c.req.query('cursor')))}catch{throw new Error('Invalid search cursor')}if(cursor?.signature!==signature||!Number.isFinite(cursor.rank)||!Number.isFinite(cursor.last_seen)||typeof cursor.id!=='string')throw new Error('Search cursor belongs to another query')}
+ let signature:string|undefined;
+ if(c.req.query('cursor')){try{cursor=JSON.parse(atob(c.req.query('cursor')))}catch{throw new Error('Invalid search cursor')}
+  signature=await signCursor();
+  if(cursor?.signature!==signature||!Number.isFinite(cursor.rank)||!Number.isFinite(cursor.last_seen)||typeof cursor.id!=='string')throw new Error('Search cursor belongs to another query')}
  const exportTotal=exporting?(await db.prepare(`SELECT COUNT(*) total ${filtered}`).bind(...args).first<{total:number}>())!.total:0;
  if(exportTotal>10000)return c.json({error:'query_export_limit',matched:exportTotal,limit:10000,action:'Narrow the query or paginate the issue-search API.'},413);
  const size=exporting?10000:25;
@@ -58,16 +63,17 @@ async function search(c:any,exporting=false){
  const rank=sort==='occurrences'?'count':prioritySort?"(CASE priority WHEN 'high' THEN 3 WHEN 'medium' THEN 2 ELSE 1 END)*3+CASE json_extract(attention,'$.kind') WHEN 'regression' THEN 2 WHEN 'new_issue' THEN 1 ELSE 0 END":'last_seen';
  const order='rank DESC,last_seen DESC,id DESC';
  // Resolve aliases and roll up retained occurrences only for the page being returned.
- const page=await db.prepare(`WITH scored AS (SELECT i.*${prioritySort?`, ${priority}`:''} ${filtered}),
+ const pageStatement=db.prepare(`WITH scored AS (SELECT i.*${prioritySort?`, ${priority}`:''} ${filtered}),
   ranked AS (SELECT *,${rank} rank FROM scored),
   page AS MATERIALIZED (SELECT * FROM ranked ${cursor&&!exporting?'WHERE (rank,last_seen,id)<(?,?,?)':''} ORDER BY ${order} LIMIT ?)
   SELECT i.*,${prioritySort?'':`${priority},`} ${issueAssigneeSql('i')} assignee, ${pendingReview('i')} review_pending,
   ${shortIdColumnsSql('i')}, ${clientDroppedSql},
   (SELECT release FROM events WHERE project=i.project AND issue=i.id ORDER BY received DESC,id DESC LIMIT 1) last_release,
   ${issueReleasesSql('i')} releases FROM page i ORDER BY ${order}`)
-  .bind(...args,...cursor&&!exporting?[cursor.rank,cursor.last_seen,cursor.id]:[],size+1).all<any>();
- const rows=page.results.slice(0,size).map((row:any)=>{const {rank,...issue}=decodeShortIds(decodeIssueAttention(row));return c.get('agent')?issueProjection(issue):ownerIssue(issue)}),last=page.results[size-1];
- if(exporting){const format=c.req.query('format')??'json';if(!['json','csv'].includes(format))throw new Error('Export format must be json or csv');
+  .bind(...args,...cursor&&!exporting?[cursor.rank,cursor.last_seen,cursor.id]:[],size+1);
+ const decodeRow=(row:any)=>{const {rank,...issue}=decodeShortIds(decodeIssueAttention(row));return c.get('agent')?issueProjection(issue):ownerIssue(issue)};
+ if(exporting){const rows=(await pageStatement.all<any>()).results.slice(0,size).map(decodeRow);
+  const format=c.req.query('format')??'json';if(!['json','csv'].includes(format))throw new Error('Export format must be json or csv');
   // An export leaves the owner session: the resolving commit's SHA and release, its author and message only when shared.
   const share=(await commitSharing(db,project)).share,resolutions=new Map<string,any>((await db.prepare(`SELECT i.id,${commitResolutionSql('i')} resolution FROM issues i WHERE i.project=? AND i.id IN (SELECT value FROM json_each(?))`).bind(project,JSON.stringify(rows.map((r:any)=>r.id))).all()).results.map((r:any)=>[r.id,r.resolution?JSON.parse(r.resolution):null]));
   for(const r of rows as any[]){const resolution=resolutions.get(r.id);r.resolution_commit=resolution?.commit??null;r.resolution_citation=resolution?.citation??null;r.resolution_release=resolution?.release??null;if(share){r.resolution_author=resolution?.author?[resolution.author.name,resolution.author.email&&`<${resolution.author.email}>`].filter(Boolean).join(' '):null;r.resolution_message=resolution?.message??null}}
@@ -77,15 +83,20 @@ async function search(c:any,exporting=false){
  const eventStatement=(select:string,tail='',joins='')=>db.prepare(`SELECT ${select} ${events} ${joins}
   WHERE e.project=? AND ${facetFilter} AND ${eventPredicate} ${tail}`).bind(project,...facetArgs,...eventArgs);
  const review=c.get('agent')?'0':`SUM(${pendingReview('i')})`;
- const [statuses,releases,environments,tags,matchingEvents]=await Promise.all([
-  db.prepare(`SELECT i.state value,COUNT(*) count,${review} reviewPending ${filtered} GROUP BY i.state ORDER BY i.state`).bind(...args).all<{value:string;count:number;reviewPending:number}>(),
-  eventStatement('e.release value,COUNT(DISTINCT e.issue) count',`GROUP BY e.release ORDER BY CASE WHEN e.release='' THEN 0 ELSE 1 END,${releaseOrderSql('r')}`,'LEFT JOIN releases r ON r.project=e.project AND r.name=e.release').all(),
-  eventStatement('e.environment value,COUNT(DISTINCT e.issue) count','GROUP BY e.environment ORDER BY count DESC,value').all(),
-  eventStatement('t.key,CAST(t.value AS TEXT) value,COUNT(DISTINCT e.issue) count','GROUP BY t.key,t.value ORDER BY t.key,count DESC,value LIMIT 1001',",json_each(e.payload,'$.sentry.tags') t").all(),
-  c.req.query('eventTotals')==='1'?eventStatement('COUNT(*) total').first<{total:number}>():null,
+ const [page,statuses,releases,environments,tags,eventCount]=await db.batch<any>([
+  pageStatement,
+  db.prepare(`SELECT i.state value,COUNT(*) count,${review} reviewPending ${filtered} GROUP BY i.state ORDER BY i.state`).bind(...args),
+  eventStatement('e.release value,COUNT(DISTINCT e.issue) count',`GROUP BY e.release ORDER BY CASE WHEN e.release='' THEN 0 ELSE 1 END,${releaseOrderSql('r')}`,'LEFT JOIN releases r ON r.project=e.project AND r.name=e.release'),
+  eventStatement('e.environment value,COUNT(DISTINCT e.issue) count','GROUP BY e.environment ORDER BY count DESC,value'),
+  eventStatement('t.key,CAST(t.value AS TEXT) value,COUNT(DISTINCT e.issue) count','GROUP BY t.key,t.value ORDER BY t.key,count DESC,value LIMIT 1001',",json_each(e.payload,'$.sentry.tags') t"),
+  ...c.req.query('eventTotals')==='1'?[eventStatement('COUNT(*) total')]:[],
  ]);
- const totals=statuses.results.reduce((sum,row)=>({total:sum.total+row.count,reviewPending:sum.reviewPending+row.reviewPending}),{total:0,reviewPending:0});
- return c.json({version:1,rows,total:totals.total,...matchingEvents?{matchingEvents:matchingEvents.total}:{},...c.get('agent')?{}:{reviewPending:totals.reviewPending},next:page.results.length>size?btoa(JSON.stringify({signature,rank:last.rank,last_seen:last.last_seen,id:last.id})):null,facets:{statuses:statuses.results.map(({value,count})=>({value,count})),releases:releases.results,environments:environments.results,tags:tags.results.slice(0,1000),tagsComplete:tags.results.length<=1000},coverage:'Full retained project corpus. Counts are whole-issue retained occurrences. Priority sorts high, medium, then low; active regressions and new issues break ties before latest receipt. Viewing is browser-local.'});
+ const rows=page.results.slice(0,size).map(decodeRow),last=page.results[size-1];
+ const statusRows:{value:string;count:number;reviewPending:number}[]=statuses.results;
+ const totals=statusRows.reduce((sum,row)=>({total:sum.total+row.count,reviewPending:sum.reviewPending+row.reviewPending}),{total:0,reviewPending:0});
+ const matchingEvents=eventCount?.results[0];
+ const next=page.results.length>size?btoa(JSON.stringify({signature:signature??await signCursor(),rank:last.rank,last_seen:last.last_seen,id:last.id})):null;
+ return c.json({version:1,rows,total:totals.total,...matchingEvents?{matchingEvents:matchingEvents.total}:{},...c.get('agent')?{}:{reviewPending:totals.reviewPending},next,facets:{statuses:statusRows.map(({value,count})=>({value,count})),releases:releases.results,environments:environments.results,tags:tags.results.slice(0,1000),tagsComplete:tags.results.length<=1000},coverage:'Full retained project corpus. Counts are whole-issue retained occurrences. Priority sorts high, medium, then low; active regressions and new issues break ties before latest receipt. Viewing is browser-local.'});
 }
 routes.get('/:project/issue-search',c=>search(c));
 routes.get('/:project/issue-export',c=>search(c,true));

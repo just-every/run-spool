@@ -1,5 +1,5 @@
 import { browserArchive } from './archive-pages';
-import { recentCapture } from './capture-sources';
+import { captureOutcomes } from './capture-sources';
 import { canManageProjectKey } from './project-key-authority';
 import { keyRateRoutes } from './key-rate-limits/routes';
 import suppressionRoutes from './suppression/routes';
@@ -189,14 +189,15 @@ api.get('/api/projects/:project/issues',async c=>{
   if(!['open','all'].includes(state))throw new Error('Issue state must be open or all');
   if(!/^[1-9]\d*$/.test(limitParam)||!Number.isSafeInteger(limit)||limit>100)throw new Error('Issue limit must be an integer from 1 to 100');
   // Every table this list reads replaces the token (migration 0121): an unchanged list is one row.
-  const etag=async()=>{const row=await stmt(c.env.DB,"SELECT token FROM spool_read_versions WHERE name='issues'").first<{token:string}>();return row&&`"issues-${row.token}-${state}-${limit}-${c.get('project')?'agent':'owner'}"`};
-  const known=c.req.header('If-None-Match'),before=known?await etag():null;
+  const version=stmt(c.env.DB,"SELECT token FROM spool_read_versions WHERE name='issues'");
+  const etag=(row?:{token:string}|null)=>row&&`"issues-${row.token}-${state}-${limit}-${c.get('project')?'agent':'owner'}"`;
+  const known=c.req.header('If-None-Match'),before=known?etag(await version.first<{token:string}>()):null;
   if(before&&known===before)return c.body(null,304,{ETag:before});
   await readReleasePolicy(c.env.DB,project);
   await ensureShortIds(c.env.DB,project);
-  const current=await etag();if(current)c.header('ETag',current);
   const order="CASE json_extract(attention,'$.kind') WHEN 'regression' THEN 2 WHEN 'new_issue' THEN 1 ELSE 0 END DESC,i.last_seen DESC,i.id DESC";
-  const rows=(await stmt(c.env.DB,`WITH page AS MATERIALIZED (
+  // Both repairs can replace the token. Read it with the page in one snapshot.
+  const [revision,page]=await c.env.DB.batch<any>([version,stmt(c.env.DB,`WITH page AS MATERIALIZED (
     SELECT i.*,${issueAttentionSql} FROM issues i
     WHERE i.project=? AND ${listedIssueSql('i')} AND (?='all' OR i.state=?)
     ORDER BY ${order} LIMIT ?
@@ -205,11 +206,15 @@ api.get('/api/projects/:project/issues',async c=>{
     (SELECT release FROM events WHERE issue=i.id AND project=i.project ORDER BY received DESC,id DESC LIMIT 1) last_release,
     ${issueReleasesSql('i')} releases
   FROM page i LEFT JOIN issue_resolutions r ON r.project=i.project AND r.issue=i.id ORDER BY ${order}`,
-  project,state,state,limit).all<any>()).results;
+  project,state,state,limit)]);
+  const current=etag(revision.results[0]);if(current)c.header('ETag',current);
   const projectIssue=c.get('project')?issueProjection:ownerIssue;
-  return c.json(rows.map(row=>projectIssue(decodeShortIds(decodeIssueAttention(row)))));
+  return c.json(page.results.map(row=>projectIssue(decodeShortIds(decodeIssueAttention(row)))));
 });
-api.get('/api/projects/:project/outcomes',async c=>c.json({captureKeys:await stmt(c.env.DB,`SELECT COUNT(*) total,COALESCE(SUM(CASE WHEN revoked IS NULL AND ${mintedByCurrentPerson} THEN 1 ELSE 0 END),0) active FROM credentials WHERE project=? AND kind='ingest'`,c.req.param('project')).first(),recentCapture:await recentCapture(c.env.DB,c.req.param('project'),now()),window:'last 24 hours',coverage:'Server admission and SDK-reported client discards; unreported pre-transport loss remains unknown',rows:(await stmt(c.env.DB,'SELECT reason,SUM(count) count FROM outcomes WHERE project=? AND window>=? GROUP BY reason',c.req.param('project'),now()-86400000).all<any>()).results.map(outcomeProjection)}));
+api.get('/api/projects/:project/outcomes',async c=>{
+  const {captureKeys,recentCapture,rows}=await captureOutcomes(c.env.DB,c.req.param('project'),now());
+  return c.json({captureKeys,recentCapture,window:'last 24 hours',coverage:'Server admission and SDK-reported client discards; unreported pre-transport loss remains unknown',rows:rows.map(outcomeProjection)});
+});
 api.get('/api/projects/:project/alerts',async c=>c.json((await stmt(c.env.DB,`SELECT a.*,(SELECT COUNT(*) FROM alert_history h WHERE h.project=a.project AND h.alert_id=a.id) delivery_count,CASE WHEN EXISTS(SELECT 1 FROM alert_history h WHERE h.project=a.project AND h.alert_id=a.id) THEN 'configured' ELSE 'not_configured' END routing_state,${sharingSql('a.project')} commit_sharing FROM alerts a WHERE a.project=? ORDER BY a.created DESC,a.id LIMIT 100`,c.req.param('project')).all<any>()).results.map(row=>c.get('project')?alertProjection(row):ownerAlert(row))));
 api.patch('/api/projects/:project/issues/:issue',async c=>{
   const b=await body(c),resolution=resolutionInput(b);if(!['open','acknowledged','resolved','suppressed'].includes(b.state)||!Number.isSafeInteger(b.revision))throw new Error('Invalid triage');

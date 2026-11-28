@@ -1,4 +1,4 @@
-import { targetChoices,type TargetDestination } from './targets';
+import { targetChoicesStatement, targetDestination, type TargetDestination, type TargetDestinationRow } from './targets';
 import { savedSlack } from './slack-destinations.server';
 import { localDevelopmentEnabled } from '../../auth/local.server.mjs';
 import { productionMailConfig } from '../../auth/mail.server.mjs';
@@ -59,6 +59,11 @@ export async function authorizedDestination(env:AlertEnvironment,intent:Pick<Int
  if(!allowed)throw new Error('rule_revoked');return findDestination(env,intent.project,intent.destination,intent.channel);
 }
 export async function destinationHash(env:AlertEnvironment,value:string) { return `hmac:${await hmac(keyBytes(env.ALERT_DESTINATION_HASH_KEY),value)}`; }
+
+type DestinationTest = {
+ project:string; destination:string; fingerprint:string; id:string; state:string;
+ detail:string; tested_at:number; reviewed_at:number|null;
+};
 export async function destinationChoices(env:AlertEnvironment,project:string) {
  let hashConfigured=false,mailConfigured=false;
  try {keyBytes(env.ALERT_DESTINATION_HASH_KEY);hashConfigured=true}catch{}
@@ -67,10 +72,25 @@ export async function destinationChoices(env:AlertEnvironment,project:string) {
   if(env.MAIL_PROVIDER==='development')mailConfigured=env.RER_DEMO==='1'||localDevelopmentEnabled(env);
   else {validateConfig(productionMailConfig(env));mailConfigured=true;}
  }catch{}
- const saved=(await s(env.DB,'SELECT id,label,recipient FROM alert_destinations WHERE project=? ORDER BY created,id',project).all<any>()).results;
- const slack=(await s(env.DB,'SELECT id,label,channel_id channelId FROM slack_destinations WHERE project=? ORDER BY created,id',project).all<any>()).results;
- const rows:Destination[]=[...await targetChoices(env,project),...slack.map(d=>({...d,project,kind:'slack' as const,channel:'webhook' as const,editable:true})),...destinations(env).filter(d=>d.project===project),...saved.map(d=>({...d,project,channel:'mail' as const,editable:true}))];
- const tests=(await s(env.DB,'SELECT * FROM alert_destination_tests WHERE project=?',project).all<any>()).results;
+ const db=env.DB;
+ const [saved,slack,targets,testResults]=await db.batch([
+  s(db,'SELECT id,label,recipient FROM alert_destinations WHERE project=? ORDER BY created,id',project),
+  s(db,'SELECT id,label,channel_id channelId FROM slack_destinations WHERE project=? ORDER BY created,id',project),
+  targetChoicesStatement(db,project),
+  s(db,'SELECT * FROM alert_destination_tests WHERE project=?',project),
+ ]) as [
+  D1Result<{id:string;label:string;recipient:string}>,
+  D1Result<{id:string;label:string;channelId:string}>,
+  D1Result<TargetDestinationRow>,
+  D1Result<DestinationTest>,
+ ];
+ const rows:Destination[]=[
+  ...targets.results.map(targetDestination),
+  ...slack.results.map(d=>({...d,project,kind:'slack' as const,channel:'webhook' as const,editable:true})),
+  ...destinations(env).filter(d=>d.project===project),
+  ...saved.results.map(d=>({...d,project,channel:'mail' as const,editable:true})),
+ ];
+ const tests=testResults.results;
  return Promise.all(rows.map(async d=>{const privateDestination=d.kind==='slack'?await savedSlack(env,project,d.id):d;const fingerprint=hashConfigured?await destinationFingerprint(env,privateDestination!):null;return ({id:d.id,label:d.label,channel:d.channel,editable:!!d.editable,...(d.kind==='target'?{kind:'target',targetType:d.targetType,target:d.target,fallthrough:d.fallthrough}:d.kind==='slack'?{kind:'slack',channelId:d.channelId,tokenSaved:true}:d.editable?{recipient:d.recipient}:{}),test:tests.find(t=>t.destination===d.id&&t.fingerprint===fingerprint)??null,configured:hashConfigured&&(d.channel==='webhook'?!!env.INTEGRATION_EGRESS:mailConfigured)}); }));
 }
 

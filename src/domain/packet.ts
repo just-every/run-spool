@@ -66,20 +66,28 @@ export async function issuePacket(db: D1Database, project: string, id: string, r
  const row = await query(db, `SELECT i.*, ${prioritySql('i')} priority, ${shortIdColumnsSql('i')}, (SELECT mode FROM issue_resolutions r WHERE r.project=i.project AND r.issue=i.id) resolution_mode,(SELECT r.name FROM issue_resolutions z JOIN releases r ON r.project=z.project AND r.seq=z.boundary_seq WHERE z.project=i.project AND z.issue=i.id) resolution_release,(SELECT seen_without_release FROM issue_resolutions r WHERE r.project=i.project AND r.issue=i.id) seen_without_release, ${issueAttentionSql}, ${clientDroppedSql} FROM issues i WHERE project=? AND id=?`, project, id).first<any>();
  if (!row) return null;
  const issue = {...issueProjection(decodeShortIds(decodeIssueAttention(row))),priority:row.priority};
- const selectedRead = query(db, 'SELECT e.*,g.original_issue,g.algorithm original_algorithm,g.basis original_basis,g.fingerprint original_fingerprint,g.correction,g.direction,x.reasons suppression_reasons FROM events e LEFT JOIN event_grouping g ON g.project=e.project AND g.event=e.id AND g.occurrence=e.occurrence LEFT JOIN event_suppressions x ON x.project=e.project AND x.event=e.id AND x.occurrence=e.occurrence WHERE e.project=? AND e.issue=? ORDER BY e.received DESC,e.id DESC LIMIT ?', project, id, EVENT_LIMIT).all<any>();
- const routesRead = query(db,'SELECT * FROM grouping_routes WHERE project=?',project).all<GroupingRoute>();
- const firstRead = query(db, 'SELECT release,release_seq,build,historical,environment FROM events WHERE project=? AND issue=? ORDER BY received,id LIMIT 1', project, id).first<any>();
- const lastRead = query(db, 'SELECT release,release_seq,build,historical,environment FROM events WHERE project=? AND issue=? ORDER BY received DESC,id DESC LIMIT 1', project, id).first<any>();
+ const reads = db.batch<any>([
+  query(db, 'SELECT e.*,g.original_issue,g.algorithm original_algorithm,g.basis original_basis,g.fingerprint original_fingerprint,g.correction,g.direction,x.reasons suppression_reasons FROM events e LEFT JOIN event_grouping g ON g.project=e.project AND g.event=e.id AND g.occurrence=e.occurrence LEFT JOIN event_suppressions x ON x.project=e.project AND x.event=e.id AND x.occurrence=e.occurrence WHERE e.project=? AND e.issue=? ORDER BY e.received DESC,e.id DESC LIMIT ?', project, id, EVENT_LIMIT),
+  query(db, 'SELECT * FROM grouping_routes WHERE project=?', project),
+  query(db, 'SELECT release,release_seq,build,historical,environment FROM events WHERE project=? AND issue=? ORDER BY received,id LIMIT 1', project, id),
+  query(db, 'SELECT release,release_seq,build,historical,environment FROM events WHERE project=? AND issue=? ORDER BY received DESC,id DESC LIMIT 1', project, id),
+  query(db, 'SELECT COUNT(*) available,COALESCE(SUM(CASE WHEN historical=0 THEN 1 ELSE 0 END),0) live FROM events WHERE project=? AND issue=?', project, id),
+  query(db, 'SELECT project,window,reason,count FROM outcomes WHERE project=? ORDER BY window DESC,reason LIMIT 100', project),
+  query(db, 'SELECT reason,SUM(count) count FROM outcomes WHERE project=? AND window>=? GROUP BY reason ORDER BY reason LIMIT 100', project, Date.now() - 86400000),
+  query(db, "SELECT id,project,kind,detail,created FROM audit WHERE project=? AND kind='retention_gap' ORDER BY created DESC,id DESC LIMIT 20", project),
+  query(db, "SELECT COUNT(*) count FROM audit WHERE project=? AND kind='retention_gap'", project),
+  query(db, commitLinkSql('?', '?'), project, id),
+ ]);
  const deploymentReads = new Map<string, ReturnType<typeof observedDeployment>>();
  const deployment = (row: any) => {
   const key = JSON.stringify(row ? [row.release,row.environment] : null);
   if (!deploymentReads.has(key)) deploymentReads.set(key,observedDeployment(db,project,row));
   return deploymentReads.get(key)!;
  };
- const deploymentsRead = Promise.all([firstRead.then(deployment),lastRead.then(deployment)]);
+ const deploymentsRead = reads.then(([, , first, last]) => Promise.all([deployment(first.results[0]), deployment(last.results[0])]));
  const diagnose = createDiagnoser(db,project);
  const repositoryLinks = createRepositoryLinker(db,project);
- const eventsRead = Promise.all([selectedRead,routesRead]).then(([selected,routes]) => Promise.all(selected.results.map(async row => {
+ const eventsRead = reads.then(([selected, routes]) => Promise.all(selected.results.map(async row => {
   const stored = JSON.parse(row.payload);
   // Explicit envelope input prevents unknown stored properties from becoming
   // output; normalization preserves the admission privacy contract.
@@ -88,7 +96,7 @@ export async function issuePacket(db: D1Database, project: string, id: string, r
   const atAdmission = diagnosticProjection(JSON.parse(row.diagnostic));
   const [currentLookup,basis] = await Promise.all([
    row.historical === 1 ? atAdmission : diagnose(event).then(diagnosticProjection),
-   row.original_basis??admissionBasis(event,issue,routes.results),
+   row.original_basis??admissionBasis(event,issue,routes.results as GroupingRoute[]),
   ]);
   const fingerprint=row.original_fingerprint??(row.historical?issue.fingerprint:await hash(basis));
   const {grouping:nativePolicy,...nativeEvent}=event;
@@ -97,21 +105,17 @@ export async function issuePacket(db: D1Database, project: string, id: string, r
    repositorySources: await repositoryLinks(event,currentLookup,row.historical === 1),
    release: release(row), build: text(row.build), environment: text(row.environment) };
  })));
- const [events, totals, first, last, losses, windows, auditRows, auditTotal, repairs, deployments, commitLinks, sharing] = await Promise.all([
+ const [events, evidence, repairs, deployments, sharing, retentionPolicy, identity] = await Promise.all([
   eventsRead,
-  query(db, 'SELECT COUNT(*) available,COALESCE(SUM(CASE WHEN historical=0 THEN 1 ELSE 0 END),0) live FROM events WHERE project=? AND issue=?', project, id).first<any>(),
-  firstRead,
-  lastRead,
-  query(db, 'SELECT project,window,reason,count FROM outcomes WHERE project=? ORDER BY window DESC,reason LIMIT 100', project).all<any>(),
-  query(db, 'SELECT reason,SUM(count) count FROM outcomes WHERE project=? AND window>=? GROUP BY reason ORDER BY reason LIMIT 100', project, Date.now() - 86400000).all<any>(),
-  query(db, "SELECT id,project,kind,detail,created FROM audit WHERE project=? AND kind='retention_gap' ORDER BY created DESC,id DESC LIMIT 20", project).all<any>(),
-  query(db, "SELECT COUNT(*) count FROM audit WHERE project=? AND kind='retention_gap'", project).first<any>(),
+  reads,
   packetRepairs(db, project, id),
   deploymentsRead,
-  query(db, commitLinkSql('?', '?'), project, id).all<any>(),
   commitSharing(db, project),
+  readRetentionPolicy(db, project),
+  affectedUsers(db, project, id),
  ]);
- const retentionPolicy=await readRetentionPolicy(db,project);
+ const [, , firstRead, lastRead, totalsRead, losses, windows, auditRows, auditCount, commitLinks] = evidence;
+ const first = firstRead.results[0], last = lastRead.results[0], totals = totalsRead.results[0];
  const retention = auditRows.results.map(row => {
   const detail = object(row.detail);
   return { id: text(row.id), project: text(row.project), kind: 'retention_gap', created: number(row.created),
@@ -120,13 +124,12 @@ export async function issuePacket(db: D1Database, project: string, id: string, r
  const baseGaps: Gap[] = [{ code: 'windowed_loss', reason: 'Counters include server admission and SDK-reported client discards. Unreported loss before transport is unknown.',
   window: 'last 24 hours', rows: windows.results.map(outcomeProjection) }];
  if (retention.length) baseGaps.push({ code: 'retention_gap', reason: 'Project retention operations are recorded at the cutoffs below; each row reports the actual number of events removed, which may be zero. First and last release describe surviving observations only.',
-  rows: retention, available: auditTotal?.count ?? retention.length, included: retention.length });
+  rows: retention, available: auditCount.results[0]?.count ?? retention.length, included: retention.length });
  if (['sentry-import-v1','rollbar-import-v1'].includes(issue.algorithm) && totals.live === 0) baseGaps.push({ code: 'imported_history_no_live_events', reason: 'This imported issue has no live captured events. Exported counts and imported release ordering are historical evidence, not measured live coverage or owner registration order.' });
  if (issue.client_dropped) baseGaps.push({ code: 'client_dropped', reason: `The SDK counted ${issue.client_dropped} more errors at this location that it did not send (its per-location cap or a repeat within 5 seconds). They are not in the occurrence count.`, count: issue.client_dropped });
  if (repairs.available > repairs.repairs.length) baseGaps.push({ code: 'repairs_omitted', reason: `Only the newest ${repairs.repairs.length} of ${repairs.available} owner-recorded repairs are included.`, available: repairs.available, included: repairs.repairs.length });
  if (!first) baseGaps.push({ code: 'release_history_unavailable', reason: 'No retained event establishes the first or last release. An issue release watermark is conservative and is not an observed occurrence.' });
  const root = `/api/projects/${encodeURIComponent(project)}`;
- const identity=await affectedUsers(db,project,id);
  const packet = {
   affectedUsers:identity,
   version: 1, project, issue, events,

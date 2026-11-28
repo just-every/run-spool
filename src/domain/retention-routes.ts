@@ -3,7 +3,16 @@ import {retentionWindows,readRetentionPolicy,retentionPreview,retentionPolicyFen
 import {hash,canonical,scrub} from './privacy';
 export const retentionPolicyRoutes=ownerProjectRouter();
 retentionPolicyRoutes.onError((error,c)=>{if(/CHECK constraint failed: value=1/.test(String(error)+' '+String(error.cause)))return c.json({error:'Retention preview changed; preview again'},409);throw error});
-retentionPolicyRoutes.get('/',async c=>c.json({...await readRetentionPolicy(c.env.DB,c.req.param('project')!),lastRun:await c.env.DB.prepare('SELECT last_run,status,remaining FROM retention_runs WHERE project=?').bind(c.req.param('project')!).first(),preview:await retentionPreview(c.env.DB,c.req.param('project')!,(await readRetentionPolicy(c.env.DB,c.req.param('project')!)).windows)}));
+retentionPolicyRoutes.get('/',async c=>{
+ const db=c.env.DB,project=c.req.param('project')!;
+ const policy=readRetentionPolicy(db,project);
+ const [current,lastRun,preview]=await Promise.all([
+  policy,
+  db.prepare('SELECT last_run,status,remaining FROM retention_runs WHERE project=?').bind(project).first(),
+  policy.then(current=>retentionPreview(db,project,current.windows,undefined,current)),
+ ]);
+ return c.json({...current,lastRun,preview});
+});
 retentionPolicyRoutes.post('/preview',async c=>{const b=await jsonBody(c.req.raw,3000);return c.json(await retentionPreview(c.env.DB,c.req.param('project')!,retentionWindows(b.windows)))});
 retentionPolicyRoutes.put('/',async c=>{
  const b=await jsonBody(c.req.raw,4000),p=c.req.param('project')!,db=c.env.DB,current=await readRetentionPolicy(db,p),windows=retentionWindows(b.windows),preview=await retentionPreview(db,p,windows,b.at);

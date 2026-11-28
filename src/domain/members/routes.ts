@@ -4,7 +4,7 @@ import { localDevelopmentEnabled } from '../../auth/local.server.mjs';
 import { localInvitationLink } from './local-invitations';
 import { mintedByCurrentPerson } from '../credential-fence';
 import { Hono } from 'hono';
-import { requestAuthority as ownerSession, nativeWrite as ownerWrite } from '../agent-door/native-authority';
+import { requestAuthority as ownerSession, nativeWrite as ownerWrite, type NativeAuthority } from '../agent-door/native-authority';
 import { operatorAuth } from '../../auth/session.server';
 import { AuthError } from '../../modules/operator-auth/index.mjs';
 import { ownerBatch, authorityGuard } from '../owner-authority';
@@ -24,10 +24,33 @@ memberRoutes.use('*',async(c,next)=>{
  if(!['GET','HEAD'].includes(c.req.method)&&!ownerWrite(c.req.raw,c.env))return c.json({error:'Same-origin required'},403);
  c.set('teamSession',session);c.header('Cache-Control','no-store');await next();
 });
-const organization=(db:D1Database)=>s(db,'SELECT * FROM spool_organizations ORDER BY created LIMIT 1').first<any>();
+type Organization = { id: string; name: string; created: number };
+const organizationStatement=(db:D1Database)=>s(db,'SELECT * FROM spool_organizations ORDER BY created LIMIT 1');
+const organization=(db:D1Database)=>organizationStatement(db).first<Organization>();
 memberRoutes.get('/me',async c=>{
- const session=c.get('teamSession'), org=await organization(c.env.DB);
- return c.json({profile:{name:session.operator.displayName,email:session.operator.email},mailSuppressed:mailSuppressed(c.env),localTransferConfirmation:localDevelopmentEnabled(c.env)&&session.kind==='dev',role:session.operator.role==='owner'?'owner':session.membership.role,memberId:session.membership?.id??(await s(c.env.DB,'SELECT id FROM spool_members WHERE operator_id=?',session.operator.id).first<any>())?.id,organization:org,projects:await memberProjects(c.env.DB,session)});
+ const session: NativeAuthority = c.get('teamSession');
+ const db: D1Database = c.env.DB;
+ let memberId = session.membership?.id;
+ let org: Organization | null;
+ if (memberId == null) {
+  const [organizations, members] = await db.batch<Organization | { id: string }>([
+   organizationStatement(db),
+   s(db,'SELECT id FROM spool_members WHERE operator_id=?',session.operator.id),
+  ]);
+  org = (organizations.results[0] as Organization | undefined) ?? null;
+  memberId = members.results[0]?.id;
+ } else {
+  org = await organization(db);
+ }
+ return c.json({
+  profile: { name: session.operator.displayName, email: session.operator.email },
+  mailSuppressed: mailSuppressed(c.env),
+  localTransferConfirmation: localDevelopmentEnabled(c.env) && session.kind === 'dev',
+  role: session.operator.role === 'owner' ? 'owner' : session.membership!.role,
+  memberId,
+  organization: org,
+  projects: await memberProjects(db,session),
+ });
 });
 memberRoutes.get('/usage',async c=>{
  const session=c.get('teamSession');

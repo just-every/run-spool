@@ -3,6 +3,11 @@ import { importedTeamName } from '../sentry-import/roster-team';
 import { statement as s, type AlertEnvironment, type Intent } from './types';
 export type Recipient={member:string;email:string;reason:string};
 export type TargetDestination={id:string;project:string;label:string;channel:'mail';kind:'target';targetType:'team'|'member'|'issue_owners';target:string|null;fallthrough:'active_members'|'no_one';editable:true;recipient?:undefined;url?:undefined;key?:undefined;token?:undefined;channelId?:undefined};
+export type TargetDestinationRow = Pick<TargetDestination,'id'|'project'|'label'|'targetType'|'target'|'fallthrough'>;
+const targetSelect = 'SELECT id,project,label,target_type targetType,target,fallthrough FROM alert_target_destinations WHERE project=?';
+export const targetChoicesStatement = (db:D1Database,project:string) => s(db,`${targetSelect} ORDER BY created,id`,project);
+export const targetDestination = (row:TargetDestinationRow):TargetDestination => ({...row,channel:'mail',kind:'target',editable:true});
+
 // Match the native permission model, including organization role overrides and
 // active identity. A team label on another project confers no recipient access.
 const authorizedMembers=`SELECT m.id member,m.email,m.name FROM spool_members m
@@ -16,12 +21,8 @@ export async function recipientChoices(env:AlertEnvironment,project:string){
  return {members,teams,issueOwnersAvailable:false};
 }
 export async function findTarget(env:AlertEnvironment,project:string,id:string):Promise<TargetDestination|null>{
- const row=await s(env.DB,'SELECT id,project,label,target_type targetType,target,fallthrough FROM alert_target_destinations WHERE project=? AND id=?',project,id).first<any>();
- return row?{...row,channel:'mail',kind:'target',editable:true}:null;
-}
-export async function targetChoices(env:AlertEnvironment,project:string){
- const rows=(await s(env.DB,'SELECT id FROM alert_target_destinations WHERE project=? ORDER BY created,id',project).all<{id:string}>()).results;
- return Promise.all(rows.map(row=>findTarget(env,project,row.id))) as Promise<TargetDestination[]>;
+ const row=await s(env.DB,`${targetSelect} AND id=?`,project,id).first<TargetDestinationRow>();
+ return row?targetDestination(row):null;
 }
 export function targetInput(input:any){
  const t=input?.target;

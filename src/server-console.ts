@@ -5,6 +5,8 @@ import { runtimeBindings, type Bindings } from './auth/bindings';
 import { wrapRequest } from './domain/audit/request';
 import type { AlertEnvironment } from './domain/alerts/types';
 import { AuthError } from './modules/operator-auth/errors.mjs';
+import { consoleInstanceMatches } from './console-placement';
+import { staticAssetResponse } from './base/static-assets';
 
 export type WorkerBindings = Bindings & AlertEnvironment & { CONSOLE: DurableObjectNamespace };
 
@@ -39,10 +41,17 @@ export class SpoolConsole extends DurableObject<WorkerBindings> {
   try {
    const path = new URL(request.url).pathname;
    const name = consoleObject(request, path);
-   if (!name || !this.ctx.id.equals(this.env.CONSOLE.idFromName(name))) return new Response('Not found', {status: 404});
+   if (!name || !consoleInstanceMatches(this.ctx.id.name, name)) return new Response('Not found', {status: 404});
    const env = runtimeBindings(this.env) as Bindings & AlertEnvironment;
    return await wrapRequest(request, env, async () => {
     if (privateRuntimePath(request.url)) return new Response('Not found', {status: 404});
+    if (applicationDocument(path) || path === '/setup/state') {
+     const asset = await staticAssetResponse(request, env);
+     if (asset) return asset;
+     const {consoleDocument} = await import('./server-documents');
+     const document = await consoleDocument(request, env, path);
+     if (document) return document;
+    }
     const { handle } = await import('./server-application');
     return handle(request, env, {
      waitUntil: promise => this.ctx.waitUntil(promise),

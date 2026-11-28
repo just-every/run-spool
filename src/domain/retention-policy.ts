@@ -24,12 +24,21 @@ function retentionSpecifications(cutoffs:RetentionWindows){
  sessions:['health_sessions','updated','updated<?',[cutoffs.sessions],'192'],
  } as const;
 }
-export async function retentionPreview(db:D1Database,project:string,windows:RetentionWindows,at=Date.now()){
+export async function retentionPreview(db:D1Database,project:string,windows:RetentionWindows,at=Date.now(),policy?:Awaited<ReturnType<typeof readRetentionPolicy>>){
  if(!Number.isSafeInteger(at)||at<0||at>Date.now()||Date.now()-at>300000)throw new Error('Preview expired; preview again');
- const current=await readRetentionPolicy(db,project),cutoffs=retentionCutoffs(windows,at);
+ const current=policy??await readRetentionPolicy(db,project),cutoffs=retentionCutoffs(windows,at);
  const specifications=retentionSpecifications(cutoffs);
- const rows=await Promise.all(retentionTypes.map(async type=>{const [table,time,where,values,bytes]=specifications[type];const row=await db.prepare(`SELECT COUNT(*) count,MIN(${time}) oldest,MAX(${time}) newest,COALESCE(SUM(${bytes}),0) bytes FROM ${table} WHERE project=? AND (${where})`).bind(project,...values).first<any>();return {type,cutoff:cutoffs[type],...row}}));
- const total=await Promise.all(retentionTypes.map(async type=>{const [table,,,,bytes]=specifications[type];return await db.prepare(`SELECT COALESCE(SUM(${bytes}),0) bytes FROM ${table} WHERE project=?`).bind(project).first<any>()}));
+ const selectedQueries=retentionTypes.map(type=>{
+  const [table,time,where,values,bytes]=specifications[type];
+  return db.prepare(`SELECT COUNT(*) count,MIN(${time}) oldest,MAX(${time}) newest,COALESCE(SUM(${bytes}),0) bytes FROM ${table} WHERE project=? AND (${where})`).bind(project,...values);
+ });
+ const totalQueries=retentionTypes.map(type=>{
+  const [table,,,,bytes]=specifications[type];
+  return db.prepare(`SELECT COALESCE(SUM(${bytes}),0) bytes FROM ${table} WHERE project=?`).bind(project);
+ });
+ const aggregates=await db.batch<any>([...selectedQueries,...totalQueries]);
+ const rows=retentionTypes.map((type,index)=>({type,cutoff:cutoffs[type],...aggregates[index].results[0]}));
+ const total=aggregates.slice(retentionTypes.length).map(result=>result.results[0]);
  const data={project,revision:current.revision,generation:current.generation,at,windows,held:current.held,rows,shortening:retentionTypes.some(k=>windows[k]<current.windows[k]),coverage:'Evidence before each cutoff is unavailable; historical comparisons and retry deduplication can be incomplete.',storage:{estimatedBytes:total.reduce((n,r)=>n+r.bytes,0),selectedBytes:rows.reduce((n,r)=>n+r.bytes,0),basis:'Stored text bytes plus estimated structured rows; excludes indexes, database overhead, artifacts referenced by retained events and session aggregates.'}};
  return {...data,token:await hash(canonical(data))};
 }

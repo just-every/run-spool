@@ -1,3 +1,5 @@
+import { mintedByCurrentPerson } from './credential-fence';
+
 // Connection status is temporary metadata, separate from loss/billing receipts.
 export function rememberCaptureSource(db: D1Database, project: string, origin: string | undefined, time: number) {
  const minute = Math.floor(time / 60000) * 60000;
@@ -7,11 +9,20 @@ export function rememberCaptureSource(db: D1Database, project: string, origin: s
  ];
 }
 
-export async function recentCapture(db: D1Database, project: string, time: number) {
+export async function captureOutcomes(db: D1Database, project: string, time: number) {
  const since = Math.ceil((time - 3600000) / 60000) * 60000;
- const [accepted, sources] = await Promise.all([
-  db.prepare("SELECT COALESCE(SUM(count),0) count FROM outcomes WHERE project=? AND window>=? AND reason='accepted'").bind(project, since).first<{ count: number }>(),
-  db.prepare('SELECT origin,SUM(count) count FROM capture_sources WHERE project=? AND window>=? GROUP BY origin ORDER BY origin').bind(project, since).all<{ origin: string; count: number }>(),
+ const [keys, accepted, sources, outcomes] = await db.batch([
+  db.prepare(`SELECT COUNT(*) total,COALESCE(SUM(CASE WHEN revoked IS NULL AND ${mintedByCurrentPerson} THEN 1 ELSE 0 END),0) active FROM credentials WHERE project=? AND kind='ingest'`).bind(project),
+  db.prepare("SELECT COALESCE(SUM(count),0) count FROM outcomes WHERE project=? AND window>=? AND reason='accepted'").bind(project, since),
+  db.prepare('SELECT origin,SUM(count) count FROM capture_sources WHERE project=? AND window>=? GROUP BY origin ORDER BY origin').bind(project, since),
+  db.prepare('SELECT reason,SUM(count) count FROM outcomes WHERE project=? AND window>=? GROUP BY reason').bind(project, time - 86400000),
  ]);
- return { count: accepted?.count ?? 0, sources: sources.results.map(row => ({ origin: row.origin || null, count: row.count })) };
+ return {
+  captureKeys: keys.results[0] as { total: number; active: number },
+  recentCapture: {
+   count: (accepted.results[0] as { count: number } | undefined)?.count ?? 0,
+   sources: (sources.results as { origin: string; count: number }[]).map(row => ({ origin: row.origin || null, count: row.count })),
+  },
+  rows: outcomes.results as { reason: string; count: number }[],
+ };
 }

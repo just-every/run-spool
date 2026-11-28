@@ -3,7 +3,7 @@
 // sign-in, personas and the Dev product label.
 import worker from './server';
 import type { WorkerBindings } from './server-console';
-export { SpoolAlertWork, SpoolCapture, SpoolConsole } from './server';
+export { SpoolAlertWork, SpoolCapture, SpoolConsole, SpoolConsolePlacement } from './server';
 import { managedInstallation } from './modules/operator-auth/dev/index.mjs';
 import { withDevIdentity } from './auth/local-identity.server.mjs';
 import { devGate } from './modules/operator-auth/dev-gate.mjs';

@@ -5,6 +5,7 @@ import { withDemo } from './modules/demo/index.mjs';
 import { privateRuntimePath } from './auth/private-runtime.server';
 import { runtimeBindings, type Bindings } from './auth/bindings';
 import { consoleObject, forwardConsoleRequest, refused, type WorkerBindings } from './server-console';
+import { placedConsole } from './console-placement';
 import { staticAssetResponse } from './base/static-assets';
 import type { AlertEnvironment } from './domain/alerts/types';
 import { ingestApi, nativeIngestRoute, type AuthorizeNative, type NativeCaptureInput } from './domain/ingest-api';
@@ -13,6 +14,7 @@ import { dispatchAfterCapture, type IngestScope } from './domain/admission';
 export { SpoolAlertWork } from './server-alert-work';
 export { SpoolCapture } from './server-capture';
 export { SpoolConsole } from './server-console';
+export { SpoolConsolePlacement } from './console-placement';
 
 export async function scheduled(event: ScheduledController, bindings: Bindings & AlertEnvironment, execution: ExecutionContext) {
  const scheduler = await import('./server-scheduled');
@@ -27,7 +29,7 @@ export default withDemo({
   const native=nativeIngestRoute(request.method,path);
   if (!native && env.AUTH_LOCAL !== 'true' && env.RER_DEMO !== '1') {
    const object = consoleObject(request, path);
-   if (object) return forwardConsoleRequest(request, bindings.CONSOLE.getByName(object));
+   if (object) return forwardConsoleRequest(request, await placedConsole(bindings.CONSOLE, bindings.DB, object, () => execution.exports.SpoolConsolePlacement.discover()));
   }
   // The local key gate and demo database belong to the request that opened them.
   const hostedCapture=native==='capture' && env.AUTH_LOCAL!=='true' && env.RER_DEMO!=='1';
