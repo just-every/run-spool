@@ -3,12 +3,18 @@ import {prepareIdentityKey,identityHash} from '../identities/key';
 import {emptyScrubbingPolicy,scrubbingPolicy,type ScrubbingPolicy} from './policy';
 import {applyScrubbingDocument} from './apply';
 export const policyId=(project:string|null)=>project===null?'installation':'project:'+project;
+type PolicyRow = {id:string;revision:number;policy:string};
+const decodePolicy = (row?: Pick<PolicyRow, 'revision' | 'policy'> | null) =>
+ ({revision:row?.revision??0,policy:row?scrubbingPolicy(JSON.parse(row.policy)):emptyScrubbingPolicy()});
+
 export async function readScrubbingPolicy(db:D1Database,project:string|null){
- const row=await db.prepare('SELECT revision,policy FROM scrubbing_policies WHERE id=?').bind(policyId(project)).first<{revision:number;policy:string}>();
- return {revision:row?.revision??0,policy:row?scrubbingPolicy(JSON.parse(row.policy)):emptyScrubbingPolicy()};
+ return decodePolicy(await db.prepare('SELECT revision,policy FROM scrubbing_policies WHERE id=?').bind(policyId(project)).first<PolicyRow>());
 }
 export async function scrubbingSnapshot(db:D1Database,project:string|null){
- const installation=await readScrubbingPolicy(db,null),current=project===null?installation:await readScrubbingPolicy(db,project);
+ const installationId=policyId(null),projectId=policyId(project);
+ const {results}=await db.prepare('SELECT id,revision,policy FROM scrubbing_policies WHERE id IN (?,?)').bind(installationId,projectId).all<PolicyRow>();
+ const installation=decodePolicy(results.find(row=>row.id===installationId));
+ const current=project===null?installation:decodePolicy(results.find(row=>row.id===projectId));
  return {...current,installationRevision:installation.revision,installationPolicy:installation.policy};
 }
 export function scrubbingFence(db:D1Database,project:string|null,revision:number){

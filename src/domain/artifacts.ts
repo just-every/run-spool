@@ -3,7 +3,7 @@ import { sourceDiagnostics } from './path-mappings';
 import { AnyMap, originalPositionFor, decodedMappings, traceSegment } from '@jridgewell/trace-mapping';
 import { scrub, type Envelope, type Frame } from './privacy';
 import { sourceMapFile } from './source-map-path';
-import { functionScopes, type FunctionScopes } from './source-map-functions';
+import type { FunctionScopes } from './source-map-functions';
 import { artifactNameKey, frameArtifactNames } from './sentry-cli/names';
 export const sourceMapByteLimit = 1024 * 1024;
 export function validateMap(map:any): string {
@@ -101,7 +101,10 @@ export function createDiagnoser(db:D1Database, project:string) {
         if (typeof source === 'string') {
           const key = `${row.digest}:${sourceIndex}`;
           if (!scopes.has(key) && scopes.size>=8) scopes.delete(scopes.keys().next().value!);
-          if (!scopes.has(key)) scopes.set(key,functionScopes(source,sourceMapFile(original.source??'')));
+          if (!scopes.has(key)) {
+           const { functionScopes } = await import('./source-map-functions');
+           scopes.set(key,functionScopes(source,sourceMapFile(original.source??'')));
+          }
           name = scopes.get(key)!(original.line,original.column!);
         }
         return {generated:frame,status:'mapped',original:{file:sourceMapFile(original.source??''),line:original.line,column:original.column,function:scrub(name??frame.function)},artifactDigest:row.digest};

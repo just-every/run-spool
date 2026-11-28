@@ -14,7 +14,6 @@ import { memberProjects } from './members/resolver';
 import { memberRoutes } from './members/routes';
 import { reportRoutes } from './reports/routes';
 import { reportingRoutes } from './dashboards/routes';
-import {prepareScrubbing} from './scrubbing/model';
 import {projectScrubbingRoutes,installationScrubbingRoutes} from './scrubbing/routes';
 import {reviewRoutes} from './review/routes';
 import {retentionPolicyRoutes} from './retention-routes';
@@ -39,8 +38,6 @@ import { groupingRoutes as projectGroupingRoutes } from './grouping/routes';
 import {inboundFilterRoutes,defaultOnFilters,defaultInboundPolicy} from './filters';
 import { notificationPreferenceRoutes } from './notifications/routes';
 import { Hono } from 'hono';
-import { rejectedResponse } from '../base/rejected-response';
-import { AuthError } from '../modules/operator-auth/index.mjs';
 import { requestAuthority as ownerSession, nativeWrite as ownerWrite } from './agent-door/native-authority';
 import type { Bindings as OwnerBindings } from '../auth/bindings';
 import type { AlertEnvironment } from './alerts/types';
@@ -55,7 +52,6 @@ import repairRoutes from './repairs/routes';
 import reproducerRoutes from './reproducers/routes';
 import runnerRoutes from './reproducers/runner-routes';
 import fixRoutes from './fixes/routes';
-import { exposureResponse } from './exposure/intake';
 import { projectErasureRoutes, erasureReceiptRoutes } from './erasure/routes';
 import { erasedProjectIdentifier } from './erasure/identifiers';
 import { applyRetention } from './retention';
@@ -64,15 +60,12 @@ import { sharingSql } from './commits/sharing';
 import { ensureShortIds, prefixStatement, projectPrefix } from './short-ids/assign';
 import { decodeShortIds, resolveIssue, shortIdColumnsSql } from './short-ids/lookup';
 type Bindings = OwnerBindings & AlertEnvironment;
-import { normalize, identity, hash, token, scrub, canonical } from './privacy';
+import { identity, hash, token, scrub } from './privacy';
 import { ownerAlert, ownerIssue } from './stored-text';
 import { archiveStream, restoreStream } from './portability';
 import { archiveWithProgress } from './archive-stream';
 import { archiveProgressHeader } from './archive-progress';
 import { portability } from './portability-worker';
-import { PortabilityError } from '../modules/portability/index.mjs';
-import { authorizeIngest, admitEvent, recordIngest, ingestFailure } from './admission';
-import { nativeBody } from './native-wire';
 import deployRoutes from './sentry/deploy-routes';
 import nativeSymbolRoutes from './native-symbols/routes';
 import sentryCliRoutes from './sentry-cli/routes';
@@ -84,14 +77,15 @@ import rollbarImportRoutes from './rollbar-import/routes';
 import businessImportRoutes from './sentry-import/business-routes';
 import { projectDsn } from './sentry/dsn';
 import { feedbackRoutes } from './feedback/routes';
-import { websiteOrigin, ingestOrigin, requestedHeaders } from './origins';
+import { websiteOrigin } from './origins';
 import { clientDroppedSql, issueAttentionSql, decodeIssueAttention, listedIssueSql } from './issue-attention';
 import { recordDevMint } from './dev-credentials';
-import { agentProject, agentReadPath } from './agent-access';
-import { deniedResponse } from './denied-response';
 import { alertProjection, issueProjection, outcomeProjection } from './agent-projection';
 import { issuePacket } from './packet';
 import { ownerBatch, ownerDatabase, type OwnerSession } from './owner-authority';
+
+import { apiAccess, apiError } from './api-middleware';
+import { ingestRoutes } from './ingest-api';
 
 const api = new Hono<{Bindings:Bindings;Variables:{owner:boolean;dev:boolean;project:string|null;minter:{id:string;version:number}|null;session:NativeAuthority}}>();
 api.route('/api/organization',memberRoutes);
@@ -104,11 +98,6 @@ api.route('/api/projects',sessionRoutes);
 api.route('/api/projects',identityReadRoutes);
 const now=()=>Date.now();
 const stmt=(db:D1Database,sql:string,...args:any[])=>db.prepare(sql).bind(...args);
-async function ingestRejection(c:any,response:Response) {
-  const result=await rejectedResponse(c.req.raw,response);
-  if(result.status===408||result.status===413)return c.json({outcome:'rejected',reason:result.status===408?'body_timeout':'body_limit'},result.status);
-  return result;
-}
 async function body(c:any,limit=32768) { const declared=Number(c.req.header('content-length')??0); if(declared>limit) throw new Error('Body exceeds limit'); const reader=c.req.raw.body?.getReader();if(!reader)throw new Error('Missing body');let size=0,chunks:Uint8Array[]=[];while(true){const {done,value}=await reader.read();if(done)break;size+=value.byteLength;if(size>limit){await reader.cancel();throw new Error('Body exceeds limit')}chunks.push(value)}const bytes=new Uint8Array(size);let pos=0;for(const chunk of chunks){bytes.set(chunk,pos);pos+=chunk.length}return JSON.parse(new TextDecoder().decode(bytes)) }
 const record=(db:D1Database,project:string,reason:string)=>stmt(db,'INSERT INTO outcomes VALUES(?,?,?,1) ON CONFLICT(project,window,reason) DO UPDATE SET count=count+1',project,Math.floor(now()/60000)*60000,reason).run();
 const mintCredential=(c:any,keyHash:string,project:string,kind:string,name='')=>{const minter=c.get('minter');return stmt(c.env.DB,'INSERT INTO credentials(hash,project,kind,created,revoked,minted_by,minted_version,name) VALUES(?,?,?,?,NULL,?,?,?)',keyHash,project,kind,now(),minter?.id??null,minter?.version??null,name)};
@@ -116,50 +105,13 @@ const audit=(db:D1Database,project:string|null,kind:string,detail:any)=>stmt(db,
 // Owner writes commit only while the session that admitted them still holds owner authority (owner-authority.ts).
 const write=(c:any,statements:D1PreparedStatement[])=>ownerBatch(c.env.DB,c.get('session'),statements);
 const ownerDb=(c:any)=>ownerDatabase(c.env.DB,c.get('session'));
-api.use('*',async(c,next)=>{c.header('Cache-Control','no-store');c.header('X-Content-Type-Options','nosniff');
-  const grant=await agentProject(c.req.raw,c.env.DB);
-  c.set('project',grant);
-  // This precedes every independently mounted ingest, deploy and import router.
-  if(grant&&!agentReadPath(c.req.raw,grant))return deniedResponse(c.req.raw,c.json({error:'Agent grants are limited to project evidence and inert grouping proposals.'},403));
-  await next()});
-api.onError((err,c)=>{
-  if(['REVIEW_FINGERPRINT_MISMATCH','NATIVE_EDIT_CONFLICT','OPERATION_KEY_CONFLICT','DUPLICATE_SOURCE_CONFLICT','IMPORT_ATOMIC_GUARD','REVERSAL_MODE_CONFLICT','UNDO_REQUIRES_COMPLETED_IMPORT'].includes(err.message))return c.json({error:err.message},409);
-  if(err instanceof AuthError)return c.json({error:err.code},err.status as any);
-  if(err instanceof PortabilityError)return c.json({error:err.code},err.status as any);
-  if(err.message.includes('restore_in_progress'))return c.json({error:'Restore in progress'},409);
-  const storage=err.message.startsWith('D1')&&!/(SQLITE_CONSTRAINT|constraint failed)/i.test(err.message);
-  if(storage)return c.req.path.startsWith('/api/ingest/')?c.json({outcome:'unavailable',reason:'transaction_not_confirmed'},503):c.json({error:'Storage operation not confirmed'},503);
-  return c.json({error:err.message.startsWith('D1')?'Storage operation failed':scrub(err.message)},400);
-});
+api.use('*',apiAccess);
+api.onError(apiError);
 // The scheduler's last run is public on purpose: it holds no project or credential data and shows whether the cron ticks.
 api.get('/health',async c=>{await c.env.DB.prepare('SELECT 1 FROM projects LIMIT 1').first();const scheduler=await c.env.DB.prepare('SELECT last_run FROM alert_scheduler WHERE id=1').first<{last_run:number|null}>();return c.json({status:'ok',ok:true,deployment:{sourceSha:c.env.RER_DEPLOY_SOURCE,fingerprint:c.env.RER_DEPLOY_FINGERPRINT,versionId:c.env.RER_VERSION?.id},alerts:{lastScheduledRun:scheduler?.last_run?new Date(scheduler.last_run).toISOString():null}})});
-const preflight=async(c:any)=>{
-  c.header('Vary','Origin, Access-Control-Request-Method, Access-Control-Request-Headers');
-  const project=c.req.param('project'),origin=c.req.header('origin');
-  const known=await stmt(c.env.DB,'SELECT 1 FROM projects WHERE id=?',project).first();
-  if(!known||!origin||c.req.header('access-control-request-method')!=='POST'||!requestedHeaders(c.req.header('access-control-request-headers')))return c.json({error:'Preflight not allowed'},403);
-  const policy=await ingestOrigin(c.env.DB,project,origin,c.env.AUTH_ORIGIN,c.req.header('referer'));
-  if(!policy.allowed)return c.json({error:'Origin not allowed'},403);
-  c.header('Access-Control-Allow-Origin',origin);c.header('Access-Control-Allow-Methods','POST');c.header('Access-Control-Allow-Headers','Authorization, Content-Type');c.header('Access-Control-Max-Age','60');return c.body(null,204);
-};
-api.options('/api/ingest/:project',preflight);
-api.options('/api/ingest/:project/exposure',preflight);
-api.post('/api/ingest/:project/exposure',exposureResponse);
+api.route('/',ingestRoutes);
 // The reproducer runner's single-use run tokens are its only authority.
 api.route('/api/sandbox',runnerRoutes);
-api.post('/api/ingest/:project',async c=>{
-  const auth=await authorizeIngest(c,c.req.param('project'),c.req.header('authorization')?.replace(/^Bearer /,''));
-  if('response' in auth)return ingestRejection(c,auth.response);
-  try{
-    const parsed=await nativeBody(c.req.raw);
-    if('rejected' in parsed){
-      try{await recordIngest(c,auth.scope,'oversized')}catch(failure){return ingestFailure(c,auth.scope,failure)}
-      return ingestRejection(c,c.json({outcome:'rejected',reason:parsed.rejected===408?'body_timeout':parsed.rejected===413?'body_limit':'Body exceeds limit'},parsed.rejected as any));
-    }
-    const privacy=await prepareScrubbing(c.env.DB,auth.scope.project,parsed.value);
-    return admitEvent(c,auth.scope,normalize(privacy.document),await hash(canonical(parsed.value)),false,undefined,privacy);
-  }catch(error){try{await recordIngest(c,auth.scope,'invalid')}catch(failure){return ingestFailure(c,auth.scope,failure)}return ingestRejection(c,c.json({outcome:'rejected',reason:scrub((error as Error).message)},400))}
-});
 api.route('/api/projects',deployRoutes);
 api.route('/api/projects',nativeSymbolRoutes);
 api.route('/api/0',sentryCliRoutes);

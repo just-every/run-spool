@@ -1,83 +1,16 @@
-import {scheduleSuppression} from './domain/suppression/schedule';
-import { emitPersonChange } from './domain/agent-door/events';
-import { legacyAgentResponse } from './domain/agent-door/legacy';
-import { expireReplayCalls } from './modules/agent-door/index.ts';
-import { agentDoorResponse,spoolAgentDoor } from './domain/agent-door/index.server';
-import { resolveMembership } from './domain/members/resolver';
-import {scheduledRetention} from './domain/retention-schedule';
-import { reportDialogResponse } from './domain/report-dialog/public.server';
-import { loaderResponse } from './domain/loader/public.server';
 import { wrapRequest } from './domain/audit/request';
-import { deploymentTimeouts } from './domain/deployments/timeouts';
 import { withDemo } from './modules/demo/index.mjs';
-import { seedDemo } from './demo';
-import start from '@tanstack/react-start/server-entry';
-import api from './domain/api';
-import { setupDocumentResponse, setupClaimed } from './domain/setup.server';
-import { dispatch } from './base/dispatch';
-import { authenticationResponse, authorizeDocument } from './auth/dispatch.server';
-import { applicationDocument } from './auth/document-path';
-import { ownerSession } from './auth/session.server';
-import { agentProject, agentReadPath } from './domain/agent-access';
 import { privateRuntimePath } from './auth/private-runtime.server';
 import { runtimeBindings, type Bindings } from './auth/bindings';
-import { ownerClaimResponse } from './editor/owner-claim.server';
-import { editorConfigResponse, editorDocument } from './editor/config.server';
-import { providerEventResponse } from './domain/alerts/provider-events.server';
-import { runAlerts } from './domain/alerts/dispatch';
-import { queueDigests } from './domain/alerts/digests';
-import { scheduledMail } from './domain/alerts/scheduled-mail';
-import { scanFollowUp, closeFollowUp } from './domain/follow-up/scan';
-import { scheduledDue, scheduledFollowUp } from './domain/scheduled/due';
-import { queueNotices, dispatchNotices } from './domain/follow-up/notices';
-import { staticAssetResponse } from './base/static-assets';
-import { admitted, setupStateResponse } from './base/setup-state';
-import { lobbyResponse } from './base/lobby';
-import { localOwnerLobby } from './auth/local-owner-lobby.server';
-import { identity } from './identity';
-import { docsResponse, isDocsRequest } from './ui/docs/document.server';
-import { continueErasures } from './domain/erasure/service';
-import { expireBrowserArchives } from './domain/archive-pages';
-import { ownerErasureResponse } from './domain/erasure/owner-routes';
-import { AuthError } from './modules/operator-auth/index.mjs';
+import { AuthError } from './modules/operator-auth/errors.mjs';
 import type { AlertEnvironment } from './domain/alerts/types';
-import { importDoorResponse, openDoorAtClaim } from './domain/sentry-import/door.server';
-import { cutoverStatusPath, rerCutoverStatus } from './domain/rer-cutover-status.server';
-export async function scheduled(event: ScheduledController, bindings: Bindings & AlertEnvironment, _execution: ExecutionContext) {
- const env = runtimeBindings(bindings) as Bindings & AlertEnvironment;
- const time = event.scheduledTime;
- const due = await scheduledDue(env.DB, time);
- let alertsChanged = false;
- // Accepted erasure jobs continue here after the client disconnects, even when
- // an earlier scheduled step fails.
- try {
-  try {
-   if (due.deployments) await deploymentTimeouts(env,time);
-   alertsChanged = true; // A failed dispatcher may already have committed work.
-   alertsChanged = await runAlerts(env,time,due);
-   if (due.replay) await expireReplayCalls({options:{db:env.DB},now:()=>time});
-  } finally {
-   // A broken dispatcher must not prevent independent operator follow-up.
-   if (due.retention) await scheduledRetention(env.DB,time,env);
-   if (due.suppression) await scheduleSuppression(env,time);
-   const followUp = due.deployments || alertsChanged || due.retention || due.suppression
-    ? await scheduledFollowUp(env.DB,time) : due;
-   if (followUp.followUp) await scanFollowUp(env,time);
-   else if (followUp.close) await closeFollowUp(env,time);
-   if (due.digests) await queueDigests(env,time);
-   if (due.scheduledMail || due.digests || due.snoozes) await scheduledMail(env,time);
-   const queueFollowUp = followUp.notices || followUp.followUp;
-   if (queueFollowUp) await queueNotices(env,time);
-   if (due.sendNotices || queueFollowUp) await dispatchNotices(env,time);
-  }
- } finally {
-  try {
-   if (due.browserArchives) await expireBrowserArchives(env.DB,time);
-  } finally {
-   if (due.erasure) await continueErasures(env.DB, Date.now() + 20_000,env.SESSION_SECRET,(id,principal,key)=>spoolAgentDoor(env).invoke('spool.privacy.continue',{id,idempotency_key:key},principal));
-  }
- }
+import { ingestApi, isNativeIngest } from './domain/ingest-api';
+
+export async function scheduled(event: ScheduledController, bindings: Bindings & AlertEnvironment, execution: ExecutionContext) {
+ const scheduler = await import('./server-scheduled');
+ return scheduler.scheduled(event, bindings, execution);
 }
+
 // A refusal raised while reading the session (a foreign Host, for one) answers as
 // itself, the way the API's handlers answer it, instead of escaping the Worker.
 function refused(error: unknown) {
@@ -87,58 +20,15 @@ function refused(error: unknown) {
 export default withDemo({
  scheduled,
  async fetch(request, bindings, execution) {
-  return wrapRequest(request,runtimeBindings(bindings),()=>handle(request, bindings, execution)).catch(refused);
+  const env = runtimeBindings(bindings) as Bindings & AlertEnvironment;
+  return wrapRequest(request, env, async () => {
+   if (privateRuntimePath(request.url)) return new Response('Not found', { status: 404 });
+   const path = new URL(request.url).pathname;
+   if (isNativeIngest(request.method, path)) return ingestApi.fetch(request, env, execution);
+   const { handle } = await import('./server-application');
+   return handle(request, env, execution, path);
+  }).catch(refused);
  },
-} satisfies ExportedHandler<Bindings & AlertEnvironment>, { seed: seedDemo });
-/** Claim answers (first, refused or already initialized) and every sign-in or
- * session start are owner paths: on a Business-provisioned install the door
- * opens at the first claim (see openDoorAtClaim). The claim has already
- * committed, so a failure here is logged and healed by the next owner path. */
-async function afterOwnerPath(env: Bindings, response: Response): Promise<Response> {
- try { await openDoorAtClaim(env); } catch (error) { console.error('import door: first-claim enable failed', error); }
- return response;
-}
-async function handle(request: Request, bindings: Bindings & AlertEnvironment, execution: ExecutionContext): Promise<Response> {
- if (privateRuntimePath(request.url)) return new Response('Not found', { status: 404 });
- const env = runtimeBindings(bindings as Bindings);
- const path = new URL(request.url).pathname;
- const agentDoor = await agentDoorResponse(request,env); if(agentDoor)return agentDoor;
- if(path.startsWith('/api/projects/')){const legacy=await legacyAgentResponse(request,env);if(legacy)return legacy;}
- const providerEvent=await providerEventResponse(request,env);if(providerEvent)return providerEvent;
- const reportDialog = await reportDialogResponse(request, env); if (reportDialog) return reportDialog;
- const loader = await loaderResponse(request, env); if (loader) return loader;
- const asset = await staticAssetResponse(request, env); if (asset) return asset;
- const state = await setupStateResponse(request, env, setupClaimed); if (state) return state;
- // Admit the root before reading a native session; owners keep the workbench at /.
- if (path === '/' && (!admitted(request, env.AUTH_ORIGIN) || !await ownerSession(request,env,resolveMembership))) {
-  const lobby = await lobbyResponse(request, env, identity, setupClaimed); if (lobby) return localOwnerLobby(lobby, env);
- }
- if (isDocsRequest(request)) return docsResponse(request);
- // Independently mounted owner/auth handlers share the same agent denial.
- if (path.startsWith('/auth/') || path === '/api/editor/config' || path.startsWith('/api/operator/import/')) {
-  const grant = await agentProject(request, env.DB);
-  if (grant && !agentReadPath(request, grant)) return Response.json({ error: 'Agent keys are read-only and limited to their project.' }, { status: 403 });
- }
- if (path === '/auth/owner-claim') return afterOwnerPath(env, await ownerClaimResponse(request, env));
- if (path === '/api/editor/config') return editorConfigResponse(request, env);
- // Run Edit Run's signed cutover read and the import door (owner session and
- // Business grants) run before ordinary routing.
- if (path === cutoverStatusPath) return rerCutoverStatus(request, env);
- const importDoor = await importDoorResponse(request, env); if (importDoor) return importDoor;
- const ownerErasure = await ownerErasureResponse(request, env); if (ownerErasure) return ownerErasure;
- const auth = await authenticationResponse(request, env);
- if (auth) return path === '/auth/bootstrap' || auth.headers.has('set-cookie') ? afterOwnerPath(env, auth) : auth;
- const response = await dispatch(request, () => api.fetch(request, env, execution), async () => {
-  if (!applicationDocument(path)) {
-   if (!await ownerSession(request,env,resolveMembership)) return new Response('Not found', { status: 404 });
-   // Owners keep the router's styled not-found page, even before project setup.
-   return editorDocument(await start.fetch(request), env);
-  }
-  const denied = await authorizeDocument(request, env); if (denied) return denied;
-  const setup = await setupDocumentResponse(request, env); if (setup) return setup;
-  if (new URL(request.url).pathname === '/app') return Response.redirect(new URL('/', request.url), 303);
-  return editorDocument(await start.fetch(request), env);
- });
- await emitPersonChange(request,env,response);
- return response;
-}
+} satisfies ExportedHandler<Bindings & AlertEnvironment>, {
+ seed: async (env: Bindings, options: { ownerEmail: string; now: Date }) => (await import('./demo')).seedDemo(env, options),
+});

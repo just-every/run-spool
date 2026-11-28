@@ -5,12 +5,14 @@ import { readReleasePolicy,autoReleaseAllowed,releasePolicyFence } from './polic
 import { shaReleaseStatement } from '../commits/register';
 export async function prepareRelease(db:D1Database,project:string,input:Envelope,sentryIntake:boolean){
  const snapshot=await readReleasePolicy(db,project),sentry=sentryIntake&&!!input.sentry,jobs:D1PreparedStatement[]=[],notes:string[]=input.sentry?.truncation.some(n=>n.path==='release'&&n.reason==='invalid_release_name')?['invalid_release_name']:[];let event=input;
- const existing=event.release?await db.prepare('SELECT * FROM releases WHERE project=? AND name=?').bind(project,event.release).first<any>():null;
- const metadata=existing?await db.prepare('SELECT auto_created FROM release_metadata WHERE project=? AND release=?').bind(project,event.release).first<any>():null;
- const registeredBuild=existing&&(metadata?await db.prepare('SELECT 1 FROM release_builds WHERE project=? AND release=? AND build=? AND registered=1').bind(project,event.release,event.build).first():existing.build===event.build);
+ const existing=event.release?await db.prepare(`SELECT r.created,
+  CASE WHEN EXISTS(SELECT 1 FROM release_metadata m WHERE m.project=r.project AND m.release=r.name)
+   THEN EXISTS(SELECT 1 FROM release_builds b WHERE b.project=r.project AND b.release=r.name AND b.build=?1 AND b.registered=1)
+   ELSE r.build=?1 END AS registered_build
+  FROM releases r WHERE r.project=?2 AND r.name=?3`).bind(event.build,project,event.release).first<{created:number;registered_build:number}>():null;
  if(!sentry||snapshot.policy.order==='registered'){
   if(!event.release)return {refusal:'missing_release_register_required'};
-  if(!registeredBuild)return {refusal:'unregistered_release_or_build'};
+  if(!existing?.registered_build)return {refusal:'unregistered_release_or_build'};
  }else{
   const identity=sentryRelease(event.release||undefined);
   if(!identity.name&&event.release)notes.push('invalid_release_name');

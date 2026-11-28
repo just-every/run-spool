@@ -70,10 +70,13 @@ export async function admitEvent(c:any,scope:IngestScope,input:Envelope,digest:s
     const scrubbed=preScrubbed?null:await prepareScrubbing(db,project,event,identity?.scrubbingKey),privacy=preScrubbed??scrubbed!;if(scrubbed)event=normalize(scrubbed.document);
     const matches=matchInbound(event,scope.policy,inboundMetadata(event,{origin:c.req.header('origin'),referer:c.req.header('referer'),userAgent:c.req.header('user-agent'),clientIp:c.req.header('cf-connecting-ip'),domainAllowed:scope.domain.allowed}));
     if(matches.length){await ingestBatch(c,scope,[outcomeStatement(db,project,'filtered'),...matches.map(id=>outcomeStatement(db,project,'filtered:'+id))]);return c.json({outcome:'filtered',reason:'inbound_filter',filters:matches},202)}
-    const existing=await stmt(db,'SELECT digest,issue FROM events WHERE project=? AND id=?',project,event.eventId).first<any>();
-    if(existing)return await duplicate(existing);
-    const budget=await stmt(db,"SELECT COALESCE(SUM(count),0) total FROM outcomes WHERE project=? AND window>=? AND reason IN ('accepted','rejected','invalid','oversized','rate_limited','budget','unregistered_release_or_build','missing_release_register_required')",project,Math.floor(Date.now()/60000)*60000).first<any>();
-    if(budget.total>=120){await record('rate_limited');c.header('Retry-After','60');return c.json({outcome:'dropped',reason:'minute_budget',retryAfter:60},429)}
+    const precheck=(await stmt(db,`SELECT e.digest,e.issue,
+     CASE WHEN e.id IS NULL THEN (SELECT COALESCE(SUM(count),0) FROM outcomes WHERE project=?1 AND window>=?3
+      AND reason IN ('accepted','rejected','invalid','oversized','rate_limited','budget','unregistered_release_or_build','missing_release_register_required')) END AS total
+     FROM (SELECT 1) LEFT JOIN events e ON e.project=?1 AND e.id=?2`,project,event.eventId,Math.floor(Date.now()/60000)*60000)
+     .first<{digest:string|null;issue:string|null;total:number}>())!;
+    if(precheck.digest!==null)return await duplicate(precheck);
+    if(precheck.total>=120){await record('rate_limited');c.header('Retry-After','60');return c.json({outcome:'dropped',reason:'minute_budget',retryAfter:60},429)}
     const prepared=await prepareRelease(db,project,event,sentryIntake);
     if(prepared.refusal){await record(prepared.refusal);return c.json({outcome:'rejected',reason:prepared.refusal,register:`/projects/${encodeURIComponent(project)}/releases`},422)}
     event=prepared.event!;

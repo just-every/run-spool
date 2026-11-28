@@ -28,6 +28,11 @@ try {
  const started=Date.now(),first=await app.json('/api/ingest/web','POST',event('first',frames('first')),auth);await settled(1,1);
  assert.equal(await mails(),1);assert.equal(inbox.effects(),1);assert.equal(await health(),idle,'no scheduled run was needed');
  const states=(await app.json(deliveries)).map(row=>row.state).sort();assert.deepEqual(states,['accepted','accepted']);
+ const repeated=await app.json('/api/ingest/web','POST',event('repeat',frames('first')),auth);
+ const duplicate=await app.json('/api/ingest/web','POST',event('repeat',frames('first')),auth);
+ assert.equal(repeated.issue,first.issue);
+ assert.equal(duplicate.outcome,'duplicate');
+ assert.equal((await app.json('/api/projects/web/issues')).find(row=>row.id===first.issue).count,2);
  // The cron racing the dispatch after ingest, and every later tick, sends nothing twice.
  await Promise.all([app.json('/api/ingest/web','POST',event('second',frames('second')),auth),app.schedule(Date.now()),app.schedule(Date.now()),app.schedule(Date.now())]);
  await settled(2,2);for(let i=0;i<3;i++)await app.schedule(Date.now()+i*1000);

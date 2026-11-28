@@ -47,6 +47,7 @@ export function allowedInboundDomain(policy: InboundPolicy, metadata: InboundMet
  return { allowed: true, status: 200, reason: null, cors: metadata.origin ?? null, legacyOrigins: [...new Set(legacyUsed)] };
 }
 export async function checkInboundDomains(db: D1Database, project: string, policy: InboundPolicy, metadata: InboundMetadata, serviceOrigin?: string): Promise<DomainDecision> {
+ if (metadata.origin === undefined && metadata.referer === undefined) return allowedInboundDomain(policy, metadata);
  const rows = await db.prepare('SELECT origin FROM browser_origins WHERE project=?').bind(project).all<{ origin: string }>();
  return allowedInboundDomain(policy, metadata, rows.results.map(row => row.origin), serviceOrigin);
 }
