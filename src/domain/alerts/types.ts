@@ -15,3 +15,5 @@ export type Intent = { id:string; project:string; alert_id:string; rule_id:strin
  channel:'mail'|'webhook'; destination:string; body:string; event:string; created:number; state:string; code:string|null; expanded:number };
 export const statement = (db:D1Database, sql:string, ...args:(string|number|null)[]) => db.prepare(sql).bind(...args);
 export const namespace = (project:string) => `spool.${project}`;
+export const configSql="COALESCE((SELECT config FROM alert_rule_configs cfg WHERE cfg.rule_id=r.id),'{\"metric\":\"count\",\"filters\":{},\"tagKeys\":[]}')";
+export const holdable=`(i.expanded=0 AND i.state IN ('pending','blocked') OR EXISTS(SELECT 1 FROM alert_mail_jobs j WHERE j.id=i.id AND j.state='queued') OR EXISTS(SELECT 1 FROM integration_deliveries d WHERE d.namespace='spool.'||i.project AND d.id=i.id AND d.state='queued'))`;

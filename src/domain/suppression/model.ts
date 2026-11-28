@@ -3,6 +3,7 @@ import {canonical,hash} from '../privacy';
 import {scrubText} from '../scrub';
 import {activity} from '../discussion/model';
 import {s,guard} from '../operators/common';
+import {affectedIdentitySql,userCountSql} from './eligible';
 
 export const suppressionModes=['forever','until','count','users','escalating','snooze'] as const;
 export type SuppressionMode=typeof suppressionModes[number];
@@ -10,10 +11,6 @@ export type SuppressionInput={mode:SuppressionMode;reason:string;until?:number;c
 export type SuppressionMetrics={occurrences:number;users:number;unattributed:number;rollingOccurrences:number;historicalHourlyMaximum:number};
 export type SuppressionPlan={project:string;issue:string;revision:number;memberVersion?:string;input:SuppressionInput;deadline:number|null;occurrenceTarget:number|null;userTarget:number|null;windowMs:number|null;forecast:number|null;metrics:SuppressionMetrics};
 export const hour=3600000;
-// Same identity and native-client definition as SDK008 identities/read.ts.
-export const affectedIdentitySql=`COALESCE(x.user_key,CASE WHEN json_extract(e.payload,'$.sentry') IS NULL AND json_extract(e.payload,'$.client') IS NOT NULL THEN 'native:'||json_extract(e.payload,'$.client') END)`;
-export const userCountSql=(project:string,issue:string)=>`(SELECT COUNT(DISTINCT ${affectedIdentitySql}) FROM events e LEFT JOIN event_identities x ON x.project=e.project AND x.event=e.id AND x.occurrence=e.occurrence WHERE e.project=${project} AND e.issue=${issue})`;
-
 export function suppressionInput(value:any,time:number):SuppressionInput {
  if(!value||typeof value!=='object'||Array.isArray(value)||!suppressionModes.includes(value.mode)||typeof value.reason!=='string'||!value.reason.trim()||value.reason.length>500||/[\x00-\x08\x0b\x0c\x0e-\x1f\x7f]/.test(value.reason))throw new Error('Choose an archive condition and a reason of 1 to 500 characters');
  const field=({until:'until',count:'count',users:'users',snooze:'durationMs'} as Record<string,string>)[value.mode];

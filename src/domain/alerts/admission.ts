@@ -1,8 +1,7 @@
 import { importedAlertPrefix, localImportDestination } from './import-state';
 import { levelTagSql } from './filters';
-import { configSql } from './preview';
 import { regressionSql } from '../releases/order';
-import { statement as s } from './types';
+import { configSql, statement as s } from './types';
 import { issueLink, publicOrigin } from './payload';
 import { captureFact } from './capture-history';
 import { primaryShortIdSql } from '../short-ids/lookup';
@@ -54,7 +53,7 @@ export function routeStatements(db:D1Database,alertId:string,time:number,onlyRul
 }
 export function admissionAlerts(db:D1Database,input:{alertId:string;project:string;issue:string;eventId:string;occurrence:string;release:string;build:string;sequence:number;time:number;origin?:string}) {
  const {alertId:id,project,issue,eventId,occurrence,release,build,time}=input;
- return [s(db,`WITH candidate AS (
+ const alert=s(db,`WITH candidate AS (
   SELECT i.project,i.id,i.title,i.state,i.latest_release_seq,i.resolved_seq,EXISTS(SELECT 1 FROM alert_reactivation_markers m WHERE m.project=i.project AND m.issue=i.id) reactivated,${primaryShortIdSql('i')} short_id,${commitResolutionSql('i')} resolution,
    (SELECT release_seq FROM events incoming WHERE incoming.project=i.project AND incoming.id=? AND incoming.occurrence=?) current_sequence,
    EXISTS(SELECT 1 FROM events incoming WHERE incoming.project=i.project AND incoming.id=? AND incoming.occurrence=? AND ${regressionSql()}) regresses,
@@ -70,5 +69,8 @@ export function admissionAlerts(db:D1Database,input:{alertId:string;project:stri
    'projectId',project,'issueId',id,'occurredAt',?,'title',title,'release',json_object('name',?,'build',?,'sequence',current_sequence),'issueUrl',?,'shortId',short_id,'resolution',json(resolution),'trigger',json_object('event',?,'occurrence',?))
  FROM candidate WHERE current_unsuppressed=1 AND state<>'suppressed'
   AND (first_capture=1 OR reactivated=1 OR (state='resolved' AND regresses=1))`,
- eventId,occurrence,eventId,occurrence,eventId,occurrence,eventId,occurrence,eventId,occurrence,issue,project,id,time,id,new Date(time).toISOString(),release,build,issueLink(publicOrigin(input.origin),project,issue),eventId,occurrence),...routeStatements(db,id,time,undefined,{eventId,occurrence}),s(db,"DELETE FROM alert_reactivation_markers WHERE project=? AND issue=? AND EXISTS(SELECT 1 FROM alerts WHERE id=? AND kind='reactivation')",project,issue,id)];
+ eventId,occurrence,eventId,occurrence,eventId,occurrence,eventId,occurrence,eventId,occurrence,issue,project,id,time,id,new Date(time).toISOString(),release,build,issueLink(publicOrigin(input.origin),project,issue),eventId,occurrence);
+ const route=routeStatements(db,id,time,undefined,{eventId,occurrence});
+ return {routing:route[0],statements:[alert,...route,
+  s(db,"DELETE FROM alert_reactivation_markers WHERE project=? AND issue=? AND EXISTS(SELECT 1 FROM alerts WHERE id=? AND kind='reactivation')",project,issue,id)]};
 }

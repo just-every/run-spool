@@ -37,11 +37,13 @@ export async function ensureShortIds(db: D1Database, project?: string) {
  // An erasure deletes in several steps; never give a project being erased a new prefix or ID.
  if (await db.prepare("SELECT 1 FROM rer_erasure_operations WHERE phase<>'complete' LIMIT 1").first()) return;
  const scope = project === undefined ? '' : ' AND i.project=?', args = project === undefined ? [] : [project];
- const projects = (await db.prepare(`SELECT id,created FROM projects i WHERE NOT EXISTS(SELECT 1 FROM short_id_prefixes p WHERE p.project=i.id)${project === undefined ? '' : ' AND i.id=?'} ORDER BY created,id`).bind(...args).all<{ id: string; created: number }>()).results;
- const missing = await db.prepare(`SELECT 1 FROM issues i WHERE NOT EXISTS(SELECT 1 FROM issue_short_ids s WHERE s.project=i.project AND s.assigned=i.id)${scope} LIMIT 1`).bind(...args).first();
- const dangling = await db.prepare('SELECT 1 FROM issue_short_ids s WHERE NOT EXISTS(SELECT 1 FROM issues i WHERE i.id=s.assigned AND i.project=s.project) LIMIT 1').first();
- if (!projects.length && !missing && !dangling) return;
- for (const row of projects) await prefixStatement(db, await projectPrefix(db, row.id), row.id, row.created).run();
+ const [projects, missing, dangling] = await db.batch<{id:string;created:number}>([
+  db.prepare(`SELECT id,created FROM projects i WHERE NOT EXISTS(SELECT 1 FROM short_id_prefixes p WHERE p.project=i.id)${project === undefined ? '' : ' AND i.id=?'} ORDER BY created,id`).bind(...args),
+  db.prepare(`SELECT 1 FROM issues i WHERE NOT EXISTS(SELECT 1 FROM issue_short_ids s WHERE s.project=i.project AND s.assigned=i.id)${scope} LIMIT 1`).bind(...args),
+  db.prepare('SELECT 1 FROM issue_short_ids s WHERE NOT EXISTS(SELECT 1 FROM issues i WHERE i.id=s.assigned AND i.project=s.project) LIMIT 1'),
+ ]);
+ if (!projects.results.length && !missing.results.length && !dangling.results.length) return;
+ for (const row of projects.results) await prefixStatement(db, await projectPrefix(db, row.id), row.id, row.created).run();
  await db.batch([
   s(db, 'DELETE FROM issue_short_id_moves WHERE short_id IN (SELECT short_id FROM issue_short_ids s WHERE NOT EXISTS(SELECT 1 FROM issues i WHERE i.id=s.assigned AND i.project=s.project))'),
   s(db, 'DELETE FROM issue_short_ids WHERE NOT EXISTS(SELECT 1 FROM issues i WHERE i.id=issue_short_ids.assigned AND i.project=issue_short_ids.project)'),

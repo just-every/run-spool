@@ -1,0 +1,2 @@
+export const policyMatch=`p.project=? AND p.enabled=1 AND CASE p.mode WHEN 'exact' THEN (CASE p.field WHEN 'fingerprint' THEN ? WHEN 'release' THEN ? ELSE ? END)=p.value ELSE instr(CASE p.field WHEN 'fingerprint' THEN ? WHEN 'release' THEN ? ELSE ? END,p.value)>0 END`;
+export const matchArgs=(project:string,fingerprint:string,release:string,message:string)=>[project,fingerprint,release,message,fingerprint,release,message];

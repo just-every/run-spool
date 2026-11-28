@@ -9,7 +9,8 @@ import { requestAuthority as ownerSession, nativeWrite as ownerWrite } from '../
 import { ownerBatch, type OwnerSession } from '../owner-authority';
 import { runtimeBindings } from '../../auth/bindings';
 import type { Bindings } from '../../auth/bindings';
-import { previewRule,previewGuard,configSql } from './preview';
+import { previewRule,previewGuard } from './preview';
+import { configSql } from './types';
 import { ruleInput } from './rules';
 import { destinationChoices, findDestination } from './destinations.server';
 import { namespace, statement as s } from './types';

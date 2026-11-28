@@ -1,10 +1,9 @@
-import { operatorAuth } from '../../auth/session.server';
 import { runtimeBindings, type Bindings } from '../../auth/bindings';
-import { AuthError } from '../../modules/operator-auth/index.mjs';
-import { hash } from '../privacy';
+import { AuthError } from '../../modules/operator-auth/errors.mjs';
+import { requireOrigin } from '../../modules/operator-auth/http.mjs';
 import { archiveProgressHeader } from '../archive-progress';
 import { mintAdmission } from '../dev-credentials';
-import { mintedByCurrentPerson } from '../credential-fence';
+import { credentialDigest, mintedByCurrentPerson } from '../credential-fence';
 import { auditActor, auditLabel, auditLabelFromLookup, auditLabelStatements, boundAuditLabel, projectAuditLabel, randomAuditLabel, serviceActor, subjectBinding, unidentifiedActor } from './identity';
 import { currentAuditScope, runAuditScope, type AuditScope } from './context';
 import { classifyRequest } from './classify';
@@ -12,15 +11,23 @@ import { recordAudit, responseOutcome, unverified } from './record';
 import type { AuditActor, AuditFact } from './types';
 
 /** Attribution follows existing auth admission, never supplies authority. */
-export async function requestActor(request: Request, bindings: Bindings): Promise<AuditActor> {
+export async function requestActor(request: Request, bindings: Bindings, nativeCapture = false): Promise<AuditActor> {
  const env=runtimeBindings(bindings);
- let session;
- try { session=await operatorAuth(env).getSession(request); }
- catch (error) { if(error instanceof AuthError)return unidentifiedActor();throw error; }
  const bearer=/^Bearer ([^\s]+)$/i.exec(request.headers.get('authorization')??'')?.[1];
+ let session;
+ try {
+  if(nativeCapture&&bearer&&!request.headers.has('cookie')) {
+   // A cookie-free SDK request has no person session. Attribution still
+   // requires the same Host and origin checks before reading its bearer.
+   requireOrigin(request,{origin:env.AUTH_ORIGIN,local:env.AUTH_LOCAL==='true'});
+  } else {
+   const {operatorAuth}=await import('../../auth/session.server');
+   session=await operatorAuth(env).getSession(request);
+  }
+ } catch (error) { if(error instanceof AuthError)return unidentifiedActor();throw error; }
  if(session&&!request.headers.has('authorization'))return auditActor(env.DB,{kind:session.operator.role==='owner'?'owner':'member',authority:session.operator.id});
  if(!bearer)return unidentifiedActor();
- const [digest,admission]=await Promise.all([hash(bearer),mintAdmission(request)]);
+ const [digest,admission]=await Promise.all([credentialDigest(request,bearer),mintAdmission(request)]);
  const grant=await env.DB.prepare(`SELECT credentials.kind,credentials.project,credentials.minted_by,link.service
   FROM credentials LEFT JOIN spool_service_credentials link ON link.hash=credentials.hash
   WHERE credentials.hash=? AND credentials.revoked IS NULL AND ${mintedByCurrentPerson} AND ${admission}`)
@@ -61,7 +68,7 @@ export async function wrapRequest(request: Request, env: Bindings, next: () => P
   ['capture','schema','rows'].includes(new URL(request.url).searchParams.get('archive')??'');
  const page=archivePage?await next():undefined;
  if(page?.ok)return page;
- const actor=await requestActor(request,env);
+ const actor=await requestActor(request,env,door.action==='capture.native'||door.action==='capture.exposure');
  // A request no session or credential admitted only reads the alias of the object it names;
  // the binding waits for its handler to admit it, so refused guesses leave no durable mapping.
  const binding=subjectBinding(door.kind,door.project?JSON.stringify([door.project,door.subject]):door.subject,door.project);

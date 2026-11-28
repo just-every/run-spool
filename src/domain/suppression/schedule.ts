@@ -1,15 +1,8 @@
 import {auditedBatch,auditCommit} from '../audit/context';
 import {serviceActor,auditSubject,projectAuditLabel} from '../audit/identity';
 import {s} from '../operators/common';
-import {userCountSql} from './model';
+import {suppressionEligible} from './eligible';
 
-// Whether an active suppression of issue_suppressions has met its condition at `time` (a SQL parameter).
-export const suppressionEligible=(time:string)=>`CASE mode
-   WHEN 'until' THEN deadline<=${time} WHEN 'snooze' THEN deadline<=${time}
-   WHEN 'count' THEN observed_count>=occurrence_target
-   WHEN 'users' THEN ${userCountSql('issue_suppressions.project','issue_suppressions.issue')}>=user_target
-   WHEN 'escalating' THEN (SELECT COUNT(*) FROM events e WHERE e.project=issue_suppressions.project AND e.issue=issue_suppressions.issue AND e.received>${time}-window_ms AND e.received<=${time})>forecast
-   ELSE 0 END`;
 export async function scheduleSuppression(env:{DB:D1Database},time:number){
  if(!Number.isSafeInteger(time)||time<0)throw new Error('Invalid suppression schedule time');
  const rows=(await s(env.DB,`SELECT z.*,i.revision FROM issue_suppressions z JOIN issues i ON i.project=z.project AND i.id=z.issue

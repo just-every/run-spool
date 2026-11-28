@@ -1,7 +1,6 @@
-import { agentAuthority,localCredentialId } from './agent-door/native-authority';
-import { hash } from './privacy';
+import { agentAuthority,localCredentialId } from './agent-door/context';
 import { mintAdmission } from './dev-credentials';
-import { mintedByCurrentPerson } from './credential-fence';
+import { credentialDigest, mintedByCurrentPerson } from './credential-fence';
 
 type Grant = {project:string; mintedBy:string|null};
 const currentAgent = `hash=? AND kind='agent' AND revoked IS NULL AND ${mintedByCurrentPerson}`;
@@ -20,7 +19,7 @@ export async function agentProject(request: Request, db: D1Database): Promise<st
 export async function bearerAgentGrant(request: Request, db: D1Database): Promise<(Grant & {id:string}) | null> {
  const bearer = /^Bearer ([^\s]+)$/i.exec(request.headers.get('authorization') ?? '')?.[1];
  if (!bearer) return null;
- const [id,admission]=await Promise.all([hash(bearer),mintAdmission(request)]);
+ const [id,admission]=await Promise.all([credentialDigest(request,bearer),mintAdmission(request)]);
  const predicate=`${currentAgent} AND ${admission}`;
  const lookup=db.prepare(`SELECT project,minted_by AS mintedBy FROM credentials WHERE ${predicate}`).bind(id);
  const project=agentPathProject(request);

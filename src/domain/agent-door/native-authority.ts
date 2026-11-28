@@ -6,6 +6,8 @@ import type { Membership, TeamSession } from '../members/model';
 import { resolveMembership } from '../members/resolver';
 import { agentReadPath } from '../agent-access';
 import { mintedByCurrentPerson } from '../credential-fence';
+import { agentActors as actors, localCredentialId } from './context';
+export { agentAuthority, localCredentialId } from './context';
 
 /** A native actor, deliberately without a browser session id or cookie. Only
  * the server's registry bridge can attach it to an exact Request object. */
@@ -15,9 +17,6 @@ export interface AgentAuthority {
  operation: { id: string; tool: string; project: string | null; target: string };
 }
 export type NativeAuthority = TeamSession | AgentAuthority | ReviewerAuthority;
-export const localCredentialId=(clientId?:string)=>clientId?.startsWith('spool-key:')?clientId.slice(10):null;
-const actors = new WeakMap<Request, AgentAuthority>();
-export const agentAuthority = (request: Request) => actors.get(request);
 const operatorById = (db: D1Database, id: string) => db.prepare('SELECT id,email,display_name AS displayName,role,status,version,created_at AS createdAt FROM oa_operators WHERE id=?').bind(id);
 
 async function admittedOperator<T>(request: Request, db: D1Database, operator: D1PreparedStatement, clientId?: string): Promise<T | null> {

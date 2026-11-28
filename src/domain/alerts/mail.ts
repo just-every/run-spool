@@ -67,9 +67,13 @@ export async function recoverMail(env:AlertEnvironment,time:number) {
 export async function dispatchMail(env:AlertEnvironment,time:number,only?:string[],attribution?:MailAttribution,recovered=false) {
  const started=Date.now(),clock=()=>time+Date.now()-started;
  if(!recovered)await recoverMail(env,time);
- const jobs=(await s(env.DB,`SELECT j.*,i.rule_id,i.rule_revision,i.destination,i.channel FROM alert_mail_jobs j JOIN alert_intents i ON i.id=j.id WHERE i.state<>'snoozed' AND j.state='queued' AND j.next_at<=? AND (? IS NULL OR j.id IN (SELECT value FROM json_each(?))) ORDER BY j.next_at,j.id LIMIT 30`,time,only?JSON.stringify(only):null,only?JSON.stringify(only):null).all<any>()).results;
+ const jobs=(await s(env.DB,`SELECT j.*,i.rule_id,i.rule_revision,i.destination,i.channel,
+  EXISTS(SELECT 1 FROM spool_agent_custody c WHERE c.kind='alert' AND c.id=i.rule_id AND c.project=j.project) AS standing
+  FROM alert_mail_jobs j JOIN alert_intents i ON i.id=j.id WHERE i.state<>'snoozed' AND j.state='queued' AND j.next_at<=? AND (? IS NULL OR j.id IN (SELECT value FROM json_each(?))) ORDER BY j.next_at,j.id LIMIT 30`,time,only?JSON.stringify(only):null,only?JSON.stringify(only):null).all<any>()).results;
  for(const job of jobs) {
-  if(await dispatchStanding(env as Bindings&AlertEnvironment,'alert-mail',job.id,clock))continue;
+  // Custody is recorded atomically with a rule revision. A delegated job
+  // still goes through the live standing authority check before it can send.
+  if(job.standing&&await dispatchStanding(env as Bindings&AlertEnvironment,'alert-mail',job.id,clock))continue;
   let mail;
   try {
    const destination=await authorizedDestination(env,job);mail=sender(env);

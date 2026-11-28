@@ -1,11 +1,10 @@
 import { importedAlertPrefix } from './import-state';
 import type { AlertEnvironment, Rule } from './types';
-import { statement as s } from './types';
+import { configSql, statement as s } from './types';
 import { routeStatements } from './admission';
 import { issueLink, publicOrigin } from './payload';
 import { hash } from '../privacy';
 import { primaryShortIdSql } from '../short-ids/lookup';
-import { configSql } from './preview';
 import { eligibleEvent,eventFilter,ruleConfig,type RuleConfig } from './filters';
 import { baselineDecisions,countDecision,decision,spikeWindowCounts } from './measure';
 import { identityPolicyFence } from '../identities/policy';

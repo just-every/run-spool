@@ -6,8 +6,6 @@ import { scrub } from '../privacy';
 import { policyInput } from './validation';
 import { authorize, body, s, guard, audit, write, conflict } from './common';
 // Used directly inside the admission batch: enabled policies cannot race a stale JavaScript decision.
-export const policyMatch=`p.project=? AND p.enabled=1 AND CASE p.mode WHEN 'exact' THEN (CASE p.field WHEN 'fingerprint' THEN ? WHEN 'release' THEN ? ELSE ? END)=p.value ELSE instr(CASE p.field WHEN 'fingerprint' THEN ? WHEN 'release' THEN ? ELSE ? END,p.value)>0 END`;
-export const matchArgs=(project:string,fingerprint:string,release:string,message:string)=>[project,fingerprint,release,message,fingerprint,release,message];
 const routes=new Hono<any>();
 routes.get('/:project/operator-state',async c=>{
  const auth=await authorize(c);if('response' in auth)return auth.response;const db=c.env.DB,p=c.req.param('project');

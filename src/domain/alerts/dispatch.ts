@@ -1,13 +1,9 @@
-import { activateImportedAlerts } from './import-waiting';
-import { evaluateMetrics } from './metrics';
 import { destinations, findDestination } from './destinations.server';
 import { holdAlerts, expireSnoozes } from './snoozes';
-import { projectProviderEvents } from './provider-events.server';
 import { webhookService } from './webhook.server';
 export { webhookService } from './webhook.server';
 import { dispatchMail, expandMail, recoverMail } from './mail';
 import { synchronizeHistory } from './history';
-import { evaluateSpikes } from './spikes';
 import { alertBody } from '../stored-text';
 import type { ScheduledDue } from '../scheduled/due';
 import { namespace, statement as s } from './types';
@@ -77,12 +73,12 @@ export async function runAlerts(env:AlertEnvironment,scheduledTime:number,due:Sc
  const started=Date.now(),now=()=>Math.max(Date.now(),scheduledTime+Date.now()-started);
  if(due.recoverMail)await recoverMail(env,now());
  if(due.snoozes)await expireSnoozes(env,scheduledTime);
- if(due.providerEvents)await projectProviderEvents(env);
- if(due.importedRules)await activateImportedAlerts(env.DB,scheduledTime);
- const spikesChanged=due.spikes&&await evaluateSpikes(env,scheduledTime,due.last_spike_rule);
+ if(due.providerEvents)await (await import('./provider-events.server')).projectProviderEvents(env);
+ if(due.importedRules)await (await import('./import-waiting')).activateImportedAlerts(env.DB,scheduledTime);
+ const spikesChanged=due.spikes&&await (await import('./spikes')).evaluateSpikes(env,scheduledTime,due.last_spike_rule);
  if(due.transactions)await s(env.DB,'DELETE FROM sentry_transactions WHERE received<?',Math.floor(scheduledTime/60000)*60000-30*86400000).run();
  // A newly activated metric has no state and is evaluated in this minute.
- const metricsChanged=(due.metrics||due.importedRules)&&await evaluateMetrics(env,scheduledTime);
+ const metricsChanged=(due.metrics||due.importedRules)&&await (await import('./metrics')).evaluateMetrics(env,scheduledTime);
  const newAlerts=spikesChanged||metricsChanged;
  if(due.hold||newAlerts&&due.holdsConfigured)await holdAlerts(env,scheduledTime);
  const dispatch=due.expand||due.webhooks||newAlerts;

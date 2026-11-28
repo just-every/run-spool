@@ -1,3 +1,16 @@
+import { hash } from './privacy';
+
+// Audit, agent exclusion and intake admission verify the same bearer. Reuse
+// its digest only within the exact Request and keep each authority read live.
+const requestDigests = new WeakMap<Request, {bearer:string;digest:Promise<string>}>();
+export function credentialDigest(request: Request, bearer: string): Promise<string> {
+ const cached = requestDigests.get(request);
+ if (cached?.bearer === bearer) return cached.digest;
+ const digest = hash(bearer);
+ requestDigests.set(request, {bearer,digest});
+ return digest;
+}
+
 // Agent and deploy keys belong to the person whose session minted them. They count only while that
 // person is active at the identity fence (oa_operators.version) recorded at minting: a fence from the
 // linked Auth install or a suspension moves the version, so they never count again, and nothing comes

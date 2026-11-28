@@ -6,11 +6,10 @@ import { canonical,hash } from '../privacy';
 import { readIdentityPolicy,identityFields } from '../identities/policy';
 import { identityPolicyFence } from '../identities/policy';
 import { ownerBatch } from '../owner-authority';
-import { statement as s,type AlertEnvironment } from './types';
+import { configSql, statement as s,type AlertEnvironment } from './types';
 import { ruleInput } from './rules';
 import { eventFilter,eligibleEvent,ruleConfig,userKey } from './filters';
 import { decision } from './measure';
-export const configSql="COALESCE((SELECT config FROM alert_rule_configs cfg WHERE cfg.rule_id=r.id),'{\"metric\":\"count\",\"filters\":{},\"tagKeys\":[]}')";
 export async function ruleDigest(b:any,revisions?:unknown){const {previewToken,...value}=b;return hash(canonical({value,...revisions?{scrubbing:revisions}:{}}))}
 export async function previewRule(env:AlertEnvironment,session:NativeAuthority,project:string,raw:any){
  const {ruleId,...value}=raw,b=ruleInput(value,env,project,!!ruleId),config=b.kinds==='["metric"]'?metricConfig(JSON.parse(b.config)):ruleConfig(JSON.parse(b.config)),policy=await readIdentityPolicy(env.DB,project),time=Date.now(),end=Math.floor(time/b.windowMs)*b.windowMs,from=end-90*86400000;

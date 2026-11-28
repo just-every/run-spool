@@ -6,17 +6,20 @@ import { auditedBatch } from './audit/context';
 import { prepareRelease } from './releases/admission';
 import { regressionSql,newerReleaseSql } from './releases/order';
 import { readGroupingPolicy,groupingPolicyFence } from './grouping/policy';
-import {readInboundPolicy,inboundPolicyFence,matchInbound,inboundMetadata,inboundDomainFences,type InboundPolicy,type DomainDecision} from './filters';
-import { policyMatch, matchArgs } from './operators/policies';
+import { inboundPolicyFence } from './filters/policy';
+import { matchInbound } from './filters/matcher';
+import { inboundMetadata } from './filters/evidence';
+import { inboundDomainFences, type DomainDecision } from './filters/domains';
+import type { InboundPolicy } from './filters/types';
+import { policyMatch, matchArgs } from './suppression/policy-match';
 import { normalize, hash, scrub, type Envelope } from './privacy';
 import { captureGrouping } from './bundle-grouping';
 import { diagnose } from './artifacts';
 import { ingestOrigin } from './origins';
 import { admissionAlerts, receivedAtSql } from './alerts/admission';
 import { startCaptureHistory, rememberUnsuppressedCapture } from './alerts/capture-history';
-import { dispatchAdmitted } from './alerts/dispatch';
 import { mintAdmission } from './dev-credentials';
-import { mintedByCurrentPerson } from './credential-fence';
+import { credentialDigest, mintedByCurrentPerson } from './credential-fence';
 import { assignShortId } from './short-ids/assign';
 export const stmt=(db:D1Database,sql:string,...args:any[])=>db.prepare(sql).bind(...args);
 export interface IngestScope { project:string; keyHash:string; foreign:string|null; revision:number; policy:InboundPolicy; domain:DomainDecision }
@@ -25,7 +28,7 @@ export async function authorizeIngest(c:any,project:string,key:string|undefined)
   const policy=await ingestOrigin(c.env.DB,project,c.req.header('origin'),c.env.AUTH_ORIGIN,c.req.header('referer'));
 
   if(policy.allowed&&policy.cors)c.header('Access-Control-Allow-Origin',policy.cors);
-  const keyHash=key?await hash(key):'';
+  const keyHash=key?await credentialDigest(c.req.raw,key):'';
   const grant=keyHash&&await stmt(c.env.DB,`SELECT 1 FROM credentials WHERE hash=? AND project=? AND kind='ingest' AND revoked IS NULL AND ${mintedByCurrentPerson} AND ${await mintAdmission(c.req.raw)}`,keyHash,project).first();
   if(!grant)return {response:policy.allowed?c.json({outcome:'rejected',reason:'invalid_ingest_key'},401):c.json({outcome:'rejected',reason:policy.domain.reason},403)};
   const scope={project,keyHash,foreign:policy.foreign,revision:policy.revision,policy:policy.policy,domain:policy.domain};
@@ -88,6 +91,7 @@ export async function admitEvent(c:any,scope:IngestScope,input:Envelope,digest:s
     event=normalize(event.sentry?{...event,grouping:undefined,sentry:{...event.sentry,grouping:groupingPolicy.revision?groupingPolicy:undefined}}:{...event,grouping:groupingPolicy.revision?groupingPolicy:undefined});
     const {algorithm,basis,fingerprint,route}=await captureGrouping(db,project,event),issue=await hash(project+':'+fingerprint);
     const diagnosis=JSON.stringify(await diagnose(db,project,event)),time=Date.now(),originGuard=scope.foreign?crypto.randomUUID():null,alertId=crypto.randomUUID(),occurrence=crypto.randomUUID();
+    const {statements:alertStatements,routing}=admissionAlerts(db,{alertId,project,issue,eventId:event.eventId,occurrence,release:event.release,build:event.build,sequence:0,time,origin:c.env.ALERT_PUBLIC_ORIGIN??c.env.AUTH_ORIGIN});
     const jobs=[spendKeyEvent(db,project,scope.keyHash),...privacy.jobs,...prepared.jobs!,groupingPolicyFence(db,project,groupingPolicy.revision),
       ...(originGuard?[stmt(db,'INSERT INTO browser_origin_guards VALUES(?,?,?)',originGuard,project,scope.foreign)]:[]),
       stmt(db,"INSERT INTO issues(id,project,fingerprint,algorithm,title,state,revision,count,first_seen,last_seen) VALUES(?,?,?,?,?,'open',0,0,?,?) ON CONFLICT(id) DO NOTHING",issue,project,fingerprint,algorithm,scrub(event.type+': '+event.message),time,time),
@@ -102,7 +106,7 @@ export async function admitEvent(c:any,scope:IngestScope,input:Envelope,digest:s
       stmt(db,`INSERT INTO event_suppressions SELECT e.project,e.id,e.occurrence,(SELECT json_group_array(json_object('id',p.id,'revision',p.revision,'field',p.field,'mode',p.mode,'value',p.value)) FROM suppression_policies p WHERE ${policyMatch}) FROM events e WHERE e.project=? AND e.id=? AND EXISTS(SELECT 1 FROM suppression_policies p WHERE ${policyMatch})`,...matchArgs(project,fingerprint,event.release,event.message),project,event.eventId,...matchArgs(project,fingerprint,event.release,event.message)),
       stmt(db,"INSERT INTO issue_resolutions(project,issue,mode,seen_without_release,updated,boundary_seq,observed_seq) VALUES(?,?,'current',0,?,NULL,0) ON CONFLICT(project,issue) DO NOTHING",project,issue,time),
       stmt(db,`UPDATE issue_resolutions SET observed_seq=(SELECT CASE WHEN ${newerReleaseSql('issue_resolutions.project','incoming','issue_resolutions.observed_seq')} THEN incoming.release_seq ELSE issue_resolutions.observed_seq END FROM events incoming WHERE incoming.project=issue_resolutions.project AND incoming.id=? AND incoming.occurrence=?) WHERE project=? AND issue=?`,event.eventId,occurrence,project,issue),
-      ...admissionAlerts(db,{alertId,project,issue,eventId:event.eventId,occurrence,release:event.release,build:event.build,sequence:0,time,origin:c.env.ALERT_PUBLIC_ORIGIN??c.env.AUTH_ORIGIN}),
+      ...alertStatements,
       rememberUnsuppressedCapture(db,project,issue,event.eventId,occurrence,time),
       stmt(db,`UPDATE issues AS i SET count=count+1,last_seen=?,revision=revision+1,state=CASE WHEN state='resolved' AND EXISTS(SELECT 1 FROM events incoming WHERE incoming.project=i.project AND incoming.id=? AND incoming.occurrence=? AND ${regressionSql()} AND NOT EXISTS(SELECT 1 FROM event_suppressions receipt WHERE receipt.project=incoming.project AND receipt.event=incoming.id AND receipt.occurrence=incoming.occurrence)) THEN 'open' ELSE state END WHERE id=?`,time,event.eventId,occurrence,issue),
       stmt(db,"UPDATE issue_resolutions SET seen_without_release=seen_without_release+1 WHERE project=? AND issue=? AND mode IN ('current','next','named') AND EXISTS(SELECT 1 FROM issues WHERE id=? AND state='resolved') AND ?=''",project,issue,issue,event.release),
@@ -112,9 +116,12 @@ export async function admitEvent(c:any,scope:IngestScope,input:Envelope,digest:s
       ...sentryTrimming(db,project,event),
       ...(originGuard?[stmt(db,'DELETE FROM browser_origin_guards WHERE id=?',originGuard)]:[]),
     ];
-    try{await ingestBatch(c,scope,jobs)}catch(error){const retry=await stmt(db,'SELECT digest,issue FROM events WHERE project=? AND id=?',project,event.eventId).first<any>();if(retry)return await duplicate(retry);throw error}
-    // New-issue and regression alerts go out now; the scheduled run remains the path for spikes and anything left queued.
-    c.executionCtx.waitUntil(dispatchAdmitted(c.env,alertId));
+    let results;
+    try{results=await ingestBatch(c,scope,jobs)}catch(error){const retry=await stmt(db,'SELECT digest,issue FROM events WHERE project=? AND id=?',project,event.eventId).first<any>();if(retry)return await duplicate(retry);throw error}
+    // The two final statements fence and close the batch. Only a capture that
+    // actually routed an intent needs to load the immediate delivery path.
+    const routed=results.at(jobs.indexOf(routing)-jobs.length-2);
+    if(routed?.meta.changes)c.executionCtx.waitUntil(import('./alerts/dispatch').then(({dispatchAdmitted})=>dispatchAdmitted(c.env,alertId)));
     return c.json({outcome:'accepted',issue,algorithm,basis:JSON.parse(basis),diagnostic:JSON.parse(diagnosis)},201);
   }catch(error){return ingestFailure(c,scope,error)}
 }

@@ -1,6 +1,6 @@
-import { holdable } from '../alerts/snoozes';
+import { holdable } from '../alerts/types';
 import { waitingForSession, waitingForUser } from '../alerts/import-state';
-import { suppressionEligible } from '../suppression/schedule';
+import { suppressionEligible } from '../suppression/eligible';
 
 // One statement records the tick and identifies which stages have work.
 // ?1 the scheduled time, ?2 the wall clock (never before the schedule), ?3 the scheduled minute,
