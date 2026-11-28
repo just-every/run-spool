@@ -1,20 +1,23 @@
-# Spool 0.7.34
+# Spool 0.7.35
 
-Spool 0.7.34 brings SDK error intake and the minute alert Cron within the 10 ms Cloudflare Workers Free CPU limit in the measured workloads.
+Spool 0.7.35 keeps the hosted console within the 10 ms Cloudflare Workers Free CPU limit. Across all measured console pages and APIs, stateless Worker CPU was 0–2 ms, down from 10–86 ms on cold requests in 0.7.34.
 
 ### What changed
 
-- **SDK error intake.** Cold CPU fell from 35 to 6 ms for repeat captures and from 46 to 6 ms for new issues. Warm CPU fell from 9–14 to 1–8 ms across the two paths. Spool batches D1 work and moves authorization, auditing and capture admission into separate private Worker invocations.
-- **Minute alert Cron.** With three spike alerts delivered per tick, cold and warm CPU fell from 24 and 26 ms to 5 and 5 ms. D1 calls fell from 44 to 43 per tick. Spool batches alert mail expansion and scheduler cursor writes.
-- **Worker startup.** The Worker loads archive replay code only when replay needs it. This release adds no Durable Object or database migration.
+- **Hosted console.** Issues and Alerts pages, browser project and organization APIs, and `/auth/session` now run in the stateless SQLite Durable Object `SpoolConsole`. The object peaked at about 34 ms cold and 10–12 ms warm. A working day is estimated at about 4,000 Durable Object requests, or up to 10,000 with one tab visible for 24 hours, against the Free allowance of 100,000 requests per day.
+- **Startup and readiness.** The signed-in workbench opens from a lightweight shell and then loads workspace data. Static assets and `/health` can respond without initializing the console.
+- **Intake and alert Cron.** Both stay outside the console Durable Object. Hosted intake handles credential lookups at the intake entrypoint so refused requests stay within the Worker budget in the measured cases.
 
 ### Updating
 
-If you are updating from 0.7.33, back up first. Download a private archive in Settings, or stop local dev and run `rer export --output exports/spool.jsonl`. On main, run `git pull --ff-only` and `rer dev --host localhost`. From a tagged checkout, use [GitHub Releases](https://github.com/just-every/run-spool/releases) to select the latest published stable tag. Fetch tags with `git fetch --tags`, check out the selected tag, then run `rer dev --host localhost`. For a hosted installation, follow the update steps in docs/HOSTED.md from the original deploying checkout. All 115 core SQL migrations are byte-identical to 0.7.33. There are no new migrations or breaking changes. Keep the existing database, private settings, project keys and deployment receipt. Import private archives only into an empty destination. Spool pins rer to 0.2.135. To turn hosted mail off, select `MAIL_PROVIDER=none`, leave sending credentials empty and remove any previously bound sending secrets as described in docs/HOSTED.md. Keep the original deployment credentials and ownership receipt for guarded `rer signin` access. The Spool SDK has its own release process.
+If you are updating from 0.7.34, back up first. Download a private archive in Settings, or stop local dev and run `rer export --output exports/spool.jsonl`. On main, run `git pull --ff-only` and `rer dev --host localhost`. From a tagged checkout, use [GitHub Releases](https://github.com/just-every/run-spool/releases) to select the latest published stable tag. Fetch tags with `git fetch --tags`, check out the selected tag, then run `rer dev --host localhost`. For a hosted installation, follow the update steps in docs/HOSTED.md from the original deploying checkout. The hosted deployment adds the `CONSOLE` binding and the `spool-console-v1` migration for `SpoolConsole`. D1 remains the source of truth, and all 115 core SQL migrations are byte-identical to 0.7.34. A rollback requires a forward patch as described in the release notes. Keep the existing database, private settings, project keys and deployment receipt. Import private archives only into an empty destination. Spool pins rer to 0.2.135. To turn hosted mail off, select `MAIL_PROVIDER=none`, leave sending credentials empty and remove any previously bound sending secrets as described in docs/HOSTED.md. Keep the original deployment credentials and ownership receipt for guarded `rer signin` access. The Spool SDK has its own release process.
+
+### Rollback
+
+Rollback is forward only. Cloudflare refuses a version rollback across a Durable Object class change, and redeploying 0.7.34 fails because it lacks the `SpoolConsole` export. Restore service with a forward patch that reverts the console routing in `src/server.ts` and keeps the `SpoolConsole` export, `CONSOLE` binding and `spool-console-v1` migration. Alternatively, deploy a `spool-console-v2` migration through Wrangler with `deleted_classes: ["SpoolConsole"]`. Neither path requires D1 work because the object stores no application data.
 
 ### Known limits
 
-- The server-rendered Issues and Alerts pages, some project and organization APIs, and `/auth/session` can still exceed 10 ms of CPU on Workers Free.
 - Large alert backlogs and cold split proposals can still exceed a single Workers Free invocation’s CPU budget.
 - Native error intake, Sentry transactions, feedback and located logs can still return HTTP 403 on a project’s first identity-key collision when scrubbing rules are active.
 - Transaction measurements retain bounded observations. Spool does not store spans, transaction tags or request data.
