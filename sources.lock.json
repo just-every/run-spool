@@ -5686,7 +5686,7 @@
       "executable": false
     },
     "src/console-placement.ts": {
-      "sha256": "423c23a5b9b7990ed8ae38f1b93f28b6c4fa1ed5b21803913645cbc92325c0ed",
+      "sha256": "d4dbf720278fb40dc722c2331d840e0a5d870438615a4b6a8d33026ef094af09",
       "executable": false
     },
     "src/demo.ts": {
@@ -5698,7 +5698,7 @@
       "executable": false
     },
     "src/demo/environment.ts": {
-      "sha256": "e7d7b6debdebd2b5ea3fe846f05017807da82b5d544f1993024827091e93bd2c",
+      "sha256": "6dcbbf36c85d881a19257688fb13dff3085446c8a58c8c886c4f6ff05aa72294",
       "executable": false
     },
     "src/demo/history.ts": {
@@ -7426,7 +7426,7 @@
       "executable": false
     },
     "src/editor/owner-claim-config.server.ts": {
-      "sha256": "37aaa0ae258ea850a6d563ccb8d29a76c783c11276d276527bcadf5a32baef71",
+      "sha256": "d3d87926cfef079e94aa9136f964d01693d4ccd0f167284096915a7711b1f26a",
       "executable": false
     },
     "src/editor/owner-claim.server.ts": {
@@ -11474,7 +11474,7 @@
       "executable": false
     },
     "tests/demo-capture.mjs": {
-      "sha256": "df42d84ba609b8451e5c02cd9fc0b14055c75da459cf889edcde831a787de750",
+      "sha256": "ce682a71419f153d7306c8713b4410838b77866d20bcc2c5e3cfa38588a452be",
       "executable": false
     },
     "tests/deployment-history.mjs": {

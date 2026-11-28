@@ -10,7 +10,10 @@ export function demoEnvironment(env: Bindings & AlertEnvironment): Bindings & Al
  // Each demo already has its own session secret. Derive only a local destination
  // integrity key; neither this key nor the sample webhook can deliver anything.
  const key = btoa(env.SESSION_SECRET);
- return { ...env, MAIL_PROVIDER: 'development', MAIL_FROM: 'Spool demo <demo@demo.invalid>',
+ return { ...env,
+  // Worker Loader supplies one origin for both the visitor app and its signed claim.
+  ...(env.RER_OWNER_CLAIM_ISSUER ? { RER_OWNER_CLAIM_APP_ORIGIN: env.AUTH_ORIGIN } : {}),
+  MAIL_PROVIDER: 'development', MAIL_FROM: 'Spool demo <demo@demo.invalid>',
   MAIL_API_KEY: undefined, MAIL_ACCOUNT_ID: undefined, INTEGRATION_EGRESS: { send: request => demoEffect(() => {
    if (!env.INTEGRATION_EGRESS) throw new Error('egress_unconfigured');
    return env.INTEGRATION_EGRESS.send(request);
