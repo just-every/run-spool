@@ -21,7 +21,10 @@ export const holdable=`(i.expanded=0 AND i.state IN ('pending','blocked') OR EXI
 export type QueuedAlertMail = Pick<Intent, 'id' | 'project' | 'rule_id' | 'rule_revision' | 'destination' | 'channel'> & {
  message: string; destination_hash: string; attempts: number; max_attempts: number; retry_delays: string; standing: number;
 };
+export type PendingAlertIntent = Intent & {unresolved_mail:number};
+export type MailExpansionIntent = PendingAlertIntent & {channel:'mail'};
 export type ScheduledAlertWork = {
  spikes(time: number, lastRule: string): Promise<boolean>;
- deliverMail(job: QueuedAlertMail, time: number, started: number): Promise<void>;
+ expandMail(project: string, intents: MailExpansionIntent[], time: number, started: number): Promise<{changed:boolean;mail:boolean}>;
+ deliverMail(jobs: QueuedAlertMail[], time: number, started: number): Promise<void>;
 };

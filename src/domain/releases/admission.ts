@@ -1,13 +1,10 @@
 import { releaseOrderKeyStatement } from './order';
 import { normalize,scrub,type Envelope } from '../privacy';
 import { sentryRelease,releaseVersionKey } from './identity';
-import { readReleasePolicy,releasePolicySnapshot,autoReleaseAllowed,releasePolicyFence } from './policy';
+import { readReleasePolicy,autoReleaseAllowed,releasePolicyFence } from './policy';
 import { shaReleaseStatement } from '../commits/register';
 export async function prepareRelease(db:D1Database,project:string,input:Envelope,sentryIntake:boolean){
- // Native regression compares registered sequence numbers. The derived
- // Sentry ordering keys are repaired only when a caller can use them.
- const snapshot=await (input.sentry?readReleasePolicy:releasePolicySnapshot)(db,project);
- const sentry=sentryIntake&&!!input.sentry,jobs:D1PreparedStatement[]=[],notes:string[]=input.sentry?.truncation.some(n=>n.path==='release'&&n.reason==='invalid_release_name')?['invalid_release_name']:[];let event=input;
+ const snapshot=await readReleasePolicy(db,project),sentry=sentryIntake&&!!input.sentry,jobs:D1PreparedStatement[]=[],notes:string[]=input.sentry?.truncation.some(n=>n.path==='release'&&n.reason==='invalid_release_name')?['invalid_release_name']:[];let event=input;
  const existing=event.release?await db.prepare(`SELECT r.created,
   CASE WHEN EXISTS(SELECT 1 FROM release_metadata m WHERE m.project=r.project AND m.release=r.name)
    THEN EXISTS(SELECT 1 FROM release_builds b WHERE b.project=r.project AND b.release=r.name AND b.build=?1 AND b.registered=1)

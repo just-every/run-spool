@@ -65,18 +65,29 @@ export async function recoverMail(env:AlertEnvironment,time:number) {
 }
 // `only` limits a run to the given jobs; claims keep any concurrent run from sending the same job twice.
 export function dispatchMail(env:AlertEnvironment,time:number,only?:string[],attribution?:MailAttribution) {
- return dispatchMailQueue(env,time,false,only,(job,started)=>dispatchMailJob(env,job,()=>time+Date.now()-started,attribution));
+ return dispatchMailQueue(env,time,false,only,async (jobs,started)=>{
+  for(const job of jobs)await dispatchMailJob(env,job,()=>time+Date.now()-started,attribution);
+ });
 }
-export function dispatchScheduledMail(env:AlertEnvironment,time:number,work:ScheduledAlertWork) {
- return dispatchMailQueue(env,time,true,undefined,(job,started)=>work.deliverMail(job,time,started));
+export function dispatchScheduledMail(env:AlertEnvironment,time:number,work:ScheduledAlertWork,slots:number) {
+ return dispatchMailQueue(env,time,true,undefined,async(jobs,started)=>{
+  // Service bindings share the parent's invocation limit. Leave one attempt per
+  // invocation whenever there is room and retain the existing order at capacity.
+  const groups=Math.min(jobs.length,slots), size=Math.floor(jobs.length/groups), extra=jobs.length%groups;
+  for(let group=0, offset=0;group<groups;group++){
+   const end=offset+size+Number(group<extra);
+   await work.deliverMail(jobs.slice(offset,end),time,started);
+   offset=end;
+  }
+ });
 }
-async function dispatchMailQueue(env:AlertEnvironment,time:number,recovered:boolean,only:string[]|undefined,deliver:(job:QueuedAlertMail,started:number)=>Promise<void>) {
+async function dispatchMailQueue(env:AlertEnvironment,time:number,recovered:boolean,only:string[]|undefined,deliver:(jobs:QueuedAlertMail[],started:number)=>Promise<void>) {
  const started=Date.now();
  if(!recovered)await recoverMail(env,time);
  const jobs=(await s(env.DB,`SELECT j.*,i.rule_id,i.rule_revision,i.destination,i.channel,
   EXISTS(SELECT 1 FROM spool_agent_custody c WHERE c.kind='alert' AND c.id=i.rule_id AND c.project=j.project) AS standing
   FROM alert_mail_jobs j JOIN alert_intents i ON i.id=j.id WHERE i.state<>'snoozed' AND j.state='queued' AND j.next_at<=? AND (? IS NULL OR j.id IN (SELECT value FROM json_each(?))) ORDER BY j.next_at,j.id LIMIT 30`,time,only?JSON.stringify(only):null,only?JSON.stringify(only):null).all<QueuedAlertMail>()).results;
- for(const job of jobs)await deliver(job,started);
+ if(jobs.length)await deliver(jobs,started);
  if(jobs.length&&!recovered)await recoverMail(env,time+Date.now()-started);
 }
 

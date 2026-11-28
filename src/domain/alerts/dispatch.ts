@@ -7,7 +7,7 @@ import { synchronizeHistory } from './history';
 import { alertBody } from '../stored-text';
 import type { ScheduledDue } from '../scheduled/due';
 import { namespace, statement as s } from './types';
-import type { AlertEnvironment, Intent, ScheduledAlertWork } from './types';
+import type { AlertEnvironment, Intent, MailExpansionIntent, PendingAlertIntent, ScheduledAlertWork } from './types';
 // Expansion is idempotent: mail jobs and webhook deliveries are keyed by the intent id, and every send first takes a
 // durable claim, so the scheduled run and the dispatch after ingest can both reach the same intent without a second send.
 async function expandIntent(env:AlertEnvironment,service:()=>ReturnType<typeof webhookService>,intent:Intent,time:number) {
@@ -48,7 +48,7 @@ async function pendingExpansion(db:D1Database,project:string) {
    NOT EXISTS(SELECT 1 FROM alert_target_destinations t WHERE t.project=i.project AND t.id=i.destination)
    AND NOT EXISTS(SELECT 1 FROM alert_destinations d WHERE d.project=i.project AND d.id=i.destination)
   ELSE 0 END AS unresolved_mail
-  FROM selected JOIN alert_intents i ON i.id=selected.id ORDER BY selected.segment,i.id`,project).all<Intent&{unresolved_mail:number}>()).results;
+  FROM selected JOIN alert_intents i ON i.id=selected.id ORDER BY selected.segment,i.id`,project).all<PendingAlertIntent>()).results;
 }
 
 function currentBody(intent:Intent) {
@@ -69,6 +69,29 @@ export async function dispatchAdmitted(env:AlertEnvironment,alertId:string) {
  await synchronizeHistory(env,now());
 }
 
+export async function expandProjectAlerts(env:AlertEnvironment,project:string,intents:PendingAlertIntent[],now:()=>number,service:()=>ReturnType<typeof webhookService>) {
+ let configuredMail:ReturnType<typeof environmentMailDestinations>|undefined;
+ let lastIntent:string|undefined,changed=false,mail=false,webhook=false;
+ try {
+  for(const intent of intents) {
+   // Missing destinations are checked at selection on every visit. A newly configured
+   // destination or an older body needing scrubbing still takes the full live path.
+   const unchanged=intent.unresolved_mail && !(configuredMail??=environmentMailDestinations(env)).some(d=>d.project===project&&d.id===intent.destination) && currentBody(intent);
+   if(!unchanged){
+    const result=await expandIntent(env,service,intent,now());
+    if(result)changed=true;
+    if(result==='queued'&&intent.channel==='mail')mail=true;
+    if(result==='queued'&&intent.channel==='webhook')webhook=true;
+   }
+   lastIntent=intent.id;
+  }
+ } finally {
+  // Even a failed destination gets a turn in the existing round robin.
+  if(lastIntent!==undefined)await s(env.DB,'INSERT INTO alert_expansion_cursors(project,last_intent) VALUES(?,?) ON CONFLICT(project) DO UPDATE SET last_intent=excluded.last_intent',project,lastIntent).run();
+ }
+ return {changed,mail,webhook};
+}
+
 export async function runAlerts(env:AlertEnvironment,scheduledTime:number,due:ScheduledDue,work:ScheduledAlertWork) {
  const started=Date.now(),now=()=>Math.max(Date.now(),scheduledTime+Date.now()-started);
  if(due.recoverMail)await recoverMail(env,now());
@@ -83,38 +106,32 @@ export async function runAlerts(env:AlertEnvironment,scheduledTime:number,due:Sc
  if(due.hold||newAlerts&&due.holdsConfigured)await holdAlerts(env,scheduledTime);
  const dispatch=due.expand||due.webhooks||newAlerts;
  const projects=dispatch?(await s(env.DB,`SELECT project FROM (SELECT DISTINCT project FROM alert_intents INDEXED BY alert_intents_unexpanded WHERE expanded=0 AND state IN ('pending','blocked') UNION SELECT DISTINCT project FROM alert_mail_jobs INDEXED BY alert_mail_jobs_active WHERE state IN ('queued','sending') UNION SELECT DISTINCT substr(namespace,7) project FROM integration_deliveries WHERE state IN ('queued','sending')) ORDER BY CASE WHEN project>? THEN 0 ELSE 1 END,project LIMIT 20`,due.last_project).all<{project:string}>()).results:[];
- let configuredMail:ReturnType<typeof environmentMailDestinations>|undefined;
  let expandedMail=false;
  let deliveryChanged=false;
+ let invocations=Number(!!due.spikes);
  for(const {project} of projects) {
   let webhook:ReturnType<typeof webhookService>|undefined;
   const service=()=>webhook??=webhookService(env,project,now);
   if(due.webhooks&&(await service().recoverExpired()).length)deliveryChanged=true;
   const intents=await pendingExpansion(env.DB,project);
-  let lastIntent:string|undefined,expandedWebhook=false;
-  try {
-   for(const intent of intents) {
-    // Missing destinations are checked at selection on every visit. A newly configured
-    // destination or an older body needing scrubbing still takes the full live path.
-    const unchanged=intent.unresolved_mail && !(configuredMail??=environmentMailDestinations(env)).some(d=>d.project===project&&d.id===intent.destination) && currentBody(intent);
-    if(!unchanged){
-     const result=await expandIntent(env,service,intent,now());
-     if(result)deliveryChanged=true;
-     if(result==='queued'&&intent.channel==='mail')expandedMail=true;
-     if(result==='queued'&&intent.channel==='webhook')expandedWebhook=true;
-    }
-    lastIntent=intent.id;
-   }
-  } finally {
-   // Even a failed destination gets a turn in the existing round robin.
-   if(lastIntent!==undefined)await s(env.DB,'INSERT INTO alert_expansion_cursors(project,last_intent) VALUES(?,?) ON CONFLICT(project) DO UPDATE SET last_intent=excluded.last_intent',project,lastIntent).run();
+  let expandedWebhook=false;
+  if(intents.length && intents.every((intent): intent is MailExpansionIntent => intent.channel==='mail')) {
+   const result=await work.expandMail(project,intents,scheduledTime,started);
+   invocations++;
+   expandedMail ||= result.mail;
+   deliveryChanged ||= result.changed;
+  } else {
+   const result=await expandProjectAlerts(env,project,intents,now,service);
+   expandedMail ||= result.mail;
+   deliveryChanged ||= result.changed;
+   expandedWebhook=result.webhook;
   }
   const webhooks=due.webhooks||expandedWebhook?(await s(env.DB,`SELECT d.id FROM integration_deliveries d JOIN alert_intents i ON i.id=d.id AND d.namespace='spool.'||i.project WHERE i.project=? AND i.state<>'snoozed' AND d.state='queued' AND d.next_at<=? AND d.attempts<d.max_attempts ORDER BY d.next_at,d.id LIMIT 30`,project,now()).all<{id:string}>()).results:[];
   for(const delivery of webhooks)await service().dispatch(delivery.id);
   if(webhooks.length)deliveryChanged=true;
   await s(env.DB,"INSERT INTO alert_scheduler(id,last_project) VALUES(1,?) ON CONFLICT(id) DO UPDATE SET last_project=excluded.last_project",project).run();
  }
- if(due.mail||expandedMail)await dispatchScheduledMail(env,now(),work);
+ if(due.mail||expandedMail)await dispatchScheduledMail(env,now(),work,31-invocations);
  const changed=!!(due.history||due.recoverMail||due.providerEvents||due.hold||due.mail||deliveryChanged||newAlerts);
  if(changed)await synchronizeHistory(env,now(),true);
  return changed;
