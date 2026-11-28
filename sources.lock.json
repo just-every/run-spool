@@ -12290,7 +12290,7 @@
       "executable": false
     },
     "tests/session-backpressure.mjs": {
-      "sha256": "821932e2b51be8ec15b530845cac800c06c2733a0449f835a94764dd65366c76",
+      "sha256": "712efa78a7a49df92cc6d86a3cd3bca5cbc79c190210d4d0ad01c16a59434e51",
       "executable": false
     },
     "tests/session-flow.mjs": {
