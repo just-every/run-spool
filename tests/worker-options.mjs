@@ -15,7 +15,7 @@ const defaultRules=[
 ];
 
 // Wrangler 4.129.1 config-schema.json, convertConfigToBindings and
-// buildMiniflareOptions: only vars, assets and the local DB bindings are supported.
+// buildMiniflareOptions: only vars, assets, same-script SQLite Durable Objects and the local DB are supported.
 // Reject every other binding family, plus runtime modes/handlers this HTTP
 // fixture does not implement. Do not silently erase an emitted capability.
 const unsupportedRuntime=[
@@ -25,14 +25,14 @@ const unsupportedRuntime=[
  'version_metadata','mtls_certificates','dispatch_namespaces','pipelines',
  'secrets_store_secrets','artifacts','unsafe_hello_world','flagship','ratelimits',
  'worker_loaders','vpc_services','vpc_networks','wasm_modules','text_blobs',
- 'data_blobs','workflows','durable_objects','queues','logfwdr','unsafe',
- 'containers','cloudchamber','migrations','exports','connect','tail_consumers',
+ 'data_blobs','workflows','queues','logfwdr','unsafe',
+ 'containers','cloudchamber','exports','connect','tail_consumers',
  'streaming_tail_consumers','site','access','cache',
  'env','previews','secrets','addresses','route','routes','first_party_worker'
 ];
 // Normalized emitted configs include these empty wrappers even without bindings.
 const emptyCollections={
- durable_objects:['bindings'],queues:['producers','consumers'],logfwdr:['bindings']
+ queues:['producers','consumers'],logfwdr:['bindings']
 };
 function emptyCapability(value,collections=[]) {
  if(value===undefined)return true;
@@ -71,10 +71,15 @@ export async function emittedWorkerOptions(configPath,miniflare) {
  assert.ok(typeof database.database_id==='string'&&database.database_id.length,'Emitted D1 identity is required');
  assert.ok(database.remote===undefined||database.remote===false,'Remote emitted D1 is unsupported');
  assert.ok(database.preview_database_id===undefined||database.preview_database_id===database.database_id,'Alternate emitted D1 preview identity is unsupported');
+ const sqliteClasses=new Set((config.migrations??[]).flatMap(migration=>migration.new_sqlite_classes??[]));
+ const durableObjects=Object.fromEntries((config.durable_objects?.bindings??[]).map(binding=>{
+  assert.ok(binding.script_name===undefined&&sqliteClasses.has(binding.class_name),'Fixture requires same-script SQLite Durable Objects');
+  return [binding.name,{className:binding.class_name,useSQLite:true}];
+ }));
  const rules=[...config.rules,...defaultRules].map(({type,globs,fallthrough})=>({type,include:globs,fallthrough}));
  return {database,triggers,worker:await localRuntime({
   name:config.name,...await productionModules(config.main,rules,miniflare),
   compatibilityDate:config.compatibility_date,compatibilityFlags:config.compatibility_flags,
-  bindings:config.vars,assets:miniflareAssets(config),d1Databases:{[database.binding]:database.database_id}
+  bindings:config.vars,assets:miniflareAssets(config),durableObjects,d1Databases:{[database.binding]:database.database_id}
  })};
 }

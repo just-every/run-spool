@@ -4,31 +4,31 @@ import { currentAuditScope } from './domain/audit/context';
 import { withDemo } from './modules/demo/index.mjs';
 import { privateRuntimePath } from './auth/private-runtime.server';
 import { runtimeBindings, type Bindings } from './auth/bindings';
-import { AuthError } from './modules/operator-auth/errors.mjs';
+import { consoleObject, forwardConsoleRequest, refused, type WorkerBindings } from './server-console';
+import { staticAssetResponse } from './base/static-assets';
 import type { AlertEnvironment } from './domain/alerts/types';
 import { ingestApi, nativeIngestRoute, type AuthorizeNative, type NativeCaptureInput } from './domain/ingest-api';
 import { dispatchAfterCapture, type IngestScope } from './domain/admission';
 
 export { SpoolAlertWork } from './server-alert-work';
 export { SpoolCapture } from './server-capture';
+export { SpoolConsole } from './server-console';
 
 export async function scheduled(event: ScheduledController, bindings: Bindings & AlertEnvironment, execution: ExecutionContext) {
  const scheduler = await import('./server-scheduled');
  return scheduler.scheduled(event, bindings, execution);
 }
 
-// A refusal raised while reading the session (a foreign Host, for one) answers as
-// itself, the way the API's handlers answer it, instead of escaping the Worker.
-function refused(error: unknown) {
- if (!(error instanceof AuthError)) throw error;
- return new Response(`Request refused: ${error.code}`, { status: error.status, headers: { 'Content-Type': 'text/plain; charset=utf-8', 'Cache-Control': 'no-store' } });
-}
 export default withDemo({
  scheduled,
  async fetch(request, bindings, execution) {
   const env = runtimeBindings(bindings) as Bindings & AlertEnvironment;
   const path = new URL(request.url).pathname;
   const native=nativeIngestRoute(request.method,path);
+  if (!native && env.AUTH_LOCAL !== 'true' && env.RER_DEMO !== '1') {
+   const object = consoleObject(request, path);
+   if (object) return forwardConsoleRequest(request, bindings.CONSOLE.getByName(object));
+  }
   // The local key gate and demo database belong to the request that opened them.
   const hostedCapture=native==='capture' && env.AUTH_LOCAL!=='true' && env.RER_DEMO!=='1';
   const auditWork:RequestAuditWork|undefined=hostedCapture ? {
@@ -60,10 +60,16 @@ export default withDemo({
     };
     return ingestApi.fetch(request,{...env,authorizeNative,admitNative},execution);
    }
+   // Built assets do not need the application module. The SDK loader has
+   // its own response headers and stays with the application dispatcher.
+   if (path !== '/spool-sentry-sdk.js' && !path.startsWith('/api/') && !path.startsWith('/auth/') && !path.startsWith('/sdk/')) {
+    const asset = await staticAssetResponse(request, env);
+    if (asset) return asset;
+   }
    const { handle } = await import('./server-application');
    return handle(request, env, execution, path);
   },auditWork).catch(refused);
  },
-} satisfies ExportedHandler<Bindings & AlertEnvironment>, {
- seed: async (env: Bindings, options: { ownerEmail: string; now: Date }) => (await import('./demo')).seedDemo(env, options),
+} satisfies ExportedHandler<WorkerBindings>, {
+ seed: async (env: WorkerBindings, options: { ownerEmail: string; now: Date }) => (await import('./demo')).seedDemo(env, options),
 });
