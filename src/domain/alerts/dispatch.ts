@@ -64,7 +64,7 @@ export async function dispatchAdmitted(env:AlertEnvironment,alertId:string,work?
   await work.expandAdmittedMail(intents);
   // The capture, its audit and planning calls, and expansion also count
   // toward the loopback invocation limit of this HTTP request.
-  await dispatchBoundMail(env,now(),work,26,intents.map(intent=>intent.id));
+  await dispatchBoundMail(env,now(),work,25,intents.map(intent=>intent.id));
   await synchronizeHistory(env,now());
   return;
  }
@@ -122,17 +122,26 @@ export async function runAlerts(env:AlertEnvironment,scheduledTime:number,due:Sc
  let expandedMail=false;
  let deliveryChanged=false;
  let invocations=Number(!!due.spikes);
+ let remainingProjects=projects.length;
  for(const {project} of projects) {
+  remainingProjects--;
   let webhook:ReturnType<typeof webhookService>|undefined;
   const service=()=>webhook??=webhookService(env,project,now);
   if(due.webhooks&&(await service().recoverExpired()).length)deliveryChanged=true;
   const intents=await pendingExpansion(env.DB,project);
   let expandedWebhook=false;
   if(intents.length && intents.every((intent): intent is MailExpansionIntent => intent.channel==='mail')) {
-   const result=await work.expandMail(project,intents,scheduledTime,started);
-   invocations++;
-   expandedMail ||= result.mail;
-   deliveryChanged ||= result.changed;
+   // Preserve room for every later project and at least one delivery call.
+   // A few recipient expansions in one invocation can exhaust a Free tick.
+   const available=30-invocations-remainingProjects;
+   const groups=Math.min(available,Math.ceil(intents.length/2));
+   const size=Math.ceil(intents.length/groups);
+   for(let offset=0;offset<intents.length;offset+=size){
+    const result=await work.expandMail(project,intents.slice(offset,offset+size),scheduledTime,started);
+    invocations++;
+    expandedMail ||= result.mail;
+    deliveryChanged ||= result.changed;
+   }
   } else {
    const result=await expandProjectAlerts(env,project,intents,now,service);
    expandedMail ||= result.mail;

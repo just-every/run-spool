@@ -12,6 +12,7 @@ import { prepareScrubbing } from './scrubbing/model';
 import type { CapturePlan } from './capture-evidence';
 
 type CaptureBindings = Bindings & AlertEnvironment & {
+ normalizeCapture?:(document:unknown)=>Promise<Envelope>;
  planCapture?:(project:string,event:Envelope)=>Promise<CapturePlan>;
  onAlertAdmitted?:(id:string)=>void;
  admitNative?:(input:NativeCaptureInput,scope:IngestScope)=>Promise<Response>;
@@ -80,21 +81,29 @@ async function readCapture(c:IngestContext,scope:IngestScope) {
  } catch(error) { return invalidCapture(c,scope,error); }
 }
 
-export async function nativeAdmission(c:IngestContext,scope:IngestScope,text:string) {
-  try{
-    const parsed=JSON.parse(text);
-    const privacy=await prepareScrubbing(c.env.DB,scope.project,parsed);
-    // Normalization is repeated around release and grouping policy. Cache
-    // identical strings in this capture so every pass uses the same scrubber.
+export function captureScrubber() {
     const scrubbed = new Map<string,string>();
-    const clean = (text:string) => {
+    return (text:string) => {
      const prior=scrubbed.get(text);
      if(prior!==undefined)return prior;
      const value=scrub(text);
      scrubbed.set(text,value);
      return value;
     };
-    return admitEvent(c,scope,normalize(privacy.document,clean),await hash(canonical(parsed)),false,undefined,{...privacy,clean,
+}
+
+export function normalizeCapture(document:unknown,clean=captureScrubber()) {
+ return normalize(normalize(document,clean),clean);
+}
+
+export async function nativeAdmission(c:IngestContext,scope:IngestScope,text:string) {
+  try{
+    const parsed=JSON.parse(text);
+    const privacy=await prepareScrubbing(c.env.DB,scope.project,parsed);
+    // Use the same scrubber across the native validation passes.
+    const clean=captureScrubber();
+    const event=c.env.normalizeCapture ? await c.env.normalizeCapture(privacy.document) : normalizeCapture(privacy.document,clean);
+    return admitEvent(c,scope,event,await hash(canonical(parsed)),false,undefined,{...privacy,clean,normalized:true,
      planCapture:c.env.planCapture,onAlertAdmitted:c.env.onAlertAdmitted,
     });
   }catch(error){return invalidCapture(c,scope,error)}

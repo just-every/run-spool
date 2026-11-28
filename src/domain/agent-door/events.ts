@@ -4,7 +4,6 @@ import { spoolPeople } from './people';
 
 /** Observe a successful native person commit without repeating its action. */
 export async function emitPersonChange(request:Request,env:Bindings,response:Response) {
- if(['GET','HEAD','OPTIONS'].includes(request.method)||!response.ok||request.headers.has('authorization'))return;
  const path=new URL(request.url).pathname,person=await spoolPeople(env).session(request);if(!person?.active)return;
  let result:any;try{result=await response.clone().json();}catch{return;}
  const project=/^\/api\/projects\/([^/]+)\/(.*)$/.exec(path);

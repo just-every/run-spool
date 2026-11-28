@@ -4,7 +4,6 @@ import type { ManagedBindings } from '../editor/bindings';
 import { jsonBody } from './owner-router';
 import { doorKey } from './sentry-import/door.server';
 
-export const cutoverStatusPath = '/api/rer/cutover-status';
 const headers = { 'Cache-Control': 'no-store', 'X-Content-Type-Options': 'nosniff' };
 const answer = (body: unknown, status = 200, extra: Record<string, string> = {}) => Response.json(body, { status, headers: { ...headers, ...extra } });
 const isoTime = /^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}(?::\d{2}(?:\.\d{1,9})?)?(?:Z|[+-]\d{2}:\d{2})$/;

@@ -4,7 +4,7 @@ import { runtimeBindings, type Bindings } from './auth/bindings';
 import type { AlertEnvironment } from './domain/alerts/types';
 import { runAuditScope, type AuditScope } from './domain/audit/context';
 import { bindRequestAliases, type BindRequestAliases } from './domain/audit/request';
-import { nativeAdmission, type IngestEnv, type NativeCaptureInput } from './domain/ingest-api';
+import { nativeAdmission, normalizeCapture, type IngestEnv, type NativeCaptureInput } from './domain/ingest-api';
 import { apiError } from './domain/api-middleware';
 import type { IngestScope } from './domain/admission';
 import { prepareCapture, type CapturePlan } from './domain/capture-evidence';
@@ -21,10 +21,15 @@ export class SpoolCapture extends WorkerEntrypoint<Bindings & AlertEnvironment, 
   if (!scope) throw new Error('capture_audit_required');
   let alertId: string | undefined;
   const work=(this.ctx.exports as unknown as {SpoolCapture:{
+   normalize(document:unknown):Promise<Envelope & Disposable>;
    plan(project:string,event:Envelope):Promise<CapturePlan & Disposable>;
   }}).SpoolCapture;
   const env={
    ...runtimeBindings(this.env),
+   async normalizeCapture(document:unknown) {
+    using result=await work.normalize(document);
+    return {...result};
+   },
    async planCapture(project:string,event:Envelope) {
     using result=await work.plan(project,event);
     return {...result};
@@ -44,6 +49,9 @@ export class SpoolCapture extends WorkerEntrypoint<Bindings & AlertEnvironment, 
    headers: Object.fromEntries(response.headers),
    alertId,
   };
+ }
+ normalize(document: unknown): Envelope {
+  return normalizeCapture(document);
  }
  async plan(project: string, event: Envelope): Promise<CapturePlan> {
   const prepared=await prepareCapture(this.env.DB,project,event,false);

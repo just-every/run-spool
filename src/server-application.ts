@@ -1,10 +1,7 @@
-import { emitPersonChange } from './domain/agent-door/events';
-import { legacyAgentResponse } from './domain/agent-door/legacy';
-import { agentDoorResponse } from './domain/agent-door/index.server';
+import { agentDoorRoute } from './domain/agent-door/paths';
 import { resolveMembership } from './domain/members/resolver';
 import { reportDialogResponse } from './domain/report-dialog/public.server';
 import { loaderResponse } from './domain/loader/public.server';
-import api from './domain/api';
 import { setupDocumentResponse, setupClaimed } from './domain/setup.server';
 import { dispatch } from './base/dispatch';
 import { authenticationResponse, authorizeDocument } from './auth/dispatch.server';
@@ -13,16 +10,12 @@ import { ownerSession } from './auth/session.server';
 import { agentProject, agentReadPath } from './domain/agent-access';
 import { ownerClaimResponse } from './editor/owner-claim.server';
 import { editorConfigResponse, editorDocument } from './editor/config.server';
-import { providerEventResponse } from './domain/alerts/provider-events.server';
 import { staticAssetResponse } from './base/static-assets';
 import { admitted, setupStateResponse } from './base/setup-state';
 import { lobbyResponse } from './base/lobby';
 import { localOwnerLobby } from './auth/local-owner-lobby.server';
 import { identity } from './identity';
 import { docsResponse, isDocsRequest } from './ui/docs/document.server';
-import { ownerErasureResponse } from './domain/erasure/owner-routes';
-import { importDoorResponse, openDoorAtClaim } from './domain/sentry-import/door.server';
-import { cutoverStatusPath, rerCutoverStatus } from './domain/rer-cutover-status.server';
 import type { Bindings } from './auth/bindings';
 import type { AlertEnvironment } from './domain/alerts/types';
 
@@ -31,7 +24,7 @@ import type { AlertEnvironment } from './domain/alerts/types';
  * opens at the first claim (see openDoorAtClaim). The claim has already
  * committed, so a failure here is logged and healed by the next owner path. */
 async function afterOwnerPath(env: Bindings, response: Response): Promise<Response> {
- try { await openDoorAtClaim(env); } catch (error) { console.error('import door: first-claim enable failed', error); }
+ try { await (await import('./domain/sentry-import/door.server')).openDoorAtClaim(env); } catch (error) { console.error('import door: first-claim enable failed', error); }
  return response;
 }
 async function renderDocument(request: Request, env: Bindings) {
@@ -40,9 +33,14 @@ async function renderDocument(request: Request, env: Bindings) {
 }
 
 export async function handle(request: Request, env: Bindings & AlertEnvironment, execution: ExecutionContext, path: string): Promise<Response> {
- const agentDoor = await agentDoorResponse(request,env); if(agentDoor)return agentDoor;
- if(path.startsWith('/api/projects/')){const legacy=await legacyAgentResponse(request,env);if(legacy)return legacy;}
- const providerEvent=await providerEventResponse(request,env);if(providerEvent)return providerEvent;
+ const route=agentDoorRoute(path);
+ if(route){const response=await (await import('./domain/agent-door/index.server')).agentDoorResponse(request,env,route);if(response)return response;}
+ if(path.startsWith('/api/projects/')&&request.headers.has('authorization')){
+  const legacy=await (await import('./domain/agent-door/legacy')).legacyAgentResponse(request,env);if(legacy)return legacy;
+ }
+ if(path.startsWith('/api/alert-events/sendgrid/')){
+  const providerEvent=await (await import('./domain/alerts/provider-events.server')).providerEventResponse(request,env);if(providerEvent)return providerEvent;
+ }
  const reportDialog = await reportDialogResponse(request, env); if (reportDialog) return reportDialog;
  const loader = await loaderResponse(request, env); if (loader) return loader;
  const asset = await staticAssetResponse(request, env); if (asset) return asset;
@@ -61,12 +59,16 @@ export async function handle(request: Request, env: Bindings & AlertEnvironment,
  if (path === '/api/editor/config') return editorConfigResponse(request, env);
  // Run Edit Run's signed cutover read and the import door (owner session and
  // Business grants) run before ordinary routing.
- if (path === cutoverStatusPath) return rerCutoverStatus(request, env);
- const importDoor = await importDoorResponse(request, env); if (importDoor) return importDoor;
- const ownerErasure = await ownerErasureResponse(request, env); if (ownerErasure) return ownerErasure;
+ if (path === '/api/rer/cutover-status') return (await import('./domain/rer-cutover-status.server')).rerCutoverStatus(request, env);
+ if (path.startsWith('/api/rer/import/')||path.startsWith('/api/operator/import/')) {
+  const importDoor=await (await import('./domain/sentry-import/door.server')).importDoorResponse(request,env);if(importDoor)return importDoor;
+ }
+ if (path.startsWith('/api/owner/erasure')) {
+  const ownerErasure=await (await import('./domain/erasure/owner-routes')).ownerErasureResponse(request,env);if(ownerErasure)return ownerErasure;
+ }
  const auth = await authenticationResponse(request, env);
  if (auth) return path === '/auth/bootstrap' || auth.headers.has('set-cookie') ? afterOwnerPath(env, auth) : auth;
- const response = await dispatch(request, () => api.fetch(request, env, execution), async () => {
+ const response = await dispatch(request, async () => (await import('./domain/api')).default.fetch(request, env, execution), async () => {
   if (!applicationDocument(path)) {
    if (!await ownerSession(request,env,resolveMembership)) return new Response('Not found', { status: 404 });
    // Owners keep the router's styled not-found page, even before project setup.
@@ -77,6 +79,8 @@ export async function handle(request: Request, env: Bindings & AlertEnvironment,
   if (new URL(request.url).pathname === '/app') return Response.redirect(new URL('/', request.url), 303);
   return renderDocument(request, env);
  });
- await emitPersonChange(request,env,response);
+ if (!['GET','HEAD','OPTIONS'].includes(request.method)&&response.ok&&!request.headers.has('authorization')) {
+  await (await import('./domain/agent-door/events')).emitPersonChange(request,env,response);
+ }
  return response;
 }

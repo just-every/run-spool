@@ -76,11 +76,12 @@ export function dispatchAfterCapture(env: AlertEnvironment, id: string) {
 export async function admitEvent(c:any,scope:IngestScope,input:Envelope,digest:string,sentryIntake=false,identity?:PreparedIdentity,preScrubbed?:{
  jobs:D1PreparedStatement[];
  clean?:(text:string)=>string;
+ normalized?:boolean;
  planCapture?:(project:string,event:Envelope)=>Promise<CapturePlan>;
  onAlertAdmitted?:(id:string)=>void;
 }):Promise<Response>{
   const clean=preScrubbed?.clean??scrub;
-  let event=normalize(input,clean);const {project}=scope,db=c.env.DB;
+  let event=preScrubbed?.normalized?input:normalize(input,clean);const {project}=scope,db=c.env.DB;
   const record=(reason:string)=>recordIngest(c,scope,reason);
   const duplicate=async(row:any)=>{await record(row.digest===digest?'duplicate':'conflict');return c.json({outcome:row.digest===digest?'duplicate':'conflict',issue:row.issue},row.digest===digest?200:409)};
   try{
