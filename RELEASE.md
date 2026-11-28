@@ -1,19 +1,23 @@
-# Spool 0.7.36
+# Spool 0.7.37
 
-Spool 0.7.36 places its hosted console Durable Objects near the D1 primary. In a scratch deployment with reused connections, the signed-in Issues page fell from 1,120 to 125 ms and the sign-in page fell from 521 to 82 ms. Peak CPU in the timed requests was 2 ms in the Worker and 21 ms in `SpoolConsole`.
+Spool 0.7.37 restores issue writes in the hosted demo. In 0.7.36, issue writes returned Cloudflare error 1101 and a second visitor start timed out.
 
 ### What changed
 
-- **Console placement.** The Worker discovers the D1 primary region at runtime and caches the result per isolate. It uses region-named objects `auth:d1:<region>` and `workbench:d1:<region>` under the existing `SpoolConsole` class and `spool-console-v1` migration. The objects are stateless. This release changes no Durable Object classes or migrations and adds no D1 migrations.
-- **Fewer D1 calls.** Batching cuts Issue Search from 19 to 11 D1 calls and issue packets from 27 to 18. The signed-in root reuses its session check before redirecting to the workbench.
+- **Demo issue writes.** The demo runtime binds the visitor's claim origin as the agent door claim audience. The event hook after each issue write previously failed because that binding was missing.
+- **Console placement.** Console discovery uses `local` for regionless D1 and the reported region name for unfamiliar regions, with no location hint in either case. Known D1 regions keep their existing object names and location hints.
+
+### Test-host results
+
+Two isolated visitors started in 10.20 s and 9.04 s. Posting a comment returned HTTP 201 and assigning the issue returned HTTP 200. Both writes persisted after reload, and the second visitor saw neither write. [Test-only deployment](https://github.com/just-every/run-spool/actions/runs/46157265764)
 
 ### Updating
 
-If you are updating from 0.7.35, back up first. Download a private archive in Settings, or stop local dev and run `rer export --output exports/spool.jsonl`. On main, run `git pull --ff-only` and `rer dev --host localhost`. From a tagged checkout, run `git fetch --tags`, check out `v0.7.36`, then run `rer dev --host localhost`. For a hosted installation, follow the update steps in docs/HOSTED.md from the original deploying checkout. Keep the existing D1 database, private settings, project keys and deployment receipt. Import private archives into an empty destination. After deploying, open sign-in and the signed-in workbench once to place both objects. Spool pins rer to 0.2.135. The Spool SDK has its own release process.
+If you are updating from 0.7.36, back up first. Download a private archive in Settings, or stop local dev and run `rer export --output exports/spool.jsonl`. On main, run `git pull --ff-only` and `rer dev --host localhost`. From a tagged checkout, run `git fetch --tags`, check out `v0.7.37`, then run `rer dev --host localhost`. For a hosted installation, follow the update steps in docs/HOSTED.md from the original deploying checkout. Keep the existing D1 database, private settings, project keys and deployment receipt. Import private archives into an empty destination. This release adds no D1 or Durable Object migrations. Spool pins rer to 0.2.135. The Spool SDK has its own release process.
 
 ### Rollback
 
-Use a forward patch as the rollback path. Cloudflare refuses a version rollback across the Durable Object class change introduced in 0.7.35. If the placement change must be reverted, redeploy 0.7.35 as a new deployment. That release exports the same `SpoolConsole` class and retains the `CONSOLE` binding and `spool-console-v1` migration.
+Restore 0.7.36. It uses the same `SpoolConsole` class and needs no migration to roll back. Never roll back below 0.7.35, which introduced the class.
 
 ### Known limits
 

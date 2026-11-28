@@ -2662,7 +2662,7 @@
       "executable": false
     },
     "CHANGELOG.md": {
-      "sha256": "4a2e04887c41c6d3c2f4259fdaa63523c219333a8f50da817a1d8df216f195e8",
+      "sha256": "57ec3e1e0521367997bf09f468a4ac2f0fa4c1709f4a89e20f8fff5d3b0aab5e",
       "executable": false
     },
     "CLAUDE.md": {
@@ -4266,7 +4266,7 @@
       "executable": false
     },
     "package.json": {
-      "sha256": "0afc432966897e535012248094b6dc526aaa10c20129239e915c01d59b552407",
+      "sha256": "ae7684b8d9ddbf4851f479607377a5017e9e78402e466a91b4576e88ed18ac06",
       "executable": false
     },
     "packages/agent/bin/spool-agent.mjs": {
@@ -4594,11 +4594,11 @@
       "executable": false
     },
     "RELEASE.json": {
-      "sha256": "dfad5fba1452d903344d92172286a351cbaa93cdc77972d20d00260f7c98d5b1",
+      "sha256": "f396262ba92b1e317c739cc46c561ebad5a28f317a1b0fcd14613c7d79057aeb",
       "executable": false
     },
     "RELEASE.md": {
-      "sha256": "3adf0964ccc6d86883c0706255b6b2ef0fee6561342b7c1e3d50cebf193e140c",
+      "sha256": "650abc2396ce6cb966ef002963ef7209bd9842689bd3a8397517147adc6a6d7b",
       "executable": false
     },
     "rer-project.json": {
@@ -5466,7 +5466,7 @@
       "executable": false
     },
     "seed.json": {
-      "sha256": "053f7902b6ab408b786b9fec3d3133f1a25aa21bec08a93aab4559cae822691b",
+      "sha256": "9fc43ad3bd1229a3cffd7bb84b84dcc0e55cc39e4e5a071caf21a9117a414039",
       "executable": false
     },
     "src/archive-evidence.d.ts": {
