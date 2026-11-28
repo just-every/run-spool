@@ -703,8 +703,20 @@
     "nodejs_compat",
     "enable_request_signal"
   ],
-  "durableObjects": [],
-  "durableObjectMigrations": [],
+  "durableObjects": [
+    {
+      "binding": "CONSOLE",
+      "className": "SpoolConsole"
+    }
+  ],
+  "durableObjectMigrations": [
+    {
+      "tag": "spool-console-v1",
+      "newSqliteClasses": [
+        "SpoolConsole"
+      ]
+    }
+  ],
   "publicVariables": {
     "MAIL_FROM": "",
     "OWNER_EMAIL": "",

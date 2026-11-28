@@ -18,6 +18,8 @@ import { identity } from './identity';
 import { docsResponse, isDocsRequest } from './ui/docs/document.server';
 import type { Bindings } from './auth/bindings';
 import type { AlertEnvironment } from './domain/alerts/types';
+import type { Context } from 'hono';
+import { workbenchShellAsset } from './ui/workbench/shell-document';
 
 /** Claim answers (first, refused or already initialized) and every sign-in or
  * session start are owner paths: on a Business-provisioned install the door
@@ -27,12 +29,18 @@ async function afterOwnerPath(env: Bindings, response: Response): Promise<Respon
  try { await (await import('./domain/sentry-import/door.server')).openDoorAtClaim(env); } catch (error) { console.error('import door: first-claim enable failed', error); }
  return response;
 }
-async function renderDocument(request: Request, env: Bindings) {
+async function renderDocument(request: Request, env: Bindings, workbench = false) {
+ if (workbench && import.meta.env?.PROD && env.RER_DEMO !== '1' && (request.method === 'GET' || request.method === 'HEAD')) {
+  if (!env.ASSETS) throw new Error('Workbench assets are not bound');
+  const shell = await env.ASSETS.fetch(new Request(new URL(workbenchShellAsset, request.url), { method: request.method }));
+  if (!shell.ok) throw new Error('Workbench shell is missing from this build');
+  return editorDocument(shell, env);
+ }
  const {default: start} = await import('@tanstack/react-start/server-entry');
  return editorDocument(await start.fetch(request), env);
 }
 
-export async function handle(request: Request, env: Bindings & AlertEnvironment, execution: ExecutionContext, path: string): Promise<Response> {
+export async function handle(request: Request, env: Bindings & AlertEnvironment, execution: Context['executionCtx'], path: string): Promise<Response> {
  const route=agentDoorRoute(path);
  if(route){const response=await (await import('./domain/agent-door/index.server')).agentDoorResponse(request,env,route);if(response)return response;}
  if(path.startsWith('/api/projects/')&&request.headers.has('authorization')){
@@ -77,7 +85,7 @@ export async function handle(request: Request, env: Bindings & AlertEnvironment,
   const denied = await authorizeDocument(request, env); if (denied) return denied;
   const setup = await setupDocumentResponse(request, env); if (setup) return setup;
   if (new URL(request.url).pathname === '/app') return Response.redirect(new URL('/', request.url), 303);
-  return renderDocument(request, env);
+  return renderDocument(request, env, path === '/projects' || path.startsWith('/projects/'));
  });
  if (!['GET','HEAD','OPTIONS'].includes(request.method)&&response.ok&&!request.headers.has('authorization')) {
   await (await import('./domain/agent-door/events')).emitPersonChange(request,env,response);

@@ -36,6 +36,10 @@ try {
     assert.equal(response.headers()['cache-control'], 'no-store');
     if (method === 'GET') assert.ok((await response.text()).includes('value="' + testOwner + '"'), 'both aliases preserve the login hint');
    }
+   const unauthenticated = await context.request.post(app.origin + '/api/projects', {
+    headers:{Origin:app.origin}, data:{id:'refused', name:'Refused project'}, maxRedirects:0,
+   });
+   assert.equal(unauthenticated.status(), 401, 'a signed-out project upload is refused');
    assert.equal((await page.goto(entry.href)).status(), 200);
    const email = page.getByRole('textbox', {name:'Owner email', exact:true});
    assert.equal(await email.inputValue(), testOwner, 'the declared sign-in page prefills the owner');
@@ -54,6 +58,14 @@ try {
    await page.getByRole('button', {name:'Confirm', exact:true}).click();
    await page.waitForURL(app.origin + '/setup');
    assert.equal((await context.request.get(app.origin + '/api/projects')).status(), 200, 'confirmation signs in the native owner');
+   const session = await context.request.get(app.origin + '/auth/session');
+   assert.equal(session.status(), 200);
+   assert.equal((await session.json()).operator.role, 'owner');
+   const crossOrigin = await context.request.post(app.origin + '/api/projects', {
+    headers:{Origin:'https://foreign.example'}, data:{id:'refused', name:'Refused project'}, maxRedirects:0,
+   });
+   assert.equal(crossOrigin.status(), 403, 'the owner cookie does not authorize a cross-origin write');
+   assert.deepEqual(await (await context.request.get(app.origin + '/api/projects')).json(), []);
    for (const path of ['/signin', '/sign-in']) for (const method of ['GET', 'HEAD']) {
     const response = await context.request.fetch(app.origin + path + '?login_hint=' + encodeURIComponent(testOwner) + '&returnTo=https://foreign.example', {method, maxRedirects:0});
     assert.equal(response.status(), 303, 'signed-in owners go directly to the workspace');

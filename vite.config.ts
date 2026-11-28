@@ -4,6 +4,7 @@ import { tanstackStart } from '@tanstack/react-start/plugin/vite'
 import react from '@vitejs/plugin-react'
 import { defineConfig } from 'vite'
 import { documentBoundary } from './vite/document-boundary'
+import { workbenchShell } from './vite/workbench-shell'
 import { excludeLocalVariables } from '@runeditrun/rer/local-variables-output'
 import { docsSite } from './vite/docs-site'
 import { archiveOutputGuard } from '@runeditrun/rer/archive-output'
@@ -27,5 +28,5 @@ export default defineConfig(({ command, isPreview }) => ({
   // .dev.vars that arrives while dev serves (a late file-watch delivery for setup's own write)
   // would make the Cloudflare plugin restart the dev server and drop every request in flight.
   server: { cors: false, fs: { strict: true, allow, deny }, watch: { ignored: ['**/.dev.vars', '**/.dev.vars.*'] } },
-  plugins: [demoSockets(), documentBoundary(), cloudflare({ inspectorPort: false, viteEnvironment: { name: 'ssr' }, persistState: { path: process.env.RER_STATE_DIR ?? '.wrangler/state' }, ...(command === 'serve' && !isPreview ? { config: serve } : process.env.RER_DEV_ORIGIN ? { config: { vars: local('RER_DEV_ORIGIN') } } : {}) }), tanstackStart(), react(), excludeLocalVariables(), docsSite(), archiveOutputGuard(), legacyMigrationEvidence()],
+  plugins: [demoSockets(), documentBoundary(), cloudflare({ inspectorPort: false, viteEnvironment: { name: 'ssr' }, persistState: { path: process.env.RER_STATE_DIR ?? '.wrangler/state' }, ...(command === 'serve' && !isPreview ? { config: serve } : process.env.RER_DEV_ORIGIN ? { config: { vars: local('RER_DEV_ORIGIN') } } : {}) }), tanstackStart(), react(), workbenchShell(), excludeLocalVariables(), docsSite(), archiveOutputGuard(), legacyMigrationEvidence()],
 }))

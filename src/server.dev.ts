@@ -2,7 +2,8 @@
 // src/server.ts, and `rer build` refuses any output that contains the dev layer. It adds dev
 // sign-in, personas and the Dev product label.
 import worker from './server';
-export { SpoolAlertWork, SpoolCapture } from './server';
+import type { WorkerBindings } from './server-console';
+export { SpoolAlertWork, SpoolCapture, SpoolConsole } from './server';
 import { managedInstallation } from './modules/operator-auth/dev/index.mjs';
 import { withDevIdentity } from './auth/local-identity.server.mjs';
 import { devGate } from './modules/operator-auth/dev-gate.mjs';
@@ -37,7 +38,7 @@ const local = {
    try {
     if (!await ownerSession(request, env)) return new Response('Unauthorized', { status: 401, headers });
     if (request.method !== 'GET') return new Response('Method not allowed', { status: 405, headers });
-    const paths = bindings as Bindings & { SPOOL_AGENT_NODE: string; SPOOL_AGENT_CLI: string };
+    const paths = bindings as WorkerBindings & { SPOOL_AGENT_NODE: string; SPOOL_AGENT_CLI: string };
     return Response.json({ node: paths.SPOOL_AGENT_NODE, cli: paths.SPOOL_AGENT_CLI }, { headers });
    } catch (error) {
     if (error instanceof AuthError) return new Response('Unauthorized', { status: error.status, headers });
@@ -59,4 +60,4 @@ const local = {
  },
 } satisfies typeof worker;
 
-export default withDevIdentity<Bindings, typeof local>(local, { bindings: runtimeBindings, config: authConfig, personas: devPersonas });
+export default withDevIdentity<WorkerBindings, typeof local>(local, { bindings: env => ({ ...env, ...runtimeBindings(env) }), config: authConfig, personas: devPersonas });

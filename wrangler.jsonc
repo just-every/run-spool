@@ -14,6 +14,12 @@
     "binding": "ASSETS",
     "run_worker_first": true
   },
+  "durable_objects": {
+    "bindings": [{"name": "CONSOLE", "class_name": "SpoolConsole"}]
+  },
+  "migrations": [
+    {"tag": "spool-console-v1", "new_sqlite_classes": ["SpoolConsole"]}
+  ],
   "d1_databases": [
     {
       "binding": "DB",

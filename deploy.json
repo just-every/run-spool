@@ -11,6 +11,13 @@
       "binding": "DB"
     }
   ],
+  "durableObjects": [
+    {
+      "binding": "CONSOLE",
+      "className": "SpoolConsole",
+      "storage": "sqlite"
+    }
+  ],
   "originVar": "AUTH_ORIGIN",
   "vars": {
     "AUTH_LOCAL": "false"
