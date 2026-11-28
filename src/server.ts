@@ -6,7 +6,7 @@ import { privateRuntimePath } from './auth/private-runtime.server';
 import { runtimeBindings, type Bindings } from './auth/bindings';
 import { AuthError } from './modules/operator-auth/errors.mjs';
 import type { AlertEnvironment } from './domain/alerts/types';
-import { ingestApi, isNativeIngest, type NativeCaptureInput } from './domain/ingest-api';
+import { ingestApi, nativeIngestRoute, type NativeCaptureInput } from './domain/ingest-api';
 import { dispatchAfterCapture, type IngestScope } from './domain/admission';
 
 export { SpoolAlertWork } from './server-alert-work';
@@ -28,9 +28,9 @@ export default withDemo({
  async fetch(request, bindings, execution) {
   const env = runtimeBindings(bindings) as Bindings & AlertEnvironment;
   const path = new URL(request.url).pathname;
-  const native=isNativeIngest(request.method,path);
+  const native=nativeIngestRoute(request.method,path);
   // The local key gate and demo database belong to the request that opened them.
-  const hostedCapture=native && request.method==='POST' && !path.endsWith('/exposure') && env.AUTH_LOCAL!=='true' && env.RER_DEMO!=='1';
+  const hostedCapture=native==='capture' && env.AUTH_LOCAL!=='true' && env.RER_DEMO!=='1';
   const bindAliases:BindRequestAliases|undefined=hostedCapture ? async (...args)=>{
    using result=await execution.exports.SpoolCapture.bindAliases(...args);
    return {actor:result.actor,bound:result.bound,projectLabel:result.projectLabel};

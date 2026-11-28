@@ -6490,7 +6490,7 @@
       "executable": false
     },
     "src/domain/ingest-api.ts": {
-      "sha256": "912d484beaf0cb6d2e92693f2a1452a24c9146ea8766c134a744e9eb85080067",
+      "sha256": "1093938468e29a57f7c0a7570fe5708e6cd3b69af02ac794f1815df3885b662c",
       "executable": false
     },
     "src/domain/investigation/events.ts": {
@@ -10354,7 +10354,7 @@
       "executable": false
     },
     "src/server.ts": {
-      "sha256": "40fa81057c41c1da13aeed75a080ccd3e1565067f9749594147284a02ca9dcd4",
+      "sha256": "66e3caa88c7d6331f91e4e3a1c86cc8afbdbb05a2ba11b9a25b11fc5c70d05aa",
       "executable": false
     },
     "src/site/hosting.ts": {
@@ -11378,7 +11378,7 @@
       "executable": false
     },
     "tests/browser-origins-runtime.mjs": {
-      "sha256": "ea0afd3af1bc663b58f6eaa5b0363901b9a09eda5929f3ec12bc45de19d251ca",
+      "sha256": "8b13d62c211fc2f5e75e9493e7369fa89764a16f49ac767d5a2e24a2a19eb92d",
       "executable": false
     },
     "tests/bugsnag-cutover.mjs": {

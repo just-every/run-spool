@@ -45,7 +45,7 @@ const application={async fetch(request,env,ctx){
   const auth=await authenticationResponse(request,env);if(auth)return auth;
   if(request.headers.get('x-test-storage-failure')==='yes'){
     const db=env.DB;
-    const facade={prepare(sql){if(!sql.startsWith('SELECT 1 FROM credentials'))return db.prepare(sql);return {bind(){return {first(){throw new Error('D1_ERROR: synthetic storage read unavailable')}}}}},batch:db.batch.bind(db)};
+    const facade={prepare(sql){if(!sql.startsWith('UPDATE credentials SET last_used=?')||!sql.includes("kind='ingest'"))return db.prepare(sql);return {bind(){return {first(){throw new Error('D1_ERROR: synthetic storage unavailable')}}}}},batch:db.batch.bind(db)};
     return wrapRequest(request,{...env,DB:facade},()=>api.fetch(request,{...env,DB:facade},ctx));
   }
   if(request.headers.get('x-test-revoke-origin')==='yes'&&new URL(request.url).pathname.startsWith('/api/ingest/')){

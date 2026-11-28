@@ -22,8 +22,12 @@ type IngestContext = Context<IngestEnv>;
 
 // Only the native routes can bypass loading the full application. It still
 // mounts the same routes for URL spellings matched by its Hono router.
-export const isNativeIngest = (method: string, path: string) =>
- (method === 'POST' || method === 'OPTIONS') && /^\/api\/ingest\/[^/]+(?:\/exposure)?$/.test(path);
+export function nativeIngestRoute(method: string, path: string) {
+ if (method !== 'POST' && method !== 'OPTIONS') return null;
+ const match = /^\/api\/ingest\/[^/]+(\/exposure)?$/.exec(path);
+ if (!match) return null;
+ return method === 'OPTIONS' ? 'preflight' : match[1] ? 'exposure' : 'capture';
+}
 
 async function ingestRejection(c:IngestContext,response:Response) {
   const result=await rejectedResponse(c.req.raw,response);
