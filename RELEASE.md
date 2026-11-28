@@ -1,17 +1,20 @@
-# Spool 0.7.33
+# Spool 0.7.34
 
-Spool 0.7.33 runs the same code as 0.7.32. It was published again so new setups can get it from the catalogue.
+Spool 0.7.34 brings SDK error intake and the minute alert Cron within the 10 ms Cloudflare Workers Free CPU limit in the measured workloads.
 
 ### What changed
 
-- The once-a-minute alert check fits a Cloudflare Workers Free account in the measured workload. As in 0.7.32, a typical check took about 7 ms of CPU against a 10 ms limit.
+- **SDK error intake.** Cold CPU fell from 35 to 6 ms for repeat captures and from 46 to 6 ms for new issues. Warm CPU fell from 9–14 to 1–8 ms across the two paths. Spool batches D1 work and moves authorization, auditing and capture admission into separate private Worker invocations.
+- **Minute alert Cron.** With three spike alerts delivered per tick, cold and warm CPU fell from 24 and 26 ms to 5 and 5 ms. D1 calls fell from 44 to 43 per tick. Spool batches alert mail expansion and scheduler cursor writes.
+- **Worker startup.** The Worker loads archive replay code only when replay needs it. This release adds no Durable Object or database migration.
 
 ### Updating
 
-If you are updating from 0.7.32, back up first. Download a private archive in Settings, or stop local dev and run `rer export --output exports/spool.jsonl`. On main, run `git pull --ff-only` and `rer dev --host localhost`. From a tagged checkout, use [GitHub Releases](https://github.com/just-every/run-spool/releases) to select the latest published stable tag. Fetch tags with `git fetch --tags`, check out the selected tag, then run `rer dev --host localhost`. For a hosted installation, follow the update steps in docs/HOSTED.md from the original deploying checkout. All 115 core SQL migrations are byte-identical to 0.7.32. There are no new migrations or breaking changes. Keep the existing database, private settings, project keys and deployment receipt. Import private archives only into an empty destination. Spool pins rer to 0.2.135. To turn hosted mail off, select `MAIL_PROVIDER=none`, leave sending credentials empty and remove any previously bound sending secrets as described in docs/HOSTED.md. Keep the original deployment credentials and ownership receipt for guarded `rer signin` access. The Spool SDK has its own release process.
+If you are updating from 0.7.33, back up first. Download a private archive in Settings, or stop local dev and run `rer export --output exports/spool.jsonl`. On main, run `git pull --ff-only` and `rer dev --host localhost`. From a tagged checkout, use [GitHub Releases](https://github.com/just-every/run-spool/releases) to select the latest published stable tag. Fetch tags with `git fetch --tags`, check out the selected tag, then run `rer dev --host localhost`. For a hosted installation, follow the update steps in docs/HOSTED.md from the original deploying checkout. All 115 core SQL migrations are byte-identical to 0.7.33. There are no new migrations or breaking changes. Keep the existing database, private settings, project keys and deployment receipt. Import private archives only into an empty destination. Spool pins rer to 0.2.135. To turn hosted mail off, select `MAIL_PROVIDER=none`, leave sending credentials empty and remove any previously bound sending secrets as described in docs/HOSTED.md. Keep the original deployment credentials and ownership receipt for guarded `rer signin` access. The Spool SDK has its own release process.
 
 ### Known limits
 
+- The server-rendered Issues and Alerts pages, some project and organization APIs, and `/auth/session` can still exceed 10 ms of CPU on Workers Free.
 - Large alert backlogs and cold split proposals can still exceed a single Workers Free invocation’s CPU budget.
 - Native error intake, Sentry transactions, feedback and located logs can still return HTTP 403 on a project’s first identity-key collision when scrubbing rules are active.
 - Transaction measurements retain bounded observations. Spool does not store spans, transaction tags or request data.
@@ -28,4 +31,4 @@ If you are updating from 0.7.32, back up first. Download a private archive in Se
 
 Product screenshot: .github/assets/release/spool-issue-page-1600.png
 
-Release notes by Run Edit Run fleet, 2026-11-27 (UTC).
+Release notes by Run Edit Run fleet, 2026-11-28 (UTC).
