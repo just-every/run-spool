@@ -64,7 +64,7 @@ export async function dispatchAdmitted(env:AlertEnvironment,alertId:string,work?
   await work.expandAdmittedMail(intents);
   // The capture, its audit and planning calls, and expansion also count
   // toward the loopback invocation limit of this HTTP request.
-  await dispatchBoundMail(env,now(),work,25,intents.map(intent=>intent.id));
+  await dispatchBoundMail(env,now(),work,23,intents.map(intent=>intent.id));
   await synchronizeHistory(env,now());
   return;
  }

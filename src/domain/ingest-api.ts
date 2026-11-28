@@ -10,14 +10,19 @@ import { ingestOrigin, requestedHeaders } from './origins';
 import { canonical, hash, normalize, scrub, type Envelope } from './privacy';
 import { prepareScrubbing } from './scrubbing/model';
 import type { CapturePlan } from './capture-evidence';
+import { credentialDigest } from './credential-fence';
 
 type CaptureBindings = Bindings & AlertEnvironment & {
  normalizeCapture?:(document:unknown)=>Promise<Envelope>;
  planCapture?:(project:string,event:Envelope)=>Promise<CapturePlan>;
  onAlertAdmitted?:(id:string)=>void;
+ authorizeNative?:AuthorizeNative;
  admitNative?:(input:NativeCaptureInput,scope:IngestScope)=>Promise<Response>;
 };
-export type NativeCaptureInput = { url:string; headers:Record<string,string>; text:string };
+export type NativeCaptureMetadata = { url:string; headers:Record<string,string> };
+export type NativeCaptureInput = NativeCaptureMetadata & { text:string };
+export type NativeResponse = {body:string|null;status:number;headers:Record<string,string>};
+export type AuthorizeNative = (input:NativeCaptureMetadata,project:string,keyHash:string)=>Promise<{scope:IngestScope}|{refusal:NativeResponse;drain:boolean}>;
 export type IngestEnv = { Bindings: CaptureBindings; Variables: { project: string | null } };
 type IngestContext = Context<IngestEnv>;
 
@@ -50,22 +55,40 @@ ingestRoutes.options('/api/ingest/:project',preflight);
 ingestRoutes.options('/api/ingest/:project/exposure',preflight);
 ingestRoutes.post('/api/ingest/:project/exposure',async c => (await import('./exposure/intake')).exposureResponse(c));
 ingestRoutes.post('/api/ingest/:project',async c=>{
-  const auth=await authorizeIngest(c,c.req.param('project'),c.req.header('authorization')?.replace(/^Bearer /,''));
-  if('response' in auth)return ingestRejection(c,auth.response);
+  const key=c.req.header('authorization')?.replace(/^Bearer /,'');
+  const metadata=c.env.authorizeNative||c.env.admitNative?nativeCaptureMetadata(c):undefined;
+  const auth=await authorizeNativeRequest(c,c.req.param('project'),key,metadata);
+  if('response' in auth)return 'drain' in auth&&!auth.drain?auth.response:ingestRejection(c,auth.response);
   const scope=auth.scope;
   const input=await readCapture(c,scope);
   if(typeof input!=='string')return input;
   if(!c.env.admitNative)return nativeAdmission(c,scope,input);
+  // The admission step can revoke CORS when it detects a policy change.
+  c.header('Access-Control-Allow-Origin',undefined);
+  return c.env.admitNative({...metadata!,text:input},scope);
+});
+
+function nativeCaptureMetadata(c:IngestContext):NativeCaptureMetadata {
   const headers:Record<string,string>={};
   for(const header of ['origin','referer','user-agent','cf-connecting-ip']){
    const value=c.req.header(header);
    if(value!==undefined)headers[header]=value;
   }
   const url=new URL(c.req.url);
-  // The admission step can revoke CORS when it detects a policy change.
-  c.header('Access-Control-Allow-Origin',undefined);
-  return c.env.admitNative({url:url.origin+url.pathname,headers,text:input},scope);
-});
+  return {url:url.origin+url.pathname,headers};
+}
+
+async function authorizeNativeRequest(c:IngestContext,project:string,key:string|undefined,metadata?:NativeCaptureMetadata) {
+ if(!c.env.authorizeNative)return authorizeIngest(c,project,key);
+ c.header('Vary','Origin');
+ const result=await c.env.authorizeNative(metadata!,project,key?await credentialDigest(c.req.raw,key):'');
+ if('refusal' in result){
+  for(const [name,value] of Object.entries(result.refusal.headers))c.header(name,value);
+  return {response:new Response(result.refusal.body,result.refusal),drain:result.drain};
+ }
+ if(result.scope.domain.cors)c.header('Access-Control-Allow-Origin',result.scope.domain.cors);
+ return result;
+}
 
 async function invalidCapture(c:IngestContext,scope:IngestScope,error:unknown) {
  try{await recordIngest(c,scope,'invalid')}catch(failure){return ingestFailure(c,scope,failure)}

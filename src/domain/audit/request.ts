@@ -29,6 +29,7 @@ export async function bindRequestAliases(db:D1Database,identity:RequestIdentity,
 }
 
 export type BindRequestAliases = (identity:RequestIdentity,binding:RequestBinding,project:string)=>Promise<RequestAliases>;
+export type RequestAuditWork = {bindAliases:BindRequestAliases; observe:(fact:AuditFact)=>Promise<void>};
 
 /** Attribution follows existing auth admission. The handler checks the live grant. */
 async function requestIdentity(request: Request, bindings: Bindings, nativeCapture = false): Promise<RequestIdentity | null> {
@@ -86,7 +87,7 @@ async function admittedActor(request: Request, env: Bindings, door: AuditScope, 
  * route or error text is retained. The actor is captured before a successful
  * handoff/revocation can erase authority.
  */
-export async function wrapRequest(request: Request, env: Bindings, next: () => Promise<Response>, bindAliases?: BindRequestAliases): Promise<Response> {
+export async function wrapRequest(request: Request, env: Bindings, next: () => Promise<Response>, work?: RequestAuditWork): Promise<Response> {
  const door=classifyRequest(request); if(!door)return next();
  // The bounded reads belong to one export. Record refusals and leave its
  // successful page transfers to the initial and terminal audit facts.
@@ -100,8 +101,8 @@ export async function wrapRequest(request: Request, env: Bindings, next: () => P
  const binding=subjectBinding(door.kind,door.project?JSON.stringify([door.project,door.subject]):door.subject,door.project);
  let actor:AuditActor, bound:string|undefined, projectLabel:string|null;
  if(identity&&door.project){
-  ({actor,bound,projectLabel}=bindAliases
-   ? await bindAliases(identity,binding,door.project)
+  ({actor,bound,projectLabel}=work
+   ? await work.bindAliases(identity,binding,door.project)
    : await bindRequestAliases(env.DB,identity,binding,door.project));
  } else {
   actor=identity?await auditActor(env.DB,identity):unidentifiedActor();
@@ -114,7 +115,8 @@ export async function wrapRequest(request: Request, env: Bindings, next: () => P
  let scope: AuditScope={actor,action:door.action,subject,projectLabel};
  const observe=async(status:number)=>{
   const fact: AuditFact={source:'request',actor:scope.actor,action:door.action,subject,projectLabel,outcome:responseOutcome(status),status};
-  await recordAudit(env.DB,fact);
+  if(work)await work.observe(fact);
+  else await recordAudit(env.DB,fact);
  };
  let response: Response;
  try { response=await runAuditScope(scope,async()=>{const result=page??await next();scope=currentAuditScope();return result;}); }

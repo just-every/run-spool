@@ -26,12 +26,15 @@ const advanceIssueSql = `UPDATE issues AS i SET count=count+1,last_seen=?,revisi
 
 export const stmt=(db:D1Database,sql:string,...args:any[])=>db.prepare(sql).bind(...args);
 export interface IngestScope { project:string; keyHash:string; foreign:string|null; revision:number; policy:InboundPolicy; domain:DomainDecision }
-export async function authorizeIngest(c:any,project:string,key:string|undefined):Promise<{scope:IngestScope}|{response:Response}>{
+export function authorizeIngest(c:any,project:string,key:string|undefined){
+  return authorizeIngestDigest(c,project,async()=>key?credentialDigest(c.req.raw,key):'');
+}
+export async function authorizeIngestDigest(c:any,project:string,digest:()=>Promise<string>):Promise<{scope:IngestScope}|{response:Response}>{
   c.header('Vary','Origin');
   const policy=await ingestOrigin(c.env.DB,project,c.req.header('origin'),c.env.AUTH_ORIGIN,c.req.header('referer'));
 
   if(policy.allowed&&policy.cors)c.header('Access-Control-Allow-Origin',policy.cors);
-  const keyHash=key?await credentialDigest(c.req.raw,key):'';
+  const keyHash=await digest();
   const fence=`hash=? AND project=? AND kind='ingest' AND revoked IS NULL AND ${mintedByCurrentPerson} AND ${await mintAdmission(c.req.raw)}`;
   const grant=keyHash&&(policy.allowed
    ? await stmt(c.env.DB,`UPDATE credentials SET last_used=? WHERE ${fence} RETURNING 1`,Date.now(),keyHash,project).first()

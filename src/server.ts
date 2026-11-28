@@ -1,12 +1,12 @@
 import { wrapRequest } from './domain/audit/request';
-import type { BindRequestAliases } from './domain/audit/request';
+import type { RequestAuditWork } from './domain/audit/request';
 import { currentAuditScope } from './domain/audit/context';
 import { withDemo } from './modules/demo/index.mjs';
 import { privateRuntimePath } from './auth/private-runtime.server';
 import { runtimeBindings, type Bindings } from './auth/bindings';
 import { AuthError } from './modules/operator-auth/errors.mjs';
 import type { AlertEnvironment } from './domain/alerts/types';
-import { ingestApi, nativeIngestRoute, type NativeCaptureInput } from './domain/ingest-api';
+import { ingestApi, nativeIngestRoute, type AuthorizeNative, type NativeCaptureInput } from './domain/ingest-api';
 import { dispatchAfterCapture, type IngestScope } from './domain/admission';
 
 export { SpoolAlertWork } from './server-alert-work';
@@ -31,14 +31,21 @@ export default withDemo({
   const native=nativeIngestRoute(request.method,path);
   // The local key gate and demo database belong to the request that opened them.
   const hostedCapture=native==='capture' && env.AUTH_LOCAL!=='true' && env.RER_DEMO!=='1';
-  const bindAliases:BindRequestAliases|undefined=hostedCapture ? async (...args)=>{
-   using result=await execution.exports.SpoolCapture.bindAliases(...args);
-   return {actor:result.actor,bound:result.bound,projectLabel:result.projectLabel};
+  const auditWork:RequestAuditWork|undefined=hostedCapture ? {
+   async bindAliases(...args) {
+    using result=await execution.exports.SpoolCapture.bindAliases(...args);
+    return {actor:result.actor,bound:result.bound,projectLabel:result.projectLabel};
+   },
+   observe: fact=>execution.exports.SpoolCapture.observe(fact),
   } : undefined;
   return wrapRequest(request, env, async () => {
    if (privateRuntimePath(request.url)) return new Response('Not found', { status: 404 });
    if (native) {
     if (!hostedCapture) return ingestApi.fetch(request, env, execution);
+    const authorizeNative:AuthorizeNative=async (...args)=>{
+     using result=await execution.exports.SpoolCapture({props:{audit:currentAuditScope()}}).authorize(...args);
+     return 'refusal' in result?{refusal:result.refusal,drain:result.drain}:{scope:result.scope};
+    };
     const admitNative = async (capture:NativeCaptureInput, grant:IngestScope) => {
      using result=await execution.exports.SpoolCapture({props:{audit:currentAuditScope()}}).capture(capture,grant);
      if (result.alertId) {
@@ -51,11 +58,11 @@ export default withDemo({
      }
      return new Response(result.body,{status:result.status,headers:result.headers});
     };
-    return ingestApi.fetch(request,{...env,admitNative},execution);
+    return ingestApi.fetch(request,{...env,authorizeNative,admitNative},execution);
    }
    const { handle } = await import('./server-application');
    return handle(request, env, execution, path);
-  },bindAliases).catch(refused);
+  },auditWork).catch(refused);
  },
 } satisfies ExportedHandler<Bindings & AlertEnvironment>, {
  seed: async (env: Bindings, options: { ownerEmail: string; now: Date }) => (await import('./demo')).seedDemo(env, options),
