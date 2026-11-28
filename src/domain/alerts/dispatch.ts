@@ -2,12 +2,12 @@ import { destinations, findDestination } from './destinations.server';
 import { holdAlerts, expireSnoozes } from './snoozes';
 import { webhookService } from './webhook.server';
 export { webhookService } from './webhook.server';
-import { dispatchMail, dispatchScheduledMail, expandMail, recoverMail } from './mail';
+import { dispatchBoundMail, dispatchMail, expandMail, recoverMail } from './mail';
 import { synchronizeHistory } from './history';
 import { alertBody } from '../stored-text';
 import type { ScheduledDue } from '../scheduled/due';
 import { namespace, statement as s } from './types';
-import type { AlertEnvironment, Intent, MailExpansionIntent, PendingAlertIntent, ScheduledAlertWork } from './types';
+import type { AlertEnvironment, ImmediateAlertWork, Intent, MailExpansionIntent, MailIntent, PendingAlertIntent, ScheduledAlertWork } from './types';
 // Expansion is idempotent: mail jobs and webhook deliveries are keyed by the intent id, and every send first takes a
 // durable claim, so the scheduled run and the dispatch after ingest can both reach the same intent without a second send.
 async function expandIntent(env:AlertEnvironment,service:()=>ReturnType<typeof webhookService>,intent:Intent,time:number) {
@@ -55,11 +55,19 @@ function currentBody(intent:Intent) {
  try{return alertBody(intent.body)===intent.body;}catch{return true;}
 }
 /** Sends the new-issue and regression alerts one admitted event routed now, instead of at the next scheduled run. */
-export async function dispatchAdmitted(env:AlertEnvironment,alertId:string) {
+export async function dispatchAdmitted(env:AlertEnvironment,alertId:string,work?:ImmediateAlertWork) {
  const now=()=>Date.now();
  const intents=(await s(env.DB,`SELECT * FROM alert_intents WHERE alert_id=? AND event IN ('spool.issue.new','spool.issue.regressed') AND expanded=0 AND state='pending' ORDER BY id`,alertId).all<Intent>()).results;
  if(!intents.length)return;
  await holdAlerts(env,now());
+ if(work&&intents.every((intent):intent is MailIntent=>intent.channel==='mail')) {
+  await work.expandAdmittedMail(intents);
+  // The capture, its audit and planning calls, and expansion also count
+  // toward the loopback invocation limit of this HTTP request.
+  await dispatchBoundMail(env,now(),work,26,intents.map(intent=>intent.id));
+  await synchronizeHistory(env,now());
+  return;
+ }
  let webhooks:ReturnType<typeof webhookService>|undefined;
  const service=()=>webhooks??=webhookService(env,intents[0].project,now);
  for(const intent of intents)await expandIntent(env,service,intent,now());
@@ -67,6 +75,11 @@ export async function dispatchAdmitted(env:AlertEnvironment,alertId:string) {
  const mail=intents.filter(row=>row.channel==='mail').map(row=>row.id);
  if(mail.length)await dispatchMail(env,now(),mail);
  await synchronizeHistory(env,now());
+}
+
+export async function expandAdmittedMail(env:AlertEnvironment,intents:MailIntent[]) {
+ const service=()=>webhookService(env,intents[0].project,Date.now);
+ for(const intent of intents)await expandIntent(env,service,intent,Date.now());
 }
 
 export async function expandProjectAlerts(env:AlertEnvironment,project:string,intents:PendingAlertIntent[],now:()=>number,service:()=>ReturnType<typeof webhookService>) {
@@ -131,7 +144,7 @@ export async function runAlerts(env:AlertEnvironment,scheduledTime:number,due:Sc
   if(webhooks.length)deliveryChanged=true;
   await s(env.DB,"INSERT INTO alert_scheduler(id,last_project) VALUES(1,?) ON CONFLICT(id) DO UPDATE SET last_project=excluded.last_project",project).run();
  }
- if(due.mail||expandedMail)await dispatchScheduledMail(env,now(),work,31-invocations);
+ if(due.mail||expandedMail)await dispatchBoundMail(env,now(),work,31-invocations);
  const changed=!!(due.history||due.recoverMail||due.providerEvents||due.hold||due.mail||deliveryChanged||newAlerts);
  if(changed)await synchronizeHistory(env,now(),true);
  return changed;

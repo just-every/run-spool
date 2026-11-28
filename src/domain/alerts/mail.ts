@@ -9,7 +9,7 @@ import { parseAddress, validateConfig, validateMessage } from '../../modules/mai
 import { authorizedDestination, destinationHash } from './destinations.server';
 import { mailMessage } from './payload';
 import { statement as s } from './types';
-import type { AlertEnvironment, Intent, QueuedAlertMail, ScheduledAlertWork } from './types';
+import type { AlertEnvironment, Intent, MailDeliveryWork, QueuedAlertMail } from './types';
 export type MailAttribution={preparedBy:{label:string};approvers:readonly {name:string}[]};
 /** Retain the configured sending mailbox while naming the real agent actor. */
 export function agentMailFrom(from:string,attribution?:MailAttribution|null) {
@@ -69,8 +69,8 @@ export function dispatchMail(env:AlertEnvironment,time:number,only?:string[],att
   for(const job of jobs)await dispatchMailJob(env,job,()=>time+Date.now()-started,attribution);
  });
 }
-export function dispatchScheduledMail(env:AlertEnvironment,time:number,work:ScheduledAlertWork,slots:number) {
- return dispatchMailQueue(env,time,true,undefined,async(jobs,started)=>{
+export function dispatchBoundMail(env:AlertEnvironment,time:number,work:MailDeliveryWork,slots:number,only?:string[]) {
+ return dispatchMailQueue(env,time,only===undefined,only,async(jobs,started)=>{
   // Service bindings share the parent's invocation limit. Leave one attempt per
   // invocation whenever there is room and retain the existing order at capacity.
   const groups=Math.min(jobs.length,slots), size=Math.floor(jobs.length/groups), extra=jobs.length%groups;

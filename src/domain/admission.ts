@@ -32,12 +32,13 @@ export async function authorizeIngest(c:any,project:string,key:string|undefined)
 
   if(policy.allowed&&policy.cors)c.header('Access-Control-Allow-Origin',policy.cors);
   const keyHash=key?await credentialDigest(c.req.raw,key):'';
-  const grant=keyHash&&await stmt(c.env.DB,`SELECT 1 FROM credentials WHERE hash=? AND project=? AND kind='ingest' AND revoked IS NULL AND ${mintedByCurrentPerson} AND ${await mintAdmission(c.req.raw)}`,keyHash,project).first();
+  const fence=`hash=? AND project=? AND kind='ingest' AND revoked IS NULL AND ${mintedByCurrentPerson} AND ${await mintAdmission(c.req.raw)}`;
+  const grant=keyHash&&(policy.allowed
+   ? await stmt(c.env.DB,`UPDATE credentials SET last_used=? WHERE ${fence} RETURNING 1`,Date.now(),keyHash,project).first()
+   : await stmt(c.env.DB,`SELECT 1 FROM credentials WHERE ${fence}`,keyHash,project).first());
   if(!grant)return {response:policy.allowed?c.json({outcome:'rejected',reason:'invalid_ingest_key'},401):c.json({outcome:'rejected',reason:policy.domain.reason},403)};
   const scope={project,keyHash,foreign:policy.foreign,revision:policy.revision,policy:policy.policy,domain:policy.domain};
   if(!policy.allowed){await ingestBatch(c,scope,[outcomeStatement(c.env.DB,project,'filtered'),outcomeStatement(c.env.DB,project,'filtered:allowed_domains')]);return {response:c.json({outcome:'filtered',reason:policy.domain.reason,filters:['allowed_domains']},403)}}
-  if(policy.cors)c.header('Access-Control-Allow-Origin',policy.cors);
-  await stmt(c.env.DB,'UPDATE credentials SET last_used=? WHERE hash=? AND revoked IS NULL',Date.now(),keyHash).run();
   return {scope};
 }
 function authority(c:any,scope:IngestScope){

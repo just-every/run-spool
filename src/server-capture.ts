@@ -3,6 +3,7 @@ import { Context } from 'hono';
 import { runtimeBindings, type Bindings } from './auth/bindings';
 import type { AlertEnvironment } from './domain/alerts/types';
 import { runAuditScope, type AuditScope } from './domain/audit/context';
+import { bindRequestAliases, type BindRequestAliases } from './domain/audit/request';
 import { nativeAdmission, type IngestEnv, type NativeCaptureInput } from './domain/ingest-api';
 import { apiError } from './domain/api-middleware';
 import type { IngestScope } from './domain/admission';
@@ -12,6 +13,9 @@ import type { Envelope } from './domain/privacy';
 // Hosted capture uses the same scope as its request audit. Admission still
 // checks the exact project key and writes its transaction fact with the event.
 export class SpoolCapture extends WorkerEntrypoint<Bindings & AlertEnvironment, {audit:AuditScope}> {
+ bindAliases(...args:Parameters<BindRequestAliases>) {
+  return bindRequestAliases(this.env.DB,...args);
+ }
  async capture(input: NativeCaptureInput, grant: IngestScope): Promise<{body:string|null;status:number;headers:Record<string,string>;alertId:string|undefined}> {
   const scope=this.ctx.props.audit;
   if (!scope) throw new Error('capture_audit_required');
@@ -29,6 +33,7 @@ export class SpoolCapture extends WorkerEntrypoint<Bindings & AlertEnvironment, 
   };
   const request=new Request(input.url,{method:'POST',headers:input.headers});
   const context=new Context<IngestEnv>(request,{env,executionCtx:this.ctx,path:new URL(input.url).pathname});
+  if(grant.domain.cors)context.header('Access-Control-Allow-Origin',grant.domain.cors);
   const response=await runAuditScope(scope,async()=>{
    try { return await nativeAdmission(context,grant,input.text); }
    catch(error) { if(error instanceof Error)return apiError(error,context);throw error; }

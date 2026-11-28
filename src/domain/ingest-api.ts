@@ -57,6 +57,8 @@ ingestRoutes.post('/api/ingest/:project',async c=>{
    if(value!==undefined)headers[header]=value;
   }
   const url=new URL(c.req.url);
+  // The admission step can revoke CORS when it detects a policy change.
+  c.header('Access-Control-Allow-Origin',undefined);
   return c.env.admitNative({url:url.origin+url.pathname,headers,text:input},scope);
 });
 

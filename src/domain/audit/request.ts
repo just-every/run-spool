@@ -11,6 +11,24 @@ import { recordAudit, responseOutcome, unverified } from './record';
 import type { AuditActor, AuditFact } from './types';
 
 type RequestIdentity = Parameters<typeof auditActor>[1];
+type RequestBinding = ReturnType<typeof subjectBinding>;
+type RequestAliases = {actor:AuditActor;bound:string;projectLabel:string};
+
+export async function bindRequestAliases(db:D1Database,identity:RequestIdentity,binding:RequestBinding,project:string):Promise<RequestAliases> {
+ const aliases=await Promise.all([
+  auditLabelStatements(db,identity),
+  auditLabelStatements(db,binding),
+  auditLabelStatements(db,subjectBinding('project',project,project)),
+ ]);
+ const [,actorLookup,,subjectLookup,,projectLookup]=await db.batch(aliases.flat());
+ return {
+  actor:{kind:identity.kind,label:auditLabelFromLookup(actorLookup)},
+  bound:auditLabelFromLookup(subjectLookup),
+  projectLabel:auditLabelFromLookup(projectLookup),
+ };
+}
+
+export type BindRequestAliases = (identity:RequestIdentity,binding:RequestBinding,project:string)=>Promise<RequestAliases>;
 
 /** Attribution follows existing auth admission. The handler checks the live grant. */
 async function requestIdentity(request: Request, bindings: Bindings, nativeCapture = false): Promise<RequestIdentity | null> {
@@ -68,7 +86,7 @@ async function admittedActor(request: Request, env: Bindings, door: AuditScope, 
  * route or error text is retained. The actor is captured before a successful
  * handoff/revocation can erase authority.
  */
-export async function wrapRequest(request: Request, env: Bindings, next: () => Promise<Response>): Promise<Response> {
+export async function wrapRequest(request: Request, env: Bindings, next: () => Promise<Response>, bindAliases?: BindRequestAliases): Promise<Response> {
  const door=classifyRequest(request); if(!door)return next();
  // The bounded reads belong to one export. Record refusals and leave its
  // successful page transfers to the initial and terminal audit facts.
@@ -82,14 +100,9 @@ export async function wrapRequest(request: Request, env: Bindings, next: () => P
  const binding=subjectBinding(door.kind,door.project?JSON.stringify([door.project,door.subject]):door.subject,door.project);
  let actor:AuditActor, bound:string|undefined, projectLabel:string|null;
  if(identity&&door.project){
-  const aliases=await Promise.all([
-   auditLabelStatements(env.DB,identity),
-   auditLabelStatements(env.DB,binding),
-   auditLabelStatements(env.DB,subjectBinding('project',door.project,door.project)),
-  ]);
-  const [,actorLookup,,subjectLookup,,projectLookup]=await env.DB.batch(aliases.flat());
-  actor={kind:identity.kind,label:auditLabelFromLookup(actorLookup)};
-  bound=auditLabelFromLookup(subjectLookup);projectLabel=auditLabelFromLookup(projectLookup);
+  ({actor,bound,projectLabel}=bindAliases
+   ? await bindAliases(identity,binding,door.project)
+   : await bindRequestAliases(env.DB,identity,binding,door.project));
  } else {
   actor=identity?await auditActor(env.DB,identity):unidentifiedActor();
   [bound,projectLabel]=await Promise.all([

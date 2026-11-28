@@ -1,4 +1,5 @@
 import { wrapRequest } from './domain/audit/request';
+import type { BindRequestAliases } from './domain/audit/request';
 import { currentAuditScope } from './domain/audit/context';
 import { withDemo } from './modules/demo/index.mjs';
 import { privateRuntimePath } from './auth/private-runtime.server';
@@ -26,22 +27,35 @@ export default withDemo({
  scheduled,
  async fetch(request, bindings, execution) {
   const env = runtimeBindings(bindings) as Bindings & AlertEnvironment;
+  const path = new URL(request.url).pathname;
+  const native=isNativeIngest(request.method,path);
+  // The local key gate and demo database belong to the request that opened them.
+  const hostedCapture=native && request.method==='POST' && !path.endsWith('/exposure') && env.AUTH_LOCAL!=='true' && env.RER_DEMO!=='1';
+  const bindAliases:BindRequestAliases|undefined=hostedCapture ? async (...args)=>{
+   using result=await execution.exports.SpoolCapture.bindAliases(...args);
+   return {actor:result.actor,bound:result.bound,projectLabel:result.projectLabel};
+  } : undefined;
   return wrapRequest(request, env, async () => {
    if (privateRuntimePath(request.url)) return new Response('Not found', { status: 404 });
-   const path = new URL(request.url).pathname;
-   if (isNativeIngest(request.method, path)) {
-    // The local key gate and demo database belong to the request that opened them.
-    if (env.AUTH_LOCAL==='true' || env.RER_DEMO==='1') return ingestApi.fetch(request, env, execution);
+   if (native) {
+    if (!hostedCapture) return ingestApi.fetch(request, env, execution);
     const admitNative = async (capture:NativeCaptureInput, grant:IngestScope) => {
      using result=await execution.exports.SpoolCapture({props:{audit:currentAuditScope()}}).capture(capture,grant);
-     if (result.alertId) execution.waitUntil(dispatchAfterCapture(env,result.alertId));
+     if (result.alertId) {
+      // A request-scoped transport or an unconfigured mail path retains
+      // that request's delivery authority and diagnostics.
+      const delivery=env.MAIL_PROVIDER && env.MAIL_FROM && !env.INTEGRATION_EGRESS
+       ? execution.exports.SpoolAlertWork.deliverAdmitted(result.alertId)
+       : dispatchAfterCapture(env,result.alertId);
+      execution.waitUntil(delivery);
+     }
      return new Response(result.body,{status:result.status,headers:result.headers});
     };
     return ingestApi.fetch(request,{...env,admitNative},execution);
    }
    const { handle } = await import('./server-application');
    return handle(request, env, execution, path);
-  }).catch(refused);
+  },bindAliases).catch(refused);
  },
 } satisfies ExportedHandler<Bindings & AlertEnvironment>, {
  seed: async (env: Bindings, options: { ownerEmail: string; now: Date }) => (await import('./demo')).seedDemo(env, options),

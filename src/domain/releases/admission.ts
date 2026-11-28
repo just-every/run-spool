@@ -1,15 +1,20 @@
-import { releaseOrderKeyStatement } from './order';
+import { ensureReleaseOrderKeys,releaseOrderKeyStatement } from './order';
 import { normalize,scrub,type Envelope } from '../privacy';
 import { sentryRelease,releaseVersionKey } from './identity';
-import { readReleasePolicy,autoReleaseAllowed,releasePolicyFence } from './policy';
+import { decodeReleasePolicy,releasePolicyStatement,autoReleaseAllowed,releasePolicyFence } from './policy';
 import { shaReleaseStatement } from '../commits/register';
 export async function prepareRelease(db:D1Database,project:string,input:Envelope,sentryIntake:boolean){
- const snapshot=await readReleasePolicy(db,project),sentry=sentryIntake&&!!input.sentry,jobs:D1PreparedStatement[]=[],notes:string[]=input.sentry?.truncation.some(n=>n.path==='release'&&n.reason==='invalid_release_name')?['invalid_release_name']:[];let event=input;
- const existing=event.release?await db.prepare(`SELECT r.created,
+ await ensureReleaseOrderKeys(db,project);
+ const sentry=sentryIntake&&!!input.sentry,jobs:D1PreparedStatement[]=[],notes:string[]=input.sentry?.truncation.some(n=>n.path==='release'&&n.reason==='invalid_release_name')?['invalid_release_name']:[];let event=input;
+ const reads=[releasePolicyStatement(db,project)];
+ if(event.release)reads.push(db.prepare(`SELECT r.created,
   CASE WHEN EXISTS(SELECT 1 FROM release_metadata m WHERE m.project=r.project AND m.release=r.name)
    THEN EXISTS(SELECT 1 FROM release_builds b WHERE b.project=r.project AND b.release=r.name AND b.build=?1 AND b.registered=1)
    ELSE r.build=?1 END AS registered_build
-  FROM releases r WHERE r.project=?2 AND r.name=?3`).bind(event.build,project,event.release).first<{created:number;registered_build:number}>():null;
+  FROM releases r WHERE r.project=?2 AND r.name=?3`).bind(event.build,project,event.release));
+ const [policy,registration]=await db.batch(reads);
+ const snapshot=decodeReleasePolicy(policy.results[0] as Parameters<typeof decodeReleasePolicy>[0]);
+ const existing=(registration?.results[0] as {created:number;registered_build:number}|undefined);
  if(!sentry||snapshot.policy.order==='registered'){
   if(!event.release)return {refusal:'missing_release_register_required'};
   if(!existing?.registered_build)return {refusal:'unregistered_release_or_build'};

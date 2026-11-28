@@ -22,9 +22,15 @@ export type QueuedAlertMail = Pick<Intent, 'id' | 'project' | 'rule_id' | 'rule_
  message: string; destination_hash: string; attempts: number; max_attempts: number; retry_delays: string; standing: number;
 };
 export type PendingAlertIntent = Intent & {unresolved_mail:number};
-export type MailExpansionIntent = PendingAlertIntent & {channel:'mail'};
-export type ScheduledAlertWork = {
+export type MailIntent = Intent & {channel:'mail'};
+export type MailExpansionIntent = PendingAlertIntent & MailIntent;
+export type MailDeliveryWork = {
+ deliverMail(jobs: QueuedAlertMail[], time: number, started: number): Promise<void>;
+};
+export type ImmediateAlertWork = MailDeliveryWork & {
+ expandAdmittedMail(intents: MailIntent[]): Promise<void>;
+};
+export type ScheduledAlertWork = MailDeliveryWork & {
  spikes(time: number, lastRule: string): Promise<boolean>;
  expandMail(project: string, intents: MailExpansionIntent[], time: number, started: number): Promise<{changed:boolean;mail:boolean}>;
- deliverMail(jobs: QueuedAlertMail[], time: number, started: number): Promise<void>;
 };

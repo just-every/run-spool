@@ -1,6 +1,6 @@
 import { WorkerEntrypoint } from 'cloudflare:workers';
 import { runtimeBindings, type Bindings } from './auth/bindings';
-import type { AlertEnvironment, MailExpansionIntent, QueuedAlertMail, ScheduledAlertWork } from './domain/alerts/types';
+import type { AlertEnvironment, ImmediateAlertWork, MailExpansionIntent, MailIntent, QueuedAlertMail, ScheduledAlertWork } from './domain/alerts/types';
 
 declare global {
  namespace Cloudflare {
@@ -36,7 +36,7 @@ export function demoAlertWork(env: Environment): ScheduledAlertWork {
 
 // Private loopback entrypoints give spike evaluation and individual mail
 // attempts separate CPU budgets. The caller awaits each attempt in order.
-export class SpoolAlertWork extends WorkerEntrypoint<Environment> implements ScheduledAlertWork {
+export class SpoolAlertWork extends WorkerEntrypoint<Environment> implements ScheduledAlertWork, ImmediateAlertWork {
  spikes(time: number, lastRule: string) {
   return spikes(runtimeBindings(this.env),time,lastRule);
  }
@@ -45,5 +45,13 @@ export class SpoolAlertWork extends WorkerEntrypoint<Environment> implements Sch
  }
  deliverMail(jobs: QueuedAlertMail[], time: number, started: number) {
   return deliverMail(runtimeBindings(this.env),jobs,time,started);
+ }
+ async deliverAdmitted(id: string) {
+  const {dispatchAdmitted}=await import('./domain/alerts/dispatch');
+  return dispatchAdmitted(runtimeBindings(this.env),id,this.ctx.exports.SpoolAlertWork);
+ }
+ async expandAdmittedMail(intents: MailIntent[]) {
+  const {expandAdmittedMail}=await import('./domain/alerts/dispatch');
+  return expandAdmittedMail(runtimeBindings(this.env),intents);
  }
 }

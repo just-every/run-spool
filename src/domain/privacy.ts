@@ -55,8 +55,15 @@ export function normalize(v: any, clean = scrub): Envelope {
     return {file:path,line:f.line,column:f.column ?? null,function:clean(language==='go'?goFunction(f.function):f.function),...(f.debugId ? {debugId:identity(f.debugId,'debugId')} : {})};
   }),breadcrumbs:(v.breadcrumbs??[]).map(clean),...(v.dropped !== undefined ? { dropped: v.dropped } : {}),...(v.client !== undefined ? { client: client(v.client) } : {}),...(v.exceptionSource !== undefined ? {exceptionSource:v.exceptionSource} : {}),...(v.grouping !== undefined ? {grouping:validateGroupingSnapshot(v.grouping)} : {}),...(v.sdkSession !== undefined ? {sdkSession:sdkSessionReference(v.sdkSession)} : {}),...(v.sentry !== undefined ? {sentry:sanitizeSentry(v.sentry)} : {})};
 }
-export async function hash(value: string): Promise<string> { return [...new Uint8Array(await crypto.subtle.digest('SHA-256',new TextEncoder().encode(value)))].map(v=>v.toString(16).padStart(2,'0')).join('') }
-export function token(): string { return [...crypto.getRandomValues(new Uint8Array(32))].map(v=>v.toString(16).padStart(2,'0')).join('') }
+const hexDigits = '0123456789abcdef';
+const encoder = new TextEncoder();
+function hex(bytes: Uint8Array): string {
+  let value = '';
+  for (const byte of bytes) value += hexDigits.charAt(byte >>> 4) + hexDigits.charAt(byte & 15);
+  return value;
+}
+export async function hash(value: string): Promise<string> { return hex(new Uint8Array(await crypto.subtle.digest('SHA-256',encoder.encode(value)))); }
+export function token(): string { return hex(crypto.getRandomValues(new Uint8Array(32))); }
 
 export function canonical(value: any): string { if(value===null || typeof value!=="object") return JSON.stringify(value); if(Array.isArray(value)) return "["+value.map(canonical).join(",")+"]"; return "{"+Object.keys(value).sort().map(k=>JSON.stringify(k)+":"+canonical(value[k])).join(",")+"}" }
 
