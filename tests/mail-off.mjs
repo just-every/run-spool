@@ -1,5 +1,5 @@
 import assert from 'node:assert/strict';
-import {mkdtemp,mkdir,readFile,writeFile,rm} from 'node:fs/promises';
+import {mkdtemp,mkdir,readFile,realpath,writeFile,rm} from 'node:fs/promises';
 import {tmpdir} from 'node:os';
 import {resolve,join} from 'node:path';
 import {randomBytes,randomUUID} from 'node:crypto';
@@ -71,7 +71,7 @@ export async function mailOffConfiguration() {
 // D1 queries reach the actual migrated application database; no auth rows are
 // synthesized and the real CLI validates the recorded deployment and credentials.
 async function ownerCli(app) {
- const root=await mkdtemp(join(tmpdir(),'synthetic-spool-signin-'));
+ const root=await mkdtemp(join(await realpath(tmpdir()),'synthetic-spool-signin-'));
  const account=randomBytes(16).toString('hex'),credential='synthetic-spool-provider-credential';
  const version=randomUUID(),deployment=randomUUID(),etag='synthetic-spool-etag',database=randomUUID();
  const record={version:1,kind:'rer-deploy-owner-state',accountId:account,project:'just-every/spool',environment:'production',worker:'spool-production',owned:{worker:{status:'created'},d1:{DB:{status:'created',id:database}},r2:{},kv:{},queues:{}},receipt:{origin:'https://spool.example',provider:{versionId:version,deploymentId:deployment,etag}}};

@@ -40,6 +40,7 @@ export default withDemo({
   } : undefined;
   return wrapRequest(request, env, async () => {
    if (privateRuntimePath(request.url)) return new Response('Not found', { status: 404 });
+   if (path === '/health') return (await import('./domain/health')).healthApi.fetch(request, env, execution);
    if (native) {
     if (!hostedCapture) return ingestApi.fetch(request, env, execution);
     const authorizeNative:AuthorizeNative=async (...args)=>{
