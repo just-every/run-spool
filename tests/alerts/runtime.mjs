@@ -22,7 +22,9 @@ export async function alertRuntime(receiver,{state,mail='development',egress=tru
  // so withdrawal checks start with actual nonempty copies; development mail stays suppressed.
  // Only this test host can replace the transport. The exact HTTPS identity still
  // passes unchanged through Base prepare/validation/fingerprint/signing.
- await writeFile(wrapper,`import application from ${JSON.stringify(worker.modules[0].path)};export * from ${JSON.stringify(worker.modules[0].path)};
+ await writeFile(wrapper,`import {AsyncLocalStorage} from 'node:async_hooks';
+ import application,{SpoolConsole as ApplicationConsole} from ${JSON.stringify(worker.modules[0].path)};
+ export * from ${JSON.stringify(worker.modules[0].path)};
  // Optional fixture clock applies inside the Worker as well as the test host, but only after owner sign-in:
  // the session must be minted on the real clock because every owner write checks it against real database time.
  ${now===undefined?'':`const NativeDate=Date;let frozen;globalThis.Date=class extends NativeDate{constructor(...args){super(...(args.length?args:[frozen??NativeDate.now()]))}static now(){return frozen??NativeDate.now()}};`}
@@ -31,9 +33,30 @@ export async function alertRuntime(receiver,{state,mail='development',egress=tru
  function edge(env){return {...env,${egressBridge?`INTEGRATION_EGRESS:{async send(wire){const reply=await (await env.EGRESS_BRIDGE.fetch('http://egress-bridge/send',{method:'POST',body:JSON.stringify(wire)})).json();if(reply.error)throw new Error(reply.error);return reply.response}},`:egress?`INTEGRATION_EGRESS:{async send(wire){if(wire.url!==${JSON.stringify(syntheticDestination)})throw new Error('Fixture destination refused');const response=await networkFetch(${JSON.stringify(receiver.url+'/hook')},{method:'POST',redirect:'manual',headers:wire.headers,body:wire.body});return {status:response.status,headers:Object.fromEntries(response.headers),body:await response.text()}}},`:''}}}
  // Alert mail uses the fixture provider on both handlers; owner admission uses the real local CLI entry. Work passed to waitUntil finishes before the response returns.
  function alertMail(env){return {...env,MAIL_PROVIDER:${JSON.stringify(mail)},...( ${JSON.stringify(mail)}!=='development'?{MAIL_API_KEY:'synthetic-key-no-provider-call',MAIL_RELAY_URL:${JSON.stringify(relayUrl)}}:{})}}
+ function requestBindings(request,env){
+  if(!new URL(request.url).pathname.startsWith('/auth/'))env=alertMail(env);
+  const unconfigured=request.headers.get('x-fixture-unconfigured');
+  if(unconfigured==='mail')delete env.MAIL_PROVIDER;
+  if(unconfigured==='egress')delete env.INTEGRATION_EGRESS;
+  return env;
+ }
+ // Hosted console requests enter a Durable Object with its own bindings.
+ // Scope the fixture bindings to each fetch so concurrent requests stay independent.
+ const consoleBindings=new AsyncLocalStorage();
+ export class SpoolConsole extends ApplicationConsole {
+  constructor(ctx,env){
+   super(ctx,env);
+   Object.defineProperty(this,'env',{get:()=>consoleBindings.getStore()??env});
+  }
+  fetch(request){
+   const env=this.env;
+   mailDatabase=env.DB;
+   return consoleBindings.run(requestBindings(request,edge(env)),()=>super.fetch(request));
+  }
+ }
  export default {async fetch(request,env,ctx){mailDatabase=env.DB;env=edge(env);const path=new URL(request.url).pathname;${now===undefined?'':`if(path==='/__fixture/freeze'){frozen=${JSON.stringify(now)};return new Response('{}',{headers:{'content-type':'application/json'}})}`}
  ${mail!=='development'?`const headers=new Headers(request.headers);if(headers.get('origin')==='http://127.0.0.1:15541')headers.set('origin','https://spool.example.com');headers.set('host','spool.example.com');request=new Request('https://spool.example.com'+path+new URL(request.url).search,{method:request.method,headers,body:request.body,redirect:'manual'});`:''}if(path==='/__fixture/schedule')return request.json().then(async value=>{if(value.disableEgress)delete env.INTEGRATION_EGRESS;await application.scheduled({scheduledTime:value.time,cron:'* * * * *'},alertMail(env),ctx);return new Response('{}',{headers:{'content-type':'application/json'}})});
-  if(!path.startsWith('/auth/'))env=alertMail(env);const unconfigured=request.headers.get('x-fixture-unconfigured');if(unconfigured==='mail')delete env.MAIL_PROVIDER;if(unconfigured==='egress')delete env.INTEGRATION_EGRESS;
+  env=requestBindings(request,env);
   const pending=[],context={waitUntil(work){pending.push(work);ctx.waitUntil(work)},passThroughOnException(){ctx.passThroughOnException()},props:ctx.props,exports:ctx.exports};
   const response=await application.fetch(request,env,context);await Promise.allSettled(pending);return response}};`);
  const bindings={...worker.bindings,...extraBindings,...authBindings('http://127.0.0.1:15541'),...(mail!=='development'?{AUTH_ORIGIN:'https://spool.example.com',AUTH_LOCAL:'false',MAIL_PROVIDER:mail,MAIL_API_KEY:'synthetic-key-no-provider-call',MAIL_RELAY_URL:relayUrl}:{MAIL_PROVIDER:'development'}),ALERT_DESTINATION_HASH_KEY:Buffer.alloc(32,45).toString('base64'),ALERT_PUBLIC_ORIGIN:'https://spool.example.com',ALERT_DESTINATIONS:JSON.stringify(destinations??(configure?[

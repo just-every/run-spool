@@ -33,6 +33,7 @@ await writeFile(harness,`
 import {withDevIdentity} from ${JSON.stringify(resolve('src/modules/operator-auth/dev/index.mjs'))};
 import {authConfig} from ${JSON.stringify(resolve('src/auth/session.server.ts'))};
 import api from ${JSON.stringify(resolve('src/domain/api.ts'))};
+import {healthApi} from ${JSON.stringify(resolve('src/domain/health.ts'))};
 import {wrapRequest} from ${JSON.stringify(resolve('src/domain/audit/request.ts'))};
 import {authenticationResponse} from ${JSON.stringify(resolve('src/auth/dispatch.server.ts'))};
 import {portability} from ${JSON.stringify(resolve('src/domain/portability.ts'))};
@@ -42,6 +43,7 @@ api.get('/api/test-transfer-state',async c=>c.json({jobs:await c.env.DB.prepare(
 api.get('/api/test-guard-count',async c=>c.json(await c.env.DB.prepare('SELECT COUNT(*) count FROM browser_origin_guards').first()));
 const application={async fetch(request,env,ctx){
   if(env.TEST_LEGACY_PRODUCER==='true'){if(new URL(request.url).pathname==='/health'){await env.DB.prepare('SELECT COUNT(*) FROM projects').first();return Response.json({ok:true});}if(new URL(request.url).pathname==='/api/test-legacy-export')return Response.json(await legacyExport(env.DB));return new Response(null,{status:404});}
+  if(new URL(request.url).pathname==='/health')return healthApi.fetch(request,env,ctx);
   const auth=await authenticationResponse(request,env);if(auth)return auth;
   if(request.headers.get('x-test-storage-failure')==='yes'){
     const db=env.DB;

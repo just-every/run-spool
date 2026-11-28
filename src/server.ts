@@ -32,6 +32,10 @@ export default withDemo({
   // The local key gate and demo database belong to the request that opened them.
   const hostedCapture=native==='capture' && env.AUTH_LOCAL!=='true' && env.RER_DEMO!=='1';
   const auditWork:RequestAuditWork|undefined=hostedCapture ? {
+   async lookupCredential(digest) {
+    using grant=await execution.exports.SpoolCapture.auditCredential(digest);
+    return grant ? {kind:grant.kind,project:grant.project,minted_by:grant.minted_by,service:grant.service} : null;
+   },
    async bindAliases(...args) {
     using result=await execution.exports.SpoolCapture.bindAliases(...args);
     return {actor:result.actor,bound:result.bound,projectLabel:result.projectLabel};

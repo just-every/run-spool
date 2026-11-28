@@ -161,6 +161,12 @@ export async function mailOffSignIn(output) {
   const forged=await call('/auth/owner-signin',{token:randomBytes(32).toString('base64url')});assert.equal(forged.status,400);assert.equal(forged.headers.get('set-cookie'),null);
   console.log('mail-off: uniform auth and shortcut refusals passed');
   const before=(await app.DB.prepare('SELECT COUNT(*) n FROM rer_mail_development_outbox').first()).n;
+  const foreign=await app.call('/api/ingest/'+project.id,event('synthetic-spool-refused-origin'),{
+   Authorization:'Bearer '+project.ingestKey,Origin:'https://unregistered.example.test',
+  });
+  assert.equal(foreign.status,403,'the hosted capture credential does not admit an unregistered origin');
+  assert.equal(foreign.headers.get('access-control-allow-origin'),null);
+  await foreign.body?.cancel();
   const ingest=await app.call('/api/ingest/'+project.id,event('synthetic-spool-off-1'),{Authorization:'Bearer '+project.ingestKey});assert.ok(ingest.ok,'capture HTTP '+ingest.status);await ingest.body?.cancel();
   // Drain native scheduled work and inspect its public delivery history.
   assert.equal((await call('/__fixture/schedule',{time:Date.now()})).status,200);

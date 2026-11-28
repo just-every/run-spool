@@ -29,10 +29,21 @@ export async function bindRequestAliases(db:D1Database,identity:RequestIdentity,
 }
 
 export type BindRequestAliases = (identity:RequestIdentity,binding:RequestBinding,project:string)=>Promise<RequestAliases>;
-export type RequestAuditWork = {bindAliases:BindRequestAliases; observe:(fact:AuditFact)=>Promise<void>};
+type RequestCredential = {kind:'agent'|'deploy'|'ingest';project:string;minted_by:string|null;service:string|null};
+export function lookupRequestCredential(db:D1Database,digest:string,admission:string) {
+ return db.prepare(`SELECT credentials.kind,credentials.project,credentials.minted_by,link.service
+  FROM credentials LEFT JOIN spool_service_credentials link ON link.hash=credentials.hash
+  WHERE credentials.hash=? AND credentials.revoked IS NULL AND ${mintedByCurrentPerson} AND ${admission}`)
+  .bind(digest).first<RequestCredential>();
+}
+export type RequestAuditWork = {
+ lookupCredential:(digest:string)=>Promise<RequestCredential|null>;
+ bindAliases:BindRequestAliases;
+ observe:(fact:AuditFact)=>Promise<void>;
+};
 
 /** Attribution follows existing auth admission. The handler checks the live grant. */
-async function requestIdentity(request: Request, bindings: Bindings, nativeCapture = false): Promise<RequestIdentity | null> {
+async function requestIdentity(request: Request, bindings: Bindings, nativeCapture = false, work?: RequestAuditWork): Promise<RequestIdentity | null> {
  const env=runtimeBindings(bindings);
  const bearer=/^Bearer ([^\s]+)$/i.exec(request.headers.get('authorization')??'')?.[1];
  let session;
@@ -48,11 +59,8 @@ async function requestIdentity(request: Request, bindings: Bindings, nativeCaptu
  } catch (error) { if(error instanceof AuthError)return null;throw error; }
  if(session&&!request.headers.has('authorization'))return {kind:session.operator.role==='owner'?'owner':'member',authority:session.operator.id,owner:session.operator.id};
  if(!bearer)return null;
- const [digest,admission]=await Promise.all([credentialDigest(request,bearer),mintAdmission(request)]);
- const grant=await env.DB.prepare(`SELECT credentials.kind,credentials.project,credentials.minted_by,link.service
-  FROM credentials LEFT JOIN spool_service_credentials link ON link.hash=credentials.hash
-  WHERE credentials.hash=? AND credentials.revoked IS NULL AND ${mintedByCurrentPerson} AND ${admission}`)
-  .bind(digest).first<{kind:'agent'|'deploy'|'ingest';project:string;minted_by:string|null;service:string|null}>();
+ const digest=await credentialDigest(request,bearer);
+ const grant=work ? await work.lookupCredential(digest) : await lookupRequestCredential(env.DB,digest,await mintAdmission(request));
  if(!grant)return null;
  if(nativeCapture&&grant.kind!=='agent')noteNonAgentCapture(request);
  return {kind:grant.service===null?grant.kind:'service',authority:grant.service??digest,owner:grant.minted_by,project:grant.project};
@@ -95,7 +103,7 @@ export async function wrapRequest(request: Request, env: Bindings, next: () => P
   ['capture','schema','rows'].includes(new URL(request.url).searchParams.get('archive')??'');
  const page=archivePage?await next():undefined;
  if(page?.ok)return page;
- const identity=await requestIdentity(request,env,door.action==='capture.native'||door.action==='capture.exposure');
+ const identity=await requestIdentity(request,env,door.action==='capture.native'||door.action==='capture.exposure',work);
  // A request no session or credential admitted only reads the alias of the object it names;
  // the binding waits for its handler to admit it, so refused guesses leave no durable mapping.
  const binding=subjectBinding(door.kind,door.project?JSON.stringify([door.project,door.subject]):door.subject,door.project);

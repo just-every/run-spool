@@ -3,7 +3,8 @@ import { Context } from 'hono';
 import { runtimeBindings, type Bindings } from './auth/bindings';
 import type { AlertEnvironment } from './domain/alerts/types';
 import { runAuditScope, type AuditScope } from './domain/audit/context';
-import { bindRequestAliases, type BindRequestAliases } from './domain/audit/request';
+import { bindRequestAliases, lookupRequestCredential, type BindRequestAliases } from './domain/audit/request';
+import { hostedMintAdmission } from './domain/dev-credentials';
 import { recordAudit } from './domain/audit/record';
 import type { AuditFact } from './domain/audit/types';
 import { nativeAdmission, normalizeCapture, type AuthorizeNative, type IngestEnv, type NativeCaptureInput, type NativeCaptureMetadata, type NativeResponse } from './domain/ingest-api';
@@ -23,6 +24,11 @@ async function captureResponse(response:Response):Promise<NativeResponse> {
 // Hosted capture uses the same scope as its request audit. Admission still
 // checks the exact project key and writes its transaction fact with the event.
 export class SpoolCapture extends WorkerEntrypoint<Bindings & AlertEnvironment, {audit:AuditScope}> {
+ // The hosted request has no local minting gate. Keep the live credential
+ // lookup and D1 serialization out of the public intake invocation.
+ auditCredential(digest:string) {
+  return lookupRequestCredential(this.env.DB,digest,hostedMintAdmission);
+ }
  bindAliases(...args:Parameters<BindRequestAliases>) {
   return bindRequestAliases(this.env.DB,...args);
  }
