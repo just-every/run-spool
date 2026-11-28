@@ -5749,6 +5749,10 @@
       "sha256": "7d3071624462384bd05b24f85596d009b41c6e8bb956b915360b7d205901b25f",
       "executable": false
     },
+    "src/domain/agent-door/paths.ts": {
+      "sha256": "7bc643f09211fe491cdebafe34f3228c120ac40b34097f7764b7739701fb23f9",
+      "executable": false
+    },
     "src/domain/agent-door/people.ts": {
       "sha256": "42e41e688e57c6f1d77493089ab464579169b22e2bc7bfa22a796672a23fe8d7",
       "executable": false
@@ -6754,7 +6758,7 @@
       "executable": false
     },
     "src/domain/portability-worker.ts": {
-      "sha256": "db3abfbd12c2fa81f9e570840bb779ad86b872985e9c8589f3154d5ed59ddfbc",
+      "sha256": "0c829609d12d15f2e73cc84539448538a97ce21cb0ee57f0d7aca6dae346a188",
       "executable": false
     },
     "src/domain/portability.ts": {
