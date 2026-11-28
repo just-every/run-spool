@@ -5,16 +5,16 @@ import {eventIdentityStatements,type PreparedIdentity} from './identities/intake
 import { auditedBatch } from './audit/context';
 import { prepareRelease } from './releases/admission';
 import { regressionSql,newerReleaseSql } from './releases/order';
-import { readGroupingPolicy,groupingPolicyFence } from './grouping/policy';
+import { groupingPolicyFence } from './grouping/policy';
 import { inboundPolicyFence } from './filters/policy';
 import { matchInbound } from './filters/matcher';
 import { inboundMetadata } from './filters/evidence';
 import { inboundDomainFences, type DomainDecision } from './filters/domains';
 import type { InboundPolicy } from './filters/types';
 import { policyMatch, matchArgs } from './suppression/policy-match';
-import { normalize, hash, scrub, type Envelope } from './privacy';
-import { captureGrouping } from './bundle-grouping';
-import { diagnose } from './artifacts';
+import { normalize, scrub, type Envelope } from './privacy';
+import { captureEvidence, type CaptureEvidence } from './capture-evidence';
+import type { AlertEnvironment } from './alerts/types';
 import { ingestOrigin } from './origins';
 import { admissionAlerts, receivedAtSql } from './alerts/admission';
 import { startCaptureHistory, rememberUnsuppressedCapture } from './alerts/capture-history';
@@ -65,7 +65,16 @@ function sentryTrimming(db:D1Database,project:string,event:Envelope){
  return [...(frames?[outcomeStatement(db,project,'sentry_trimmed_frames',frames)]:[]),...(values?[outcomeStatement(db,project,'sentry_trimmed_values',values)]:[])];
 }
 /** The sole native/Sentry admission transaction. Import history never calls this. */
-export async function admitEvent(c:any,scope:IngestScope,input:Envelope,digest:string,sentryIntake=false,identity?:PreparedIdentity,preScrubbed?:{jobs:D1PreparedStatement[];clean?:(text:string)=>string}):Promise<Response>{
+export function dispatchAfterCapture(env: AlertEnvironment, id: string) {
+ return import('./alerts/dispatch').then(({dispatchAdmitted})=>dispatchAdmitted(env,id));
+}
+
+export async function admitEvent(c:any,scope:IngestScope,input:Envelope,digest:string,sentryIntake=false,identity?:PreparedIdentity,preScrubbed?:{
+ jobs:D1PreparedStatement[];
+ clean?:(text:string)=>string;
+ readEvidence?:(project:string,event:Envelope)=>Promise<CaptureEvidence>;
+ onAlertAdmitted?:(id:string)=>void;
+}):Promise<Response>{
   const clean=preScrubbed?.clean??scrub;
   let event=normalize(input,clean);const {project}=scope,db=c.env.DB;
   const record=(reason:string)=>recordIngest(c,scope,reason);
@@ -88,12 +97,12 @@ export async function admitEvent(c:any,scope:IngestScope,input:Envelope,digest:s
     const releaseArgs=event.release?[project,event.release]:[];
     const count=await stmt(db,"SELECT COALESCE((SELECT n FROM spool_capacity_counts WHERE project=? AND kind='events'),0) total",project).first<any>();
     if(count.total>=10000){await record('budget');c.header('Retry-After','60');return c.json({outcome:'dropped',reason:'retained_event_budget',retryAfter:60},429)}
-    const groupingPolicy=await readGroupingPolicy(db,project);
-    event=normalize(event.sentry?{...event,grouping:undefined,sentry:{...event.sentry,grouping:groupingPolicy.revision?groupingPolicy:undefined}}:{...event,grouping:groupingPolicy.revision?groupingPolicy:undefined},clean);
-    const {algorithm,basis,fingerprint,route}=await captureGrouping(db,project,event),issue=await hash(project+':'+fingerprint);
-    const diagnosis=JSON.stringify(await diagnose(db,project,event)),time=Date.now(),originGuard=scope.foreign?crypto.randomUUID():null,alertId=crypto.randomUUID(),occurrence=crypto.randomUUID();
+    const evidence=preScrubbed?.readEvidence ? await preScrubbed.readEvidence(project,event) : await captureEvidence(db,project,event,clean);
+    event=evidence.event;
+    const {algorithm,basis,fingerprint,route,issue,diagnosis,groupingRevision}=evidence;
+    const time=Date.now(),originGuard=scope.foreign?crypto.randomUUID():null,alertId=crypto.randomUUID(),occurrence=crypto.randomUUID();
     const {statements:alertStatements,routing}=admissionAlerts(db,{alertId,project,issue,eventId:event.eventId,occurrence,release:event.release,build:event.build,sequence:0,time,origin:c.env.ALERT_PUBLIC_ORIGIN??c.env.AUTH_ORIGIN});
-    const jobs=[spendKeyEvent(db,project,scope.keyHash),...privacy.jobs,...prepared.jobs!,groupingPolicyFence(db,project,groupingPolicy.revision),
+    const jobs=[spendKeyEvent(db,project,scope.keyHash),...privacy.jobs,...prepared.jobs!,groupingPolicyFence(db,project,groupingRevision),
       ...(originGuard?[stmt(db,'INSERT INTO browser_origin_guards VALUES(?,?,?)',originGuard,project,scope.foreign)]:[]),
       stmt(db,"INSERT INTO issues(id,project,fingerprint,algorithm,title,state,revision,count,first_seen,last_seen) VALUES(?,?,?,?,?,'open',0,0,?,?) ON CONFLICT(id) DO NOTHING",issue,project,fingerprint,algorithm,clean(event.type+': '+event.message),time,time),
       ...assignShortId(db,project,issue,time),
@@ -122,7 +131,10 @@ export async function admitEvent(c:any,scope:IngestScope,input:Envelope,digest:s
     // The two final statements fence and close the batch. Only a capture that
     // actually routed an intent needs to load the immediate delivery path.
     const routed=results.at(jobs.indexOf(routing)-jobs.length-2);
-    if(routed?.meta.changes)c.executionCtx.waitUntil(import('./alerts/dispatch').then(({dispatchAdmitted})=>dispatchAdmitted(c.env,alertId)));
+    if(routed?.meta.changes){
+     if(preScrubbed?.onAlertAdmitted)preScrubbed.onAlertAdmitted(alertId);
+     else c.executionCtx.waitUntil(dispatchAfterCapture(c.env,alertId));
+    }
     return c.json({outcome:'accepted',issue,algorithm,basis:JSON.parse(basis),diagnostic:JSON.parse(diagnosis)},201);
   }catch(error){return ingestFailure(c,scope,error)}
 }

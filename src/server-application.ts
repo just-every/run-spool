@@ -4,7 +4,6 @@ import { agentDoorResponse } from './domain/agent-door/index.server';
 import { resolveMembership } from './domain/members/resolver';
 import { reportDialogResponse } from './domain/report-dialog/public.server';
 import { loaderResponse } from './domain/loader/public.server';
-import start from '@tanstack/react-start/server-entry';
 import api from './domain/api';
 import { setupDocumentResponse, setupClaimed } from './domain/setup.server';
 import { dispatch } from './base/dispatch';
@@ -35,6 +34,11 @@ async function afterOwnerPath(env: Bindings, response: Response): Promise<Respon
  try { await openDoorAtClaim(env); } catch (error) { console.error('import door: first-claim enable failed', error); }
  return response;
 }
+async function renderDocument(request: Request, env: Bindings) {
+ const {default: start} = await import('@tanstack/react-start/server-entry');
+ return editorDocument(await start.fetch(request), env);
+}
+
 export async function handle(request: Request, env: Bindings & AlertEnvironment, execution: ExecutionContext, path: string): Promise<Response> {
  const agentDoor = await agentDoorResponse(request,env); if(agentDoor)return agentDoor;
  if(path.startsWith('/api/projects/')){const legacy=await legacyAgentResponse(request,env);if(legacy)return legacy;}
@@ -66,12 +70,12 @@ export async function handle(request: Request, env: Bindings & AlertEnvironment,
   if (!applicationDocument(path)) {
    if (!await ownerSession(request,env,resolveMembership)) return new Response('Not found', { status: 404 });
    // Owners keep the router's styled not-found page, even before project setup.
-   return editorDocument(await start.fetch(request), env);
+   return renderDocument(request, env);
   }
   const denied = await authorizeDocument(request, env); if (denied) return denied;
   const setup = await setupDocumentResponse(request, env); if (setup) return setup;
   if (new URL(request.url).pathname === '/app') return Response.redirect(new URL('/', request.url), 303);
-  return editorDocument(await start.fetch(request), env);
+  return renderDocument(request, env);
  });
  await emitPersonChange(request,env,response);
  return response;

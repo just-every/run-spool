@@ -7,10 +7,15 @@ import { authorizeIngest, admitEvent, recordIngest, ingestFailure, stmt } from '
 import { apiAccess, apiError } from './api-middleware';
 import { nativeBody } from './native-wire';
 import { ingestOrigin, requestedHeaders } from './origins';
-import { canonical, hash, normalize, scrub } from './privacy';
+import { canonical, hash, normalize, scrub, type Envelope } from './privacy';
 import { prepareScrubbing } from './scrubbing/model';
+import type { CaptureEvidence } from './capture-evidence';
 
-type IngestEnv = { Bindings: Bindings & AlertEnvironment; Variables: { project: string | null } };
+type CaptureBindings = Bindings & AlertEnvironment & {
+ readEvidence?:(project:string,event:Envelope)=>Promise<CaptureEvidence>;
+ onAlertAdmitted?:(id:string)=>void;
+};
+type IngestEnv = { Bindings: CaptureBindings; Variables: { project: string | null } };
 type IngestContext = Context<IngestEnv>;
 
 // Only the native routes can bypass loading the full application. It still
@@ -57,7 +62,9 @@ ingestRoutes.post('/api/ingest/:project',async c=>{
      scrubbed.set(text,value);
      return value;
     };
-    return admitEvent(c,auth.scope,normalize(privacy.document,clean),await hash(canonical(parsed.value)),false,undefined,{...privacy,clean});
+    return admitEvent(c,auth.scope,normalize(privacy.document,clean),await hash(canonical(parsed.value)),false,undefined,{...privacy,clean,
+     readEvidence:c.env.readEvidence,onAlertAdmitted:c.env.onAlertAdmitted,
+    });
   }catch(error){try{await recordIngest(c,auth.scope,'invalid')}catch(failure){return ingestFailure(c,auth.scope,failure)}return ingestRejection(c,c.json({outcome:'rejected',reason:scrub((error as Error).message)},400))}
 });
 

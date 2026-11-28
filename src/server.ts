@@ -6,6 +6,7 @@ import { runtimeBindings, type Bindings } from './auth/bindings';
 import { AuthError } from './modules/operator-auth/errors.mjs';
 import type { AlertEnvironment } from './domain/alerts/types';
 import { ingestApi, isNativeIngest } from './domain/ingest-api';
+import { dispatchAfterCapture } from './domain/admission';
 
 export { SpoolAlertWork } from './server-alert-work';
 export { SpoolCapture } from './server-capture';
@@ -31,7 +32,9 @@ export default withDemo({
    if (isNativeIngest(request.method, path)) {
     // The local key gate and demo database belong to the request that opened them.
     if (env.AUTH_LOCAL==='true' || env.RER_DEMO==='1') return ingestApi.fetch(request, env, execution);
-    return execution.exports.SpoolCapture({props:{audit:currentAuditScope()}}).fetch(request);
+    const {body,status,headers,alertId}=await execution.exports.SpoolCapture({props:{audit:currentAuditScope()}}).capture(request);
+    if (alertId) execution.waitUntil(dispatchAfterCapture(env,alertId));
+    return new Response(body,{status,headers});
    }
    const { handle } = await import('./server-application');
    return handle(request, env, execution, path);
